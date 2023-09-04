@@ -40,19 +40,19 @@ if (!$f)
 
 $flat_owner = false;
 
-foreach ($subscriber['flats'] as $flat)
+foreach ($user['flats'] as $flat)
     if ($flat['flatId'] == $flat_id) {
         $flat_owner = ($flat['role'] == 0);
 
         break;
     }
 
-$subscriber_id = (int)$subscriber['subscriberId'];
+$subscriber_id = (int)$user['subscriberId'];
 $faces = $frs->listFaces($flat_id, $subscriber_id, $flat_owner);
 $result = [];
 
 foreach ($faces as $face)
-    $result[] = ['faceId' => $face[frs::P_FACE_ID], 'image' => @$config['api']['mobile'] . '/address/plogCamshot/' . $face[frs::P_FACE_IMAGE]];
+    $result[] = ['faceId' => $face[frs::P_FACE_ID], 'image' => @config()['api']['mobile'] . '/address/plogCamshot/' . $face[frs::P_FACE_IMAGE]];
 
 if ($result) response(200, $result);
 else response(204);
