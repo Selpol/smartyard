@@ -127,9 +127,15 @@ if ($_RAW && count($_RAW))
         else if ($key == "_clearCache") $clearCache = true;
         else $params[$key] = $value;
 
-foreach ($required_backends as $backend)
-    if (backend($backend) === false)
+$params['_backends'] = [];
+
+foreach ($required_backends as $backend) {
+    $back = backend($backend);
+
+    if ($back === false)
         response(555, ["error" => "noRequiredBackend"]);
+    else $params['_backends'][] = $back;
+}
 
 $auth = false;
 
