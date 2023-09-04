@@ -96,6 +96,11 @@ function jwt(): array
 {
     global $bearer;
 
+    if (!@$_SERVER['HTTP_AUTHORIZATION'])
+        response(401, false, "Ошибка авторизации", "Ошибка авторизации");
+
+    $bearer = @trim(explode('Bearer', $_SERVER['HTTP_AUTHORIZATION'])[1]);
+
     if (!is_string($bearer))
         response(401, false, 'Не верный тип токена', 'Не верный тип токена');
 
