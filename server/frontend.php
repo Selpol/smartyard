@@ -184,28 +184,30 @@ if ($api == "server" && $method == "ping") {
     $params["_ip"] = $ip;
 
     response(200, "pong");
-} else if ($api == "authentication" && $method == "login") {
-    if (!@$params["login"] || !@$params["password"]) {
-        $params["_login"] = @$params["login"] ?: "-";
-        $params["_ip"] = $ip;
-
-        response(403, ["error" => "noCredentials"]);
-    }
 } else {
-    if ($http_authorization) {
-        $auth = backend('authentication')->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
+    if ($api == "authentication" && $method == "login") {
+        if (!@$params["login"] || !@$params["password"]) {
+            $params["_login"] = @$params["login"] ?: "-";
+            $params["_ip"] = $ip;
 
-        if (!$auth) {
+            response(403, ["error" => "noCredentials"]);
+        }
+    } else {
+        if ($http_authorization) {
+            $auth = backend('authentication')->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
+
+            if (!$auth) {
+                $params["_ip"] = $ip;
+                $params["_login"] = '-';
+
+                response(403, ["error" => "tokenNotFound"]);
+            }
+        } else {
             $params["_ip"] = $ip;
             $params["_login"] = '-';
 
-            response(403, ["error" => "tokenNotFound"]);
+            response(403, ["error" => "noToken"]);
         }
-    } else {
-        $params["_ip"] = $ip;
-        $params["_login"] = '-';
-
-        response(403, ["error" => "noToken"]);
     }
 }
 
