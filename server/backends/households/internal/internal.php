@@ -1100,11 +1100,8 @@ namespace backends\households {
             ]);
 
             if (!$subscriberId) {
-                $audJti = backend('oauth')->register($mobile);
-
-                $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, aud_jti, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :aud_jti, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
+                $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
                     "mobile" => $mobile,
-                    "aud_jti" => $audJti,
                     "subscriber_name" => $name,
                     "subscriber_patronymic" => $patronymic,
                     "registered" => time(),
