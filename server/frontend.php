@@ -175,7 +175,7 @@ function forgot($params)
     }
 
     if (@$params["available"])
-        if ($params["_backends"]["users"]->capabilities()["mode"] !== "rw" || !$params["_config"]["email"])
+        if ($params["_backends"]["users"]->capabilities()["mode"] !== "rw")
             response(403);
 
     response();
