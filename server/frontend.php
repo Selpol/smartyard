@@ -134,6 +134,53 @@ foreach ($required_backends as $backend)
 
 $auth = false;
 
+function forgot($params)
+{
+    if (@$params["eMail"]) {
+        $uid = $params["_backends"]["users"]->getUidByEMail($params["eMail"]);
+        if ($uid !== false) {
+            $keys = $params["_redis"]->keys("forgot_*_" . $uid);
+
+            if (!count($keys)) {
+                $token = md5(guid_v4());
+                $params["_redis"]->setex("forgot_" . $token . "_" . $uid, 900, "1");
+            }
+        }
+    }
+
+    if (@$params["token"]) {
+        $keys = $params["_redis"]->keys("forgot_{$params["token"]}_*");
+
+        $uid = false;
+
+        foreach ($keys as $key) {
+            $params["_redis"]->del($key);
+            $uid = explode("_", $key)[2];
+        }
+
+        if ($uid !== false) {
+            $pw = generate_password();
+            $params["_backends"]["users"]->setPassword($uid, $pw);
+            $user = $params["_backends"]["users"]->getUser($uid);
+
+            $keys = $params["_redis"]->keys("auth_*_$uid");
+
+            foreach ($keys as $key)
+                $params["_redis"]->del($key);
+
+            echo "check your mailbox for your new password";
+
+            exit;
+        }
+    }
+
+    if (@$params["available"])
+        if ($params["_backends"]["users"]->capabilities()["mode"] !== "rw" || !$params["_config"]["email"])
+            response(403);
+
+    response();
+}
+
 if ($api == "server" && $method == "ping") {
     $params["_login"] = @$params["login"] ?: "-";
     $params["_ip"] = $ip;
@@ -187,7 +234,9 @@ $params["_ip"] = $ip;
 if (@$params["_login"])
     $params["_redis"]->set("last_" . md5($params["_login"]), time());
 
-if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
+if ($api == "accounts" && $method == "forgot") {
+    forgot($params);
+} else if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
     if ($backends["authorization"]->allow($params)) {
         $cache = false;
 
@@ -228,6 +277,8 @@ if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
                     } else
                         response(555, ["error" => "resultCode",]);
                 } catch (Exception $e) {
+                    logger('frontend')->error($e);
+
                     error_log(print_r($e, true));
 
                     response(555, ["error" => "internal",]);
