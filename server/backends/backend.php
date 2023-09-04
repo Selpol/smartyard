@@ -109,6 +109,8 @@ namespace backends {
          */
         public function setCreds(int $uid, string $login)
         {
+            logger('backend')->debug('setCreds()', ['uid' => $uid, 'login' => $login]);
+
             $this->uid = $uid;
             $this->login = $login;
         }
