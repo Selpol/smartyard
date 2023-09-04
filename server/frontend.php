@@ -193,7 +193,7 @@ if ($api == "server" && $method == "ping") {
     }
 } else {
     if ($http_authorization) {
-        $auth = $backends["authentication"]->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
+        $auth = backend('authentication')->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
 
         if (!$auth) {
             $params["_ip"] = $ip;
@@ -214,8 +214,8 @@ if ($http_authorization && $auth) {
     $params["_login"] = $auth["login"];
     $params["_token"] = $auth["token"];
 
-    foreach ($backends as $backend)
-        $backend->setCreds($auth["uid"], $auth["login"]);
+//    foreach ($backends as $backend)
+//        $backend->setCreds($auth["uid"], $auth["login"]);
 }
 
 $params["_md5"] = md5(print_r($params, true));
@@ -223,8 +223,6 @@ $params["_md5"] = md5(print_r($params, true));
 $params["_config"] = config();
 $params["_redis"] = container(RedisService::class)->getRedis();
 $params["_db"] = container(DatabaseService::class);
-
-$params["_backends"] = $backends;
 
 $params["_ip"] = $ip;
 
@@ -234,7 +232,7 @@ if (@$params["_login"])
 if ($api == "accounts" && $method == "forgot") {
     forgot($params);
 } else if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
-    if ($backends["authorization"]->allow($params)) {
+    if (backend('authentication')->allow($params)) {
         $cache = false;
 
         if ($params["_request_method"] === "GET") {
