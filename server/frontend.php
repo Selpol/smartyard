@@ -127,7 +127,6 @@ if ($_RAW && count($_RAW))
         else if ($key == "_clearCache") $clearCache = true;
         else $params[$key] = $value;
 
-$backends = [];
 foreach ($required_backends as $backend)
     if (backend($backend) === false)
         response(555, ["error" => "noRequiredBackend"]);
