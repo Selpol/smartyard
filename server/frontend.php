@@ -63,7 +63,7 @@ $m = explode('/', $path);
 $api = @$m[0];
 $method = @$m[1];
 
-$params = [];
+$params = ['_backends' => []];
 
 if (count($m) >= 3)
     $params["_id"] = urldecode($m[2]);
@@ -72,6 +72,13 @@ $params["_path"] = ["api" => $api, "method" => $method];
 
 $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
 $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
+
+foreach ($required_backends as $backend) {
+    if (($back = backend($backend)) !== false)
+        $params['_backends'][] = $back;
+    else
+        response(555, ["error" => "noRequiredBackend"]);
+}
 
 $clearCache = false;
 
@@ -126,16 +133,6 @@ if ($_RAW && count($_RAW))
         else if ($key == "_refresh") $refresh = true;
         else if ($key == "_clearCache") $clearCache = true;
         else $params[$key] = $value;
-
-$params['_backends'] = [];
-
-foreach ($required_backends as $backend) {
-    $back = backend($backend);
-
-    if ($back === false)
-        response(555, ["error" => "noRequiredBackend"]);
-    else $params['_backends'][] = $back;
-}
 
 $auth = false;
 
