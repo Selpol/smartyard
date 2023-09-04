@@ -57,20 +57,17 @@ if (!$subscribers || count($subscribers) === 0) {
     if (!$name) response(400);
     if (!$patronymic) response(400);
 
-    if ($households->addSubscriber($mobile, $name, $patronymic, $flat_id)) {
+    if ($households->addSubscriber($mobile, $name, $patronymic)) {
         $subscribers = $households->getSubscribers('mobile', $mobile);
 
         if (count($subscribers) > 0)
             $households->modifySubscriber($subscribers[0]['subscriberId'], ['audJti' => $audJti]);
+    } else response(422, 'Не удалось зарегестрироваться');
+}
 
-        response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-    } else response(422);
-} else {
+if ($subscribers && count($subscribers) > 0) {
     $subscriber = $subscribers[0];
 
-    $households->modifySubscriber($subscriber['subscriberId'], ['audJti' => $audJti]);
-
-    //проверка регистрации пользователя в квартире
     foreach ($subscriber['flats'] as $item)
         if ((int)$item['flatId'] == $flat_id)
             response(200, "У вас уже есть доступ к данной квартире");
@@ -78,4 +75,4 @@ if (!$subscribers || count($subscribers) === 0) {
     if ($households->addSubscriber($subscriber["mobile"], null, null, $flat_id))
         response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
     else response(422);
-}
+} else response(404);
