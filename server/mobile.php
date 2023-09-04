@@ -97,10 +97,10 @@ function jwt(): array
     global $bearer;
 
     if (!is_string($bearer))
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Не верный тип токена', 'Не верный тип токена');
 
     if (substr_count($bearer, '.') !== 2)
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Не верный формат токена', 'Не верный формат токена');
 
     list($header, $payload, $signature) = explode('.', $bearer);
     $decoded_signature = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signature));
@@ -108,23 +108,23 @@ function jwt(): array
     try {
         $oauth = config('backends.oauth');
     } catch (Exception) {
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Не удалось проверить токен', 'Не удалось проверить токен');
     }
 
     $publicKey = file_get_contents($oauth['public_key']);
 
     if (openssl_verify(utf8_decode($header . '.' . $payload), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Токен был изменен', 'Токен был изменен');
 
     $jwt = json_decode(base64_decode($payload), true);
 
     if (time() <= $jwt['nbf'] || time() >= $jwt['exp'])
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Время действия токена истекло', 'Время действия токена истекло');
 
     $audience = explode(',', $oauth['audience']);
 
     if (!in_array($jwt['aud'], $audience) || !array_key_exists('scopes', $jwt) || !array_key_exists(1, $jwt['scopes']))
-        response(401, false, 'Не авторизован', 'Не авторизован');
+        response(401, false, 'Не верный тип токена', 'Не верный тип токена');
 
     return $jwt;
 }
