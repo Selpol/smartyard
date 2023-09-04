@@ -1153,9 +1153,7 @@ namespace backends\households {
                     return false;
                 }
 
-                $audJti = backend('oauth')->register($params["mobile"]);
-
-                if ($this->db->modify("update houses_subscribers_mobile set id = :id, :aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["id" => $params["mobile"], 'aud_jti' => $audJti]) === false) {
+                if ($this->db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = $subscriberId", ["id" => $params["mobile"]]) === false) {
                     return false;
                 }
             }
