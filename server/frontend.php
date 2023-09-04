@@ -161,7 +161,6 @@ function forgot($params)
         if ($uid !== false) {
             $pw = generate_password();
             $params["_backends"]["users"]->setPassword($uid, $pw);
-            $user = $params["_backends"]["users"]->getUser($uid);
 
             $keys = $params["_redis"]->keys("auth_*_$uid");
 
@@ -186,31 +185,30 @@ if ($api == "server" && $method == "ping") {
     $params["_ip"] = $ip;
 
     response(200, "pong");
-} else
-    if ($api == "authentication" && $method == "login") {
-        if (!@$params["login"] || !@$params["password"]) {
-            $params["_login"] = @$params["login"] ?: "-";
-            $params["_ip"] = $ip;
+} else if ($api == "authentication" && $method == "login") {
+    if (!@$params["login"] || !@$params["password"]) {
+        $params["_login"] = @$params["login"] ?: "-";
+        $params["_ip"] = $ip;
 
-            response(403, ["error" => "noCredentials"]);
-        }
-    } else {
-        if ($http_authorization) {
-            $auth = $backends["authentication"]->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
+        response(403, ["error" => "noCredentials"]);
+    }
+} else {
+    if ($http_authorization) {
+        $auth = $backends["authentication"]->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
 
-            if (!$auth) {
-                $params["_ip"] = $ip;
-                $params["_login"] = '-';
-
-                response(403, ["error" => "tokenNotFound"]);
-            }
-        } else {
+        if (!$auth) {
             $params["_ip"] = $ip;
             $params["_login"] = '-';
 
-            response(403, ["error" => "noToken"]);
+            response(403, ["error" => "tokenNotFound"]);
         }
+    } else {
+        $params["_ip"] = $ip;
+        $params["_login"] = '-';
+
+        response(403, ["error" => "noToken"]);
     }
+}
 
 if ($http_authorization && $auth) {
     $params["_uid"] = $auth["uid"];
