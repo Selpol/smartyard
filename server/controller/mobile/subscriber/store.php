@@ -38,8 +38,9 @@ if (isset($postdata)) {
 
     $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
 
-    if (!$subscribers || count($subscribers) === 0)
-        response(404, message: 'Житель не зарегестрирован');
+    if (!$subscribers || count($subscribers) === 0) {
+        $subscribers = $households->addSubscriber($validate['mobile'], '', '');
+    }
 
     $subscriber = $subscribers[0];
 
