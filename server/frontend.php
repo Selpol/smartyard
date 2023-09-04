@@ -184,30 +184,30 @@ if ($api == "server" && $method == "ping") {
     $params["_ip"] = $ip;
 
     response(200, "pong");
+}
+
+if ($api == "authentication" && $method == "login") {
+    if (!@$params["login"] || !@$params["password"]) {
+        $params["_login"] = @$params["login"] ?: "-";
+        $params["_ip"] = $ip;
+
+        response(403, ["error" => "noCredentials"]);
+    }
 } else {
-    if ($api == "authentication" && $method == "login") {
-        if (!@$params["login"] || !@$params["password"]) {
-            $params["_login"] = @$params["login"] ?: "-";
-            $params["_ip"] = $ip;
+    if ($http_authorization) {
+        $auth = backend('authentication')->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
 
-            response(403, ["error" => "noCredentials"]);
-        }
-    } else {
-        if ($http_authorization) {
-            $auth = backend('authentication')->auth($http_authorization, @$_SERVER["HTTP_USER_AGENT"], $ip);
-
-            if (!$auth) {
-                $params["_ip"] = $ip;
-                $params["_login"] = '-';
-
-                response(403, ["error" => "tokenNotFound"]);
-            }
-        } else {
+        if (!$auth) {
             $params["_ip"] = $ip;
             $params["_login"] = '-';
 
-            response(403, ["error" => "noToken"]);
+            response(403, ["error" => "tokenNotFound"]);
         }
+    } else {
+        $params["_ip"] = $ip;
+        $params["_login"] = '-';
+
+        response(403, ["error" => "noToken"]);
     }
 }
 
@@ -234,55 +234,53 @@ if (@$params["_login"])
 if ($api == "accounts" && $method == "forgot") {
     forgot($params);
 } else if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
-    if (backend('authentication')->allow($params)) {
-        $cache = false;
+    $cache = false;
 
-        if ($params["_request_method"] === "GET") {
+    if ($params["_request_method"] === "GET") {
+        try {
+            $cache = json_decode($params["_redis"]->get("cache_" . $params["_md5"]) . "_" . $auth["uid"], true);
+        } catch (Exception $e) {
+            error_log(print_r($e, true));
+        }
+    }
+
+    if ($cache && !$refresh) {
+        header("X-Api-Data-Source: cache_" . $params["_md5"] . "_" . $auth["uid"]);
+        $code = array_key_first($cache);
+
+        response($code, $cache[$code]);
+    } else {
+        header("X-Api-Data-Source: db");
+
+        if ($clearCache)
+            clear_cache($auth["uid"]);
+
+        require_once path("controller/api/{$api}/{$method}.php");
+
+        if (class_exists("\\api\\$api\\$method")) {
             try {
-                $cache = json_decode($params["_redis"]->get("cache_" . $params["_md5"]) . "_" . $auth["uid"], true);
+                $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
+
+                $code = array_key_first($result);
+
+                if ((int)$code) {
+                    if ($params["_request_method"] == "GET" && (int)$code === 200) {
+                        $ttl = (array_key_exists("cache", $result)) ? ((int)$cache) : $redis_cache_ttl;
+                        $params["_redis"]->setex("cache_" . $params["_md5"] . "_" . $auth["uid"], $ttl, json_encode($result));
+                    }
+
+                    response($code, $result[$code]);
+                } else
+                    response(555, ["error" => "resultCode",]);
             } catch (Exception $e) {
+                logger('frontend')->error($e);
+
                 error_log(print_r($e, true));
+
+                response(555, ["error" => "internal",]);
             }
-        }
-
-        if ($cache && !$refresh) {
-            header("X-Api-Data-Source: cache_" . $params["_md5"] . "_" . $auth["uid"]);
-            $code = array_key_first($cache);
-
-            response($code, $cache[$code]);
-        } else {
-            header("X-Api-Data-Source: db");
-
-            if ($clearCache)
-                clear_cache($auth["uid"]);
-
-            require_once path("controller/api/{$api}/{$method}.php");
-
-            if (class_exists("\\api\\$api\\$method")) {
-                try {
-                    $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
-
-                    $code = array_key_first($result);
-
-                    if ((int)$code) {
-                        if ($params["_request_method"] == "GET" && (int)$code === 200) {
-                            $ttl = (array_key_exists("cache", $result)) ? ((int)$cache) : $redis_cache_ttl;
-                            $params["_redis"]->setex("cache_" . $params["_md5"] . "_" . $auth["uid"], $ttl, json_encode($result));
-                        }
-
-                        response($code, $result[$code]);
-                    } else
-                        response(555, ["error" => "resultCode",]);
-                } catch (Exception $e) {
-                    logger('frontend')->error($e);
-
-                    error_log(print_r($e, true));
-
-                    response(555, ["error" => "internal",]);
-                }
-            } else response(405, ["error" => "methodNotFound",]);
-        }
-    } else response(403, ["error" => "accessDenied",]);
+        } else response(405, ["error" => "methodNotFound",]);
+    }
 }
 
 response(404, ["error" => "methodNotFound"]);
