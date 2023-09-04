@@ -15,86 +15,6 @@ namespace backends\households {
         /**
          * @inheritDoc
          */
-        function getFlat($flatId)
-        {
-            if (!check_int($flatId)) {
-                return false;
-            }
-
-            $flat = $this->db->get("
-                    select
-                        house_flat_id,
-                        floor, 
-                        flat,
-                        code,
-                        plog,
-                        coalesce(manual_block, 0) manual_block, 
-                        coalesce(admin_block, 0) admin_block,
-                        coalesce(auto_block, 0) auto_block, 
-                        open_code, 
-                        auto_open, 
-                        white_rabbit, 
-                        sip_enabled, 
-                        sip_password,
-                        last_opened,
-                        cms_enabled
-                    from
-                        houses_flats
-                    where
-                        house_flat_id = $flatId
-                ", false, [
-                "house_flat_id" => "flatId",
-                "floor" => "floor",
-                "flat" => "flat",
-                "code" => "code",
-                "plog" => "plog",
-                "manual_block" => "manualBlock",
-                "admin_block" => "adminBlock",
-                "auto_block" => "autoBlock",
-                "open_code" => "openCode",
-                "auto_open" => "autoOpen",
-                "white_rabbit" => "whiteRabbit",
-                "sip_enabled" => "sipEnabled",
-                "sip_password" => "sipPassword",
-                "last_opened" => "lastOpened",
-                "cms_enabled" => "cmsEnabled",
-            ],
-                [
-                    "singlify"
-                ]);
-
-            if ($flat) {
-                $entrances = $this->db->get("
-                        select
-                            house_entrance_id,
-                            house_domophone_id, 
-                            apartment, 
-                            coalesce(houses_entrances_flats.cms_levels, houses_entrances.cms_levels, '') cms_levels,
-                            (select count(*) from houses_entrances_cmses where houses_entrances_cmses.house_entrance_id = houses_entrances_flats.house_entrance_id and houses_entrances_cmses.apartment = houses_entrances_flats.apartment) matrix
-                        from 
-                            houses_entrances_flats
-                                left join houses_entrances using (house_entrance_id)
-                        where house_flat_id = {$flat["flatId"]}
-                    ", false, [
-                    "house_entrance_id" => "entranceId",
-                    "apartment" => "apartment",
-                    "cms_levels" => "apartmentLevels",
-                    "house_domophone_id" => "domophoneId",
-                    "matrix" => "matrix"
-                ]);
-                $flat["entrances"] = [];
-                foreach ($entrances as $e) {
-                    $flat["entrances"][] = $e;
-                }
-                return $flat;
-            }
-
-            return false;
-        }
-
-        /**
-         * @inheritDoc
-         */
         public function getFlatPlog(int $flatId): ?int
         {
             $result = $this->db->get("
@@ -288,6 +208,86 @@ namespace backends\households {
             } else {
                 return [];
             }
+        }
+
+        /**
+         * @inheritDoc
+         */
+        function getFlat($flatId)
+        {
+            if (!check_int($flatId)) {
+                return false;
+            }
+
+            $flat = $this->db->get("
+                    select
+                        house_flat_id,
+                        floor, 
+                        flat,
+                        code,
+                        plog,
+                        coalesce(manual_block, 0) manual_block, 
+                        coalesce(admin_block, 0) admin_block,
+                        coalesce(auto_block, 0) auto_block, 
+                        open_code, 
+                        auto_open, 
+                        white_rabbit, 
+                        sip_enabled, 
+                        sip_password,
+                        last_opened,
+                        cms_enabled
+                    from
+                        houses_flats
+                    where
+                        house_flat_id = $flatId
+                ", false, [
+                "house_flat_id" => "flatId",
+                "floor" => "floor",
+                "flat" => "flat",
+                "code" => "code",
+                "plog" => "plog",
+                "manual_block" => "manualBlock",
+                "admin_block" => "adminBlock",
+                "auto_block" => "autoBlock",
+                "open_code" => "openCode",
+                "auto_open" => "autoOpen",
+                "white_rabbit" => "whiteRabbit",
+                "sip_enabled" => "sipEnabled",
+                "sip_password" => "sipPassword",
+                "last_opened" => "lastOpened",
+                "cms_enabled" => "cmsEnabled",
+            ],
+                [
+                    "singlify"
+                ]);
+
+            if ($flat) {
+                $entrances = $this->db->get("
+                        select
+                            house_entrance_id,
+                            house_domophone_id, 
+                            apartment, 
+                            coalesce(houses_entrances_flats.cms_levels, houses_entrances.cms_levels, '') cms_levels,
+                            (select count(*) from houses_entrances_cmses where houses_entrances_cmses.house_entrance_id = houses_entrances_flats.house_entrance_id and houses_entrances_cmses.apartment = houses_entrances_flats.apartment) matrix
+                        from 
+                            houses_entrances_flats
+                                left join houses_entrances using (house_entrance_id)
+                        where house_flat_id = {$flat["flatId"]}
+                    ", false, [
+                    "house_entrance_id" => "entranceId",
+                    "apartment" => "apartment",
+                    "cms_levels" => "apartmentLevels",
+                    "house_domophone_id" => "domophoneId",
+                    "matrix" => "matrix"
+                ]);
+                $flat["entrances"] = [];
+                foreach ($entrances as $e) {
+                    $flat["entrances"][] = $e;
+                }
+                return $flat;
+            }
+
+            return false;
         }
 
         /**
@@ -1100,8 +1100,11 @@ namespace backends\households {
             ]);
 
             if (!$subscriberId) {
-                $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
+                $audJti = backend('oauth')->register($mobile);
+
+                $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, aud_jti, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :aud_jti, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
                     "mobile" => $mobile,
+                    "aud_jti" => $audJti,
                     "subscriber_name" => $name,
                     "subscriber_patronymic" => $patronymic,
                     "registered" => time(),
@@ -1141,55 +1144,6 @@ namespace backends\households {
         /**
          * @inheritDoc
          */
-        public function deleteSubscriber($subscriberId)
-        {
-            if (!check_int($subscriberId)) {
-                return false;
-            }
-
-            $result = $this->db->modify("delete from houses_subscribers_mobile where house_subscriber_id = $subscriberId");
-
-            if ($result === false) {
-                return false;
-            } else {
-                return $this->db->modify("delete from houses_flats_subscribers where house_subscriber_id not in (select house_subscriber_id from houses_subscribers_mobile)");
-            }
-        }
-
-        public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
-        {
-            return $this->db->insert(
-                "insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, :role)",
-                [
-                    "house_subscriber_id" => $subscriberId,
-                    "house_flat_id" => $flatId,
-                    "role" => 1,
-                ]
-            );
-        }
-
-        /**
-         * @inheritDoc
-         */
-        public function removeSubscriberFromFlat($flatId, $subscriberId)
-        {
-            if (!check_int($flatId)) {
-                return false;
-            }
-
-            if (!check_int($subscriberId)) {
-                return false;
-            }
-
-            return $this->db->modify("delete from houses_flats_subscribers where house_subscriber_id = :house_subscriber_id and house_flat_id = :house_flat_id", [
-                "house_flat_id" => $flatId,
-                "house_subscriber_id" => $subscriberId,
-            ]);
-        }
-
-        /**
-         * @inheritDoc
-         */
         public function modifySubscriber($subscriberId, $params = [])
         {
             if (!check_int($subscriberId)) {
@@ -1202,7 +1156,20 @@ namespace backends\households {
                     return false;
                 }
 
-                if ($this->db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = $subscriberId", ["id" => $params["mobile"]]) === false) {
+                $audJti = backend('oauth')->register($params["mobile"]);
+
+                if ($this->db->modify("update houses_subscribers_mobile set id = :id, :aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["id" => $params["mobile"], 'aud_jti' => $audJti]) === false) {
+                    return false;
+                }
+            }
+
+            if (@$params['audJti']) {
+                if (!check_string($params['audJti'])) {
+                    last_error("invalidParams");
+                    return false;
+                }
+
+                if ($this->db->modify("update houses_subscribers_mobile set aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["aud_jti" => $params["audJti"]]) === false) {
                     return false;
                 }
             }
@@ -1300,6 +1267,55 @@ namespace backends\households {
             }
 
             return true;
+        }
+
+        /**
+         * @inheritDoc
+         */
+        public function deleteSubscriber($subscriberId)
+        {
+            if (!check_int($subscriberId)) {
+                return false;
+            }
+
+            $result = $this->db->modify("delete from houses_subscribers_mobile where house_subscriber_id = $subscriberId");
+
+            if ($result === false) {
+                return false;
+            } else {
+                return $this->db->modify("delete from houses_flats_subscribers where house_subscriber_id not in (select house_subscriber_id from houses_subscribers_mobile)");
+            }
+        }
+
+        public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
+        {
+            return $this->db->insert(
+                "insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, :role)",
+                [
+                    "house_subscriber_id" => $subscriberId,
+                    "house_flat_id" => $flatId,
+                    "role" => 1,
+                ]
+            );
+        }
+
+        /**
+         * @inheritDoc
+         */
+        public function removeSubscriberFromFlat($flatId, $subscriberId)
+        {
+            if (!check_int($flatId)) {
+                return false;
+            }
+
+            if (!check_int($subscriberId)) {
+                return false;
+            }
+
+            return $this->db->modify("delete from houses_flats_subscribers where house_subscriber_id = :house_subscriber_id and house_flat_id = :house_flat_id", [
+                "house_flat_id" => $flatId,
+                "house_subscriber_id" => $subscriberId,
+            ]);
         }
 
         /**
@@ -1524,69 +1540,6 @@ namespace backends\households {
         /**
          * @inheritDoc
          */
-        public function getCameras($by, $params)
-        {
-
-            $cameras = backend("cameras");
-
-            if (!$cameras) {
-                return false;
-            }
-
-            $q = "";
-            $p = false;
-
-            switch ($by) {
-                case "id":
-                    if (!check_int($params)) {
-                        return [];
-                    }
-                    $q = "select camera_id from cameras where camera_id = $params";
-                    break;
-
-                case "houseId":
-                    if (!check_int($params)) {
-                        return [];
-                    }
-                    $q = "select camera_id from houses_cameras_houses where address_house_id = $params";
-                    break;
-
-                case "flatId":
-                    if (!check_int($params)) {
-                        return [];
-                    }
-                    $q = "select camera_id from houses_cameras_flats where house_flat_id = $params";
-                    break;
-
-                case "subscriberId":
-                    if (!check_int($params)) {
-                        return [];
-                    }
-                    $q = "select camera_id from houses_cameras_subscribers where house_subscriber_id = $params";
-                    break;
-            }
-
-            if ($q) {
-                $list = [];
-
-                $ids = $this->db->get($q, $p, [
-                    "camera_id" => "cameraId",
-                ]);
-
-                foreach ($ids as $id) {
-                    $cam = $cameras->getCamera($id["cameraId"]);
-                    $list[] = $cam;
-                }
-
-                return $list;
-            } else {
-                return [];
-            }
-        }
-
-        /**
-         * @inheritDoc
-         */
         public function addCamera($to, $id, $cameraId)
         {
             switch ($to) {
@@ -1640,6 +1593,32 @@ namespace backends\households {
             }
 
             return false;
+        }
+
+        /**
+         * @inheritDoc
+         */
+        public function cron($part): bool
+        {
+            if ($part === "hourly") {
+                $domophones = $this->db->get("select house_domophone_id, url from houses_domophones");
+
+                foreach ($domophones as $domophone) {
+                    $ip = gethostbyname(parse_url($domophone['url'], PHP_URL_HOST));
+
+                    if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+                        $this->db->modify("update houses_domophones set ip = :ip where house_domophone_id = " . $domophone['house_domophone_id'], [
+                            "ip" => $ip,
+                        ]);
+                    }
+                }
+            }
+
+            if ($part === "5min") {
+                $this->cleanup();
+            }
+
+            return true;
         }
 
         /**
@@ -1743,27 +1722,64 @@ namespace backends\households {
         /**
          * @inheritDoc
          */
-        public function cron($part): bool
+        public function getCameras($by, $params)
         {
-            if ($part === "hourly") {
-                $domophones = $this->db->get("select house_domophone_id, url from houses_domophones");
 
-                foreach ($domophones as $domophone) {
-                    $ip = gethostbyname(parse_url($domophone['url'], PHP_URL_HOST));
+            $cameras = backend("cameras");
 
-                    if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
-                        $this->db->modify("update houses_domophones set ip = :ip where house_domophone_id = " . $domophone['house_domophone_id'], [
-                            "ip" => $ip,
-                        ]);
+            if (!$cameras) {
+                return false;
+            }
+
+            $q = "";
+            $p = false;
+
+            switch ($by) {
+                case "id":
+                    if (!check_int($params)) {
+                        return [];
                     }
+                    $q = "select camera_id from cameras where camera_id = $params";
+                    break;
+
+                case "houseId":
+                    if (!check_int($params)) {
+                        return [];
+                    }
+                    $q = "select camera_id from houses_cameras_houses where address_house_id = $params";
+                    break;
+
+                case "flatId":
+                    if (!check_int($params)) {
+                        return [];
+                    }
+                    $q = "select camera_id from houses_cameras_flats where house_flat_id = $params";
+                    break;
+
+                case "subscriberId":
+                    if (!check_int($params)) {
+                        return [];
+                    }
+                    $q = "select camera_id from houses_cameras_subscribers where house_subscriber_id = $params";
+                    break;
+            }
+
+            if ($q) {
+                $list = [];
+
+                $ids = $this->db->get($q, $p, [
+                    "camera_id" => "cameraId",
+                ]);
+
+                foreach ($ids as $id) {
+                    $cam = $cameras->getCamera($id["cameraId"]);
+                    $list[] = $cam;
                 }
-            }
 
-            if ($part === "5min") {
-                $this->cleanup();
+                return $list;
+            } else {
+                return [];
             }
-
-            return true;
         }
     }
 }

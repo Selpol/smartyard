@@ -6,6 +6,6 @@ namespace backends\oauth {
 
     abstract class oauth extends backend
     {
-
+        public abstract function register(string $mobile): ?string;
     }
 }
