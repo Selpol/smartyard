@@ -74,8 +74,8 @@ $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
 $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
 
 foreach ($required_backends as $backend) {
-    if (($back = backend($backend)) !== false)
-        $params['_backends'][] = $back;
+    if (($load = backend($backend)) !== false)
+        $params['_backends'][] = $load;
     else
         response(555, ["error" => "noRequiredBackend"]);
 }
@@ -262,6 +262,7 @@ if ($api == "accounts" && $method == "forgot") {
 
         if (class_exists("\\api\\$api\\$method")) {
             try {
+                logger('frontend')->debug('request', $params);
                 $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
 
                 $code = array_key_first($result);
