@@ -21,6 +21,8 @@ namespace backends\authorization {
 
         public function allow($params): bool
         {
+            logger('allow')->debug('allow()', ['params' => $params]);
+
             return true;
         }
 

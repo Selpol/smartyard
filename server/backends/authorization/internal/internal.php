@@ -21,8 +21,6 @@ namespace backends\authorization {
 
         public function allow($params): bool
         {
-            logger('authorization')->debug('allow()', ['params' => $params]);
-
             if ($params["_path"]["api"] === "authentication" && $params["_path"]["method"] === "login") {
                 return true;
             }
