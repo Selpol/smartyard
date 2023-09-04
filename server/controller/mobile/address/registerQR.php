@@ -13,12 +13,15 @@
  * @apiParam {String} QR QR код
  */
 
-$user = auth();
+/** @var array $postdata */
+
+$jwt = jwt();
+$audJti = $jwt['scopes'][1];
 
 $code = trim(@$postdata['QR']);
 
 if (!$code)
-    response(404);
+    response(400, false, 'Неверный формат QR кода', 'Неверный формат QR кода');
 
 //полагаем, что хэш квартиры является суффиксом параметра QR
 $hash = '';
@@ -41,11 +44,31 @@ if (!$flat)
 
 $flat_id = (int)$flat["flatId"];
 
-//проверка регистрации пользователя в квартире
-foreach ($user['flats'] as $item)
-    if ((int)$item['flatId'] == $flat_id)
-        response(200, "У вас уже есть доступ к данной квартире");
+$subscribers = $households->getSubscribers('aud_jti', $audJti);
 
-if ($households->addSubscriber($user["mobile"], null, null, $flat_id))
-    response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-else response(422);
+if (!$subscribers || count($subscribers) === 0) {
+    $mobile = trim(@$postdata['mobile']);
+    $name = trim(@$postdata['name']);
+    $patronymic = trim(@$postdata['patronymic']);
+
+    if (strlen($mobile) !== 11)
+        response(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
+
+    if (!$name) response(400);
+    if (!$patronymic) response(400);
+
+    if ($households->addSubscriber($mobile, $name, $patronymic, $flat_id))
+        response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
+    else response(422);
+} else {
+    $subscriber = $subscribers[0];
+
+    //проверка регистрации пользователя в квартире
+    foreach ($subscriber['flats'] as $item)
+        if ((int)$item['flatId'] == $flat_id)
+            response(200, "У вас уже есть доступ к данной квартире");
+
+    if ($households->addSubscriber($subscriber["mobile"], null, null, $flat_id))
+        response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
+    else response(422);
+}

@@ -92,6 +92,43 @@ function response($code = 204, $data = false, $name = false, $message = false)
     exit;
 }
 
+function jwt(): array
+{
+    global $bearer;
+
+    if (!is_string($bearer))
+        response(401, false, 'Не авторизован', 'Не авторизован');
+
+    if (substr_count($bearer, '.') !== 2)
+        response(401, false, 'Не авторизован', 'Не авторизован');
+
+    list($header, $payload, $signature) = explode('.', $bearer);
+    $decoded_signature = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signature));
+
+    try {
+        $oauth = config('backends.oauth');
+    } catch (Exception) {
+        response(401, false, 'Не авторизован', 'Не авторизован');
+    }
+
+    $publicKey = file_get_contents($oauth['public_key']);
+
+    if (openssl_verify(utf8_decode($header . '.' . $payload), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
+        response(401, false, 'Не авторизован', 'Не авторизован');
+
+    $jwt = json_decode(base64_decode($payload), true);
+
+    if (time() <= $jwt['nbf'] || time() >= $jwt['exp'])
+        response(401, false, 'Не авторизован', 'Не авторизован');
+
+    $audience = explode(',', $oauth['audience']);
+
+    if (!in_array($jwt['aud'], $audience) || !array_key_exists('scopes', $jwt) || !array_key_exists(1, $jwt['scopes']))
+        response(401, false, 'Не авторизован', 'Не авторизован');
+
+    return $jwt;
+}
+
 function auth($_response_cache_ttl = -1): array
 {
     global $_SERVER, $bearer, $response_cache_ttl, $subscriber;
@@ -125,30 +162,7 @@ function auth($_response_cache_ttl = -1): array
             response(422, false, "Отсутствует токен авторизации", "Отсутствует токен авторизации");
 
         if (substr_count($bearer, '.') == 2) {
-            list($header, $payload, $signature) = explode('.', $bearer);
-
-            $decoded_signature = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signature));
-
-            try {
-                $oauth = config('backends.oauth');
-            } catch (Exception) {
-                response(401, false, 'Не авторизован', 'Не авторизован');
-            }
-
-            $publicKey = file_get_contents($oauth['public_key']);
-
-            if (openssl_verify(utf8_decode($header . '.' . $payload), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
-                response(401, false, 'Не авторизован', 'Не авторизован');
-
-            $jwt = json_decode(base64_decode($payload), true);
-
-            if (time() <= $jwt['nbf'] || time() >= $jwt['exp'])
-                response(401, false, 'Не авторизован', 'Не авторизован');
-
-            $audience = explode(',', $oauth['audience']);
-
-            if (!in_array($jwt['aud'], $audience) || !array_key_exists('scopes', $jwt) || !array_key_exists(1, $jwt['scopes']))
-                response(401, false, 'Не авторизован', 'Не авторизован');
+            $jwt = jwt();
 
             $subscribers = $households->getSubscribers('aud_jti', $jwt['scopes'][1]);
 
