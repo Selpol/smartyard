@@ -19,7 +19,7 @@ namespace backends\authorization {
          * @return boolean allow or not
          */
 
-        public function allow($params)
+        public function allow($params): bool
         {
             if ($params["_path"]["api"] === "authentication" && $params["_path"]["method"] === "login") {
                 return true;
