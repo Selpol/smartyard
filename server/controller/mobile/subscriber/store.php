@@ -39,7 +39,17 @@ if (isset($postdata)) {
     $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
 
     if (!$subscribers || count($subscribers) === 0) {
-        $subscribers = $households->addSubscriber($validate['mobile'], '', '');
+        $households->addSubscriber($validate['mobile'], '', '');
+
+        $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
+
+        if ($subscribers && count($subscribers) > 0) {
+            $oauth = backend('oauth');
+            $autJti = $oauth->register($validate['mobile']);
+
+            if ($autJti)
+                $households->modifySubscriber($subscribers[0]['subscriberId'], ['aud_jti' => $autJti]);
+        }
     }
 
     $subscriber = $subscribers[0];
