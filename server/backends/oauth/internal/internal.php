@@ -27,6 +27,8 @@ namespace backends\oauth {
                 $response = curl_exec($request);
                 $body = json_decode($response, true);
 
+                logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, $body);
+
                 if ($body['success'])
                     return $body['data'];
             }

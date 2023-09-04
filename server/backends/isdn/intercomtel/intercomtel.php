@@ -80,7 +80,7 @@ namespace backends\isdn {
 
             curl_close($request);
 
-            $this->logger->error('Send notification via Intercomtel ' . $idsn['endpoint'] . $endpoint, json_decode($response, true));
+            $this->logger->debug('Send notification via Intercomtel ' . $idsn['endpoint'] . $endpoint, json_decode($response, true));
 
             return false;
         }
