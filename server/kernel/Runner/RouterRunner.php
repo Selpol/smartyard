@@ -11,6 +11,7 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Container\Container;
 use Selpol\Http\HttpException;
+use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
@@ -58,7 +59,9 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             ));
         }
 
-        return $this->emit($http->createResponse(404)->withJson(['success' => false]));
+        return $this->emit($http
+            ->createResponse(404)
+            ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]));
     }
 
     /**
@@ -72,23 +75,31 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             $http = $request->getAttribute('http');
 
             if ($http === null)
-                return $http->createResponse(404)->withJson(['success' => false]);
+                return $http
+                    ->createResponse(404)
+                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
 
             /** @var RouterMatch $route */
             $route = $request->getAttribute('route');
 
             if ($route === null)
-                return $http->createResponse(404)->withJson(['success' => false]);
+                return $http
+                    ->createResponse(404)
+                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
 
             if ($route->getMethod() === 'file') {
                 if (!file_exists($route->getClass()))
-                    return $http->createResponse(404)->withJson(['success' => false]);
+                    return $http
+                        ->createResponse(404)
+                        ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
 
                 return require_once $route->getClass();
             } else if (!class_exists($route->getClass())) {
                 var_dump($route->getClass());
 
-                return $http->createResponse(404)->withJson(['success' => false]);
+                return $http
+                    ->createResponse(404)
+                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
             }
 
             $class = $route->getClass();
@@ -117,7 +128,7 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
                     ->withJson(['code' => $throwable->getCode(), 'message' => $throwable->getMessage()]);
             else $response = container(HttpService::class)
                 ->createResponse(500)
-                ->withJson(['code' => 500, 'message' => 'Внутренняя ошибка сервера']);
+                ->withJson(['code' => 500, 'name' => Response::$codes[500]['name'], 'message' => 'Внутренняя ошибка сервера']);
 
             return $this->emit($response);
         } catch (Throwable $throwable) {
