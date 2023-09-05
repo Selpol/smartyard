@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Selpol\Http\Response;
 use Selpol\Service\HttpService;
 
 class InternalMiddleware implements MiddlewareInterface
@@ -25,7 +26,8 @@ class InternalMiddleware implements MiddlewareInterface
             /** @var HttpService $http */
             $http = $request->getAttribute('http');
 
-            return $http->createResponse(404)->withJson(['success' => false]);
+            return $http->createResponse(404)
+                ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
         }
 
         foreach ($this->trust as $item)
@@ -35,7 +37,8 @@ class InternalMiddleware implements MiddlewareInterface
         /** @var HttpService $http */
         $http = $request->getAttribute('http');
 
-        return $http->createResponse(404)->withJson(['success' => false]);
+        return $http->createResponse(404)
+            ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
     }
 
     private function ipInRange(string $ip, string $range): bool
