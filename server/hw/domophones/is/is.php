@@ -20,12 +20,6 @@ namespace hw\domophones {
         {
             $req = $this->url . $resource;
 
-            // TODO: delete later
-            echo $method . PHP_EOL;
-            echo $req . PHP_EOL;
-            echo 'Payload: ' . json_encode($payload) . PHP_EOL;
-            echo '---------------------------------' . PHP_EOL;
-
             $ch = curl_init($req);
 
             curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);

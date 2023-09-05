@@ -167,7 +167,7 @@ class IntercomController extends Controller
                 }
             }
 
-            if ($blocked == false)
+            if (!$blocked)
                 break;
         }
 
@@ -186,6 +186,7 @@ class IntercomController extends Controller
             } catch (Exception) {
                 return $this->rbtResponse(404, name: 'Ошибка', message: 'Домофон недоступен');
             }
+
             return $this->rbtResponse();
         }
 
