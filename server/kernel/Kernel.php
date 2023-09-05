@@ -23,10 +23,8 @@ class Kernel
 
     public function getContainer(): Container
     {
-        if (!isset($this->container)) {
-            $this->container = Container::file(path('config/container.php'));
-            $this->container->set(Kernel::class, $this);
-        }
+        if (!isset($this->container))
+            $this->container = new Container();
 
         return $this->container;
     }
@@ -59,16 +57,16 @@ class Kernel
         return $this;
     }
 
-    public function bootstrap(bool $lazy = true): static
+    public function bootstrap(): static
     {
         mb_internal_encoding('UTF-8');
 
-        if (!$lazy && !isset($this->container))
-            $this->container = Container::file(path('config/container.php'));
-
-        register_shutdown_function([$this, 'shutdown']);
+        $this->container = new Container();
 
         require_once path('backends/backend.php');
+
+        register_shutdown_function([$this, 'shutdown']);
+        //set_error_handler([$this, 'error']);
 
         return $this;
     }
@@ -79,13 +77,13 @@ class Kernel
             return $this->runner->__invoke($this);
         } catch (Throwable $throwable) {
             if (isset($this->runner))
-                return $this->runner->onFailed($throwable);
+                return $this->runner->onFailed($throwable, false);
 
             return 1;
         }
     }
 
-    private function shutdown()
+    private function shutdown(): void
     {
         foreach ($this->shutdownCallbacks as $callback)
             $callback($this);
@@ -93,6 +91,13 @@ class Kernel
         if (isset($this->container))
             $this->container->dispose();
     }
+
+//    public function error(int $errno, string $errstr, ?string $errfile = null, ?int $errline = null, ?array $errcontext = null): void
+//    {
+//        logger('kernel')->emergency('Kernel error', ['errno' => $errno, 'errstr' => $errstr, 'errfile' => $errline, 'errline' => $errfile, 'errcontext' => $errcontext]);
+//
+//        exit($this->runner->onFailed(new RuntimeException(), true));
+//    }
 
     public static function instance(): ?Kernel
     {

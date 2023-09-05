@@ -1,7 +1,6 @@
 <?php
 
 namespace PHPSTORM_META {
-
     override(
         \backend(0),
         map([
@@ -20,17 +19,10 @@ namespace PHPSTORM_META {
             'households' => \backends\households\households::class,
             'inbox' => \backends\inbox\inbox::class,
             'isdn' => \backends\isdn\isdn::class,
-            'oauth' => \backends\oauth\oauth::class,
             'plog' => \backends\plog\plog::class,
             'queue' => \backends\queue\queue::class,
             'sip' => \backends\sip\sip::class,
             'users' => \backends\users\users::class
         ])
     );
-
-    override(\Selpol\Container\Container::get(0), map(['' => '@']));
-    override(\container(0), map(['' => '@']));
-
-    exitPoint(\response());
-    exitPoint(\usage());
 }
