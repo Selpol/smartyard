@@ -77,7 +77,7 @@ return static function (RouterBuilder $builder) {
             $builder->post('/unread', [InboxController::class, 'unread']);
         });
 
-        $builder->group('/subscribers', static function (RouterBuilder $builder) {
+        $builder->group('/subscriber', static function (RouterBuilder $builder) {
             $builder->get('/{flatId}', [SubscriberController::class, 'index']);
             $builder->post('/{flatId}', [SubscriberController::class, 'store']);
             $builder->delete('/{flatId}', [SubscriberController::class, 'delete']);
