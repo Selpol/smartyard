@@ -4,15 +4,13 @@
  * subscribers api
  */
 
-namespace api\subscribers
-{
+namespace api\subscribers {
 
     use api\api;
 
     /**
      * subscriber method
      */
-
     class subscriber extends api
     {
 
@@ -22,7 +20,7 @@ namespace api\subscribers
 
             $subscriberId = $households->addSubscriber($params["mobile"], $params["subscriberName"], $params["subscriberPatronymic"], @$params["flatId"], @$params["message"]);
 
-            return api::ANSWER($subscriberId, ($subscriberId !== false)?"subscriber":false);
+            return api::ANSWER($subscriberId, ($subscriberId !== false) ? "subscriber" : false);
         }
 
         public static function PUT($params)
@@ -37,11 +35,10 @@ namespace api\subscribers
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            if (array_key_exists('force', $params) && $params['force'])
+                return api::ANSWER(backend('households')->deleteSubscriber($params['subscriberId']));
 
-            $success = $households->removeSubscriberFromFlat($params["_id"], $params["subscriberId"], $params["message"]);
-
-            return api::ANSWER($success);
+            return api::ANSWER(backend("households")->removeSubscriberFromFlat($params["_id"], $params["subscriberId"]));
         }
 
         public static function index()
