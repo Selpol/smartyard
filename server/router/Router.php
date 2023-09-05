@@ -41,6 +41,9 @@ class Router
         $routes = $this->routes[$method];
 
         for ($i = 1; $i <= count($segments); $i++) {
+            if ($routes === null)
+                break;
+
             if (array_key_exists($segments[$i], $routes))
                 $routes = $routes[$segments[$i]];
             else {

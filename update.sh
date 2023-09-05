@@ -8,7 +8,7 @@ cd /opt/rbt/server
 
 composer install --no-dev --optimize-autoloader
 
-php cli.php --clear-config
 php cli.php --reindex
+php cli.php --optimize-kernel
 
 supervisorctl restart all
