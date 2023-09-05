@@ -31,13 +31,13 @@ class UserController extends Controller
         $production = trim(@$body['production']);
 
         if (!array_key_exists('platform', $body) || ($body['platform'] != 'ios' && $body['platform'] != 'android' && $body['platform'] != 'huawei'))
-            return $this->rbtResponse(422);
+            return $this->rbtResponse(400, message: 'Неверный тип платформы');
 
         if ($push && (strlen($push) < 16 || strlen($push) >= 1024))
-            return $this->rbtResponse(400);
+            return $this->rbtResponse(400, message: 'Неверный формат Пуш токена');
 
         if ($voip && (strlen($voip) < 16 || strlen($voip) >= 1024))
-            return $this->rbtResponse(400);
+            return $this->rbtResponse(400, message: 'Неверный формат VoIP токена');
 
         if ($body['platform'] == 'ios') {
             $platform = 1;
@@ -89,7 +89,7 @@ class UserController extends Controller
         $patronymic = htmlspecialchars(trim(@$body['patronymic']));
 
         if (!$name)
-            return $this->rbtResponse(400);
+            return $this->rbtResponse(400, message: 'Имя не указано');
 
         if ($patronymic) backend('households')->modifySubscriber($user['subscriberId'], ["subscriberName" => $name, "subscriberPatronymic" => $patronymic]);
         else backend('households')->modifySubscriber($user["subscriberId"], ["subscriberName" => $name]);

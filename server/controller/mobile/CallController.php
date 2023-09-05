@@ -16,27 +16,24 @@ class CallController extends Controller
         $hash = $this->getRoute()->getParam('hash');
 
         if ($hash === null)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(400, message: 'Не указан обязательный параметр');
 
         $image = container(RedisService::class)->getRedis()->get('shot_' . $hash);
 
         if ($image !== false)
             return $this->response()->withString($image)->withHeader('Content-Type', 'image/jpeg');
 
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(404, message: 'Скриншот не найден');
     }
 
     public function live(): Response
     {
         $user = $this->getSubscriber();
 
-        if (!$user)
-            return $this->rbtResponse(401);
-
         $hash = $this->getRoute()->getParam('hash');
 
         if ($hash === null)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Не указан обязательный параметр');
 
         $json_camera = container(RedisService::class)->getRedis()->get("live_" . $hash);
         $camera_params = json_decode($json_camera, true);
@@ -44,7 +41,7 @@ class CallController extends Controller
         $camera = container(CameraService::class)->get($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
 
         if (!$camera)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Камера не найдена');
 
         return $this->response()->withString($camera->camshot())->withHeader('Content-Type', 'image/jpeg');
     }

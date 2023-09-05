@@ -19,14 +19,14 @@ class IntercomController extends Controller
         $flat_id = (int)@$body['flatId'];
 
         if (!$flat_id)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(403, message: 'Квартира не находится в списках абонента');
 
         $flat_owner = false;
 
@@ -133,7 +133,7 @@ class IntercomController extends Controller
 
         if ($result) return $this->rbtResponse(200, $result);
 
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(404, message: 'Ничего нет');
     }
 
     public function openDoor(): Response
@@ -201,13 +201,13 @@ class IntercomController extends Controller
         $flat_id = (int)@$body['flatId'];
 
         if (!$flat_id)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира у абонента не найдена');
 
         $households = backend("households");
 

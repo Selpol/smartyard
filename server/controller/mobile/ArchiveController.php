@@ -23,7 +23,7 @@ class ArchiveController extends Controller
         $to = strtotime(@$body['to']);
 
         if (!$cameraId || !$from || !$to)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         $dvr_exports = backend("dvr_exports");
 

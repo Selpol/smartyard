@@ -79,7 +79,7 @@ class FrsController extends Controller
         $model = container(CameraService::class)->get($camera['model'], $camera['url'], $camera['credentials']);
 
         if (!$model)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(204);
 
         return $this->response()->withHeader('Content-Type', 'image/jpeg')->withString($model->camshot());
     }

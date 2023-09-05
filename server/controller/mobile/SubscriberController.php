@@ -21,7 +21,7 @@ class SubscriberController extends Controller
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена у абонента');
 
         $subscribers = backend('households')->getSubscribers('flatId', $flat['flatId']);
 
@@ -57,7 +57,7 @@ class SubscriberController extends Controller
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена у абонента');
         if ($flat['role'] !== 0)
             return $this->rbtResponse(403, message: 'Недостаточно прав для добавления нового жителя');
 

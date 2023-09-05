@@ -20,16 +20,16 @@ class PlogController extends Controller
         $flat_id = (int)@$body['flatId'];
 
         if (!$flat_id)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
         $f = in_array($flat_id, $flat_ids);
         if (!$f)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'У абонента нет доступа');
 
         if (!@$body['day'])
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(400, message: 'Не указан день');
 
         $plog = backend("plog");
 
@@ -46,7 +46,7 @@ class PlogController extends Controller
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == $plog::ACCESS_DENIED || $plog_access == $plog::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == $plog::ACCESS_OWNER_ONLY && !$flat_owner)
-            return $this->rbtResponse(403);
+            return $this->rbtResponse(403, message: 'Недостаточно прав');
 
         try {
             $date = date('Ymd', strtotime(@$body['day']));
@@ -146,10 +146,12 @@ class PlogController extends Controller
                 }
                 return $this->rbtResponse(data: $events_details);
             } else {
-                return $this->rbtResponse(404);
+                return $this->rbtResponse(404, message: 'События не найдены');
             }
-        } catch (Throwable) {
-            return $this->rbtResponse(400);
+        } catch (Throwable $throwable) {
+            logger('plog')->debug($throwable);
+
+            return $this->rbtResponse(500);
         }
     }
 
@@ -176,13 +178,13 @@ class PlogController extends Controller
         $flat_id = (int)@$body['flatId'];
 
         if (!$flat_id)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не указана');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира не найдена');
 
         $plog = backend("plog");
 
@@ -198,7 +200,7 @@ class PlogController extends Controller
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == $plog::ACCESS_DENIED || $plog_access == $plog::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == $plog::ACCESS_OWNER_ONLY && !$flat_owner)
-            return $this->rbtResponse(403);
+            return $this->rbtResponse(403, message: 'Недостаточно прав');
 
         $filter_events = false;
 
@@ -223,8 +225,10 @@ class PlogController extends Controller
             if ($result)
                 return $this->rbtResponse(200, $result);
 
-            return $this->rbtResponse(404);
-        } catch (Throwable) {
+            return $this->rbtResponse(404, message: 'События не найдены');
+        } catch (Throwable $throwable) {
+            logger('plog')->debug($throwable);
+
             return $this->rbtResponse(500);
         }
     }

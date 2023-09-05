@@ -90,7 +90,7 @@ class CameraController extends Controller
         if (count($result))
             return $this->rbtResponse(200, $result);
 
-        return $this->rbtResponse();
+        return $this->rbtResponse(404, message: 'Камеры не найдены');
     }
 
     public function events()
@@ -113,7 +113,7 @@ class CameraController extends Controller
         $domophoneId = $households->getDomophoneIdByEntranceCameraId($validate['cameraId']);
 
         if (is_null($domophoneId))
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Домофон не найден');
 
         $flats = array_filter(
             array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
@@ -127,13 +127,13 @@ class CameraController extends Controller
         $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
 
         if (count($flatsId) == 0)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Квартира у абонента не найдена');
 
         $events = $plog->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $validate['date']);
 
         if ($events)
             return $this->rbtResponse(200, array_map(static fn(array $item) => $item['date'], $events));
 
-        return $this->rbtResponse(200, []);
+        return $this->rbtResponse(404, message: 'События не найдены');
     }
 }

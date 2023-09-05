@@ -15,7 +15,7 @@ class ActionController extends Controller
         $body = $this->request->getParsedBody();
 
         if (!isset($body["date"], $body["ip"],))
-            return $this->rbtResponse(400);
+            return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
 
@@ -29,7 +29,7 @@ class ActionController extends Controller
         $body = $this->request->getParsedBody();
 
         if (!isset($body["date"], $body["ip"], $body["motionActive"]))
-            return $this->response(400);
+            return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         $db = container(DatabaseService::class);
 
@@ -39,7 +39,7 @@ class ActionController extends Controller
 
         $query = 'SELECT camera_id, frs FROM cameras WHERE frs != :frs AND ip = :ip';
         $params = ["ip" => $ip, "frs" => "-"];
-        $result = $db->get($query, $params, []);
+        $result = $db->get($query, $params);
 
         if (!$result) {
             $logger->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $ip]);
@@ -64,14 +64,14 @@ class ActionController extends Controller
 
         ["date" => $date, "ip" => $ip, "event" => $event, "door" => $door, "detail" => $detail] = $body;
 
-        if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400);
+        if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         try {
             $events = @json_decode(file_get_contents(__DIR__ . "/../../syslog/utils/events.json"), true);
         } catch (Exception $e) {
             error_log(print_r($e, true));
 
-            return $this->rbtResponse(500);
+            return $this->rbtResponse(500, message: 'Тип событий не был найден');
         }
 
         $plog = backend('plog');
@@ -126,7 +126,7 @@ class ActionController extends Controller
             $body["apartmentId"],
             $body["date"],
         ))
-            return $this->rbtResponse(406);
+            return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         ["ip" => $ip, "prefix" => $prefix, "apartmentNumber" => $apartment_number, "apartmentId" => $apartment_id, "date" => $date,] = $body;
 

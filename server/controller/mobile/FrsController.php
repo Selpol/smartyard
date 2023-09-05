@@ -53,7 +53,7 @@ class FrsController extends Controller
         $eventId = $this->getRoute()->getParam('eventId');
 
         if ($eventId === null)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(400, message: 'Событие не указано');
 
         $plog = backend("plog");
         $frs = backend("frs");
@@ -61,7 +61,7 @@ class FrsController extends Controller
         $eventData = $plog->getEventDetails($eventId);
 
         if ($eventData === false)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(404, message: 'Событие не найдено');
 
         if ($eventData[plog::COLUMN_PREVIEW] == plog::PREVIEW_NONE)
             $this->rbtResponse(404, message: 'Нет кадра события');

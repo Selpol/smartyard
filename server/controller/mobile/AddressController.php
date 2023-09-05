@@ -101,7 +101,7 @@ class AddressController extends Controller
         $code = trim(@$body['QR']);
 
         if (!$code)
-            return $this->rbtResponse(404);
+            return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         //полагаем, что хэш квартиры является суффиксом параметра QR
         $hash = '';
@@ -134,8 +134,8 @@ class AddressController extends Controller
             if (strlen($mobile) !== 11)
                 return $this->rbtResponse(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
 
-            if (!$name) return $this->rbtResponse(400);
-            if (!$patronymic) return $this->rbtResponse(400);
+            if (!$name) return $this->rbtResponse(400, message: 'Имя обязательно для заполнения');
+            if (!$patronymic) return $this->rbtResponse(400, message: 'Отчество обязательно для заполнения');
 
             if ($households->addSubscriber($mobile, $name, $patronymic)) {
                 $subscribers = $households->getSubscribers('mobile', $mobile);
@@ -154,7 +154,7 @@ class AddressController extends Controller
 
             if ($households->addSubscriber($subscriber["mobile"], null, null, $flat_id))
                 return $this->rbtResponse(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-            else return $this->rbtResponse(422);
-        } else return $this->rbtResponse(404);
+            else return $this->rbtResponse(400, message: 'Неудалось добавиться в квартиру');
+        } else return $this->rbtResponse(404, message: 'Абонент не найден');
     }
 }
