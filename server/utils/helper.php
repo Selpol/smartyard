@@ -139,7 +139,7 @@ if (!function_exists('clear_cache')) {
         else if (check_int($uid))
             $keys = $redis->keys("cache_*_$uid");
 
-        if ($keys > 0)
+        if ($keys !== null && $keys !== false && count($keys) > 0)
             $redis->del($keys);
 
         return count($keys);
