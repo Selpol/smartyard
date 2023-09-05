@@ -48,9 +48,9 @@ return static function (RouterBuilder $builder) {
             $builder->post('/openDoor', [IntercomController::class, 'openDoor']);
             $builder->post('/resetCode', [IntercomController::class, 'resetCode']);
 
-            $builder->get('/plog', [PlogController::class, 'index']);
+            $builder->post('/plog', [PlogController::class, 'index']);
             $builder->get('/plogCamshot/{uuid}', [PlogController::class, 'camshot'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
-            $builder->get('/plogDays', [PlogController::class, 'days']);
+            $builder->post('/plogDays', [PlogController::class, 'days']);
         });
 
         $builder->group('/cctv', static function (RouterBuilder $builder) {

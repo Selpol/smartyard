@@ -20,19 +20,9 @@ class RecordTask extends Task
 
     public function onTask(): bool
     {
-        $dvr_exports = backend('dvr_exports');
+        $uuid = backend('dvr_exports')->runDownloadRecordTask($this->recordId);
 
-        if (!$dvr_exports)
-            return false;
-
-        $uuid = $dvr_exports->runDownloadRecordTask($this->recordId);
-
-        $inbox = backend('inbox');
-
-        if (!$inbox)
-            return false;
-
-        $inbox->sendMessage(
+        backend('inbox')->sendMessage(
             $this->subscriberId,
             'Видео готово к загрузке',
             'Внимание! Файлы на сервере будут доступны в течение 3 суток',
@@ -44,12 +34,7 @@ class RecordTask extends Task
 
     public function onError(Throwable $throwable): void
     {
-        $inbox = backend('inbox');
-
-        if (!$inbox)
-            return;
-
-        $inbox->sendMessage(
+        backend('inbox')->sendMessage(
             $this->subscriberId,
             'Видео',
             'К сожалению не удалось выгрузить ваше видео, обратитесь за помощью к технической поддержке',
