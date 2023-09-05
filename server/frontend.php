@@ -109,7 +109,7 @@ $clearCache = false;
 
 function response(int $code = 204, mixed $data = false)
 {
-    global $params, $backends, $db;
+    global $db;
 
     $db = null;
 
@@ -117,21 +117,11 @@ function response(int $code = 204, mixed $data = false)
     http_response_code($code);
 
     if ($code == 204) {
-        $backends["accounting"]->log($params, $code);
-
         exit;
     }
 
     if ($data)
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
-
-    if ($backends && $backends["accounting"]) $backends["accounting"]->log($params, $code);
-    else {
-        $login = @($params["_login"] ?: $params["login"]);
-        $login = $login ?: "-";
-
-        error_log("{$_SERVER['REMOTE_ADDR']}:{$_SERVER['REMOTE_PORT']} [$code]: {$_SERVER['REQUEST_METHOD']} $login {$_SERVER["REQUEST_URI"]}");
-    }
 
     exit;
 }
