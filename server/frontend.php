@@ -28,6 +28,31 @@ register_shutdown_function(static fn() => $container->dispose());
 
 $required_backends = ["authentication", "authorization", "accounting", "users"];
 
+function request_headers(): array
+{
+    $arh = array();
+
+    $rx_http = '/\AHTTP_/';
+
+    foreach ($_SERVER as $key => $val) {
+        if (preg_match($rx_http, $key)) {
+            $arh_key = preg_replace($rx_http, '', $key);
+            $rx_matches = explode('_', $arh_key);
+
+            if (count($rx_matches) > 0 and strlen($arh_key) > 2) {
+                foreach ($rx_matches as $ak_key => $ak_val)
+                    $rx_matches[$ak_key] = ucfirst($ak_val);
+
+                $arh_key = implode('-', $rx_matches);
+            }
+
+            $arh[$arh_key] = $val;
+        }
+    }
+
+    return ($arh);
+}
+
 $http_authorization = @$_SERVER['HTTP_AUTHORIZATION'];
 $refresh = array_key_exists('X-Api-Refresh', request_headers());
 
@@ -158,20 +183,6 @@ function forgot($params)
         foreach ($keys as $key) {
             $params["_redis"]->del($key);
             $uid = explode("_", $key)[2];
-        }
-
-        if ($uid !== false) {
-            $pw = generate_password();
-            $params["_backends"]["users"]->setPassword($uid, $pw);
-
-            $keys = $params["_redis"]->keys("auth_*_$uid");
-
-            foreach ($keys as $key)
-                $params["_redis"]->del($key);
-
-            echo "check your mailbox for your new password";
-
-            exit;
         }
     }
 
