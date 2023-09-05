@@ -4,6 +4,7 @@ use Selpol\Kernel\Kernel;
 use Selpol\Kernel\Runner\AsteriskRunner;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
+require_once dirname(__FILE__) . "/controller/api/api.php";
 
 $kernel = new Kernel();
 
