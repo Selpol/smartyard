@@ -27,7 +27,7 @@ class SubscriberController extends Controller
 
         return $this->rbtResponse(
             data: array_map(
-                static fn(array $subscriber) => [
+                fn(array $subscriber) => [
                     'subscriberId' => $subscriber['subscriberId'],
                     'name' => $subscriber['subscriberName'] . ' ' . $subscriber['subscriberPatronymic'],
                     'mobile' => substr($subscriber['mobile'], -4),
