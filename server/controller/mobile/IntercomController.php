@@ -47,10 +47,8 @@ class IntercomController extends Controller
             if (@$settings['CMS'])
                 $params["cmsEnabled"] = ($settings['CMS'] == 't') ? 1 : 0;
 
-            if (@$settings['autoOpen']) {
-                $d = date('Y-m-d H:i:s', strtotime($settings['autoOpen']));
-                $params['autoOpen'] = $d;
-            }
+            if (@$settings['autoOpen'])
+                $params['autoOpen'] = $settings['autoOpen'];
 
             if (array_key_exists('whiteRabbit', $settings)) {
                 $wr = (int)$settings['whiteRabbit'];
