@@ -200,8 +200,6 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             }
         } catch (Throwable $throwable) {
             logger('response')->emergency('Emergency error' . PHP_EOL . $throwable);
-
-            echo '{ "code": 500, "message": "Внутренняя ошибка сервера" }';
         }
 
         return 0;
