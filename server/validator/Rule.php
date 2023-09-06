@@ -147,7 +147,7 @@ abstract class Rule extends ValidatorItem
                 if (!array_key_exists($key, $value))
                     return null;
 
-                if (!is_string($value[$key]) || strlen($value[$key]) < $this->min || strlen($value[$key] > $this->max))
+                if (!is_string($value[$key]) || strlen($value[$key]) < $this->min || strlen($value[$key]) > $this->max)
                     throw new ValidatorException(new ValidatorMessage($this->getMessage($key)));
 
                 return $value[$key];
