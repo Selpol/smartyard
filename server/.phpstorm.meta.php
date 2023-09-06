@@ -4,7 +4,6 @@ namespace PHPSTORM_META {
     override(
         \backend(0),
         map([
-            'accounting' => \backends\accounting\accounting::class,
             'addresses' => \backends\addresses\addresses::class,
             'authentication' => \backends\authentication\authentication::class,
             'authorization' => \backends\authorization\authorization::class,
@@ -20,7 +19,6 @@ namespace PHPSTORM_META {
             'inbox' => \backends\inbox\inbox::class,
             'isdn' => \backends\isdn\isdn::class,
             'plog' => \backends\plog\plog::class,
-            'queue' => \backends\queue\queue::class,
             'sip' => \backends\sip\sip::class,
             'users' => \backends\users\users::class
         ])

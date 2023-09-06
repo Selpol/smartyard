@@ -38,9 +38,6 @@
     "authorization": {
       "backend": "allow"
     },
-    "accounting": {
-      "backend": "syslog"
-    },
     "users": {
       "backend": "internal"
     },

@@ -849,12 +849,6 @@ namespace backends\households {
                 "comment" => $comment,
             ]);
 
-            $queue = backend("queue");
-
-            if ($queue) {
-                $queue->changed("domophone", $domophoneId);
-            }
-
             return $domophoneId;
         }
 
@@ -923,12 +917,6 @@ namespace backends\households {
                 "locks_are_open" => $locksAreOpen,
                 "comment" => $comment,
             ]);
-
-            $queue = backend("queue");
-
-            if ($queue) {
-                $queue->changed("domophone", $domophoneId);
-            }
 
             return $result;
         }

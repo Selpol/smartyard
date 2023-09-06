@@ -1,5 +1,6 @@
 <?php
 
+use Selpol\Container\Container;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 
@@ -22,11 +23,13 @@ require_once "backends/backend.php";
 
 require_once "controller/api/api.php";
 
-$container = bootstrap();
+mb_internal_encoding("UTF-8");
+
+$container = Container::instance();
 
 register_shutdown_function(static fn() => $container->dispose());
 
-$required_backends = ["authentication", "authorization", "accounting", "users"];
+$required_backends = ["authentication", "authorization", "users"];
 
 function request_headers(): array
 {

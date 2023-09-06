@@ -17,7 +17,6 @@
       "Selpol\\Logger\\": "./logger/"
     },
     "files": [
-      "./utils/bootstrap.php",
       "./utils/helper.php",
       "./utils/config.php"
     ]

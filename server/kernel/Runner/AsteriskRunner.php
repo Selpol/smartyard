@@ -48,14 +48,6 @@ class AsteriskRunner implements KernelRunner
                     ksort($params);
 
                 switch ($path[1]) {
-                    case "log":
-                        error_log(">>>>>>>>>>>> " . $params);
-                        $accounting = backend('accounting');
-                        if ($accounting)
-                            $accounting->raw("127.0.0.1", basename(get_included_files()[0]) . ":log", $params);
-
-                        break;
-
                     case "autoopen":
                         $params = validate(
                             ['flatId' => $params],
@@ -250,7 +242,7 @@ class AsteriskRunner implements KernelRunner
                                 $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
 
                                 if ($cameras && $cameras[0]) {
-                                    $model = $kernel->getContainer()->get(CameraService::class)->model($cameras[0]["model"], $cameras[0]["url"], $cameras[0]["credentials"]);
+                                    $model = $kernel->getContainer()->get(CameraService::class)->get($cameras[0]["model"], $cameras[0]["url"], $cameras[0]["credentials"]);
 
                                     $redis->setex("shot_" . $params["hash"], 3 * 60, $model->camshot());
                                     $redis->setex("live_" . $params["hash"], 3 * 60, json_encode([
