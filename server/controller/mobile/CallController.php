@@ -28,7 +28,7 @@ class CallController extends Controller
 
     public function live(): Response
     {
-        $user = $this->getSubscriber();
+        $this->getSubscriber();
 
         $hash = $this->getRoute()->getParam('hash');
 

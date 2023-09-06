@@ -5,6 +5,7 @@ namespace Selpol\Controller\mobile;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\RecordTask;
+use Selpol\Validator\Rule;
 
 class ArchiveController extends Controller
 {
@@ -12,16 +13,21 @@ class ArchiveController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), [
+            'id' => [Rule::id()],
+            'from' => [Rule::required()],
+            'to' => [Rule::required()]
+        ]);
 
-        $cameraId = (int)@$body['id'];
+        $cameraId = $validate['id'];
 
         // приложение везде при работе с архивом передаёт время по часовому поясу Москвы.
         date_default_timezone_set('Europe/Moscow');
-        $from = strtotime(@$body['from']);
-        $to = strtotime(@$body['to']);
 
-        if (!$cameraId || !$from || !$to)
+        $from = strtotime($validate['from']);
+        $to = strtotime($validate['to']);
+
+        if (!$from || !$to)
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         $dvr_exports = backend("dvr_exports");

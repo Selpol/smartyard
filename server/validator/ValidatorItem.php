@@ -56,4 +56,33 @@ abstract class ValidatorItem
      * @throws ValidatorException
      */
     public abstract function onItem(string $key, array $value): mixed;
+
+    /**
+     * @param ValidatorItem[] $items
+     * @return static
+     */
+    public static function group(array $items): static
+    {
+        return new class($items) extends ValidatorItem {
+            /**
+             * @var ValidatorItem[] $items
+             */
+            private array $items;
+
+            public function __construct(array $items, string $message)
+            {
+                parent::__construct($message);
+
+                $this->items = $items;
+            }
+
+            public function onItem(string $key, array $value): mixed
+            {
+                foreach ($this->items as $item)
+                    $value[$key] = $item->onItem($key, $value);
+
+                return $value[$key];
+            }
+        };
+    }
 }

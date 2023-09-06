@@ -4,32 +4,33 @@ namespace Selpol\Controller\mobile;
 
 use backends\frs\frs;
 use backends\plog\plog;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Validator\Rule;
 use Throwable;
 
 class PlogController extends Controller
 {
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function index(): Response
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'day' => [Rule::required(), Rule::nonNullable()]]);
 
         $households = backend("households");
-        $flat_id = (int)@$body['flatId'];
-
-        if (!$flat_id)
-            return $this->rbtResponse(404, message: 'Квартира не найдена');
+        $flat_id = $validate['flatId'];
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
         $f = in_array($flat_id, $flat_ids);
         if (!$f)
             return $this->rbtResponse(404, message: 'У абонента нет доступа');
-
-        if (!@$body['day'])
-            return $this->rbtResponse(400, message: 'Не указан день');
 
         $plog = backend("plog");
 
@@ -49,7 +50,7 @@ class PlogController extends Controller
             return $this->rbtResponse(403, message: 'Недостаточно прав');
 
         try {
-            $date = date('Ymd', strtotime(@$body['day']));
+            $date = date('Ymd', strtotime($validate['day']));
             $result = $plog->getDetailEventsByDay($flat_id, $date);
 
             if ($result) {
@@ -167,13 +168,10 @@ class PlogController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'events' => [Rule::length(64)]]);
 
         $households = backend("households");
-        $flat_id = (int)@$body['flatId'];
-
-        if (!$flat_id)
-            return $this->rbtResponse(404, message: 'Квартира не указана');
+        $flat_id = $validate['flatId'];
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
@@ -199,8 +197,8 @@ class PlogController extends Controller
 
         $filter_events = false;
 
-        if (@$body['events']) {
-            $filter_events = explode(',', $body['events']);
+        if ($validate['events']) {
+            $filter_events = explode(',', $validate['events']);
             $t = [];
 
             foreach ($filter_events as $e)

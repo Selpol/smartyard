@@ -4,19 +4,25 @@ namespace Selpol\Controller\mobile;
 
 use backends\frs\frs;
 use backends\plog\plog;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Validator\Rule;
+use Selpol\Validator\ValidatorException;
 
 class FrsController extends Controller
 {
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
     public function index(): Response
     {
         $user = $this->getSubscriber();
 
-        $flatId = $this->getRoute()->getParamInt('flatId');
-
-        if ($flatId === null)
-            return $this->rbtResponse(400, message: 'Квартира не указана');
+        $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
         $flatIds = array_map(static fn($item) => $item['flatId'], $user['flats']);
 
@@ -46,19 +52,20 @@ class FrsController extends Controller
         return $this->rbtResponse(data: $result);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     public function store(): Response
     {
         $user = $this->getSubscriber();
 
-        $eventId = $this->getRoute()->getParam('eventId');
-
-        if ($eventId === null)
-            return $this->rbtResponse(400, message: 'Событие не указано');
+        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
 
         $plog = backend("plog");
         $frs = backend("frs");
 
-        $eventData = $plog->getEventDetails($eventId);
+        $eventData = $plog->getEventDetails($validate['eventId']);
 
         if ($eventData === false)
             return $this->rbtResponse(404, message: 'Событие не найдено');
@@ -83,7 +90,7 @@ class FrsController extends Controller
 
             if ($cameras && $cameras[0]) {
                 $face = json_decode($eventData[plog::COLUMN_FACE], true);
-                $result = $frs->registerFace($cameras[0], $eventId, $face['left'] ?? 0, $face['top'] ?? 0, $face['width'] ?? 0, $face['height'] ?? 0);
+                $result = $frs->registerFace($cameras[0], $validate['eventId'], $face['left'] ?? 0, $face['top'] ?? 0, $face['width'] ?? 0, $face['height'] ?? 0);
 
                 if (!isset($result[frs::P_FACE_ID]))
                     return $this->rbtResponse(400, message: $result[frs::P_MESSAGE]);
@@ -104,16 +111,16 @@ class FrsController extends Controller
     {
         $user = $this->getSubscriber();
 
+        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
+
         $plog = backend("plog");
         $frs = backend("frs");
-
-        $eventId = $this->request->getQueryParam('eventId');
 
         $face_id = null;
         $face_id2 = null;
 
-        if ($eventId) {
-            $eventData = $plog->getEventDetails($eventId);
+        if ($validate['eventId']) {
+            $eventData = $plog->getEventDetails($validate['eventId']);
             if (!$eventData)
                 $this->rbtResponse(404, message: 'Событие не найдено');
 
@@ -123,7 +130,7 @@ class FrsController extends Controller
             if (isset($face->faceId) && $face->faceId > 0)
                 $face_id = (int)$face->faceId;
 
-            $face_id2 = $frs->getRegisteredFaceId($eventId);
+            $face_id2 = $frs->getRegisteredFaceId($validate['eventId']);
 
             if ($face_id2 === false)
                 $face_id2 = null;

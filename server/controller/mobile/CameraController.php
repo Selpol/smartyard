@@ -7,7 +7,6 @@ use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorMessage;
 
 class CameraController extends Controller
 {
@@ -15,9 +14,9 @@ class CameraController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), ['houseId' => [Rule::id()]]);
 
-        $house_id = (int)@$body['houseId'];
+        $house_id = $validate['houseId'];
         $households = backend("households");
         $cameras = backend("cameras");
 
@@ -99,13 +98,10 @@ class CameraController extends Controller
 
         $body = $this->request->getParsedBody();
 
-        $validate = validate($body, [
-            'cameraId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
+        $validate = validator($body, [
+            'cameraId' => [Rule::id()],
             'date' => [Filter::default(1), Rule::int(), Rule::min(0), Rule::max(14), Rule::nonNullable()]
         ]);
-
-        if ($validate instanceof ValidatorMessage)
-            return $this->rbtResponse(400, message: $validate);
 
         $households = backend("households");
         $plog = backend("plog");

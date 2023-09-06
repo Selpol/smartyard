@@ -18,6 +18,7 @@ use Selpol\Kernel\KernelRunner;
 use Selpol\Router\Router;
 use Selpol\Router\RouterMatch;
 use Selpol\Service\HttpService;
+use Selpol\Validator\ValidatorException;
 use Throwable;
 
 class RouterRunner implements KernelRunner, RequestHandlerInterface
@@ -125,6 +126,10 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
                 $response = container(HttpService::class)
                     ->createResponse($throwable->getCode())
                     ->withJson(['code' => $throwable->getCode(), 'message' => $throwable->getMessage()]);
+            else if ($throwable instanceof ValidatorException)
+                $response = \container(HttpService::class)
+                    ->createResponse(400)
+                    ->withJson(['code' => 400, 'name' => Response::$codes[400]['name'], 'message' => $throwable->getValidatorMessage()->getMessage()]);
             else {
                 logger('response')->error($throwable, ['fatal' => $fatal]);
 

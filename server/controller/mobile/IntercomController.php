@@ -4,22 +4,28 @@ namespace Selpol\Controller\mobile;
 
 use backends\plog\plog;
 use Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DomophoneService;
+use Selpol\Validator\Rule;
 
 class IntercomController extends Controller
 {
-    public function intercom()
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
+    public function intercom(): Response
     {
         $user = $this->getSubscriber();
 
         $body = $this->request->getParsedBody();
 
-        $flat_id = (int)@$body['flatId'];
+        $validate = validator($body, ['flatId' => [Rule::id()]]);
 
-        if (!$flat_id)
-            return $this->rbtResponse(404, message: 'Квартира не найдена');
+        $flat_id = $validate['flatId'];
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
@@ -136,14 +142,15 @@ class IntercomController extends Controller
         return $this->rbtResponse(404, message: 'Ничего нет');
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     public function openDoor(): Response
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
-
-        $domophone_id = (int)@$body['domophoneId'];
-        $door_id = (int)@$body['doorId'];
+        $validate = validator($this->request->getParsedBody(), ['domophoneId' => [Rule::id()], 'doorId' => [Rule::id()]]);
 
         $households = backend("households");
 
@@ -160,7 +167,7 @@ class IntercomController extends Controller
                 $e = $households->getEntrance($entrance['entranceId']);
                 $doorId = intval($e['domophoneOutput']);
 
-                if ($domophone_id == $domophoneId && $door_id == $doorId && !$flatDetail['manualBlock']) {
+                if ($validate['domophoneId'] == $domophoneId && $validate['doorId'] == $doorId && !$flatDetail['manualBlock']) {
                     $blocked = false;
 
                     break;
@@ -173,16 +180,16 @@ class IntercomController extends Controller
 
         if (!$blocked) {
             $households = backend("households");
-            $domophone = $households->getDomophone($domophone_id);
+            $domophone = $households->getDomophone($validate['domophoneId']);
 
             try {
                 $model = container(DomophoneService::class)->get($domophone["model"], $domophone["url"], $domophone["credentials"]);
-                $model->open_door($door_id);
+                $model->open_door($validate['doorId']);
 
                 $plog = backend("plog");
 
                 if ($plog)
-                    $plog->addDoorOpenDataById(time(), $domophone_id, $plog::EVENT_OPENED_BY_APP, $door_id, $user['mobile']);
+                    $plog->addDoorOpenDataById(time(), $validate['domophoneId'], $plog::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Exception) {
                 return $this->rbtResponse(404, name: 'Ошибка', message: 'Домофон недоступен');
             }
@@ -193,13 +200,17 @@ class IntercomController extends Controller
         return $this->rbtResponse(404, name: 'Не найдено', message: 'Услуга недоступна (договор заблокирован либо не оплачен)');
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function resetCode(): Response
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()]]);
 
-        $flat_id = (int)@$body['flatId'];
+        $flat_id = $validate['flatId'];
 
         if (!$flat_id)
             return $this->rbtResponse(404, message: 'Квартира не найдена');

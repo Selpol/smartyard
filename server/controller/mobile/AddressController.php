@@ -5,6 +5,8 @@ namespace Selpol\Controller\mobile;
 use backends\plog\plog;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Validator\Filter;
+use Selpol\Validator\Rule;
 
 class AddressController extends Controller
 {
@@ -98,9 +100,14 @@ class AddressController extends Controller
 
         $audJti = $jwt['scopes'][1];
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), [
+            'code' => [Rule::required(), Rule::nonNullable()],
+            'mobile' => [Rule::length(11, 11)],
+            'name' => [Filter::fullSpecialChars(), Rule::length(max: 64)],
+            'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
+        ]);
 
-        $code = trim(@$body['QR']);
+        $code = $validate['QR'];
 
         if (!$code)
             return $this->rbtResponse(400, message: 'Неверный формат данных');
@@ -129,9 +136,9 @@ class AddressController extends Controller
         $subscribers = $households->getSubscribers('aud_jti', $audJti);
 
         if (!$subscribers || count($subscribers) === 0) {
-            $mobile = htmlspecialchars(trim(@$body['mobile']));
-            $name = htmlspecialchars(trim(@$body['name']));
-            $patronymic = htmlspecialchars(trim(@$body['patronymic']));
+            $mobile = $validate['mobile'];
+            $name = $validate['name'];
+            $patronymic = $validate['patronymic'];
 
             if (strlen($mobile) !== 11)
                 return $this->rbtResponse(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
