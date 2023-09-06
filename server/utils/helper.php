@@ -3,6 +3,7 @@
 use backends\backend;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Selpol\Container\Container;
 use Selpol\Kernel\Kernel;
@@ -211,5 +212,43 @@ if (!function_exists('guid_v4')) {
             substr($char, 16, 4) . $hyphen .
             substr($char, 20, 12) .
             $rbrace;
+    }
+}
+
+if (!function_exists('connection_ip')) {
+    function connection_ip(ServerRequestInterface $request): ?string
+    {
+        $ip = $request->getHeader('X-Real-Ip');
+
+        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
+            return $ip[0];
+
+        $ip = $request->getHeader('X-Forwarded-For');
+
+        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
+            return $ip[0];
+
+        $ip = @$request->getServerParams()['REMOTE_ADDR'];
+
+        if ($ip && filter_var($ip, FILTER_VALIDATE_IP))
+            return $ip;
+
+        return null;
+    }
+}
+
+if (!function_exists('ip_in_range')) {
+    function ip_in_range(string $ip, string $range): bool
+    {
+        if (!strpos($range, '/'))
+            $range .= '/32';
+
+        list($range, $netmask) = explode('/', $range, 2);
+
+        $ip_decimal = ip2long($ip);
+        $range_decimal = ip2long($range);
+        $netmask_decimal = ~(pow(2, (32 - $netmask)) - 1);
+
+        return (($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));
     }
 }

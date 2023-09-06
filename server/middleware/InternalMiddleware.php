@@ -23,7 +23,7 @@ class InternalMiddleware implements MiddlewareInterface
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $ip = $this->ip($request);
+        $ip = connection_ip($request);
 
         $this->logger?->debug('Request ' . $request->getRequestTarget(), ['ip' => $ip]);
 
@@ -36,7 +36,7 @@ class InternalMiddleware implements MiddlewareInterface
         }
 
         foreach ($this->trust as $item)
-            if ($this->ipInRange($ip, $item)) {
+            if (ip_in_range($ip, $item)) {
                 $response = $handler->handle($request);
 
                 $this->logger?->debug('Response ' . $request->getRequestTarget(), ['ip' => $ip, 'code' => $response->getStatusCode()]);
@@ -49,39 +49,5 @@ class InternalMiddleware implements MiddlewareInterface
 
         return $http->createResponse(404)
             ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
-    }
-
-    private function ip(ServerRequestInterface $request): ?string
-    {
-        $ip = $request->getHeader('X-Real-Ip');
-
-        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
-            return $ip[0];
-
-        $ip = $request->getHeader('X-Forwarded-For');
-
-        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
-            return $ip[0];
-
-        $ip = @$request->getServerParams()['REMOTE_ADDR'];
-
-        if ($ip && filter_var($ip, FILTER_VALIDATE_IP))
-            return $ip;
-
-        return null;
-    }
-
-    private function ipInRange(string $ip, string $range): bool
-    {
-        if (!strpos($range, '/'))
-            $range .= '/32';
-
-        list($range, $netmask) = explode('/', $range, 2);
-
-        $ip_decimal = ip2long($ip);
-        $range_decimal = ip2long($range);
-        $netmask_decimal = ~(pow(2, (32 - $netmask)) - 1);
-
-        return (($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));
     }
 }
