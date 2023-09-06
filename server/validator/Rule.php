@@ -268,7 +268,7 @@ abstract class Rule extends ValidatorItem
         return static::regexp('/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i', $message);
     }
 
-    public static function id(): static
+    public static function id(): ValidatorItem
     {
         return static::group([Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]);
     }
