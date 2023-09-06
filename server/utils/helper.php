@@ -86,7 +86,7 @@ if (!function_exists('validator')) {
         try {
             return $validator->validate();
         } catch (ValidatorException $e) {
-            throw new \Selpol\Http\HttpException($e->getMessage(), code: 400);
+            throw new \Selpol\Http\HttpException($e->getValidatorMessage()->getMessage(), code: 400);
         }
     }
 }

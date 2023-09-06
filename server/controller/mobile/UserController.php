@@ -21,8 +21,8 @@ class UserController extends Controller
         $user = $this->getSubscriber();
 
         $validate = validator($this->request->getParsedBody(), [
-            'pushToken' => [Rule::required(), Filter::fullSpecialChars(), Rule::length(16), Rule::nonNullable()],
-            'voipToken' => [Filter::fullSpecialChars(), Rule::length(16)],
+            'pushToken' => [Rule::length(16), Filter::fullSpecialChars()],
+            'voipToken' => [Rule::length(16), Filter::fullSpecialChars()],
             'production' => [Filter::default('f'), Rule::in(['t', 'f']), Rule::nonNullable()],
             'platform' => [Rule::in(['ios', 'android', 'huawei'])]
         ]);
