@@ -47,8 +47,10 @@ class IntercomController extends Controller
             if (@$settings['CMS'])
                 $params["cmsEnabled"] = ($settings['CMS'] == 't') ? 1 : 0;
 
-            if (@$settings['autoOpen'])
-                $params['autoOpen'] = $settings['autoOpen'];
+            if (@$settings['autoOpen']) {
+                $d = date('Y-m-d H:i:s', strtotime($settings['autoOpen']));
+                $params['autoOpen'] = $d;
+            }
 
             if (array_key_exists('whiteRabbit', $settings)) {
                 $wr = (int)$settings['whiteRabbit'];
@@ -96,7 +98,7 @@ class IntercomController extends Controller
         $result['doorCode'] = @$flat['openCode'] ?: '00000'; // TODO: разобраться с тем, как работает отключение кода
         $result['CMS'] = @$flat['cmsEnabled'] ? 't' : 'f';
         $result['VoIP'] = @$subscriber['voipEnabled'] ? 't' : 'f';
-        $result['autoOpen'] = date('Y-m-d H:i:s', strtotime($flat['autoOpen']));
+        $result['autoOpen'] = $flat['autoOpen'];
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
 
         if ($flat_owner && $plog && $flat['plog'] != plog::ACCESS_RESTRICTED_BY_ADMIN) {
