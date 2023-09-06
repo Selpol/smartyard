@@ -72,6 +72,25 @@ if (!function_exists('task')) {
     }
 }
 
+if (!function_exists('validator')) {
+    /**
+     * @param array $value
+     * @param array $items
+     * @return array
+     * @throws \Selpol\Http\HttpException
+     */
+    function validator(array $value, array $items): array
+    {
+        $validator = new Validator($value, $items);
+
+        try {
+            return $validator->validate();
+        } catch (ValidatorException $e) {
+            throw new \Selpol\Http\HttpException($e->getMessage(), code: 400);
+        }
+    }
+}
+
 if (!function_exists('validate')) {
     function validate(array $value, array $items): array|ValidatorMessage
     {

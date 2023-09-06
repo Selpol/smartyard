@@ -123,6 +123,36 @@ abstract class Rule extends ValidatorItem
         };
     }
 
+    public static function length(int $min = 0, int $max = 1024, string $message = 'Длина %s не может выходить из диапазона %d-%d'): static
+    {
+        return new class($min, $max, $message) extends Rule {
+            private int $min;
+            private int $max;
+
+            public function __construct(int $min, int $max, string $message)
+            {
+                parent::__construct($message);
+
+                $this->min = $min;
+                $this->max = $max;
+            }
+
+            protected function getMessage(string $key): string
+            {
+                return sprintf($this->message, $key, $this->min, $this->max);
+            }
+
+            public function onItem(string $key, array $value): mixed
+            {
+                if (array_key_exists($key, $value))
+                    if (!is_string($value[$key]) || strlen($value[$key]) < $this->min || strlen($value[$key] > $this->max))
+                        throw new ValidatorException(new ValidatorMessage($this->getMessage($key)));
+
+                return null;
+            }
+        };
+    }
+
     public static function regexp(string $value, string $message = 'Поле %s должно быть определенного формата'): static
     {
         return new class($value, $message) extends Rule {

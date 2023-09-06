@@ -4,6 +4,8 @@ namespace Selpol\Controller\mobile;
 
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Validator\Filter;
+use Selpol\Validator\Rule;
 
 class UserController extends Controller
 {
@@ -18,35 +20,31 @@ class UserController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), [
+            'pushToken' => [Rule::required(), Filter::fullSpecialChars(), Rule::length(16), Rule::nonNullable()],
+            'voipToken' => [Filter::fullSpecialChars(), Rule::length(16)],
+            'production' => [Filter::default('f'), Rule::in(['t', 'f']), Rule::nonNullable()],
+            'platform' => [Rule::in(['ios', 'android', 'huawei'])]
+        ]);
 
         $households = backend('households');
         $isdn = backend('isdn');
 
         $old_push = $user["pushToken"];
 
-        $push = trim(@$body['pushToken']);
-        $voip = trim(@$body['voipToken'] ?: '');
+        $production = trim($validate['production']);
 
-        $production = trim(@$body['production']);
-
-        if (!array_key_exists('platform', $body) || ($body['platform'] != 'ios' && $body['platform'] != 'android' && $body['platform'] != 'huawei'))
+        if (!array_key_exists('platform', $validate) || ($validate['platform'] != 'ios' && $validate['platform'] != 'android' && $validate['platform'] != 'huawei'))
             return $this->rbtResponse(400, message: 'Неверный тип платформы');
 
-        if ($push && (strlen($push) < 16 || strlen($push) >= 1024))
-            return $this->rbtResponse(400, message: 'Неверный формат Пуш токена');
-
-        if ($voip && (strlen($voip) < 16 || strlen($voip) >= 1024))
-            return $this->rbtResponse(400, message: 'Неверный формат VoIP токена');
-
-        if ($body['platform'] == 'ios') {
+        if ($validate['platform'] == 'ios') {
             $platform = 1;
-            if ($voip) {
+            if ($validate['voipToken']) {
                 $type = ($production == 'f') ? 2 : 1; // apn:apn.dev
             } else {
                 $type = 0; // fcm (resend)
             }
-        } elseif ($body['platform'] == 'huawei') {
+        } elseif ($validate['platform'] == 'huawei') {
             $platform = 0;
             $type = 3; // huawei
         } else {
@@ -54,13 +52,13 @@ class UserController extends Controller
             $type = 0; // fcm
         }
 
-        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $push, "tokenType" => $type, "voipToken" => $voip, "platform" => $platform]);
+        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $validate['pushToken'], "tokenType" => $type, "voipToken" => $validate['voipToken'], "platform" => $platform]);
 
-        if (!$push)
+        if (!$validate['pushToken'])
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
         else {
-            if ($old_push && $old_push != $push) {
-                $md5 = md5($push . $old_push);
+            if ($old_push && $old_push != $validate['pushToken']) {
+                $md5 = md5($validate['pushToken'] . $old_push);
                 $payload = [
                     "token" => $old_push,
                     "messageId" => $md5,
@@ -73,7 +71,7 @@ class UserController extends Controller
             }
         }
 
-        if (!$voip)
+        if (!$validate['voipToken'])
             $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
 
         return $this->rbtResponse();
@@ -83,16 +81,13 @@ class UserController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $body = $this->request->getParsedBody();
+        $validate = validator($this->request->getParsedBody(), [
+            'name' => [Rule::required(), Filter::fullSpecialChars(), Rule::length(max: 64), Rule::nonNullable()],
+            'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
+        ]);
 
-        $name = htmlspecialchars(trim(@$body['name']));
-        $patronymic = htmlspecialchars(trim(@$body['patronymic']));
-
-        if (!$name)
-            return $this->rbtResponse(400, message: 'Имя не указано');
-
-        if ($patronymic) backend('households')->modifySubscriber($user['subscriberId'], ["subscriberName" => $name, "subscriberPatronymic" => $patronymic]);
-        else backend('households')->modifySubscriber($user["subscriberId"], ["subscriberName" => $name]);
+        if ($validate['patronymic']) backend('households')->modifySubscriber($user['subscriberId'], ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
+        else backend('households')->modifySubscriber($user["subscriberId"], ["subscriberName" => $validate['name']]);
 
         return $this->rbtResponse();
     }
