@@ -42,9 +42,15 @@ class ArchiveController extends Controller
 
     public function download(): Response
     {
-        $files = backend("files");
-        $stream = $files->getFileStream($this->getRoute()->getParam('uuid'));
-        $info = $files->getFileInfo($this->getRoute()->getParam('uuid'));
+        $uuid = $this->getRoute()->getParam('uuid');
+
+        if ($uuid === null)
+            return $this->rbtResponse(404, message: 'Не указан идентификатор');
+
+        $files = backend('files');
+
+        $stream = $files->getFileStream($uuid);
+        $info = $files->getFileInfo($uuid);
 
         return $this->response()
             ->withHeader('Content-Type', 'video/mp4')

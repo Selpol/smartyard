@@ -58,7 +58,7 @@ return static function (RouterBuilder $builder) {
             $builder->post('/events', [CameraController::class, 'events']);
 
             $builder->post('/recPrepare', [ArchiveController::class, 'prepare']);
-            $builder->post('/download/{uuid}', [ArchiveController::class, 'download'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
+            $builder->get('/download/{uuid}', [ArchiveController::class, 'download'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
         });
 
         $builder->group('/call', static function (RouterBuilder $builder) {
