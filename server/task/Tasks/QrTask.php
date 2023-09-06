@@ -109,7 +109,6 @@ class QrTask extends Task
                 $zip->setCompressionName($flat['flat'] . '.docx', ZipArchive::CM_STORE);
             }
 
-            echo json_encode($zip->count());
             $zip->close();
 
             return $this->files->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
