@@ -51,7 +51,7 @@ class AsteriskRunner implements KernelRunner
                     case "autoopen":
                         $params = validate(
                             ['flatId' => $params],
-                            ['flatId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]
+                            ['flatId' => [Rule::id()]]
                         );
 
                         if ($params instanceof ValidatorMessage) {

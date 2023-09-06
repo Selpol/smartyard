@@ -24,7 +24,6 @@ class InternalMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $ip = $this->ip($request);
-        //$ip = $request->getHeader('X-Real-Ip');
 
         $this->logger?->debug('Request ' . $request->getRequestTarget(), ['ip' => $ip]);
 

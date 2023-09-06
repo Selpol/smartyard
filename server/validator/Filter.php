@@ -20,7 +20,7 @@ abstract class Filter extends ValidatorItem
 
             public function onItem(string $key, array $value): mixed
             {
-                if (array_key_exists($key, $value) && (!is_null($value[$key])) || !$this->string && $value[$key] != '')
+                if (array_key_exists($key, $value) && ((!is_null($value[$key])) || (!$this->string && $value[$key] !== '')))
                     return $value[$key];
 
                 return $this->value;
