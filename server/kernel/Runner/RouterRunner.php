@@ -186,8 +186,11 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
 
                     $bytes_send += strlen($buffer);
                 }
+            } else {
+                header('Content-Length: ' . $body->getSize());
 
-            } else echo $body->getContents();
+                echo $body->getContents();
+            }
 
             $body->close();
         }
