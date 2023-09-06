@@ -59,11 +59,12 @@ abstract class ValidatorItem
 
     /**
      * @param ValidatorItem[] $items
+     * @param string $message
      * @return static
      */
-    public static function group(array $items): static
+    public static function group(array $items, string $message = 'Групповая валидация'): static
     {
-        return new class($items) extends ValidatorItem {
+        return new class($items, $message) extends ValidatorItem {
             /**
              * @var ValidatorItem[] $items
              */
