@@ -28,11 +28,6 @@ class MobileMiddleware implements MiddlewareInterface
 
         $auth->setSubscriber($subscribers[0]);
 
-        $response = $handler->handle($request);
-
-        if ($response->getStatusCode() !== 204)
-            return $response->withHeader('Content-Length', $response->getBody()->getSize());
-
-        return $response;
+        return $handler->handle($request);
     }
 }
