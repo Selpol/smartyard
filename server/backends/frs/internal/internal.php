@@ -6,15 +6,28 @@
 
 namespace backends\frs {
 
+    use Psr\Log\LoggerInterface;
+    use Redis;
+    use Selpol\Service\DatabaseService;
+
     class internal extends frs
     {
+        private LoggerInterface $logger;
+
+        public function __construct(array $config, DatabaseService $db, Redis $redis, bool $login = false)
+        {
+            parent::__construct($config, $db, $redis, $login);
+
+            $this->logger = logger('frs');
+        }
+
         //private methods
-        private function camshotUrl($cam)
+        private function camshotUrl($cam): string
         {
             return $this->config["api"]["private"] . "/frs/camshot/" . $cam[self::CAMERA_ID];
         }
 
-        private function callback($cam)
+        private function callback($cam): string
         {
             return $this->config["api"]["private"] . "/frs/callback?stream_id=" . $cam[self::CAMERA_ID];
         }
@@ -76,8 +89,6 @@ namespace backends\frs {
             if ($l <= 1)
                 return false;
 
-            $logger = logger('frs');
-
             if ($base_url[$l - 1] !== "/")
                 $base_url .= "/";
 
@@ -89,7 +100,7 @@ namespace backends\frs {
             $api_url = $base_url . "api/" . $method;
             $curl = curl_init();
 
-            $logger->debug('ApiCall Request', $params);
+            $this->logger->debug('ApiCall Request', $params);
 
             $data = json_encode($params);
             $options = [
@@ -107,7 +118,7 @@ namespace backends\frs {
 
             curl_close($curl);
 
-            $logger->debug('ApiCall Response', ['code' => $response_code, 'data' => $response]);
+            $this->logger->debug('ApiCall Response', ['code' => $response_code, 'data' => $response]);
 
             if ($response_code > self::R_CODE_OK && !$response)
                 return ["code" => $response_code];
@@ -254,15 +265,13 @@ namespace backends\frs {
 
         private function syncData()
         {
-            $logger = logger('frs');
-
             if (!is_array($this->servers())) {
-                $logger->debug('syncData() skip');
+                $this->logger->debug('syncData() skip');
 
                 return;
             }
 
-            $logger->debug('syncData() process', ['server' => $this->servers()]);
+            $this->logger->debug('syncData() process', ['server' => $this->servers()]);
 
             //syncing all faces
             $frs_all_faces = [];
@@ -276,12 +285,17 @@ namespace backends\frs {
 
             $rbt_all_faces = [];
             $query = "select face_id from frs_faces order by 1";
-            foreach ($this->db->get($query, [], []) as $row) {
+
+            foreach ($this->db->get($query) as $row)
                 $rbt_all_faces[] = $row["face_id"];
-            }
+
+            $this->logger->debug('syncData() all faces', ['frs' => count($frs_all_faces), 'rbt' => count($rbt_all_faces)]);
 
             $diff_faces = array_diff($rbt_all_faces, $frs_all_faces);
+
             if ($diff_faces) {
+                $this->logger->debug('syncData() rbt add faces', ['count' => count($diff_faces)]);
+
                 $files = backend("files");
 
                 foreach ($diff_faces as $f_id) {
@@ -302,18 +316,20 @@ namespace backends\frs {
             }
 
             if (count($diff_faces) > 0)
-                $logger->debug('syncData() remove faces from rbt', ['count' => count($diff_faces)]);
+                $this->logger->debug('syncData() remove faces from rbt', ['count' => count($diff_faces)]);
 
             $diff_faces = array_diff($frs_all_faces, $rbt_all_faces);
 
             if ($diff_faces) {
+                $this->logger->debug('syncData() rbt remove faces', ['count' => count($diff_faces)]);
+
                 foreach ($this->servers() as $frs_server) {
                     $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_DELETE_FACES, [self::P_FACE_IDS => $diff_faces]);
                 }
             }
 
             if (count($diff_faces) > 0)
-                $logger->debug('syncData() remove faces from frs', ['count' => count($diff_faces)]);
+                $this->logger->debug('syncData() remove faces from frs', ['count' => count($diff_faces)]);
 
             $frs_all_data = [];
 
@@ -397,7 +413,7 @@ namespace backends\frs {
                 $diff_streams = array_diff_key($data, $frs_all_data[$base_url]);
 
                 if (count($diff_streams) > 0)
-                    $logger->debug('syncData() add streams to frs', ['diff' => $diff_streams]);
+                    $this->logger->debug('syncData() add streams to frs', ['diff' => $diff_streams]);
 
                 foreach ($diff_streams as $stream_id => $faces) {
                     $cam = backend("cameras")->getCamera($stream_id);
@@ -417,7 +433,7 @@ namespace backends\frs {
                 $diff_streams = array_diff_key($frs_all_data[$base_url], $data);
 
                 if (count($diff_streams) > 0)
-                    $logger->debug('syncData() remove streams from frs', ['diff' => $diff_streams]);
+                    $this->logger->debug('syncData() remove streams from frs', ['diff' => $diff_streams]);
 
                 foreach (array_keys($diff_streams) as $stream_id) {
                     $this->apiCall($base_url, self::M_REMOVE_STREAM, [self::P_STREAM_ID => $stream_id]);
@@ -429,7 +445,7 @@ namespace backends\frs {
                     $diff_faces = array_diff($rbt_faces, $frs_all_data[$base_url][$stream_id]);
 
                     if (count($diff_faces) > 0)
-                        $logger->debug('syncData() add faces to frs', ['diff' => $diff_faces]);
+                        $this->logger->debug('syncData() add faces to frs', ['diff' => $diff_faces]);
 
                     if ($diff_faces) {
                         $this->apiCall($base_url, self::M_ADD_FACES, [self::P_STREAM_ID => $stream_id, self::P_FACE_IDS => $diff_faces]);
@@ -438,7 +454,7 @@ namespace backends\frs {
                     $diff_faces = array_diff($frs_all_data[$base_url][$stream_id], $rbt_faces);
 
                     if (count($diff_faces) > 0)
-                        $logger->debug('syncData() remove faces from frs', ['diff' => $diff_faces]);
+                        $this->logger->debug('syncData() remove faces from frs', ['diff' => $diff_faces]);
 
                     if ($diff_faces)
                         $this->apiCall($base_url, self::M_REMOVE_FACES, [self::P_STREAM_ID => $stream_id, self::P_FACE_IDS => $diff_faces]);
