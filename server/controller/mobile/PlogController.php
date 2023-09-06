@@ -168,7 +168,7 @@ class PlogController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'events' => [Rule::length(64)]]);
+        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'events' => [Rule::length(max: 64)]]);
 
         $households = backend("households");
         $flat_id = $validate['flatId'];
