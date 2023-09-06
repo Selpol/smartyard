@@ -144,11 +144,13 @@ abstract class Rule extends ValidatorItem
 
             public function onItem(string $key, array $value): mixed
             {
-                if (array_key_exists($key, $value))
-                    if (!is_string($value[$key]) || strlen($value[$key]) < $this->min || strlen($value[$key] > $this->max))
-                        throw new ValidatorException(new ValidatorMessage($this->getMessage($key)));
+                if (!array_key_exists($key, $value))
+                    return null;
 
-                return null;
+                if (!is_string($value[$key]) || strlen($value[$key]) < $this->min || strlen($value[$key] > $this->max))
+                    throw new ValidatorException(new ValidatorMessage($this->getMessage($key)));
+
+                return $value[$key];
             }
         };
     }
