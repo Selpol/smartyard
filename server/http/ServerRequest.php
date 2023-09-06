@@ -4,7 +4,6 @@ namespace Selpol\Http;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UploadedFileInterface;
 use Psr\Http\Message\UriInterface;
 use Selpol\Http\Trait\MessageTrait;
 use Selpol\Http\Trait\RequestTrait;
