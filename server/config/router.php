@@ -32,7 +32,7 @@ return static function (RouterBuilder $builder) {
 
         $builder->group('/frs', static function (RouterBuilder $builder) {
             $builder->post('/callback', [InternalFrsController::class, 'callback']);
-            $builder->post('/camshot/{id}', [InternalFrsController::class, 'camshot']);
+            $builder->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
         });
     });
 
