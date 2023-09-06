@@ -250,7 +250,10 @@ abstract class Rule extends ValidatorItem
 
             public function onItem(string $key, array $value): mixed
             {
-                if (!array_key_exists($key, $value) || !in_array($value[$key], $this->value))
+                if (!array_key_exists($key, $value))
+                    return null;
+
+                if (!in_array($value[$key], $this->value))
                     throw $this->toException($key);
 
                 return $value[$key];
