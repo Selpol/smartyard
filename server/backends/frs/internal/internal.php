@@ -76,13 +76,21 @@ namespace backends\frs {
             if ($l <= 1)
                 return false;
 
+            $logger = logger('frs');
+
             if ($base_url[$l - 1] !== "/")
                 $base_url .= "/";
+
             $l = strlen($method);
+
             if ($l > 0 && $method[0] === "/")
                 $method = substr($method, 1);
+
             $api_url = $base_url . "api/" . $method;
             $curl = curl_init();
+
+            $logger->debug('ApiCall Request', $params);
+
             $data = json_encode($params);
             $options = [
                 CURLOPT_URL => $api_url,
@@ -91,10 +99,16 @@ namespace backends\frs {
                 CURLOPT_RETURNTRANSFER => 1,
                 CURLOPT_HTTPHEADER => ['Expect:', 'Accept: application/json', 'Content-Type: application/json']
             ];
+
             curl_setopt_array($curl, $options);
+
             $response = curl_exec($curl);
             $response_code = curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+
             curl_close($curl);
+
+            $logger->debug('ApiCall Response', ['code' => $response_code, 'data' => $response]);
+
             if ($response_code > self::R_CODE_OK && !$response)
                 return ["code" => $response_code];
             else
