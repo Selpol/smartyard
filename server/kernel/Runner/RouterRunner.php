@@ -119,16 +119,19 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
 
     function onFailed(Throwable $throwable, bool $fatal): int
     {
-        logger('response')->error($throwable, ['fatal' => $fatal]);
 
         try {
             if ($throwable instanceof HttpException)
                 $response = container(HttpService::class)
                     ->createResponse($throwable->getCode())
                     ->withJson(['code' => $throwable->getCode(), 'message' => $throwable->getMessage()]);
-            else $response = container(HttpService::class)
-                ->createResponse(500)
-                ->withJson(['code' => 500, 'name' => Response::$codes[500]['name'], 'message' => 'Внутренняя ошибка сервера']);
+            else {
+                logger('response')->error($throwable, ['fatal' => $fatal]);
+
+                $response = container(HttpService::class)
+                    ->createResponse(500)
+                    ->withJson(['code' => 500, 'name' => Response::$codes[500]['name'], 'message' => 'Внутренняя ошибка сервера']);
+            }
 
             return $this->emit($response);
         } catch (Throwable $throwable) {

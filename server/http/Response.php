@@ -52,6 +52,7 @@ class Response implements ResponseInterface
         449 => ['name' => 'Retry With', 'message' => 'Повторить с'],
         451 => ['name' => 'Unavailable For Legal Reasons', 'message' => 'Недоступно по юридическим причинам'],
         499 => ['name' => 'Client Closed Request', 'message' => 'Клиент закрыл соединение'],
+        500 => ['name' => 'Internal Server Error', 'message' => 'Внутренняя ошибка сервера'],
         503 => ['name' => 'Service Unavailable', 'message' => 'Сервис недоступен'],
     ];
 
