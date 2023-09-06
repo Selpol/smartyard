@@ -60,7 +60,7 @@ class FrsController extends Controller
     {
         $user = $this->getSubscriber();
 
-        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
+        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::nonNullable()]]);
 
         $plog = backend("plog");
         $frs = backend("frs");
