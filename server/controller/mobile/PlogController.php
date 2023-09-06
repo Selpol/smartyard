@@ -160,12 +160,7 @@ class PlogController extends Controller
         $files = backend('files');
         $uuid = $files->fromGUIDv4($this->getRoute()->getParam('uuid'));
 
-        $bytes = $files->getFileBytes($uuid);
-
-        /** @var Response $response */
-        $response = $this->response()->withString($bytes)->withHeader('Content-Type', 'image/jpeg');
-
-        return $response;
+        return $this->response()->withStream($files->getFileStream($uuid))->withHeader('Content-Type', 'image/jpeg');
     }
 
     public function days(): Response

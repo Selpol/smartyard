@@ -85,12 +85,13 @@ class Response implements ResponseInterface
         return $this;
     }
 
-    public function getReasonPhrase(): string
+    /**
+     * @param resource $body
+     * @return Response
+     */
+    public function withStream($body): self
     {
-        if ($this->reasonPhrase === null && array_key_exists($this->statusCode, self::$codes))
-            return self::$codes[$this->statusCode]['name'];
-
-        return $this->reasonPhrase;
+        return $this->withBody(new Stream($body));
     }
 
     public function withString(string $value): self
@@ -103,5 +104,13 @@ class Response implements ResponseInterface
     public function withJson(mixed $value): self
     {
         return $this->withString(json_encode($value, flags: JSON_UNESCAPED_UNICODE));
+    }
+
+    public function getReasonPhrase(): string
+    {
+        if ($this->reasonPhrase === null && array_key_exists($this->statusCode, self::$codes))
+            return self::$codes[$this->statusCode]['name'];
+
+        return $this->reasonPhrase;
     }
 }

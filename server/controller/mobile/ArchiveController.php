@@ -4,7 +4,6 @@ namespace Selpol\Controller\mobile;
 
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
-use Selpol\Http\Stream;
 use Selpol\Task\Tasks\RecordTask;
 
 class ArchiveController extends Controller
@@ -55,6 +54,6 @@ class ArchiveController extends Controller
         return $this->response()
             ->withHeader('Content-Type', 'video/mp4')
             ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-            ->withBody(new Stream($stream));
+            ->withStream($stream);
     }
 }

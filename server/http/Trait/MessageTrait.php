@@ -2,7 +2,6 @@
 
 namespace Selpol\Http\Trait;
 
-use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\StreamInterface;
 
 trait MessageTrait
