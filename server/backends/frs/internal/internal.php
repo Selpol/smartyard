@@ -101,7 +101,7 @@ namespace backends\frs {
             $api_url = $base_url . "api/" . $method;
             $curl = curl_init();
 
-            $this->logger->debug('ApiCall Request', $params);
+            $this->logger->debug('ApiCall Request', [$params]);
 
             $data = json_encode($params);
             $options = [
