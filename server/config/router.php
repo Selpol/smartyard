@@ -24,10 +24,10 @@ return static function (RouterBuilder $builder) {
         $builder->group('/actions', static function (RouterBuilder $builder) {
             $builder->get('/getSyslogConfig', [InternalActionController::class, 'getSyslogConfig']);
 
-            $builder->get('/callFinished', [InternalActionController::class, 'callFinished']);
-            $builder->get('/motionDetection', [InternalActionController::class, 'motionDetection']);
-            $builder->get('/openDoor', [InternalActionController::class, 'openDoor']);
-            $builder->get('/setRabbitGates', [InternalActionController::class, 'setRabbitGates']);
+            $builder->post('/callFinished', [InternalActionController::class, 'callFinished']);
+            $builder->post('/motionDetection', [InternalActionController::class, 'motionDetection']);
+            $builder->post('/openDoor', [InternalActionController::class, 'openDoor']);
+            $builder->post('/setRabbitGates', [InternalActionController::class, 'setRabbitGates']);
         });
 
         $builder->group('/frs', static function (RouterBuilder $builder) {
