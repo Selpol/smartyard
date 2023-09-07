@@ -43,17 +43,22 @@ class CliRunner implements KernelRunner
         $arguments = $this->getArguments();
 
         if ($this->isCommand($arguments, '--init-db')) $this->initDb();
+        else if ($this->isCommand($arguments, '--check-db')) return $this->checkDb();
+
         else if ($this->isCommand($arguments, '--cleanup')) $this->cleanup();
         else if ($this->isCommand($arguments, '--reindex')) $this->reindex();
         else if ($this->isCommand($arguments, '--clear-cache')) $this->clearCache();
         else if ($this->isCommand($arguments, '--admin-password', true)) $this->adminPassword($arguments['--admin-password']);
         else if ($this->isCommand($arguments, '--cron', true)) $this->cron($arguments);
+
         else if ($this->isCommand($arguments, '--install-crontabs')) $this->installCron();
         else if ($this->isCommand($arguments, '--uninstall-crontabs')) $this->uninstallCron();
-        else if ($this->isCommand($arguments, '--clear-kernel')) $this->clearKernel();
+
         else if ($this->isCommand($arguments, '--container-kernel')) $this->containerKernel();
         else if ($this->isCommand($arguments, '--router-kernel')) $this->routerKernel();
         else if ($this->isCommand($arguments, '--optimize-kernel')) $this->optimizeKernel();
+        else if ($this->isCommand($arguments, '--clear-kernel')) $this->clearKernel();
+
         else if ($this->isCommand($arguments, '--check-backends')) $this->checkBackends();
         else if ($this->isCommand($arguments, '--intercom-configure-task', true, 2)) $this->intercomConfigureTask($arguments);
         else echo $this->help();
@@ -103,6 +108,32 @@ class CliRunner implements KernelRunner
         echo "$n cache entries cleared\n\n";
 
         task(new ReindexTask())->sync();
+    }
+
+    private function checkDb(): int
+    {
+        try {
+            $db = container(DatabaseService::class);
+            $result = $db->get('SELECT 1 as result', options: ['singlify']);
+
+            $lastError = last_error();
+
+            if ($lastError !== null) {
+                echo $lastError;
+
+                return 1;
+            }
+
+            $result = $result['result'] == 1 ? 0 : 1;
+
+            echo $result . PHP_EOL;
+
+            return $result;
+        } catch (Throwable $throwable) {
+            echo $throwable->getMessage();
+
+            return 1;
+        }
     }
 
     /**
@@ -293,19 +324,6 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Uninstall crontabs', ['lines' => $lines]);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function clearKernel(): void
-    {
-        $cache = container(FileCache::class);
-
-        $cache->clear();
-
-        $this->logger->debug('Kernel cleared');
-    }
-
     private function containerKernel(): void
     {
         if (file_exists(path('config/container.php'))) {
@@ -368,6 +386,19 @@ class CliRunner implements KernelRunner
         }
 
         $this->logger->debug('Kernel optimized');
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function clearKernel(): void
+    {
+        $cache = container(FileCache::class);
+
+        $cache->clear();
+
+        $this->logger->debug('Kernel cleared');
     }
 
     /**

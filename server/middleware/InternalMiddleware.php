@@ -25,11 +25,11 @@ class InternalMiddleware implements MiddlewareInterface
     {
         $ip = connection_ip($request);
 
-        $this->logger?->debug('Request ' . $request->getRequestTarget(), ['ip' => $ip]);
-
         if ($ip === null) {
             /** @var HttpService $http */
             $http = $request->getAttribute('http');
+
+            $this->logger?->debug('Request without ip ' . $request->getRequestTarget(), ['ip' => $ip]);
 
             return $http->createResponse(404)
                 ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
@@ -46,6 +46,8 @@ class InternalMiddleware implements MiddlewareInterface
 
         /** @var HttpService $http */
         $http = $request->getAttribute('http');
+
+        $this->logger?->debug('Request denied ' . $request->getRequestTarget(), ['ip' => $ip]);
 
         return $http->createResponse(404)
             ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);

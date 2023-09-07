@@ -12,9 +12,13 @@ function init_db()
 {
     $db = container(DatabaseService::class);
 
-    $query = $db->query("select var_value from core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
+    try {
+        $query = $db->query("select var_value from core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
 
-    $version = $query ? (int)($query->fetch())['var_value'] : 0;
+        $version = $query ? (int)($query->fetch())['var_value'] : 0;
+    } catch (Throwable) {
+        $version = 0;
+    }
 
     $install = json_decode(file_get_contents("sql/install.json"), true);
 

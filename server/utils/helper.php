@@ -168,7 +168,7 @@ if (!function_exists('clear_cache')) {
 }
 
 if (!function_exists('last_error')) {
-    function last_error(string|bool|null $error = null): string|bool
+    function last_error(string|bool|null $error = null): string|bool|null
     {
         global $lastError;
 

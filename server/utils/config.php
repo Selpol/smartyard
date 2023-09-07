@@ -12,14 +12,17 @@ function load_env(): array
 
         $value = explode('=', $lines[$i], 2);
 
-        if (count($value) == 2)
-            $env[$value[0]] = $value[1];
+        if (count($value) == 2) {
+            $realValue = getenv($value[0]);
+
+            $env[$value[0]] = trim($realValue !== false ? $realValue : $value[1]);
+        }
     }
 
     return $env;
 }
 
-function env(?string $key = null): mixed
+function env(?string $key = null, ?string $default = null): mixed
 {
     if (file_exists(path('var/cache/env.php')))
         $env = require path('var/cache/env.php');
@@ -36,7 +39,7 @@ function env(?string $key = null): mixed
         if (array_key_exists($key, $env))
             return $env[$key];
 
-        return null;
+        return $default;
     }
 
     return $env;
@@ -62,14 +65,14 @@ function load_config(?array $value = null): array
             $envValue = env($key);
 
             if ($envValue !== false)
-                $value[$keys[$i]] = $envValue;
+                $value[$keys[$i]] = trim($envValue);
             else throw new RuntimeException($key . ' config key not found in env');
         } else if (preg_match_all('/\${([a-zA-Z_0-9]*)}/', $value[$keys[$i]], $matches))
             for ($j = 0; $j < count($matches[0]); $j++) {
                 $envValue = env($matches[1][$j]);
 
                 if (is_string($envValue))
-                    $value[$keys[$i]] = str_replace($matches[0][$j], $envValue, $value[$keys[$i]]);
+                    $value[$keys[$i]] = trim(str_replace($matches[0][$j], $envValue, $value[$keys[$i]]));
                 else throw new RuntimeException($matches[1][$j] . ' config key not found in env');
             }
     }

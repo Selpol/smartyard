@@ -156,7 +156,6 @@ class DatabaseService extends PDO
             }
 
             return $r;
-
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
