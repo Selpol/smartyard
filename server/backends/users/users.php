@@ -82,6 +82,8 @@ namespace backends\users {
 
         abstract public function deleteUser($uid);
 
+        abstract public function modifyUserEnabled(int $uid, bool $enabled): bool;
+
         /**
          * modify user data
          *

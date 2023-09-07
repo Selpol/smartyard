@@ -7,6 +7,7 @@
 namespace backends\users {
 
     use Exception;
+    use Throwable;
 
     /**
      * internal.db users class
@@ -237,6 +238,21 @@ namespace backends\users {
                 }
                 return true;
             } else {
+                return false;
+            }
+        }
+
+        public function modifyUserEnabled(int $uid, bool $enabled): bool
+        {
+            if (!check_int($uid)) {
+                return false;
+            }
+
+            try {
+                $sth = $this->db->prepare("update core_users set enabled = :enabled where uid = $uid");
+
+                return $sth->execute([":enabled" => $enabled ? "1" : "0"]);
+            } catch (Throwable) {
                 return false;
             }
         }

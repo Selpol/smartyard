@@ -164,27 +164,32 @@ namespace api\accounts {
      */
     class user extends api
     {
-
         public static function GET($params)
         {
-            $user = $params["_backends"]["users"]->getUser(@$params["_id"]);
+            $user = backend('users')->getUser(@$params["_id"]);
 
             return api::ANSWER($user, ($user !== false) ? "user" : "notFound");
         }
 
         public static function POST($params)
         {
-            $uid = $params["_backends"]["users"]->addUser($params["login"], $params["realName"], $params["eMail"], $params["phone"]);
+            $uid = backend('users')->addUser($params["login"], $params["realName"], $params["eMail"], $params["phone"]);
 
             return api::ANSWER($uid, ($uid !== false) ? "uid" : "notAcceptable");
         }
 
         public static function PUT($params)
         {
-            $success = $params["_backends"]["users"]->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"], $params["primaryGroup"]);
+            if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
+                $success = backend('users')->modifyUserEnabled($params['_id'], $params['enabled']);
+
+                return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            }
+
+            $success = backend('users')->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"], $params["primaryGroup"]);
 
             if (@$params["password"] && (int)$params["_id"]) {
-                $success = $success && $params["_backends"]["users"]->setPassword($params["_id"], $params["password"]);
+                $success = $success && backend('users')->setPassword($params["_id"], $params["password"]);
                 return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             } else return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
 
@@ -192,10 +197,12 @@ namespace api\accounts {
 
         public static function DELETE($params)
         {
-            if (@$params["session"])
-                $success = $params["_backends"]["authentication"]->logout($params["session"], false);
-            else
-                $success = $params["_backends"]["users"]->deleteUser($params["_id"]);
+            if (@$params["session"]) {
+                backend('authorization')->logout($params["session"]);
+
+                $success = true;
+            } else
+                $success = backend('users')->deleteUser($params["_id"]);
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
