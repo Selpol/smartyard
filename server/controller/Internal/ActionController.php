@@ -76,6 +76,8 @@ class ActionController extends Controller
 
         $plog = backend('plog');
 
+        logger('internal')->debug('Open door request', $body);
+
         switch ($event) {
             case $events['OPEN_BY_KEY']:
             case $events['OPEN_BY_CODE']:
