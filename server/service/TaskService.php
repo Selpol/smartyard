@@ -21,7 +21,6 @@ class TaskService implements LoggerAwareInterface, ContainerDispose
     private ?AMQPChannel $channel = null;
 
     public const QUEUE_HIGH = 'high';
-    public const QUEUE_MEDIUM = 'medium';
     public const QUEUE_LOW = 'low';
     public const QUEUE_DEFAULT = 'default';
 

@@ -10,6 +10,7 @@ RUN apk add --no-cache \
 		file \
 		gettext \
 		git \
+        supervisor \
 	;
 
 RUN set -eux; \
@@ -33,6 +34,8 @@ RUN set -eux; \
     ;
 
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+
+COPY --link docker/supervisor/* /etc/supervisor.d/
 
 COPY --link docker/php/conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link docker/php/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
@@ -67,7 +70,7 @@ COPY --link  . ./
 RUN rm -Rf docker/
 
 RUN set -eux; \
-	mkdir -p var/cache var/log; \
+	mkdir -p var/cache var/log var/log/task; \
     if [ -f composer.json ]; then \
 		composer dump-autoload --classmap-authoritative --no-dev; \
 		sync; \

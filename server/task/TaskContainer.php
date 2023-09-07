@@ -4,6 +4,7 @@ namespace Selpol\Task;
 
 use Exception;
 use Selpol\Service\TaskService;
+use Throwable;
 
 class TaskContainer
 {
@@ -29,19 +30,14 @@ class TaskContainer
         return $this->queue(TaskService::QUEUE_HIGH);
     }
 
-    public function medium(): static
+    public function default(): static
     {
-        return $this->queue(TaskService::QUEUE_MEDIUM);
+        return $this->queue(TaskService::QUEUE_DEFAULT);
     }
 
     public function low(): static
     {
         return $this->queue(TaskService::QUEUE_LOW);
-    }
-
-    public function default(): static
-    {
-        return $this->queue(TaskService::QUEUE_DEFAULT);
     }
 
     public function delay(?int $start): static
@@ -68,8 +64,8 @@ class TaskContainer
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 
             return true;
-        } catch (Exception $exception) {
-            $logger->error($exception);
+        } catch (Throwable $throwable) {
+            $logger->error('Error dispatching task' . PHP_EOL . $throwable);
 
             return false;
         }

@@ -38,6 +38,8 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
 
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX var
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX var
+
+	/usr/bin/supervisord
 fi
 
 exec docker-php-entrypoint "$@"
