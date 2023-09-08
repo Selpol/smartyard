@@ -36,7 +36,11 @@ class PlogOpenTask extends PlogTask
 
     public function onTask(): bool
     {
+        $logger = logger('plog');
+
         $this->retry++;
+
+        $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
 
         $plog = backend('plog');
 
@@ -51,16 +55,14 @@ class PlogOpenTask extends PlogTask
         $event_data[plog::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[plog::COLUMN_DOMOPHONE]['domophone_output']);
         $event_data[plog::COLUMN_EVENT_UUID] = guid_v4();
 
-        $logger = logger('plog');
-
-        $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
-
         if ($this->type == plog::EVENT_OPENED_BY_KEY) {
             $event_data[plog::COLUMN_OPENED] = 1;
             $rfid_key = $this->detail;
             $event_data[plog::COLUMN_RFID] = $rfid_key;
 
             $flat_list = $this->getFlatIdByRfid($rfid_key);
+
+            $logger->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail]);
 
             if (count($flat_list) == 0)
                 return false;
