@@ -3,8 +3,9 @@
 namespace Selpol\Http;
 
 use Psr\Http\Message\UriInterface;
+use Stringable;
 
-class Uri implements UriInterface
+class Uri implements UriInterface, Stringable
 {
     private string $scheme = '';
     private string $userInfo = '';
