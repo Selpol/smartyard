@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Internal;
 
-use Exception;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
+use Throwable;
 
 class ActionController extends Controller
 {
@@ -67,9 +67,9 @@ class ActionController extends Controller
         if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         try {
-            $events = @json_decode(file_get_contents(__DIR__ . "/../../syslog/utils/events.json"), true);
-        } catch (Exception $e) {
-            error_log(print_r($e, true));
+            $events = @json_decode(file_get_contents(__DIR__ . "/../../../syslog/utils/events.json"), true);
+        } catch (Throwable $throwable) {
+            logger('internal')->error('Open door error' . PHP_EOL . $throwable);
 
             return $this->rbtResponse(500, message: 'Тип событий не был найден');
         }
