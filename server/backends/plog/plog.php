@@ -21,6 +21,7 @@ namespace backends\plog {
         const EVENT_OPENED_BY_FACE = 5;
         const EVENT_OPENED_BY_CODE = 6;
         const EVENT_OPENED_GATES_BY_CALL = 7;
+        const EVENT_OPENED_BY_BUTTON = 8;
 
         //колонки событий
         const COLUMN_DATE = 'date';

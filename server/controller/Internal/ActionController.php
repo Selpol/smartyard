@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Internal;
 
+use backends\plog\plog;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
-use Throwable;
 
 class ActionController extends Controller
 {
@@ -66,29 +66,21 @@ class ActionController extends Controller
 
         if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400, message: 'Неверный формат данных');
 
-        try {
-            $events = @json_decode(file_get_contents(__DIR__ . "/../../../syslog/utils/events.json"), true);
-        } catch (Throwable $throwable) {
-            logger('internal')->error('Open door error' . PHP_EOL . $throwable);
-
-            return $this->rbtResponse(500, message: 'Тип событий не был найден');
-        }
-
         $plog = backend('plog');
 
         logger('internal')->debug('Open door request', $body);
 
         switch ($event) {
-            case $events['OPEN_BY_KEY']:
-            case $events['OPEN_BY_CODE']:
+            case plog::EVENT_OPENED_BY_KEY:
+            case plog::EVENT_OPENED_BY_CODE:
                 $plog->addDoorOpenData($date, $ip, $event, $door, $detail);
 
                 return $this->rbtResponse();
 
-            case $events['OPEN_BY_CALL']:
+            case plog::EVENT_OPENED_GATES_BY_CALL:
                 return $this->rbtResponse();
 
-            case $events['OPEN_BY_BUTTON']:
+            case plog::EVENT_OPENED_BY_BUTTON:
                 $db = container(DatabaseService::class);
 
                 [0 => [
