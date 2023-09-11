@@ -35,7 +35,6 @@ class IntercomConfigureTask extends IntercomTask
     {
         $households = backend('households');
         $configs = backend('configs');
-        $sip = backend("sip");
 
         $domophone = $households->getDomophone($this->id);
 
@@ -57,7 +56,7 @@ class IntercomConfigureTask extends IntercomTask
 
         $this->setProgress(2);
 
-        $asterisk_server = $sip->server("ip", $domophone['server']);
+        $asterisk_server = backend('sip')->server("ip", $domophone['server']);
         $cmses = $configs->getCMSes();
         $panel_text = $entrances[0]['callerId'];
 

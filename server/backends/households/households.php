@@ -275,6 +275,8 @@ namespace backends\households {
          */
         abstract public function getKeys($by, $query);
 
+        abstract public function getKey(int $keyId): array|false;
+
         /**
          * @param $rfId
          * @param $accessType

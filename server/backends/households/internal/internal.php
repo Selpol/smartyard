@@ -1355,6 +1355,18 @@ namespace backends\households {
             ]);
         }
 
+        public function getKey(int $keyId): array|false
+        {
+            return $this->db->get('select * from houses_rfids where house_rfid_id = :key_id', ['key_id' => $keyId], [
+                "house_rfid_id" => "keyId",
+                "rfid" => "rfId",
+                "access_type" => "accessType",
+                "access_to" => "accessTo",
+                "last_seen" => "lastSeen",
+                "comments" => "comments",
+            ], ['singlify']);
+        }
+
         /**
          * @inheritDoc
          */
