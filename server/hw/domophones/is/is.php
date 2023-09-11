@@ -241,7 +241,7 @@ namespace hw\domophones {
 
         public function configure_apartment_levels(int $apartment, int $answer, int $quiescent): void
         {
-            $this->api_call('/panelCode/' . $answer, 'PUT', ['resistances' => ['answer' => $answer, 'quiescent' => $quiescent]]);
+            $this->api_call('/panelCode/' . $apartment, 'PUT', ['resistances' => ['answer' => $answer, 'quiescent' => $quiescent]]);
         }
 
         public function configure_cms(int $apartment, int $offset)
