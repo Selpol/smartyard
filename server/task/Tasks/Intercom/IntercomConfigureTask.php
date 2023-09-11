@@ -1,30 +1,39 @@
 <?php
 
-namespace Selpol\Task\Tasks;
+namespace Selpol\Task\Tasks\Intercom;
 
 use Exception;
+use hw\domophones\domophones;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Http\Uri;
 use Selpol\Service\DomophoneService;
-use Selpol\Task\Task;
 use Throwable;
 
-class IntercomConfigureTask extends Task
+class IntercomConfigureTask extends IntercomTask
 {
+    public const SYNC_FIRST = 1 << 1;
+    public const SYNC_KEYS = 1 << 2;
+    public const SYNC_CMS = 1 << 3;
+
     public int $id;
-    public bool $first;
 
-    public function __construct(int $id, bool $first)
+    public int $flags;
+
+    public function __construct(int $id, int $flags)
     {
-        parent::__construct($first ? ('Первичная настройка домофона (' . $id . ')') : ('Настройка домофона (' . $id . ')'));
+        parent::__construct($id, (($flags & self::SYNC_FIRST) == self::SYNC_FIRST) ? ('Первичная настройка домофона (' . $id . ')') : ('Настройка домофона (' . $id . ')'));
 
-        $this->id = $id;
-        $this->first = $first;
+        $this->flags = $flags;
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ContainerExceptionInterface
+     */
     public function onTask(): bool
     {
         $households = backend('households');
-        $addresses = backend('addresses');
         $configs = backend('configs');
         $sip = backend("sip");
 
@@ -52,17 +61,69 @@ class IntercomConfigureTask extends Task
         $cmses = $configs->getCMSes();
         $panel_text = $entrances[0]['callerId'];
 
+        $first = ($this->flags & self::SYNC_FIRST) == self::SYNC_FIRST;
+
         try {
-            $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials'], $this->first);
+            $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials'], $first);
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
 
             return false;
         }
 
+        $cms_levels = explode(',', $entrances[0]['cmsLevels']);
+        $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
+        $is_shared = $entrances[0]['shared'];
+
+        if ($this->flags > 1) {
+            $keys = ($this->flags & self::SYNC_KEYS) == self::SYNC_KEYS;
+            $cms = ($this->flags & self::SYNC_CMS) == self::SYNC_CMS;
+
+            if ($keys) {
+                $links = [];
+
+                $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
+
+                if ($is_shared)
+                    $panel->configure_gate($links);
+            }
+
+            if ($cms)
+                $this->cms($is_shared, $entrances, $cms_model, $panel);
+        } else {
+            $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
+            $this->cms($is_shared, $entrances, $cms_model, $panel);
+
+            $this->setProgress(50);
+
+            $links = [];
+
+            $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
+
+            if ($is_shared)
+                $panel->configure_gate($links);
+
+            $this->common($panel_text, $entrances, $panel);
+            $this->mifare($panel);
+        }
+
+        return true;
+    }
+
+    public function onError(Throwable $throwable): void
+    {
+        task(new IntercomConfigureTask($this->id, $this->flags))->low()->delay(600)->dispatch();
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function main(bool $first, array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, domophones $panel): void
+    {
         $this->setProgress(5);
 
-        if ($this->first)
+        if ($first)
             $panel->prepare();
 
         $this->setProgress(10);
@@ -87,18 +148,13 @@ class IntercomConfigureTask extends Task
 
         $nat = (bool)$domophone['nat'];
 
-        $stun = new Uri($sip->stun(''));
+        $stun = new Uri(backend('sip')->stun(''));
 
         $stun_server = $stun->getHost();
         $stun_port = $stun->getPort() ?? 3478;
 
         $audio_levels = [];
         $main_door_dtmf = $domophone['dtmf'];
-
-        $cms_levels = explode(',', $entrances[0]['cmsLevels']);
-        $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
-
-        $is_shared = $entrances[0]['shared'];
 
         $panel->clean(
             $sip_server,
@@ -118,24 +174,34 @@ class IntercomConfigureTask extends Task
         );
 
         $this->setProgress(25);
+    }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function cms(bool $is_shared, array $entrances, string $cms_model, domophones $panel): void
+    {
         if (!$is_shared) {
-            $cms_allocation = $households->getCms($entrances[0]['entranceId']);
+            $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
 
-            foreach ($cms_allocation as $item) {
+            foreach ($cms_allocation as $item)
                 $panel->configure_cms_raw($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
-            }
         }
+    }
 
-        $links = [];
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, domophones $panel): void
+    {
         $offset = 0;
 
         $domophoneId = $this->id;
 
-        $this->setProgress(50);
-
         foreach ($entrances as $entrance) {
-            $flats = $households->getFlats('houseId', $entrance['houseId']);
+            $flats = backend('households')->getFlats('houseId', $entrance['houseId']);
 
             if (!$flats) {
                 continue;
@@ -145,7 +211,7 @@ class IntercomConfigureTask extends Task
             $end = end($flats)['flat'];
 
             $links[] = [
-                'addr' => $addresses->getHouse($entrance['houseId'])['houseFull'],
+                'addr' => backend('addresses')->getHouse($entrance['houseId'])['houseFull'],
                 'prefix' => $entrance['prefix'],
                 'begin' => $begin,
                 'end' => $end,
@@ -179,22 +245,20 @@ class IntercomConfigureTask extends Task
                         $apartment_levels
                     );
 
-                    $keys = $households->getKeys('flatId', $flat['flatId']);
+                    $keys = backend('households')->getKeys('flatId', $flat['flatId']);
 
-                    foreach ($keys as $key) {
+                    foreach ($keys as $key)
                         $panel->add_rfid($key['rfId'], $apartment);
-                    }
                 }
 
-                if ($flat['flat'] == $end) {
+                if ($flat['flat'] == $end)
                     $offset += $flat['flat'];
-                }
             }
         }
+    }
 
-        if ($is_shared) {
-            $panel->configure_gate($links);
-        }
+    private function common(string $panel_text, array $entrances, domophones $panel): void
+    {
 
         $this->setProgress(75);
 
@@ -213,18 +277,14 @@ class IntercomConfigureTask extends Task
         $panel->keep_doors_unlocked($entrances[0]['locksDisabled']);
 
         $this->setProgress(95);
+    }
 
+    private function mifare(domophones $panel): void
+    {
         $key = env('MIFARE_KEY');
         $sector = env('MIFARE_SECTOR');
 
         if ($key !== false && $sector !== false)
             $panel->configure_mifare($key, $sector);
-
-        return true;
-    }
-
-    public function onError(Throwable $throwable): void
-    {
-        task(new IntercomConfigureTask($this->id, $this->first))->low()->delay(600)->dispatch();
     }
 }

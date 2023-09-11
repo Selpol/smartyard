@@ -15,7 +15,7 @@ use Selpol\Logger\EchoLogger;
 use Selpol\Logger\GroupLogger;
 use Selpol\Router\RouterBuilder;
 use Selpol\Service\DatabaseService;
-use Selpol\Task\Tasks\IntercomConfigureTask;
+use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\ReindexTask;
 use Throwable;
 
@@ -445,7 +445,7 @@ class CliRunner implements KernelRunner
         $id = $arguments['--intercom-configure-task'];
         $first = array_key_exists('--first', $arguments);
 
-        task(new IntercomConfigureTask($id, $first))->sync();
+        task(new IntercomConfigureTask($id, $first ? IntercomConfigureTask::SYNC_FIRST : 0))->sync();
     }
 
     private function help(): string

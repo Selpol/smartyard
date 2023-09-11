@@ -7,8 +7,7 @@
 namespace api\houses {
 
     use api\api;
-
-    use Selpol\Task\Tasks\IntercomConfigureTask;
+    use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
     use Selpol\Validator\Rule;
     use Selpol\Validator\ValidatorMessage;
 
@@ -43,7 +42,7 @@ namespace api\houses {
             $households = backend("households");
 
             if (array_key_exists('configure', $params) && $params['configure'])
-                task(new IntercomConfigureTask($params['_id'], array_key_exists('first', $params) ? $params["first"] : false))->high()->dispatch();
+                task(new IntercomConfigureTask($params['_id'], array_key_exists('first', $params) ? IntercomConfigureTask::SYNC_FIRST : 0))->high()->dispatch();
 
             $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
 

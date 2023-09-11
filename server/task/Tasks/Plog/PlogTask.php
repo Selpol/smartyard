@@ -9,6 +9,13 @@ abstract class PlogTask extends Task
     /** @var int Идентификатор устройства */
     public int $id;
 
+    protected function __construct(int $id, string $title)
+    {
+        parent::__construct($title);
+
+        $this->id = $id;
+    }
+
     protected function getDomophoneDescription($domophone_output)
     {
         $households = backend('households');

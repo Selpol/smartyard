@@ -7,9 +7,6 @@ use Throwable;
 
 class PlogCallTask extends PlogTask
 {
-    /** @var int Идентификатор устройства */
-    public int $id;
-
     /** @var string IP-адресс устройства */
     public string $ip;
 
@@ -23,9 +20,8 @@ class PlogCallTask extends PlogTask
 
     public function __construct(int $id, string $ip, int $date, ?int $call)
     {
-        parent::__construct('Событие звонка');
+        parent::__construct($id, 'Событие звонка');
 
-        $this->id = $id;
         $this->ip = $ip;
 
         $this->date = $date;

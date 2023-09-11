@@ -24,9 +24,7 @@ class PlogOpenTask extends PlogTask
 
     public function __construct(int $id, int $type, int $door, int $date, string $detail)
     {
-        parent::__construct('Событие открытие двери');
-
-        $this->id = $id;
+        parent::__construct($id, 'Событие открытие двери');
 
         $this->type = $type;
         $this->door = $door;

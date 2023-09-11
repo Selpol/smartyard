@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
     /**
      * house method
@@ -28,6 +29,14 @@ namespace api\houses {
             $households = backend("households");
 
             $success = $households->setCms($params["_id"], $params["cms"]);
+
+            $domophones = $households->getDomophones('house', $params['_id']);
+
+            if ($domophones && count($domophones) > 0) {
+                $id = $domophones['domophoneId'];
+
+                task(new IntercomConfigureTask($id, IntercomConfigureTask::SYNC_CMS))->high()->dispatch();
+            }
 
             return api::ANSWER($success);
         }
