@@ -118,6 +118,8 @@ class FrontendRunner implements KernelRunner
 
         if ($api == 'server' && $method == 'ping')
             return $this->emit($this->response()->withString('pong'));
+        else if ($api == 'accounts' && $method == 'forgot')
+            return $this->emit($this->forgot($params));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password']) {
                 return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
@@ -148,9 +150,7 @@ class FrontendRunner implements KernelRunner
         if (@$params["_login"])
             container(RedisService::class)->getRedis()->set("last_" . md5($params["_login"]), time());
 
-        if ($api == 'accounts' && $method == 'forgot')
-            return $this->emit($this->forgot($params));
-        else if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
+        if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
             $cache = false;
 
             if ($params["_request_method"] === "GET") {
