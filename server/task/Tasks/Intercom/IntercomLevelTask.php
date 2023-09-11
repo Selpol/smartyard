@@ -19,7 +19,7 @@ class IntercomLevelTask extends Task
 
     public function __construct(int $entranceId, int $apartment, int $answer, int $quiescent)
     {
-        parent::__construct('Конфигурация Уровня (' . ', ' . $entranceId . $apartment . ', ' . $answer . ', ' . $quiescent . ')');
+        parent::__construct('Конфигурация Уровня (' . $entranceId . ', ' . $apartment . ', ' . $answer . ', ' . $quiescent . ')');
 
         $this->entranceId = $entranceId;
 
