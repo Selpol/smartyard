@@ -5,11 +5,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
-use Selpol\Container\Container;
 use Selpol\Kernel\Kernel;
 use Selpol\Logger\FileLogger;
 use Selpol\Service\BackendService;
-use Selpol\Service\RedisService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
 use Selpol\Validator\Validator;
@@ -49,9 +47,7 @@ if (!function_exists('container')) {
      */
     function container(string $key): mixed
     {
-        $container = kernel()?->getContainer() ?? Container::instance();
-
-        return $container->get($key);
+        return kernel()->getContainer()->get($key);
     }
 }
 
@@ -145,25 +141,6 @@ if (!function_exists('check_string')) {
             return false;
 
         return true;
-    }
-}
-
-if (!function_exists('clear_cache')) {
-    function clear_cache($uid): int
-    {
-        $keys = [];
-
-        $redis = container(RedisService::class)->getRedis();
-
-        if ($uid === true)
-            $keys = $redis->keys("cache_*");
-        else if (check_int($uid))
-            $keys = $redis->keys("cache_*_$uid");
-
-        if ($keys !== null && $keys !== false && count($keys) > 0)
-            $redis->del($keys);
-
-        return count($keys);
     }
 }
 

@@ -46,7 +46,6 @@ class CliRunner implements KernelRunner
 
         else if ($this->isCommand($arguments, '--cleanup')) $this->cleanup();
         else if ($this->isCommand($arguments, '--reindex')) $this->reindex();
-        else if ($this->isCommand($arguments, '--clear-cache')) $this->clearCache();
         else if ($this->isCommand($arguments, '--admin-password', true)) $this->adminPassword($arguments['--admin-password']);
 
         else if ($this->isCommand($arguments, '--cron', true)) $this->cron($arguments);
@@ -99,10 +98,6 @@ class CliRunner implements KernelRunner
         require_once path('sql/install.php');
 
         init_db();
-
-        $n = clear_cache(true);
-
-        echo "$n cache entries cleared\n\n";
 
         task(new ReindexTask())->sync();
     }
@@ -157,17 +152,7 @@ class CliRunner implements KernelRunner
      */
     private function reindex(): void
     {
-        $n = clear_cache(true);
-        echo "$n cache entries cleared\n";
-
         task(new ReindexTask())->sync();
-    }
-
-    private function clearCache(): void
-    {
-        $n = clear_cache(true);
-
-        echo "$n cache entries cleared\n";
     }
 
     /**
@@ -408,7 +393,6 @@ class CliRunner implements KernelRunner
         rbt:
             [--cleanup]
             [--reindex]
-            [--clear-cache]
             [--admin-password=<password>]
 
         cron:

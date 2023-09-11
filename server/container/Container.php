@@ -7,8 +7,6 @@ use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    private static ?Container $container = null;
-
     private array $instances = [];
     private array $factories = [];
 
@@ -108,14 +106,5 @@ class Container implements ContainerInterface
                     logger('container')->error($exception);
                 }
         }
-    }
-
-    // TODO: Потом полностью удалить статический доступ к классу
-    public static function instance(): Container
-    {
-        if (self::$container === null)
-            self::$container = new Container();
-
-        return self::$container;
     }
 }
