@@ -140,7 +140,7 @@ class FrontendRunner implements KernelRunner
 
                 $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit($this->option($this->response($code))->withJson($result));
+                if ((int)$code) return $this->emit($this->option($this->response($code))->withJson($result[$code]));
                 else return $this->emit($this->option($this->response(500))->withStatusJson());
             } else return $this->emit($this->option($this->response(404))->withStatusJson());
         }
