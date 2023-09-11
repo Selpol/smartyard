@@ -44,8 +44,8 @@ namespace api\houses {
             if (array_key_exists('apartmentsAndLevels', $params)) {
                 $levels = explode(',', $params['apartmentsAndLevels']['apartmentLevels']);
 
-                if (count($levels) == 2)
-                    task(new IntercomLevelTask($params['_id'], $params['apartmentsAndLevels']['apartment'], $levels[0], $levels[1]))->high()->dispatch();
+                if (count($levels) === 2)
+                    task(new IntercomLevelTask($params['_id'], $params['apartmentsAndLevels']['apartment'], trim($levels[0]), trim($levels[1])))->high()->dispatch();
             }
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
