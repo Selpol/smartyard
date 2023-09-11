@@ -111,7 +111,7 @@ class Response implements ResponseInterface
         return $this->withJson([
             'code' => $this->statusCode,
             'name' => self::$codes[$this->statusCode]['name'],
-            'message' => $message ?? self::$codes[$this->statusCode]['message']
+            'message' => $message ?: self::$codes[$this->statusCode]['message']
         ]);
     }
 

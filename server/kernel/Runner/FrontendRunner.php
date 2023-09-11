@@ -44,7 +44,7 @@ class FrontendRunner implements KernelRunner
         $http_authorization = $request->getHeader('Authorization');
 
         if (count($http_authorization) == 0)
-            return $this->emit($this->response(403)->withStatusJson());
+            return $this->emit($this->response(403)->withStatusJson('Авторизация не указана'));
 
         $http_authorization = $http_authorization[0];
         $http_refresh = $request->hasHeader('X-Api-Refresh');
@@ -52,7 +52,7 @@ class FrontendRunner implements KernelRunner
         $ip = connection_ip($request);
 
         if (!$ip)
-            return $this->emit($this->response(403)->withStatusJson());
+            return $this->emit($this->response(403)->withStatusJson('Неизвестный источник запроса'));
 
         $redis_cache_ttl = config('redis.cache_ttl') ?? 3600;
 
@@ -82,7 +82,7 @@ class FrontendRunner implements KernelRunner
 
         foreach ($required_backends as $backend)
             if (backend($backend) === false)
-                return $this->emit($this->response(500)->withStatusJson());
+                return $this->emit($this->response(500)->withStatusJson('Часть сервисов не доступна'));
 
         $clearCache = false;
 
