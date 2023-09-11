@@ -33,10 +33,7 @@ class FrontendRunner implements KernelRunner
 
         if ($request->getMethod() === 'OPTIONS') {
             return $this->emit(
-                $this->response(204)
-                    ->withHeader('Access-Control-Allow-Origin', '*')
-                    ->withHeader('Access-Control-Allow-Headers', '*')
-                    ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+                $this->option($this->response(204))
                     ->withHeader('Content-Type', 'text/html;charset=ISO-8859-1')
             );
         }
@@ -51,7 +48,7 @@ class FrontendRunner implements KernelRunner
         $ip = connection_ip($request);
 
         if (!$ip)
-            return $this->emit($this->response(403)->withStatusJson('Неизвестный источник запроса'));
+            return $this->emit($this->option($this->response(403))->withStatusJson('Неизвестный источник запроса'));
 
         $redis_cache_ttl = config('redis.cache_ttl') ?? 3600;
 
@@ -81,7 +78,7 @@ class FrontendRunner implements KernelRunner
 
         foreach ($required_backends as $backend)
             if (backend($backend) === false)
-                return $this->emit($this->response(500)->withStatusJson('Часть сервисов не доступна'));
+                return $this->emit($this->option($this->response(500))->withStatusJson('Часть сервисов не доступна'));
 
         $clearCache = false;
 
@@ -122,7 +119,7 @@ class FrontendRunner implements KernelRunner
             return $this->emit($this->forgot($params));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password']) {
-                return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
+                return $this->emit($this->option($this->response(400))->withStatusJson('Логин или пароль не указан'));
             }
         } else if ($http_authorization) {
             $userAgent = $request->getHeader('User-Agent');
@@ -130,8 +127,8 @@ class FrontendRunner implements KernelRunner
             $auth = backend('authentication')->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
             if (!$auth)
-                return $this->emit($this->response(403)->withStatusJson('Пользователь не авторизирован'));
-        } else return $this->emit($this->response(403)->withStatusJson('Данные авторизации не переданны'));
+                return $this->emit($this->option($this->response(403))->withStatusJson('Пользователь не авторизирован'));
+        } else return $this->emit($this->option($this->response(403))->withStatusJson('Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
             $params["_uid"] = $auth["uid"];
@@ -165,7 +162,7 @@ class FrontendRunner implements KernelRunner
                 header("X-Api-Data-Source: cache_" . $params["_md5"] . "_" . $auth["uid"]);
                 $code = array_key_first($cache);
 
-                return $this->emit($this->response($code)->withJson($cache[$code]));
+                return $this->emit($this->option($this->response($code))->withJson($cache[$code]));
             } else {
                 if ($clearCache)
                     clear_cache($auth['uid']);
@@ -184,13 +181,13 @@ class FrontendRunner implements KernelRunner
                             container(RedisService::class)->getRedis()->setex('cache_' . $params['_md5'] . '_' . $auth['uid'], $ttl, json_encode($result));
                         }
 
-                        return $this->emit($this->response($code)->withJson($result));
-                    } else return $this->emit($this->response(500)->withStatusJson());
-                } else return $this->emit($this->response(404)->withStatusJson());
+                        return $this->emit($this->option($this->response($code))->withJson($result));
+                    } else return $this->emit($this->option($this->response(500))->withStatusJson());
+                } else return $this->emit($this->option($this->response(404))->withStatusJson());
             }
         }
 
-        return $this->emit($this->response(404)->withStatusJson());
+        return $this->emit($this->option($this->response(404))->withStatusJson());
     }
 
     /**
@@ -211,8 +208,16 @@ class FrontendRunner implements KernelRunner
 
         if (array_key_exists('available', $params))
             if (backend('users')->capabilities()['mode'] !== 'rw')
-                return $this->response(403)->withStatusJson('Недостаточно возможностей');
+                return $this->option($this->response(403))->withStatusJson('Недостаточно возможностей');
 
-        return $this->response(204);
+        return $this->option($this->response(204));
+    }
+
+    private function option(Response $response): Response
+    {
+        return $response
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', '*')
+            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
     }
 }
