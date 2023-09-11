@@ -15,7 +15,6 @@ use Selpol\Logger\EchoLogger;
 use Selpol\Logger\GroupLogger;
 use Selpol\Router\RouterBuilder;
 use Selpol\Service\DatabaseService;
-use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\ReindexTask;
 use Throwable;
 
@@ -49,8 +48,8 @@ class CliRunner implements KernelRunner
         else if ($this->isCommand($arguments, '--reindex')) $this->reindex();
         else if ($this->isCommand($arguments, '--clear-cache')) $this->clearCache();
         else if ($this->isCommand($arguments, '--admin-password', true)) $this->adminPassword($arguments['--admin-password']);
-        else if ($this->isCommand($arguments, '--cron', true)) $this->cron($arguments);
 
+        else if ($this->isCommand($arguments, '--cron', true)) $this->cron($arguments);
         else if ($this->isCommand($arguments, '--install-crontabs')) $this->installCron();
         else if ($this->isCommand($arguments, '--uninstall-crontabs')) $this->uninstallCron();
 
@@ -59,8 +58,6 @@ class CliRunner implements KernelRunner
         else if ($this->isCommand($arguments, '--optimize-kernel')) $this->optimizeKernel();
         else if ($this->isCommand($arguments, '--clear-kernel')) $this->clearKernel();
 
-        else if ($this->isCommand($arguments, '--check-backends')) $this->checkBackends();
-        else if ($this->isCommand($arguments, '--intercom-configure-task', true, 2)) $this->intercomConfigureTask($arguments);
         else echo $this->help();
 
         return 0;
@@ -401,78 +398,30 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Kernel cleared');
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function checkBackends(): void
-    {
-        $backends = config('backends');
-
-        $all_ok = true;
-
-        foreach ($backends as $backend => $null) {
-            $t = backend($backend);
-
-            if (!$t) {
-                echo "loading $backend failed\n";
-
-                $all_ok = false;
-            } else {
-                try {
-                    if (!$t->check()) {
-                        echo "error checking backend $backend\n";
-
-                        $all_ok = false;
-                    }
-                } catch (Exception $e) {
-                    print_r($e);
-
-                    $all_ok = false;
-                }
-            }
-        }
-
-        if ($all_ok)
-            echo "everything is all right\n";
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function intercomConfigureTask(array $arguments): void
-    {
-        $id = $arguments['--intercom-configure-task'];
-        $first = array_key_exists('--first', $arguments);
-
-        task(new IntercomConfigureTask($id, $first ? IntercomConfigureTask::SYNC_FIRST : 0))->sync();
-    }
-
     private function help(): string
     {
         return "initialization:
+        db:
             [--init-db]
-            [--admin-password=<password>]
+            [--check-db]
+
+        rbt:
+            [--cleanup]
             [--reindex]
             [--clear-cache]
-            [--cleanup]
-
-        kernel:
-            [--clear-kernel]
-            [--container-kernel]
-            [--router-kernel]
-            [--optimize-kernel]
-
-        tests:
-            [--check-backends]
+            [--admin-password=<password>]
 
         cron:
             [--cron=<minutely|5min|hourly|daily|monthly>]
+
             [--install-crontabs]
             [--uninstall-crontabs]
 
-        intercom:
-            [--intercom-configure-task=<id> [--first]]
+        kernel:
+            [--container-kernel]
+            [--router-kernel]
+            [--optimize-kernel]
+            [--clear-kernel]
         \n";
     }
 
