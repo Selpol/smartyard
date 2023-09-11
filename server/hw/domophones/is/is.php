@@ -71,7 +71,7 @@ namespace hw\domophones {
         }
 
         /** Delete a private code from the apartment */
-        protected function delete_open_code(int $apartment)
+        public function delete_open_code(int $apartment)
         {
             $this->api_call("/openCode/$apartment", 'DELETE');
         }

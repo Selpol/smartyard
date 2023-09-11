@@ -62,8 +62,10 @@ class IntercomCodeTask extends Task
         try {
             $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials']);
 
+            $panel->delete_open_code($flat);
             $panel->add_open_code($this->code, $flat);
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            logger('intercom')->error($throwable);
         }
     }
 }
