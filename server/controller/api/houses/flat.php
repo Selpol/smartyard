@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
 
     /**
      * house method
@@ -39,6 +40,13 @@ namespace api\houses {
             $households = backend("households");
 
             $success = $households->modifyFlat($params["_id"], $params);
+
+            if (array_key_exists('apartmentsAndLevels', $params)) {
+                $levels = explode(',', $params['apartmentsAndLevels']['apartmentLevels']);
+
+                if (count($levels) == 2)
+                    task(new IntercomLevelTask($params['_id'], $params['apartmentsAndLevels']['apartment'], $levels[0], $levels[1]));
+            }
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }

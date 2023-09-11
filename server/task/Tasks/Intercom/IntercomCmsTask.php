@@ -27,7 +27,7 @@ class IntercomCmsTask extends Task
     {
         $entrance = backend('households')->getEntrance($this->entranceId);
 
-        if (!$entrance)
+        if (!$entrance || $entrance['shared'])
             return false;
 
         $domophone = backend('households')->getDomophone($entrance['domophoneId']);

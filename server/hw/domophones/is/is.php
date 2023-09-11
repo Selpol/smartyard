@@ -194,11 +194,11 @@ namespace hw\domophones {
         }
 
         public function configure_apartment(
-            int $apartment,
-            bool $private_code_enabled,
-            bool $cms_handset_enabled,
+            int   $apartment,
+            bool  $private_code_enabled,
+            bool  $cms_handset_enabled,
             array $sip_numbers = [],
-            int $private_code = 0,
+            int   $private_code = 0,
             array $levels = []
         )
         {
@@ -237,6 +237,11 @@ namespace hw\domophones {
             if ($private_code_enabled) {
                 $this->add_open_code($private_code, $apartment);
             }
+        }
+
+        public function configure_apartment_levels(int $apartment, int $answer, int $quiescent): void
+        {
+            $this->api_call('/panelCode/' . $answer, 'PUT', ['resistances' => ['answer' => $answer, 'quiescent' => $quiescent]]);
         }
 
         public function configure_cms(int $apartment, int $offset)
@@ -296,10 +301,10 @@ namespace hw\domophones {
             string $login,
             string $password,
             string $server,
-            int $port = 5060,
-            bool $nat = false,
+            int    $port = 5060,
+            bool   $nat = false,
             string $stun_server = '',
-            int $stun_port = 3478
+            int    $stun_port = 3478
         )
         {
             $this->api_call('/sip/settings', 'PUT', [
