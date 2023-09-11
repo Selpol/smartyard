@@ -106,6 +106,15 @@ class Response implements ResponseInterface
         return $this->withString(json_encode($value, flags: JSON_UNESCAPED_UNICODE));
     }
 
+    public function withStatusJson(): self
+    {
+        return $this->withJson([
+            'code' => $this->statusCode,
+            'name' => self::$codes[$this->statusCode]['name'],
+            'message' => self::$codes[$this->statusCode]['message']
+        ]);
+    }
+
     public function getReasonPhrase(): string
     {
         if ($this->reasonPhrase === null && array_key_exists($this->statusCode, self::$codes))

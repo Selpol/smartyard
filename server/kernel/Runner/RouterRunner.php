@@ -10,19 +10,18 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Container\Container;
-use Selpol\Http\HttpException;
-use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
+use Selpol\Kernel\Runner\Trait\ResponseTrait;
 use Selpol\Router\Router;
 use Selpol\Router\RouterMatch;
 use Selpol\Service\HttpService;
-use Selpol\Validator\ValidatorException;
-use Throwable;
 
 class RouterRunner implements KernelRunner, RequestHandlerInterface
 {
+    use ResponseTrait;
+
     private Router $router;
 
     /** @var string[] $middlewares */
@@ -60,9 +59,7 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             ));
         }
 
-        return $this->emit($http
-            ->createResponse(404)
-            ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]));
+        return $this->emit($this->response(404)->withStatusJson());
     }
 
     /**
@@ -72,35 +69,21 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if (count($this->middlewares) === 0) {
-            /** @var HttpService $http */
-            $http = $request->getAttribute('http');
-
-            if ($http === null)
-                return $http
-                    ->createResponse(404)
-                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
-
             /** @var RouterMatch $route */
             $route = $request->getAttribute('route');
 
             if ($route === null)
-                return $http
-                    ->createResponse(404)
-                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
+                return $this->response(404)->withStatusJson();
 
             if ($route->getMethod() === 'file') {
                 if (!file_exists($route->getClass()))
-                    return $http
-                        ->createResponse(404)
-                        ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
+                    return $this->response(404)->withStatusJson();
 
                 return require_once $route->getClass();
             } else if (!class_exists($route->getClass())) {
                 var_dump($route->getClass());
 
-                return $http
-                    ->createResponse(404)
-                    ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
+                return $this->response(404)->withStatusJson();
             }
 
             $class = $route->getClass();
@@ -116,97 +99,5 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
         $middleware = $container->make(array_shift($this->middlewares));
 
         return $middleware->process($request, $this);
-    }
-
-    function onFailed(Throwable $throwable, bool $fatal): int
-    {
-
-        try {
-            if ($throwable instanceof HttpException)
-                $response = container(HttpService::class)
-                    ->createResponse($throwable->getCode())
-                    ->withJson(['code' => $throwable->getCode(), 'message' => $throwable->getMessage()]);
-            else if ($throwable instanceof ValidatorException)
-                $response = \container(HttpService::class)
-                    ->createResponse(400)
-                    ->withJson(['code' => 400, 'name' => Response::$codes[400]['name'], 'message' => $throwable->getValidatorMessage()->getMessage()]);
-            else {
-                logger('response')->error($throwable, ['fatal' => $fatal]);
-
-                $response = container(HttpService::class)
-                    ->createResponse(500)
-                    ->withJson(['code' => 500, 'name' => Response::$codes[500]['name'], 'message' => Response::$codes[500]['message']]);
-            }
-
-            return $this->emit($response);
-        } catch (Throwable $throwable) {
-            logger('response')->critical($throwable);
-
-            return 1;
-        }
-    }
-
-    private function emit(ResponseInterface $response): int
-    {
-        try {
-            header('HTTP/' . $response->getProtocolVersion() . ' ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase());
-
-            foreach ($response->getHeaders() as $name => $values)
-                header($name . ': ' . $response->getHeaderLine($name), false);
-
-            if ($response->getStatusCode() != 204) {
-                $body = $response->getBody();
-
-                if ($body->getSize() > 1024 * 1024) {
-                    $begin = 0;
-                    $size = $body->getSize();
-                    $end = $size - 1;
-
-                    if (isset($_SERVER['HTTP_RANGE'])) {
-                        if (preg_match('/bytes=\h*(\d+)-(\d*)[\D.*]?/i', $_SERVER['HTTP_RANGE'], $matches)) {
-                            $begin = intval($matches[1]);
-                            if (!empty($matches[2]))
-                                $end = intval($matches[2]);
-                        }
-
-                        header('HTTP/1.1 206 Partial Content');
-                        header("Content-Range: bytes $begin-$end/$size");
-                    } else
-                        header('HTTP/1.1 200 OK');
-
-                    $new_length = $end - $begin + 1;
-
-                    header('Cache-Control: public, must-revalidate, max-age=0');
-                    header('Pragma: no-cache');
-                    header('Accept-Ranges: bytes');
-                    header('Content-Length:' . $new_length);
-                    header('Content-Transfer-Encoding: binary');
-
-                    $chunk_size = 1024 * 1024;
-                    $bytes_send = 0;
-
-                    if (isset($_SERVER['HTTP_RANGE']))
-                        $body->seek($begin);
-
-                    while (!$body->eof() && !connection_aborted() && ($bytes_send < $new_length)) {
-                        $buffer = $body->read($chunk_size);
-
-                        echo $buffer;
-
-                        $bytes_send += strlen($buffer);
-                    }
-                } else {
-                    header('Content-Length: ' . $body->getSize());
-
-                    echo $body->getContents();
-                }
-
-                $body->close();
-            }
-        } catch (Throwable $throwable) {
-            logger('response')->emergency('Emergency error' . PHP_EOL . $throwable);
-        }
-
-        return 0;
     }
 }
