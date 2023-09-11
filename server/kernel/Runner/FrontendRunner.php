@@ -122,7 +122,7 @@ class FrontendRunner implements KernelRunner
 
         if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password']) {
-                return $this->emit($this->response(403)->withStatusJson());
+                return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
             }
         } else {
             if ($http_authorization) {
@@ -131,8 +131,8 @@ class FrontendRunner implements KernelRunner
                 $auth = backend('authentication')->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
                 if (!$auth)
-                    return $this->emit($this->response(403)->withStatusJson());
-            } else return $this->emit($this->response(403)->withStatusJson());
+                    return $this->emit($this->response(403)->withStatusJson('Пользователь не авторизирован'));
+            } else return $this->emit($this->response(403)->withStatusJson('Данные авторизации не переданны'));
         }
 
         if ($http_authorization && $auth) {
@@ -204,33 +204,19 @@ class FrontendRunner implements KernelRunner
      */
     private function forgot(array $params): Response
     {
-        if (@$params["eMail"]) {
-            $uid = backend('users')->getUidByEMail($params["eMail"]);
-            if ($uid !== false) {
-                $redis = container(RedisService::class)->getRedis();
-
-                $keys = $redis->keys("forgot_*_" . $uid);
-
-                if (!count($keys)) {
-                    $token = md5(guid_v4());
-                    $redis->setex("forgot_" . $token . "_" . $uid, 900, "1");
-                }
-            }
-        }
-
-        if (@$params["token"]) {
+        if (array_key_exists('token', $params)) {
             $redis = container(RedisService::class)->getRedis();
 
-            $keys = $redis->keys("forgot_{$params["token"]}_*");
+            $keys = $redis->keys("forgot_{$params['token']}_*");
 
             foreach ($keys as $key)
                 $redis->del($key);
         }
 
-        if (@$params["available"])
-            if (backend('users')->capabilities()["mode"] !== "rw")
-                return $this->response(403)->withStatusJson();
+        if (array_key_exists('available', $params))
+            if (backend('users')->capabilities()['mode'] !== 'rw')
+                return $this->response(403)->withStatusJson('Недостаточно возможностей');
 
-        return $this->response()->withStatusJson();
+        return $this->response(204);
     }
 }
