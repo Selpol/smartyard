@@ -94,6 +94,8 @@ class IntercomController extends Controller
                 $params['voipEnabled'] = ($settings['VoIP'] == 't') ? 1 : 0;
                 $households->modifySubscriber($user['subscriberId'], $params);
             }
+
+            task(new IntercomUserTask($validate['flatId']))->high()->dispatch();
         }
 
         $subscriber = $households->getSubscribers('id', $user['subscriberId'])[0];
@@ -138,11 +140,8 @@ class IntercomController extends Controller
                 $result['FRSDisabled'] = $frsDisabled;
         }
 
-        if ($result) {
-            task(new IntercomUserTask($validate['flatId']))->high()->dispatch();
-
+        if ($result)
             return $this->rbtResponse(200, $result);
-        }
 
         return $this->rbtResponse(404, message: 'Ничего нет');
     }
