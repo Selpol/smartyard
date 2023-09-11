@@ -44,7 +44,7 @@ class FrontendRunner implements KernelRunner
         $http_authorization = $request->getHeader('Authorization');
 
         if (count($http_authorization) == 0)
-            return $this->emit($this->response(403)->withStatusJson('Авторизация не указана'));
+            $http_authorization = false;
 
         $http_authorization = $http_authorization[0];
         $http_refresh = $request->hasHeader('X-Api-Refresh');
