@@ -2,14 +2,18 @@
 
 namespace Selpol\Kernel;
 
-use Selpol\Container\Container;
+use Selpol\Kernel\Trait\ConfigTrait;
+use Selpol\Kernel\Trait\ContainerTrait;
+use Selpol\Kernel\Trait\EnvTrait;
 use Throwable;
 
 class Kernel
 {
-    private static ?Kernel $instance = null;
+    use EnvTrait;
+    use ConfigTrait;
+    use ContainerTrait;
 
-    private Container $container;
+    private static ?Kernel $instance = null;
 
     private KernelRunner $runner;
 
@@ -19,21 +23,6 @@ class Kernel
     public function __construct()
     {
         self::$instance = $this;
-    }
-
-    public function getContainer(): Container
-    {
-        if (!isset($this->container))
-            $this->container = new Container();
-
-        return $this->container;
-    }
-
-    public function setContainer(Container $container): static
-    {
-        $this->container = $container;
-
-        return $this;
     }
 
     public function setRunner(KernelRunner $runner): static
@@ -61,7 +50,9 @@ class Kernel
     {
         mb_internal_encoding('UTF-8');
 
-        $this->container = new Container();
+        $this->loadEnv();
+        $this->loadConfig();
+        $this->loadContainer();
 
         require_once path('backends/backend.php');
 

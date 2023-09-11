@@ -2,7 +2,7 @@
 
 namespace Selpol\Router;
 
-class RouterBuilder
+class RouterConfigurator
 {
     private array $routes = [];
 
@@ -25,7 +25,7 @@ class RouterBuilder
 
     public function group(string $path, callable $callback): static
     {
-        $builder = new RouterBuilder();
+        $builder = new RouterConfigurator();
         $callback($builder);
 
         $routes = $builder->collect(false);

@@ -16,13 +16,13 @@ use Selpol\Middleware\InternalMiddleware;
 use Selpol\Middleware\JwtMiddleware;
 use Selpol\Middleware\MobileMiddleware;
 use Selpol\Middleware\RateLimitMiddleware;
-use Selpol\Router\RouterBuilder;
+use Selpol\Router\RouterConfigurator as RC;
 
-return static function (RouterBuilder $builder) {
-    $builder->group('/internal', static function (RouterBuilder $builder) {
+return static function (RC $builder) {
+    $builder->group('/internal', static function (RC $builder) {
         $builder->include(InternalMiddleware::class);
 
-        $builder->group('/actions', static function (RouterBuilder $builder) {
+        $builder->group('/actions', static function (RC $builder) {
             $builder->get('/getSyslogConfig', [InternalActionController::class, 'getSyslogConfig']);
 
             $builder->post('/callFinished', [InternalActionController::class, 'callFinished']);
@@ -31,18 +31,18 @@ return static function (RouterBuilder $builder) {
             $builder->post('/setRabbitGates', [InternalActionController::class, 'setRabbitGates']);
         });
 
-        $builder->group('/frs', static function (RouterBuilder $builder) {
+        $builder->group('/frs', static function (RC $builder) {
             $builder->post('/callback', [InternalFrsController::class, 'callback']);
             $builder->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
         });
     });
 
-    $builder->group('/mobile', static function (RouterBuilder $builder) {
+    $builder->group('/mobile', static function (RC $builder) {
         $builder->include(JwtMiddleware::class);
         $builder->include(MobileMiddleware::class);
         $builder->include(RateLimitMiddleware::class);
 
-        $builder->group('/address', static function (RouterBuilder $builder) {
+        $builder->group('/address', static function (RC $builder) {
             $builder->post('/getAddressList', [AddressController::class, 'getAddressList']);
             $builder->post('/registerQR', [AddressController::class, 'registerQR'], excludes: [MobileMiddleware::class]);
 
@@ -55,7 +55,7 @@ return static function (RouterBuilder $builder) {
             $builder->post('/plogDays', [PlogController::class, 'days']);
         });
 
-        $builder->group('/cctv', static function (RouterBuilder $builder) {
+        $builder->group('/cctv', static function (RC $builder) {
             $builder->post('/all', [CameraController::class, 'all']);
             $builder->post('/events', [CameraController::class, 'events']);
 
@@ -63,29 +63,29 @@ return static function (RouterBuilder $builder) {
             $builder->get('/download/{uuid}', [ArchiveController::class, 'download'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
         });
 
-        $builder->group('/call', static function (RouterBuilder $builder) {
+        $builder->group('/call', static function (RC $builder) {
             $builder->get('/camshot/{hash}', [CallController::class, 'camshot']);
             $builder->get('/live/{hash}', [CallController::class, 'live']);
         });
 
-        $builder->group('/frs', static function (RouterBuilder $builder) {
+        $builder->group('/frs', static function (RC $builder) {
             $builder->get('/{flatId}', [FrsController::class, 'index']);
             $builder->post('/{eventId}', [FrsController::class, 'store']);
             $builder->delete('/', [FrsController::class, 'delete']);
         });
 
-        $builder->group('/inbox', static function (RouterBuilder $builder) {
+        $builder->group('/inbox', static function (RC $builder) {
             $builder->post('/read', [InboxController::class, 'read']);
             $builder->post('/unread', [InboxController::class, 'unread']);
         });
 
-        $builder->group('/subscriber', static function (RouterBuilder $builder) {
+        $builder->group('/subscriber', static function (RC $builder) {
             $builder->get('/{flatId}', [SubscriberController::class, 'index']);
             $builder->post('/{flatId}', [SubscriberController::class, 'store']);
             $builder->delete('/{flatId}', [SubscriberController::class, 'delete']);
         });
 
-        $builder->group('/user', static function (RouterBuilder $builder) {
+        $builder->group('/user', static function (RC $builder) {
             $builder->post('/ping', [UserController::class, 'ping']);
             $builder->post('/registerPushToken', [UserController::class, 'registerPushToken']);
             $builder->post('/sendName', [UserController::class, 'sendName']);

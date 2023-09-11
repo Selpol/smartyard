@@ -2,7 +2,7 @@
 
 use Selpol\Cache\FileCache;
 use Selpol\Cache\RedisCache;
-use Selpol\Container\ContainerBuilder;
+use Selpol\Container\ContainerConfigurator;
 use Selpol\Service\AuthService;
 use Selpol\Service\BackendService;
 use Selpol\Service\CameraService;
@@ -13,7 +13,7 @@ use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
 use Selpol\Service\TaskService;
 
-return static function (ContainerBuilder $builder) {
+return static function (ContainerConfigurator $builder) {
     $builder->singleton(RedisService::class);
     $builder->singleton(DatabaseService::class);
     $builder->singleton(TaskService::class);

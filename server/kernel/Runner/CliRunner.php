@@ -8,12 +8,14 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Cache\FileCache;
-use Selpol\Container\ContainerBuilder;
+use Selpol\Container\ContainerConfigurator;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
+use Selpol\Kernel\Trait\ConfigTrait;
+use Selpol\Kernel\Trait\EnvTrait;
 use Selpol\Logger\EchoLogger;
 use Selpol\Logger\GroupLogger;
-use Selpol\Router\RouterBuilder;
+use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\ReindexTask;
 use Throwable;
@@ -54,7 +56,7 @@ class CliRunner implements KernelRunner
 
         else if ($this->isCommand($arguments, '--container-kernel')) $this->containerKernel();
         else if ($this->isCommand($arguments, '--router-kernel')) $this->routerKernel();
-        else if ($this->isCommand($arguments, '--optimize-kernel')) $this->optimizeKernel();
+        else if ($this->isCommand($arguments, '--optimize-kernel')) $this->optimizeKernel($kernel);
         else if ($this->isCommand($arguments, '--clear-kernel')) $this->clearKernel();
 
         else echo $this->help();
@@ -310,7 +312,7 @@ class CliRunner implements KernelRunner
     {
         if (file_exists(path('config/container.php'))) {
             $callback = require path('config/container.php');
-            $builder = new ContainerBuilder();
+            $builder = new ContainerConfigurator();
             $callback($builder);
 
             $factories = $builder->getFactories();
@@ -330,7 +332,7 @@ class CliRunner implements KernelRunner
     {
         if (file_exists(path('config/router.php'))) {
             $callback = require path('config/router.php');
-            $builder = new RouterBuilder();
+            $builder = new RouterConfigurator();
             $callback($builder);
 
             $routes = $builder->collect();
@@ -344,16 +346,44 @@ class CliRunner implements KernelRunner
      * @throws NotFoundExceptionInterface
      * @throws InvalidArgumentException
      */
-    private function optimizeKernel(): void
+    private function optimizeKernel(Kernel $kernel): void
     {
         $cache = container(FileCache::class);
 
-        $cache->set('env', load_env());
-        $cache->set('config', load_config());
+        $kernelEnv = $kernel->getEnv();
+        $kernelConfig = $kernel->getConfig();
+
+        if (file_exists(path('.env'))) {
+            $env = new class {
+                use EnvTrait;
+
+                public function __construct()
+                {
+                    $this->loadEnv(false);
+                }
+            };
+
+            $kernel->setEnv($env->getEnv());
+            $cache->set('env', $env->getEnv());
+        }
+
+        if (file_exists(path('config/config.php'))) {
+            $config = new class {
+                use ConfigTrait;
+
+                public function __construct()
+                {
+                    $this->loadConfig(false);
+                }
+            };
+
+            $kernel->setConfig($config->getConfig());
+            $cache->set('config', $config->getConfig());
+        }
 
         if (file_exists(path('config/container.php'))) {
             $callback = require path('config/container.php');
-            $builder = new ContainerBuilder();
+            $builder = new ContainerConfigurator();
             $callback($builder);
 
             $cache->set('container', $builder->getFactories());
@@ -361,11 +391,14 @@ class CliRunner implements KernelRunner
 
         if (file_exists(path('config/router.php'))) {
             $callback = require path('config/router.php');
-            $builder = new RouterBuilder();
+            $builder = new RouterConfigurator();
             $callback($builder);
 
             $cache->set('router', $builder->collect());
         }
+
+        $kernel->setEnv($kernelEnv);
+        $kernel->setConfig($kernelConfig);
 
         $this->logger->debug('Kernel optimized');
     }

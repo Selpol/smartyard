@@ -37,17 +37,36 @@ if (!function_exists('kernel')) {
     }
 }
 
+if (!function_exists('env')) {
+    function env(?string $key = null, ?string $default = null): mixed
+    {
+        if ($key !== null)
+            return kernel()->getEnvValue($key, $default);
+
+        return kernel()->getEnv();
+    }
+}
+
+if (!function_exists('config')) {
+    function config(?string $key = null, mixed $default = null): mixed
+    {
+        if ($key !== null)
+            return kernel()->getConfigValue($key, $default);
+
+        return kernel()->getConfig();
+    }
+}
+
 if (!function_exists('container')) {
     /**
      * @template T
      * @psalm-param class-string<T> $key
      * @return T
      * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
      */
     function container(string $key): mixed
     {
-        return kernel()->getContainer()->get($key);
+        return kernel()->getContainerValue($key);
     }
 }
 

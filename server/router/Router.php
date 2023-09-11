@@ -17,7 +17,7 @@ class Router
                 $this->routes = $router;
             } else if (file_exists(path('config/router.php'))) {
                 $callback = require_once path('config/router.php');
-                $builder = new RouterBuilder();
+                $builder = new RouterConfigurator();
 
                 $callback($builder);
 

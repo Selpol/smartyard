@@ -7,23 +7,13 @@ use Psr\Container\ContainerInterface;
 
 class Container implements ContainerInterface
 {
-    private array $instances = [];
-    private array $factories = [];
+    private array $instances;
+    private array $factories;
 
-    public function __construct(bool $configure = true)
+    public function __construct(array $instances = [], array $factories = [])
     {
-        if ($configure) {
-            if (file_exists(path('var/cache/container.php')))
-                $this->factories = require_once path('var/cache/container.php');
-            else if (file_exists(path('config/container.php'))) {
-                $callback = require_once path('config/container.php');
-                $builder = new ContainerBuilder();
-
-                $callback($builder);
-
-                $this->factories = $builder->getFactories();
-            }
-        }
+        $this->instances = $instances;
+        $this->factories = $factories;
     }
 
     public function singleton(string $id, ?string $factory = null): void
@@ -44,7 +34,6 @@ class Container implements ContainerInterface
     /**
      * @template T
      * @psalm-param class-string<T> $id
-     * @param string $id
      * @return T
      */
     public function get(string $id)

@@ -2,7 +2,7 @@
 
 namespace Selpol\Container;
 
-class ContainerBuilder
+class ContainerConfigurator
 {
     private array $factories = [];
 
