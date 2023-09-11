@@ -12,15 +12,13 @@ use Throwable;
 
 class IntercomConfigureTask extends IntercomTask
 {
-    public const SYNC_FIRST = 1 << 1;
-    public const SYNC_KEYS = 1 << 2;
-    public const SYNC_CMS = 1 << 3;
+    public const SYNC_FIRST = 1 << 0;
 
     public int $id;
 
     public int $flags;
 
-    public function __construct(int $id, int $flags)
+    public function __construct(int $id, int $flags = 0)
     {
         parent::__construct($id, (($flags & self::SYNC_FIRST) == self::SYNC_FIRST) ? ('Первичная настройка домофона (' . $id . ')') : ('Настройка домофона (' . $id . ')'));
 
@@ -74,37 +72,20 @@ class IntercomConfigureTask extends IntercomTask
         $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
         $is_shared = $entrances[0]['shared'];
 
-        if ($this->flags > 1) {
-            $keys = ($this->flags & self::SYNC_KEYS) == self::SYNC_KEYS;
-            $cms = ($this->flags & self::SYNC_CMS) == self::SYNC_CMS;
+        $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
+        $this->cms($is_shared, $entrances, $cms_model, $panel);
 
-            if ($keys) {
-                $links = [];
+        $this->setProgress(50);
 
-                $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
+        $links = [];
 
-                if ($is_shared)
-                    $panel->configure_gate($links);
-            }
+        $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
 
-            if ($cms)
-                $this->cms($is_shared, $entrances, $cms_model, $panel);
-        } else {
-            $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
-            $this->cms($is_shared, $entrances, $cms_model, $panel);
+        if ($is_shared)
+            $panel->configure_gate($links);
 
-            $this->setProgress(50);
-
-            $links = [];
-
-            $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
-
-            if ($is_shared)
-                $panel->configure_gate($links);
-
-            $this->common($panel_text, $entrances, $panel);
-            $this->mifare($panel);
-        }
+        $this->common($panel_text, $entrances, $panel);
+        $this->mifare($panel);
 
         return true;
     }
