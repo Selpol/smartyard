@@ -43,10 +43,9 @@ class FrontendRunner implements KernelRunner
 
         $http_authorization = $request->getHeader('Authorization');
 
-        if (count($http_authorization) == 0)
-            $http_authorization = false;
+        if (count($http_authorization) == 0) $http_authorization = false;
+        else $http_authorization = $http_authorization[0];
 
-        $http_authorization = $http_authorization[0];
         $http_refresh = $request->hasHeader('X-Api-Refresh');
 
         $ip = connection_ip($request);
@@ -119,21 +118,18 @@ class FrontendRunner implements KernelRunner
 
         if ($api == 'server' && $method == 'ping')
             return $this->emit($this->response()->withString('pong'));
-
-        if ($api == 'authentication' && $method == 'login') {
+        else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password']) {
                 return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
             }
-        } else {
-            if ($http_authorization) {
-                $userAgent = $request->getHeader('User-Agent');
+        } else if ($http_authorization) {
+            $userAgent = $request->getHeader('User-Agent');
 
-                $auth = backend('authentication')->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
+            $auth = backend('authentication')->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
-                if (!$auth)
-                    return $this->emit($this->response(403)->withStatusJson('Пользователь не авторизирован'));
-            } else return $this->emit($this->response(403)->withStatusJson('Данные авторизации не переданны'));
-        }
+            if (!$auth)
+                return $this->emit($this->response(403)->withStatusJson('Пользователь не авторизирован'));
+        } else return $this->emit($this->response(403)->withStatusJson('Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
             $params["_uid"] = $auth["uid"];
