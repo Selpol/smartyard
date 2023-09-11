@@ -198,7 +198,7 @@ namespace api\accounts {
         public static function DELETE($params)
         {
             if (@$params["session"]) {
-                backend('authorization')->logout($params["session"]);
+                backend('authentication')->logout($params["session"]);
 
                 $success = true;
             } else
