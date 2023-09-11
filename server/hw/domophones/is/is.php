@@ -235,6 +235,7 @@ namespace hw\domophones {
             $this->api_call('/panelCode' . $endpoint, $method, $payload);
 
             if ($private_code_enabled) {
+                $this->delete_open_code($apartment);
                 $this->add_open_code($private_code, $apartment);
             }
         }
