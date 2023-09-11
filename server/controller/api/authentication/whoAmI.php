@@ -46,6 +46,7 @@
 namespace api\authentication {
 
     use api\api;
+    use Selpol\Service\RedisService;
 
     /**
      * whoAmI method
@@ -55,15 +56,18 @@ namespace api\authentication {
 
         public static function GET($params)
         {
-            $user = $params["_backends"]["users"]->getUser($params["_uid"]);
+            $user = backend('users')->getUser($params["_uid"]);
 
             $extension = sprintf("7%09d", (int)$params["_uid"]);
-            $cred = $params["_redis"]->get("webrtc_" . md5($extension));
+
+            $redis = container(RedisService::class)->getRedis();
+
+            $cred = $redis->get("webrtc_" . md5($extension));
 
             if (!$cred)
                 $cred = md5(guid_v4());
 
-            $params["_redis"]->setex("webrtc_" . md5($extension), 24 * 60 * 60, $cred);
+            $redis->setex("webrtc_" . md5($extension), 24 * 60 * 60, $cred);
 
             $user["webRtcExtension"] = $extension;
             $user["webRtcPassword"] = $cred;

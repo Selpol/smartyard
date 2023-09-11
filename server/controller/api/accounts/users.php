@@ -52,7 +52,7 @@ namespace api\accounts {
 
         public static function GET($params)
         {
-            $users = $params["_backends"]["users"]->getUsers();
+            $users = backend('users')->getUsers();
 
             return api::ANSWER($users, ($users !== false) ? "users" : "notFound");
         }

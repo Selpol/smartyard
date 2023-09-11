@@ -29,6 +29,7 @@
 namespace api\server {
 
     use api\api;
+    use Selpol\Service\DatabaseService;
 
     /**
      * version method
@@ -39,7 +40,7 @@ namespace api\server {
         public static function GET($params)
         {
             try {
-                $version = (int)$params["_db"]->query("select var_value from vars where var_name = 'dbVersion'", \PDO::FETCH_ASSOC)->fetch()["var_value"];
+                $version = container(DatabaseService::class)->query("select var_value from vars where var_name = 'dbVersion'", \PDO::FETCH_ASSOC)->fetch()["var_value"];
             } catch (\Exception $e) {
                 $version = 0;
             }

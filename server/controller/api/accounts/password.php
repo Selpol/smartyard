@@ -46,7 +46,7 @@ namespace api\accounts {
 
         public static function POST($params)
         {
-            $success = $params["_backends"]["users"]->setPassword(@$params["_id"], $params["password"]);
+            $success = backend('users')->setPassword(@$params["_id"], $params["password"]);
 
             return self::ANSWER($success, ($success !== false) ? false : "notFound");
         }

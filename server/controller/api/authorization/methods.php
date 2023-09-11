@@ -27,7 +27,7 @@ namespace api\authorization {
 
         public static function GET($params)
         {
-            $methods = $params["_backends"]["authorization"]->methods($params["all"]);
+            $methods = backend('authorization')->methods($params["all"]);
 
             return api::ANSWER($methods, ($methods !== false) ? "methods" : "notFound");
         }

@@ -56,7 +56,7 @@ namespace api\authorization {
 
         public static function GET($params)
         {
-            return api::SUCCESS("available", $params["_backends"]["authorization"]->allowedMethods($params["_uid"]));
+            return api::SUCCESS("available", backend('authorization')->allowedMethods($params["_uid"]));
         }
 
         public static function index()

@@ -1,7 +1,6 @@
 <?php
 
 use Selpol\Container\Container;
-use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
@@ -91,7 +90,7 @@ $m = explode('/', $path);
 $api = @$m[0];
 $method = @$m[1];
 
-$params = ['_backends' => []];
+$params = [];
 
 if (count($m) >= 3)
     $params["_id"] = urldecode($m[2]);
@@ -102,9 +101,7 @@ $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
 $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
 
 foreach ($required_backends as $backend) {
-    if (($load = backend($backend)) !== false)
-        $params['_backends'][$backend] = $load;
-    else
+    if (backend($backend) === false)
         response(555, ["error" => "noRequiredBackend"]);
 }
 
@@ -157,30 +154,30 @@ $auth = false;
 function forgot($params)
 {
     if (@$params["eMail"]) {
-        $uid = $params["_backends"]["users"]->getUidByEMail($params["eMail"]);
+        $uid = backend('users')->getUidByEMail($params["eMail"]);
         if ($uid !== false) {
-            $keys = $params["_redis"]->keys("forgot_*_" . $uid);
+            $redis = container(RedisService::class)->getRedis();
+
+            $keys = $redis->keys("forgot_*_" . $uid);
 
             if (!count($keys)) {
                 $token = md5(guid_v4());
-                $params["_redis"]->setex("forgot_" . $token . "_" . $uid, 900, "1");
+                $redis->setex("forgot_" . $token . "_" . $uid, 900, "1");
             }
         }
     }
 
     if (@$params["token"]) {
-        $keys = $params["_redis"]->keys("forgot_{$params["token"]}_*");
+        $redis = container(RedisService::class)->getRedis();
 
-        $uid = false;
+        $keys = $redis->keys("forgot_{$params["token"]}_*");
 
-        foreach ($keys as $key) {
-            $params["_redis"]->del($key);
-            $uid = explode("_", $key)[2];
-        }
+        foreach ($keys as $key)
+            $redis->del($key);
     }
 
     if (@$params["available"])
-        if ($params["_backends"]["users"]->capabilities()["mode"] !== "rw")
+        if (backend('users')->capabilities()["mode"] !== "rw")
             response(403);
 
     response();
@@ -229,14 +226,10 @@ if ($http_authorization && $auth) {
 
 $params["_md5"] = md5(print_r($params, true));
 
-$params["_config"] = config();
-$params["_redis"] = container(RedisService::class)->getRedis();
-$params["_db"] = container(DatabaseService::class);
-
 $params["_ip"] = $ip;
 
 if (@$params["_login"])
-    $params["_redis"]->set("last_" . md5($params["_login"]), time());
+    container(RedisService::class)->getRedis()->set("last_" . md5($params["_login"]), time());
 
 if ($api == "accounts" && $method == "forgot") {
     forgot($params);
@@ -245,7 +238,7 @@ if ($api == "accounts" && $method == "forgot") {
 
     if ($params["_request_method"] === "GET") {
         try {
-            $cache = json_decode($params["_redis"]->get("cache_" . $params["_md5"]) . "_" . $auth["uid"], true);
+            $cache = json_decode(container(RedisService::class)->getRedis()->get("cache_" . $params["_md5"]) . "_" . $auth["uid"], true);
         } catch (Exception $e) {
             error_log(print_r($e, true));
         }
@@ -273,7 +266,7 @@ if ($api == "accounts" && $method == "forgot") {
                 if ((int)$code) {
                     if ($params["_request_method"] == "GET" && (int)$code === 200) {
                         $ttl = (array_key_exists("cache", $result)) ? ((int)$cache) : $redis_cache_ttl;
-                        $params["_redis"]->setex("cache_" . $params["_md5"] . "_" . $auth["uid"], $ttl, json_encode($result));
+                        container(RedisService::class)->getRedis()->setex("cache_" . $params["_md5"] . "_" . $auth["uid"], $ttl, json_encode($result));
                     }
 
                     response($code, $result[$code]);

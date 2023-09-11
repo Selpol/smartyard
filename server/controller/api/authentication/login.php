@@ -53,7 +53,7 @@ namespace api\authentication {
         public static function POST($params)
         {
 
-            $auth = $params["_backends"]["authentication"]->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]));
+            $auth = backend('authentication')->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]));
 
             if ($auth["result"]) return ["200" => ["token" => $auth["token"],],];
             else return [$auth["code"] => ["error" => $auth["error"],]];

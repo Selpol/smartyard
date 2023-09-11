@@ -38,14 +38,14 @@ namespace api\authorization {
 
         public static function GET($params)
         {
-            $rights = $params["_backends"]["authorization"]->getRights();
+            $rights = backend('authorization')->getRights();
 
             return api::ANSWER($rights, ($rights !== false) ? "rights" : "notFound");
         }
 
         public static function POST($params)
         {
-            $success = $params["_backends"]["authorization"]->setRights($params["user"], $params["user"] ? $params["uid"] : $params["gid"], $params["api"], $params["method"], $params["allow"], $params["deny"]);
+            $success = backend('authorization')->setRights($params["user"], $params["user"] ? $params["uid"] : $params["gid"], $params["api"], $params["method"], $params["allow"], $params["deny"]);
 
             return api::ANSWER($success, ($success !== false) ? false : "unknown");
         }

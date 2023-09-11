@@ -46,7 +46,7 @@ namespace api\authentication {
     {
         public static function POST($params)
         {
-            $params["_backends"]["authentication"]->logout($params["_token"], @$params['mode'] == 'all');
+            backend('authentication')->logout($params["_token"], @$params['mode'] == 'all');
 
             return ["204" => null];
         }

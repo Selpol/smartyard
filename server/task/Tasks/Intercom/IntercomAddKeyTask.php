@@ -2,7 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Service\DomophoneService;
