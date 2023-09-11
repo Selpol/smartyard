@@ -98,6 +98,11 @@ namespace hw\domophones {
         {
         }
 
+        public function add_open_code($code, $apartment)
+        {
+
+        }
+
         /** Настроить ККМ адресацию для квартиры ("нормальное" заполнение) */
         abstract public function configure_cms(int $apartment, int $offset);
 

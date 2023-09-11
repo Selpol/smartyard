@@ -9,6 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DomophoneService;
+use Selpol\Task\Tasks\Intercom\IntercomCodeTask;
 use Selpol\Validator\Rule;
 
 class IntercomController extends Controller
@@ -137,7 +138,11 @@ class IntercomController extends Controller
                 $result['FRSDisabled'] = $frsDisabled;
         }
 
-        if ($result) return $this->rbtResponse(200, $result);
+        if ($result) {
+            task(new IntercomCodeTask($validate['flatId'], @$flat['openCode'] ?: '00000'))->high()->dispatch();
+
+            return $this->rbtResponse(200, $result);
+        }
 
         return $this->rbtResponse(404, message: 'Ничего нет');
     }

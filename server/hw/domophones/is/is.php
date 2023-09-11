@@ -40,7 +40,7 @@ namespace hw\domophones {
         }
 
         /** Add the private code to the apartment */
-        protected function add_open_code($code, $apartment)
+        public function add_open_code($code, $apartment)
         {
             $this->api_call('/openCode', 'POST', [
                 'code' => $code,
