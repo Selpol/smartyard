@@ -42,10 +42,12 @@ namespace api\houses {
             $success = $households->modifyFlat($params["_id"], $params);
 
             if (array_key_exists('apartmentsAndLevels', $params)) {
-                $levels = explode(',', $params['apartmentsAndLevels']['apartmentLevels']);
+                foreach ($params['apartmentsAndLevels'] as $entranceId => $value) {
+                    $levels = explode(',', $value['apartmentLevels']);
 
-                if (count($levels) === 2)
-                    task(new IntercomLevelTask($params['_id'], $params['apartmentsAndLevels']['apartment'], trim($levels[0]), trim($levels[1])))->high()->dispatch();
+                    if (count($levels) === 2)
+                        task(new IntercomLevelTask($entranceId, $value['apartment'], trim($levels[0]), trim($levels[1])))->high()->dispatch();
+                }
             }
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");

@@ -10,18 +10,18 @@ use Throwable;
 
 class IntercomLevelTask extends Task
 {
-    public int $flatId;
+    public int $entranceId;
 
     public int $apartment;
 
     public int $answer;
     public int $quiescent;
 
-    public function __construct(int $flatId, int $apartment, int $answer, int $quiescent)
+    public function __construct(int $entranceId, int $apartment, int $answer, int $quiescent)
     {
-        parent::__construct('Конфигурация Уровня (' . ', ' . $flatId . $apartment . ', ' . $answer . ', ' . $quiescent . ')');
+        parent::__construct('Конфигурация Уровня (' . ', ' . $entranceId . $apartment . ', ' . $answer . ', ' . $quiescent . ')');
 
-        $this->flatId = $flatId;
+        $this->entranceId = $entranceId;
 
         $this->apartment = $apartment;
 
@@ -35,22 +35,17 @@ class IntercomLevelTask extends Task
      */
     public function onTask(): bool
     {
-        $entrances = backend('households')->getEntrances('flatId', $this->flatId);
+        $entrance = backend('households')->getEntrance($this->entranceId);
 
-        if (!$entrances || count($entrances) == 0)
+        if (!$entrance || $entrance['shared'])
             return false;
 
-        foreach ($entrances as $entrance) {
-            if ($entrance['shared'])
-                continue;
+        $domophone = backend('households')->getDomophone($entrance['domophoneId']);
 
-            $domophone = backend('households')->getDomophone($entrance['domophoneId']);
+        if (!$domophone)
+            return false;
 
-            if (!$domophone)
-                continue;
-
-            $this->level($domophone);
-        }
+        $this->level($domophone);
 
         return true;
     }
