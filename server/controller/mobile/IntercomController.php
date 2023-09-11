@@ -9,7 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DomophoneService;
-use Selpol\Task\Tasks\Intercom\IntercomCodeTask;
+use Selpol\Task\Tasks\Intercom\IntercomUserTask;
 use Selpol\Validator\Rule;
 
 class IntercomController extends Controller
@@ -139,7 +139,7 @@ class IntercomController extends Controller
         }
 
         if ($result) {
-            task(new IntercomCodeTask($validate['flatId'], @$flat['openCode'] ?: '00000'))->high()->dispatch();
+            task(new IntercomUserTask($validate['flatId']))->high()->dispatch();
 
             return $this->rbtResponse(200, $result);
         }

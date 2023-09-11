@@ -8,17 +8,15 @@ use Selpol\Service\DomophoneService;
 use Selpol\Task\Task;
 use Throwable;
 
-class IntercomCodeTask extends Task
+class IntercomUserTask extends Task
 {
     public int $flatId;
-    public string $code;
 
-    public function __construct(int $flatId, string $code)
+    public function __construct(int $flatId)
     {
-        parent::__construct('Синхронизация кода (' . $flatId . ',' . $code . ')');
+        parent::__construct('Синхронизация пользователя (' . $flatId . ')');
 
         $this->flatId = $flatId;
-        $this->code = $code;
     }
 
     /**
@@ -39,7 +37,7 @@ class IntercomCodeTask extends Task
                 $id = $entrance['domophoneId'];
 
                 if ($id)
-                    $this->code($id, $flat['flat']);
+                    $this->apartment($id, $flat, $entrance);
             }
 
             return true;
@@ -52,7 +50,7 @@ class IntercomCodeTask extends Task
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function code(int $id, int $flat): void
+    private function apartment(int $id, array $flat, array $entrance): void
     {
         $domophone = backend('households')->getDomophone($id);
 
@@ -62,8 +60,31 @@ class IntercomCodeTask extends Task
         try {
             $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials']);
 
-            $panel->delete_open_code($flat);
-            $panel->add_open_code($this->code, $flat);
+            $apartment = $flat['flat'];
+            $apartment_levels = explode(',', $entrance['cmsLevels']);
+
+            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
+                return $entrance['domophoneId'] == $id;
+            });
+
+            foreach ($flat_entrances as $flat_entrance) {
+                if (isset($flat_entrance['apartmentLevels'])) {
+                    $apartment_levels = explode(',', $flat_entrance['apartmentLevels']);
+                }
+
+                if ($flat_entrance['apartment'] != $apartment) {
+                    $apartment = $flat_entrance['apartment'];
+                }
+            }
+
+            $panel->configure_apartment(
+                $apartment,
+                (bool)$flat['openCode'],
+                $entrance['shared'] ? false : $flat['cmsEnabled'],
+                $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+                $flat['openCode'] ?: 0,
+                $apartment_levels
+            );
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
         }
