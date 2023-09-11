@@ -42,10 +42,12 @@ class FrontendRunner implements KernelRunner
         }
 
         $http_authorization = $request->getHeader('Authorization');
-        $http_refresh = $request->hasHeader('X-Api-Refresh');
 
         if (count($http_authorization) == 0)
             return $this->emit($this->response(403)->withStatusJson());
+
+        $http_authorization = $http_authorization[0];
+        $http_refresh = $request->hasHeader('X-Api-Refresh');
 
         $ip = connection_ip($request);
 
