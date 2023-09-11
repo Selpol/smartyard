@@ -2,7 +2,6 @@
 
 namespace Selpol\Kernel\Runner;
 
-use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
@@ -50,8 +49,6 @@ class FrontendRunner implements KernelRunner
         if (!$ip)
             return $this->emit($this->option($this->response(403))->withStatusJson('Неизвестный источник запроса'));
 
-        $redis_cache_ttl = config('redis.cache_ttl') ?? 3600;
-
         $path = explode("?", $request->getRequestTarget())[0];
 
         $server = parse_url(config('api.frontend'));
@@ -80,24 +77,14 @@ class FrontendRunner implements KernelRunner
             if (backend($backend) === false)
                 return $this->emit($this->option($this->response(500))->withStatusJson('Часть сервисов не доступна'));
 
-        $clearCache = false;
-
         if ($token = $request->getQueryParam('_token'))
             $http_authorization = 'Bearer ' . urldecode($token);
-
-        if ($request->getQueryParam('refresh'))
-            $http_refresh = true;
-
-        if ($request->getQueryParam('_clearCache'))
-            $clearCache = true;
 
         $params += $request->getQueryParams();
 
         if (count($_POST)) {
             foreach ($_POST as $key => $value)
                 if ($key == '_token') $http_authorization = 'Bearer ' . urldecode($value);
-                else if ($key == '_refresh') $http_refresh = true;
-                else if ($key == '_clearCache') $clearCache = true;
                 else $params[$key] = urldecode($value);
         }
 
@@ -105,8 +92,6 @@ class FrontendRunner implements KernelRunner
 
         if (is_array($body)) {
             if (array_key_exists('_token', $body)) $http_authorization = 'Bearer ' . $body['_token'];
-            else if (array_key_exists('_refresh', $body)) $http_refresh = true;
-            else if (array_key_exists('_clearCache', $body)) $clearCache = true;
 
             $params += $body;
         }
@@ -148,43 +133,16 @@ class FrontendRunner implements KernelRunner
             container(RedisService::class)->getRedis()->set("last_" . md5($params["_login"]), time());
 
         if (file_exists(path("controller/api/{$api}/{$method}.php"))) {
-            $cache = false;
+            require_once path("controller/api/$api/$method.php");
 
-            if ($params["_request_method"] === "GET") {
-                try {
-                    $cache = json_decode(container(RedisService::class)->getRedis()->get("cache_" . $params["_md5"]) . "_" . $auth["uid"], true);
-                } catch (Exception $e) {
-                    error_log(print_r($e, true));
-                }
-            }
+            if (class_exists("\\api\\$api\\$method")) {
+                $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
 
-            if ($cache && !$http_refresh) {
-                header("X-Api-Data-Source: cache_" . $params["_md5"] . "_" . $auth["uid"]);
-                $code = array_key_first($cache);
+                $code = array_key_first($result);
 
-                return $this->emit($this->option($this->response($code))->withJson($cache[$code]));
-            } else {
-                if ($clearCache)
-                    clear_cache($auth['uid']);
-
-                require_once path("controller/api/$api/$method.php");
-
-                if (class_exists("\\api\\$api\\$method")) {
-                    $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
-
-                    $code = array_key_first($result);
-
-                    if ((int)$code) {
-                        if ($params['_request_method'] == 'GET' && (int)$code == 200) {
-                            $ttl = (array_key_exists('cache', $result)) ? ((int)$cache) : $redis_cache_ttl;
-
-                            container(RedisService::class)->getRedis()->setex('cache_' . $params['_md5'] . '_' . $auth['uid'], $ttl, json_encode($result));
-                        }
-
-                        return $this->emit($this->option($this->response($code))->withJson($result));
-                    } else return $this->emit($this->option($this->response(500))->withStatusJson());
-                } else return $this->emit($this->option($this->response(404))->withStatusJson());
-            }
+                if ((int)$code) return $this->emit($this->option($this->response($code))->withJson($result));
+                else return $this->emit($this->option($this->response(500))->withStatusJson());
+            } else return $this->emit($this->option($this->response(404))->withStatusJson());
         }
 
         return $this->emit($this->option($this->response(404))->withStatusJson());
