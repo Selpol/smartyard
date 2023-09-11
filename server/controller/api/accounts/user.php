@@ -204,7 +204,7 @@ namespace api\accounts {
             } else
                 $success = backend('users')->deleteUser($params["_id"]);
 
-            return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            return api::ANSWER($success, $success ? "notAcceptable" : false);
         }
 
         public static function index()
