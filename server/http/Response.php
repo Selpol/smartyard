@@ -103,6 +103,8 @@ class Response implements ResponseInterface
 
     public function withJson(mixed $value): self
     {
+        $this->withHeader('Content-Type', 'application/json');
+
         return $this->withString(json_encode($value, flags: JSON_UNESCAPED_UNICODE));
     }
 
