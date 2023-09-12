@@ -972,7 +972,7 @@ namespace backends\households {
             ]);
 
             if ($domophone)
-                $domophone['json'] = IntercomModel::models()[$domophone['model']];
+                $domophone['json'] = IntercomModel::models()[$domophone['model']]->toArray();
 
             return $domophone;
         }

@@ -13,20 +13,13 @@ class IntercomConfigureTask extends IntercomTask
 {
     public int $id;
 
-    public int $retry = 0;
-
     public function __construct(int $id)
     {
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function onTask(): bool
     {
-        $this->retry++;
-
         $households = backend('households');
         $configs = backend('configs');
 
@@ -90,12 +83,6 @@ class IntercomConfigureTask extends IntercomTask
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
-    }
-
-    public function onError(Throwable $throwable): void
-    {
-        if ($this->retry < 3)
-            task(new IntercomConfigureTask($this->id))->low()->delay(600)->dispatch();
     }
 
     /**
