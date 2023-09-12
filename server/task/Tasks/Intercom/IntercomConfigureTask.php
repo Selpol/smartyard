@@ -2,7 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
@@ -23,7 +22,6 @@ class IntercomConfigureTask extends IntercomTask
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
      */
     public function onTask(): bool
     {
@@ -87,10 +85,10 @@ class IntercomConfigureTask extends IntercomTask
             $device->deffer();
 
             return true;
-        } catch (Exception $e) {
-            logger('intercom')->error($e);
+        } catch (Throwable $throwable) {
+            logger('intercom')->error($throwable);
 
-            throw $e;
+            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
     }
 
