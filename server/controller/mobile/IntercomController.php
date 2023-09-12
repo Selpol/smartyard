@@ -3,13 +3,13 @@
 namespace Selpol\Controller\mobile;
 
 use backends\plog\plog;
-use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\Intercom\IntercomUserTask;
 use Selpol\Validator\Rule;
+use Throwable;
 
 class IntercomController extends Controller
 {
@@ -194,7 +194,9 @@ class IntercomController extends Controller
 
                 if ($plog)
                     $plog->addDoorOpenDataById(time(), $validate['domophoneId'], $plog::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
-            } catch (Exception) {
+            } catch (Throwable $throwable) {
+                logger('intercom')->error($throwable);
+
                 return $this->rbtResponse(404, name: 'Ошибка', message: 'Домофон недоступен');
             }
 
