@@ -200,9 +200,19 @@ class Stream implements StreamInterface
         return $this->uri;
     }
 
-    public static function memory(string $body = ''): StreamInterface
+    public static function memory(string $body = ''): Stream
     {
         $resource = fopen('php://memory', 'r+');
+
+        fwrite($resource, $body);
+        fseek($resource, 0);
+
+        return new Stream($resource);
+    }
+
+    public static function temp(string $body = ''): Stream
+    {
+        $resource = fopen('php://temp', 'r+');
 
         fwrite($resource, $body);
         fseek($resource, 0);
