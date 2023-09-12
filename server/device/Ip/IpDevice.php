@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip;
 
 use Selpol\Device\Device;
 use Selpol\Device\DeviceException;
+use Selpol\Http\Response;
 use Selpol\Http\Uri;
 use Throwable;
 
@@ -60,11 +61,12 @@ abstract class IpDevice extends Device
         throw new DeviceException($this);
     }
 
-
     protected function get(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
             $response = $this->client()->get($this->uri . $endpoint, $headers);
+
+            $this->log($response);
 
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
@@ -77,6 +79,8 @@ abstract class IpDevice extends Device
         try {
             $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
 
+            $this->log($response);
+
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
@@ -87,6 +91,8 @@ abstract class IpDevice extends Device
     {
         try {
             $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
+
+            $this->log($response);
 
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
@@ -99,9 +105,19 @@ abstract class IpDevice extends Device
         try {
             $response = $this->client()->delete($this->uri . $endpoint, $headers);
 
+            $this->log($response);
+
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    private function log(Response $response): void
+    {
+        $body = $response->getParsedBody();
+
+        if (array_key_exists('errors', $body) && count($body['errors']) > 0)
+            logger('device')->error($body['errors'][0]['message']);
     }
 }

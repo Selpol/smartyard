@@ -7,6 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
+use RuntimeException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
 use Selpol\Kernel\Kernel;
@@ -41,6 +42,17 @@ class CliRunner implements KernelRunner
      */
     function __invoke(Kernel $kernel): int
     {
+        try {
+            $device = intercom('iscomx1', 'http://10.101.1.244', '123456');
+
+            if (!$device->ping())
+                throw new RuntimeException();
+        } catch (Throwable $throwable) {
+            echo $throwable;
+        }
+
+        return 0;
+
         $arguments = $this->getArguments();
 
         if ($this->isCommand($arguments, '--init-db')) $this->initDb();

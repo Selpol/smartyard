@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip\Intercom\Is;
 
 use Selpol\Device\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Http\Response;
 use Selpol\Http\Stream;
 use Selpol\Service\HttpService;
 use Throwable;
