@@ -138,7 +138,7 @@ class Stream implements StreamInterface
 
         $this->size = null;
 
-        if (($result = @fwrite($this->stream, $string)) === false)
+        if (($result = fwrite($this->stream, $string)) === false)
             throw new RuntimeException('Unable to write to stream: ' . (error_get_last()['message'] ?? ''));
 
         return $result;

@@ -203,11 +203,8 @@ class ClientService
     private function addWriteFunction(array &$options, Response $response): void
     {
         $options[CURLOPT_WRITEFUNCTION] = static function ($ch, $data) use ($response) {
-            if (!$response->hasBody()) {
-                $response->withBody(Stream::memory($data));
-
-                return $response->getBody()->getSize();
-            }
+            if (!$response->hasBody())
+                $response->withBody(Stream::memory());
 
             return $response->getBody()->write($data);
         };
