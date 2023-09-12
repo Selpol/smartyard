@@ -113,11 +113,8 @@ abstract class IpDevice extends Device
         }
     }
 
-    private function log(Response $response): void
+    protected function log(Response $response): void
     {
-        $body = $response->getParsedBody();
 
-        if (array_key_exists('errors', $body) && count($body['errors']) > 0)
-            logger('device')->error($body['errors'][0]['message']);
     }
 }

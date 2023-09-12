@@ -188,7 +188,7 @@ class IntercomController extends Controller
             try {
                 $model = intercom($domophone["model"], $domophone["url"], $domophone["credentials"]);
 
-                $model->open($validate['doorId']);
+                $model->open($validate['doorId'] ?: 0);
 
                 $plog = backend("plog");
 
