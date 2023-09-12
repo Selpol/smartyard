@@ -7,8 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
-    use Selpol\Task\Tasks\Intercom\IntercomAddKeyTask;
-    use Selpol\Task\Tasks\Intercom\IntercomDeleteKeyTask;
+    use Selpol\Task\Tasks\Intercom\IntercomKeyTask;
 
     /**
      * key method
@@ -21,7 +20,7 @@ namespace api\subscribers {
 
             $keyId = $households->addKey($params["rfId"], $params["accessType"], $params["accessTo"], $params["comments"]);
 
-            task(new IntercomAddKeyTask($params['rfId'], $params['accessTo']))->high()->dispatch();
+            task(new IntercomKeyTask($params['rfId'], $params['accessTo'], false))->high()->dispatch();
 
             return api::ANSWER($keyId, ($keyId !== false) ? "key" : false);
         }
@@ -42,7 +41,7 @@ namespace api\subscribers {
             $key = $households->getKey($params['_id']);
 
             if ($key)
-                task(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']))->high()->dispatch();
+                task(new IntercomKeyTask($key['rfId'], $key['accessTo'], true))->high()->dispatch();
 
             $success = $households->deleteKey($params["_id"]);
 

@@ -3,11 +3,10 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use Exception;
-use hw\domophones\domophones;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Http\Uri;
-use Selpol\Service\DomophoneService;
 use Throwable;
 
 class IntercomConfigureTask extends IntercomTask
@@ -61,7 +60,7 @@ class IntercomConfigureTask extends IntercomTask
         $first = ($this->flags & self::SYNC_FIRST) == self::SYNC_FIRST;
 
         try {
-            $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials'], $first);
+            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
         } catch (Exception $e) {
             echo $e->getMessage() . "\n";
 
@@ -82,10 +81,12 @@ class IntercomConfigureTask extends IntercomTask
         $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
 
         if ($is_shared)
-            $panel->configure_gate($links);
+            $panel->setGate(count($links) > 0);
 
         $this->common($panel_text, $entrances, $panel);
         $this->mifare($panel);
+
+        $panel->deffer();
 
         return true;
     }
@@ -96,10 +97,9 @@ class IntercomConfigureTask extends IntercomTask
     }
 
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function main(bool $first, array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, domophones $panel): void
+    private function main(bool $first, array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $panel): void
     {
         $this->setProgress(5);
 
@@ -126,32 +126,10 @@ class IntercomConfigureTask extends IntercomTask
         $sip_server = $asterisk_server['ip'];
         $sip_port = @$asterisk_server['sip_udp_port'] ?? 5060;
 
-        $nat = (bool)$domophone['nat'];
-
-        $stun = new Uri(backend('sip')->stun(''));
-
-        $stun_server = $stun->getHost();
-        $stun_port = $stun->getPort() ?? 3478;
-
         $audio_levels = [];
         $main_door_dtmf = $domophone['dtmf'];
 
-        $panel->clean(
-            $sip_server,
-            $ntp_server,
-            $syslog_server,
-            $sip_username,
-            $sip_port,
-            $ntp_port,
-            $syslog_port,
-            $main_door_dtmf,
-            $audio_levels,
-            $cms_levels,
-            $cms_model,
-            $nat,
-            $stun_server,
-            $stun_port
-        );
+        $panel->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $audio_levels, $cms_levels, $cms_model);
 
         $this->setProgress(25);
     }
@@ -160,13 +138,13 @@ class IntercomConfigureTask extends IntercomTask
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function cms(bool $is_shared, array $entrances, string $cms_model, domophones $panel): void
+    private function cms(bool $is_shared, array $entrances, string $cms_model, IntercomDevice $panel): void
     {
         if (!$is_shared) {
             $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->configure_cms_raw($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
         }
     }
 
@@ -174,7 +152,7 @@ class IntercomConfigureTask extends IntercomTask
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, domophones $panel): void
+    private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, IntercomDevice $panel): void
     {
         $offset = 0;
 
@@ -216,9 +194,8 @@ class IntercomConfigureTask extends IntercomTask
                         }
                     }
 
-                    $panel->configure_apartment(
+                    $panel->addApartment(
                         $apartment + $offset,
-                        (bool)$flat['openCode'],
                         $is_shared ? false : $flat['cmsEnabled'],
                         $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
                         $flat['openCode'] ?: 0,
@@ -228,7 +205,7 @@ class IntercomConfigureTask extends IntercomTask
                     $keys = backend('households')->getKeys('flatId', $flat['flatId']);
 
                     foreach ($keys as $key)
-                        $panel->add_rfid($key['rfId'], $apartment);
+                        $panel->addRfidDeffer($key['rfId'], $apartment);
                 }
 
                 if ($flat['flat'] == $end)
@@ -237,34 +214,19 @@ class IntercomConfigureTask extends IntercomTask
         }
     }
 
-    private function common(string $panel_text, array $entrances, domophones $panel): void
+    private function common(string $panel_text, array $entrances, IntercomDevice $panel): void
     {
-
-        $this->setProgress(75);
-
-        $panel->configure_md();
-
-        $this->setProgress(80);
-
-        $panel->set_display_text($panel_text);
-
-        $this->setProgress(85);
-
-        $panel->set_video_overlay($panel_text);
-
-        $this->setProgress(90);
-
-        $panel->keep_doors_unlocked($entrances[0]['locksDisabled']);
-
-        $this->setProgress(95);
+        $panel->setMotionDetection(0, 0, 0, 0, 0);
+        $panel->setVideoOverlay($panel_text);
+        $panel->unlocked($entrances[0]['locksDisabled']);
     }
 
-    private function mifare(domophones $panel): void
+    private function mifare(IntercomDevice $panel): void
     {
         $key = env('MIFARE_KEY');
         $sector = env('MIFARE_SECTOR');
 
         if ($key !== false && $sector !== false)
-            $panel->configure_mifare($key, $sector);
+            $panel->setMifare($key, $sector);
     }
 }

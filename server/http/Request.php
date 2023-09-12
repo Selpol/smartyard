@@ -26,4 +26,9 @@ class Request implements RequestInterface
         if ($body !== null)
             $this->body = $body;
     }
+
+    public function hasBody(): bool
+    {
+        return isset($this->body);
+    }
 }

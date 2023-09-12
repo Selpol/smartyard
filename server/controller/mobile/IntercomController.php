@@ -8,7 +8,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
-use Selpol\Service\DomophoneService;
 use Selpol\Task\Tasks\Intercom\IntercomUserTask;
 use Selpol\Validator\Rule;
 
@@ -187,8 +186,9 @@ class IntercomController extends Controller
             $domophone = $households->getDomophone($validate['domophoneId']);
 
             try {
-                $model = container(DomophoneService::class)->get($domophone["model"], $domophone["url"], $domophone["credentials"]);
-                $model->open_door($validate['doorId']);
+                $model = intercom($domophone["model"], $domophone["url"], $domophone["credentials"]);
+
+                $model->open($validate['doorId']);
 
                 $plog = backend("plog");
 

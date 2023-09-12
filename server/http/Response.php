@@ -60,6 +60,8 @@ class Response implements ResponseInterface
 
     private ?string $reasonPhrase;
 
+    private mixed $parsedBody = null;
+
     public function __construct(int $status = 200, array $headers = [], StreamInterface $body = null, string $version = '1.1', ?string $reason = null)
     {
         $this->statusCode = $status;
@@ -77,12 +79,25 @@ class Response implements ResponseInterface
         return $this->statusCode;
     }
 
+    public function getParsedBody(): mixed
+    {
+        if ($this->parsedBody === null && isset($this->body))
+            $this->parsedBody = json_decode($this->body->getContents(), true);
+
+        return $this->parsedBody;
+    }
+
     public function withStatus(int $code, string $reasonPhrase = ''): self
     {
         $this->statusCode = $code;
         $this->reasonPhrase = $reasonPhrase;
 
         return $this;
+    }
+
+    public function hasBody(): bool
+    {
+        return isset($this->body);
     }
 
     /**

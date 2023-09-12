@@ -4,7 +4,6 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Service\DomophoneService;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -58,7 +57,7 @@ class IntercomUserTask extends Task
             return;
 
         try {
-            $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             $apartment = $flat['flat'];
             $apartment_levels = explode(',', $entrance['cmsLevels']);
@@ -77,9 +76,8 @@ class IntercomUserTask extends Task
                 }
             }
 
-            $panel->configure_apartment(
+            $panel->setApartment(
                 $apartment,
-                (bool)$flat['openCode'],
                 $entrance['shared'] ? false : $flat['cmsEnabled'],
                 $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
                 $flat['openCode'] ?: 0,

@@ -5,14 +5,19 @@ namespace Selpol\Controller\Internal;
 use backends\frs\frs;
 use backends\plog\plog;
 use Exception;
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
-use Selpol\Service\CameraService;
-use Selpol\Service\DomophoneService;
 use Selpol\Service\RedisService;
 
 class FrsController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws \RedisException
+     * @throws ContainerExceptionInterface
+     */
     public function callback(): Response
     {
         $frs = backend("frs");
@@ -50,8 +55,9 @@ class FrsController extends Controller
         $domophone = $households->getDomophone($domophone_id);
 
         try {
-            $model = container(DomophoneService::class)->get($domophone["model"], $domophone["url"], $domophone["credentials"]);
-            $model->open_door($domophone_output);
+            $model = intercom($domophone["model"], $domophone["url"], $domophone["credentials"]);
+            $model->open($domophone_output);
+
             $redis->set($frs_key, 1, config()["backends"]["frs"]["open_door_timeout"]);
 
             $plog = backend("plog");
@@ -65,6 +71,10 @@ class FrsController extends Controller
         return $this->rbtResponse(204);
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function camshot(): Response
     {
         $camera_id = $this->getRoute()->getParam('id');
@@ -76,11 +86,11 @@ class FrsController extends Controller
 
         $camera = $cameras->getCamera($camera_id);
 
-        $model = container(CameraService::class)->get($camera['model'], $camera['url'], $camera['credentials']);
+        $model = camera($camera['model'], $camera['url'], $camera['credentials']);
 
         if (!$model)
             return $this->rbtResponse(204);
 
-        return $this->response()->withHeader('Content-Type', 'image/jpeg')->withString($model->camshot());
+        return $this->response()->withBody($model->getScreenshot())->withHeader('Content-Type', 'image/jpeg');
     }
 }

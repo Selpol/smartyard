@@ -4,7 +4,6 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Service\DomophoneService;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -45,14 +44,16 @@ class IntercomCmsTask extends Task
         try {
             $cmses = backend('configs')->getCMSes();
 
-            $panel = container(DomophoneService::class)->get($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             $cms_model = (string)@$cmses[$entrance['cms']]['model'];
 
             $cms_allocation = backend('households')->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->configure_cms_raw($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+
+            $panel->deffer();
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
         }

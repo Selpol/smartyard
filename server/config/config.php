@@ -101,7 +101,7 @@ return [
             'cron_process_events_scheduler' => 'minutely'
         ],
 
-        'configs' => ['backend' => 'json'],
+        'configs' => ['backend' => 'internal'],
 
         'dvr' => [
             'backend' => 'internal',

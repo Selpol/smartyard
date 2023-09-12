@@ -22,7 +22,7 @@ class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, 
 {
     public function createRequest(string $method, $uri): Request
     {
-        return new Request($method, $uri, body: $this->createStreamFromResource(fopen('php://input', 'r')));
+        return new Request($method, $uri);
     }
 
     public function createStreamFromFile(string $filename, string $mode = 'r'): Stream
