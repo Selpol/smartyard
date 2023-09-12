@@ -268,7 +268,7 @@ abstract class IsIntercom extends IntercomDevice
             'FACTORIAL 8x8' => 'FACTORIAL',
         ];
 
-        $id = $model_id_map[$value];
+        $id = $model_id_map[strtoupper($value)];
 
         $this->put('/switch/settings', ['modelId' => $id]);
 

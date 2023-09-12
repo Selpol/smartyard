@@ -91,6 +91,6 @@ class FrsController extends Controller
         if (!$model)
             return $this->rbtResponse(204);
 
-        return $this->response()->withBody($model->getScreenshot())->withHeader('Content-Type', 'image/jpeg');
+        return $this->response()->withString($model->getScreenshot()->getContents())->withHeader('Content-Type', 'image/jpeg');
     }
 }
