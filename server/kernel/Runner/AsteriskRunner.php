@@ -255,17 +255,6 @@ class AsteriskRunner implements KernelRunner
                                     $this->logger->debug('camshot()', ['shot' => "shot_" . $params["hash"]]);
                                 }
                             }
-                        } else {
-                            $redis->setex("shot_" . $params["hash"], 3 * 60, file_get_contents(__DIR__ . "/hw/cameras/fake/img/callcenter.jpg"));
-                            $redis->setex("live_" . $params["hash"], 3 * 60, json_encode([
-                                "model" => "fake.json",
-                                "url" => "callcenter.jpg",
-                                "credentials" => "none",
-                            ]));
-
-                            echo $params["hash"];
-
-                            $this->logger->debug('camshot() fake', ['shot' => "shot_" . $params["hash"]]);
                         }
 
                         break;

@@ -103,7 +103,7 @@ class IntercomConfigureTask extends IntercomTask
     /**
      * @throws NotFoundExceptionInterface
      */
-    private function clean(array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $panel): void
+    private function clean(array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $device): void
     {
         $this->setProgress(5);
 
@@ -128,7 +128,7 @@ class IntercomConfigureTask extends IntercomTask
         $audio_levels = [];
         $main_door_dtmf = $domophone['dtmf'];
 
-        $panel->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $audio_levels, $cms_levels, $cms_model);
+        $device->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $audio_levels, $cms_levels, $cms_model);
 
         $this->setProgress(25);
     }

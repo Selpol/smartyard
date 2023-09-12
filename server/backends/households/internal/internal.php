@@ -6,6 +6,8 @@
 
 namespace backends\households {
 
+    use Selpol\Device\Ip\Intercom\IntercomModel;
+
     /**
      * internal.db houses class
      */
@@ -969,15 +971,8 @@ namespace backends\households {
                 "singlify"
             ]);
 
-            if ($domophone) {
-                $monitoring = backend("monitoring");
-
-                if ($monitoring) {
-                    $domophone["status"] = $monitoring->deviceStatus("domophone", $domophone["domophoneId"]);
-                }
-
-                $domophone["json"] = json_decode(file_get_contents(__DIR__ . "/../../../hw/domophones/models/" . $domophone["model"]), true);
-            }
+            if ($domophone)
+                $domophone['json'] = IntercomModel::models()[$domophone['model']];
 
             return $domophone;
         }
