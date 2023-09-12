@@ -13,6 +13,18 @@ namespace api\subscribers {
      */
     class subscriber extends api
     {
+        public static function GET($params)
+        {
+            $households = backend("households");
+
+            $subscribers = $households->getSubscribers('id', $params['_id']);
+
+            if ($subscribers && count($subscribers) === 1)
+                return api::ANSWER($subscribers[0]);
+
+            return api::ERROR();
+        }
+
         public static function POST($params)
         {
             $households = backend("households");
@@ -43,6 +55,7 @@ namespace api\subscribers {
         public static function index()
         {
             return [
+                "GET" => "#same(addresses,house,GET)",
                 "PUT" => "#same(addresses,house,PUT)",
                 "POST" => "#same(addresses,house,POST)",
                 "DELETE" => "#same(addresses,house,DELETE)",
