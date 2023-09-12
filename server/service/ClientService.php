@@ -105,6 +105,9 @@ class ClientService
                 throw new HttpException($request, $response, message: curl_error($ch));
         }
 
+        if ($response->hasBody())
+            $response->getBody()->rewind();
+
         return $response;
     }
 
