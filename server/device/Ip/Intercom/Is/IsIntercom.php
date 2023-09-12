@@ -454,7 +454,7 @@ abstract class IsIntercom extends IntercomDevice
     {
         $body = $response->getParsedBody();
 
-        if (array_key_exists('errors', $body) && count($body['errors']) > 0)
+        if ($body && array_key_exists('errors', $body) && count($body['errors']) > 0)
             logger('intercom')->error($body['errors'][0]['message']);
     }
 
