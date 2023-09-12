@@ -5,23 +5,20 @@ namespace Selpol\Task\Tasks\Intercom;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Http\Uri;
 use Throwable;
 
 class IntercomConfigureTask extends IntercomTask
 {
-    public const SYNC_FIRST = 1 << 0;
-
     public int $id;
 
-    public int $flags;
+    public int $retry = 0;
 
-    public function __construct(int $id, int $flags = 0)
+    public function __construct(int $id)
     {
-        parent::__construct($id, (($flags & self::SYNC_FIRST) == self::SYNC_FIRST) ? ('Первичная настройка домофона (' . $id . ')') : ('Настройка домофона (' . $id . ')'));
-
-        $this->flags = $flags;
+        parent::__construct($id, 'Настройка домофона (' . $id . ')');
     }
 
     /**
@@ -30,6 +27,8 @@ class IntercomConfigureTask extends IntercomTask
      */
     public function onTask(): bool
     {
+        $this->retry++;
+
         $households = backend('households');
         $configs = backend('configs');
 
@@ -57,31 +56,35 @@ class IntercomConfigureTask extends IntercomTask
         $cmses = $configs->getCMSes();
         $panel_text = $entrances[0]['callerId'];
 
-        $first = ($this->flags & self::SYNC_FIRST) == self::SYNC_FIRST;
-
         try {
-            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+
+            if (!$device)
+                return false;
+
+            if (!$device->ping())
+                throw new RuntimeException(message: 'Ping error');
 
             $cms_levels = explode(',', $entrances[0]['cmsLevels']);
             $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
             $is_shared = $entrances[0]['shared'];
 
-            $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
-            $this->cms($is_shared, $entrances, $cms_model, $panel);
+            $this->clean($domophone, $asterisk_server, $cms_levels, $cms_model, $device);
+            $this->cms($is_shared, $entrances, $device);
 
             $this->setProgress(50);
 
             $links = [];
 
-            $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
+            $this->flat($links, $entrances, $cms_levels, $is_shared, $device);
 
             if ($is_shared)
-                $panel->setGate(count($links) > 0);
+                $device->setGate(count($links) > 0);
 
-            $this->common($panel_text, $entrances, $panel);
-            $this->mifare($panel);
+            $this->common($panel_text, $entrances, $device);
+            $this->mifare($device);
 
-            $panel->deffer();
+            $device->deffer();
 
             return true;
         } catch (Exception $e) {
@@ -93,20 +96,16 @@ class IntercomConfigureTask extends IntercomTask
 
     public function onError(Throwable $throwable): void
     {
-        task(new IntercomConfigureTask($this->id, $this->flags))->low()->delay(600)->dispatch();
+        if ($this->retry < 3)
+            task(new IntercomConfigureTask($this->id))->low()->delay(600)->dispatch();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    private function main(bool $first, array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $panel): void
+    private function clean(array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $panel): void
     {
         $this->setProgress(5);
-
-        if ($first)
-            $panel->prepare();
-
-        $this->setProgress(10);
 
         $ntps = config('ntp_servers');
 
@@ -138,13 +137,13 @@ class IntercomConfigureTask extends IntercomTask
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function cms(bool $is_shared, array $entrances, string $cms_model, IntercomDevice $panel): void
+    private function cms(bool $is_shared, array $entrances, IntercomDevice $panel): void
     {
         if (!$is_shared) {
             $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment']);
         }
     }
 
@@ -152,7 +151,7 @@ class IntercomConfigureTask extends IntercomTask
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, IntercomDevice $panel): void
+    private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, IntercomDevice $device): void
     {
         $offset = 0;
 
@@ -194,7 +193,7 @@ class IntercomConfigureTask extends IntercomTask
                         }
                     }
 
-                    $panel->addApartment(
+                    $device->addApartment(
                         $apartment + $offset,
                         $is_shared ? false : $flat['cmsEnabled'],
                         $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
@@ -205,7 +204,7 @@ class IntercomConfigureTask extends IntercomTask
                     $keys = backend('households')->getKeys('flatId', $flat['flatId']);
 
                     foreach ($keys as $key)
-                        $panel->addRfidDeffer($key['rfId'], $apartment);
+                        $device->addRfidDeffer($key['rfId'], $apartment);
                 }
 
                 if ($flat['flat'] == $end)
@@ -214,11 +213,11 @@ class IntercomConfigureTask extends IntercomTask
         }
     }
 
-    private function common(string $panel_text, array $entrances, IntercomDevice $panel): void
+    private function common(string $panel_text, array $entrances, IntercomDevice $device): void
     {
-        $panel->setMotionDetection(0, 0, 0, 0, 0);
-        $panel->setVideoOverlay($panel_text);
-        $panel->unlocked($entrances[0]['locksDisabled']);
+        $device->setMotionDetection(0, 0, 0, 0, 0);
+        $device->setVideoOverlay($panel_text);
+        $device->unlocked($entrances[0]['locksDisabled']);
     }
 
     private function mifare(IntercomDevice $panel): void

@@ -19,15 +19,6 @@ abstract class Device
     }
 
     /**
-     * @return void
-     * @throws DeviceException
-     */
-    public function prepare(): void
-    {
-        throw new DeviceException($this);
-    }
-
-    /**
      * @throws NotFoundExceptionInterface
      */
     protected function client(): ClientService
