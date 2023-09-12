@@ -4,7 +4,6 @@ namespace Selpol\Device\Ip\Intercom\Is;
 
 use Selpol\Device\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Http\Response;
 use Selpol\Http\Stream;
 use Selpol\Service\HttpService;
 use Throwable;
@@ -150,6 +149,8 @@ abstract class IsIntercom extends IntercomDevice
 
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
     {
+        $this->put('/system/settings', ['tz' => $timezone, 'ntp' => [$server]]);
+
         return $this;
     }
 

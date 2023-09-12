@@ -181,7 +181,7 @@ abstract class IntercomDevice extends IpDevice
         $this->setTalkTimeout(90);
         $this->setAudioLevels($audio_levels);
         $this->setCmsLevels($cms_levels);
-        $this->setNtp($ntp_server, $ntp_port, 'GMT+03:00');
+        $this->setNtp($ntp_server, $ntp_port);
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
         $this->clearRfid();
