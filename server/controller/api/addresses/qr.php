@@ -28,6 +28,10 @@ namespace api\addresses {
 
             $uuid = task(new QrTask($validate['_id'], null, $validate['override']))->sync();
 
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Headers: *');
+            header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+
             header('Content-Type: application/zip');
             header('Content-Disposition: attachment; filename="' . $uuid . '.zip"');
 
