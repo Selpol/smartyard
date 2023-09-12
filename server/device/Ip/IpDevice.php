@@ -75,7 +75,7 @@ abstract class IpDevice extends Device
     protected function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
-            $response = $this->client()->post($this->uri . $endpoint, json_encode($body), $headers);
+            $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
 
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
@@ -86,7 +86,7 @@ abstract class IpDevice extends Device
     protected function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
-            $response = $this->client()->put($this->uri . $endpoint, json_encode($body), $headers);
+            $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
 
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
