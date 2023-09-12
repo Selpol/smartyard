@@ -97,7 +97,7 @@ abstract class IsIntercom extends IntercomDevice
         $this->removeCode($apartment);
     }
 
-    public function setApartment(int $apartment, bool $handset, array $sipNumbers, int $code, array $levels): static
+    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels): static
     {
         $payload = [
             'panelCode' => $apartment,
@@ -110,12 +110,6 @@ abstract class IsIntercom extends IntercomDevice
             $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
 
         $this->put('/panelCode/' . $apartment, $payload);
-
-        if ($code) {
-            $this->removeCode($apartment);
-
-            $this->addCode($code, $apartment);
-        }
 
         return $this;
     }

@@ -47,7 +47,7 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function setApartment(int $apartment, bool $handset, array $sipNumbers, int $code, array $levels): static
+    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels): static
     {
         throw new DeviceException($this);
     }
