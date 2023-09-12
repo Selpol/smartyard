@@ -232,6 +232,8 @@ class IntercomController extends Controller
         $households->modifyFlat($flat_id, $params);
         $flat = $households->getFlat($flat_id);
 
+        task(new IntercomUserTask($validate['flatId']))->high()->dispatch();
+
         return $this->rbtResponse(200, ["code" => intval($flat['openCode'])]);
     }
 }
