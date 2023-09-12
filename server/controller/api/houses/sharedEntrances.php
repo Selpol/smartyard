@@ -13,7 +13,6 @@ namespace api\houses {
      */
     class sharedEntrances extends api
     {
-
         public static function GET($params)
         {
             $households = backend("households");

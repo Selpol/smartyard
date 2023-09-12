@@ -69,7 +69,8 @@ class IntercomKeyTask extends Task
                 $panel->removeRfid($this->key);
             else
                 $panel->addRfid($this->key, $flat);
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            logger('intercom')->error($throwable);
         }
     }
 }

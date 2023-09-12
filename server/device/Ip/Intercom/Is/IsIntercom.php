@@ -111,8 +111,11 @@ abstract class IsIntercom extends IntercomDevice
 
         $this->put('/panelCode/' . $apartment, $payload);
 
-        if ($code)
+        if ($code) {
+            $this->removeCode($apartment);
+
             $this->addCode($code, $apartment);
+        }
 
         return $this;
     }

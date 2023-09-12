@@ -61,34 +61,34 @@ class IntercomConfigureTask extends IntercomTask
 
         try {
             $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+
+            $cms_levels = explode(',', $entrances[0]['cmsLevels']);
+            $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
+            $is_shared = $entrances[0]['shared'];
+
+            $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
+            $this->cms($is_shared, $entrances, $cms_model, $panel);
+
+            $this->setProgress(50);
+
+            $links = [];
+
+            $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
+
+            if ($is_shared)
+                $panel->setGate(count($links) > 0);
+
+            $this->common($panel_text, $entrances, $panel);
+            $this->mifare($panel);
+
+            $panel->deffer();
+
+            return true;
         } catch (Exception $e) {
-            echo $e->getMessage() . "\n";
+            logger('intercom')->error($e);
 
-            return false;
+            throw $e;
         }
-
-        $cms_levels = explode(',', $entrances[0]['cmsLevels']);
-        $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
-        $is_shared = $entrances[0]['shared'];
-
-        $this->main($first, $domophone, $asterisk_server, $cms_levels, $cms_model, $panel);
-        $this->cms($is_shared, $entrances, $cms_model, $panel);
-
-        $this->setProgress(50);
-
-        $links = [];
-
-        $this->flat($links, $entrances, $cms_levels, $is_shared, $panel);
-
-        if ($is_shared)
-            $panel->setGate(count($links) > 0);
-
-        $this->common($panel_text, $entrances, $panel);
-        $this->mifare($panel);
-
-        $panel->deffer();
-
-        return true;
     }
 
     public function onError(Throwable $throwable): void
