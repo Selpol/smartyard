@@ -15,6 +15,10 @@ abstract class IsIntercom extends IntercomDevice
     protected ?array $cms = null;
     protected ?array $rfid = null;
 
+    public function prepare(): void
+    {
+    }
+
     public function getSysInfo(): array
     {
         try {
