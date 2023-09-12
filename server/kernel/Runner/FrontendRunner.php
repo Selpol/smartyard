@@ -30,12 +30,8 @@ class FrontendRunner implements KernelRunner
 
         $kernel->getContainer()->set(ServerRequest::class, $request);
 
-        if ($request->getMethod() === 'OPTIONS') {
-            return $this->emit(
-                $this->option($this->response(204))
-                    ->withHeader('Content-Type', 'text/html;charset=ISO-8859-1')
-            );
-        }
+        if ($request->getMethod() === 'OPTIONS')
+            return $this->emit($this->option($this->response(204))->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));
 
         $http_authorization = $request->getHeader('Authorization');
 
@@ -99,13 +95,12 @@ class FrontendRunner implements KernelRunner
         $auth = false;
 
         if ($api == 'server' && $method == 'ping')
-            return $this->emit($this->response()->withString('pong'));
+            return $this->emit($this->option($this->response())->withString('pong'));
         else if ($api == 'accounts' && $method == 'forgot')
             return $this->emit($this->forgot($params));
         else if ($api == 'authentication' && $method == 'login') {
-            if (!@$params['login'] || !@$params['password']) {
+            if (!@$params['login'] || !@$params['password'])
                 return $this->emit($this->option($this->response(400))->withStatusJson('Логин или пароль не указан'));
-            }
         } else if ($http_authorization) {
             $userAgent = $request->getHeader('User-Agent');
 
