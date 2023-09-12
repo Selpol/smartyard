@@ -14,6 +14,9 @@ class DeviceService
     {
         $models = CameraModel::models();
 
+        if (str_ends_with($model, '.json'))
+            $model = substr($model, 0, -5);
+
         if (array_key_exists($model, $models))
             return new $models[$model]->class(new Uri($url), $password);
 
@@ -23,6 +26,9 @@ class DeviceService
     public function intercom(string $model, string $url, string $password): IntercomDevice|false
     {
         $models = IntercomModel::models();
+
+        if (str_ends_with($model, '.json'))
+            $model = substr($model, 0, -5);
 
         if (array_key_exists($model, $models))
             return new $models[$model]->class(new Uri($url), $password);
