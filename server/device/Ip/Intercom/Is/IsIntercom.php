@@ -450,14 +450,6 @@ abstract class IsIntercom extends IntercomDevice
         }
     }
 
-    protected function log(Response $response): void
-    {
-        $body = $response->getParsedBody();
-
-        if ($body && array_key_exists('errors', $body) && count($body['errors']) > 0)
-            logger('intercom')->error($body['errors'][0]['message']);
-    }
-
     private function getSyslogConfig(string $server, int $port): string
     {
         return '### TEMPLATES ###

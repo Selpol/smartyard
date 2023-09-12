@@ -4,7 +4,6 @@ namespace Selpol\Device\Ip;
 
 use Selpol\Device\Device;
 use Selpol\Device\DeviceException;
-use Selpol\Http\Response;
 use Selpol\Http\Uri;
 use Throwable;
 
@@ -66,8 +65,6 @@ abstract class IpDevice extends Device
         try {
             $response = $this->client()->get($this->uri . $endpoint, $headers);
 
-            $this->log($response);
-
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
@@ -78,8 +75,6 @@ abstract class IpDevice extends Device
     {
         try {
             $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
-
-            $this->log($response);
 
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
@@ -92,8 +87,6 @@ abstract class IpDevice extends Device
         try {
             $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers);
 
-            $this->log($response);
-
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
@@ -105,16 +98,9 @@ abstract class IpDevice extends Device
         try {
             $response = $this->client()->delete($this->uri . $endpoint, $headers);
 
-            $this->log($response);
-
             return $response->getParsedBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
-    }
-
-    protected function log(Response $response): void
-    {
-
     }
 }
