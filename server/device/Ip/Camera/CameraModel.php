@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Camera;
 
+use Selpol\Device\Ip\Camera\Beward\BewardCamera;
 use Selpol\Device\Ip\Camera\Is\IsCamera;
 
 class CameraModel
@@ -44,7 +45,8 @@ class CameraModel
     {
         if (!isset(self::$models))
             self::$models = [
-                'is' => new CameraModel('IS DOMOPHONE CAMERA', 'IS', IsCamera::class)
+                'is' => new CameraModel('IS DOMOPHONE CAMERA', 'IS', IsCamera::class),
+                'beward' => new CameraModel('BEWARD DOMOPHONE CAMERA', 'BEWARD', BewardCamera::class)
             ];
 
         return self::$models;

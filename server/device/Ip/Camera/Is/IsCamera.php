@@ -11,15 +11,6 @@ class IsCamera extends CameraDevice
 {
     public string $login = 'root';
 
-    public function getScreenshot(): Stream
-    {
-        try {
-            return $this->client()->get($this->uri . '/camera/snapshot')->getBody();
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
-        }
-    }
-
     public function getSysInfo(): array
     {
         try {
@@ -33,6 +24,15 @@ class IsCamera extends CameraDevice
                 'HardwareVersion' => $version['opt']['versions']['hw']['name'],
                 'SoftwareVersion' => $version['opt']['name']
             ];
+        } catch (Throwable $throwable) {
+            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+        }
+    }
+
+    public function getScreenshot(): Stream
+    {
+        try {
+            return $this->client()->get($this->uri . '/camera/snapshot', ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)])->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
