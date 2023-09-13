@@ -16,7 +16,7 @@ var lStoreEngine = false;
 var hasUnsavedChanges = false;
 
 function hashChange() {
-    let [ route, params, hash ] = hashParse();
+    let [route, params, hash] = hashParse();
 
     if (hash !== lastHash) {
         lastHash = hash;
@@ -85,10 +85,9 @@ function hashChange() {
                 } else {
                     page404();
                 }
-            } else
-            if (route === "default") {
+            } else if (route === "default") {
                 if (config.defaultRoute && config.defaultRoute != "#" && config.defaultRoute != "?#") {
-                    location.href = (config.defaultRoute.charAt(0) == "?")?config.defaultRoute:("?" + config.defaultRoute);
+                    location.href = (config.defaultRoute.charAt(0) == "?") ? config.defaultRoute : ("?" + config.defaultRoute);
                 } else {
                     loadingDone();
                 }
@@ -129,7 +128,7 @@ function pageError(error) {
                 <h2 class="headline text-danger mr-4"> Error</h2>
                 <div class="error-content">
                     <h3><i class="fas fa-exclamation-triangle text-danger"></i>${i18n("error")}</h3>
-                    <p>${error?error:i18n("errors.unknown")}</p>
+                    <p>${error ? error : i18n("errors.unknown")}</p>
                 </div>
             </div>
         </section>
@@ -288,7 +287,7 @@ function forgot() {
 function whoAmI(force) {
     return GET("authentication", "whoAmI", false, force).done(_me => {
         if (_me && _me.user) {
-            $(".myNameIs").attr("title", _me.user.realName?_me.user.realName:_me.user.login);
+            $(".myNameIs").attr("title", _me.user.realName ? _me.user.realName : _me.user.login);
             myself.uid = _me.user.uid;
             myself.realName = _me.user.realName;
             myself.eMail = _me.user.eMail;
@@ -443,7 +442,7 @@ function initAll() {
                                 $("#app").show();
                                 if (config.defaultRoute) {
                                     onhashchange = hashChange;
-                                    location.href = (config.defaultRoute.charAt(0) == "?")?config.defaultRoute:("?" + config.defaultRoute);
+                                    location.href = (config.defaultRoute.charAt(0) == "?") ? config.defaultRoute : ("?" + config.defaultRoute);
                                 } else {
                                     hashChange();
                                     onhashchange = hashChange;
@@ -497,13 +496,13 @@ function setFavicon(icon, unreaded) {
         link.id = 'dynamic-favicon';
         link.rel = 'shortcut icon';
         link.href = icon;
-        if (oldLink){
+        if (oldLink) {
             document.head.removeChild(oldLink);
         }
         document.head.appendChild(link);
     }
 
-    badge = new Favico({ animation: 'none', bgColor: '#000000' });
+    badge = new Favico({animation: 'none', bgColor: '#000000'});
 
     if (unreaded) {
         if (unreaded <= 9 || !parseInt(unreaded)) {
@@ -515,8 +514,8 @@ function setFavicon(icon, unreaded) {
 }
 
 function message(message, caption, timeout) {
-    timeout = timeout?timeout:15;
-    toastr.info(message, caption?caption:i18n("message"), {
+    timeout = timeout ? timeout : 15;
+    toastr.info(message, caption ? caption : i18n("message"), {
         "closeButton": true,
         "debug": false,
         "newestOnTop": true,
@@ -525,7 +524,7 @@ function message(message, caption, timeout) {
         "preventDuplicates": false,
         "showDuration": "300",
         "hideDuration": "1000",
-        "timeOut": timeout?(timeout * 1000):"0",
+        "timeOut": timeout ? (timeout * 1000) : "0",
         "extendedTimeOut": "1000",
         "showEasing": "swing",
         "hideEasing": "linear",
@@ -535,8 +534,8 @@ function message(message, caption, timeout) {
 }
 
 function warning(message, caption, timeout) {
-    timeout = timeout?timeout:15;
-    toastr.warning(message, caption?caption:i18n("warning"), {
+    timeout = timeout ? timeout : 15;
+    toastr.warning(message, caption ? caption : i18n("warning"), {
         "closeButton": true,
         "debug": false,
         "newestOnTop": true,
@@ -545,7 +544,7 @@ function warning(message, caption, timeout) {
         "preventDuplicates": false,
         "showDuration": "300",
         "hideDuration": "1000",
-        "timeOut": timeout?(timeout * 1000):"0",
+        "timeOut": timeout ? (timeout * 1000) : "0",
         "extendedTimeOut": "1000",
         "showEasing": "swing",
         "hideEasing": "linear",
@@ -555,8 +554,8 @@ function warning(message, caption, timeout) {
 }
 
 function error(message, caption, timeout) {
-    timeout = timeout?timeout:15;
-    toastr.error(message, caption?caption:i18n("error"), {
+    timeout = timeout ? timeout : 15;
+    toastr.error(message, caption ? caption : i18n("error"), {
         "closeButton": true,
         "debug": false,
         "newestOnTop": true,
@@ -565,7 +564,7 @@ function error(message, caption, timeout) {
         "preventDuplicates": false,
         "showDuration": "300",
         "hideDuration": "1000",
-        "timeOut": timeout?(timeout * 1000):"0",
+        "timeOut": timeout ? (timeout * 1000) : "0",
         "extendedTimeOut": "1000",
         "showEasing": "swing",
         "hideEasing": "linear",
@@ -609,11 +608,11 @@ function mYesNo(body, title, callbackYes, callbackNo, yes, no, timeout) {
 
     $('#yesnoModalLabel').html(title);
     $('#yesnoModalBody').html(body);
-    $('#yesnoModalButtonYes').html(yes?yes:i18n("yes")).off('click').on('click', () => {
+    $('#yesnoModalButtonYes').html(yes ? yes : i18n("yes")).off('click').on('click', () => {
         $('#yesnoModal').modal('hide');
         if (typeof callbackYes == 'function') callbackYes();
     });
-    $('#yesnoModalButtonNo').html(no?no:i18n("no")).off('click').on('click', () => {
+    $('#yesnoModalButtonNo').html(no ? no : i18n("no")).off('click').on('click', () => {
         $('#yesnoModal').modal('hide');
         if (typeof callbackNo == 'function') callbackNo();
     });
@@ -674,7 +673,7 @@ function xblur() {
 }
 
 function autoZ(target) {
-    let maxZ = Math.max.apply(null, $.map($('body > *:visible'), function(e) {
+    let maxZ = Math.max.apply(null, $.map($('body > *:visible'), function (e) {
         if (e === target) {
             return 1;
         } else {
@@ -802,13 +801,13 @@ function leftSide(button, title, target, group, withibleOnlyWhenActive) {
         `);
     }
 
-    let [ route ] = hashParse();
+    let [route] = hashParse();
 
     let id = md5(guid());
 
     $("#leftside-menu").append(`
-        <li id="${id}" class="nav-item ${mainSidebarFirst?"mt-1":""} ${withibleOnlyWhenActive?" withibleOnlyWhenActive":""}" data-target="${target}" title="${escapeHTML(title)}"${(withibleOnlyWhenActive && target !== "#" + route.split('.')[0])?" style='display: none;'":""}>
-            <a href="${target}" data-href="${target}" class="nav-link${(target === "#" + route.split('.')[0])?" active":""}">
+        <li id="${id}" class="nav-item ${mainSidebarFirst ? "mt-1" : ""} ${withibleOnlyWhenActive ? " withibleOnlyWhenActive" : ""}" data-target="${target}" title="${escapeHTML(title)}"${(withibleOnlyWhenActive && target !== "#" + route.split('.')[0]) ? " style='display: none;'" : ""}>
+            <a href="${target}" data-href="${target}" class="nav-link${(target === "#" + route.split('.')[0]) ? " active" : ""}">
                 <i class="${button} nav-icon"></i>
                 <p class="text-nowrap">${title}</p>
             </a>
@@ -819,6 +818,18 @@ function leftSide(button, title, target, group, withibleOnlyWhenActive) {
     mainSidebarFirst = false;
 
     return id;
+}
+
+function loadScript(url, callback = undefined) {
+    const script = document.createElement('script')
+
+    script.async = true
+    script.src = url
+
+    if (callback !== undefined)
+        script.onload = callback
+
+    document.getElementsByTagName('head')[0].appendChild(script)
 }
 
 function loadModule() {
@@ -856,9 +867,7 @@ function loadModule() {
                 delete i18n.methods;
             }
             lang[module] = i18n;
-        }).always(() => {
-            $.getScript("modules/" + module + "/" + module + ".js");
-        });
+        }).always(() => loadScript("modules/" + module + "/" + module + ".js"));
     }
 }
 
@@ -890,19 +899,13 @@ function loadSubModules(parent, subModules, doneOrParentObject) {
         if (typeof doneOrParentObject === "object") {
             moduleLoaded(parent, doneOrParentObject);
         }
-    } else{
-        $.getScript("modules/" + parent + "/" + module + ".js").
-        done(() => {
-            loadSubModules(parent, subModules, doneOrParentObject);
-        }).
-        fail(FAIL);
-    }
+    } else loadScript("modules/" + parent + "/" + module + ".js", () => loadSubModules(parent, subModules, doneOrParentObject))
 }
 
 function formatBytes(bytes) {
     let u = 0;
     for (; bytes > 1024; u++) bytes /= 1024;
-    return Math.round(bytes) + ' ' + [ 'B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y' ][u];
+    return Math.round(bytes) + ' ' + ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'][u];
 }
 
 function subTop(html) {
@@ -911,7 +914,7 @@ function subTop(html) {
 
 function hashParse() {
     let hash = location.href.split('#')[1];
-    hash = hash?('#' + hash):'';
+    hash = hash ? ('#' + hash) : '';
 
     $('.dropdownMenu').collapse('hide');
     $('.modal').modal('hide');
@@ -921,23 +924,23 @@ function hashParse() {
 
     try {
         hash = hash.split('#')[1].split('&');
-        route = hash[0]?hash[0]:"default";
+        route = hash[0] ? hash[0] : "default";
         for (let i = 1; i < hash.length; i++) {
             let sp = hash[i].split('=');
-            params[sp[0]] = sp[1]?decodeURIComponent(sp[1]):true;
+            params[sp[0]] = sp[1] ? decodeURIComponent(sp[1]) : true;
         }
     } catch (e) {
         route = "default";
     }
 
-    return [ route, params, hash ];
+    return [route, params, hash];
 }
 
 function escapeHTML(str) {
     if (typeof str == "undefined" || !str) {
         return "";
     }
-    
+
     str = str.toString();
 
     let escapeChars = {
@@ -945,7 +948,7 @@ function escapeHTML(str) {
         '£': 'pound',
         '¥': 'yen',
         '€': 'euro',
-        '©':'copy',
+        '©': 'copy',
         '®': 'reg',
         '<': 'lt',
         '>': 'gt',
@@ -956,7 +959,7 @@ function escapeHTML(str) {
 
     let regexString = '[';
 
-    for(let key in escapeChars) {
+    for (let key in escapeChars) {
         regexString += key;
     }
 
@@ -964,7 +967,7 @@ function escapeHTML(str) {
 
     let regex = new RegExp(regexString, 'g');
 
-    let result = str.replace(regex, function(m) {
+    let result = str.replace(regex, function (m) {
         return '&' + escapeChars[m] + ';';
     });
 
@@ -1041,7 +1044,7 @@ function trimStr(str, len) {
 function lStore(key, val) {
     if (!lStoreEngine) {
         let wdb;
-        
+
         let t = guid();
 
         try {
@@ -1075,13 +1078,13 @@ function lStore(key, val) {
         if (wdb) {
             lStoreEngine = wdb;
         } else {
-            $.cookie("test", t, { insecure: config.insecureCookie });
+            $.cookie("test", t, {insecure: config.insecureCookie});
 
             if ($.cookie("test") != t) {
                 error(i18n("errors.cantStoreCookie"), i18n("error"), 30);
                 return false;
             }
-        
+
             $.cookie("test", null);
 
             lStoreEngine = "cookie";
@@ -1089,12 +1092,12 @@ function lStore(key, val) {
     }
 
     if (key && typeof key !== "function") {
-        if (typeof(val) != "undefined") {
+        if (typeof (val) != "undefined") {
             if (lStoreEngine === "cookie") {
                 if (val === null) {
                     $.cookie(key, val);
                 } else {
-                    $.cookie(key, JSON.stringify(val), { expires: 3650, insecure: config.insecureCookie });
+                    $.cookie(key, JSON.stringify(val), {expires: 3650, insecure: config.insecureCookie});
                 }
             } else {
                 if (val === null) {
@@ -1139,7 +1142,7 @@ function lStore(key, val) {
 
 function QUERY(api, method, query, fresh) {
     return $.ajax({
-        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + (query?("?" + $.param(query)):""),
+        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + (query ? ("?" + $.param(query)) : ""),
         beforeSend: xhr => {
             xhr.setRequestHeader("Authorization", "Bearer " + lStore("_token"));
             if (fresh) {
@@ -1153,7 +1156,7 @@ function QUERY(api, method, query, fresh) {
 
 function GET(api, method, id, fresh) {
     return $.ajax({
-        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + ((typeof id !== "undefined" && id !== false)?("/" + encodeURIComponent(id)):""),
+        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + ((typeof id !== "undefined" && id !== false) ? ("/" + encodeURIComponent(id)) : ""),
         beforeSend: xhr => {
             xhr.setRequestHeader("Authorization", "Bearer " + lStore("_token"));
             if (fresh) {
@@ -1167,13 +1170,13 @@ function GET(api, method, id, fresh) {
 
 function AJAX(type, api, method, id, query) {
     return $.ajax({
-        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + ((typeof id !== "undefined" && id !== false)?("/" + encodeURIComponent(id)):""),
+        url: lStore("_server") + "/" + encodeURIComponent(api) + "/" + encodeURIComponent(method) + ((typeof id !== "undefined" && id !== false) ? ("/" + encodeURIComponent(id)) : ""),
         beforeSend: xhr => {
             xhr.setRequestHeader("Authorization", "Bearer " + lStore("_token"));
         },
         type: type,
         contentType: "json",
-        data: query?JSON.stringify(query):null,
+        data: query ? JSON.stringify(query) : null,
     });
 }
 
@@ -1241,5 +1244,5 @@ setInterval(() => {
         if (typeof window.onbeforeunload == "function") {
             window.onbeforeunload = null;
         }
-    } 
+    }
 }, 1000);
