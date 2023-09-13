@@ -82,4 +82,12 @@ class IntercomModel
 
         return self::$models;
     }
+
+    public static function model(string $value): ?IntercomModel
+    {
+        if (array_key_exists($value, self::models()))
+            return self::$models[$value];
+
+        return null;
+    }
 }

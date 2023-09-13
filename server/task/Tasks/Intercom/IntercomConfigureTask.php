@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Http\Uri;
 use Throwable;
@@ -21,7 +22,6 @@ class IntercomConfigureTask extends IntercomTask
     public function onTask(): bool
     {
         $households = backend('households');
-        $configs = backend('configs');
 
         $domophone = $households->getDomophone($this->id);
 
@@ -44,7 +44,6 @@ class IntercomConfigureTask extends IntercomTask
         $this->setProgress(2);
 
         $asterisk_server = backend('sip')->server("ip", $domophone['server']);
-        $cmses = $configs->getCMSes();
         $panel_text = $entrances[0]['callerId'];
 
         try {
@@ -57,10 +56,10 @@ class IntercomConfigureTask extends IntercomTask
                 throw new RuntimeException(message: 'Ping error');
 
             $cms_levels = explode(',', $entrances[0]['cmsLevels']);
-            $cms_model = (string)@$cmses[$entrances[0]['cms']]['model'];
+            $cms_model = IntercomCms::model($entrances[0]['cms']);
             $is_shared = $entrances[0]['shared'];
 
-            $this->clean($domophone, $asterisk_server, $cms_levels, $cms_model, $device);
+            $this->clean($domophone, $asterisk_server, $cms_levels, $cms_model->model, $device);
             $this->cms($is_shared, $entrances, $device);
 
             $this->setProgress(50);
