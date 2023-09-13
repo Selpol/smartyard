@@ -5,6 +5,7 @@ namespace Selpol\Kernel\Runner\Trait;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Selpol\Device\DeviceException;
 use Selpol\Http\HttpException;
 use Selpol\Http\Response;
 use Selpol\Service\HttpService;
@@ -17,16 +18,18 @@ trait ResponseTrait
     {
         try {
             if ($throwable instanceof HttpException)
-                $response = $this->response($throwable->getCode())
-                    ->withJson(['code' => $throwable->getCode(), 'message' => $throwable->getMessage()]);
+                $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
             else if ($throwable instanceof ValidatorException)
-                $response = $this->response(400)
-                    ->withJson(['code' => 400, 'name' => Response::$codes[400]['name'], 'message' => $throwable->getValidatorMessage()->getMessage()]);
-            else {
+                $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->getMessage());
+            else if ($throwable instanceof DeviceException) {
+                if ($throwable->getDevice()->asIp()?->ping())
+                    $response = $this->response(500)->withStatusJson('Ошибка взаимодействия с устройством');
+                else
+                    $response = $this->response(500)->withStatusJson('Устройство не доступно');
+            } else {
                 logger('response')->error($throwable, ['fatal' => $fatal]);
 
-                $response = $this->response(500)
-                    ->withJson(['code' => 500, 'name' => Response::$codes[500]['name'], 'message' => Response::$codes[500]['message']]);
+                $response = $this->response(500)->withStatusJson();
             }
 
             return $this->emit($response);

@@ -4,6 +4,8 @@ namespace Selpol\Device\Ip;
 
 use Selpol\Device\Device;
 use Selpol\Device\DeviceException;
+use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Http\Uri;
 use Throwable;
 
@@ -53,6 +55,22 @@ abstract class IpDevice extends Device
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
     {
         throw new DeviceException($this);
+    }
+
+    public function asCamera(): ?CameraDevice
+    {
+        if ($this instanceof CameraDevice)
+            return $this;
+
+        return null;
+    }
+
+    public function asIntercom(): ?IntercomDevice
+    {
+        if ($this instanceof IntercomDevice)
+            return $this;
+
+        return null;
     }
 
     public function get(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed

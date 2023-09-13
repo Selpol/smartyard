@@ -47,11 +47,11 @@ class CameraModel
     {
         if (!isset(self::$models))
             self::$models = [
-                'is' => new CameraModel('Сокол', 'IS', IsCamera::class),
-                'beward' => new CameraModel('Бевард', 'BEWARD', BewardCamera::class),
-                'hikVision' => new CameraModel('Хиквижен', 'HIKVISION', HikVisionCamera::class),
+                'is' => new CameraModel('Sokol', 'IS', IsCamera::class),
+                'beward' => new CameraModel('Beward', 'BEWARD', BewardCamera::class),
+                'hikVision' => new CameraModel('HikVision', 'HIKVISION', HikVisionCamera::class),
 
-                'fake' => new CameraModel('Заглушка', 'FAKE', FakeCamera::class)
+                'fake' => new CameraModel('Fake', 'FAKE', FakeCamera::class)
             ];
 
         return self::$models;

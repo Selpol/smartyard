@@ -3,12 +3,10 @@
 namespace Selpol\Device;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Device\Ip\IpDevice;
 use Selpol\Http\Uri;
 use Selpol\Service\ClientService;
 
-/**
- * @author https://github.com/rosteleset/SmartYard-Server/blob/feature/smart_autoconfig
- */
 abstract class Device
 {
     public readonly Uri $uri;
@@ -16,6 +14,14 @@ abstract class Device
     protected function __construct(Uri $uri)
     {
         $this->uri = $uri;
+    }
+
+    public function asIp(): ?IpDevice
+    {
+        if ($this instanceof IpDevice)
+            return $this;
+
+        return null;
     }
 
     /**
