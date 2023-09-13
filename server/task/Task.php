@@ -3,14 +3,10 @@
 namespace Selpol\Task;
 
 use Exception;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerAwareTrait;
 use Throwable;
 
-abstract class Task implements LoggerAwareInterface
+abstract class Task
 {
-    use LoggerAwareTrait;
-
     public ?int $taskId = null;
 
     public string $title;

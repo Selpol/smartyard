@@ -105,8 +105,6 @@ class TaskRunner implements KernelRunner
                 $this->logger->info('Dequeue start task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
 
                 try {
-                    $task->setLogger($this->logger);
-
                     $task->onTask();
 
                     if ($task->taskId === null)

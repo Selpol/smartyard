@@ -15,8 +15,6 @@ class internal extends task
 
         $task->taskId = $id;
 
-        logger('task-high')->debug($id);
-
         $statement = $this->db->prepare('INSERT INTO task(id, data, title, message, status) VALUES (:id, :data, :title, :message, :status)');
 
         return $statement->execute(['id' => $id, 'data' => serialize($task), 'title' => $task->title, 'message' => $message, 'status' => $status]) ? $id : -1;
