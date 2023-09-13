@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip\Camera;
 
 use Selpol\Device\Ip\Camera\Beward\BewardCamera;
 use Selpol\Device\Ip\Camera\Fake\FakeCamera;
+use Selpol\Device\Ip\Camera\HikVision\HikVisionCamera;
 use Selpol\Device\Ip\Camera\Is\IsCamera;
 
 class CameraModel
@@ -46,9 +47,11 @@ class CameraModel
     {
         if (!isset(self::$models))
             self::$models = [
-                'is' => new CameraModel('IS DOMOPHONE CAMERA', 'IS', IsCamera::class),
-                'beward' => new CameraModel('BEWARD DOMOPHONE CAMERA', 'BEWARD', BewardCamera::class),
-                'fake' => new CameraModel('FAKE CAMERA', 'FAKE', FakeCamera::class)
+                'is' => new CameraModel('Сокол', 'IS', IsCamera::class),
+                'beward' => new CameraModel('Бевард', 'BEWARD', BewardCamera::class),
+                'hikVision' => new CameraModel('Хиквижен', 'HIKVISION', HikVisionCamera::class),
+
+                'fake' => new CameraModel('Заглушка', 'FAKE', FakeCamera::class)
             ];
 
         return self::$models;
