@@ -9,6 +9,8 @@ use Throwable;
 
 class HikVisionCamera extends CameraDevice
 {
+    public string $login = 'admin';
+
     public function getSysInfo(): array
     {
         try {

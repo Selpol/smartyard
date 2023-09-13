@@ -16,7 +16,7 @@ syslog.on("message", async ({date, host, message}) => {
     if (!isMsg || substrings.some(substring => isMsg.includes(substring)))
         return;
 
-    console.log(`${now} || ${date.toLocaleDateString()} ${date.toLocaleTimeString()} || ${host} || ${isMsg}`);
+    console.log(`${date.toLocaleDateString()} ${date.toLocaleTimeString()} || ${host} || ${isMsg}`);
 
     // Send message to syslog storage
     await API.sendLog({date: now, ip: host, unit: "is", msg: isMsg});
