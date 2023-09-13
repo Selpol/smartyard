@@ -20,7 +20,8 @@ namespace PHPSTORM_META {
             'isdn' => \backends\isdn\isdn::class,
             'plog' => \backends\plog\plog::class,
             'sip' => \backends\sip\sip::class,
-            'users' => \backends\users\users::class
+            'users' => \backends\users\users::class,
+            'task' => \backends\task\task::class
         ])
     );
 }

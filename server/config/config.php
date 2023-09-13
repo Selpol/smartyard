@@ -149,7 +149,9 @@ return [
             'audience' => env('BACKEND_OAUTH_AUDIENCE'),
             'web_api' => env('BACKEND_OAUTH_WEB_API'),
             'secret' => env('BACKEND_OAUTH_SECRET')
-        ]
+        ],
+
+        'task' => ['backend' => 'internal']
     ],
 
     'syslog_servers' => [

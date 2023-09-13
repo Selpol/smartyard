@@ -11,6 +11,8 @@ abstract class Task implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
+    public ?int $taskId = null;
+
     public string $title;
 
     public function __construct(string $title)

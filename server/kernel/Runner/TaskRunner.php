@@ -109,11 +109,18 @@ class TaskRunner implements KernelRunner
 
                     $task->onTask();
 
+                    if ($task->taskId === null)
+                        backend('task')->add($task, 'OK', 1);
+                    else
+                        backend('task')->update($task->taskId, 'OK', 1);
+
                     $this->logger->info('Dequeue complete task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
                 } catch (Throwable $throwable) {
                     $this->logger->info('Dequeue error task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
 
                     $task->onError($throwable);
+
+                    backend('task')->add($task, $throwable->getMessage(), 0);
                 }
             }
         });
