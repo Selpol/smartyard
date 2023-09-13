@@ -31,13 +31,18 @@ class internal extends task
     {
         $dbTask = $this->db->get('SELECT data FROM task WHERE id = :id', ['id' => $id], options: ['singlify']);
 
-        if (!$dbTask)
+        if (!$dbTask) {
+            last_error('Задача не найдена');
+
             return false;
+        }
 
         $task = unserialize($dbTask['data']);
 
         if ($task instanceof \Selpol\Task\Task)
             return task($task)->high()->dispatch();
+
+        last_error('Неверный тип задачи');
 
         return false;
     }
