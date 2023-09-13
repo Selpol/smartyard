@@ -1,4 +1,5 @@
-const fs = require('fs')
+const {existsSync, readFileSync} = require('fs')
+const {join} = require("path")
 
 class Env {
     get clickhouseHost() {
@@ -36,8 +37,10 @@ class Env {
         if (!this.env) {
             this.env = {}
 
-            if (fs.existsSync('.env')) {
-                const content = fs.readFileSync('.env', 'utf-8')
+            const path = join(__dirname, '..', '.env')
+
+            if (existsSync(path)) {
+                const content = readFileSync(path, 'utf-8')
 
                 const lines = content.split('\n')
 
