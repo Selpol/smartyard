@@ -42,18 +42,14 @@ class IntercomCmsTask extends Task
     private function cms(array $entrance, array $domophone): void
     {
         try {
-            $cmses = backend('configs')->getCMSes();
-
-            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
-
-            $cms_model = (string)@$cmses[$entrance['cms']]['model'];
+            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             $cms_allocation = backend('households')->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+                $device->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
 
-            $panel->deffer();
+            $device->deffer();
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
         }

@@ -121,13 +121,13 @@ class IntercomConfigureTask extends IntercomTask
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function cms(bool $is_shared, array $entrances, IntercomDevice $panel): void
+    private function cms(bool $is_shared, array $entrances, IntercomDevice $device): void
     {
         if (!$is_shared) {
             $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
+                $device->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
         }
     }
 

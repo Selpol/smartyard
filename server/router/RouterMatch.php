@@ -53,6 +53,14 @@ class RouterMatch
     /**
      * @throws ValidatorException
      */
+    public function getParamIdOrThrow(string $key): int
+    {
+        return Rule::id()->onItem($key, $this->params);
+    }
+
+    /**
+     * @throws ValidatorException
+     */
     public function getParamIntOrThrow(string $key): int
     {
         return Rule::int()->onItem($key, $this->params);

@@ -10,6 +10,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\RedisService;
+use Selpol\Validator\ValidatorException;
 
 class FrsController extends Controller
 {
@@ -74,13 +75,11 @@ class FrsController extends Controller
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
     public function camshot(): Response
     {
-        $camera_id = $this->getRoute()->getParam('id');
-
-        if (!isset($camera_id) || $camera_id == 0)
-            return $this->rbtResponse(404);
+        $camera_id = $this->getRoute()->getParamIdOrThrow('id');
 
         $cameras = backend("cameras");
 
@@ -91,6 +90,6 @@ class FrsController extends Controller
         if (!$model)
             return $this->rbtResponse(204);
 
-        return $this->response()->withString($model->getScreenshot()->getContents())->withHeader('Content-Type', 'image/jpeg');
+        return $this->response()->withBody($model->getScreenshot())->withHeader('Content-Type', 'image/jpeg');
     }
 }
