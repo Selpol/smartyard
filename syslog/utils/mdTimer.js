@@ -5,7 +5,7 @@ const mdStorage = {};
 
 const mdStop = async (host) => {
     const now = getTimestamp(new Date());
-    await API.motionDetection({ date: now, ip: host, motionActive: false });
+    await API.motionDetection({date: now, ip: host, motionActive: false});
     delete mdStorage[host];
 }
 
@@ -17,4 +17,4 @@ const mdTimer = (host, delay) => {
     mdStorage[host] = setTimeout(mdStop, delay, host);
 }
 
-module.exports = { mdTimer };
+module.exports = {mdTimer};

@@ -31,7 +31,6 @@ __pycache__
 /server/config/config.json
 /server/config/config.yml
 /server/vendor
-/syslog/config.json
 /.stylelintrc.json
 package.json
 package-lock.json

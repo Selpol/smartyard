@@ -1,10 +1,10 @@
 const syslog = new (require("syslog-server"))();
-const {hw: {is}} = require("./config.json");
+const env = require("./utils/env");
 const {getTimestamp} = require("./utils/getTimestamp");
-const {urlParser} = require("./utils/urlParser");
 const API = require("./utils/api");
 const {mdTimer} = require("./utils/mdTimer");
-const {port} = urlParser(is);
+
+const url = new URL(env.hwIs)
 
 const gateRabbits = [];
 
@@ -74,4 +74,4 @@ syslog.on("message", async ({date, host, message}) => {
 
 syslog.on("error", (err) => console.error(err.message));
 
-syslog.start({port}).then(() => console.log(`IS syslog server running on port ${port}`));
+syslog.start({port: url.port}).then(() => console.log(`IS syslog server running on port ${url.port}`));
