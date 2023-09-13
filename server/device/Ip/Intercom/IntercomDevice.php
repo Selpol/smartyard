@@ -37,7 +37,12 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function addApartment(int $apartment, bool $handset, array $sipNumbers, int $code, array $levels): void
+    public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
+    {
+        throw new DeviceException($this);
+    }
+
+    public function addApartmentDeffer(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         throw new DeviceException($this);
     }
@@ -47,7 +52,7 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels): static
+    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static
     {
         throw new DeviceException($this);
     }
@@ -190,6 +195,21 @@ abstract class IntercomDevice extends IpDevice
         $this->setSos(112);
         $this->setCmsModel($cms_model);
         $this->setGate(false);
+    }
+
+    public function defferCmses(): void
+    {
+        throw new DeviceException($this);
+    }
+
+    public function defferRfids(): void
+    {
+        throw new DeviceException($this);
+    }
+
+    public function defferApartments(): void
+    {
+        throw new DeviceException($this);
     }
 
     public function deffer(): void

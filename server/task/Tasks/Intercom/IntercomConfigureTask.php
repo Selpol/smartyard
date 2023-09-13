@@ -178,12 +178,12 @@ class IntercomConfigureTask extends IntercomTask
                         }
                     }
 
-                    $device->addApartment(
+                    $device->addApartmentDeffer(
                         $apartment + $offset,
                         $is_shared ? false : $flat['cmsEnabled'],
                         $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
-                        $flat['openCode'] ?: 0,
-                        $apartment_levels
+                        $apartment_levels,
+                        $flat['openCode'] ?? 0
                     );
 
                     $keys = backend('households')->getKeys('flatId', $flat['flatId']);

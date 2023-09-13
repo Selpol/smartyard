@@ -18,7 +18,7 @@ services:
     volumes:
       - ./docker/data/database:/var/lib/postgresql/data
     env_file:
-      - .env
+      - server/.env
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
@@ -42,7 +42,7 @@ services:
     networks:
       backend:
   php:
-    build: .
+    build: server
     container_name: php
     volumes:
       - ./docker/data/log:/srv/app/var/log

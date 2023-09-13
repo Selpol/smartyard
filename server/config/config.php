@@ -153,13 +153,7 @@ return [
     ],
 
     'syslog_servers' => [
-        'beward' => explode(',', env('SYSLOG_SERVERS_BEWARD', 'syslog://127.0.0.1:45450')),
-        'beward_ds' => explode(',', env('SYSLOG_SERVERS_BEWARD_DS', 'syslog://127.0.0.1:45451')),
-        'qtech' => explode(',', env('SYSLOG_SERVERS_QTECH', 'syslog://127.0.0.1:45452')),
-        'is' => explode(',', env('SYSLOG_SERVERS_IS', 'syslog://127.0.0.1:45453')),
-        'hikvision' => explode(',', env('SYSLOG_SERVERS_HIKVISION', 'syslog://127.0.0.1:45454')),
-        'akuvox' => explode(',', env('SYSLOG_SERVERS_AKUVOX', 'syslog://127.0.0.1:45455')),
-        'rubetek' => explode(',', env('SYSLOG_SERVERS_RUBETEX', 'syslog://127.0.0.1:45456')),
+        'is' => explode(',', env('SYSLOG_SERVERS_IS', 'syslog://127.0.0.1:45453'))
     ],
 
     'ntp_servers' => explode(',', env('NTP_SERVERS', 'ntp://127.0.0.1:123'))

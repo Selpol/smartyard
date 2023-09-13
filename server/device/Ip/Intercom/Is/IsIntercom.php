@@ -12,8 +12,9 @@ abstract class IsIntercom extends IntercomDevice
 {
     public string $login = 'root';
 
-    protected ?array $cms = null;
-    protected ?array $rfid = null;
+    protected ?array $cmses = null;
+    protected ?array $rfids = null;
+    protected ?array $apartments = null;
 
     public function getSysInfo(): array
     {
@@ -35,13 +36,13 @@ abstract class IsIntercom extends IntercomDevice
 
     public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
     {
-        if ($this->cms === null)
-            $this->cms = [];
+        if ($this->cmses === null)
+            $this->cmses = [];
 
-        if (!array_key_exists($index, $this->cms))
-            $this->cms[$index] = $this->get('/switch/matrix/' . $index);
+        if (!array_key_exists($index, $this->cmses))
+            $this->cmses[$index] = $this->get('/switch/matrix/' . $index);
 
-        $this->cms[$index]['matrix'][$dozen][$unit] = $apartment;
+        $this->cmses[$index]['matrix'][$dozen][$unit] = $apartment;
     }
 
     public function addCode(int $code, int $apartment): void
@@ -61,10 +62,10 @@ abstract class IsIntercom extends IntercomDevice
 
     public function addRfidDeffer(string $code, int $apartment): void
     {
-        if ($this->rfid === null)
-            $this->rfid = [];
+        if ($this->rfids === null)
+            $this->rfids = [];
 
-        $this->rfid[] = ['uuid' => $code, 'panelCode' => $apartment];
+        $this->rfids[] = ['uuid' => $code, 'panelCode' => $apartment];
     }
 
     public function removeRfid(string $code): void
@@ -72,7 +73,7 @@ abstract class IsIntercom extends IntercomDevice
         $this->delete('/key/store/' . $code);
     }
 
-    public function addApartment(int $apartment, bool $handset, array $sipNumbers, int $code, array $levels): void
+    public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         $payload = [
             'panelCode' => $apartment,
@@ -86,8 +87,24 @@ abstract class IsIntercom extends IntercomDevice
 
         $this->post('/panelCode', $payload);
 
+        $this->removeCode($apartment);
+
         if ($code)
             $this->addCode($code, $apartment);
+    }
+
+    public function addApartmentDeffer(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
+    {
+        if ($this->apartments === null) {
+            $apartments = $this->get('/panelCode');
+
+            $this->apartments = [];
+
+            foreach ($apartments as $apartment)
+                $this->apartments[$apartment['panelCode']] = true;
+        }
+
+        $this->apartments[$apartment] = ['method' => array_key_exists($apartment, $this->apartments) ? 'PUT' : 'POST', 'handset' => $handset, 'sipNumbers' => $sipNumbers, 'levels' => $levels, 'code' => $code];
     }
 
     public function removeApartment(int $apartment): void
@@ -97,7 +114,7 @@ abstract class IsIntercom extends IntercomDevice
         $this->removeCode($apartment);
     }
 
-    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels): static
+    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static
     {
         $payload = [
             'panelCode' => $apartment,
@@ -110,6 +127,11 @@ abstract class IsIntercom extends IntercomDevice
             $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
 
         $this->put('/panelCode/' . $apartment, $payload);
+
+        $this->removeCode($apartment);
+
+        if ($code)
+            $this->addCode($code, $apartment);
 
         return $this;
     }
@@ -277,7 +299,8 @@ abstract class IsIntercom extends IntercomDevice
     {
         $this->put('/panelCode/settings', ['consiergeRoom' => (string)$value]);
 
-        $this->addApartment($value, false, [$value], 0, []);
+        $this->addApartment($value, false, [$value], [], 0);
+        $this->removeCode($value);
 
         return $this;
     }
@@ -435,20 +458,48 @@ abstract class IsIntercom extends IntercomDevice
         $this->delete('/key/store/clear');
     }
 
-    public function deffer(): void
+    public function defferCmses(): void
     {
-        if ($this->cms) {
-            foreach ($this->cms as $index => $value)
+        if ($this->cmses) {
+            foreach ($this->cmses as $index => $value)
                 $this->put('/switch/matrix/' . $index, ['capacity' => $value['capacity'], 'matrix' => $value['matrix']]);
 
-            $this->cms = null;
+            $this->cmses = null;
         }
+    }
 
-        if ($this->rfid) {
-            $this->put('/key/store/merge', $this->rfid);
+    public function defferRfids(): void
+    {
+        if ($this->rfids) {
+            $this->put('/key/store/merge', $this->rfids);
 
-            $this->rfid = null;
+            $this->rfids = null;
         }
+    }
+
+    public function defferApartments(): void
+    {
+        if ($this->apartments) {
+            foreach ($this->apartments as $apartment => $value) {
+                if (!is_array($value))
+                    continue;
+
+                if ($value['method'] === 'PUT') {
+                    $this->setApartment($apartment, $value['handset'], $value['sipNumbers'], $value['levels'], $value['code']);
+                } else if ($value['method'] === 'POST') {
+                    $this->addApartment($apartment, $value['handset'], $value['sipNumbers'], $value['levels'], $value['code']);
+                }
+            }
+
+            $this->apartments = null;
+        }
+    }
+
+    public function deffer(): void
+    {
+        $this->defferCmses();
+        $this->defferRfids();
+        $this->defferApartments();
     }
 
     private function getSyslogConfig(string $server, int $port): string

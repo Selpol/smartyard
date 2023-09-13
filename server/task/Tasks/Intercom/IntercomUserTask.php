@@ -80,13 +80,9 @@ class IntercomUserTask extends Task
                 $apartment,
                 $entrance['shared'] ? false : $flat['cmsEnabled'],
                 $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
-                $apartment_levels
+                $apartment_levels,
+                $flat['openCode'] ?? 0
             );
-
-            $panel->removeCode($apartment);
-
-            if ($flat['openCode'])
-                $panel->addCode($flat['openCode'], $apartment);
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
         }
