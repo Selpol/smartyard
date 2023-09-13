@@ -51,7 +51,7 @@ class IntercomCmsTask extends Task
             $cms_allocation = backend('households')->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
+                $panel->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment'], $cms_model);
 
             $panel->deffer();
         } catch (Throwable $throwable) {

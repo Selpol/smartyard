@@ -127,7 +127,7 @@ class IntercomConfigureTask extends IntercomTask
             $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $panel->addCmsDefer($item['cms'], $item['dozen'], $item['unit'], $item['apartment']);
+                $panel->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
         }
     }
 
