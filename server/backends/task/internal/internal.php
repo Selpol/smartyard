@@ -6,7 +6,7 @@ class internal extends task
 {
     public function page(int $size, int $page): array
     {
-        return $this->db->get('SELECT * FROM task OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
+        return $this->db->get('SELECT id, title, message, status, created_at, updated_at FROM task OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
     }
 
     public function add(\Selpol\Task\Task $task, string $message, int $status): int
@@ -41,6 +41,8 @@ class internal extends task
 
         if ($task instanceof \Selpol\Task\Task)
             return task($task)->high()->dispatch();
+
+        logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask['data']]);
 
         last_error('Неверный тип задачи');
 
