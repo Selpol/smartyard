@@ -82,8 +82,8 @@ abstract class IsIntercom extends IntercomDevice
             'typeSound' => 3,
         ];
 
-        if (count($levels) === 2)
-            $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
+        if (count($levels) === 2) $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
+        else $payload['resistances'] = ['answer' => 255, 'quiescent' => 255];
 
         $this->post('/panelCode', $payload);
 
@@ -123,8 +123,8 @@ abstract class IsIntercom extends IntercomDevice
             'typeSound' => 3,
         ];
 
-        if (count($levels) === 2)
-            $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
+        if (count($levels) === 2) $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
+        else $payload['resistances'] = ['answer' => 255, 'quiescent' => 255];
 
         $this->put('/panelCode/' . $apartment, $payload);
 
