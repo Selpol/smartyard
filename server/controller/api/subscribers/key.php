@@ -14,6 +14,13 @@ namespace api\subscribers {
      */
     class key extends api
     {
+        public static function GET($params)
+        {
+            $key = backend('households')->getKey($params['_id']);
+
+            return api::ANSWER($key, ($key !== false) ? 'key' : false);
+        }
+
         public static function POST($params)
         {
             $households = backend("households");
