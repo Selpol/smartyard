@@ -4,8 +4,6 @@ const {getTimestamp} = require("./utils/getTimestamp");
 const API = require("./utils/api");
 const {mdTimer} = require("./utils/mdTimer");
 
-const url = new URL(env.hwIs)
-
 const gateRabbits = [];
 
 syslog.on("message", async ({date, host, message}) => {
@@ -74,4 +72,4 @@ syslog.on("message", async ({date, host, message}) => {
 
 syslog.on("error", (err) => console.error(err.message));
 
-syslog.start({port: url.port}).then(() => console.log(`IS syslog server running on port ${url.port}`));
+syslog.start({port: env.hwIs}).then(() => console.log(`IS syslog server running on port ${env.hwIs}`));

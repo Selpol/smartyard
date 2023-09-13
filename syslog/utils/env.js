@@ -26,7 +26,7 @@ class Env {
     }
 
     get hwIs() {
-        return this.getEnv('HW_IS', 'syslog://127.0.0.1:45453')
+        return this.getEnv('HW_IS', 45453)
     }
 
     getEnv(key, value = undefined) {
