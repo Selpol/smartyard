@@ -5,7 +5,6 @@ namespace Selpol\Task\Tasks;
 use Exception;
 use Selpol\Service\DatabaseService;
 use Selpol\Task\Task;
-use function container;
 
 class ReindexTask extends Task
 {
