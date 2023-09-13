@@ -96,12 +96,12 @@ abstract class IsIntercom extends IntercomDevice
     public function addApartmentDeffer(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         if ($this->apartments === null) {
-            $apartments = $this->get('/panelCode');
+            $rawApartments = $this->get('/panelCode');
 
             $this->apartments = [];
 
-            foreach ($apartments as $apartment)
-                $this->apartments[$apartment['panelCode']] = true;
+            foreach ($rawApartments as $rawApartment)
+                $this->apartments[$rawApartment['panelCode']] = true;
         }
 
         $this->apartments[$apartment] = ['method' => array_key_exists($apartment, $this->apartments) ? 'PUT' : 'POST', 'handset' => $handset, 'sipNumbers' => $sipNumbers, 'levels' => $levels, 'code' => $code];

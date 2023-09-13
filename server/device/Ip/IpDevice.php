@@ -55,7 +55,7 @@ abstract class IpDevice extends Device
         throw new DeviceException($this);
     }
 
-    protected function get(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function get(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
             $response = $this->client()->get($this->uri . $endpoint, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
@@ -66,7 +66,7 @@ abstract class IpDevice extends Device
         }
     }
 
-    protected function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
             $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
@@ -77,7 +77,7 @@ abstract class IpDevice extends Device
         }
     }
 
-    protected function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
             $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
@@ -88,7 +88,7 @@ abstract class IpDevice extends Device
         }
     }
 
-    protected function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
     {
         try {
             $response = $this->client()->delete($this->uri . $endpoint, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
