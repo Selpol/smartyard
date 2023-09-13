@@ -7,7 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Task\Task;
 use Throwable;
 
-class IntercomUserTask extends Task
+class IntercomFlatTask extends Task
 {
     public int $flatId;
 
@@ -60,7 +60,7 @@ class IntercomUserTask extends Task
             $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             $apartment = $flat['flat'];
-            $apartment_levels = explode(',', $entrance['cmsLevels']);
+            $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
 
             $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
                 return $entrance['domophoneId'] == $id;
@@ -68,7 +68,7 @@ class IntercomUserTask extends Task
 
             foreach ($flat_entrances as $flat_entrance) {
                 if (isset($flat_entrance['apartmentLevels'])) {
-                    $apartment_levels = explode(',', $flat_entrance['apartmentLevels']);
+                    $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
                 }
 
                 if ($flat_entrance['apartment'] != $apartment) {

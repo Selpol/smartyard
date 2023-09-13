@@ -63,12 +63,12 @@ class IntercomKeyTask extends Task
             return;
 
         try {
-            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             if ($this->delete)
-                $panel->removeRfid($this->key);
+                $device->removeRfid($this->key);
             else
-                $panel->addRfid($this->key, $flat);
+                $device->addRfid($this->key, $flat);
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
         }

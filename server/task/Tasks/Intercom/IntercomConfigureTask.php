@@ -55,7 +55,7 @@ class IntercomConfigureTask extends IntercomTask
             if (!$device->ping())
                 throw new RuntimeException(message: 'Ping error');
 
-            $cms_levels = explode(',', $entrances[0]['cmsLevels']);
+            $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);
             $is_shared = $entrances[0]['shared'];
 
@@ -169,7 +169,7 @@ class IntercomConfigureTask extends IntercomTask
 
                     foreach ($flat_entrances as $flat_entrance) {
                         if (isset($flat_entrance['apartmentLevels'])) {
-                            $apartment_levels = explode(',', $flat_entrance['apartmentLevels']);
+                            $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
                         }
 
                         if ($flat_entrance['apartment'] != $apartment) {
