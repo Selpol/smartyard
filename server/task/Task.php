@@ -7,8 +7,6 @@ use Throwable;
 
 abstract class Task
 {
-    public ?int $taskId = null;
-
     public string $title;
 
     public function __construct(string $title)

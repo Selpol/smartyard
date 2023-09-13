@@ -107,10 +107,7 @@ class TaskRunner implements KernelRunner
                 try {
                     $task->onTask();
 
-                    if ($task->taskId === null)
-                        backend('task')->add($task, 'OK', 1);
-                    else
-                        backend('task')->update($task->taskId, 'OK', 1);
+                    backend('task')->add($task, 'OK', 1);
 
                     $this->logger->info('Dequeue complete task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
                 } catch (Throwable $throwable) {
