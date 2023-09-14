@@ -645,7 +645,7 @@
                 let inputs = `<div class="row mt-2 ${prefx}" data-entrance-id="${modules.addresses.houses.meta.entrances[i].entranceId}" style="display: none;">`;
                 inputs += `
                     <div class="col">
-                        <input type="text" class="form-control form-control-sm ${prefx}-apartment" data-entrance-id="${modules.addresses.houses.meta.entrances[i].entranceId}" placeholder="${i18n("addresses.apartment")}">
+                        <input type="text" class="form-control form-control-sm ${prefx}-apartment" disabled data-entrance-id="${modules.addresses.houses.meta.entrances[i].entranceId}" placeholder="${i18n("addresses.apartment")}">
                     </div>
                 `;
                 if (modules.addresses.houses.meta.entrances[i].cms.toString() !== "0") {

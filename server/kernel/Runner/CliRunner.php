@@ -46,7 +46,9 @@ class CliRunner implements KernelRunner
         $arguments = $this->getArguments();
 
         if ($this->isCommand($arguments, '--init-db')) $this->initDb();
+
         else if ($this->isCommand($arguments, '--check-db')) return $this->checkDb();
+        else if ($this->isCommand($arguments, '--check-amqp')) return $this->checkAmqp();
 
         else if ($this->isCommand($arguments, '--cleanup')) $this->cleanup();
         else if ($this->isCommand($arguments, '--reindex')) $this->reindex();
@@ -189,6 +191,11 @@ class CliRunner implements KernelRunner
 
             return 1;
         }
+    }
+
+    private function checkAmqp(): int
+    {
+        return 0;
     }
 
     /**

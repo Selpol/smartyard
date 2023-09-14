@@ -9,7 +9,7 @@ fi
 if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
   php cli.php --optimize-kernel
 
-  echo "Ожидание подключения к базе данных..."
+  echo "Waiting for database connection..."
 
   COUNT=60
 
@@ -22,11 +22,33 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
 
     COUNT=$((COUNT - 1))
 
-    echo "Ожидание подключения к базе данных, осталось попыток $COUNT"
+    echo "Waiting to connect to the database, attempts left $COUNT"
   done
 
   if [ $COUNT -eq 0 ]; then
-    echo "База данных не доступна:"
+    echo "Database unavailable:"
+    echo "$RESULT"
+    exit 1
+  fi
+
+  echo "Waiting for amqp connection..."
+
+  COUNT=60
+
+  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php --check-amqp 2>&1); do
+    if [ $? -eq 0 ]; then
+      break
+    fi
+
+    sleep 1
+
+    COUNT=$((COUNT - 1))
+
+    echo "Waiting to connect to the database, attempts left $COUNT"
+  done
+
+  if [ $COUNT -eq 0 ]; then
+    echo "AMQP unavailable:"
     echo "$RESULT"
     exit 1
   fi
