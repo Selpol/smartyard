@@ -48,6 +48,7 @@ services:
     build: .
     container_name: php
     volumes:
+      - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
       - ./docker/data/log:/srv/app/var/log
     environment:
       - DB_HOST=database
