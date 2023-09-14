@@ -89,7 +89,7 @@ abstract class IsIntercom extends IntercomDevice
 
         $this->removeCode($apartment);
 
-        if ($code)
+        if ($code && strlen((string)$code) === 5)
             $this->addCode($code, $apartment);
     }
 
