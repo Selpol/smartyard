@@ -85,7 +85,7 @@ class IntercomSyncFlatTask extends Task
                 $entrance['shared'] ? false : $flat['cmsEnabled'],
                 $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
                 $apartment_levels,
-                $flat['openCode'] ?: 0
+                intval($flat['openCode']) ?: 0
             );
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);

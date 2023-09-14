@@ -182,7 +182,7 @@ class IntercomConfigureTask extends IntercomTask
                         $is_shared ? false : $flat['cmsEnabled'],
                         $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
                         $apartment_levels,
-                        $flat['openCode'] ?? 0
+                        intval($flat['openCode']) ?? 0
                     );
 
                     $keys = backend('households')->getKeys('flatId', $flat['flatId']);
