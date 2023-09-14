@@ -27,7 +27,7 @@ namespace api\subscribers {
 
             $keyId = $households->addKey($params["rfId"], $params["accessType"], $params["accessTo"], $params["comments"]);
 
-            task(new IntercomKeyTask($params['rfId'], $params['accessTo'], false))->high()->dispatch();
+            high_dispatch(new IntercomKeyTask($params['rfId'], $params['accessTo'], false));
 
             return api::ANSWER($keyId, ($keyId !== false) ? "key" : false);
         }
@@ -47,12 +47,15 @@ namespace api\subscribers {
 
             $key = $households->getKey($params['_id']);
 
-            if ($key)
-                task(new IntercomKeyTask($key['rfId'], $key['accessTo'], true))->high()->dispatch();
+            if ($key) {
+                high_dispatch(new IntercomKeyTask($key['rfId'], $key['accessTo'], true));
 
-            $success = $households->deleteKey($params["_id"]);
+                $success = $households->deleteKey($params["_id"]);
 
-            return api::ANSWER($success);
+                return api::ANSWER($success);
+            }
+
+            return api::ERROR('Ключ не найден');
         }
 
         public static function index()

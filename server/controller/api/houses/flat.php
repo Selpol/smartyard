@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Task\Tasks\Intercom\IntercomFlatDeleteTask;
     use Selpol\Task\Tasks\Intercom\IntercomFlatTask;
 
     /**
@@ -32,6 +33,9 @@ namespace api\houses {
 
             $flatId = $households->addFlat($params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], $params["manualBlock"], $params["adminBlock"], $params["openCode"], $params["plog"], $params["autoOpen"], $params["whiteRabbit"], $params["sipEnabled"], $params["sipPassword"]);
 
+            if ($flatId)
+                high_dispatch(new IntercomFlatTask($flatId));
+
             return api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
         }
 
@@ -42,7 +46,7 @@ namespace api\houses {
             $success = $households->modifyFlat($params["_id"], $params);
 
             if ($success)
-                task(new IntercomFlatTask($params['_id']));
+                high_dispatch(new IntercomFlatTask($params['_id']));
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
@@ -51,9 +55,24 @@ namespace api\houses {
         {
             $households = backend("households");
 
-            $success = $households->deleteFlat($params["_id"]);
+            $flat = $households->getFlat($params['_id']);
 
-            return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            if ($flat) {
+                $entrances = $households->getEntrances('flatId', $flat['flatId']);
+
+                $success = $households->deleteFlat($params["_id"]);
+
+                if ($success) {
+                    $apartments = array_map(static fn(array $apartment) => $entrances['apartment'], $entrances);
+                    $intercoms = array_map(static fn(array $entrance) => $entrance['domophoneId'], $entrances);
+
+                    high_dispatch(new IntercomFlatDeleteTask($apartments, $intercoms));
+                }
+
+                return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            }
+
+            return api::ERROR('Дом не найден');
         }
 
         public static function index()

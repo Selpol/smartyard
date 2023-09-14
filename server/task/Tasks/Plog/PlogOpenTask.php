@@ -133,6 +133,6 @@ class PlogOpenTask extends PlogTask
         logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
 
         if ($this->retry < 3)
-            task(new PlogOpenTask($this->id, $this->type, $this->door, $this->date, $this->detail))->low()->delay(300)->dispatch();
+            low_dispatch(new PlogOpenTask($this->id, $this->type, $this->door, $this->date, $this->detail), 300);
     }
 }

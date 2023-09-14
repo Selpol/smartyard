@@ -57,7 +57,7 @@ class IntercomFlatTask extends Task
             return;
 
         try {
-            $panel = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
@@ -76,7 +76,7 @@ class IntercomFlatTask extends Task
                 }
             }
 
-            $panel->setApartment(
+            $device->setApartment(
                 $apartment,
                 $entrance['shared'] ? false : $flat['cmsEnabled'],
                 $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],

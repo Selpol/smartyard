@@ -40,7 +40,7 @@ class ArchiveController extends Controller
 
         $result = (int)$dvr_exports->addDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
 
-        task(new RecordTask($user["subscriberId"], $result))->low()->dispatch();
+        low_dispatch(new RecordTask($user["subscriberId"], $result));
 
         return $this->rbtResponse(200, $result);
     }
