@@ -4,8 +4,7 @@ WORKDIR /srv/app
 
 COPY --from=mlocati/php-extension-installer:latest --link /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN apk update \
-    && apk add --update --no-cache \
+RUN apk update && apk add --update --no-cache \
 		acl \
 		fcgi \
 		file \
