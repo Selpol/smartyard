@@ -91,22 +91,22 @@ if (!function_exists('task')) {
     }
 }
 
-if (!function_exists('high_dispatch')) {
-    function high_dispatch(Task $task, ?int $delay = null): bool
+if (!function_exists('dispatch_high')) {
+    function dispatch_high(Task $task, ?int $delay = null): bool
     {
         return task($task)->delay($delay)->high()->dispatch();
     }
 }
 
-if (!function_exists('default_dispatch')) {
-    function default_dispatch(Task $task, ?int $delay = null): bool
+if (!function_exists('dispatch_default')) {
+    function dispatch_default(Task $task, ?int $delay = null): bool
     {
         return task($task)->delay($delay)->default()->dispatch();
     }
 }
 
-if (!function_exists('low_dispatch')) {
-    function low_dispatch(Task $task, ?int $delay = null): bool
+if (!function_exists('dispatch_low')) {
+    function dispatch_low(Task $task, ?int $delay = null): bool
     {
         return task($task)->delay($delay)->low()->dispatch();
     }

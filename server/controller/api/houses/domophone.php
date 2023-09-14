@@ -42,7 +42,7 @@ namespace api\houses {
             $households = backend("households");
 
             if (array_key_exists('configure', $params) && $params['configure'])
-                high_dispatch(new IntercomConfigureTask($params['_id']));
+                dispatch_high(new IntercomConfigureTask($params['_id']));
 
             $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
 

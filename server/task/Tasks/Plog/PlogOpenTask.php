@@ -20,7 +20,7 @@ class PlogOpenTask extends PlogTask
     /** @var string Информация о событие */
     public string $detail;
 
-    public int $retry = 0;
+    public int $retry = 3;
 
     public function __construct(int $id, int $type, int $door, int $date, string $detail)
     {
@@ -35,8 +35,6 @@ class PlogOpenTask extends PlogTask
     public function onTask(): bool
     {
         $logger = logger('plog');
-
-        $this->retry++;
 
         $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
 
@@ -132,7 +130,6 @@ class PlogOpenTask extends PlogTask
     {
         logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
 
-        if ($this->retry < 3)
-            low_dispatch(new PlogOpenTask($this->id, $this->type, $this->door, $this->date, $this->detail), 300);
+        $this->retryLow(300);
     }
 }

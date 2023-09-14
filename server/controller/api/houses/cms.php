@@ -29,7 +29,7 @@ namespace api\houses {
 
             $success = $households->setCms($params["_id"], $params["cms"]);
 
-            high_dispatch(new IntercomCmsTask($params['_id']));
+            dispatch_high(new IntercomCmsTask($params['_id']));
 
             return api::ANSWER($success);
         }

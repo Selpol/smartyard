@@ -166,7 +166,7 @@ namespace backends\plog {
         public function addCallDoneData($date, $ip, $call_id = null)
         {
             try {
-                default_dispatch(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id), 15);
+                dispatch_default(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id), 15);
             } catch (Exception $e) {
                 logger('task')->error('Error addCallDoneData' . PHP_EOL . $e);
             }
@@ -178,7 +178,7 @@ namespace backends\plog {
         public function addDoorOpenData($date, $ip, $event_type, $door, $detail)
         {
             try {
-                default_dispatch(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail), 15);
+                dispatch_default(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail), 15);
             } catch (Exception $e) {
                 logger('task')->error('Error addDoorOpenData' . PHP_EOL . $e);
             }
@@ -190,7 +190,7 @@ namespace backends\plog {
         public function addDoorOpenDataById($date, $domophone_id, $event_type, $door, $detail)
         {
             try {
-                default_dispatch(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail), 15);
+                dispatch_default(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail), 15);
             } catch (Exception $e) {
                 logger('task')->error('Error addDoorOpenDataById' . PHP_EOL . $e);
             }

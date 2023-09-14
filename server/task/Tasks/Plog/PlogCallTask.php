@@ -16,7 +16,7 @@ class PlogCallTask extends PlogTask
     /** @var int|null Идентификатор звонка */
     public ?int $call;
 
-    public int $retry = 0;
+    public int $retry = 3;
 
     public function __construct(int $id, string $ip, int $date, ?int $call)
     {
@@ -30,8 +30,6 @@ class PlogCallTask extends PlogTask
 
     public function onTask(): bool
     {
-        $this->retry++;
-
         $plog = backend('plog');
 
         $event_data = [];
@@ -113,8 +111,7 @@ class PlogCallTask extends PlogTask
     {
         logger('task')->debug('PlogCallTask error' . PHP_EOL . $throwable);
 
-        if ($this->retry < 3)
-            low_dispatch(new PlogCallTask($this->id, $this->ip, $this->date, $this->call), 300);
+        $this->retryLow(300);
     }
 
     private function beward(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)

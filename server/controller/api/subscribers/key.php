@@ -28,7 +28,7 @@ namespace api\subscribers {
 
             $keyId = $households->addKey($params["rfId"], $params["accessType"], $params["accessTo"], $params["comments"]);
 
-            high_dispatch(new IntercomAddKeyTask($params['rfId'], $params['accessTo']));
+            dispatch_high(new IntercomAddKeyTask($params['rfId'], $params['accessTo']));
 
             return api::ANSWER($keyId, ($keyId !== false) ? "key" : false);
         }
@@ -52,7 +52,7 @@ namespace api\subscribers {
                 $success = $households->deleteKey($params["_id"]);
 
                 if ($success)
-                    high_dispatch(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']));
+                    dispatch_high(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']));
 
                 return api::ANSWER($success);
             }
