@@ -7,8 +7,8 @@
 namespace api\houses {
 
     use api\api;
-    use Selpol\Task\Tasks\Intercom\IntercomFlatDeleteTask;
-    use Selpol\Task\Tasks\Intercom\IntercomFlatTask;
+    use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatDeleteTask;
+    use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatTask;
 
     /**
      * house method

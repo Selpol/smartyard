@@ -4,11 +4,12 @@ namespace Selpol\Task\Tasks;
 
 use backends\files\files;
 use chillerlan\QRCode\QRCode;
-use Exception;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Psr\Container\ContainerExceptionInterface;
+use RuntimeException;
 use Selpol\Task\Task;
+use Throwable;
 use ZipArchive;
 
 class QrTask extends Task
@@ -68,7 +69,7 @@ class QrTask extends Task
         $result = ['address' => $house['houseFull'], 'flats' => []];
 
         foreach ($flats as $flat) {
-            if (!isset($flat['code']) || is_null($flat['code']) || $flat['code'] == '') {
+            if (!isset($flat['code']) || $flat['code'] == '') {
                 $code = $this->getCode($flat['flatId']);
 
                 $flat['code'] = $code;
@@ -112,8 +113,8 @@ class QrTask extends Task
             $zip->close();
 
             return $this->files->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
-        } catch (Exception) {
-            return null;
+        } catch (Throwable $throwable) {
+            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         } finally {
             unlink($file);
 

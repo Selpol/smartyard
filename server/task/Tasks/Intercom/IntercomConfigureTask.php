@@ -53,7 +53,7 @@ class IntercomConfigureTask extends IntercomTask
                 return false;
 
             if (!$device->ping())
-                throw new RuntimeException(message: 'Ping error');
+                throw new RuntimeException(message: 'Устройство не доступно');
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);

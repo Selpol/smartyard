@@ -1,9 +1,10 @@
 <?php
 
-namespace Selpol\Task\Tasks\Intercom;
+namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -13,7 +14,7 @@ class IntercomFlatTask extends Task
 
     public function __construct(int $flatId)
     {
-        parent::__construct('Синхронизация пользователя (' . $flatId . ')');
+        parent::__construct('Синхронизация квартиры (' . $flatId . ')');
 
         $this->flatId = $flatId;
     }
@@ -59,6 +60,9 @@ class IntercomFlatTask extends Task
         try {
             $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
+            if (!$device->ping())
+                throw new RuntimeException('Устройство не доступно');
+
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
 
@@ -85,6 +89,8 @@ class IntercomFlatTask extends Task
             );
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
     }
 }

@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use RuntimeException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -44,6 +45,9 @@ class IntercomCmsTask extends Task
         try {
             $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
+            if (!$device->ping())
+                throw new RuntimeException('Устройство не доступно');
+
             $cms_allocation = backend('households')->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
@@ -52,6 +56,8 @@ class IntercomCmsTask extends Task
             $device->deffer();
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
     }
 }

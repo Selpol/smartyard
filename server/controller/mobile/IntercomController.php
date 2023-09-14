@@ -7,7 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
-use Selpol\Task\Tasks\Intercom\IntercomFlatTask;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatTask;
 use Selpol\Validator\Rule;
 use Throwable;
 
