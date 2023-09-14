@@ -34,8 +34,7 @@ class AddressController extends Controller
                 $has_plog = $plog && ($flat_plog == plog::ACCESS_ALL || $flat_plog == plog::ACCESS_OWNER_ONLY && $is_owner);
 
                 if ($plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
-                    $house['hasPlog'] = $has_plog ? 't' : 'f';
-
+                    $house['hasPlog'] = $has_plog;
 
                 $house['cameras'] = $households->getCameras("houseId", $houseId);
                 $house['doors'] = [];

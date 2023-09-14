@@ -49,7 +49,7 @@ class ActionController extends Controller
 
         [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $result;
 
-        $payload = ["streamId" => $streamId, "start" => $motionActive ? "t" : "f"];
+        $payload = ["streamId" => $streamId, "start" => (bool)$motionActive];
 
         $apiResponse = container(FrsService::class)->request('POST', $frsUrl . "/api/motionDetection", $payload);
 

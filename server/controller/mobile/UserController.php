@@ -23,7 +23,7 @@ class UserController extends Controller
         $validate = validator($this->request->getParsedBody(), [
             'pushToken' => [Rule::length(16), Filter::fullSpecialChars()],
             'voipToken' => [Rule::length(16), Filter::fullSpecialChars()],
-            'production' => [Filter::default('f', true), Rule::in(['t', 'f']), Rule::nonNullable()],
+            'production' => [Filter::default(false), Rule::bool(), Rule::nonNullable()],
             'platform' => [Rule::in(['ios', 'android', 'huawei'])]
         ]);
 
@@ -40,7 +40,7 @@ class UserController extends Controller
         if ($validate['platform'] == 'ios') {
             $platform = 1;
             if ($validate['voipToken']) {
-                $type = ($production == 'f') ? 2 : 1; // apn:apn.dev
+                $type = ($production == false) ? 2 : 1; // apn:apn.dev
             } else {
                 $type = 0; // fcm (resend)
             }

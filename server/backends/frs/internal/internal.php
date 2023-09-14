@@ -229,7 +229,7 @@ namespace backends\frs {
         {
             $method_params = [
                 self::P_STREAM_ID => $cam[self::CAMERA_ID],
-                self::P_START => $is_start ? "t" : "f"
+                self::P_START => (bool)$is_start
             ];
 
             return $this->apiCall($cam[self::CAMERA_FRS], self::M_MOTION_DETECTION, $method_params);

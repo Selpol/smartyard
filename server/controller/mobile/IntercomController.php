@@ -51,7 +51,7 @@ class IntercomController extends Controller
             $settings = $body['settings'];
 
             if (@$settings['CMS'])
-                $params["cmsEnabled"] = ($settings['CMS'] == 't') ? 1 : 0;
+                $params["cmsEnabled"] = $settings['CMS'] ? 1 : 0;
 
             if (@$settings['autoOpen']) {
                 $d = date('Y-m-d H:i:s', strtotime($settings['autoOpen']));
@@ -72,12 +72,12 @@ class IntercomController extends Controller
             $disable_plog = null;
 
             if (@$settings['disablePlog'] && $flat_owner && $plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
-                $disable_plog = ($settings['disablePlog'] == 't');
+                $disable_plog = ($settings['disablePlog'] == true);
 
             $hidden_plog = null;
 
             if (@$settings['hiddenPlog'] && $flat_owner && $plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
-                $hidden_plog = ($settings['hiddenPlog'] == 't');
+                $hidden_plog = ($settings['hiddenPlog'] == true);
 
             if ($disable_plog === true) $params['plog'] = plog::ACCESS_DENIED;
             else if ($disable_plog === false) {
@@ -90,7 +90,7 @@ class IntercomController extends Controller
 
             if (@$settings['VoIP']) {
                 $params = [];
-                $params['voipEnabled'] = ($settings['VoIP'] == 't') ? 1 : 0;
+                $params['voipEnabled'] = $settings['VoIP'] ? 1 : 0;
                 $households->modifySubscriber($user['subscriberId'], $params);
             }
 
@@ -102,16 +102,16 @@ class IntercomController extends Controller
 
         $result = [];
 
-        $result['allowDoorCode'] = 't';
+        $result['allowDoorCode'] = true;
         $result['doorCode'] = @$flat['openCode'] ?: '00000'; // TODO: разобраться с тем, как работает отключение кода
-        $result['CMS'] = @$flat['cmsEnabled'] ? 't' : 'f';
-        $result['VoIP'] = @$subscriber['voipEnabled'] ? 't' : 'f';
+        $result['CMS'] = (bool)(@$flat['cmsEnabled']);
+        $result['VoIP'] = (bool)(@$subscriber['voipEnabled']);
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
 
         if ($flat_owner && $plog && $flat['plog'] != plog::ACCESS_RESTRICTED_BY_ADMIN) {
-            $result['disablePlog'] = $flat['plog'] == plog::ACCESS_DENIED ? 't' : 'f';
-            $result['hiddenPlog'] = $flat['plog'] == plog::ACCESS_ALL ? 'f' : 't';
+            $result['disablePlog'] = $flat['plog'] == plog::ACCESS_DENIED;
+            $result['hiddenPlog'] = !($flat['plog'] == plog::ACCESS_ALL);
         }
 
         //check for FRS presence on at least one entrance of the flat
@@ -128,7 +128,7 @@ class IntercomController extends Controller
                     $vstream = $cameras->getCamera($e['cameraId']);
 
                     if (strlen($vstream["frs"]) > 1) {
-                        $frsDisabled = 'f';
+                        $frsDisabled = false;
 
                         break;
                     }
