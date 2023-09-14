@@ -64,12 +64,12 @@ namespace api\houses {
 
                 if ($success) {
                     $flatEntrances = array_reduce($flat['entrances'], static function (array $previous, array $current) use ($flat, $entrances) {
-                        $entrance = array_filter($entrances, static fn(array $entrance) => $entrance['entranceId'] == $current['entranceId']);
+                        $currentEntrances = array_filter($entrances, static fn(array $entrance) => $entrance['entranceId'] == $current['entranceId']);
 
-                        if (count($entrance) > 0)
+                        if (count($currentEntrances) > 0)
                             $previous[] = [
                                 $flat['flat'] !== $current['apartment'] ? $current['apartment'] : $flat['flat'],
-                                $entrance['entranceId']
+                                $current['entranceId']
                             ];
 
                         return $previous;
