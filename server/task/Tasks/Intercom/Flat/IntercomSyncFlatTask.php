@@ -8,7 +8,7 @@ use RuntimeException;
 use Selpol\Task\Task;
 use Throwable;
 
-class IntercomFlatTask extends Task
+class IntercomSyncFlatTask extends Task
 {
     public int $flatId;
 

@@ -7,7 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
-use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatTask;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Selpol\Validator\Rule;
 use Throwable;
 
@@ -94,7 +94,7 @@ class IntercomController extends Controller
                 $households->modifySubscriber($user['subscriberId'], $params);
             }
 
-            high_dispatch(new IntercomFlatTask($validate['flatId']));
+            high_dispatch(new IntercomSyncFlatTask($validate['flatId']));
         }
 
         $subscriber = $households->getSubscribers('id', $user['subscriberId'])[0];
@@ -234,7 +234,7 @@ class IntercomController extends Controller
         $households->modifyFlat($flat_id, $params);
         $flat = $households->getFlat($flat_id);
 
-        high_dispatch(new IntercomFlatTask($validate['flatId']));
+        high_dispatch(new IntercomSyncFlatTask($validate['flatId']));
 
         return $this->rbtResponse(200, ["code" => intval($flat['openCode'])]);
     }

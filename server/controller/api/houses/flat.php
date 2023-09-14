@@ -7,8 +7,8 @@
 namespace api\houses {
 
     use api\api;
-    use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatDeleteTask;
-    use Selpol\Task\Tasks\Intercom\Flat\IntercomFlatTask;
+    use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
+    use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
     /**
      * house method
@@ -34,7 +34,7 @@ namespace api\houses {
             $flatId = $households->addFlat($params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], $params["manualBlock"], $params["adminBlock"], $params["openCode"], $params["plog"], $params["autoOpen"], $params["whiteRabbit"], $params["sipEnabled"], $params["sipPassword"]);
 
             if ($flatId)
-                high_dispatch(new IntercomFlatTask($flatId));
+                high_dispatch(new IntercomSyncFlatTask($flatId));
 
             return api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
         }
@@ -46,7 +46,7 @@ namespace api\houses {
             $success = $households->modifyFlat($params["_id"], $params);
 
             if ($success)
-                high_dispatch(new IntercomFlatTask($params['_id']));
+                high_dispatch(new IntercomSyncFlatTask($params['_id']));
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
@@ -62,12 +62,8 @@ namespace api\houses {
 
                 $success = $households->deleteFlat($params["_id"]);
 
-                if ($success) {
-                    $apartments = array_map(static fn(array $apartment) => $entrances['apartment'], $entrances);
-                    $intercoms = array_map(static fn(array $entrance) => $entrance['domophoneId'], $entrances);
-
-                    high_dispatch(new IntercomFlatDeleteTask($apartments, $intercoms));
-                }
+                if ($success)
+                    high_dispatch(new IntercomDeleteFlatTask($flat['flatId'], array_map(static fn(array $entrance) => [$entrance['apartment'], $entrance['domophoneId']], $entrances)));
 
                 return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             }
