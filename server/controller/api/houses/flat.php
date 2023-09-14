@@ -62,8 +62,21 @@ namespace api\houses {
 
                 $success = $households->deleteFlat($params["_id"]);
 
-                if ($success)
-                    high_dispatch(new IntercomDeleteFlatTask($flat['flatId'], array_map(static fn(array $entrance) => [$entrance['apartment'], $entrance['domophoneId']], $entrances)));
+                if ($success) {
+                    $flatEntrances = array_reduce($flat['entrances'], static function (array $previous, array $current) use ($flat, $entrances) {
+                        $entrance = array_filter($entrances, static fn(array $entrance) => $entrance['entranceId'] == $current['entranceId']);
+
+                        if (count($entrance) > 0)
+                            $previous[] = [
+                                $flat['flat'] !== $current['apartment'] ? $current['apartment'] : $flat['flat'],
+                                $entrance['entranceId']
+                            ];
+
+                        return $previous;
+                    }, []);
+
+                    high_dispatch(new IntercomDeleteFlatTask($flat['flatId'], $flatEntrances));
+                }
 
                 return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             }
