@@ -11,12 +11,14 @@ use Throwable;
 class IntercomSyncFlatTask extends Task
 {
     public int $flatId;
+    public bool $add;
 
-    public function __construct(int $flatId)
+    public function __construct(int $flatId, bool $add)
     {
         parent::__construct('Синхронизация квартиры (' . $flatId . ')');
 
         $this->flatId = $flatId;
+        $this->add = $add;
     }
 
     /**
@@ -80,13 +82,22 @@ class IntercomSyncFlatTask extends Task
                 }
             }
 
-            $device->setApartment(
-                $apartment,
-                $entrance['shared'] ? false : $flat['cmsEnabled'],
-                $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
-                $apartment_levels,
-                intval($flat['openCode']) ?: 0
-            );
+            if ($this->add)
+                $device->addApartment(
+                    $apartment,
+                    $entrance['shared'] ? false : $flat['cmsEnabled'],
+                    $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+                    $apartment_levels,
+                    intval($flat['openCode']) ?: 0
+                );
+            else
+                $device->setApartment(
+                    $apartment,
+                    $entrance['shared'] ? false : $flat['cmsEnabled'],
+                    $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+                    $apartment_levels,
+                    intval($flat['openCode']) ?: 0
+                );
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
 
