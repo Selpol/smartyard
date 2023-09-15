@@ -11,11 +11,7 @@ namespace backends\addresses {
      */
     class internal extends addresses
     {
-
-        /**
-         * @inheritDoc
-         */
-        function getRegions()
+        function getRegions(): bool|array
         {
             return $this->db->get("select address_region_id, region_uuid, region_iso_code, region_with_type, region_type, region_type_full, region, timezone from addresses_regions order by region", false, [
                 "address_region_id" => "regionId",
@@ -29,10 +25,7 @@ namespace backends\addresses {
             ]);
         }
 
-        /**
-         * @inheritDoc
-         */
-        function getRegion($regionId)
+        function getRegion($regionId): bool|array
         {
             if (!check_int($regionId)) {
                 return false;
@@ -59,10 +52,7 @@ namespace backends\addresses {
             );
         }
 
-        /**
-         * @inheritDoc
-         */
-        function modifyRegion($regionId, $regionUuid, $regionIsoCode, $regionWithType, $regionType, $regionTypeFull, $region, $timezone = "-")
+        function modifyRegion(int $regionId, string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool
         {
             if ($timezone == "-") {
                 $timezone = null;
@@ -90,7 +80,7 @@ namespace backends\addresses {
         /**
          * @inheritDoc
          */
-        function addRegion($regionUuid, $regionIsoCode, $regionWithType, $regionType, $regionTypeFull, $region, $timezone = "-")
+        function addRegion(string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool|int
         {
             if ($timezone == "-") {
                 $timezone = null;
@@ -114,7 +104,7 @@ namespace backends\addresses {
         /**
          * @inheritDoc
          */
-        function deleteRegion($regionId)
+        function deleteRegion(int $regionId): bool
         {
             if (!check_int($regionId)) {
                 return false;
@@ -123,10 +113,7 @@ namespace backends\addresses {
             return $this->db->modify("delete from addresses_regions where address_region_id = $regionId");
         }
 
-        /**
-         * @inheritDoc
-         */
-        function getAreas($regionId = false)
+        function getAreas(?int $regionId): bool|array
         {
             if ($regionId) {
                 if (!check_int($regionId)) {
@@ -148,10 +135,7 @@ namespace backends\addresses {
             ]);
         }
 
-        /**
-         * @inheritDoc
-         */
-        function getArea($areaId)
+        function getArea(int $areaId): bool|array
         {
             if (!check_int($areaId)) {
                 return false;

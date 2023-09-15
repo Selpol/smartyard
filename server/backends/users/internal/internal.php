@@ -14,14 +14,7 @@ namespace backends\users {
      */
     class internal extends users
     {
-
-        /**
-         * list of all users
-         *
-         * @return array|false
-         */
-
-        public function getUsers()
+        public function getUsers(): bool|array
         {
             try {
                 $users = $this->db->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login, primary_group, acronym primary_group_acronym from core_users left join core_groups on core_users.primary_group = core_groups.gid order by uid", \PDO::FETCH_ASSOC)->fetchAll();
@@ -47,22 +40,23 @@ namespace backends\users {
 
                 if ($a->allow([
                     "_uid" => $this->uid,
-                    "_path" => [
-                        "api" => "accounts",
-                        "method" => "user",
-                    ],
+                    "_path" => ["api" => "accounts", "method" => "user"],
                     "_request_method" => "POST",
                 ])) {
                     foreach ($_users as &$u) {
                         $u["sessions"] = [];
+
                         $lk = $this->redis->keys("auth_*_{$u["uid"]}");
-                        foreach ($lk as $k) {
+
+                        foreach ($lk as $k)
                             $u["sessions"][] = json_decode($this->redis->get($k), true);
-                        }
+
                         $pk = $this->redis->keys("persistent_*_{$u["uid"]}");
+
                         foreach ($pk as $k) {
                             $s = json_decode($this->redis->get($k), true);
                             $s["byPersistentToken"] = true;
+
                             $u["sessions"][] = $s;
                         }
                     }
@@ -80,21 +74,8 @@ namespace backends\users {
             }
         }
 
-        /**
-         * get user by uid
-         *
-         * @param integer $uid uid
-         *
-         * @return array|false
-         */
-
-        public function getUser($uid)
+        public function getUser(int $uid): bool|array
         {
-
-            if (!check_int($uid)) {
-                return false;
-            }
-
             try {
                 $user = $this->db->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route, primary_group, acronym primary_group_acronym from core_users left join core_groups on core_users.primary_group = core_groups.gid where uid = $uid", \PDO::FETCH_ASSOC)->fetchAll();
 
@@ -115,56 +96,22 @@ namespace backends\users {
 
                     $groups = backend("groups");
 
-                    if ($groups !== false) {
+                    if ($groups !== false)
                         $_user["groups"] = $groups->getGroups($uid);
-                    }
 
                     $persistent = false;
                     $_keys = $this->redis->keys("persistent_*_" . $user[0]["uid"]);
+
                     foreach ($_keys as $_key) {
                         $persistent = explode("_", $_key)[1];
+
                         break;
                     }
 
-                    if ($persistent) {
+                    if ($persistent)
                         $_user["persistentToken"] = $persistent;
-                    }
 
                     return $_user;
-                } else {
-                    return false;
-                }
-            } catch (Exception $e) {
-                error_log(print_r($e, true));
-                return false;
-            }
-        }
-
-        /**
-         * add user
-         *
-         * @param string $login
-         * @param string $realName
-         * @param string $eMail
-         * @param string $phone
-         *
-         * @return integer|false
-         */
-        public function addUser($login, $realName = null, $eMail = null, $phone = null)
-        {
-            $login = trim($login);
-            $password = $this->generate_password();
-
-            try {
-                $sth = $this->db->prepare("insert into core_users (login, password, real_name, e_mail, phone, enabled) values (:login, :password, :real_name, :e_mail, :phone, 1)");
-                if ($sth->execute([
-                    ":login" => $login,
-                    ":password" => password_hash($password, PASSWORD_DEFAULT),
-                    ":real_name" => $realName ? trim($realName) : null,
-                    ":e_mail" => $eMail ? trim($eMail) : null,
-                    ":phone" => $phone ? trim($phone) : null,
-                ])) {
-                    return $this->db->lastInsertId();
                 } else return false;
             } catch (Exception $e) {
                 error_log(print_r($e, true));
@@ -173,81 +120,73 @@ namespace backends\users {
             }
         }
 
-        /**
-         * set password
-         *
-         * @param integer $uid
-         * @param string $password
-         *
-         * @return boolean
-         */
-
-        public function setPassword($uid, $password)
+        public function addUser(string $login, ?string $realName = null, ?string $eMail = null, ?string $phone = null): int|bool
         {
-            if (!check_int($uid) || !trim($password)) {
-                return false;
-            }
+            $login = trim($login);
+            $password = $this->generate_password();
 
-            if ($uid === 0) {
+            try {
+                $sth = $this->db->prepare("insert into core_users (login, password, real_name, e_mail, phone, enabled) values (:login, :password, :real_name, :e_mail, :phone, 1)");
+
+                if ($sth->execute([
+                    ":login" => $login,
+                    ":password" => password_hash($password, PASSWORD_DEFAULT),
+                    ":real_name" => $realName ? trim($realName) : null,
+                    ":e_mail" => $eMail ? trim($eMail) : null,
+                    ":phone" => $phone ? trim($phone) : null,
+                ]))
+                    return $this->db->lastInsertId();
+                else return false;
+            } catch (Exception $e) {
+                error_log(print_r($e, true));
+
                 return false;
             }
+        }
+
+        public function setPassword(int $uid, string $password): bool
+        {
+            if ($uid === 0 || !trim($password))
+                return false;
 
             try {
                 $sth = $this->db->prepare("update core_users set password = :password where uid = $uid");
-                $sth->execute([
-                    ":password" => password_hash($password, PASSWORD_DEFAULT),
-                ]);
+
+                return $sth->execute([":password" => password_hash($password, PASSWORD_DEFAULT)]);
             } catch (Exception $e) {
                 error_log(print_r($e, true));
+
                 return false;
             }
-
-            return true;
         }
 
-        /**
-         * delete user
-         *
-         * @param $uid
-         *
-         * @return boolean
-         */
-
-        public function deleteUser($uid)
+        public function deleteUser(int $uid): bool
         {
-            if (!check_int($uid)) {
-                return false;
-            }
-
             if ($uid > 0) { // admin cannot be deleted
                 try {
                     $this->db->exec("delete from core_users where uid = $uid");
 
                     $_keys = $this->redis->keys("persistent_*_" . $uid);
-                    foreach ($_keys as $_key) {
+
+                    foreach ($_keys as $_key)
                         $this->redis->del($_key);
-                    }
 
                     $groups = backend("groups");
-                    if ($groups) {
+
+                    if ($groups)
                         $groups->deleteUser($uid);
-                    }
                 } catch (Exception $e) {
                     error_log(print_r($e, true));
+
                     return false;
                 }
+
                 return true;
-            } else {
-                return false;
-            }
+            } else return false;
         }
 
         public function modifyUserEnabled(int $uid, bool $enabled): bool
         {
-            if (!check_int($uid)) {
-                return false;
-            }
-
             try {
                 $sth = $this->db->prepare("update core_users set enabled = :enabled where uid = $uid");
 
@@ -257,18 +196,10 @@ namespace backends\users {
             }
         }
 
-        /**
-         * @inheritDoc
-         */
-        public function modifyUser($uid, $realName = '', $eMail = '', $phone = '', $tg = '', $notification = 'tgEmail', $enabled = true, $defaultRoute = '', $persistentToken = false, $primaryGroup = -1)
+        public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string $tg = '', string $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', bool|string $persistentToken = false, int $primaryGroup = -1): bool
         {
-            if (!check_int($uid)) {
+            if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"]))
                 return false;
-            }
-
-            if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"])) {
-                return false;
-            }
 
             try {
                 $sth = $this->db->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route, primary_group = :primary_group where uid = $uid");
@@ -281,16 +212,16 @@ namespace backends\users {
                     ]));
                 } else {
                     $_keys = $this->redis->keys("persistent_*_" . $uid);
-                    foreach ($_keys as $_key) {
+
+                    foreach ($_keys as $_key)
                         $this->redis->del($_key);
-                    }
                 }
 
                 if (!$enabled) {
                     $_keys = $this->redis->keys("auth_*_" . $uid);
-                    foreach ($_keys as $_key) {
+
+                    foreach ($_keys as $_key)
                         $this->redis->del($_key);
-                    }
                 }
 
                 return $sth->execute([
@@ -301,14 +232,13 @@ namespace backends\users {
                     ":notification" => trim($notification),
                     ":enabled" => $enabled ? "1" : "0",
                     ":default_route" => trim($defaultRoute),
-                    ":primary_group" => (int)$primaryGroup,
+                    ":primary_group" => $primaryGroup,
                 ]);
             } catch (Exception $e) {
                 error_log(print_r($e, true));
+
                 return false;
             }
-
-            return true;
         }
 
         /**
@@ -319,21 +249,18 @@ namespace backends\users {
          * @return false|integer
          */
 
-        public function getUidByEMail($eMail)
+        public function getUidByEMail(string $eMail): bool|int
         {
             try {
                 $sth = $this->db->prepare("select uid from core_users where e_mail = :e_mail");
+
                 if ($sth->execute([":e_mail" => $eMail])) {
                     $users = $sth->fetchAll(\PDO::FETCH_ASSOC);
-                    if (count($users)) {
-                        return (int)$users[0]["uid"];
-                    } else {
-                        return false;
-                    }
-                } else {
-                    return false;
-                }
-            } catch (Exception $e) {
+
+                    if (count($users)) return (int)$users[0]["uid"];
+                    else return false;
+                } else return false;
+            } catch (Exception) {
                 return false;
             }
         }
@@ -346,9 +273,7 @@ namespace backends\users {
 
         public function capabilities(): array
         {
-            return [
-                "mode" => "rw",
-            ];
+            return ["mode" => "rw"];
         }
 
         public function cleanup(): int
@@ -364,30 +289,20 @@ namespace backends\users {
                 "delete from core_users_groups where gid not in (select gid from core_groups)",
             ];
 
-            for ($i = 0; $i < count($c); $i++) {
+            for ($i = 0; $i < count($c); $i++)
                 $n += $this->db->modify($c[$i]);
-            }
 
             return $n;
         }
 
-        /**
-         * @inheritDoc
-         */
-        public function getUidByLogin($login)
+        public function getUidByLogin(string $login): int|bool
         {
             try {
-                $users = $this->db->get("select uid from core_users where login = :login", [
-                    "login" => $login,
-                ], [
-                    "uid" => "uid",
-                ]);
-                if (count($users)) {
-                    return (int)$users[0]["uid"];
-                } else {
-                    return false;
-                }
-            } catch (Exception $e) {
+                $users = $this->db->get("select uid from core_users where login = :login", ["login" => $login], ["uid" => "uid"]);
+
+                if (count($users)) return (int)$users[0]["uid"];
+                else return false;
+            } catch (Exception) {
                 return false;
             }
         }

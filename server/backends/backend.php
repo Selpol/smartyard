@@ -107,7 +107,7 @@ namespace backends {
          * @param $login string
          * @return void
          */
-        public function setCreds(int $uid, string $login)
+        public function setCreds(int $uid, string $login): void
         {
             $this->uid = $uid;
             $this->login = $login;

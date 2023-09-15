@@ -1,283 +1,241 @@
 <?php
 
+/**
+ * backends addresses namespace
+ */
+
+namespace backends\addresses {
+
+    use backends\backend;
+
     /**
-    * backends addresses namespace
-    */
-
-    namespace backends\addresses
+     * base addresses class
+     */
+    abstract class addresses extends backend
     {
+        abstract function getRegions(): bool|array;
 
-        use backends\backend;
+        abstract function getRegion(int $regionId): bool|array;
+
+        abstract function modifyRegion(int $regionId, string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool;
+
+        abstract function addRegion(string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool|int;
+
+        abstract function deleteRegion(int $regionId): bool;
+
+        abstract function getAreas(?int $regionId): bool|array;
+
+        abstract function getArea(int $areaId): bool|array;
 
         /**
-         * base addresses class
+         * @param $areaId
+         * @param $regionId
+         * @param $areaUuid
+         * @param $areaWithType
+         * @param $areaType
+         * @param $areaTypeFull
+         * @param $area
+         * @return boolean
          */
-        abstract class addresses extends backend
-        {
+        abstract function modifyArea($areaId, $regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-");
 
-            /**
-             * @return false|array
-             */
-            abstract function getRegions();
+        /**
+         * @param $regionId
+         * @param $areaUuid
+         * @param $areaWithType
+         * @param $areaType
+         * @param $areaTypeFull
+         * @param $area
+         * @return false|integer
+         */
+        abstract function addArea($regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-");
 
-            /**
-             * @param integer $regionId
-             * @return false|array
-             */
-            abstract function getRegion($regionId);
+        /**
+         * @param $areaId
+         * @return boolean
+         */
+        abstract function deleteArea($areaId);
 
-            /**
-             * @param $regionId
-             * @param $regionUuid
-             * @param $regionIsoCode
-             * @param $regionWithType
-             * @param $regionType
-             * @param $regionTypeFull
-             * @param $region
-             * @param $timezone
-             * @return boolean
-             */
-            abstract function modifyRegion($regionId, $regionUuid, $regionIsoCode, $regionWithType, $regionType, $regionTypeFull, $region, $timezone = "-");
+        /**
+         * @param $regionId
+         * @param $areaId
+         * @return false|array
+         */
+        abstract function getCities($regionId = false, $areaId = false);
 
-            /**
-             * @param $regionUuid
-             * @param $regionIsoCode
-             * @param $regionWithType
-             * @param $regionType
-             * @param $regionTypeFull
-             * @param $region
-             * @param $timezone
-             * @return false|integer
-             */
-            abstract function addRegion($regionUuid, $regionIsoCode, $regionWithType, $regionType, $regionTypeFull, $region, $timezone = "-");
+        /**
+         * @param $cityId
+         * @return false|array
+         */
+        abstract function getCity($cityId);
 
-            /**
-             * @param $regionId
-             * @return boolean
-             */
-            abstract function deleteRegion($regionId);
+        /**
+         * @param $cityId
+         * @param $regionId
+         * @param $areaId
+         * @param $cityUuid
+         * @param $cityWithType
+         * @param $cityType
+         * @param $cityTypeFull
+         * @param $city
+         * @return boolean
+         */
+        abstract function modifyCity($cityId, $regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-");
 
-            /**
-             * @param $regionId
-             * @return false|array
-             */
-            abstract function getAreas($regionId);
+        /**
+         * @param $regionId
+         * @param $areaId
+         * @param $cityUuid
+         * @param $cityWithType
+         * @param $cityType
+         * @param $cityTypeFull
+         * @param $city
+         * @return false|integer
+         */
+        abstract function addCity($regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-");
 
-            /**
-             * @param $areaId
-             * @return false|array
-             */
-            abstract function getArea($areaId);
+        /**
+         * @param $cityId
+         * @return boolean
+         */
+        abstract function deleteCity($cityId);
 
-            /**
-             * @param $areaId
-             * @param $regionId
-             * @param $areaUuid
-             * @param $areaWithType
-             * @param $areaType
-             * @param $areaTypeFull
-             * @param $area
-             * @return boolean
-             */
-            abstract function modifyArea($areaId, $regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-");
+        /**
+         * @param $areaId
+         * @param $cityId
+         * @return false|array
+         */
+        abstract function getSettlements($areaId = false, $cityId = false);
 
-            /**
-             * @param $regionId
-             * @param $areaUuid
-             * @param $areaWithType
-             * @param $areaType
-             * @param $areaTypeFull
-             * @param $area
-             * @return false|integer
-             */
-            abstract function addArea($regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-");
+        /**
+         * @param $settlementId
+         * @return false|array
+         */
+        abstract function getSettlement($settlementId);
 
-            /**
-             * @param $areaId
-             * @return boolean
-             */
-            abstract function deleteArea($areaId);
+        /**
+         * @param $settlementId
+         * @param $areaId
+         * @param $cityId
+         * @param $settlementUuid
+         * @param $settlementWithType
+         * @param $settlementType
+         * @param $settlementTypeFull
+         * @param $settlement
+         * @return boolean
+         */
+        abstract function modifySettlement($settlementId, $areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement);
 
-            /**
-             * @param $regionId
-             * @param $areaId
-             * @return false|array
-             */
-            abstract function getCities($regionId = false, $areaId = false);
+        /**
+         * @param $areaId
+         * @param $cityId
+         * @param $settlementUuid
+         * @param $settlementWithType
+         * @param $settlementType
+         * @param $settlementTypeFull
+         * @param $settlement
+         * @return false|integer
+         */
+        abstract function addSettlement($areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement);
 
-            /**
-             * @param $cityId
-             * @return false|array
-             */
-            abstract function getCity($cityId);
+        /**
+         * @param $settlementId
+         * @return boolean
+         */
+        abstract function deleteSettlement($settlementId);
 
-            /**
-             * @param $cityId
-             * @param $regionId
-             * @param $areaId
-             * @param $cityUuid
-             * @param $cityWithType
-             * @param $cityType
-             * @param $cityTypeFull
-             * @param $city
-             * @return boolean
-             */
-            abstract function modifyCity($cityId, $regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-");
+        /**
+         * @param $cityId
+         * @param $settlementId
+         * @return false|array
+         */
+        abstract function getStreets($cityId = false, $settlementId = false);
 
-            /**
-             * @param $regionId
-             * @param $areaId
-             * @param $cityUuid
-             * @param $cityWithType
-             * @param $cityType
-             * @param $cityTypeFull
-             * @param $city
-             * @return false|integer
-             */
-            abstract function addCity($regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-");
+        /**
+         * @param $streetId
+         * @return false|array
+         */
+        abstract function getStreet($streetId);
 
-            /**
-             * @param $cityId
-             * @return boolean
-             */
-            abstract function deleteCity($cityId);
+        /**
+         * @param $streetId
+         * @param $cityId
+         * @param $settlementId
+         * @param $streetUuid
+         * @param $streetWithType
+         * @param $streetType
+         * @param $streetTypeFull
+         * @param $street
+         * @return boolean
+         */
+        abstract function modifyStreet($streetId, $cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street);
 
-            /**
-             * @param $areaId
-             * @param $cityId
-             * @return false|array
-             */
-            abstract function getSettlements($areaId = false, $cityId = false);
+        /**
+         * @param $cityId
+         * @param $settlementId
+         * @param $streetUuid
+         * @param $streetWithType
+         * @param $streetType
+         * @param $streetTypeFull
+         * @param $street
+         * @return false|integer
+         */
+        abstract function addStreet($cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street);
 
-            /**
-             * @param $settlementId
-             * @return false|array
-             */
-            abstract function getSettlement($settlementId);
+        /**
+         * @param $streetId
+         * @return boolean
+         */
+        abstract function deleteStreet($streetId);
 
-            /**
-             * @param $settlementId
-             * @param $areaId
-             * @param $cityId
-             * @param $settlementUuid
-             * @param $settlementWithType
-             * @param $settlementType
-             * @param $settlementTypeFull
-             * @param $settlement
-             * @return boolean
-             */
-            abstract function modifySettlement($settlementId, $areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement);
+        /**
+         * @param $settlementId
+         * @param $streetId
+         * @return false|array
+         */
+        abstract function getHouses($settlementId = false, $streetId = false);
 
-            /**
-             * @param $areaId
-             * @param $cityId
-             * @param $settlementUuid
-             * @param $settlementWithType
-             * @param $settlementType
-             * @param $settlementTypeFull
-             * @param $settlement
-             * @return false|integer
-             */
-            abstract function addSettlement($areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement);
+        /**
+         * @param $houseId
+         * @return false|array
+         */
+        abstract function getHouse($houseId);
 
-            /**
-             * @param $settlementId
-             * @return boolean
-             */
-            abstract function deleteSettlement($settlementId);
+        /**
+         * @param $houseId
+         * @param $settlementId
+         * @param $streetId
+         * @param $houseUuid
+         * @param $houseType
+         * @param $houseTypeFull
+         * @param $houseFull
+         * @param $house
+         * @return boolean
+         */
+        abstract function modifyHouse($houseId, $settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house);
 
-            /**
-             * @param $cityId
-             * @param $settlementId
-             * @return false|array
-             */
-            abstract function getStreets($cityId = false, $settlementId = false);
+        /**
+         * @param $settlementId
+         * @param $streetId
+         * @param $houseUuid
+         * @param $houseType
+         * @param $houseTypeFull
+         * @param $houseFull
+         * @param $house
+         * @return false|integer
+         */
+        abstract function addHouse($settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house);
 
-            /**
-             * @param $streetId
-             * @return false|array
-             */
-            abstract function getStreet($streetId);
+        /**
+         * @param $houseId
+         * @return boolean
+         */
+        abstract function deleteHouse($houseId);
 
-            /**
-             * @param $streetId
-             * @param $cityId
-             * @param $settlementId
-             * @param $streetUuid
-             * @param $streetWithType
-             * @param $streetType
-             * @param $streetTypeFull
-             * @param $street
-             * @return boolean
-             */
-            abstract function modifyStreet($streetId, $cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street);
-
-            /**
-             * @param $cityId
-             * @param $settlementId
-             * @param $streetUuid
-             * @param $streetWithType
-             * @param $streetType
-             * @param $streetTypeFull
-             * @param $street
-             * @return false|integer
-             */
-            abstract function addStreet($cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street);
-
-            /**
-             * @param $streetId
-             * @return boolean
-             */
-            abstract function deleteStreet($streetId);
-
-            /**
-             * @param $settlementId
-             * @param $streetId
-             * @return false|array
-             */
-            abstract function getHouses($settlementId = false, $streetId = false);
-
-            /**
-             * @param $houseId
-             * @return false|array
-             */
-            abstract function getHouse($houseId);
-
-            /**
-             * @param $houseId
-             * @param $settlementId
-             * @param $streetId
-             * @param $houseUuid
-             * @param $houseType
-             * @param $houseTypeFull
-             * @param $houseFull
-             * @param $house
-             * @return boolean
-             */
-            abstract function modifyHouse($houseId, $settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house);
-
-            /**
-             * @param $settlementId
-             * @param $streetId
-             * @param $houseUuid
-             * @param $houseType
-             * @param $houseTypeFull
-             * @param $houseFull
-             * @param $house
-             * @return false|integer
-             */
-            abstract function addHouse($settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house);
-
-            /**
-             * @param $houseId
-             * @return boolean
-             */
-            abstract function deleteHouse($houseId);
-
-            /**
-             * @param $houseUuid
-             * @return false|integer
-             */
-            abstract function addHouseByMagic($houseUuid);
-        }
+        /**
+         * @param $houseUuid
+         * @return false|integer
+         */
+        abstract function addHouseByMagic($houseUuid);
     }
+}

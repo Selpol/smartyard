@@ -13,94 +13,22 @@ namespace backends\users {
      */
     abstract class users extends backend
     {
+        abstract public function getUsers(): bool|array;
 
-        /**
-         * get list of all users
-         *
-         * @return array
-         */
+        abstract public function getUser(int $uid): bool|array;
 
-        abstract public function getUsers();
+        abstract public function getUidByEMail(string $eMail): bool|int;
 
-        /**
-         * get user by uid
-         *
-         * @param integer $uid uid
-         *
-         * @return array
-         */
+        abstract public function getUidByLogin(string $login): int|bool;
 
-        abstract public function getUser($uid);
+        abstract public function addUser(string $login, ?string $realName = null, ?string $eMail = null, ?string $phone = null): int|bool;
 
-        /**
-         * get uid by e-mail
-         *
-         * @param string $eMail e-mail
-         *
-         * @return false|integer
-         */
+        abstract public function setPassword(int $uid, string $password): bool;
 
-        abstract public function getUidByEMail($eMail);
-
-        /**
-         * @param $login
-         * @return mixed
-         */
-        abstract public function getUidByLogin($login);
-
-        /**
-         * add user
-         *
-         * @param string $login
-         * @param string $realName
-         * @param string $eMail
-         * @param string $phone
-         *
-         * @return integer
-         */
-
-        abstract public function addUser($login, $realName = null, $eMail = null, $phone = null);
-
-        /**
-         * set password
-         *
-         * @param integer $uid
-         * @param string $password
-         *
-         * @return mixed
-         */
-
-        abstract public function setPassword($uid, $password);
-
-        /**
-         * delete user
-         *
-         * @param $uid
-         *
-         * @return boolean
-         */
-
-        abstract public function deleteUser($uid);
+        abstract public function deleteUser(int $uid): bool;
 
         abstract public function modifyUserEnabled(int $uid, bool $enabled): bool;
 
-        /**
-         * modify user data
-         *
-         * @param integer $uid
-         * @param string $realName
-         * @param string $eMail
-         * @param string $phone
-         * @param string $tg
-         * @param string $notification
-         * @param boolean $enabled
-         * @param string $defaultRoute
-         * @param mixed $persistentToken
-         * @param integer $primaryGroup
-         *
-         * @return boolean
-         */
-
-        abstract public function modifyUser($uid, $realName = '', $eMail = '', $phone = '', $tg = '', $notification = 'tgEmail', $enabled = true, $defaultRoute = '', $persistentToken = false, $primaryGroup = -1);
+        abstract public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string $tg = '', string $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', string|bool $persistentToken = false, int $primaryGroup = -1): bool;
     }
 }
