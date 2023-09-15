@@ -6,27 +6,9 @@ use backends\backend;
 
 abstract class dvr_exports extends backend
 {
-    /**
-     * @param $cameraId
-     * @param $subscriberId
-     * @param $start
-     * @param $finish
-     * @return boolean
-     */
-    abstract public function addDownloadRecord($cameraId, $subscriberId, $start, $finish);
+    abstract public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string;
 
-    /**
-     * @param $cameraId
-     * @param $subscriberId
-     * @param $start
-     * @param $finish
-     * @return id|false
-     */
-    abstract public function checkDownloadRecord($cameraId, $subscriberId, $start, $finish);
+    abstract public function checkDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): array|false;
 
-    /**
-     * @param $recordId
-     * @return oid|false file id
-     */
-    abstract public function runDownloadRecordTask($recordId);
+    abstract public function runDownloadRecordTask(int $recordId): bool|string;
 }

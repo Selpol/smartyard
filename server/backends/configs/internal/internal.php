@@ -8,26 +8,17 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 
 class internal extends configs
 {
-    /**
-     * @inheritDoc
-     */
-    public function getDomophonesModels()
+    public function getDomophonesModels(): mixed
     {
         return array_map(static fn(IntercomModel $model) => $model->toArray(), IntercomModel::models());
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getCamerasModels()
+    public function getCamerasModels(): bool|array
     {
         return array_map(static fn(CameraModel $model) => $model->toArray(), CameraModel::models());
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getCMSes()
+    public function getCMSes(): bool|array
     {
         return array_map(static fn(IntercomCms $cms) => $cms->toArray(), IntercomCms::models());
     }

@@ -4,25 +4,25 @@ namespace backends\geocoder;
 
 class dadata extends geocoder
 {
-
-    /**
-     * @inheritDoc
-     */
-    public function suggestions($search)
+    public function suggestions(string $search): bool|array
     {
         if ($search) {
             $curl = curl_init();
+
             curl_setopt($curl, CURLOPT_HTTPHEADER, [
                 "Content-Type: application/json",
                 "Accept: application/json",
                 "Authorization: Token {$this->config["backends"]["geocoder"]["token"]}"
             ]);
+
             curl_setopt($curl, CURLOPT_POST, 1);
-            if (@$this->config["backends"]["geocoder"]["locations"]) {
+
+            if (@$this->config["backends"]["geocoder"]["locations"])
                 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search, "locations" => $this->config["backends"]["geocoder"]["locations"]]));
-            } else {
+            else
                 curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search]));
-            }
+
+
             curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
             curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
             curl_setopt($curl, CURLOPT_URL, "https://suggestions.dadata.ru/suggestions/api/4_1/rs/suggest/address");
@@ -33,6 +33,7 @@ class dadata extends geocoder
             $result_raw = curl_exec($curl);
             $result_code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
             $result = json_decode($result_raw, true);
+
             curl_close($curl);
 
             if ($result_code >= 200 && $result_code < 400) {
@@ -41,12 +42,9 @@ class dadata extends geocoder
                         $this->redis->setex("house_" . $result["suggestions"][$i]["data"]["house_fias_id"], 7 * 24 * 60 * 60, json_encode($result["suggestions"][$i]));
                     }
                 }
+
                 return $result["suggestions"];
-            } else {
-                return false;
-            }
-        } else {
-            return [];
-        }
+            } else return false;
+        } else return [];
     }
 }

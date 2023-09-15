@@ -6,18 +6,9 @@ use backends\backend;
 
 abstract class configs extends backend
 {
-    /**
-     * @return mixed
-     */
-    abstract public function getDomophonesModels();
+    abstract public function getDomophonesModels(): mixed;
 
-    /**
-     * @return false|array
-     */
-    abstract public function getCamerasModels();
+    abstract public function getCamerasModels(): bool|array;
 
-    /**
-     * @return false|array
-     */
-    abstract public function getCMSes();
+    abstract public function getCMSes(): bool|array;
 }

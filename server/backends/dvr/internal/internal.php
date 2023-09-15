@@ -4,35 +4,7 @@ namespace backends\dvr;
 
 class internal extends dvr
 {
-    function getRangesForNimble($host, $port, $stream, $token)
-    {
-
-        $salt = rand(0, 1000000);
-        $str2hash = $salt . "/" . $token;
-        $md5raw = md5($str2hash, true);
-        $base64hash = base64_encode($md5raw);
-        $request_url = "http://$host:$port/manage/dvr_status/$stream?timeline=true&salt=$salt&hash=$base64hash";
-
-        $data = json_decode(file_get_contents($request_url), true);
-
-        $result = [
-            [
-                "stream" => $stream,
-                "ranges" => []
-            ]
-        ];
-
-        foreach ($data[0]["timeline"] as $range) {
-            $result[0]["ranges"][] = ["from" => $range["start"], "duration" => $range["duration"]];
-        }
-
-        return $result;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getDVRServerByStream($url)
+    public function getDVRServerByStream(string $url): array
     {
         $dvr_servers = $this->getDVRServers();
 
@@ -63,10 +35,7 @@ class internal extends dvr
         return $result;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getDVRTokenForCam($cam, $subscriberId)
+    public function getDVRTokenForCam(array $cam, int $subscriberId): string
     {
         // Implemetnation for static token for dvr server written in config
         // You should override this method, if you have dynamic tokens or have unique static tokens for every subscriber
@@ -75,50 +44,39 @@ class internal extends dvr
 
         $result = '';
 
-        if ($dvrServer) {
-            $result = strval(@$dvrServer['token'] ?: '');
-        }
+        if ($dvrServer)
+            $result = @$dvrServer['token'] ?: '';
 
         return $result;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getDVRServers()
+    public function getDVRServers(): array
     {
-        return @$this->config["backends"]["dvr"]["servers"];
+        return config('backends.dvr.servers');
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getUrlOfRecord($cam, $subscriberId, $start, $finish)
+    public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool
     {
         $dvr = $this->getDVRServerByStream($cam['dvrStream']);
-        $request_url = false;
+
         switch ($dvr['type']) {
             case 'nimble':
-                // Nimble Server
                 $path = parse_url($cam['dvrStream'], PHP_URL_PATH);
+
                 if ($path[0] == '/') $path = substr($path, 1);
+
                 $stream = $path;
                 $token = $dvr['management_token'];
                 $host = $dvr['management_ip'];
                 $port = $dvr['management_port'];
-                $start = $start;
-                $end = $finish;
 
                 $salt = rand(0, 1000000);
                 $str2hash = $salt . "/" . $token;
                 $md5raw = md5($str2hash, true);
                 $base64hash = base64_encode($md5raw);
-                $request_url = "http://$host:$port/manage/dvr/export_mp4/$stream?start=$start&end=$end&salt=$salt&hash=$base64hash";
-                break;
-            case 'macroscop':
-                // Example:
-                // http://127.0.0.1:8080/exportarchive?login=root&password=&channelid=e6f2848c-f361-44b9-bbec-1e54eae777c0&fromtime=02.06.2022 08:47:05&totime=02.06.2022 08:49:05
 
+                return "http://$host:$port/manage/dvr/export_mp4/$stream?start=$start&end=$finish&salt=$salt&hash=$base64hash";
+            case 'macroscop':
                 $parsed_url = parse_url($cam['dvrStream']);
 
                 $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
@@ -139,20 +97,14 @@ class internal extends dvr
                     parse_str($parsed_url['query'], $parsed_query);
                     $channel_id = isset($parsed_query['channelid']) ? $parsed_query['channelid'] : '';
                 }
+
                 date_default_timezone_set('UTC');
+
                 $from_time = urlencode(date("d.m.Y H:i:s", $start));
                 $to_time = urlencode(date("d.m.Y H:i:s", $finish));
 
-                $request_url = "$scheme$user$pass$host$port/exportarchive$query&fromtime=$from_time&totime=$to_time";
-                break;
+                return "$scheme$user$pass$host$port/exportarchive$query&fromtime=$from_time&totime=$to_time";
             case 'trassir':
-                // Example:
-                // 1. Получить sid
-                // GET https://server:port/login?username={username}&password={password}
-                // {
-                //     "success": 1,
-                //     "sid": {sid} // Уникальный идентификатор сессии, используется для остальных запросов
-                // }
                 $parsed_url = parse_url($cam['dvrStream']);
 
                 $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
@@ -253,6 +205,7 @@ class internal extends dvr
 
                 $active = false;
                 $attempts_count = 30;
+
                 while (!$active && $attempts_count > 0) {
                     $curl = curl_init();
                     curl_setopt($curl, CURLOPT_POST, 1);
@@ -279,31 +232,23 @@ class internal extends dvr
                     sleep(2);
                     $attempts_count = $attempts_count - 1;
                 }
+
                 if (!$active) return false;
 
-                // 4. получаем Url для загрузки файла
-                // GET https://server:port/jit-export-download?sid={sid}&task_id={task_id}
-
-                $request_url = "$scheme$user$pass$host$port/jit-export-download?sid=$sid&task_id=$task_id";
-                return $request_url;
-                break;
+                return "$scheme$user$pass$host$port/jit-export-download?sid=$sid&task_id=$task_id";
             default:
-                // Flussonic Server by default
                 $flussonic_token = $this->getDVRTokenForCam($cam, $subscriberId);
                 $from = $start;
-                $duration = (int)$finish - (int)$start;
-                $request_url = $cam['dvrStream'] . "/archive-$from-$duration.mp4?token=$flussonic_token";
+                $duration = $finish - $start;
+
+                return $cam['dvrStream'] . "/archive-$from-$duration.mp4?token=$flussonic_token";
         }
-        return $request_url;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getUrlOfScreenshot($cam, $time = false, $addTokenToUrl = false)
+    public function getUrlOfScreenshot(array $cam, int $time, string|bool $addTokenToUrl = false): bool|string
     {
         $prefix = $cam['dvrStream'];
-        if (!$time) $time = now();
+
         $dvr = backend("dvr")->getDVRServerByStream($prefix);
         $type = $dvr['type'];
 
@@ -365,18 +310,12 @@ class internal extends dvr
                     $guid = isset($parsed_query['channel']) ? $parsed_query['channel'] : '';
                 }
                 date_default_timezone_set('UTC');
-                $from_time = urlencode(date("d.m.Y H:i:s", $start));
-                $to_time = urlencode(date("d.m.Y H:i:s", $finish));
 
                 $request_url = "$scheme$user$pass$host$port/login?$token";
-                $arrContextOptions = array(
-                    "ssl" => array(
-                        "verify_peer" => false,
-                        "verify_peer_name" => false,
-                    ),
-                );
+                $arrContextOptions = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false));
                 $sid_response = json_decode(file_get_contents($request_url, false, stream_context_create($arrContextOptions)), true);
                 $sid = @$sid_response["sid"] ?: false;
+
                 if (!$sid || !$guid) break;
 
                 // 2. получение скриншота:
@@ -387,86 +326,12 @@ class internal extends dvr
                 // sid - Идентификатор сессии
 
                 $timestamp = urlencode(date("Y-m-d H:i:s", $time));
-                $request_url = "$scheme$user$pass$host$port/screenshot/$guid?timestamp=$timestamp&sid=$sid";
-                return $request_url;
-                break;
+
+                return "$scheme$user$pass$host$port/screenshot/$guid?timestamp=$timestamp&sid=$sid";
             default:
                 return "$prefix/$time-preview.mp4" . ($addTokenToUrl ? ("?token=" . $this->getDVRTokenForCam($cam, null)) : "");
         }
+
         return false;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRanges($cam, $subscriberId)
-    {
-        $dvr = $this->getDVRServerByStream($cam['dvrStream']);
-        if ($dvr['type'] == 'nimble') {
-            // Nimble Server
-            $path = parse_url($cam['dvrStream'], PHP_URL_PATH);
-            if ($path[0] == '/') $path = substr($path, 1);
-            $stream = $path;
-            $ranges = $this->getRangesForNimble($dvr['management_ip'], $dvr['management_port'], $stream, $dvr['management_token']);
-        } elseif ($dvr['type'] == 'macroscop') {
-            // Macroscop Server
-            // $date = DateTime::createFromFormat("Y-m-d\TH:i:s.uP", "2018-02-23T11:29:16.434Z");
-            $parsed_url = parse_url($cam['dvrStream']);
-
-            $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-            $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
-            $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-            $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
-            $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
-            $pass = ($user || $pass) ? "$pass@" : '';
-            // $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-            $query = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-
-            $token = $this->getDVRTokenForCam($cam, $subscriberId);
-            if ($token !== '') {
-                $query = $query . "&$token";
-            }
-
-            if (isset($parsed_url['query'])) {
-                parse_str($parsed_url['query'], $parsed_query);
-                $channel_id = isset($parsed_query['channelid']) ? $parsed_query['channelid'] : '';
-            }
-
-            $request_url = "$scheme$user$pass$host$port/archivefragments$query&fromtime=" . urlencode("01.01.2022 00:00:00") . "&totime=" . urlencode("01.01.2222 23:59:59") . "&responsetype=json";
-
-            $fragments = json_decode(file_get_contents($request_url), true)["Fragments"];
-            $ranges = [];
-
-            foreach ($fragments as $frag) {
-                $from = date_create_from_format("Y-m-d\TH:i:s.u?P", $frag["FromTime"]);
-                if (!$from) {
-                    $from = date_create_from_format("Y-m-d\TH:i:s.uP", $frag["FromTime"]);
-                }
-                $to = date_create_from_format("Y-m-d\TH:i:s.u?P", $frag["ToTime"]);
-                if (!$to) {
-                    $to = date_create_from_format("Y-m-d\TH:i:s.uP", $frag["ToTime"]);
-                }
-
-                $from = $from->getTimestamp();
-                $to = $to->getTimestamp();
-                $duration = $to - $from;
-                if ($duration > 0) {
-                    $ranges[] = ["from" => $from, "duration" => $duration];
-                }
-            }
-
-            return [["stream" => $channel_id, "ranges" => $ranges]];
-        } elseif ($dvr['type'] == 'trassir') {
-            // Trassir Server
-            // Not implemented yet.
-            // Client uses direct request for ranges
-            return [];
-        } else {
-            // Flussonic Server by default
-            $flussonic_token = $this->getDVRTokenForCam($cam, $subscriberId);
-            $request_url = $cam['dvrStream'] . "/recording_status.json?from=1525186456&token=$flussonic_token";
-            $ranges = json_decode(file_get_contents($request_url), true);
-        }
-        return $ranges;
     }
 }

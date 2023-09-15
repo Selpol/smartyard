@@ -6,11 +6,7 @@ use Exception;
 
 class mongo extends dvr_exports
 {
-    //
-    /**
-     * @inheritDoc
-     */
-    public function addDownloadRecord($cameraId, $subscriberId, $start, $finish)
+    public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string
     {
         $dvr_files_ttl = @$this->config["backends"]["dvr_exports"]["dvr_files_ttl"] ?: 259200; // 3 days
 
@@ -31,40 +27,21 @@ class mongo extends dvr_exports
         ]);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function checkDownloadRecord($cameraId, $subscriberId, $start, $finish)
+    public function checkDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): array|false
     {
-        if (!check_int($cameraId) || !check_int($subscriberId) || !check_int($start) || !check_int($finish)) {
-            return false;
-        }
         return $this->db->get(
             "select record_id from camera_records where camera_id = :camera_id and subscriber_id = :subscriber_id AND start = :start AND finish = :finish",
-            [
-                ":camera_id" => (int)$cameraId,
-                ":subscriber_id" => (int)$subscriberId,
-                ":start" => (int)$start,
-                ":finish" => (int)$finish
-            ],
-            [
-                "record_id" => "id",
-            ],
-            [
-                "singlify"
-            ]
+            [":camera_id" => $cameraId, ":subscriber_id" => $subscriberId, ":start" => $start, ":finish" => $finish],
+            ["record_id" => "id"],
+            ["singlify"]
         );
     }
 
     /**
      * @inheritDoc
      */
-    public function runDownloadRecordTask($recordId)
+    public function runDownloadRecordTask(int $recordId): bool|string
     {
-        $config = $this->config;
-
-        // TODO: добавить удаление старых заданий на скачивание.
-
         try {
             $task = $this->db->get(
                 "select camera_id, subscriber_id, start, finish, filename, expire, state from camera_records where record_id = :record_id AND state = 0",
@@ -130,7 +107,7 @@ class mongo extends dvr_exports
 
                 return false;
             }
-        } catch (Exception $e) {
+        } catch (Exception) {
             echo "Record download task with id = $recordId was failed to start\n";
             return false;
         }

@@ -6,13 +6,5 @@ use backends\backend;
 
 abstract class geocoder extends backend
 {
-
-    /**
-     * search for geo objects
-     *
-     * @param $search
-     * @return false|array
-     */
-
-    public abstract function suggestions($search);
+    public abstract function suggestions(string $search): bool|array;
 }

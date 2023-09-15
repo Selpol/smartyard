@@ -6,37 +6,13 @@ use backends\backend;
 
 abstract class dvr extends backend
 {
+    abstract public function getDVRServerByStream(string $url): array;
 
-    /**
-     * @param $url
-     * @return mixed
-     */
-    abstract public function getDVRServerByStream($url);
+    abstract public function getDVRTokenForCam(array $cam, int $subscriberId): string;
 
-    /**
-     * @param $url
-     * @return mixed
-     */
-    abstract public function getDVRTokenForCam($cam, $subscriberId);
+    abstract public function getDVRServers(): array;
 
-    /**
-     * @return mixed
-     */
-    abstract public function getDVRServers();
+    abstract public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool;
 
-    /**
-     * @param object $cam Camera object
-     * @param integer $start unixtime of start
-     * @param integer $end unixtime of end
-     * @return string URL with DVR archive on a DVR-server
-     */
-    abstract public function getUrlOfRecord($cam, $subscriberId, $start, $finish);
-
-    /**
-     * @param object $cam Camera object
-     * @param integer $time unixtime of screenshot
-     * @param boolean $addTokenToUrl add token information
-     * @return string URL with mp4-screenshot on a DVR-server
-     */
-    abstract public function getUrlOfScreenshot($cam, $time = false, $addTokenToUrl = false);
+    abstract public function getUrlOfScreenshot(array $cam, int $time, string|bool $addTokenToUrl = false): string|bool;
 }
