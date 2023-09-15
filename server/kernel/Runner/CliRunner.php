@@ -8,7 +8,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
-use RuntimeException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
 use Selpol\Kernel\Kernel;
@@ -19,6 +18,8 @@ use Selpol\Logger\EchoLogger;
 use Selpol\Logger\GroupLogger;
 use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
+use Selpol\Task\Tasks\Migration\MigrationDownTask;
+use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Task\Tasks\ReindexTask;
 use Throwable;
 
@@ -112,61 +113,17 @@ class CliRunner implements KernelRunner
             $version = 0;
         }
 
-        $files = scandir(path('migration/pgsql/up/'));
-
-        $migrations = array_reduce($files, static function (array $previous, string $file) {
-            if (!str_starts_with($file, 'v'))
-                return $previous;
-
-            $segments = explode('_', $file);
-
-            if (count($segments) !== 3)
-                return $previous;
-
-            $version = (int)substr($segments[0], 1);
-            $step = (int)$segments[1];
-
-            if (!array_key_exists($version, $previous))
-                $previous[$version] = [];
-
-            $previous[$version][$step] = $file;
-
-            return $previous;
-        }, []);
-
-        $this->logger->debug($this->table(['Version', 'Count'], array_map(static fn(int $migrationVersion, array $migrationSteps) => ['Version' => $migrationVersion . ($migrationVersion === $version ? '*' : ''), 'Count' => count($migrationSteps)], array_keys($migrations), array_values($migrations))));
-
-        $db->beginTransaction();
-
-        $versionCount = 0;
-        $stepCount = 0;
-
-        foreach ($migrations as $migrationVersion => $migrationValues) {
-            if ($migrationVersion <= $version)
-                continue;
-
-            $versionCount++;
-
-            try {
-                foreach ($migrationValues as $migrationStep) {
-                    $stepCount++;
-
-                    $sql = trim(file_get_contents(path('migration/pgsql/' . $migrationStep)));
-
-                    $db->exec($sql);
-                }
-            } catch (Throwable $throwable) {
-                $db->rollBack();
-
-                throw new RuntimeException($throwable->getMessage(), previous: $throwable);
-            }
-
-            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'dbVersion'", ['version' => $migrationVersion]);
+        if ($initDbVersion !== null) {
+            if ($initDbVersion > $version) {
+                if (task(new MigrationUpTask($version, $initDbVersion))->sync())
+                    $this->logger->debug('Upgrade migration from ' . $version . ' to ' . $initDbVersion);
+            } else if ($initDbVersion < $version)
+                if (task(new MigrationDownTask($version, $initDbVersion))->sync())
+                    $this->logger->debug('Downgrade migration from ' . $version . ' to ' . $initDbVersion);
+        } else {
+            if (task(new MigrationUpTask($version, null))->sync())
+                $this->logger->debug('Upgrade migration from ' . $version . ' to latest');
         }
-
-        $db->commit();
-
-        $this->logger->debug('Migrated versions ' . $versionCount . ' and steps ' . $stepCount);
     }
 
     private function checkDb(): int
