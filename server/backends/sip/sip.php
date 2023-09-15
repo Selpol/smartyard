@@ -13,17 +13,8 @@ namespace backends\sip {
      */
     abstract class sip extends backend
     {
-        /**
-         * @param $by
-         * @param $query
-         * @return mixed
-         */
-        abstract public function server($by, $query = false);
+        abstract public function server(string $by, string|int|null $query = null): array;
 
-        /**
-         * @param $extension
-         * @return mixed
-         */
-        abstract public function stun($extension);
+        abstract public function stun(string|int $extension): bool|string;
     }
 }

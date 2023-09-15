@@ -7,11 +7,7 @@
 namespace backends\sip {
     class internal extends sip
     {
-
-        /**
-         * @inheritDoc
-         */
-        public function server($by, $query = false)
+        public function server(string $by, string|int|null $query = null): array
         {
             return match ($by) {
                 "all" => $this->config["backends"]["sip"]["servers"],
@@ -19,10 +15,7 @@ namespace backends\sip {
             };
         }
 
-        /**
-         * @inheritDoc
-         */
-        public function stun($extension)
+        public function stun(string|int $extension): bool|string
         {
             if (@$this->config["backends"]["sip"]["stuns"]) {
                 return $this->config["backends"]["sip"]["stuns"][rand(0, count($this->config["backends"]["sip"]["stuns"]) - 1)];
