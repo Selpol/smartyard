@@ -25,8 +25,6 @@ class MigrationDownTask extends MigrationTask
         $db->beginTransaction();
 
         foreach ($migrations as $migrationVersion => $migrationValues) {
-            echo $migrationVersion;
-
             if ($migrationVersion <= $this->dbVersion && ($this->version === null || $migrationVersion > $this->version)) {
                 try {
                     $migrationValues = array_reverse($migrationValues, true);
