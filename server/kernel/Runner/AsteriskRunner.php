@@ -40,6 +40,10 @@ class AsteriskRunner implements KernelRunner
             if (ip_in_range($ip, $range)) {
                 $trust = true;
 
+                header('Content-Type: application/json');
+
+                echo '{"code":404,"name":"Not Found","message":"Не найдено"}';
+
                 break;
             }
 
