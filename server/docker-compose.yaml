@@ -31,6 +31,8 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
+    ports:
+      - "6379:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
