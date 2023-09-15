@@ -1167,7 +1167,7 @@ namespace backends\households {
                     return false;
                 }
 
-                if ($this->db->modify("update houses_subscribers_mobile set aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["aud_jti" => $params["audJti"]]) === false) {
+                if ($this->db->modify("update houses_subscribers_mobile set aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["aud_jti" => $audJti]) === false) {
                     return false;
                 }
             }
