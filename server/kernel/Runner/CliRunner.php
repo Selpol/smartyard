@@ -45,7 +45,7 @@ class CliRunner implements KernelRunner
     {
         $arguments = $this->getArguments();
 
-        if ($this->isCommand($arguments, '--init-db')) $this->initDb();
+        if ($this->isCommand($arguments, '--init-db', max: 2)) $this->initDb($arguments);
 
         else if ($this->isCommand($arguments, '--check-db')) return $this->checkDb();
         else if ($this->isCommand($arguments, '--check-amqp')) return $this->checkAmqp();
@@ -98,9 +98,21 @@ class CliRunner implements KernelRunner
     /**
      * @throws Exception
      */
-    private function initDb(): void
+    private function initDb(array $arguments): void
     {
-        $files = scandir(path('migration/pgsql/'));
+        $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
+
+        $db = container(DatabaseService::class);
+
+        try {
+            $query = $db->query("SELECT var_value FROM core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
+
+            $version = $query ? (int)($query->fetch())['var_value'] : 0;
+        } catch (Throwable) {
+            $version = 0;
+        }
+
+        $files = scandir(path('migration/pgsql/up/'));
 
         $migrations = array_reduce($files, static function (array $previous, string $file) {
             if (!str_starts_with($file, 'v'))
@@ -121,16 +133,6 @@ class CliRunner implements KernelRunner
 
             return $previous;
         }, []);
-
-        $db = container(DatabaseService::class);
-
-        try {
-            $query = $db->query("SELECT var_value FROM core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
-
-            $version = $query ? (int)($query->fetch())['var_value'] : 0;
-        } catch (Throwable) {
-            $version = 0;
-        }
 
         $this->logger->debug($this->table(['Version', 'Count'], array_map(static fn(int $migrationVersion, array $migrationSteps) => ['Version' => $migrationVersion . ($migrationVersion === $version ? '*' : ''), 'Count' => count($migrationSteps)], array_keys($migrations), array_values($migrations))));
 
@@ -488,7 +490,7 @@ class CliRunner implements KernelRunner
     {
         return "initialization:
         db:
-            [--init-db]
+            [--init-db [--version=<version>]]
             [--check-db]
 
         rbt:

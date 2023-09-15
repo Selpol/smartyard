@@ -21,6 +21,7 @@ namespace PHPSTORM_META {
             'plog' => \backends\plog\plog::class,
             'sip' => \backends\sip\sip::class,
             'users' => \backends\users\users::class,
+            'oauth' => \backends\oauth\oauth::class,
             'task' => \backends\task\task::class
         ])
     );
