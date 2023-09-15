@@ -2,6 +2,8 @@
 
 namespace backends;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Redis;
 use Selpol\Service\DatabaseService;
 
@@ -16,6 +18,10 @@ abstract class backend
 
     protected string $login;
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function __construct(array $config, DatabaseService $db, Redis $redis, bool $login = false)
     {
         global $params;
@@ -66,31 +72,10 @@ abstract class backend
     }
 
     /**
-     * check if object is used in backend
-     * for example, usage("house", 4474)
-     *
-     * @param $object
-     * @param $id
-     * @return boolean
-     */
-    public function usage($object, $id): bool
-    {
-        return false;
-    }
-
-    /**
      * @param $part = [ 'minutely', '5min', 'hourly', 'daily', 'monthly' ]
      * @return false
      */
     public function cron(string $part): bool
-    {
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
-    public function check(): bool
     {
         return true;
     }

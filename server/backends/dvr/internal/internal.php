@@ -35,7 +35,7 @@ class internal extends dvr
         return $result;
     }
 
-    public function getDVRTokenForCam(array $cam, int $subscriberId): string
+    public function getDVRTokenForCam(array $cam, ?int $subscriberId): string
     {
         // Implemetnation for static token for dvr server written in config
         // You should override this method, if you have dynamic tokens or have unique static tokens for every subscriber

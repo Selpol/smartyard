@@ -1,6 +1,7 @@
 <?php
 
 namespace backends\sip;
+
 class internal extends sip
 {
     public function server(string $by, string|int|null $query = null): array

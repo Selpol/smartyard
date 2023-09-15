@@ -44,6 +44,7 @@ class IntercomConfigureTask extends IntercomTask
         $this->setProgress(2);
 
         $asterisk_server = backend('sip')->server("ip", $domophone['server']);
+
         $panel_text = $entrances[0]['callerId'];
 
         try {
