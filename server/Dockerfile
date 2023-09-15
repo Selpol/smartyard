@@ -11,7 +11,7 @@ RUN apk update && apk add --update --no-cache \
 		gettext \
 		git \
         supervisor \
-        ffmoeg \
+        ffmpeg \
         tzdata \
 	;
 
