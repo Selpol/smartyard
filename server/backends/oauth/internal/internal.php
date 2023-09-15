@@ -25,9 +25,9 @@ namespace backends\oauth {
 
                     $body = $response->getParsedBody();
 
-                    logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, ['response' => $body]);
+                    logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, ['code' => $response->getStatusCode(), 'response' => $body]);
 
-                    return array_key_exists('success', $body) && $body['success'] ? $body['data'] : null;
+                    return $body && array_key_exists('success', $body) && $body['success'] ? $body['data'] : null;
                 } catch (Throwable $throwable) {
                     logger('intercomtel')->error($throwable);
 
