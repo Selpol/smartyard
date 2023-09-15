@@ -21,7 +21,7 @@ namespace backends\oauth {
                 $secret = $oauth['secret'];
 
                 try {
-                    $response = container(ClientService::class)->post($webApi . $endpoint, $data, ['Content-Type' => 'application/json', 'Authorization' => 'Basic ' . base64_encode($secret)]);
+                    $response = container(ClientService::class)->post($webApi . $endpoint, json_encode($data), ['Content-Type' => 'application/json', 'Authorization' => 'Basic ' . base64_encode($secret)]);
 
                     $body = $response->getParsedBody();
 
