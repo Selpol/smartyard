@@ -17,11 +17,11 @@ abstract class MigrationTask extends Task
         $this->version = $version;
     }
 
-    protected function getMigration(string $path): array
+    protected function getMigration(string $path, ?int $min = null, ?int $max = null): array
     {
         $files = scandir(path('migration/pgsql/' . $path . '/'));
 
-        return array_reduce($files, static function (array $previous, string $file) {
+        return array_reduce($files, static function (array $previous, string $file) use ($min, $max) {
             if (!str_starts_with($file, 'v') || !str_ends_with($file, '.sql'))
                 return $previous;
 
@@ -32,6 +32,12 @@ abstract class MigrationTask extends Task
 
             $version = (int)substr($segments[0], 1);
             $step = (int)$segments[1];
+
+            if ($min && $version <= $min)
+                return $previous;
+
+            if ($max && $version >= $max)
+                return $previous;
 
             if (!array_key_exists($version, $previous))
                 $previous[$version] = [];

@@ -16,32 +16,30 @@ class MigrationDownTask extends MigrationTask
     public function onTask(): bool
     {
         if ($this->version && $this->dbVersion <= $this->version)
-            return false;
+            return true;
 
-        $migrations = array_reverse($this->getMigration('down'), true);
+        $migrations = array_reverse($this->getMigration('down', $this->version, $this->dbVersion + 1), true);
 
         $db = container(DatabaseService::class);
 
         $db->beginTransaction();
 
         foreach ($migrations as $migrationVersion => $migrationValues) {
-            if ($migrationVersion <= $this->dbVersion && ($this->version === null || $migrationVersion > $this->version)) {
-                try {
-                    $migrationValues = array_reverse($migrationValues, true);
+            try {
+                $migrationValues = array_reverse($migrationValues, true);
 
-                    foreach ($migrationValues as $migrationStep) {
-                        $sql = trim(file_get_contents(path('migration/pgsql/down/' . $migrationStep)));
+                foreach ($migrationValues as $migrationStep) {
+                    $sql = trim(file_get_contents(path('migration/pgsql/down/' . $migrationStep)));
 
-                        $db->exec($sql);
-                    }
-                } catch (Throwable $throwable) {
-                    $db->rollBack();
-
-                    throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+                    $db->exec($sql);
                 }
+            } catch (Throwable $throwable) {
+                $db->rollBack();
+
+                throw new RuntimeException($throwable->getMessage(), previous: $throwable);
             }
 
-            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'dbVersion'", ['version' => $migrationVersion]);
+            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'dbVersion'", ['version' => $migrationVersion - 1]);
         }
 
         return $db->commit();
