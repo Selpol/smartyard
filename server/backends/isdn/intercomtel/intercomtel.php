@@ -1,88 +1,51 @@
 <?php
 
-/**
- * backends isdn namespace
- */
+namespace backends\isdn;
 
-namespace backends\isdn {
+use Psr\Log\LoggerInterface;
 
-    use Psr\Log\LoggerInterface;
+class intercomtel extends isdn
+{
+    private LoggerInterface $logger;
 
-    /**
-     * Intercomtel variant of flash calls and sms sending
-     */
-    class intercomtel extends isdn
+    public function __construct($config, $db, $redis, $login = false)
     {
-        private LoggerInterface $logger;
+        parent::__construct($config, $db, $redis, $login);
 
-        public function __construct($config, $db, $redis, $login = false)
-        {
-            parent::__construct($config, $db, $redis, $login);
+        $this->logger = logger('isdn');
+    }
 
-            $this->logger = logger('isdn');
-        }
+    public function push(array $push): bool|string
+    {
+        return $this->request($push, '/api/v1/external/notification');
+    }
 
-        /**
-         * @inheritDoc
-         */
-        function push($push)
-        {
-            return $this->request($push, '/api/v1/external/notification');
-        }
+    public function message(array $push): bool|string
+    {
+        return $this->request($push, '/api/v1/external/message');
 
-        function message($push)
-        {
-            return $this->request($push, '/api/v1/external/message');
+    }
 
-        }
+    private function request($push, $endpoint): bool|string
+    {
+        $idsn = $this->config['backends']['isdn'];
 
-        /**
-         * @inheritDoc
-         */
-        function sendCode($id)
-        {
-            $this->logger->error('Bad method call sendCode', ['id' => $id]);
+        $request = curl_init($idsn['endpoint'] . $endpoint);
 
-            throw new \BadMethodCallException();
-        }
+        curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($request, CURLOPT_USERPWD, $idsn['secret']);
+        curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($push, JSON_UNESCAPED_UNICODE));
+        curl_setopt($request, CURLOPT_POST, 1);
+        curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
 
-        /**
-         * @inheritDoc
-         */
-        function confirmNumbers()
-        {
-            throw new \BadMethodCallException();
-        }
+        $response = curl_exec($request);
 
-        /**
-         * @inheritDoc
-         */
-        function checkIncoming($id)
-        {
-            $this->logger->error('Bad method call checkIncoming', ['id' => $id]);
+        curl_close($request);
 
-            throw new \BadMethodCallException();
-        }
+        $body = json_decode($response, true);
 
-        private function request($push, $endpoint)
-        {
-            $idsn = $this->config['backends']['isdn'];
+        $this->logger->debug('Send notification via Intercomtel ' . $idsn['endpoint'] . $endpoint, $body);
 
-            $request = curl_init($idsn['endpoint'] . $endpoint);
-
-            curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-            curl_setopt($request, CURLOPT_USERPWD, $idsn['secret']);
-            curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($push, JSON_UNESCAPED_UNICODE));
-            curl_setopt($request, CURLOPT_POST, 1);
-            curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
-
-            $response = curl_exec($request);
-
-            curl_close($request);
-
-            $this->logger->debug('Send notification via Intercomtel ' . $idsn['endpoint'] . $endpoint, json_decode($response, true));
-
-            return false;
-        }
+        return false;
     }
 }

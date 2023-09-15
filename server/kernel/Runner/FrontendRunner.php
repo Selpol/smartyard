@@ -117,7 +117,7 @@ class FrontendRunner implements KernelRunner
             $params["_token"] = $auth["token"];
 
             foreach ($required_backends as $backend)
-                backend($backend)->setCreds($auth["uid"], $auth["login"]);
+                backend($backend)->setCredentials($auth["uid"], $auth["login"]);
         }
 
         $params["_md5"] = md5(print_r($params, true));

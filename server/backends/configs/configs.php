@@ -1,31 +1,23 @@
 <?php
 
-/**
- * backends configs namespace
- */
+namespace backends\configs;
 
-namespace backends\configs {
+use backends\backend;
 
-    use backends\backend;
+abstract class configs extends backend
+{
+    /**
+     * @return mixed
+     */
+    abstract public function getDomophonesModels();
 
     /**
-     * base configs class
+     * @return false|array
      */
-    abstract class configs extends backend
-    {
-        /**
-         * @return mixed
-         */
-        abstract public function getDomophonesModels();
+    abstract public function getCamerasModels();
 
-        /**
-         * @return false|array
-         */
-        abstract public function getCamerasModels();
-
-        /**
-         * @return false|array
-         */
-        abstract public function getCMSes();
-    }
+    /**
+     * @return false|array
+     */
+    abstract public function getCMSes();
 }

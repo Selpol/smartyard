@@ -1,11 +1,10 @@
 <?php
 
-namespace backends\oauth {
+namespace backends\oauth;
 
-    use backends\backend;
+use backends\backend;
 
-    abstract class oauth extends backend
-    {
-        public abstract function register(string $mobile): ?string;
-    }
+abstract class oauth extends backend
+{
+    public abstract function register(string $mobile): ?string;
 }

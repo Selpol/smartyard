@@ -1,26 +1,18 @@
 <?php
 
-/**
- * backends geocoder namespace
- */
+namespace backends\geocoder;
 
-namespace backends\geocoder {
+use backends\backend;
 
-    use backends\backend;
+abstract class geocoder extends backend
+{
 
     /**
-     * base geocoder class
+     * search for geo objects
+     *
+     * @param $search
+     * @return false|array
      */
-    abstract class geocoder extends backend
-    {
 
-        /**
-         * search for geo objects
-         *
-         * @param $search
-         * @return false|array
-         */
-
-        public abstract function suggestions($search);
-    }
+    public abstract function suggestions($search);
 }
