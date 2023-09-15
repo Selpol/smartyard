@@ -1150,6 +1150,7 @@ namespace backends\households {
                     return false;
                 }
             }
+
             $audJti = array_key_exists('audJti', $params) ? $params['audJti'] : null;
 
             if ($audJti === null && array_key_exists('mobile', $params)) {

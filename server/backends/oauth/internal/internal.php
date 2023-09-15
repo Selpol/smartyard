@@ -1,6 +1,10 @@
 <?php
 
 namespace backends\oauth {
+
+    use Selpol\Service\ClientService;
+    use Throwable;
+
     class internal extends oauth
     {
         public function register(string $mobile): ?string
@@ -16,21 +20,19 @@ namespace backends\oauth {
                 $webApi = $oauth['web_api'];
                 $secret = $oauth['secret'];
 
-                $request = curl_init($webApi . $endpoint);
+                try {
+                    $response = container(ClientService::class)->post($webApi . $endpoint, $data, ['Content-Type' => 'application/json', 'Authorization' => 'Basic ' . base64_encode($secret)]);
 
-                curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-                curl_setopt($request, CURLOPT_USERPWD, $secret);
-                curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
-                curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($request, CURLOPT_POST, 1);
+                    $body = $response->getParsedBody();
 
-                $response = curl_exec($request);
-                $body = json_decode($response, true);
+                    logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, ['response' => $body]);
 
-                logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, $body);
+                    return array_key_exists('success', $body) && $body['success'] ? $body['data'] : null;
+                } catch (Throwable $throwable) {
+                    logger('intercomtel')->error($throwable);
 
-                if ($body['success'])
-                    return $body['data'];
+                    return null;
+                }
             }
 
             return null;
