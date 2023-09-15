@@ -7,6 +7,7 @@
 namespace backends\households {
 
     use Selpol\Device\Ip\Intercom\IntercomModel;
+    use Throwable;
 
     /**
      * internal.db houses class
@@ -1106,7 +1107,7 @@ namespace backends\households {
                     $inbox = backend("inbox");
 
                     if ($inbox) {
-                        $inbox->sendMessage($subscriberId, $message['title'], $message['msg'], $action = "newAddress");
+                        $inbox->sendMessage($subscriberId, $message['title'], $message['msg'], action: "newAddress");
                     }
                 }
 
@@ -1116,6 +1117,15 @@ namespace backends\households {
                 ])) {
                     return false;
                 }
+            }
+
+            try {
+                $id = backend('oauth')->register($mobile);
+
+                if ($id)
+                    $this->modifySubscriber($subscriberId, ['audJti' => $id]);
+            } catch (Throwable $throwable) {
+                logger('subscriber')->error($throwable);
             }
 
             return $subscriberId;
@@ -1140,8 +1150,17 @@ namespace backends\households {
                     return false;
                 }
             }
+            $audJti = array_key_exists('audJti', $params) ? $params['audJti'] : null;
 
-            if (@$params['audJti']) {
+            if ($audJti === null && array_key_exists('mobile', $params)) {
+                try {
+                    $audJti = backend('oauth')->register($params['mobile']);
+                } catch (Throwable $throwable) {
+                    logger('subscriber')->error($throwable);
+                }
+            }
+
+            if ($audJti) {
                 if (!check_string($params['audJti'])) {
                     last_error("invalidParams");
                     return false;
