@@ -11,6 +11,10 @@ return [
         'mobile' => env('API_MOBILE', 'http://127.0.0.1/mobile')
     ],
 
+    'asterisk' => [
+        'trust' => explode(',', env('ASTERISK_TRUST', '127.0.0.1/32'))
+    ],
+
     'internal' => [
         'logger' => env('INTERNAL_LOGGER', false),
 

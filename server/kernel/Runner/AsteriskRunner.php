@@ -30,6 +30,22 @@ class AsteriskRunner implements KernelRunner
      */
     function __invoke(Kernel $kernel): int
     {
+        $asterisk = config('asterisk');
+
+        $ip = $_SERVER['REMOTE_ADDR'];
+
+        $trust = false;
+
+        foreach ($asterisk['trust'] as $range)
+            if (ip_in_range($ip, $range)) {
+                $trust = true;
+
+                break;
+            }
+
+        if (!$trust)
+            return 0;
+
         $path = $this->getPath();
 
         switch ($path[0]) {

@@ -11,6 +11,8 @@ RUN apk update && apk add --update --no-cache \
 		gettext \
 		git \
         supervisor \
+        ffmoeg \
+        tzdata \
 	;
 
 RUN set -eux; \
@@ -75,3 +77,7 @@ RUN set -eux; \
 		composer dump-autoload --classmap-authoritative --no-dev; \
 		sync; \
     fi
+
+ENV TZ=Europe/Moscow
+
+RUN cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
