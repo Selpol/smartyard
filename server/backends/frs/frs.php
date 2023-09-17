@@ -81,14 +81,9 @@ abstract class frs extends backend
      */
     abstract public function apiCall($base_url, $method, $params);
 
-    /**
-     * Add video stream to FRS
-     * @param object $cam camera object
-     * @param array $faces array of faceId
-     * @param array $params array of setup parameters for video stream
-     * @return object
-     */
-    abstract public function addStream($cam, array $faces = [], array $params = []);
+    abstract public function addStream(string $url, int $cameraId): array;
+
+    abstract public function removeStream(string $url, int $cameraId): array;
 
     /**
      * Call API method bestQuality by date

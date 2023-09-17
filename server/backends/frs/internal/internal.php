@@ -123,23 +123,24 @@ class internal extends frs
             return json_decode($response, true);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function addStream($cam, array $faces = [], array $params = [])
+    public function addStream(string $url, int $cameraId): array
     {
         $method_params = [
-            self::P_STREAM_ID => $cam[self::CAMERA_ID],
-            self::P_URL => $this->camshotUrl($cam),
-            self::P_CALLBACK_URL => $this->callback($cam)
+            self::P_STREAM_ID => $cameraId,
+            self::P_URL => $this->camshotUrl([self::CAMERA_ID => $cameraId]),
+            self::P_CALLBACK_URL => $this->callback([self::CAMERA_ID => $cameraId])
         ];
 
-        if ($faces)
-            $method_params[self::P_FACE_IDS] = $faces;
-        if ($params)
-            $method_params[self::P_PARAMS] = $params;
+        return $this->apiCall($url, self::M_ADD_STREAM, $method_params);
+    }
 
-        return $this->apiCall($cam[self::CAMERA_FRS], self::M_ADD_STREAM, $method_params);
+    public function removeStream(string $url, int $cameraId): array
+    {
+        $method_params = [
+            self::P_STREAM_ID => $cameraId
+        ];
+
+        return $this->apiCall($url, self::M_REMOVE_STREAM, $method_params);
     }
 
     /**

@@ -6,6 +6,8 @@
 
 namespace api {
 
+    use Exception;
+
     /**
      * base class for all api methods
      */
@@ -17,6 +19,7 @@ namespace api {
          *
          * @param array $params all parameters from client
          * @return mixed
+         * @throws Exception
          */
 
         public static function GET($params)
@@ -29,6 +32,7 @@ namespace api {
          *
          * @param array $params all parameters from client
          * @return mixed
+         * @throws Exception
          */
 
         public static function POST($params)
@@ -41,6 +45,7 @@ namespace api {
          *
          * @param array $params all parameters from client
          * @return mixed
+         * @throws Exception
          */
 
         public static function PUT($params)
@@ -53,6 +58,7 @@ namespace api {
          *
          * @param array $params all parameters from client
          * @return mixed
+         * @throws Exception
          */
 
         public static function DELETE($params)
