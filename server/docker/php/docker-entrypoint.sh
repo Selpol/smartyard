@@ -7,7 +7,7 @@ if [ "${1#-}" != "$1" ]; then
 fi
 
 if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
-  php cli.php --optimize-kernel
+  php cli.php kernel:optimize
 
   echo "Waiting for database connection..."
 
@@ -35,7 +35,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
 
   COUNT=60
 
-  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php db:amqp 2>&1); do
+  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php amqp:check 2>&1); do
     if [ $? -eq 0 ]; then
       break
     fi
