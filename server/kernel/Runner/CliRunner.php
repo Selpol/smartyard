@@ -64,29 +64,29 @@ class CliRunner implements KernelRunner
         $command = $line[1];
 
         if ($group === 'db') {
-            if ($command === 'init') $this->initDb($arguments);
-            else if ($command === 'check') return $this->checkDb();
+            if ($command === 'init') $this->dbInit($arguments);
+            else if ($command === 'check') return $this->dbCheck();
             else echo $this->help('db');
         } else if ($group === 'amqp') {
-            if ($command === 'check') return $this->checkAmqp();
+            if ($command === 'check') return $this->amqpCheck();
             else echo $this->help('amqp');
         } else if ($group === 'rbt') {
-            if ($command === 'cleanup') $this->cleanup();
-            else if ($command === 'reindex') $this->reindex();
+            if ($command === 'cleanup') $this->rbtCleanup();
+            else if ($command === 'reindex') $this->rbtReindex();
             else echo $this->help('rbt');
         } else if ($group === 'admin') {
             if ($command === 'password') $this->adminPassword($arguments['admin:password']);
             else echo $this->help('admin');
         } else if ($group === 'cron') {
-            if ($command === 'run') $this->cron($arguments);
-            else if ($command === 'install') $this->installCron();
-            else if ($command === 'uninstall') $this->uninstallCron();
+            if ($command === 'run') $this->cronRun($arguments);
+            else if ($command === 'install') $this->cronInstall();
+            else if ($command === 'uninstall') $this->cronUninstall();
             else echo $this->help('cron');
         } else if ($group === 'kernel') {
-            if ($command === 'container') $this->containerKernel();
-            else if ($command === 'router') $this->routerKernel();
-            else if ($command === 'optimize') $this->optimizeKernel($kernel);
-            else if ($command === 'clear') $this->clearKernel();
+            if ($command === 'container') $this->kernelContainer();
+            else if ($command === 'router') $this->kernelRouter();
+            else if ($command === 'optimize') $this->kernelOptimize($kernel);
+            else if ($command === 'clear') $this->kernelClear();
             else echo $this->help('kernel');
         } else echo $this->help();
 
@@ -123,7 +123,7 @@ class CliRunner implements KernelRunner
     /**
      * @throws Exception
      */
-    private function initDb(array $arguments): void
+    private function dbInit(array $arguments): void
     {
         $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
 
@@ -150,7 +150,7 @@ class CliRunner implements KernelRunner
         }
     }
 
-    private function checkDb(): int
+    private function dbCheck(): int
     {
         try {
             $db = container(DatabaseService::class);
@@ -176,7 +176,7 @@ class CliRunner implements KernelRunner
         }
     }
 
-    private function checkAmqp(): int
+    private function amqpCheck(): int
     {
         return 0;
     }
@@ -185,7 +185,7 @@ class CliRunner implements KernelRunner
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function cleanup(): void
+    private function rbtCleanup(): void
     {
         $backends = config('backends');
 
@@ -203,7 +203,7 @@ class CliRunner implements KernelRunner
     /**
      * @throws Exception
      */
-    private function reindex(): void
+    private function rbtReindex(): void
     {
         task(new ReindexTask())->sync();
     }
@@ -237,7 +237,7 @@ class CliRunner implements KernelRunner
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function cron(array $arguments): void
+    private function cronRun(array $arguments): void
     {
         $parts = ["minutely", "5min", "hourly", "daily", "monthly"];
         $part = false;
@@ -274,7 +274,7 @@ class CliRunner implements KernelRunner
         } else echo $this->help();
     }
 
-    private function installCron(): void
+    private function cronInstall(): void
     {
         $crontab = [];
 
@@ -326,7 +326,7 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Install crontabs', ['lines' => $lines]);
     }
 
-    private function uninstallCron(): void
+    private function cronUninstall(): void
     {
         $crontab = [];
 
@@ -359,7 +359,7 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Uninstall crontabs', ['lines' => $lines]);
     }
 
-    private function containerKernel(): void
+    private function kernelContainer(): void
     {
         if (file_exists(path('config/container.php'))) {
             $callback = require path('config/container.php');
@@ -379,7 +379,7 @@ class CliRunner implements KernelRunner
         }
     }
 
-    private function routerKernel(): void
+    private function kernelRouter(): void
     {
         if (file_exists(path('config/router.php'))) {
             $callback = require path('config/router.php');
@@ -406,7 +406,7 @@ class CliRunner implements KernelRunner
      * @throws NotFoundExceptionInterface
      * @throws InvalidArgumentException
      */
-    private function optimizeKernel(Kernel $kernel): void
+    private function kernelOptimize(Kernel $kernel): void
     {
         $cache = container(FileCache::class);
 
@@ -467,7 +467,7 @@ class CliRunner implements KernelRunner
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function clearKernel(): void
+    private function kernelClear(): void
     {
         $cache = container(FileCache::class);
 

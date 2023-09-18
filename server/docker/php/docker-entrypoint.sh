@@ -13,7 +13,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
 
   COUNT=60
 
-  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php --check-db 2>&1); do
+  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php db:check 2>&1); do
     if [ $? -eq 0 ]; then
       break
     fi
@@ -35,7 +35,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
 
   COUNT=60
 
-  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php --check-amqp 2>&1); do
+  until [ $COUNT -eq 0 ] || RESULT=$(php cli.php db:amqp 2>&1); do
     if [ $? -eq 0 ]; then
       break
     fi
@@ -53,10 +53,11 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
     exit 1
   fi
 
-  php cli.php --init-db
+  php cli.php db:init
 
-  php cli.php --reindex
-  php cli.php --install-crontabs
+  php cli.php rbt:reindex
+
+  php cli.php cron:install
 
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX var
 	setfacl -dR -m u:www-data:rwX -m u:"$(whoami)":rwX var
