@@ -175,7 +175,7 @@ class internal extends users
         }
     }
 
-    public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string $tg = '', string $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', bool|string $persistentToken = false, int $primaryGroup = -1): bool
+    public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string $tg = '', string $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', bool|string|null $persistentToken = false, int $primaryGroup = -1): bool
     {
         if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"]))
             return false;
