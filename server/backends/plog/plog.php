@@ -42,13 +42,7 @@ abstract class plog extends backend
     const PREVIEW_DVR = 1;
     const PREVIEW_FRS = 2;
 
-    /**
-     * Получить список дней с событиями
-     * @param int $flat_id идентификатор квартиры
-     * @param array|false $filter_events фильтр типов событий
-     * @return false|array
-     */
-    abstract public function getEventsDays(int $flat_id, $filter_events);
+    abstract public function getEventsDays(int $flat_id, ?string $filter_events): array|bool;
 
     /**
      * Получить детальный список событий

@@ -196,18 +196,17 @@ class clickhouse extends plog
         return $this->clickhouse->select($query);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getEventsDays(int $flat_id, $filter_events)
+    public function getEventsDays(int $flat_id, ?string $filter_events): array|bool
     {
+        $database = $this->clickhouse->database;
+
         if ($filter_events) {
             $query = "
                         select
                             toYYYYMMDD(FROM_UNIXTIME(date)) as day,
                             count(day) as events
                         from
-                            plog
+                            $database.plog
                         where
                             not hidden
                             and flat_id = $flat_id
@@ -223,7 +222,7 @@ class clickhouse extends plog
                             toYYYYMMDD(FROM_UNIXTIME(date)) as day,
                             count(day) as events
                         from
-                            plog
+                            $database.plog
                         where
                             not hidden
                             and flat_id = $flat_id
@@ -235,6 +234,7 @@ class clickhouse extends plog
         }
 
         $result = $this->clickhouse->select($query);
+
         if (count($result)) {
             foreach ($result as &$d) {
                 $d['day'] = substr($d['day'], 0, 4) . '-' . substr($d['day'], 4, 2) . '-' . substr($d['day'], 6, 2);
@@ -250,6 +250,8 @@ class clickhouse extends plog
      */
     public function getDetailEventsByDay(int $flat_id, string $date)
     {
+        $database = $this->clickhouse->database;
+
         $query = "
                     select
                         date,
@@ -266,7 +268,7 @@ class clickhouse extends plog
                         toJSONString(phones) phones,
                         preview
                     from
-                        plog
+                        $database.plog
                     where
                         not hidden
                         and toYYYYMMDD(FROM_UNIXTIME(date)) = '$date'
@@ -283,6 +285,8 @@ class clickhouse extends plog
      */
     public function getEventsByFlatsAndDomophone(array $flats_id, int $domophone_id, int $date)
     {
+        $database = $this->clickhouse->database;
+
         $filterFlatsId = implode(',', $flats_id);
         $filterDate = date('Ymd', time() - $date * 24 * 60 * 60);
 
@@ -290,7 +294,7 @@ class clickhouse extends plog
                     select
                         date
                     from
-                        plog
+                        $database.plog
                     where
                         not hidden
                         and toYYYYMMDD(FROM_UNIXTIME(date)) >= '$filterDate'
@@ -308,6 +312,8 @@ class clickhouse extends plog
      */
     public function getEventDetails(string $uuid)
     {
+        $database = $this->clickhouse->database;
+
         $query = "
                     select
                         date,
@@ -324,7 +330,7 @@ class clickhouse extends plog
                         toJSONString(phones) phones,
                         preview
                     from
-                        plog
+                        $database.plog
                     where
                         event_uuid = '$uuid'
                 ";

@@ -11,7 +11,8 @@ class ClickhouseService
 
     private string $username;
     private string $password;
-    private string $database;
+
+    public string $database;
 
     function __construct(string $host, int $port, string $username, string $password, string $database = 'default')
     {

@@ -209,6 +209,8 @@ class PlogController extends Controller
             foreach ($t as $e => $one)
                 $filter_events[] = $e;
 
+            sort($filter_events);
+
             $filter_events = implode(',', $filter_events);
         }
 
