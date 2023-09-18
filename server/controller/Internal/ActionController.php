@@ -44,7 +44,7 @@ class ActionController extends Controller
         if (!$result) {
             $logger->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $ip]);
 
-            return $this->rbtResponse();
+            return $this->rbtResponse(400, message: 'Детектор движений не включен');
         }
 
         [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $result;
