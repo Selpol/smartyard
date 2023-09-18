@@ -46,25 +46,49 @@ class CliRunner implements KernelRunner
     {
         $arguments = $this->getArguments();
 
-        if ($this->isCommand($arguments, '--init-db', max: 2)) $this->initDb($arguments);
+        if (count($arguments) === 0) {
+            echo $this->help();
 
-        else if ($this->isCommand($arguments, '--check-db')) return $this->checkDb();
-        else if ($this->isCommand($arguments, '--check-amqp')) return $this->checkAmqp();
+            return 0;
+        }
 
-        else if ($this->isCommand($arguments, '--cleanup')) $this->cleanup();
-        else if ($this->isCommand($arguments, '--reindex')) $this->reindex();
-        else if ($this->isCommand($arguments, '--admin-password', true)) $this->adminPassword($arguments['--admin-password']);
+        $line = explode(':', array_key_first($arguments), 2);
 
-        else if ($this->isCommand($arguments, '--cron', true)) $this->cron($arguments);
-        else if ($this->isCommand($arguments, '--install-crontabs')) $this->installCron();
-        else if ($this->isCommand($arguments, '--uninstall-crontabs')) $this->uninstallCron();
+        if (count($line) !== 2) {
+            echo $this->help();
 
-        else if ($this->isCommand($arguments, '--container-kernel')) $this->containerKernel();
-        else if ($this->isCommand($arguments, '--router-kernel')) $this->routerKernel();
-        else if ($this->isCommand($arguments, '--optimize-kernel')) $this->optimizeKernel($kernel);
-        else if ($this->isCommand($arguments, '--clear-kernel')) $this->clearKernel();
+            return 0;
+        }
 
-        else echo $this->help();
+        $group = $line[0];
+        $command = $line[1];
+
+        if ($group === 'db') {
+            if ($command === 'init') $this->initDb($arguments);
+            else if ($command === 'check') return $this->checkDb();
+            else echo $this->help('db');
+        } else if ($group === 'amqp') {
+            if ($command === 'check') return $this->checkAmqp();
+            else echo $this->help('amqp');
+        } else if ($group === 'rbt') {
+            if ($command === 'cleanup') $this->cleanup();
+            else if ($command === 'reindex') $this->reindex();
+            else echo $this->help('rbt');
+        } else if ($group === 'admin') {
+            if ($command === 'password') $this->adminPassword($arguments['admin:password']);
+            else echo $this->help('admin');
+        } else if ($group === 'cron') {
+            if ($command === 'run') $this->cron($arguments);
+            else if ($command === 'install') $this->installCron();
+            else if ($command === 'uninstall') $this->uninstallCron();
+            else echo $this->help('cron');
+        } else if ($group === 'kernel') {
+            if ($command === 'container') $this->containerKernel();
+            else if ($command === 'router') $this->routerKernel();
+            else if ($command === 'optimize') $this->optimizeKernel($kernel);
+            else if ($command === 'clear') $this->clearKernel();
+            else echo $this->help('kernel');
+        } else echo $this->help();
 
         return 0;
     }
@@ -259,7 +283,7 @@ class CliRunner implements KernelRunner
         $clean = [];
         $skip = false;
 
-        $cli = PHP_BINARY . " " . __FILE__ . " --cron";
+        $cli = PHP_BINARY . " " . __FILE__ . " cron:run";
 
         $lines = 0;
 
@@ -364,7 +388,16 @@ class CliRunner implements KernelRunner
 
             $routes = $builder->collect();
 
-            var_dump($routes);
+            $headers = ['METHOD', 'PATH', 'CLASS', 'MIDDLEWARES'];
+            $result = [];
+
+            foreach ($routes as $method => $methodRoutes) {
+                foreach ($methodRoutes as $methodPath => $pathRoutes) {
+                    $result += $this->routeCompact($method, $methodPath, $pathRoutes);
+                }
+            }
+
+            $this->logger->debug($this->table($headers, $result));
         }
     }
 
@@ -443,30 +476,54 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Kernel cleared');
     }
 
-    private function help(): string
+    private function help(?string $group = null): string
     {
-        return "initialization:
-        db:
-            [--init-db [--version=<version>]]
-            [--check-db]
+        $result = [];
 
-        rbt:
-            [--cleanup]
-            [--reindex]
-            [--admin-password=<password>]
+        if ($group === null || $group === 'db')
+            $result[] = implode("\n", [
+                '',
+                'db:init [--version=<version>]    - Инициализация базы данных',
+                'db:check                         - Проверка доступности базы данных'
+            ]);
 
-        cron:
-            [--cron=<minutely|5min|hourly|daily|monthly>]
+        if ($group === null || $group === 'amqp')
+            $result[] = implode("\n", [
+                '',
+                'amqp:check                       - Проверка доступности AMQP'
+            ]);
 
-            [--install-crontabs]
-            [--uninstall-crontabs]
+        if ($group === null || $group === 'rbt')
+            $result[] = implode("\n", [
+                '',
+                'rbt:cleanup                      - Очистить кэши РБТ',
+                'rbt:reindex                      - Обновить маршрутизацию API'
+            ]);
 
-        kernel:
-            [--container-kernel]
-            [--router-kernel]
-            [--optimize-kernel]
-            [--clear-kernel]
-        \n";
+        if ($group === null || $group === 'admin')
+            $result[] = implode("\n", [
+                '',
+                'admin:password=<password>        - Обновить пароль администратора'
+            ]);
+
+        if ($group === null || $group === 'cron')
+            $result[] = implode("\n", [
+                '',
+                'cron:run=<type>                  - Выполнить задачи по времени',
+                'cron:install                     - Установить задачи по времени',
+                'cron:uninstall                   - Удалить задачи по времени'
+            ]);
+
+        if ($group === null || $group === 'kernel')
+            $result[] = implode("\n", [
+                '',
+                'kernel:container                 - Показать зависимости приложения',
+                'kernel:router                    - Показать маршруты приложения',
+                'kernel:optimize                  - Оптимизировать приложение',
+                'kernel:clear                     - Очистить приложение'
+            ]);
+
+        return trim(implode("\n", $result));
     }
 
     /**
@@ -492,6 +549,24 @@ class CliRunner implements KernelRunner
 
         foreach ($values as $value)
             $result .= sprintf($mask, ...array_map(static fn(string $header) => $value[$header], $headers)) . PHP_EOL;
+
+        return $result;
+    }
+
+    private function routeCompact(string $method, string $path, array $value): array
+    {
+        $result = [];
+
+        foreach ($value as $valuePath => $route) {
+            if (array_key_exists('class', $route))
+                $result[] = [
+                    'METHOD' => $method,
+                    'PATH' => $path . $valuePath,
+                    'CLASS' => substr($route['class'], 17) . '@' . $route['method'],
+                    'MIDDLEWARES' => count($route['middlewares'])
+                ];
+            else $result += $this->routeCompact($method, $path . $valuePath, $route);
+        }
 
         return $result;
     }
