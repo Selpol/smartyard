@@ -37,7 +37,7 @@ return static function (RC $builder) {
             $builder->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
         });
 
-        $builder->group('sync', static function (RC $builder) {
+        $builder->group('/sync', static function (RC $builder) {
             $builder->get('/house/{fias}', [InternalSyncController::class, 'getHouseId']);
 
             $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriber']);

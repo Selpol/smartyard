@@ -391,11 +391,11 @@ class CliRunner implements KernelRunner
             $headers = ['METHOD', 'PATH', 'CLASS', 'MIDDLEWARES'];
             $result = [];
 
-            foreach ($routes as $method => $methodRoutes) {
-                foreach ($methodRoutes as $methodPath => $pathRoutes) {
-                    $result += $this->routeCompact($method, $methodPath, $pathRoutes);
-                }
-            }
+            foreach ($routes as $method => $methodRoutes)
+                foreach ($methodRoutes as $methodPath => $pathRoutes)
+                    $this->routeCompact($result, $method, $methodPath, $pathRoutes);
+
+            usort($result, static fn(array $a, array $b) => strcmp($a['PATH'], $b['PATH']));
 
             $this->logger->debug($this->table($headers, $result));
         }
@@ -553,10 +553,8 @@ class CliRunner implements KernelRunner
         return $result;
     }
 
-    private function routeCompact(string $method, string $path, array $value): array
+    private function routeCompact(array &$result, string $method, string $path, array $value): void
     {
-        $result = [];
-
         foreach ($value as $valuePath => $route) {
             if (array_key_exists('class', $route))
                 $result[] = [
@@ -565,9 +563,7 @@ class CliRunner implements KernelRunner
                     'CLASS' => substr($route['class'], 17) . '@' . $route['method'],
                     'MIDDLEWARES' => count($route['middlewares'])
                 ];
-            else $result += $this->routeCompact($method, $path . $valuePath, $route);
+            else $this->routeCompact($result, $method, $path . $valuePath, $route);
         }
-
-        return $result;
     }
 }
