@@ -81,7 +81,8 @@ class CameraController extends Controller
                     "url" => $camera['dvrStream'],
                     "token" => backend("dvr")->getDVRTokenForCam($camera, $user['subscriberId']),
                     "lon" => strval($camera['lon']),
-                    "serverType" => $dvr['type']
+                    "serverType" => $dvr['type'],
+                    'timezone' => $camera['timezone']
                 ];
             }
         }
