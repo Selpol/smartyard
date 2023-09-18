@@ -93,4 +93,41 @@ class SyncController extends Controller
 
         return $this->rbtResponse(404);
     }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function addSubscriberToFlat(): Response
+    {
+        $subscriberId = $this->getRoute()->getParamIdOrThrow('subscriber');
+        $flatId = $this->getRoute()->getParamIdOrThrow('flat');
+        $role = $this->request->getQueryParam('role') ?? 1;
+
+        $db = container(DatabaseService::class);
+
+        if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $subscriberId, 'flat_id' => $flatId, 'role' => $role]))
+            return $this->rbtResponse();
+
+        return $this->rbtResponse(404);
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function deleteSubscriberFromFlat(): Response
+    {
+        $subscriberId = $this->getRoute()->getParamIdOrThrow('subscriber');
+        $flatId = $this->getRoute()->getParamIdOrThrow('flat');
+
+        $db = container(DatabaseService::class);
+
+        if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $subscriberId, 'flat_id' => $flatId]))
+            return $this->rbtResponse();
+
+        return $this->rbtResponse(404);
+    }
 }
