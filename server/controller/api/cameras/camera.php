@@ -7,6 +7,7 @@
 namespace api\cameras {
 
     use api\api;
+    use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
     use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
     use Selpol\Validator\Rule;
@@ -35,10 +36,16 @@ namespace api\cameras {
 
             $cameraId = $cameras->addCamera($params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
 
-            if ($params['frs'] && $params['frs'] !== '-')
-                dispatch_high(new FrsAddStreamTask($params['frs'], $cameraId));
+            if ($cameraId) {
+                if ($params['frs'] && $params['frs'] !== '-')
+                    dispatch_high(new FrsAddStreamTask($params['frs'], $cameraId));
 
-            return api::ANSWER($cameraId, ($cameraId !== false) ? "cameraId" : false);
+                static::modifyIp($cameraId, $params['url']);
+
+                return api::ANSWER($cameraId, 'cameraId');
+            }
+
+            return api::ERROR('Камера не добавлена');
         }
 
         public static function PUT($params)
@@ -58,6 +65,9 @@ namespace api\cameras {
                         if ($params['frs'] && $params['frs'] !== '-')
                             dispatch_high(new FrsAddStreamTask($params['frs'], $camera['cameraId']));
                     }
+
+                    if ($camera['url'] !== $params['url'])
+                        static::modifyIp($camera['cameraId'], $params['url']);
                 }
 
                 return api::ANSWER($success ?: $params["_id"], $success ? "cameraId" : false);
@@ -92,6 +102,14 @@ namespace api\cameras {
                 "POST" => "#same(addresses,house,POST)",
                 "DELETE" => "#same(addresses,house,DELETE)",
             ];
+        }
+
+        private static function modifyIp(int $id, string $url): void
+        {
+            $ip = gethostbyname(parse_url($url, PHP_URL_HOST));
+
+            if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
+                container(DatabaseService::class)->modify('UPDATE cameras SET ip = :ip WHERE camera_id = :id', ['ip' => $ip, 'id' => $id]);
         }
     }
 }
