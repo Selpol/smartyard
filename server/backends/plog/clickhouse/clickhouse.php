@@ -51,37 +51,38 @@ class clickhouse extends plog
             $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
             if ($cameras && $cameras[0]) {
                 $frs = backend("frs");
-                if ($frs) {
-                    if ($event_id === false) {
-                        $response = $frs->bestQualityByDate($cameras[0], $date);
-                    } else {
-                        $response = $frs->bestQualityByEventId($cameras[0], $event_id);
-                    }
 
-                    if ($response && $response[frs::P_CODE] == frs::R_CODE_OK && $response[frs::P_DATA]) {
-                        $image_data = file_get_contents($response[frs::P_DATA][frs::P_SCREENSHOT]);
-                        if ($image_data) {
-                            $headers = implode("\n", $http_response_header);
-                            $content_type = "image/jpeg";
-                            if (preg_match_all("/^content-type\s*:\s*(.*)$/mi", $headers, $matches)) {
-                                $content_type = end($matches[1]);
-                            }
-                            $camshot_data[self::COLUMN_IMAGE_UUID] = $files->toGUIDv4($files->addFile(
-                                "camshot",
-                                $files->contentsToStream($image_data),
-                                [
-                                    "contentType" => $content_type,
-                                    "expire" => time() + $this->ttl_camshot_days * 86400,
-                                ]
-                            ));
-                            $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_FRS;
-                            $camshot_data[self::COLUMN_FACE] = [
-                                frs::P_FACE_LEFT => $response[frs::P_DATA][frs::P_FACE_LEFT],
-                                frs::P_FACE_TOP => $response[frs::P_DATA][frs::P_FACE_TOP],
-                                frs::P_FACE_WIDTH => $response[frs::P_DATA][frs::P_FACE_WIDTH],
-                                frs::P_FACE_HEIGHT => $response[frs::P_DATA][frs::P_FACE_HEIGHT],
-                            ];
+                if ($event_id === false) {
+                    $response = $frs->bestQualityByDate($cameras[0], $date);
+                } else {
+                    $response = $frs->bestQualityByEventId($cameras[0], $event_id);
+                }
+
+                logger('plog')->debug('frs response', ['response' => $response]);
+
+                if ($response && $response[frs::P_CODE] == frs::R_CODE_OK && $response[frs::P_DATA]) {
+                    $image_data = file_get_contents($response[frs::P_DATA][frs::P_SCREENSHOT]);
+                    if ($image_data) {
+                        $headers = implode("\n", $http_response_header);
+                        $content_type = "image/jpeg";
+                        if (preg_match_all("/^content-type\s*:\s*(.*)$/mi", $headers, $matches)) {
+                            $content_type = end($matches[1]);
                         }
+                        $camshot_data[self::COLUMN_IMAGE_UUID] = $files->toGUIDv4($files->addFile(
+                            "camshot",
+                            $files->contentsToStream($image_data),
+                            [
+                                "contentType" => $content_type,
+                                "expire" => time() + $this->ttl_camshot_days * 86400,
+                            ]
+                        ));
+                        $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_FRS;
+                        $camshot_data[self::COLUMN_FACE] = [
+                            frs::P_FACE_LEFT => $response[frs::P_DATA][frs::P_FACE_LEFT],
+                            frs::P_FACE_TOP => $response[frs::P_DATA][frs::P_FACE_TOP],
+                            frs::P_FACE_WIDTH => $response[frs::P_DATA][frs::P_FACE_WIDTH],
+                            frs::P_FACE_HEIGHT => $response[frs::P_DATA][frs::P_FACE_HEIGHT],
+                        ];
                     }
                 }
 
