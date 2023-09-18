@@ -13,7 +13,17 @@ namespace api\houses {
      */
     class entrance extends api
     {
+        public static function GET($params)
+        {
+            $entranceId = $params['_id'];
 
+            $entrance = backend('households')->getEntrance($entranceId);
+
+            if ($entrance)
+                return api::ANSWER($entrance, ['entrance']);
+
+            return api::ERROR('Вход не найден');
+        }
 
         public static function POST($params)
         {
@@ -55,6 +65,7 @@ namespace api\houses {
         public static function index()
         {
             return [
+                "GET" => "#same(addresses,house,GET)",
                 "POST" => "#same(addresses,house,PUT)",
                 "PUT" => "#same(addresses,house,PUT)",
                 "DELETE" => "#same(addresses,house,PUT)",
