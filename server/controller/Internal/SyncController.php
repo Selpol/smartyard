@@ -72,4 +72,25 @@ class SyncController extends Controller
 
         return $this->rbtResponse(404);
     }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function updateFlat(): Response
+    {
+        $id = $this->getRoute()->getParamIdOrThrow('id');
+
+        $body = $this->request->getParsedBody();
+
+        $validate = validator($body, ['autoBlock' => [Rule::id()]]);
+
+        $db = container(DatabaseService::class);
+
+        if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $id]))
+            return $this->rbtResponse();
+
+        return $this->rbtResponse(404);
+    }
 }

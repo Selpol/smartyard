@@ -42,6 +42,8 @@ return static function (RC $builder) {
 
             $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriber']);
             $builder->delete('/subscriber/{id}', [InternalSyncController::class, 'deleteSubscriber']);
+
+            $builder->put('/flat/{id}', [InternalSyncController::class, 'updateFlat']);
         });
     });
 
