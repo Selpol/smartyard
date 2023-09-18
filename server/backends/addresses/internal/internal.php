@@ -763,7 +763,7 @@ class internal extends addresses
 
     public function getHouseByFias(string $fias): array|bool
     {
-        return $this->db->get("select address_house_id, address_settlement_id, address_street_id, house_uuid, house_type, house_type_full, house_full, house from addresses_houses where house_uuid = $fias", false,
+        return $this->db->get("select address_house_id, address_settlement_id, address_street_id, house_uuid, house_type, house_type_full, house_full, house from addresses_houses where house_uuid = :fias", [$fias],
             [
                 "address_house_id" => "houseId",
                 "address_settlement_id" => "settlementId",
