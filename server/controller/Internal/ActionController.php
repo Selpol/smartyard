@@ -28,14 +28,14 @@ class ActionController extends Controller
     {
         $body = $this->request->getParsedBody();
 
-        if (!isset($body["date"], $body["ip"], $body["motionActive"]))
+        if (!isset($body["ip"], $body["motionActive"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         $db = container(DatabaseService::class);
 
         $logger = logger('motion');
 
-        ["date" => $date, "ip" => $ip, "motionActive" => $motionActive] = $body;
+        ["ip" => $ip, "motionActive" => $motionActive] = $body;
 
         $query = 'SELECT camera_id, frs FROM cameras WHERE frs != :frs AND ip = :ip';
         $params = ["ip" => $ip, "frs" => "-"];
@@ -49,7 +49,7 @@ class ActionController extends Controller
 
         [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $result;
 
-        $payload = ["streamId" => $streamId, "start" => (bool)$motionActive];
+        $payload = ["streamId" => $streamId, "start" => $motionActive];
 
         $apiResponse = container(FrsService::class)->request('POST', $frsUrl . "/api/motionDetection", $payload);
 
