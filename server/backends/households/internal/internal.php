@@ -1603,20 +1603,6 @@ class internal extends households
      */
     public function cron($part): bool
     {
-        if ($part === "hourly") {
-            $domophones = $this->db->get("select house_domophone_id, url from houses_domophones");
-
-            foreach ($domophones as $domophone) {
-                $ip = gethostbyname(parse_url($domophone['url'], PHP_URL_HOST));
-
-                if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
-                    $this->db->modify("update houses_domophones set ip = :ip where house_domophone_id = " . $domophone['house_domophone_id'], [
-                        "ip" => $ip,
-                    ]);
-                }
-            }
-        }
-
         if ($part === "5min") {
             $this->cleanup();
         }

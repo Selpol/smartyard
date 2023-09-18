@@ -186,7 +186,7 @@ namespace api\accounts {
                 return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             }
 
-            $success = backend('users')->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"], $params["primaryGroup"]);
+            $success = backend('users')->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"]);
 
             if (@$params["password"] && (int)$params["_id"]) {
                 $success = $success && backend('users')->setPassword($params["_id"], $params["password"]);

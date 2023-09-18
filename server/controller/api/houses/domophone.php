@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
     use Selpol\Validator\Rule;
     use Selpol\Validator\ValidatorMessage;
@@ -34,19 +35,36 @@ namespace api\houses {
 
             $domophoneId = $households->addDomophone($params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["nat"], $params["comment"]);
 
-            return api::ANSWER($domophoneId, ($domophoneId !== false) ? "domophoneId" : false);
+            if ($domophoneId) {
+                static::modifyIp($domophoneId, $params['url']);
+
+                return api::ANSWER($domophoneId, 'domophoneId');
+            }
+
+            return api::ERROR('Домофон не добавлена');
         }
 
         public static function PUT($params)
         {
             $households = backend("households");
 
-            if (array_key_exists('configure', $params) && $params['configure'])
-                dispatch_high(new IntercomConfigureTask($params['_id']));
+            $domophone = $households->getDomophone($params['_id']);
 
-            $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
+            if ($domophone) {
+                $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
 
-            return api::ANSWER($success);
+                if ($success) {
+                    if (array_key_exists('configure', $params) && $params['configure'])
+                        dispatch_high(new IntercomConfigureTask($params['_id']));
+
+                    if ($domophone['url'] !== $params['url'])
+                        static::modifyIp($domophone['domophoneId'], $params['url']);
+                }
+
+                return api::ANSWER($success);
+            }
+
+            return api::ERROR('Домофон не найден');
         }
 
         public static function DELETE($params)
@@ -66,6 +84,14 @@ namespace api\houses {
                 "POST" => "#same(addresses,house,PUT)",
                 "DELETE" => "#same(addresses,house,PUT)",
             ];
+        }
+
+        private static function modifyIp(int $id, string $url): void
+        {
+            $ip = gethostbyname(parse_url($url, PHP_URL_HOST));
+
+            if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
+                container(DatabaseService::class)->modify('UPDATE houses_domophones SET ip = :ip WHERE house_domophone_id = :id', ['ip' => $ip, 'id' => $id]);
         }
     }
 }
