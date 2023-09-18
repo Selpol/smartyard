@@ -22,5 +22,5 @@ abstract class users extends backend
 
     abstract public function modifyUserEnabled(int $uid, bool $enabled): bool;
 
-    abstract public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string $tg = '', string $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', string|bool|null $persistentToken = false, int $primaryGroup = -1): bool;
+    abstract public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = '', string|bool|null $persistentToken = false): bool;
 }
