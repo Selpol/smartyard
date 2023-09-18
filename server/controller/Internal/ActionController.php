@@ -49,11 +49,11 @@ class ActionController extends Controller
 
         [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $result;
 
-        $payload = ["streamId" => $streamId, "start" => $motionActive];
+        $payload = ["streamId" => $streamId, "start" => $motionActive ? 't' : 'f'];
 
-        $apiResponse = container(FrsService::class)->request('POST', $frsUrl . "/api/motionDetection", $payload);
+        container(FrsService::class)->request('POST', $frsUrl . "/api/motionDetection", $payload);
 
-        return $this->rbtResponse(201, $apiResponse);
+        return $this->rbtResponse();
     }
 
     public function openDoor(): Response
