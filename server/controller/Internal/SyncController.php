@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Service\DatabaseService;
 use Selpol\Validator\Rule;
 use Selpol\Validator\ValidatorException;
 
@@ -21,10 +22,15 @@ class SyncController extends Controller
 
         $validate = validator(['fias' => $fias], ['fias' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
 
-        $house = backend('addresses')->getHouseByFias($validate['fias']);
+        $db = container(DatabaseService::class);
 
-        if ($house)
-            return $this->rbtResponse(data: $house['houseId']);
+        $house = $db->get('SELECT address_house_id FROM addresses_houses WHERE house_uuid = :uuid', ['uuid' => $validate['fias']], options: ['singlify']);
+
+        if ($house) {
+            $flats = $db->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $house['address_house_id']]);
+
+            return $this->rbtResponse(data: ['id' => $house['address_house_id'], 'flats' => $flats]);
+        }
 
         return $this->rbtResponse(404);
     }
