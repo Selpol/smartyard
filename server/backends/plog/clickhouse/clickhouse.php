@@ -191,8 +191,10 @@ class clickhouse extends plog
 
     public function getSyslog(string $ip, int $date): false|array
     {
+        $database = $this->clickhouse->database;
+
         $start_date = $date - $this->max_call_length;
-        $query = "select date, msg, unit from syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
+        $query = "select date, msg, unit from $database.syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
 
         return $this->clickhouse->select($query);
     }

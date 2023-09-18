@@ -54,7 +54,7 @@ return [
 
     'backends' => [
         'authentication' => ['backend' => 'internal'],
-        'authorization' => ['backend' => 'allow'],
+        'authorization' => ['backend' => 'internal'],
         'users' => ['backend' => 'internal'],
 
         'geocoder' => [

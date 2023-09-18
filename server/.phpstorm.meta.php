@@ -14,7 +14,6 @@ namespace PHPSTORM_META {
             'files' => \backends\files\files::class,
             'frs' => \backends\frs\frs::class,
             'geocoder' => \backends\geocoder\geocoder::class,
-            'groups' => \backends\groups\groups::class,
             'households' => \backends\households\households::class,
             'inbox' => \backends\inbox\inbox::class,
             'isdn' => \backends\isdn\isdn::class,

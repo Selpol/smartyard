@@ -10,7 +10,7 @@ class internal extends users
     public function getUsers(): bool|array
     {
         try {
-            $users = $this->db->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login, primary_group, acronym primary_group_acronym from core_users left join core_groups on core_users.primary_group = core_groups.gid order by uid", \PDO::FETCH_ASSOC)->fetchAll();
+            $users = $this->db->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login, primary_group from core_users order by uid", \PDO::FETCH_ASSOC)->fetchAll();
             $_users = [];
 
             foreach ($users as $user) {
@@ -23,9 +23,7 @@ class internal extends users
                     "tg" => $user["tg"],
                     "enabled" => $user["enabled"],
                     "lastLogin" => $user["last_login"],
-                    "lastAction" => $this->redis->get("last_" . md5($user["login"])),
-                    "primaryGroup" => $user["primary_group"],
-                    "primaryGroupAcronym" => $user["primary_group_acronym"],
+                    "lastAction" => $this->redis->get("last_" . md5($user["login"]))
                 ];
             }
 
@@ -70,7 +68,7 @@ class internal extends users
     public function getUser(int $uid): bool|array
     {
         try {
-            $user = $this->db->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route, primary_group, acronym primary_group_acronym from core_users left join core_groups on core_users.primary_group = core_groups.gid where uid = $uid", \PDO::FETCH_ASSOC)->fetchAll();
+            $user = $this->db->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route, primary_group from core_users where uid = $uid", \PDO::FETCH_ASSOC)->fetchAll();
 
             if (count($user)) {
                 $_user = [
@@ -82,15 +80,8 @@ class internal extends users
                     "tg" => $user[0]["tg"],
                     "notification" => $user[0]["notification"],
                     "enabled" => $user[0]["enabled"],
-                    "defaultRoute" => $user[0]["default_route"],
-                    "primaryGroup" => $user[0]["primary_group"],
-                    "primaryGroupAcronym" => $user[0]["primary_group_acronym"],
+                    "defaultRoute" => $user[0]["default_route"]
                 ];
-
-                $groups = backend("groups");
-
-                if ($groups !== false)
-                    $_user["groups"] = $groups->getGroups($uid);
 
                 $persistent = false;
                 $_keys = $this->redis->keys("persistent_*_" . $user[0]["uid"]);
@@ -163,11 +154,6 @@ class internal extends users
 
                 foreach ($_keys as $_key)
                     $this->redis->del($_key);
-
-                $groups = backend("groups");
-
-                if ($groups)
-                    $groups->deleteUser($uid);
             } catch (Exception $e) {
                 error_log(print_r($e, true));
 
@@ -267,25 +253,6 @@ class internal extends users
     public function capabilities(): array
     {
         return ["mode" => "rw"];
-    }
-
-    public function cleanup(): int
-    {
-        $n = 0;
-
-        $c = [
-            "delete from core_users_rights where aid not in (select aid from core_api_methods)",
-            "delete from core_groups_rights where aid not in (select aid from core_api_methods)",
-            "delete from core_users_rights where uid not in (select uid from core_users)",
-            "delete from core_groups_rights where gid not in (select gid from core_groups)",
-            "delete from core_users_groups where uid not in (select uid from core_users)",
-            "delete from core_users_groups where gid not in (select gid from core_groups)",
-        ];
-
-        for ($i = 0; $i < count($c); $i++)
-            $n += $this->db->modify($c[$i]);
-
-        return $n;
     }
 
     public function getUidByLogin(string $login): int|bool
