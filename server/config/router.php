@@ -2,6 +2,7 @@
 
 use Selpol\Controller\Internal\ActionController as InternalActionController;
 use Selpol\Controller\Internal\FrsController as InternalFrsController;
+use Selpol\Controller\Internal\SyncController as InternalSyncController;
 use Selpol\Controller\mobile\AddressController;
 use Selpol\Controller\mobile\ArchiveController;
 use Selpol\Controller\mobile\CallController;
@@ -34,6 +35,13 @@ return static function (RC $builder) {
         $builder->group('/frs', static function (RC $builder) {
             $builder->post('/callback', [InternalFrsController::class, 'callback']);
             $builder->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
+        });
+
+        $builder->group('sync', static function (RC $builder) {
+            $builder->get('/house/{fias}', [InternalSyncController::class, 'getHouseId']);
+
+            $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriber']);
+            $builder->delete('/subscriber/{id}', [InternalSyncController::class, 'deleteSubscriber']);
         });
     });
 

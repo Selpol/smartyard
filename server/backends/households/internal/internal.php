@@ -1054,10 +1054,7 @@ class internal extends households
         return $subscribers;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function addSubscriber($mobile, $name, $patronymic, $flatId = false, $message = false)
+    public function addSubscriber(string|int $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
     {
         if (
             !check_string($mobile, ["minLength" => 6, "maxLength" => 32, "validChars" => ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
@@ -1077,13 +1074,14 @@ class internal extends households
         ]);
 
         if (!$subscriberId) {
-            $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
+            $subscriberId = $this->db->insert("insert into houses_subscribers_mobile (id, aud_jti, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :aud_jti, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
                 "mobile" => $mobile,
+                "aud_jti" => $audJti,
                 "subscriber_name" => $name,
                 "subscriber_patronymic" => $patronymic,
                 "registered" => time(),
             ]);
-        } else {
+        } else if ($name && $patronymic) {
             $this->modifySubscriber($subscriberId, [
                 "subscriberName" => $name,
                 "subscriberPatronymic" => $patronymic,

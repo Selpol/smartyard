@@ -160,7 +160,7 @@ class AddressController extends Controller
                 if ((int)$item['flatId'] == $flat_id)
                     return $this->rbtResponse(200, "У вас уже есть доступ к данной квартире");
 
-            if ($households->addSubscriber($subscriber["mobile"], null, null, $flat_id))
+            if ($households->addSubscriber($subscriber["mobile"], flatId: $flat_id))
                 return $this->rbtResponse(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
             else return $this->rbtResponse(400, message: 'Неудалось добавиться в квартиру');
         } else return $this->rbtResponse(404, message: 'Абонент не найден');

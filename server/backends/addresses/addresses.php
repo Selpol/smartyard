@@ -201,6 +201,8 @@ abstract class addresses extends backend
      */
     abstract function getHouse($houseId);
 
+    abstract function getHouseByFias(string $fias): array|bool;
+
     /**
      * @param $houseId
      * @param $settlementId

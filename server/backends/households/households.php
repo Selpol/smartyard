@@ -222,15 +222,7 @@ abstract class households extends backend
      */
     abstract public function getSubscribers($by, $query);
 
-    /**
-     * @param $mobile
-     * @param $name
-     * @param $patronymic
-     * @param bool $flatId
-     * @param null $message
-     * @return boolean|integer
-     */
-    abstract public function addSubscriber($mobile, $name, $patronymic, $flatId = false, $message = false);
+    abstract public function addSubscriber(string|int $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool;
 
     /**
      * @param $subscriberId
