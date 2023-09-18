@@ -210,7 +210,7 @@ class IntercomConfigureTask extends IntercomTask
         $key = env('MIFARE_KEY');
         $sector = env('MIFARE_SECTOR');
 
-        if ($key !== false && $sector !== false)
+        if ($key !== false && $sector !== false && $key !== null && $sector !== null)
             $panel->setMifare($key, $sector);
     }
 }
