@@ -14,6 +14,7 @@ CREATE TABLE inbox
     readed              integer,                    -- readed
     code                character varying           -- result code from google, smssending, etc...
 );
+
 CREATE INDEX inbox_readed on inbox (readed);
 CREATE INDEX inbox_expire on inbox (expire);
 CREATE INDEX inbox_date on inbox (date);

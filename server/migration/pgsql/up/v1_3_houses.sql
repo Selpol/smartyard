@@ -14,6 +14,7 @@ CREATE TABLE houses_domophones
     ip                 text,
     comment            character varying
 );
+
 CREATE UNIQUE INDEX domophones_ip_port on houses_domophones (url);
 
 -- entrances
@@ -36,7 +37,9 @@ CREATE TABLE houses_entrances
     cms_levels         character varying,
     locks_disabled     integer
 );
+
 CREATE UNIQUE INDEX houses_entrances_uniq on houses_entrances (house_domophone_id, domophone_output);
+
 CREATE INDEX houses_entrances_multihouse on houses_entrances (shared);
 
 -- domophones apartments -> cms
@@ -48,6 +51,7 @@ CREATE TABLE houses_entrances_cmses
     unit              character varying not null,
     apartment         integer           not null -- flat number
 );
+
 CREATE UNIQUE INDEX houses_entrances_cmses_uniq1 on houses_entrances_cmses (house_entrance_id, cms, dozen, unit);
 CREATE UNIQUE INDEX houses_entrances_cmses_uniq2 on houses_entrances_cmses (house_entrance_id, apartment);
 
@@ -59,8 +63,10 @@ CREATE TABLE houses_houses_entrances
 -- domophone's specific entrance settings
     prefix            integer not null
 );
+
 CREATE UNIQUE INDEX houses_houses_entrances_uniq1 on houses_houses_entrances (address_house_id, house_entrance_id);
 CREATE UNIQUE INDEX houses_houses_entrances_uniq2 on houses_houses_entrances (house_entrance_id, prefix);
+
 CREATE INDEX houses_houses_entrances_address_house_id on houses_houses_entrances (address_house_id);
 CREATE INDEX houses_houses_entrances_house_entrance_id on houses_houses_entrances (house_entrance_id);
 CREATE INDEX houses_houses_entrances_prefix on houses_houses_entrances (prefix);
@@ -86,7 +92,9 @@ CREATE TABLE houses_flats
     last_opened      integer,           -- UNIX timestamp
     cms_enabled      integer
 );
+
 CREATE UNIQUE INDEX houses_flats_uniq on houses_flats (address_house_id, flat);
+
 CREATE INDEX houses_flats_address_house_id on houses_flats (address_house_id);
 
 -- entrances <-> flats
@@ -98,7 +106,9 @@ CREATE TABLE houses_entrances_flats
     apartment         integer,          -- flat number
     cms_levels        character varying -- cms levels
 );
+
 CREATE UNIQUE INDEX houses_entrances_flats_uniq on houses_entrances_flats (house_entrance_id, house_flat_id);
+
 CREATE INDEX houses_entrances_flats_house_entrance_id on houses_entrances_flats (house_entrance_id);
 CREATE INDEX houses_entrances_flats_house_flat_id on houses_entrances_flats (house_flat_id);
 
@@ -112,6 +122,7 @@ CREATE TABLE houses_rfids
     last_seen     integer,                    -- UNIX timestamp
     comments      character varying
 );
+
 CREATE UNIQUE INDEX houses_rfids_uniq on houses_rfids (rfid, access_type, access_to);
 
 -- mobile subscribers
@@ -131,6 +142,7 @@ CREATE TABLE houses_subscribers_mobile
     subscriber_patronymic character varying,
     voip_enabled          integer
 );
+
 CREATE UNIQUE INDEX subscribers_mobile_id on houses_subscribers_mobile (id);
 
 -- flats <-> subscribers
@@ -140,6 +152,7 @@ CREATE TABLE houses_flats_subscribers
     house_subscriber_id integer not null,
     role                integer -- ?
 );
+
 CREATE UNIQUE INDEX houses_flats_subscribers_uniq on houses_flats_subscribers (house_flat_id, house_subscriber_id);
 
 -- cameras <-> houses
@@ -148,7 +161,9 @@ CREATE TABLE houses_cameras_houses
     camera_id        integer not null,
     address_house_id integer not null
 );
+
 CREATE UNIQUE INDEX houses_cameras_houses_uniq on houses_cameras_houses (camera_id, address_house_id);
+
 CREATE INDEX houses_cameras_houses_id on houses_cameras_houses (camera_id);
 CREATE INDEX houses_cameras_houses_house_id on houses_cameras_houses (address_house_id);
 
@@ -158,7 +173,9 @@ CREATE TABLE houses_cameras_flats
     camera_id     integer not null,
     house_flat_id integer not null
 );
+
 CREATE UNIQUE INDEX houses_cameras_flats_uniq on houses_cameras_flats (camera_id, house_flat_id);
+
 CREATE INDEX houses_cameras_flats_camera_id on houses_cameras_flats (camera_id);
 CREATE INDEX houses_cameras_flats_flat_id on houses_cameras_flats (house_flat_id);
 
@@ -168,6 +185,8 @@ CREATE TABLE houses_cameras_subscribers
     camera_id           integer not null,
     house_subscriber_id integer not null
 );
+
 CREATE UNIQUE INDEX houses_cameras_subscribers_uniq on houses_cameras_subscribers (camera_id, house_subscriber_id);
+
 CREATE INDEX houses_cameras_subscribers_camera_id on houses_cameras_subscribers (camera_id);
 CREATE INDEX houses_cameras_subscribers_subscriber_id on houses_cameras_subscribers (house_subscriber_id);

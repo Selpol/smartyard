@@ -5,8 +5,10 @@ CREATE TABLE core_vars
     var_name  character varying not null,
     var_value character varying
 );
+
 CREATE INDEX core_vars_id on core_vars (var_id);
 CREATE INDEX core_vars_var_name on core_vars (var_name);
+
 INSERT INTO core_vars (var_name, var_value)
 values ('dbVersion', '0');
 
@@ -26,9 +28,13 @@ CREATE TABLE core_users
     last_login    integer,
     primary_group integer
 );
+
 CREATE UNIQUE INDEX core_users_login on core_users (login);
+
 CREATE INDEX core_users_real_name on core_users (real_name);
+
 CREATE UNIQUE INDEX core_users_e_mail on core_users (e_mail);
+
 CREATE INDEX core_users_phone on core_users (phone);
 
 -- admin - admin && user - user
@@ -44,6 +50,7 @@ CREATE TABLE core_api_methods
     request_method   character varying not null,
     permissions_same character varying
 );
+
 CREATE UNIQUE INDEX core_api_methods_uniq on core_api_methods (api, method, request_method);
 
 -- methods always availabe for all

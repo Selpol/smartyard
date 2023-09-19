@@ -155,19 +155,4 @@ class mongo extends files
     {
         return str_replace("-", "", substr($guidv4, 8));
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function cron($part): bool
-    {
-        if ($part == '5min') {
-            $cursor = $this->mongo->{$this->dbName}->{"fs.files"}->find(["metadata.expire" => ['$lt' => time()]]);
-
-            foreach ($cursor as $document)
-                $this->deleteFile($document->_id);
-        }
-
-        return true;
-    }
 }

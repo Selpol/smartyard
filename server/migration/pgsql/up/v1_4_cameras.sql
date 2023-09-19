@@ -24,4 +24,5 @@ CREATE TABLE cameras
     ip          text,
     comment     character varying
 );
+
 CREATE INDEX cameras_url on cameras (url);
