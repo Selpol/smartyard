@@ -8,6 +8,7 @@ use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Rule;
+use Throwable;
 
 class SyncController extends Controller
 {
@@ -20,7 +21,7 @@ class SyncController extends Controller
 
         $db = container(DatabaseService::class);
 
-        $houses = $db->get('SELECT address_house_id, house_uuid FROM addresses_houses WHERE house_uuid IN (' . implode(', ', $body) . ')');
+        $houses = $db->get('SELECT address_house_id, house_uuid FROM addresses_houses WHERE house_uuid IN (' . implode(', ', array_map(static fn(string $value) => "'" . $value . "'", $body)) . ')');
 
         $result = [];
 
@@ -48,17 +49,21 @@ class SyncController extends Controller
         $result = [];
 
         foreach ($body as $subscriber) {
-            $validate = validator($subscriber, [
-                'id' => [Rule::required(), Rule::length(11, 11), Rule::nonNullable()],
-                'audJti' => [Rule::required(), Rule::nonNullable()],
-                'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
-                'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
-            ]);
+            try {
+                $validate = validator($subscriber, [
+                    'id' => [Rule::required(), Rule::length(11, 11), Rule::nonNullable()],
+                    'audJti' => [Rule::required(), Rule::nonNullable()],
+                    'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
+                    'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
+                ]);
 
-            $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
+                $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
-            if ($subscriberId)
-                $result[$validate['id']] = $subscriberId;
+                if ($subscriberId)
+                    $result[$validate['id']] = $subscriberId;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
         }
 
         if (count($result))
@@ -101,10 +106,14 @@ class SyncController extends Controller
         $result = [];
 
         foreach ($body as $item) {
-            $validate = validator($item, ['id' => [Rule::id()], 'autoBlock' => [Rule::required(), Rule::bool(), Rule::nonNullable()]]);
+            try {
+                $validate = validator($item, ['id' => [Rule::id()], 'autoBlock' => [Rule::required(), Rule::bool(), Rule::nonNullable()]]);
 
-            if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
-                $result[$validate['id']] = true;
+                if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
+                    $result[$validate['id']] = true;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
         }
 
         if (count($result))
@@ -125,10 +134,14 @@ class SyncController extends Controller
         $result = [];
 
         foreach ($body as $item) {
-            $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
+            try {
+                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
 
-            if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
-                $result[$validate['subscriber'] . $validate['flat']] = true;
+                if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
+                    $result[$validate['subscriber'] . $validate['flat']] = true;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
         }
 
         if (count($result))
@@ -149,10 +162,14 @@ class SyncController extends Controller
         $result = [];
 
         foreach ($body as $item) {
-            $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()]]);
+            try {
+                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()]]);
 
-            if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
-                $result[$validate['subscriber']] = true;
+                if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
+                    $result[$validate['subscriber']] = true;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
         }
 
         if (count($result))
