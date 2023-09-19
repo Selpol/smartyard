@@ -20,16 +20,18 @@ class SyncController extends Controller
 
         $db = container(DatabaseService::class);
 
-        $houses = $db->get('SELECT address_house_id FROM addresses_houses WHERE house_uuid IN (' . implode(', ', $body) . ')');
+        $houses = $db->get('SELECT address_house_id, house_uuid FROM addresses_houses WHERE house_uuid IN (' . implode(', ', $body) . ')');
+
+        $result = [];
 
         if (count($houses)) {
             for ($i = 0; $i < count($houses); $i++)
-                $houses[$i] = [
+                $result[$houses[$i]['house_uuid']] = [
                     'id' => $houses[$i]['address_house_id'],
                     'flats' => $db->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $houses[$i]['address_house_id']])
                 ];
 
-            return $this->rbtResponse($houses);
+            return $this->rbtResponse(data: $result);
         }
 
         return $this->rbtResponse(404);
