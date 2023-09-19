@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 
     /**
      * house method
@@ -41,10 +42,27 @@ namespace api\houses {
             }
         }
 
+        public static function POST($params)
+        {
+            $households = backend("households");
+
+            $houseId = $params['_id'];
+            $keys = $params['keys'];
+
+            foreach ($keys as $key) {
+                $households->addKey($key["rfId"], 2, $key["accessTo"], '');
+            }
+
+            task(new IntercomHouseKeyTask($houseId));
+
+            return api::ANSWER();
+        }
+
         public static function index()
         {
             return [
                 "GET" => "#same(addresses,house,GET)",
+                "POST" => "#same(addresses,house,POST)"
             ];
         }
     }
