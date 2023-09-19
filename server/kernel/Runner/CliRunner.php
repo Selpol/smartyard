@@ -481,33 +481,33 @@ class CliRunner implements KernelRunner
         $result = [];
 
         if ($group === null || $group === 'db')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'db:init [--version=<version>]    - Инициализация базы данных',
                 'db:check                         - Проверка доступности базы данных'
             ]);
 
         if ($group === null || $group === 'amqp')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'amqp:check                       - Проверка доступности AMQP'
             ]);
 
         if ($group === null || $group === 'rbt')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'rbt:cleanup                      - Очистить кэши РБТ',
                 'rbt:reindex                      - Обновить маршрутизацию API'
             ]);
 
         if ($group === null || $group === 'admin')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'admin:password=<password>        - Обновить пароль администратора'
             ]);
 
         if ($group === null || $group === 'cron')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'cron:run=<type>                  - Выполнить задачи по времени',
                 'cron:install                     - Установить задачи по времени',
@@ -515,7 +515,7 @@ class CliRunner implements KernelRunner
             ]);
 
         if ($group === null || $group === 'kernel')
-            $result[] = implode("\n", [
+            $result[] = implode(PHP_EOL, [
                 '',
                 'kernel:container                 - Показать зависимости приложения',
                 'kernel:router                    - Показать маршруты приложения',
@@ -523,7 +523,7 @@ class CliRunner implements KernelRunner
                 'kernel:clear                     - Очистить приложение'
             ]);
 
-        return trim(implode("\n", $result));
+        return trim(implode(PHP_EOL, $result)) . PHP_EOL;
     }
 
     /**
