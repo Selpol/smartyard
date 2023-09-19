@@ -26,7 +26,7 @@ namespace Selpol\Controller\api\houses {
         public static function index(): array
         {
             return [
-                "POST" => "#same(addresses,house,POST)",
+                "POST" => "#same(addresses,house,PUT)",
             ];
         }
     }
