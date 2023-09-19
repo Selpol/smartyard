@@ -8,28 +8,28 @@ use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorException;
 
 class SyncController extends Controller
 {
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function getHouseId(): Response
+    public function getHouseGroup(): Response
     {
-        $fias = $this->getRoute()->getParam('fias');
-
-        $validate = validator(['fias' => $fias], ['fias' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
+        $body = $this->request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
-        $house = $db->get('SELECT address_house_id FROM addresses_houses WHERE house_uuid = :uuid', ['uuid' => $validate['fias']], options: ['singlify']);
+        $houses = $db->get('SELECT address_house_id FROM addresses_houses WHERE house_uuid IN (' . implode(', ', $body) . ')');
 
-        if ($house) {
-            $flats = $db->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $house['address_house_id']]);
+        if (count($houses)) {
+            for ($i = 0; $i < count($houses); $i++)
+                $houses[$i] = [
+                    'id' => $houses[$i]['address_house_id'],
+                    'flats' => $db->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $houses[$i]['address_house_id']])
+                ];
 
-            return $this->rbtResponse(data: ['id' => $house['address_house_id'], 'flats' => $flats]);
+            return $this->rbtResponse($houses);
         }
 
         return $this->rbtResponse(404);
@@ -39,36 +39,28 @@ class SyncController extends Controller
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function addSubscriber(): Response
+    public function addSubscriberGroup(): Response
     {
         $body = $this->request->getParsedBody();
 
-        $validate = validator($body, [
-            'id' => [Rule::required(), Rule::length(11, 11), Rule::nonNullable()],
-            'audJti' => [Rule::required(), Rule::nonNullable()],
-            'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
-            'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
-        ]);
+        $result = [];
 
-        $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
+        foreach ($body as $subscriber) {
+            $validate = validator($subscriber, [
+                'id' => [Rule::required(), Rule::length(11, 11), Rule::nonNullable()],
+                'audJti' => [Rule::required(), Rule::nonNullable()],
+                'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
+                'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
+            ]);
 
-        if ($subscriberId)
-            return $this->rbtResponse(data: $subscriberId);
+            $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
-        return $this->rbtResponse(400, message: 'Абонент не создан');
-    }
+            if ($subscriberId)
+                $result[$subscriberId] = true;
+        }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
-     */
-    public function deleteSubscriber(): Response
-    {
-        $id = $this->getRoute()->getParamIdOrThrow('id');
-
-        if (backend('households')->deleteSubscriber($id))
-            return $this->rbtResponse();
+        if (count($result))
+            return $this->rbtResponse(data: $result);
 
         return $this->rbtResponse(404);
     }
@@ -76,58 +68,94 @@ class SyncController extends Controller
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
-    public function updateFlat(): Response
+    public function deleteSubscriberGroup(): Response
     {
-        $id = $this->getRoute()->getParamIdOrThrow('id');
-
         $body = $this->request->getParsedBody();
 
-        $validate = validator($body, ['autoBlock' => [Rule::id()]]);
+        $households = backend('households');
 
-        $db = container(DatabaseService::class);
+        $result = [];
 
-        if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $id]))
-            return $this->rbtResponse();
+        foreach ($body as $item)
+            if ($households->deleteSubscriber($item))
+                $result[$item] = true;
 
-        return $this->rbtResponse(404);
-    }
-
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
-     */
-    public function addSubscriberToFlat(): Response
-    {
-        $subscriberId = $this->getRoute()->getParamIdOrThrow('subscriber');
-        $flatId = $this->getRoute()->getParamIdOrThrow('flat');
-        $role = $this->request->getQueryParam('role') ?? 1;
-
-        $db = container(DatabaseService::class);
-
-        if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $subscriberId, 'flat_id' => $flatId, 'role' => $role]))
-            return $this->rbtResponse();
+        if (count($result))
+            return $this->rbtResponse(data: $result);
 
         return $this->rbtResponse(404);
     }
 
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
-    public function deleteSubscriberFromFlat(): Response
+    public function updateFlatGroup(): Response
     {
-        $subscriberId = $this->getRoute()->getParamIdOrThrow('subscriber');
-        $flatId = $this->getRoute()->getParamIdOrThrow('flat');
+        $body = $this->request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
-        if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $subscriberId, 'flat_id' => $flatId]))
-            return $this->rbtResponse();
+        $result = [];
+
+        foreach ($body as $item) {
+            $validate = validator($item, ['id' => [Rule::id()], 'autoBlock' => [Rule::required(), Rule::bool(), Rule::nonNullable()]]);
+
+            if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
+                $result[$validate['id']] = true;
+        }
+
+        if (count($result))
+            return $this->rbtResponse(data: $result);
 
         return $this->rbtResponse(404);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    public function addSubscriberToFlatGroup(): Response
+    {
+        $body = $this->request->getParsedBody();
+
+        $db = container(DatabaseService::class);
+
+        $result = [];
+
+        foreach ($body as $item) {
+            $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
+
+            if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
+                $result[$validate['subscriber'] . $validate['flat']] = true;
+        }
+
+        if (count($result))
+            return $this->rbtResponse(data: $result);
+
+        return $this->rbtResponse(404);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    public function deleteSubscriberFromFlatGroup(): Response
+    {
+        $body = $this->request->getParsedBody();
+
+        $db = container(DatabaseService::class);
+
+        $result = [];
+
+        foreach ($body as $item) {
+            $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()]]);
+
+            if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
+                $result[$validate['subscriber']] = true;
+        }
+
+        if (count($result))
+            return $this->rbtResponse(data: $result);
+
+        return $this->rbtResponse();
     }
 }

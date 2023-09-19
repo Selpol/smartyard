@@ -38,15 +38,15 @@ return static function (RC $builder) {
         });
 
         $builder->group('/sync', static function (RC $builder) {
-            $builder->get('/house/{fias}', [InternalSyncController::class, 'getHouseId']);
+            $builder->post('/house', [InternalSyncController::class, 'getHouseGroup']);
 
-            $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriber']);
-            $builder->delete('/subscriber/{id}', [InternalSyncController::class, 'deleteSubscriber']);
+            $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriberGroup']);
+            $builder->delete('/subscriber', [InternalSyncController::class, 'deleteSubscriberGroup']);
 
-            $builder->put('/flat/{id}', [InternalSyncController::class, 'updateFlat']);
+            $builder->put('/flat', [InternalSyncController::class, 'updateFlatGroup']);
 
-            $builder->post('/link/{subscriber}/{flat}', [InternalSyncController::class, 'addSubscriberToFlat']);
-            $builder->delete('/link/{subscriber}/{flat}', [InternalSyncController::class, 'deleteSubscriberFromFlat']);
+            $builder->post('/link', [InternalSyncController::class, 'addSubscriberToFlatGroup']);
+            $builder->delete('/link', [InternalSyncController::class, 'deleteSubscriberFromFlatGroup']);
         });
     });
 
