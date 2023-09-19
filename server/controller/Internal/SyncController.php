@@ -58,7 +58,7 @@ class SyncController extends Controller
             $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
             if ($subscriberId)
-                $result[$subscriberId] = true;
+                $result[$validate['id']] = $subscriberId;
         }
 
         if (count($result))
