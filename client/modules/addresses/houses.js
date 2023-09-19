@@ -7,6 +7,50 @@
     settlementId: 0,
     streetId: 0,
 
+    keyUpload() {
+        const houseId = modules.addresses.houses.meta.house.houseId
+        const flats = modules.addresses.houses.meta.flats.reduce((previous, current) => {
+            previous[current['flat']] = current['flatId']
+
+            return previous
+        }, {})
+
+        let input = document.createElement("input")
+
+        input.type = "file"
+        input.accept = ".csv"
+
+        input.onchange = () => {
+            const file = input.files[0]
+
+            const reader = new FileReader()
+
+            reader.onload = async () => {
+                const content = reader.result
+
+                const lines = content.split("\n")
+
+                const keys = []
+
+                for (const line of lines) {
+                    const segments = line.split(",")
+
+                    if (segments.length === 2 && flats[segments[1].trim()])
+                        keys.push({
+                            rfId: "0".repeat(14 - segments[0].length) + segments[0].toUpperCase(),
+                            accessTo: flats[segments[1].trim()]
+                        })
+                }
+
+                POST("houses", "key", houseId, { keys: keys })
+            }
+
+            reader.readAsText(file)
+        }
+
+        input.click()
+    },
+
     houseMagic: function () {
         cardForm({
             title: i18n("addresses.address"),
@@ -27,18 +71,14 @@
                             loadingStart();
                             QUERY("geo", "suggestions", {
                                 search: params.data.term,
-                            }).
-                            then(response => {
+                            }).then(response => {
                                 loadingDone();
                                 success(response);
-                            }).
-                            fail(response => {
+                            }).fail(response => {
                                 FAIL(response);
                                 loadingDone();
                                 failure(response);
-                            }).
-                            fail(FAIL).
-                            always(loadingDone);
+                            }).fail(FAIL).always(loadingDone);
                         },
                         processResults: function (data) {
                             let suggestions = [];
@@ -65,13 +105,11 @@
                     loadingStart();
                     POST("addresses", "house", false, {
                         magic: result.address,
-                    }).
-                    done(result => {
-                        GET("addresses", "house", result.houseId).
-                        done(result => {
+                    }).done(result => {
+                        GET("addresses", "house", result.houseId).done(result => {
                             message(i18n("addresses.houseWasAdded"));
                             if (result && result.house && (result.house.streetId || result.house.settlementId)) {
-                                let [ route, params, hash ] = hashParse();
+                                let [route, params, hash] = hashParse();
                                 if (result.house.streetId) {
                                     if (route == "addresses" && params["show"] == "street" && params["streetId"] == result.house.streetId) {
                                         modules.addresses.renderStreet(result.house.streetId);
@@ -89,12 +127,8 @@
                                 error(i18n("errors.unknown"));
                                 loadingDone();
                             }
-                        }).
-                        fail(FAIL).
-                        fail(loadingDone);
-                    }).
-                    fail(FAIL).
-                    fail(loadingDone);
+                        }).fail(FAIL).fail(loadingDone);
+                    }).fail(FAIL).fail(loadingDone);
                 }
             },
         }).show();
@@ -128,7 +162,7 @@
             if (domophoneModel && modules.addresses.houses.meta.domophoneModels[domophoneModel] && i < parseInt(modules.addresses.houses.meta.domophoneModels[domophoneModel].outputs)) {
                 o.push({
                     id: i.toString(),
-                    text: i?i18n("addresses.domophoneOutputSecondary", i):i18n("addresses.domophoneOutputPrimary"),
+                    text: i ? i18n("addresses.domophoneOutputSecondary", i) : i18n("addresses.domophoneOutputPrimary"),
                     selected: parseInt(selected) === i,
                 });
             }
@@ -147,7 +181,7 @@
 
         let o = modules.addresses.houses.outputs(modules.addresses.houses.meta.domophoneModelsById[el.val()]);
         for (let i in o) {
-            h += `<option value="${o[i].id}" ${o[i].selected?"selected":""}>${o[i].text}</option>`;
+            h += `<option value="${o[i].id}" ${o[i].selected ? "selected" : ""}>${o[i].text}</option>`;
         }
 
         $("#" + prefix + "domophoneOutput").html(h);
@@ -166,7 +200,7 @@
 
         modules.addresses.houses.cmsSelect(el, id, prefix);
     },
-    
+
     cmsSelect: (el, id, prefix) => {
         if (parseInt($("#" + prefix + "cms").val()) !== 0 && $("#" + prefix + "cms:visible").length) {
             $("#" + prefix + "cmsType").parent().parent().parent().show();
@@ -205,72 +239,54 @@
 
     doAddEntrance: function (house) {
         loadingStart();
-        POST("houses", "entrance", false, house).
-        fail(FAIL).
-        done(() => {
+        POST("houses", "entrance", false, house).fail(FAIL).done(() => {
             message(i18n("addresses.entranceWasAdded"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(house.houseId);
         });
     },
 
     doCreateEntrance: function (entrance) {
         loadingStart();
-        POST("houses", "entrance", false, entrance).
-        fail(FAIL).
-        done(() => {
+        POST("houses", "entrance", false, entrance).fail(FAIL).done(() => {
             message(i18n("addresses.entranceWasCreated"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(entrance.houseId);
         });
     },
 
     doAddFlat: function (flat) {
         loadingStart();
-        POST("houses", "flat", false, flat).
-        fail(FAIL).
-        done(() => {
+        POST("houses", "flat", false, flat).fail(FAIL).done(() => {
             message(i18n("addresses.flatWasAdded"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(flat.houseId);
         });
     },
 
     doAddCamera: function (camera) {
         loadingStart();
-        POST("houses", "cameras", false, camera).
-        fail(FAIL).
-        done(() => {
+        POST("houses", "cameras", false, camera).fail(FAIL).done(() => {
             message(i18n("addresses.cameraWasAdded"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(camera.houseId);
         });
     },
 
     doModifyEntrance: function (entrance) {
         loadingStart();
-        PUT("houses", "entrance", entrance.entranceId, entrance).
-        fail(FAIL).
-        done(() => {
+        PUT("houses", "entrance", entrance.entranceId, entrance).fail(FAIL).done(() => {
             message(i18n("addresses.entranceWasChanged"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(entrance.houseId);
         });
     },
 
     doModifyFlat: function (flat) {
         loadingStart();
-        PUT("houses", "flat", flat.flatId, flat).
-        fail(FAIL).
-        done(() => {
+        PUT("houses", "flat", flat.flatId, flat).fail(FAIL).done(() => {
             message(i18n("addresses.flatWasChanged"));
-        }).
-        always(() => {
+        }).always(() => {
             if (flat.houseId) {
                 modules.addresses.houses.renderHouse(flat.houseId);
             }
@@ -280,23 +296,17 @@
     doDeleteEntrance: function (entranceId, complete, houseId) {
         loadingStart();
         if (complete) {
-            DELETE("houses", "entrance", entranceId).
-            fail(FAIL).
-            done(() => {
+            DELETE("houses", "entrance", entranceId).fail(FAIL).done(() => {
                 message(i18n("addresses.entranceWasDeleted"));
-            }).
-            always(() => {
+            }).always(() => {
                 modules.addresses.houses.renderHouse(houseId);
             });
         } else {
             DELETE("houses", "entrance", entranceId, {
                 houseId
-            }).
-            fail(FAIL).
-            done(() => {
+            }).fail(FAIL).done(() => {
                 message(i18n("addresses.entranceWasDeleted"));
-            }).
-            always(() => {
+            }).always(() => {
                 modules.addresses.houses.renderHouse(houseId);
             });
         }
@@ -304,24 +314,18 @@
 
     doDeleteFlat: function (flatId, houseId) {
         loadingStart();
-        DELETE("houses", "flat", flatId).
-        fail(FAIL).
-        done(() => {
+        DELETE("houses", "flat", flatId).fail(FAIL).done(() => {
             message(i18n("addresses.flatWasDeleted"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(houseId);
         });
     },
 
     doDeleteCamera: function (cameraId, houseId) {
         loadingStart();
-        DELETE("houses", "cameras", false, { from: "house", cameraId, houseId }).
-        fail(FAIL).
-        done(() => {
+        DELETE("houses", "cameras", false, {from: "house", cameraId, houseId}).fail(FAIL).done(() => {
             message(i18n("addresses.cameraWasDeleted"));
-        }).
-        always(() => {
+        }).always(() => {
             modules.addresses.houses.renderHouse(houseId);
         });
     },
@@ -329,8 +333,7 @@
     addEntrance: function (houseId) {
         mYesNo(i18n("addresses.useExistingEntranceQuestion"), i18n("addresses.addEntrance"), () => {
             loadingStart();
-            GET("cameras", "cameras").
-            done(response => {
+            GET("cameras", "cameras").done(response => {
                 modules.addresses.houses.meta.cameras = response.cameras;
 
                 let cameras = [];
@@ -352,12 +355,11 @@
                     let comment = response.cameras.cameras[i].comment;
                     cameras.push({
                         id: response.cameras.cameras[i].cameraId,
-                        text: comment?(comment + ' [' + url.host + ']'):url.host,
+                        text: comment ? (comment + ' [' + url.host + ']') : url.host,
                     })
                 }
 
-                GET("houses", "domophones").
-                done(response => {
+                GET("houses", "domophones").done(response => {
                     modules.addresses.houses.meta.domophones = response.domophones;
                     modules.addresses.houses.meta.domophoneModelsById = {};
 
@@ -378,7 +380,7 @@
                         let comment = response.domophones.domophones[i].comment;
                         domophones.push({
                             id: response.domophones.domophones[i].domophoneId,
-                            text: comment?(comment + ' [' + url.host + ']'):url.host,
+                            text: comment ? (comment + ' [' + url.host + ']') : url.host,
                         })
                     }
 
@@ -557,16 +559,11 @@
                     });
 
                     loadingDone();
-                }).
-                fail(FAIL).
-                fail(loadingDone);
-            }).
-            fail(FAIL).
-            fail(loadingDone);
+                }).fail(FAIL).fail(loadingDone);
+            }).fail(FAIL).fail(loadingDone);
         }, () => {
             loadingStart();
-            GET("houses", "sharedEntrances", houseId, true).
-            done(response => {
+            GET("houses", "sharedEntrances", houseId, true).done(response => {
 
                 let entrances = [];
 
@@ -630,9 +627,7 @@
                         }
                     },
                 });
-            }).
-            fail(FAIL).
-            always(loadingDone);
+            }).fail(FAIL).always(loadingDone);
         }, i18n("addresses.addNewEntrance"), i18n("addresses.useExistingEntrance"));
     },
 
@@ -885,8 +880,7 @@
 
     modifyEntrance: function (entranceId, houseId) {
         loadingStart();
-        GET("cameras", "cameras").
-        done(response => {
+        GET("cameras", "cameras").done(response => {
             modules.addresses.houses.meta.cameras = response.cameras;
 
             let cameras = [];
@@ -908,12 +902,11 @@
                 let comment = response.cameras.cameras[i].comment;
                 cameras.push({
                     id: response.cameras.cameras[i].cameraId,
-                    text: comment?(comment + ' [' + url.host + ']'):url.host,
+                    text: comment ? (comment + ' [' + url.host + ']') : url.host,
                 })
             }
 
-            GET("houses", "domophones").
-            done(response => {
+            GET("houses", "domophones").done(response => {
                 modules.addresses.houses.meta.domophones = response.domophones;
                 modules.addresses.houses.meta.domophoneModelsById = {};
 
@@ -932,7 +925,7 @@
                     let comment = response.domophones.domophones[i].comment;
                     domophones.push({
                         id: response.domophones.domophones[i].domophoneId,
-                        text: comment?(comment + ' [' + url.host + ']'):url.host,
+                        text: comment ? (comment + ' [' + url.host + ']') : url.host,
                     })
                 }
 
@@ -1128,7 +1121,7 @@
                                 type: "text",
                                 title: i18n("addresses.prefix"),
                                 placeholder: i18n("addresses.prefix"),
-                                value: entrance.prefix?entrance.prefix.toString():"0",
+                                value: entrance.prefix ? entrance.prefix.toString() : "0",
                                 hidden: !parseInt(entrance.shared) || parseInt(entrance.domophoneOutput) > 0 || parseInt(entrance.cms) !== 0,
                                 validate: (v, prefix) => {
                                     return !parseInt($("#" + prefix + "shared").val()) || parseInt(v) >= 1;
@@ -1162,12 +1155,8 @@
                     error(i18n("addresses.entranceNotFound"));
                 }
                 loadingDone();
-            }).
-            fail(FAIL).
-            fail(loadingDone);
-        }).
-        fail(FAIL).
-        fail(loadingDone);
+            }).fail(FAIL).fail(loadingDone);
+        }).fail(FAIL).fail(loadingDone);
     },
 
     modifyFlat: function (flatId, houseId) {
@@ -1226,7 +1215,7 @@
                 footer: true,
                 borderless: true,
                 topApply: true,
-                delete: houseId?i18n("addresses.deleteFlat"):false,
+                delete: houseId ? i18n("addresses.deleteFlat") : false,
                 apply: i18n("edit"),
                 size: "lg",
                 fields: [
@@ -1505,17 +1494,14 @@
         });
     },
 
-    loadHouse: function(houseId, callback) {
+    loadHouse: function (houseId, callback) {
         modules.addresses.houses.houseId = 0;
         modules.addresses.houses.settlementId = 0;
         modules.addresses.houses.streetId = 0;
 
         QUERY("addresses", "addresses", {
             houseId: houseId,
-        }).
-        done(modules.addresses.addresses).
-        fail(FAILPAGE).
-        done(() => {
+        }).done(modules.addresses.addresses).fail(FAILPAGE).done(() => {
             if (modules && modules.addresses && modules.addresses.meta && modules.addresses.meta.houses) {
                 let f = false;
                 for (let i in modules.addresses.meta.houses) {
@@ -1525,9 +1511,9 @@
                         }
                         modules.addresses.houses.meta.house = modules.addresses.meta.houses[i];
                         modules.addresses.houses.houseId = houseId;
-                        modules.addresses.houses.settlementId = modules.addresses.meta.houses[i].settlementId?modules.addresses.meta.houses[i].settlementId:0;
-                        modules.addresses.houses.streetId = modules.addresses.meta.houses[i].streetId?modules.addresses.meta.houses[i].streetId:0;
-                        subTop(modules.addresses.path((modules.addresses.meta.houses[i].settlementId?"settlement":"street"), modules.addresses.meta.houses[i].settlementId?modules.addresses.meta.houses[i].settlementId:modules.addresses.meta.houses[i].streetId) + "<i class=\"fas fa-xs fa-angle-double-right ml-2 mr-2\"></i>" + modules.addresses.houses.meta.house.houseFull);
+                        modules.addresses.houses.settlementId = modules.addresses.meta.houses[i].settlementId ? modules.addresses.meta.houses[i].settlementId : 0;
+                        modules.addresses.houses.streetId = modules.addresses.meta.houses[i].streetId ? modules.addresses.meta.houses[i].streetId : 0;
+                        subTop(modules.addresses.path((modules.addresses.meta.houses[i].settlementId ? "settlement" : "street"), modules.addresses.meta.houses[i].settlementId ? modules.addresses.meta.houses[i].settlementId : modules.addresses.meta.houses[i].streetId) + "<i class=\"fas fa-xs fa-angle-double-right ml-2 mr-2\"></i>" + modules.addresses.houses.meta.house.houseFull);
                         f = true;
                     }
                 }
@@ -1536,9 +1522,7 @@
                 }
             }
 
-            GET("houses", "house", houseId, true).
-            fail(FAILPAGE).
-            done(response => {
+            GET("houses", "house", houseId, true).fail(FAILPAGE).done(response => {
                 if (!modules.addresses.houses.meta) {
                     modules.addresses.houses.meta = {};
                 }
@@ -1597,7 +1581,7 @@
                                     data: modules.addresses.houses.meta.flats[i].flatId,
                                 },
                                 {
-                                    data: modules.addresses.houses.meta.flats[i].floor ? modules.addresses.houses.meta.flats[i].floor:"-",
+                                    data: modules.addresses.houses.meta.flats[i].floor ? modules.addresses.houses.meta.flats[i].floor : "-",
                                 },
                                 {
                                     data: modules.addresses.houses.meta.flats[i].flat,
@@ -1709,10 +1693,10 @@
                                     nowrap: true,
                                 },
                                 {
-                                    data: parseInt(modules.addresses.houses.meta.entrances[i].shared)?i18n("yes"):i18n("no"),
+                                    data: parseInt(modules.addresses.houses.meta.entrances[i].shared) ? i18n("yes") : i18n("no"),
                                 },
                                 {
-                                    data: parseInt(modules.addresses.houses.meta.entrances[i].shared)?modules.addresses.houses.meta.entrances[i].prefix:"-",
+                                    data: parseInt(modules.addresses.houses.meta.entrances[i].shared) ? modules.addresses.houses.meta.entrances[i].prefix : "-",
                                 },
                             ],
                             dropDown: {
@@ -1720,7 +1704,7 @@
                                     {
                                         icon: "fas fa-door-open",
                                         title: i18n("addresses.domophone"),
-                                        disabled: ! modules.addresses.houses.meta.entrances[i].domophoneId,
+                                        disabled: !modules.addresses.houses.meta.entrances[i].domophoneId,
                                         click: entranceId => {
                                             location.href = "?#addresses.domophones&domophoneId=" + entrances[entranceId].domophoneId;
                                         },
@@ -1728,7 +1712,7 @@
                                     {
                                         icon: "fas fa-video",
                                         title: i18n("addresses.camera"),
-                                        disabled: ! modules.addresses.houses.meta.entrances[i].cameraId,
+                                        disabled: !modules.addresses.houses.meta.entrances[i].cameraId,
                                         click: entranceId => {
                                             location.href = "?#addresses.cameras&cameraId=" + entrances[entranceId].cameraId;
                                         },
@@ -1800,18 +1784,18 @@
                                 uid: modules.addresses.houses.meta.cameras[i].cameraId,
                                 cols: [
                                     {
-                                        data: modules.addresses.houses.meta.cameras[i].cameraId?modules.addresses.houses.meta.cameras[i].cameraId:i18n("addresses.deleted"),
-                                        click: modules.addresses.houses.meta.cameras[i].cameraId?("#addresses.cameras&filter=" + modules.addresses.houses.meta.cameras[i].cameraId):false,
+                                        data: modules.addresses.houses.meta.cameras[i].cameraId ? modules.addresses.houses.meta.cameras[i].cameraId : i18n("addresses.deleted"),
+                                        click: modules.addresses.houses.meta.cameras[i].cameraId ? ("#addresses.cameras&filter=" + modules.addresses.houses.meta.cameras[i].cameraId) : false,
                                     },
                                     {
-                                        data: modules.addresses.houses.meta.cameras[i].url?modules.addresses.houses.meta.cameras[i].url:"",
+                                        data: modules.addresses.houses.meta.cameras[i].url ? modules.addresses.houses.meta.cameras[i].url : "",
                                     },
                                     {
-                                        data: modules.addresses.houses.meta.cameras[i].name?modules.addresses.houses.meta.cameras[i].name:"",
+                                        data: modules.addresses.houses.meta.cameras[i].name ? modules.addresses.houses.meta.cameras[i].name : "",
                                         nowrap: true,
                                     },
                                     {
-                                        data: modules.addresses.houses.meta.cameras[i].comment?modules.addresses.houses.meta.cameras[i].comment:"",
+                                        data: modules.addresses.houses.meta.cameras[i].comment ? modules.addresses.houses.meta.cameras[i].comment : "",
                                         nowrap: true,
                                     },
                                 ],
@@ -1843,8 +1827,7 @@
     },
 
     addCamera: function (houseId) {
-        GET("cameras", "cameras", false, true).
-        done(response => {
+        GET("cameras", "cameras", false, true).done(response => {
             modules.addresses.cameras.meta = response.cameras;
             let cameras = [];
 
@@ -1864,7 +1847,7 @@
                 }
                 cameras.push({
                     id: response.cameras.cameras[i].cameraId,
-                    text:  url.host + " [" + response.cameras.cameras[i].name + "]",
+                    text: url.host + " [" + response.cameras.cameras[i].name + "]",
                 })
             }
 
@@ -1888,20 +1871,15 @@
                     modules.addresses.houses.doAddCamera(result);
                 },
             });
-        }).
-        fail(FAIL).
-        always(() => {
+        }).fail(FAIL).always(() => {
             loadingDone();
         });
     },
 
     renderEntranceCMS: function (houseId, entranceId) {
-        GET("houses", "cms", entranceId, true).
-        fail(FAIL).
-        fail(() => {
+        GET("houses", "cms", entranceId, true).fail(FAIL).fail(() => {
             pageError();
-        }).
-        done(response => {
+        }).done(response => {
             let cms_layout = response.cms;
 
             modules.addresses.houses.loadHouse(houseId, () => {
@@ -1997,12 +1975,9 @@
 
                             PUT("houses", "cms", entranceId, {
                                 cms: cmses,
-                            }).
-                            done(() => {
+                            }).done(() => {
                                 modules.addresses.houses.renderEntranceCMS(houseId, entranceId);
-                            }).
-                            fail(FAIL).
-                            fail(loadingDone);
+                            }).fail(FAIL).fail(loadingDone);
                         });
 
                         loadingDone();
