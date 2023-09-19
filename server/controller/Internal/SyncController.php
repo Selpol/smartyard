@@ -39,7 +39,6 @@ class SyncController extends Controller
     }
 
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
     public function addSubscriberGroup(): Response
@@ -166,7 +165,7 @@ class SyncController extends Controller
                 $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()]]);
 
                 if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
-                    $result[$validate['subscriber']] = true;
+                    $result[$validate['subscriber'] . $validate['flat']] = true;
             } catch (Throwable $throwable) {
                 logger('internal-sync')->error($throwable);
             }
