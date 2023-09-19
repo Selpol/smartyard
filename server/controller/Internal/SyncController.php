@@ -45,6 +45,8 @@ class SyncController extends Controller
     {
         $body = $this->request->getParsedBody();
 
+        $households = backend('households');
+
         $result = [];
 
         foreach ($body as $subscriber) {
@@ -56,10 +58,39 @@ class SyncController extends Controller
                     'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
                 ]);
 
-                $subscriberId = backend('households')->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
+                $subscriberId = $households->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
                 if ($subscriberId)
                     $result[$validate['id']] = $subscriberId;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
+        }
+
+        if (count($result))
+            return $this->rbtResponse(data: $result);
+
+        return $this->rbtResponse(404);
+    }
+
+    public function updateSubscriberGroup(): Response
+    {
+        $body = $this->request->getParsedBody();
+
+        $households = backend('households');
+
+        $result = [];
+
+        foreach ($body as $subscriber) {
+            try {
+                $validate = validator($subscriber, [
+                    'subscriberId' => [Rule::id()],
+                    'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
+                    'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
+                ]);
+
+                if ($households->modifySubscriber($validate['subscriberId'], ['subscriberName' => $validate['name'], 'subscriberPatronymic' => $validate['patronymic']]))
+                    $result[$validate['subscriberId']] = true;
             } catch (Throwable $throwable) {
                 logger('internal-sync')->error($throwable);
             }
@@ -137,6 +168,31 @@ class SyncController extends Controller
                 $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
 
                 if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
+                    $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+            } catch (Throwable $throwable) {
+                logger('internal-sync')->error($throwable);
+            }
+        }
+
+        if (count($result))
+            return $this->rbtResponse(data: $result);
+
+        return $this->rbtResponse(404);
+    }
+
+    public function updateSubscriberToFlatGroup(): Response
+    {
+        $body = $this->request->getParsedBody();
+
+        $db = container(DatabaseService::class);
+
+        $result = [];
+
+        foreach ($body as $item) {
+            try {
+                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
+
+                if ($db->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             } catch (Throwable $throwable) {
                 logger('internal-sync')->error($throwable);

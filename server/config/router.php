@@ -41,11 +41,13 @@ return static function (RC $builder) {
             $builder->post('/house', [InternalSyncController::class, 'getHouseGroup']);
 
             $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriberGroup']);
+            $builder->put('/subscriber', [InternalSyncController::class, 'updateSubscriberGroup']);
             $builder->delete('/subscriber', [InternalSyncController::class, 'deleteSubscriberGroup']);
 
             $builder->put('/flat', [InternalSyncController::class, 'updateFlatGroup']);
 
             $builder->post('/link', [InternalSyncController::class, 'addSubscriberToFlatGroup']);
+            $builder->put('/link', [InternalSyncController::class, 'updateSubscriberToFlatGroup']);
             $builder->delete('/link', [InternalSyncController::class, 'deleteSubscriberFromFlatGroup']);
         });
     });
