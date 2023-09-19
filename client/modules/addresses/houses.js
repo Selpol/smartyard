@@ -42,7 +42,7 @@
                         })
                 }
 
-                POST("houses", "key", houseId, { keys: keys })
+                POST("houses", "house", houseId, { keys: keys })
             }
 
             reader.readAsText(file)
