@@ -28,7 +28,7 @@ class intercomtel extends isdn
 
     public function logout(array $push): bool|string
     {
-        return $this->request($push, '/api/v1/external/logout');
+        return false;
     }
 
     private function request($push, $endpoint): bool|string
