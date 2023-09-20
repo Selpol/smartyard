@@ -34,6 +34,17 @@ abstract class IsIntercom extends IntercomDevice
         }
     }
 
+    public function getSipStatus(): bool
+    {
+        try {
+            $status = $this->get('/sip/settings');
+
+            return $status['remote']['registerStatus'];
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
     public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
     {
         if ($this->cmses === null)

@@ -7,6 +7,11 @@ use Selpol\Device\Ip\IpDevice;
 
 abstract class IntercomDevice extends IpDevice
 {
+    public function getSipStatus(): bool
+    {
+        throw new DeviceException($this);
+    }
+
     public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
     {
         throw new DeviceException($this);

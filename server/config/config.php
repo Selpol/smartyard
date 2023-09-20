@@ -155,7 +155,8 @@ return [
             'secret' => env('BACKEND_OAUTH_SECRET')
         ],
 
-        'task' => ['backend' => 'internal']
+        'task' => ['backend' => 'internal'],
+        'monitor' => ['backend' => 'internal']
     ],
 
     'syslog_servers' => [

@@ -5,6 +5,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
+use Selpol\Cache\RedisCache;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Kernel\Kernel;
@@ -161,6 +162,28 @@ if (!function_exists('validate')) {
         } catch (ValidatorException $e) {
             return $e->getValidatorMessage();
         }
+    }
+}
+
+if (!function_exists('redis_cache')) {
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     */
+    function redis_cache(string $key, callable $default, DateInterval|int|null $ttl = null): mixed
+    {
+        $cache = container(RedisCache::class);
+
+        $value = $cache->get($key);
+
+        if ($value !== null)
+            return $value;
+
+        $value = call_user_func($default);
+
+        $cache->set($key, $value, $ttl);
+
+        return $value;
     }
 }
 
