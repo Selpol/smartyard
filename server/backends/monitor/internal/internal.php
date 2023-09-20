@@ -1,27 +1,49 @@
 <?php
 
-namespace backends\monitoring\internal;
+namespace backends\monitor\internal;
 
-use backends\monitoring\monitor;
-use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Device\Ip\IpDevice;
+use backends\monitor\monitor;
 use Throwable;
 
 class internal extends monitor
 {
-    public function ping(IpDevice $device): bool
+    public function ping(int $id): bool
     {
         try {
-            return redis_cache('monitor:' . $device->uri->getHost() . ':ping', static fn() => $device->ping(), 30);
+            return redis_cache('monitor:' . $id . ':ping', static function () use ($id) {
+                $domophone = backend('households')->getDomophone($id);
+
+                if (!$domophone)
+                    return false;
+
+                $intercom = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+
+                if (!$intercom)
+                    return false;
+
+                return $intercom->ping();
+            }, 30);
         } catch (Throwable) {
             return false;
         }
     }
 
-    public function sip(IntercomDevice $device): bool
+    public function sip(int $id): bool
     {
         try {
-            return redis_cache('monitor:' . $device->uri->getHost() . ':sip', static fn() => $device->getSipStatus(), 30);
+            return redis_cache('monitor:' . $id . ':sip', static function () use ($id) {
+                $domophone = backend('households')->getDomophone($id);
+
+                if (!$domophone)
+                    return false;
+
+                $intercom = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+
+                if (!$intercom)
+                    return false;
+
+                return $intercom->getSipStatus();
+            }, 30);
         } catch (Throwable) {
             return false;
         }

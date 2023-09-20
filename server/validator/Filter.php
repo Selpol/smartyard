@@ -18,7 +18,7 @@ abstract class Filter extends ValidatorItem
                 $this->string = $string;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (array_key_exists($key, $value) && ((!is_null($value[$key])) || (!$this->string && $value[$key] !== '')))
                     return $value[$key];
@@ -31,7 +31,7 @@ abstract class Filter extends ValidatorItem
     public static function encoded(string $message = 'Ошибка фильтрации данных'): static
     {
         return new class($message) extends Filter {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_SANITIZE_ENCODED);
             }
@@ -41,7 +41,7 @@ abstract class Filter extends ValidatorItem
     public static function slashes(string $message = 'Ошибка фильтрации данных'): static
     {
         return new class($message) extends Filter {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_SANITIZE_ADD_SLASHES);
             }
@@ -51,7 +51,7 @@ abstract class Filter extends ValidatorItem
     public static function specialChars(string $message = 'Ошибка фильтрации данных'): static
     {
         return new class($message) extends Filter {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_SANITIZE_SPECIAL_CHARS);
             }
@@ -61,7 +61,7 @@ abstract class Filter extends ValidatorItem
     public static function fullSpecialChars(string $message = 'Ошибка фильтрации данных'): static
     {
         return new class($message) extends Filter {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             }

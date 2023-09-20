@@ -12,7 +12,7 @@ abstract class Rule extends ValidatorItem
                 parent::__construct($message);
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (!array_key_exists($key, $value))
                     throw $this->toException($key);
@@ -25,7 +25,7 @@ abstract class Rule extends ValidatorItem
     public static function nonNullable(string $message = 'Поле %s не может быть пустым'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (is_null($value[$key]))
                     throw $this->toException($key);
@@ -38,7 +38,7 @@ abstract class Rule extends ValidatorItem
     public static function bool(string $message = 'Поле %s должно быть булевым значением'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_BOOL);
             }
@@ -48,7 +48,7 @@ abstract class Rule extends ValidatorItem
     public static function int(string $message = 'Поле %s должно быть челочисленным значением'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_INT);
             }
@@ -58,7 +58,7 @@ abstract class Rule extends ValidatorItem
     public static function float(string $message = 'Поле %s должно быть числом с плавающей точкой'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_FLOAT);
             }
@@ -82,7 +82,7 @@ abstract class Rule extends ValidatorItem
                 return sprintf($this->message, $key, $this->min);
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (is_int($this->min))
                     return $this->filter($key, $value, FILTER_VALIDATE_INT, ['options' => ['min_range' => $this->min]]);
@@ -111,7 +111,7 @@ abstract class Rule extends ValidatorItem
                 return sprintf($this->message, $key, $this->max);
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (is_int($this->max))
                     return $this->filter($key, $value, FILTER_VALIDATE_INT, ['options' => ['max_range' => $this->max]]);
@@ -142,7 +142,7 @@ abstract class Rule extends ValidatorItem
                 return sprintf($this->message, $key, $this->min, $this->max);
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (!array_key_exists($key, $value))
                     return null;
@@ -167,7 +167,7 @@ abstract class Rule extends ValidatorItem
                 $this->value = $value;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_REGEXP, ['options' => ['regexp' => $this->value]]);
             }
@@ -188,7 +188,7 @@ abstract class Rule extends ValidatorItem
                 $this->query = $query;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if ($this->path || $this->query)
                     return $this->filter($key, $value, FILTER_VALIDATE_URL, ($this->path ? FILTER_FLAG_PATH_REQUIRED : 0) | ($this->query ? FILTER_FLAG_QUERY_REQUIRED : 0));
@@ -201,7 +201,7 @@ abstract class Rule extends ValidatorItem
     public static function email(string $message = 'Поле %s должно быть формата почты'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_EMAIL);
             }
@@ -211,7 +211,7 @@ abstract class Rule extends ValidatorItem
     public static function ipV4(string $message = 'Поле %s должно быть формата ipV4'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
             }
@@ -221,7 +221,7 @@ abstract class Rule extends ValidatorItem
     public static function ipV6(string $message = 'Поле %s должно быть формата ipV6'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
             }
@@ -231,7 +231,7 @@ abstract class Rule extends ValidatorItem
     public static function mac(string $message = 'Поле %s должно быть формата MAC-адреса'): static
     {
         return new class($message) extends Rule {
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return $this->filter($key, $value, FILTER_VALIDATE_MAC);
             }
@@ -250,7 +250,7 @@ abstract class Rule extends ValidatorItem
                 $this->value = $value;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 if (!array_key_exists($key, $value))
                     return null;
@@ -286,7 +286,7 @@ abstract class Rule extends ValidatorItem
                 $this->value = $value;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 return call_user_func($this->value, [$key, $value]);
             }

@@ -50,12 +50,12 @@ abstract class ValidatorItem
     }
 
     /**
-     * @param string $key
+     * @param string|int $key
      * @param array $value
      * @return mixed
      * @throws ValidatorException
      */
-    public abstract function onItem(string $key, array $value): mixed;
+    public abstract function onItem(string|int $key, array $value): mixed;
 
     /**
      * @param ValidatorItem[] $items
@@ -77,7 +77,7 @@ abstract class ValidatorItem
                 $this->items = $items;
             }
 
-            public function onItem(string $key, array $value): mixed
+            public function onItem(string|int $key, array $value): mixed
             {
                 foreach ($this->items as $item)
                     $value[$key] = $item->onItem($key, $value);

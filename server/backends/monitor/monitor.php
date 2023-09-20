@@ -1,14 +1,12 @@
 <?php
 
-namespace backends\monitoring;
+namespace backends\monitor;
 
 use backends\backend;
-use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Device\Ip\IpDevice;
 
 abstract class monitor extends backend
 {
-    public abstract function ping(IpDevice $device): bool;
+    public abstract function ping(int $id): bool;
 
-    public abstract function sip(IntercomDevice $device): bool;
+    public abstract function sip(int $id): bool;
 }
