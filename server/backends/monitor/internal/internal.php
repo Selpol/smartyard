@@ -1,8 +1,7 @@
 <?php
 
-namespace backends\monitor\internal;
+namespace backends\monitor;
 
-use backends\monitor\monitor;
 use Throwable;
 
 class internal extends monitor

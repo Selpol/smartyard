@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\mobile;
 
+use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
 use Selpol\Validator\Filter;
@@ -40,7 +42,7 @@ class UserController extends Controller
         if ($validate['platform'] == 'ios') {
             $platform = 1;
             if ($validate['voipToken']) {
-                $type = ($production == false) ? 2 : 1; // apn:apn.dev
+                $type = $production ? 1 : 2; // apn:apn.dev
             } else {
                 $type = 0; // fcm (resend)
             }
@@ -77,6 +79,10 @@ class UserController extends Controller
         return $this->rbtResponse();
     }
 
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
     public function sendName(): Response
     {
         $user = $this->getSubscriber();
