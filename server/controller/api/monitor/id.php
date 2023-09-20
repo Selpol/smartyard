@@ -19,7 +19,10 @@ class id extends api
 
         $monitor = backend('monitor');
 
-        return api::ANSWER(['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])], 'status');
+        if ($monitor)
+            return api::ANSWER(['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])], 'status');
+
+        return api::ERROR('Мониторинг отключен');
     }
 
     /**
@@ -40,10 +43,14 @@ class id extends api
 
         $monitor = backend('monitor');
 
-        foreach ($validate as $id)
-            $result[] = ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)];
+        if ($monitor) {
+            foreach ($validate as $id)
+                $result[] = ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)];
 
-        return api::ANSWER($result, 'status');
+            return api::ANSWER($result, 'status');
+        }
+
+        return api::ERROR('Мониторинг отключен');
     }
 
     public static function index(): array
