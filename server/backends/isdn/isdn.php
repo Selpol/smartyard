@@ -9,4 +9,6 @@ abstract class isdn extends backend
     abstract function push(array $push): bool|string;
 
     abstract function message(array $push): bool|string;
+
+    abstract function logout(array $push): bool|string;
 }

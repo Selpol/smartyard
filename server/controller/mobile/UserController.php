@@ -60,16 +60,12 @@ class UserController extends Controller
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
         else {
             if ($old_push && $old_push != $validate['pushToken']) {
-                $md5 = md5($validate['pushToken'] . $old_push);
-                $payload = [
-                    "token" => $old_push,
-                    "messageId" => $md5,
-                    "msg" => urlencode("Произведена авторизация на другом устройстве"),
-                    "badge" => "1",
-                    "pushAction" => "logout"
-                ];
 
-                $isdn->push($payload);
+                $isdn->logout([
+                    "token" => $old_push,
+                    "msg" => "Произведена авторизация на другом устройстве",
+                    "pushAction" => "logout"
+                ]);
             }
         }
 

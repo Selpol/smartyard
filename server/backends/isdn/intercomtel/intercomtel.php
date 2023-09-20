@@ -26,6 +26,11 @@ class intercomtel extends isdn
 
     }
 
+    public function logout(array $push): bool|string
+    {
+        return $this->request($push, '/api/v1/external/logout');
+    }
+
     private function request($push, $endpoint): bool|string
     {
         $idsn = $this->config['backends']['isdn'];
