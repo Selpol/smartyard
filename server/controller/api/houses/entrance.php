@@ -20,7 +20,7 @@ namespace api\houses {
             $entrance = backend('households')->getEntrance($entranceId);
 
             if ($entrance)
-                return api::ANSWER($entrance, ['entrance']);
+                return api::ANSWER($entrance, 'entrance');
 
             return api::ERROR('Вход не найден');
         }
