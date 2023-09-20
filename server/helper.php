@@ -23,7 +23,7 @@ $lastError = false;
 if (!function_exists('path')) {
     function path(string $value): string
     {
-        return helper . phpdirname(__FILE__, 2) . DIRECTORY_SEPARATOR . $value;
+        return dirname(__FILE__) . DIRECTORY_SEPARATOR . $value;
     }
 }
 
