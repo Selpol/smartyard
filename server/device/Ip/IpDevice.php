@@ -11,7 +11,7 @@ use Throwable;
 
 abstract class IpDevice extends Device
 {
-    public string $login;
+    public string $login = 'root';
     public string $password;
 
     public function __construct(Uri $uri, string $password)
