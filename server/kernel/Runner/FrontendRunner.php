@@ -12,6 +12,7 @@ use Selpol\Kernel\KernelRunner;
 use Selpol\Kernel\Runner\Trait\ResponseTrait;
 use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
+use Throwable;
 
 class FrontendRunner implements KernelRunner
 {
@@ -141,6 +142,19 @@ class FrontendRunner implements KernelRunner
         }
 
         return $this->emit($this->option($this->response(404))->withStatusJson());
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    public function onFailed(Throwable $throwable, bool $fatal): int
+    {
+        logger('frontend')->error($throwable, ['fatal' => $fatal]);
+
+        $this->emit($this->option($this->response(500)->withStatusJson()));
+
+        return 0;
     }
 
     /**

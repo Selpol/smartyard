@@ -22,7 +22,7 @@ namespace api\houses {
 
             if (!$households) {
                 return api::ERROR();
-            } else {
+            } else if ($params["_id"]) {
                 $flats = $households->getFlats("houseId", $params["_id"]);
 
                 if ($flats)
