@@ -20,10 +20,7 @@ namespace api\cameras {
     {
         public static function GET($params)
         {
-            $validate = validate($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
-
-            if ($validate instanceof ValidatorMessage)
-                return api::ERROR($validate->getMessage());
+            $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
 
             $cameras = backend('cameras');
 
@@ -38,7 +35,7 @@ namespace api\cameras {
 
             if ($cameraId) {
                 if ($params['frs'] && $params['frs'] !== '-')
-                    dispatch_high(new FrsAddStreamTask($params['frs'], $cameraId));
+                    task(new FrsAddStreamTask($params['frs'], $cameraId))->high()->dispatch();
 
                 static::modifyIp($cameraId, $params['url']);
 
@@ -60,10 +57,10 @@ namespace api\cameras {
                 if ($success) {
                     if ($camera['frs'] !== $params['frs']) {
                         if ($camera['frs'] && $camera['frs'] !== '-')
-                            dispatch_high(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']));
+                            task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();
 
                         if ($params['frs'] && $params['frs'] !== '-')
-                            dispatch_high(new FrsAddStreamTask($params['frs'], $camera['cameraId']));
+                            task(new FrsAddStreamTask($params['frs'], $camera['cameraId']))->high()->dispatch();
                     }
 
                     if ($camera['url'] !== $params['url'])
@@ -86,7 +83,7 @@ namespace api\cameras {
                 $success = $cameras->deleteCamera($params["_id"]);
 
                 if ($success && $camera['frs'] && $camera['frs'] !== '-')
-                    dispatch_high(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']));
+                    task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();
 
                 return api::ANSWER($success);
             }

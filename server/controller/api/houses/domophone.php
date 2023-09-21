@@ -19,10 +19,7 @@ namespace api\houses {
     {
         public static function GET($params)
         {
-            $validate = validate($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
-
-            if ($validate instanceof ValidatorMessage)
-                return api::ERROR($validate->getMessage());
+            $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
 
             $households = backend("households");
 
@@ -55,7 +52,7 @@ namespace api\houses {
 
                 if ($success) {
                     if (array_key_exists('configure', $params) && $params['configure'])
-                        dispatch_high(new IntercomConfigureTask($params['_id']));
+                        task(new IntercomConfigureTask($params['_id']))->high()->dispatch();
 
                     if ($domophone['url'] !== $params['url'])
                         static::modifyIp($domophone['domophoneId'], $params['url']);

@@ -159,7 +159,7 @@ class clickhouse extends plog
     public function addCallDoneData($date, $ip, $call_id = null)
     {
         try {
-            dispatch_default(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id), 15);
+            task(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id))->delay(15)->default()->dispatch();
         } catch (Exception $e) {
             logger('task')->error('Error addCallDoneData' . PHP_EOL . $e);
         }
@@ -171,7 +171,7 @@ class clickhouse extends plog
     public function addDoorOpenData($date, $ip, $event_type, $door, $detail)
     {
         try {
-            dispatch_default(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail), 15);
+            task(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
         } catch (Exception $e) {
             logger('task')->error('Error addDoorOpenData' . PHP_EOL . $e);
         }
@@ -183,7 +183,7 @@ class clickhouse extends plog
     public function addDoorOpenDataById($date, $domophone_id, $event_type, $door, $detail)
     {
         try {
-            dispatch_default(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail), 15);
+            task(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
         } catch (Exception $e) {
             logger('task')->error('Error addDoorOpenDataById' . PHP_EOL . $e);
         }

@@ -11,6 +11,7 @@ use Selpol\Kernel\KernelRunner;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
+use Selpol\Validator\ValidatorException;
 use Selpol\Validator\ValidatorMessage;
 use Throwable;
 
@@ -71,16 +72,7 @@ class AsteriskRunner implements KernelRunner
 
                 switch ($path[1]) {
                     case "autoopen":
-                        $params = validate(
-                            ['flatId' => $params],
-                            ['flatId' => [Rule::id()]]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('autoopen validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -96,16 +88,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "flat":
-                        $params = validate(
-                            ['flatId' => $params],
-                            ['flatId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('flat validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -118,20 +101,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "flatIdByPrefix":
-                        $params = validate(
-                            $params,
-                            [
-                                'domophoneId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
-                                'prefix' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
-                                'flatNumber' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]
-                            ]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('flatIdByPrefix validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator($params, ['domophoneId' => [Rule::id()], 'prefix' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -144,19 +114,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "apartment":
-                        $params = validate(
-                            $params,
-                            [
-                                'domophoneId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
-                                'flatNumber' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]
-                            ]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('apartment validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator($params, ['domophoneId' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -169,16 +127,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "subscribers":
-                        $params = validate(
-                            ['flatId' => $params],
-                            ['flatId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('subscribers validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -191,16 +140,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "domophone":
-                        $params = validate(
-                            ['domophoneId' => $params],
-                            ['domophoneId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('domophone validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -213,16 +153,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "entrance":
-                        $params = validate(
-                            ['domophoneId' => $params],
-                            ['domophoneId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('entrance validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
 
                         $households = backend("households");
 
@@ -239,19 +170,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "camshot":
-                        $params = validate(
-                            $params,
-                            [
-                                'domophoneId' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
-                                'hash' => [Rule::required(), Rule::nonNullable()]
-                            ]
-                        );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('camshot validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
+                        $params = validator($params, ['domophoneId' => [Rule::id()], 'hash' => [Rule::required(), Rule::nonNullable()]]);
 
                         $redis = $kernel->getContainer()->get(RedisService::class)->getRedis();
 
@@ -283,7 +202,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "push":
-                        $params = validate(
+                        $params = validator(
                             $params,
                             [
                                 'token' => [Rule::required(), Rule::nonNullable()],
@@ -297,12 +216,6 @@ class AsteriskRunner implements KernelRunner
                                 'flatNumber' => [Rule::required(), Rule::int(), Rule::nonNullable()],
                             ]
                         );
-
-                        if ($params instanceof ValidatorMessage) {
-                            $this->logger->error('push validate fail', ['message' => $params->getMessage()]);
-
-                            break;
-                        }
 
                         $isdn = backend("isdn");
                         $sip = backend("sip");
@@ -353,7 +266,10 @@ class AsteriskRunner implements KernelRunner
 
     public function onFailed(Throwable $throwable, bool $fatal): int
     {
-        $this->logger->emergency($throwable, ['fatal' => $fatal]);
+        if ($throwable instanceof ValidatorException)
+            $this->logger->error($throwable->getValidatorMessage()->getMessage(), ['key' => $throwable->getValidatorMessage()->getKey()]);
+        else
+            $this->logger->emergency($throwable, ['fatal' => $fatal]);
 
         return 0;
     }
@@ -374,8 +290,9 @@ class AsteriskRunner implements KernelRunner
     }
 
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     * @throws ContainerExceptionInterface
      */
     private function getExtension(Kernel $kernel, string $extension, string $section): array
     {

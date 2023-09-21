@@ -24,7 +24,7 @@ abstract class ValidatorItem
     {
         $message = $this->getMessage($key);
 
-        return new ValidatorException(new ValidatorMessage($message), $message);
+        return new ValidatorException(new ValidatorMessage($message, $key), $message);
     }
 
     /**

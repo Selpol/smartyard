@@ -32,7 +32,7 @@ abstract class Task
         if ($this->retry > 0) {
             $this->retry--;
 
-            return dispatch_low($this, $delay);
+            return task($this)->delay($delay)->low()->dispatch();
         }
 
         return false;

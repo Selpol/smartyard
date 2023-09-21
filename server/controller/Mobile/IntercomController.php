@@ -94,7 +94,7 @@ class IntercomController extends Controller
                 $households->modifySubscriber($user['subscriberId'], $params);
             }
 
-            dispatch_high(new IntercomSyncFlatTask($validate['flatId'], false));
+            task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
         }
 
         $subscriber = $households->getSubscribers('id', $user['subscriberId'])[0];
@@ -234,7 +234,7 @@ class IntercomController extends Controller
         $households->modifyFlat($flat_id, $params);
         $flat = $households->getFlat($flat_id);
 
-        dispatch_high(new IntercomSyncFlatTask($validate['flatId'], false));
+        task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
 
         return $this->rbtResponse(200, ["code" => intval($flat['openCode'])]);
     }

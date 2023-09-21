@@ -18,7 +18,8 @@
       "Selpol\\Logger\\": "./logger/"
     },
     "files": [
-      "helper.php"
+      "utils/helper.php",
+      "utils/common.php"
     ]
   },
   "authors": [
