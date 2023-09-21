@@ -263,6 +263,35 @@ abstract class Rule extends ValidatorItem
         };
     }
 
+    public static function chars(array $value, string $message = 'Поле %s содержит недопустимые символы'): static
+    {
+        return new class($value, $message) extends Rule {
+            private array $value;
+
+            public function __construct(array $value, string $message)
+            {
+                parent::__construct($message);
+
+                $this->value = $value;
+            }
+
+            public function onItem(int|string $key, array $value): mixed
+            {
+                if (!array_key_exists($key, $value))
+                    return null;
+
+                if (!is_string($value[$key]))
+                    return null;
+
+                for ($i = 0; $i < mb_strlen($value[$key]); $i++)
+                    if (!in_array(mb_substr($value[$key], $i, 1), $this->value))
+                        return null;
+
+                return $value[$key];
+            }
+        };
+    }
+
     public static function uuid(string $message = 'Поле %s должно быть формата UUID'): static
     {
         return static::regexp('/^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i', $message);

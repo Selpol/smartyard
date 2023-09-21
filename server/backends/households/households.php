@@ -240,7 +240,7 @@ abstract class households extends backend
 
     abstract public function getKey(int $keyId): array|false;
 
-    abstract public function addKey(int $rfId, int $accessType, $accessTo, string $comments): bool|int|string;
+    abstract public function addKey(string $rfId, int $accessType, $accessTo, string $comments): bool|int|string;
 
     abstract public function modifyKey(int $keyId, string $comments): bool|int;
 

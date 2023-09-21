@@ -3,6 +3,7 @@
 namespace backends\households;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Validator\Rule;
 use Throwable;
 
 class internal extends households
@@ -1216,7 +1217,7 @@ class internal extends households
         ], ['singlify']);
     }
 
-    public function addKey(int $rfId, int $accessType, $accessTo, string $comments): bool|int|string
+    public function addKey(string $rfId, int $accessType, $accessTo, string $comments): bool|int|string
     {
         if (!check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($comments, ["maxLength" => 128])) {
             last_error("invalidParams");
