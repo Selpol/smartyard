@@ -22,6 +22,8 @@ trait ResponseTrait
             else if ($throwable instanceof ValidatorException)
                 $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->getMessage());
             else if ($throwable instanceof DeviceException) {
+                logger('device')->error($throwable);
+
                 if ($throwable->getDevice()->asIp()?->ping())
                     $response = $this->response(500)->withStatusJson('Ошибка взаимодействия с устройством');
                 else
