@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Controller\mobile;
+namespace Selpol\Controller\Mobile;
 
 use backends\plog\plog;
 use Selpol\Controller\Controller;

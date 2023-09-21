@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Controller\mobile;
+namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Controller\mobile;
+namespace Selpol\Controller\Mobile;
 
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
