@@ -18,6 +18,7 @@
       "Selpol\\Logger\\": "./logger/"
     },
     "files": [
+      "utils/kernel.php",
       "utils/helper.php",
       "utils/common.php"
     ]
