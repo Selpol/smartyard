@@ -2,6 +2,7 @@
 
 namespace backends\monitor;
 
+use Selpol\Cache\RedisCache;
 use Throwable;
 
 class internal extends monitor
@@ -9,7 +10,7 @@ class internal extends monitor
     public function ping(int $id): bool
     {
         try {
-            return redis_cache('monitor:' . $id . ':ping', static function () use ($id) {
+            return container(RedisCache::class)->cache('monitor:' . $id . ':ping', static function () use ($id) {
                 $domophone = backend('households')->getDomophone($id);
 
                 if (!$domophone)
@@ -30,7 +31,7 @@ class internal extends monitor
     public function sip(int $id): bool
     {
         try {
-            return redis_cache('monitor:' . $id . ':sip', static function () use ($id) {
+            return container(RedisCache::class)->cache('monitor:' . $id . ':sip', static function () use ($id) {
                 $domophone = backend('households')->getDomophone($id);
 
                 if (!$domophone)

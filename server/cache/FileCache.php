@@ -4,10 +4,13 @@ namespace Selpol\Cache;
 
 use DateInterval;
 use Psr\SimpleCache\CacheInterface;
+use Selpol\Cache\Trait\CacheTrait;
 use Throwable;
 
 class FileCache implements CacheInterface
 {
+    use CacheTrait;
+
     private array $files = [];
 
     public function get(string $key, mixed $default = null): mixed

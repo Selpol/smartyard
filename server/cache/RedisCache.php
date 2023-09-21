@@ -8,11 +8,14 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\CacheInterface;
 use RedisException;
+use Selpol\Cache\Trait\CacheTrait;
 use Selpol\Container\Container;
 use Selpol\Service\RedisService;
 
 class RedisCache implements CacheInterface
 {
+    use CacheTrait;
+
     private RedisService $service;
 
     /**
@@ -24,9 +27,6 @@ class RedisCache implements CacheInterface
         $this->service = $container->get(RedisService::class);
     }
 
-    /**
-     * @throws RedisException
-     */
     public function get(string $key, mixed $default = null): mixed
     {
         $value = $this->service->getRedis()->get('cache:' . $key);
@@ -37,9 +37,6 @@ class RedisCache implements CacheInterface
         return $value;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         if ($ttl instanceof DateInterval) {
@@ -52,17 +49,11 @@ class RedisCache implements CacheInterface
         return $this->service->getRedis()->set('cache:' . $key, $value, $ttl);
     }
 
-    /**
-     * @throws RedisException
-     */
     public function delete(string $key): bool
     {
         return $this->service->getRedis()->del('cache:' . $key) === 1;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function clear(): bool
     {
         $keys = $this->service->getRedis()->keys('cache:*');
@@ -73,18 +64,12 @@ class RedisCache implements CacheInterface
         return true;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         foreach ($keys as $key)
             yield $this->get($key, $default);
     }
 
-    /**
-     * @throws RedisException
-     */
     public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
         foreach ($values as $key => $value)
@@ -93,9 +78,6 @@ class RedisCache implements CacheInterface
         return true;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function deleteMultiple(iterable $keys): bool
     {
         foreach ($keys as $key)
@@ -104,9 +86,6 @@ class RedisCache implements CacheInterface
         return true;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function has(string $key): bool
     {
         return $this->service->getRedis()->exists($key) !== false;

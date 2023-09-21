@@ -15,7 +15,6 @@ use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
 use Selpol\Validator\Validator;
 use Selpol\Validator\ValidatorException;
-use Selpol\Validator\ValidatorMessage;
 
 if (!function_exists('path')) {
     function path(string $value): string
@@ -125,27 +124,5 @@ if (!function_exists('validator')) {
         } catch (ValidatorException $e) {
             throw new \Selpol\Http\HttpException(message: $e->getValidatorMessage()->getMessage(), code: 400);
         }
-    }
-}
-
-if (!function_exists('redis_cache')) {
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws RedisException
-     */
-    function redis_cache(string $key, callable $default, DateInterval|int|null $ttl = null): mixed
-    {
-        $cache = container(RedisCache::class);
-
-        $value = $cache->get($key);
-
-        if ($value !== null)
-            return $value;
-
-        $value = call_user_func($default);
-
-        $cache->set($key, $value, $ttl);
-
-        return $value;
     }
 }
