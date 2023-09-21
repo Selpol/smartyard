@@ -29,7 +29,7 @@ namespace api\subscribers {
         {
             $households = backend("households");
 
-            $subscriberId = $households->addSubscriber($params["mobile"], $params["subscriberName"], $params["subscriberPatronymic"], @$params["flatId"], @$params["message"]);
+            $subscriberId = $households->addSubscriber($params["mobile"], $params["subscriberName"], $params["subscriberPatronymic"], null, @$params["flatId"], @$params["message"]);
 
             return api::ANSWER($subscriberId, ($subscriberId !== false) ? "subscriber" : false);
         }
