@@ -9,6 +9,4 @@ require_once path('/controller/api/api.php');
 
 chdir(path(''));
 
-$kernel = new Kernel();
-
-exit($kernel->setRunner(new CliRunner($argv))->bootstrap()->run());
+exit((new Kernel())->setRunner(new CliRunner($argv))->bootstrap()->run());

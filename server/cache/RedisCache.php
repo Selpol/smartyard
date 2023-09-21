@@ -11,6 +11,7 @@ use RedisException;
 use Selpol\Cache\Trait\CacheTrait;
 use Selpol\Container\Container;
 use Selpol\Service\RedisService;
+use Throwable;
 
 class RedisCache implements CacheInterface
 {
@@ -56,12 +57,16 @@ class RedisCache implements CacheInterface
 
     public function clear(): bool
     {
-        $keys = $this->service->getRedis()->keys('cache:*');
+        try {
+            $keys = $this->service->getRedis()->keys('cache:*');
 
-        if (count($keys) > 0)
-            $this->service->getRedis()->del($keys) > 0;
+            if (count($keys) > 0)
+                $this->service->getRedis()->del($keys) > 0;
 
-        return true;
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function getMultiple(iterable $keys, mixed $default = null): iterable
@@ -72,18 +77,26 @@ class RedisCache implements CacheInterface
 
     public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
-        foreach ($values as $key => $value)
-            $this->set($key, $value, $ttl);
+        try {
+            foreach ($values as $key => $value)
+                $this->set($key, $value, $ttl);
 
-        return true;
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function deleteMultiple(iterable $keys): bool
     {
-        foreach ($keys as $key)
-            $this->delete($key);
+        try {
+            foreach ($keys as $key)
+                $this->delete($key);
 
-        return true;
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function has(string $key): bool

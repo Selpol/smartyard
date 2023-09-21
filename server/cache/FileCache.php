@@ -48,21 +48,24 @@ class FileCache implements CacheInterface
 
     public function clear(): bool
     {
-        $files = scandir(path('var/cache/'));
+        try {
+            $files = scandir(path('var/cache/'));
 
-        if ($files === false)
+            if ($files === false)
+                return false;
+
+            foreach ($files as $file) {
+                if (str_ends_with($file, '.php'))
+                    try {
+                        $this->delete(substr($file, 0, -4));
+                    } catch (Throwable) {
+                        return false;
+                    }
+            }
+            return true;
+        } catch (Throwable) {
             return false;
-
-        foreach ($files as $file) {
-            if (str_ends_with($file, '.php'))
-                try {
-                    $this->delete(substr($file, 0, -4));
-                } catch (Throwable) {
-                    return false;
-                }
         }
-
-        return true;
     }
 
     public function getMultiple(iterable $keys, mixed $default = null): iterable
@@ -73,18 +76,26 @@ class FileCache implements CacheInterface
 
     public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
     {
-        foreach ($values as $key => $value)
-            $this->set($key, $value);
+        try {
+            foreach ($values as $key => $value)
+                $this->set($key, $value);
 
-        return true;
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function deleteMultiple(iterable $keys): bool
     {
-        foreach ($keys as $key)
-            $this->delete($key);
+        try {
+            foreach ($keys as $key)
+                $this->delete($key);
 
-        return true;
+            return true;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function has(string $key): bool

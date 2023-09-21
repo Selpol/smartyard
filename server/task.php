@@ -7,6 +7,4 @@ require_once dirname(__FILE__) . '/vendor/autoload.php';
 
 require_once path('/controller/api/api.php');
 
-$kernel = new Kernel();
-
-exit($kernel->setRunner(new TaskRunner($argv))->bootstrap()->run());
+exit((new Kernel())->setRunner(new TaskRunner($argv))->bootstrap()->run());
