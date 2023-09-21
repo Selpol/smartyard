@@ -48,12 +48,8 @@ class internal extends cameras
     /**
      * @inheritDoc
      */
-    public function getCamera($cameraId)
+    public function getCamera(int $cameraId)
     {
-        if (!check_int($cameraId)) {
-            return false;
-        }
-
         $cams = $this->getCameras("id", $cameraId);
 
         if (count($cams) === 1) {
@@ -66,7 +62,7 @@ class internal extends cameras
     /**
      * @inheritDoc
      */
-    public function addCamera($enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment)
+    public function addCamera($enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, int $mdLeft, int $mdTop, int $mdWidth, int $mdHeight, $common, $comment)
     {
         if (!$model) {
             return false;
@@ -80,10 +76,6 @@ class internal extends cameras
         }
 
         if (!check_string($url)) {
-            return false;
-        }
-
-        if (!check_int($mdLeft) || !check_int($mdTop) || !check_int($mdWidth) || !check_int($mdHeight)) {
             return false;
         }
 
@@ -114,13 +106,8 @@ class internal extends cameras
     /**
      * @inheritDoc
      */
-    public function modifyCamera($cameraId, $enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment)
+    public function modifyCamera(int $cameraId, $enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment)
     {
-        if (!check_int($cameraId)) {
-            last_error("noId");
-            return false;
-        }
-
         if (!$model) {
             last_error("noModel");
             return false;
@@ -165,13 +152,8 @@ class internal extends cameras
     /**
      * @inheritDoc
      */
-    public function deleteCamera($cameraId)
+    public function deleteCamera(int $cameraId)
     {
-        if (!check_int($cameraId)) {
-            last_error("noId");
-            return false;
-        }
-
         return $this->db->modify("delete from cameras where camera_id = $cameraId");
     }
 }

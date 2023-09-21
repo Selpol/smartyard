@@ -26,13 +26,9 @@ abstract class households extends backend
      * @param $cmsLevels
      * @return boolean|integer
      */
-    abstract function createEntrance($houseId, $entranceType, $entrance, $lat, $lon, $shared, $plog, $prefix, $callerId, $domophoneId, $domophoneOutput, $cms, $cmsType, $cameraId, $locksDisabled, $cmsLevels);
+    abstract function createEntrance(int $houseId, $entranceType, $entrance, $lat, $lon, $shared, int $plog, $prefix, $callerId, $domophoneId, $domophoneOutput, $cms, int $cmsType, $cameraId, $locksDisabled, $cmsLevels);
 
-    /**
-     * @param $entranceId
-     * @return false|array
-     */
-    abstract function getEntrance($entranceId);
+    abstract function getEntrance(int $entranceId): array|bool;
 
     /**
      * @param $by
@@ -47,7 +43,7 @@ abstract class households extends backend
      * @param $prefix
      * @return boolean
      */
-    abstract function addEntrance($houseId, $entranceId, $prefix);
+    abstract function addEntrance(int $houseId, int $entranceId, int $prefix);
 
     /**
      * @param $entranceId
@@ -69,26 +65,26 @@ abstract class households extends backend
      * @param $cmsLevels
      * @return boolean
      */
-    abstract function modifyEntrance($entranceId, $houseId, $entranceType, $entrance, $lat, $lon, $shared, $plog, $prefix, $callerId, $domophoneId, $domophoneOutput, $cms, $cmsType, $cameraId, $locksDisabled, $cmsLevels);
+    abstract function modifyEntrance(int $entranceId, $houseId, $entranceType, $entrance, $lat, $lon, $shared, int $plog, $prefix, $callerId, $domophoneId, $domophoneOutput, $cms, int $cmsType, $cameraId, $locksDisabled, $cmsLevels);
 
     /**
      * @param $entranceId
      * @param $houseId
      * @return boolean
      */
-    abstract function deleteEntrance($entranceId, $houseId);
+    abstract function deleteEntrance(int $entranceId, int $houseId);
 
     /**
      * @param $entranceId
      * @return boolean
      */
-    abstract function destroyEntrance($entranceId);
+    abstract function destroyEntrance(int $entranceId);
 
     /**
      * @param $flatId
      * @return boolean|array
      */
-    abstract function getFlat($flatId);
+    abstract function getFlat(int $flatId);
 
     /**
      * Получить значение plog у квартиры
@@ -121,45 +117,41 @@ abstract class households extends backend
      * @param $sipPassword
      * @return boolean|integer
      */
-    abstract function addFlat($houseId, $floor, $flat, $code, $entrances, $apartmentsAndLevels, $manualBlock, $adminBlock, $openCode, $plog, $autoOpen, $whiteRabbit, $sipEnabled, $sipPassword);
+    abstract function addFlat(int $houseId, $floor, $flat, $code, $entrances, $apartmentsAndLevels, int $manualBlock, int $adminBlock, $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, $sipPassword);
 
     /**
      * @param $flatId
      * @param $params
      * @return boolean
      */
-    abstract function modifyFlat($flatId, $params);
+    abstract function modifyFlat(int $flatId, $params);
 
     /**
      * @param $flatId
      * @return boolean
      */
-    abstract function deleteFlat($flatId);
+    abstract function deleteFlat(int $flatId);
 
-    /**
-     * @param $flatId
-     * @return boolean
-     */
-    abstract function doorOpened($flatId);
+    abstract function doorOpened(int $flatId): bool|int;
 
     /**
      * @param $houseId
      * @return false|array
      */
-    abstract function getSharedEntrances($houseId = false);
+    abstract function getSharedEntrances(int|bool $houseId = false);
 
     /**
      * @param $entranceId
      * @return false|array
      */
-    abstract public function getCms($entranceId);
+    abstract public function getCms(int $entranceId);
 
     /**
      * @param $entranceId
      * @param $cms
      * @return boolean
      */
-    abstract public function setCms($entranceId, $cms);
+    abstract public function setCms(int $entranceId, $cms);
 
     /**
      * @param $by
@@ -185,7 +177,7 @@ abstract class households extends backend
      * @param $comment
      * @return false|integer
      */
-    abstract public function addDomophone($enabled, $model, $server, $url, $credentials, $dtmf, $nat, $comment);
+    abstract public function addDomophone($enabled, $model, $server, $url, $credentials, $dtmf, int $nat, $comment);
 
     /**
      * @param $domophoneId
@@ -201,19 +193,19 @@ abstract class households extends backend
      * @param $comment
      * @return boolean
      */
-    abstract public function modifyDomophone($domophoneId, $enabled, $model, $server, $url, $credentials, $dtmf, $firstTime, $nat, $locksAreOpen, $comment);
+    abstract public function modifyDomophone(int $domophoneId, $enabled, $model, $server, $url, $credentials, $dtmf, int $firstTime, int $nat, int $locksAreOpen, $comment);
 
     /**
      * @param $domophoneId
      * @return boolean
      */
-    abstract public function deleteDomophone($domophoneId);
+    abstract public function deleteDomophone(int $domophoneId);
 
     /**
      * @param $domophoneId
      * @return false|array
      */
-    abstract public function getDomophone($domophoneId);
+    abstract public function getDomophone(int $domophoneId);
 
     /**
      * @param $by - "id", "mobile", "aud_jti", "flat", "...?"
@@ -229,29 +221,15 @@ abstract class households extends backend
      * @param $params
      * @return boolean
      */
-    abstract public function modifySubscriber($subscriberId, $params = []);
+    abstract public function modifySubscriber(int $subscriberId, $params = []);
 
-    /**
-     * @param $subscriberId
-     * @return boolean
-     */
-    abstract public function deleteSubscriber($subscriberId);
+    abstract public function deleteSubscriber(int $subscriberId);
 
     abstract public function addSubscriberToFlat(int $flatId, int $subscriberId): bool;
 
-    /**
-     * @param $flatId
-     * @param $subscriberId
-     * @return mixed
-     */
-    abstract public function removeSubscriberFromFlat($flatId, $subscriberId);
+    abstract public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int;
 
-    /**
-     * @param $subscriberId
-     * @param $flats
-     * @return boolean
-     */
-    abstract public function setSubscriberFlats($subscriberId, $flats);
+    abstract public function setSubscriberFlats(int $subscriberId, $flats): bool;
 
     /**
      * @param $by
@@ -262,27 +240,11 @@ abstract class households extends backend
 
     abstract public function getKey(int $keyId): array|false;
 
-    /**
-     * @param $rfId
-     * @param $accessType
-     * @param $accessTo
-     * @param $comments
-     * @return false|integer
-     */
-    abstract public function addKey($rfId, $accessType, $accessTo, $comments);
+    abstract public function addKey(int $rfId, int $accessType, $accessTo, string $comments): bool|int|string;
 
-    /**
-     * @param $keyId
-     * @param $comments
-     * @return boolean
-     */
-    abstract public function modifyKey($keyId, $comments);
+    abstract public function modifyKey(int $keyId, string $comments): bool|int;
 
-    /**
-     * @param $keyId
-     * @return boolean
-     */
-    abstract public function deleteKey($keyId);
+    abstract public function deleteKey(int $keyId): bool|int;
 
     /**
      * @param $token

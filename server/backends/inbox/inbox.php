@@ -6,52 +6,17 @@ use backends\backend;
 
 abstract class inbox extends backend
 {
-    /**
-     * @param $subscriberId
-     * @param $title
-     * @param $msg
-     * @param $action
-     * @return integer|false
-     */
-    abstract public function sendMessage($subscriberId, $title, $msg, $action = "inbox");
+    abstract public function sendMessage(int $subscriberId, $title, $msg, $action = "inbox"): string|bool;
 
-    /**
-     * @param $subscriberId
-     * @param $by
-     * @param $params
-     * @return array|false
-     */
-    abstract public function getMessages($subscriberId, $by, $params);
+    abstract public function getMessages(int $subscriberId, $by, $params): array|bool;
 
-    /**
-     * @param $subscriberId
-     * @param $msgId
-     * @return boolean
-     */
-    abstract public function markMessageAsReaded($subscriberId, $msgId = false);
+    abstract public function markMessageAsReaded(int $subscriberId, int|bool $msgId = false): bool|int;
 
-    /**
-     * @param $subscriberId
-     * @param $msgId
-     * @return boolean
-     */
-    abstract public function markMessageAsDelivered($subscriberId, $msgId = false);
+    abstract public function markMessageAsDelivered(int $subscriberId, int|bool $msgId = false): bool|int;
 
-    /**
-     * @param $subscriberId
-     * @return array|false
-     */
-    abstract public function msgMonths($subscriberId);
+    abstract public function msgMonths(int $subscriberId): array;
 
-    /**
-     * @param $subscriberId
-     * @return mixed
-     */
-    abstract public function unreaded($subscriberId);
+    abstract public function unreaded(int $subscriberId): array|bool;
 
-    /**
-     * @param $subscriberId
-     * @return mixed
-     */
-    abstract public function undelivered($subscriberId);
+    abstract public function undelivered(int $subscriberId): array|bool;
 }

@@ -15,7 +15,7 @@ abstract class cameras extends backend
      * @param $cameraId
      * @return false|array
      */
-    abstract public function getCamera($cameraId);
+    abstract public function getCamera(int $cameraId);
 
     /**
      * @param $enabled
@@ -40,7 +40,7 @@ abstract class cameras extends backend
      * @param $comment
      * @return false|integer
      */
-    abstract public function addCamera($enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment);
+    abstract public function addCamera($enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, int $mdLeft, int $mdTop, int $mdWidth, int $mdHeight, $common, $comment);
 
     /**
      * @param $cameraId
@@ -66,11 +66,11 @@ abstract class cameras extends backend
      * @param $comment
      * @return boolean
      */
-    abstract public function modifyCamera($cameraId, $enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment);
+    abstract public function modifyCamera(int $cameraId, $enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, $mdLeft, $mdTop, $mdWidth, $mdHeight, $common, $comment);
 
     /**
      * @param $cameraId
      * @return boolean
      */
-    abstract public function deleteCamera($cameraId);
+    abstract public function deleteCamera(int $cameraId);
 }

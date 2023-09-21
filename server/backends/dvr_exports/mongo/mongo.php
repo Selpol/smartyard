@@ -10,10 +10,6 @@ class mongo extends dvr_exports
     {
         $dvr_files_ttl = @$this->config["backends"]["dvr_exports"]["dvr_files_ttl"] ?: 259200; // 3 days
 
-        if (!check_int($cameraId) || !check_int($subscriberId) || !check_int($start) || !check_int($finish)) {
-            return false;
-        }
-
         $filename = guid_v4() . '.mp4';
 
         return $this->db->insert("insert into camera_records (camera_id, subscriber_id, start, finish, filename, expire, state) values (:camera_id, :subscriber_id, :start, :finish, :filename, :expire, :state)", [

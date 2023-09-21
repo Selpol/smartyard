@@ -4,10 +4,7 @@ namespace backends\inbox;
 
 class clickhouse extends inbox
 {
-    /**
-     * @inheritDoc
-     */
-    public function sendMessage($subscriberId, $title, $msg, $action = "inbox")
+    public function sendMessage(int $subscriberId, $title, $msg, $action = "inbox"): string|bool
     {
         $subscriber = $this->db->get("select id, platform, push_token, push_token_type from houses_subscribers_mobile where house_subscriber_id = :house_subscriber_id", [
             "house_subscriber_id" => $subscriberId,
@@ -18,7 +15,7 @@ class clickhouse extends inbox
             "push_token_type" => "tokenType"
         ], ["singlify"]);
 
-        if (!check_int($subscriber["platform"]) || !check_int($subscriber["tokenType"]) || !$subscriber["id"] || !$subscriber["token"]) {
+        if (!is_int($subscriber["platform"]) || !is_int($subscriber["tokenType"]) || !$subscriber["id"] || !$subscriber["token"]) {
             last_error("mobileSubscriberNotRegistered");
             return false;
         }
@@ -77,19 +74,10 @@ class clickhouse extends inbox
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function getMessages($subscriberId, $by, $params)
+    public function getMessages(int $subscriberId, $by, $params): array|bool
     {
         $w = "";
         $q = [];
-
-        if (!check_int($subscriberId)) {
-            last_error("invalidSubscriberId");
-            return false;
-        }
-
         switch ($by) {
             case "dates":
                 $w = "where house_subscriber_id = :id and date < :date_to and date >= :date_from";
@@ -128,10 +116,7 @@ class clickhouse extends inbox
         ]);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function msgMonths($subscriberId)
+    public function msgMonths(int $subscriberId): array
     {
         $months = $this->db->get("select month from (select substr(date, 1, 7) as month from inbox where house_subscriber_id = :house_subscriber_id) group by month order by month", [
             "house_subscriber_id" => $subscriberId,
@@ -146,10 +131,7 @@ class clickhouse extends inbox
         return $r;
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function markMessageAsReaded($subscriberId, $msgId = false)
+    public function markMessageAsReaded(int $subscriberId, int|bool $msgId = false): bool|int
     {
         if ($msgId) {
             return $this->db->modify("update inbox set readed = 1 where readed = 0 and msg_id = :msg_id and house_subscriber_id = :house_subscriber_id", [
@@ -163,10 +145,7 @@ class clickhouse extends inbox
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function markMessageAsDelivered($subscriberId, $msgId = false)
+    public function markMessageAsDelivered(int $subscriberId, int|bool $msgId = false): bool|int
     {
         if ($msgId) {
             return $this->db->modify("update inbox set delivered = 1 where delivered = 0 and msg_id = :msg_id and house_subscriber_id = :house_subscriber_id", [
@@ -180,16 +159,8 @@ class clickhouse extends inbox
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function unreaded($subscriberId)
+    public function unreaded(int $subscriberId): array|bool
     {
-        if (!check_int($subscriberId)) {
-            last_error("invalidSubscriberId");
-            return false;
-        }
-
         return $this->db->get("select count(*) as unreaded from inbox where house_subscriber_id = :house_subscriber_id and readed = 0", [
             "house_subscriber_id" => $subscriberId,
         ],
@@ -201,16 +172,8 @@ class clickhouse extends inbox
             ]);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function undelivered($subscriberId)
+    public function undelivered(int $subscriberId): array|bool
     {
-        if (!check_int($subscriberId)) {
-            last_error("invalidSubscriberId");
-            return false;
-        }
-
         return $this->db->get("select count(*) as undelivered from inbox where house_subscriber_id = :house_subscriber_id and delivered = 0", [
             "house_subscriber_id" => $subscriberId,
         ],

@@ -25,12 +25,8 @@ class internal extends addresses
         ]);
     }
 
-    function getRegion($regionId): bool|array
+    function getRegion(int $regionId): bool|array
     {
-        if (!check_int($regionId)) {
-            return false;
-        }
-
         return $this->db->get(
             "select address_region_id, region_uuid, region_iso_code, region_with_type, region_type, region_type_full, region, timezone from addresses_regions where address_region_id = :address_region_id",
             [
@@ -56,10 +52,6 @@ class internal extends addresses
     {
         if ($timezone == "-") {
             $timezone = null;
-        }
-
-        if (!check_int($regionId)) {
-            return false;
         }
 
         if ($regionId && trim($regionWithType) && trim($region)) {
@@ -101,24 +93,14 @@ class internal extends addresses
         }
     }
 
-    /**
-     * @inheritDoc
-     */
     function deleteRegion(int $regionId): bool
     {
-        if (!check_int($regionId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_regions where address_region_id = $regionId");
     }
 
     function getAreas(?int $regionId): bool|array
     {
         if ($regionId) {
-            if (!check_int($regionId)) {
-                return false;
-            }
             $query = "select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas where address_region_id = $regionId order by area";
         } else {
             $query = "select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas order by area";
@@ -137,10 +119,6 @@ class internal extends addresses
 
     function getArea(int $areaId): bool|array
     {
-        if (!check_int($areaId)) {
-            return false;
-        }
-
         return $this->db->get("select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas where address_area_id = $areaId", false,
             [
                 "address_area_id" => "areaId",
@@ -161,18 +139,10 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function modifyArea($areaId, $regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-")
+    function modifyArea(int|bool|null $areaId, int|bool|null $regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-")
     {
         if ($timezone == "-") {
             $timezone = null;
-        }
-
-        if (!check_int($areaId)) {
-            return false;
-        }
-
-        if (!check_int($regionId)) {
-            return false;
         }
 
         if ($areaId && trim($areaWithType) && trim($area)) {
@@ -193,14 +163,10 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function addArea($regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-")
+    function addArea(int $regionId, $areaUuid, $areaWithType, $areaType, $areaTypeFull, $area, $timezone = "-")
     {
         if ($timezone == "-") {
             $timezone = null;
-        }
-
-        if (!check_int($regionId)) {
-            return false;
         }
 
         if (trim($areaWithType) && trim($area)) {
@@ -218,32 +184,14 @@ class internal extends addresses
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    function deleteArea($areaId)
+    function deleteArea(int $areaId): bool|int
     {
-        if (!check_int($areaId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_areas where address_area_id = $areaId");
     }
 
-    /**
-     * @inheritDoc
-     */
-    function getCities($regionId = false, $areaId = false)
+    function getCities(int|bool $regionId = false, int|bool $areaId = false): array|bool
     {
         if ($regionId && $areaId) {
-            return false;
-        }
-
-        if ($regionId && !check_int($regionId)) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
             return false;
         }
 
@@ -269,15 +217,8 @@ class internal extends addresses
         ]);
     }
 
-    /**
-     * @inheritDoc
-     */
-    function getCity($cityId)
+    function getCity(int $cityId): array|bool
     {
-        if (!check_int($cityId)) {
-            return false;
-        }
-
         return $this->db->get("select address_city_id, address_region_id, address_area_id, city_uuid, city_with_type, city_type, city_type_full, city, timezone from addresses_cities where address_city_id = $cityId", false,
             [
                 "address_city_id" => "cityId",
@@ -299,25 +240,13 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function modifyCity($cityId, $regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-")
+    function modifyCity(int|bool|null $cityId, int|bool|null $regionId, int|bool|null $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-")
     {
         if ($timezone == "-") {
             $timezone = null;
         }
 
-        if (!check_int($cityId)) {
-            return false;
-        }
-
         if ($regionId && $areaId) {
-            return false;
-        }
-
-        if ($regionId && !check_int($regionId)) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
             return false;
         }
 
@@ -344,21 +273,13 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function addCity($regionId, $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-")
+    function addCity(int $regionId, int $areaId, $cityUuid, $cityWithType, $cityType, $cityTypeFull, $city, $timezone = "-")
     {
         if ($timezone == "-") {
             $timezone = null;
         }
 
         if ($regionId && $areaId) {
-            return false;
-        }
-
-        if ($regionId && !check_int($regionId)) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
             return false;
         }
 
@@ -382,32 +303,14 @@ class internal extends addresses
         }
     }
 
-    /**
-     * @inheritDoc
-     */
-    function deleteCity($cityId)
+    function deleteCity(int $cityId): bool|int
     {
-        if (!check_int($cityId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_cities where address_city_id = $cityId");
     }
 
-    /**
-     * @inheritDoc
-     */
-    function getSettlements($areaId = false, $cityId = false)
+    function getSettlements(int|bool $areaId = false, int|bool $cityId = false): array|bool
     {
         if ($areaId && $cityId) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
             return false;
         }
 
@@ -432,15 +335,8 @@ class internal extends addresses
         ]);
     }
 
-    /**
-     * @inheritDoc
-     */
-    function getSettlement($settlementId)
+    function getSettlement(int $settlementId): array|bool
     {
-        if (!check_int($settlementId)) {
-            return false;
-        }
-
         return $this->db->get("select address_settlement_id, address_area_id, address_city_id, settlement_uuid, settlement_with_type, settlement_type, settlement_type_full, settlement from addresses_settlements where address_settlement_id = $settlementId", false,
             [
                 "address_settlement_id" => "settlementId",
@@ -461,21 +357,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function modifySettlement($settlementId, $areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement)
+    function modifySettlement(int|bool|null $settlementId, int|bool|null $areaId, int|bool|null $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement)
     {
-        if (!check_int($settlementId)) {
-            return false;
-        }
-
         if ($areaId && $cityId) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
             return false;
         }
 
@@ -501,17 +385,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function addSettlement($areaId, $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement)
+    function addSettlement(int|bool|null $areaId, int|bool|null $cityId, $settlementUuid, $settlementWithType, $settlementType, $settlementTypeFull, $settlement)
     {
         if ($areaId && $cityId) {
-            return false;
-        }
-
-        if ($areaId && !check_int($areaId)) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
             return false;
         }
 
@@ -537,29 +413,17 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function deleteSettlement($settlementId)
+    function deleteSettlement(int $settlementId)
     {
-        if (!check_int($settlementId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_settlements where address_settlement_id = $settlementId");
     }
 
     /**
      * @inheritDoc
      */
-    function getStreets($cityId = false, $settlementId = false)
+    function getStreets(int|bool $cityId = false, int|bool $settlementId = false)
     {
         if ($cityId && $settlementId) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
             return false;
         }
 
@@ -586,12 +450,8 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function getStreet($streetId)
+    function getStreet(int $streetId)
     {
-        if (!check_int($streetId)) {
-            return false;
-        }
-
         return $this->db->get("select address_street_id, address_city_id, address_settlement_id, street_uuid, street_with_type, street_type, street_type_full, street from addresses_streets where address_street_id = $streetId", false,
             [
                 "address_street_id" => "streetId",
@@ -612,21 +472,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function modifyStreet($streetId, $cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street)
+    function modifyStreet(int $streetId, int|bool|null $cityId, int|bool|null $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street)
     {
-        if (!check_int($streetId)) {
-            return false;
-        }
-
         if ($cityId && $settlementId) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
             return false;
         }
 
@@ -652,17 +500,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function addStreet($cityId, $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street)
+    function addStreet(int|bool|null $cityId, int|bool|null $settlementId, $streetUuid, $streetWithType, $streetType, $streetTypeFull, $street)
     {
         if ($cityId && $settlementId) {
-            return false;
-        }
-
-        if ($cityId && !check_int($cityId)) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
             return false;
         }
 
@@ -688,29 +528,17 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function deleteStreet($streetId)
+    function deleteStreet(int $streetId)
     {
-        if (!check_int($streetId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_streets where address_street_id = $streetId");
     }
 
     /**
      * @inheritDoc
      */
-    function getHouses($settlementId = false, $streetId = false)
+    function getHouses(int|bool|null $settlementId = false, int|bool|null $streetId = false)
     {
         if ($settlementId && $streetId) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
-            return false;
-        }
-
-        if ($streetId && !check_int($streetId)) {
             return false;
         }
 
@@ -738,12 +566,8 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function getHouse($houseId)
+    function getHouse(int $houseId)
     {
-        if (!check_int($houseId)) {
-            return false;
-        }
-
         return $this->db->get("select address_house_id, address_settlement_id, address_street_id, house_uuid, house_type, house_type_full, house_full, house from addresses_houses where address_house_id = $houseId", false,
             [
                 "address_house_id" => "houseId",
@@ -764,21 +588,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function modifyHouse($houseId, $settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house)
+    function modifyHouse(int $houseId, int|bool|null $settlementId, int|bool|null $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house)
     {
-        if (!check_int($houseId)) {
-            return false;
-        }
-
         if ($settlementId && $streetId) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
-            return false;
-        }
-
-        if ($streetId && !check_int($streetId)) {
             return false;
         }
 
@@ -804,17 +616,9 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function addHouse($settlementId, $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house)
+    function addHouse(int|bool|null $settlementId, int|bool|null $streetId, $houseUuid, $houseType, $houseTypeFull, $houseFull, $house)
     {
         if ($settlementId && $streetId) {
-            return false;
-        }
-
-        if ($settlementId && !check_int($settlementId)) {
-            return false;
-        }
-
-        if ($streetId && !check_int($streetId)) {
             return false;
         }
 
@@ -840,12 +644,8 @@ class internal extends addresses
     /**
      * @inheritDoc
      */
-    function deleteHouse($houseId)
+    function deleteHouse(int $houseId)
     {
-        if (!check_int($houseId)) {
-            return false;
-        }
-
         return $this->db->modify("delete from addresses_houses where address_house_id = $houseId");
     }
 

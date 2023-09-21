@@ -187,21 +187,6 @@ if (!function_exists('redis_cache')) {
     }
 }
 
-if (!function_exists('check_int')) {
-    function check_int(&$int): bool
-    {
-        $int = trim($int);
-        $_int = strval((int)$int);
-
-        if ($int != $_int)
-            return false;
-        else {
-            $int = (int)$_int;
-            return true;
-        }
-    }
-}
-
 if (!function_exists('check_string')) {
     function check_string(&$str, array $options = []): bool
     {
