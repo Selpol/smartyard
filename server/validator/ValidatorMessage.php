@@ -6,18 +6,27 @@ use Stringable;
 
 class ValidatorMessage implements Stringable
 {
-    private string $key;
+    private string|int $key;
+    private array $value;
+
     private string $message;
 
-    public function __construct(string $key, string $message)
+    public function __construct(string|int $key, array $value, string $message)
     {
         $this->key = $key;
+        $this->value = $value;
+
         $this->message = $message;
     }
 
-    public function getKey(): string
+    public function getKey(): string|int
     {
         return $this->key;
+    }
+
+    public function getValue(): array
+    {
+        return $this->value;
     }
 
     public function getMessage(): string

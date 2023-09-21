@@ -267,7 +267,13 @@ class AsteriskRunner implements KernelRunner
     public function onFailed(Throwable $throwable, bool $fatal): int
     {
         if ($throwable instanceof ValidatorException)
-            $this->logger->error($throwable->getValidatorMessage()->getMessage(), ['key' => $throwable->getValidatorMessage()->getKey()]);
+            $this->logger->error(
+                $throwable->getValidatorMessage()->getMessage(),
+                [
+                    'key' => $throwable->getValidatorMessage()->getKey(),
+                    'value' => $throwable->getValidatorMessage()->getValue()
+                ]
+            );
         else
             $this->logger->emergency($throwable, ['fatal' => $fatal]);
 

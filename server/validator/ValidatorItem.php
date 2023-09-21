@@ -17,14 +17,15 @@ abstract class ValidatorItem
     }
 
     /**
-     * @param string $key
+     * @param string|int $key
+     * @param array $value
      * @return ValidatorException
      */
-    protected function toException(string $key): ValidatorException
+    protected function toException(string|int $key, array $value): ValidatorException
     {
         $message = $this->getMessage($key);
 
-        return new ValidatorException(new ValidatorMessage($message, $key), $message);
+        return new ValidatorException(new ValidatorMessage($key, $value, $message), $message);
     }
 
     /**
@@ -44,7 +45,7 @@ abstract class ValidatorItem
         } else $result = filter_var($value[$key], $filter, FILTER_NULL_ON_FAILURE);
 
         if (is_null($result))
-            throw $this->toException($key);
+            throw $this->toException($key, $value);
 
         return $result;
     }

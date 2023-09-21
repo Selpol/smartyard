@@ -15,7 +15,7 @@ abstract class Rule extends ValidatorItem
             public function onItem(string|int $key, array $value): mixed
             {
                 if (!array_key_exists($key, $value))
-                    throw $this->toException($key);
+                    throw $this->toException($key, $value);
 
                 return $value[$key];
             }
@@ -28,7 +28,7 @@ abstract class Rule extends ValidatorItem
             public function onItem(string|int $key, array $value): mixed
             {
                 if (is_null($value[$key]))
-                    throw $this->toException($key);
+                    throw $this->toException($key, $value);
 
                 return $value[$key];
             }
@@ -256,7 +256,7 @@ abstract class Rule extends ValidatorItem
                     return null;
 
                 if (!in_array($value[$key], $this->value))
-                    throw $this->toException($key);
+                    throw $this->toException($key, $value);
 
                 return $value[$key];
             }
