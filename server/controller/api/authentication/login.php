@@ -53,7 +53,6 @@ namespace api\authentication {
 
         public static function POST($params)
         {
-
             $auth = container(AuthenticationFeature::class)->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]));
 
             if ($auth["result"]) return ["200" => ["token" => $auth["token"],],];

@@ -52,7 +52,7 @@ abstract class AuthenticationFeature extends Feature
                 }
             }
 
-            $$redis->setex("auth_" . $token . "_" . $uid, $rememberMe ? (7 * 24 * 60 * 60) : config('redis.token_idle_ttl'), json_encode([
+            $redis->setex("auth_" . $token . "_" . $uid, $rememberMe ? (7 * 24 * 60 * 60) : config('redis.token_idle_ttl'), json_encode([
                 "uid" => (string)$uid,
                 "login" => $login,
                 "persistent" => $rememberMe,
