@@ -110,8 +110,14 @@ class DatabaseService extends PDO
         }
     }
 
-    function get(string $query, array $params = [], array $map = [], array $options = []): bool|array
+    function get(string $query, array|bool $params = [], array|bool $map = [], array $options = []): bool|array
     {
+        if (is_bool($params))
+            $params = [];
+
+        if (is_bool($map))
+            $map = [];
+
         try {
             if ($params) {
                 $sth = $this->prepare($query);
