@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
     use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
 
@@ -17,14 +18,14 @@ namespace api\subscribers {
     {
         public static function GET($params)
         {
-            $key = backend('households')->getKey($params['_id']);
+            $key = container(HouseFeature::class)->getKey($params['_id']);
 
             return api::ANSWER($key, ($key !== false) ? 'key' : false);
         }
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $keyId = $households->addKey($params["rfId"], $params["accessType"], $params["accessTo"], $params["comments"]);
 
@@ -35,7 +36,7 @@ namespace api\subscribers {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->modifyKey($params["_id"], $params["comments"]);
 
@@ -44,7 +45,7 @@ namespace api\subscribers {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $key = $households->getKey($params['_id']);
 

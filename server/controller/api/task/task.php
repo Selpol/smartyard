@@ -5,6 +5,7 @@ namespace api\task;
 use api\api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Feature\Task\TaskFeature;
 
 class task
 {
@@ -14,7 +15,7 @@ class task
      */
     public static function GET($params): array
     {
-        $tasks = backend('task')->page($params['size'], $params['page']);
+        $tasks = container(TaskFeature::class)->page($params['size'], $params['page']);
 
         return api::ANSWER($tasks, count($tasks) > 0 ? 'tasks' : false);
     }
@@ -25,7 +26,7 @@ class task
      */
     public static function POST($params): array
     {
-        $result = backend('task')->dispatch($params['_id']);
+        $result = container(TaskFeature::class)->dispatch($params['_id']);
 
         return api::ANSWER($result, ($result !== false) ? "task" : false);
     }

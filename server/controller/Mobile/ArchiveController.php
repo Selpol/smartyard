@@ -2,13 +2,19 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\Archive\ArchiveFeature;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\RecordTask;
 use Selpol\Validator\Rule;
 
 class ArchiveController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function prepare(): Response
     {
         $user = $this->getSubscriber();
@@ -21,7 +27,6 @@ class ArchiveController extends Controller
 
         $cameraId = $validate['id'];
 
-        // приложение везде при работе с архивом передаёт время по часовому поясу Москвы.
         date_default_timezone_set('Europe/Moscow');
 
         $from = strtotime($validate['from']);
@@ -30,21 +35,24 @@ class ArchiveController extends Controller
         if (!$from || !$to)
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
-        $dvr_exports = backend("dvr_exports");
+        $archive = container(ArchiveFeature::class);
 
         // проверяем, не был ли уже запрошен данный кусок из архива.
-        $check = $dvr_exports->checkDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
+        $check = $archive->checkDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
 
         if (@$check['id'])
             return $this->rbtResponse(200, $check['id']);
 
-        $result = (int)$dvr_exports->addDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
+        $result = (int)$archive->addDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
 
         task(new RecordTask($user["subscriberId"], $result))->low()->dispatch();
 
         return $this->rbtResponse(200, $result);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function download(): Response
     {
         $uuid = $this->getRoute()->getParam('uuid');
@@ -52,10 +60,10 @@ class ArchiveController extends Controller
         if ($uuid === null)
             return $this->rbtResponse(404, message: 'Не указан идентификатор');
 
-        $files = backend('files');
+        $file = container(FileFeature::class);
 
-        $stream = $files->getFileStream($uuid);
-        $info = $files->getFileInfo($uuid);
+        $stream = $file->getFileStream($uuid);
+        $info = $file->getFileInfo($uuid);
 
         return $this->response()
             ->withHeader('Content-Type', 'video/mp4')

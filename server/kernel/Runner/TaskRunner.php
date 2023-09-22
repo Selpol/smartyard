@@ -6,6 +6,7 @@ use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
+use Selpol\Feature\Task\TaskFeature;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Service\TaskService;
@@ -107,7 +108,7 @@ class TaskRunner implements KernelRunner
                 try {
                     $task->onTask();
 
-                    backend('task')->add($task, 'OK', 1);
+                    container(TaskFeature::class)->add($task, 'OK', 1);
 
                     $this->logger->info('Dequeue complete task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
                 } catch (Throwable $throwable) {
@@ -115,7 +116,7 @@ class TaskRunner implements KernelRunner
 
                     $task->onError($throwable);
 
-                    backend('task')->add($task, $throwable->getMessage(), 0);
+                    container(TaskFeature::class)->add($task, $throwable->getMessage(), 0);
                 }
             }
         });

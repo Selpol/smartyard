@@ -2,7 +2,7 @@
 
 namespace Selpol\Task\Tasks\Plog;
 
-use backends\plog\plog;
+use Selpol\Feature\Plog\PlogFeature;
 use Throwable;
 
 class PlogCallTask extends PlogTask
@@ -30,15 +30,15 @@ class PlogCallTask extends PlogTask
 
     public function onTask(): bool
     {
-        $plog = backend('plog');
+        $plog = container(PlogFeature::class);
 
         $event_data = [];
-        $event_data[plog::COLUMN_DATE] = $this->date;
-        $event_data[plog::COLUMN_EVENT] = plog::EVENT_UNANSWERED_CALL;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_id'] = $this->id;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_output'] = 0;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[plog::COLUMN_DOMOPHONE]['domophone_output']);
-        $event_data[plog::COLUMN_EVENT_UUID] = guid_v4();
+        $event_data[PlogFeature::COLUMN_DATE] = $this->date;
+        $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_UNANSWERED_CALL;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_id'] = $this->id;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_output'] = 0;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_output']);
+        $event_data[PlogFeature::COLUMN_EVENT_UUID] = guid_v4();
 
         $logs = $plog->getSyslog($this->ip, $this->date);
 
@@ -73,19 +73,19 @@ class PlogCallTask extends PlogTask
         if ($call_from_panel < 0)
             return false;
 
-        if ($flat_id != null) $event_data[plog::COLUMN_FLAT_ID] = $flat_id;
-        else if ($prefix != null && $flat_number != null) $event_data[plog::COLUMN_FLAT_ID] = $this->getFlatIdByPrefixAndNumber($prefix, $flat_number);
-        else if ($flat_number != null) $event_data[plog::COLUMN_FLAT_ID] = $this->getFlatIdByNumber($flat_number);
-        else $event_data[plog::COLUMN_FLAT_ID] = $this->getFlatIdByDomophoneId();
+        if ($flat_id != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $flat_id;
+        else if ($prefix != null && $flat_number != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByPrefixAndNumber($prefix, $flat_number);
+        else if ($flat_number != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByNumber($flat_number);
+        else $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByDomophoneId();
 
         //не удалось получить flat_id - игнорируем звонок
-        if (!isset($event_data[plog::COLUMN_FLAT_ID]))
+        if (!isset($event_data[PlogFeature::COLUMN_FLAT_ID]))
             return false;
 
         if ($call_from_panel == 0) {
             //нет точных данных о том, что начало звонка было с этой панели
             //проверяем, мог ли звонок идти с другой панели
-            $entrance_count = $this->getEntranceCount($event_data[plog::COLUMN_FLAT_ID]);
+            $entrance_count = $this->getEntranceCount($event_data[PlogFeature::COLUMN_FLAT_ID]);
 
             if ($entrance_count > 1)
                 //в квартиру можно позвонить с нескольких домофонов,
@@ -93,13 +93,13 @@ class PlogCallTask extends PlogTask
                 return false;
         }
 
-        $image_data = $plog->getCamshot($this->id, $event_data[plog::COLUMN_DATE]);
+        $image_data = $plog->getCamshot($this->id, $event_data[PlogFeature::COLUMN_DATE]);
 
         if ($image_data) {
-            if (isset($image_data[plog::COLUMN_IMAGE_UUID]))
-                $event_data[plog::COLUMN_IMAGE_UUID] = $image_data[plog::COLUMN_IMAGE_UUID];
+            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID]))
+                $event_data[PlogFeature::COLUMN_IMAGE_UUID] = $image_data[PlogFeature::COLUMN_IMAGE_UUID];
 
-            $event_data[plog::COLUMN_PREVIEW] = $image_data[plog::COLUMN_PREVIEW];
+            $event_data[PlogFeature::COLUMN_PREVIEW] = $image_data[PlogFeature::COLUMN_PREVIEW];
         }
 
         $plog->writeEventData($event_data);
@@ -206,14 +206,14 @@ class PlogCallTask extends PlogTask
                 if ($call_start_lost)
                     break;
 
-                $event_data[plog::COLUMN_DATE] = $item['date'];
+                $event_data[PlogFeature::COLUMN_DATE] = $item['date'];
 
                 if (isset($now_call_id) && $call_id == null) $call_id = $now_call_id;
                 if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
                 if (isset($now_flat_number) && $flat_number == null) $flat_number = $now_flat_number;
                 if (isset($now_flat_id) && $flat_id == null) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[plog::COLUMN_EVENT] = plog::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[plog::COLUMN_OPENED] = 1;
+                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -285,14 +285,14 @@ class PlogCallTask extends PlogTask
                 if ($call_start_lost)
                     break;
 
-                $event_data[plog::COLUMN_DATE] = $item["date"];
+                $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
 
                 if (isset($now_call_id) && $call_id == null) $call_id = $now_call_id;
                 if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
                 if (isset($now_flat_number) && $flat_number == null) $flat_number = $now_flat_number;
                 if (isset($now_flat_id) && $flat_id == null) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[plog::COLUMN_EVENT] = plog::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[plog::COLUMN_OPENED] = 1;
+                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -382,14 +382,14 @@ class PlogCallTask extends PlogTask
                 if ($call_start_lost)
                     break;
 
-                $event_data[plog::COLUMN_DATE] = $item["date"];
+                $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
 
                 if (isset($now_call_id) && !isset($call_id)) $call_id = $now_call_id;
                 if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
                 if (isset($now_flat_number) && !isset($flat_number)) $flat_number = $now_flat_number;
                 if (isset($now_flat_id) && !isset($flat_id)) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[plog::COLUMN_EVENT] = plog::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[plog::COLUMN_OPENED] = 1;
+                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -438,12 +438,12 @@ class PlogCallTask extends PlogTask
                 if ($call_start_lost)
                     break;
 
-                $event_data[plog::COLUMN_DATE] = $item["date"];
+                $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
 
                 if (isset($now_call_id) && !isset($call_id)) $call_id = $now_call_id;
                 if (isset($now_flat_id) && !isset($flat_id)) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[plog::COLUMN_EVENT] = plog::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[plog::COLUMN_OPENED] = 1;
+                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
 
                 if ($flag_start) {
                     $call_start_found = true;

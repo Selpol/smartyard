@@ -158,6 +158,8 @@
 namespace api\accounts {
 
     use api\api;
+    use Selpol\Feature\Authentication\AuthenticationFeature;
+    use Selpol\Feature\User\UserFeature;
 
     /**
      * user methods
@@ -166,14 +168,14 @@ namespace api\accounts {
     {
         public static function GET($params)
         {
-            $user = backend('users')->getUser(@$params["_id"]);
+            $user = container(UserFeature::class)->getUser($params["_id"]);
 
             return api::ANSWER($user, ($user !== false) ? "user" : "notFound");
         }
 
         public static function POST($params)
         {
-            $uid = backend('users')->addUser($params["login"], $params["realName"], $params["eMail"], $params["phone"]);
+            $uid = container(UserFeature::class)->addUser($params["login"], $params["realName"], $params["eMail"], $params["phone"]);
 
             return api::ANSWER($uid, ($uid !== false) ? "uid" : "notAcceptable");
         }
@@ -181,15 +183,15 @@ namespace api\accounts {
         public static function PUT($params)
         {
             if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
-                $success = backend('users')->modifyUserEnabled($params['_id'], $params['enabled']);
+                $success = container(UserFeature::class)->modifyUserEnabled($params['_id'], $params['enabled']);
 
                 return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             }
 
-            $success = backend('users')->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"]);
+            $success = container(UserFeature::class)->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"]);
 
             if (@$params["password"] && (int)$params["_id"]) {
-                $success = $success && backend('users')->setPassword($params["_id"], $params["password"]);
+                $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);
                 return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
             } else return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
 
@@ -198,27 +200,18 @@ namespace api\accounts {
         public static function DELETE($params)
         {
             if (@$params["session"]) {
-                backend('authentication')->logout($params["session"]);
+                container(AuthenticationFeature::class)->logout($params["session"]);
 
                 $success = true;
             } else
-                $success = backend('users')->deleteUser($params["_id"]);
+                $success = container(UserFeature::class)->deleteUser($params["_id"]);
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
         public static function index()
         {
-            $users = backend("users");
-
-            if ($users && $users->capabilities()["mode"] === "rw") {
-                return [
-                    "GET" => "#personal",
-                    "POST",
-                    "PUT" => "#personal",
-                    "DELETE"
-                ];
-            } else return ["GET"];
+            return ["GET" => "#personal", "POST", "PUT" => "#personal", "DELETE"];
         }
     }
 }

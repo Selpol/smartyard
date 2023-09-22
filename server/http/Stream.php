@@ -59,6 +59,14 @@ class Stream implements StreamInterface
         return $this->writable;
     }
 
+    /**
+     * @return resource|null
+     */
+    public function getStream()
+    {
+        return $this->stream;
+    }
+
     public function getContents(): string
     {
         if (!isset($this->stream)) throw new RuntimeException('Stream is detached');

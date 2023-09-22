@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -27,12 +28,12 @@ class IntercomAddKeyTask extends Task
      */
     public function onTask(): bool
     {
-        $flat = backend('households')->getFlat($this->flatId);
+        $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
         if (!$flat)
             return false;
 
-        $entrances = backend('households')->getEntrances('flatId', $this->flatId);
+        $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
         if ($entrances && count($entrances) > 0) {
             foreach ($entrances as $entrance) {
@@ -49,18 +50,12 @@ class IntercomAddKeyTask extends Task
     }
 
     /**
-     * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
     private function add(int $id, int $flat): void
     {
-        $domophone = backend('households')->getDomophone($id);
-
-        if (!$domophone)
-            return;
-
         try {
-            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = intercom($id);
 
             if (!$device->ping())
                 throw new RuntimeException('Устройство не доступно');

@@ -5,6 +5,8 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Push\PushFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
@@ -29,8 +31,7 @@ class UserController extends Controller
             'platform' => [Rule::in(['ios', 'android', 'huawei'])]
         ]);
 
-        $households = backend('households');
-        $isdn = backend('isdn');
+        $households = container(HouseFeature::class);
 
         $old_push = $user["pushToken"];
 
@@ -58,16 +59,8 @@ class UserController extends Controller
 
         if (!$validate['pushToken'])
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
-        else {
-            if ($old_push && $old_push != $validate['pushToken']) {
-
-                $isdn->logout([
-                    "token" => $old_push,
-                    "msg" => "Произведена авторизация на другом устройстве",
-                    "pushAction" => "logout"
-                ]);
-            }
-        }
+        else if ($old_push && $old_push != $validate['pushToken'])
+            container(PushFeature::class)->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
 
         if (!$validate['voipToken'])
             $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
@@ -88,8 +81,8 @@ class UserController extends Controller
             'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
         ]);
 
-        if ($validate['patronymic']) backend('households')->modifySubscriber($user['subscriberId'], ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
-        else backend('households')->modifySubscriber($user["subscriberId"], ["subscriberName" => $validate['name']]);
+        if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($user['subscriberId'], ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
+        else container(HouseFeature::class)->modifySubscriber($user["subscriberId"], ["subscriberName" => $validate['name']]);
 
         return $this->rbtResponse();
     }

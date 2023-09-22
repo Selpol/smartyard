@@ -2,14 +2,18 @@
 
 namespace Selpol\Controller\Internal;
 
-use backends\plog\plog;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
 class ActionController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function callFinished(): Response
     {
         $body = $this->request->getParsedBody();
@@ -19,11 +23,14 @@ class ActionController extends Controller
 
         ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
 
-        backend("plog")->addCallDoneData($date, $ip, $callId);
+        container(PlogFeature::class)->addCallDoneData($date, $ip, $callId);
 
         return $this->rbtResponse();
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function motionDetection(): Response
     {
         $body = $this->request->getParsedBody();
@@ -56,6 +63,9 @@ class ActionController extends Controller
         return $this->rbtResponse();
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function openDoor(): Response
     {
         $body = $this->request->getParsedBody();
@@ -66,21 +76,21 @@ class ActionController extends Controller
 
         if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400, message: 'Неверный формат данных');
 
-        $plog = backend('plog');
+        $plog = container(PlogFeature::class);
 
         logger('internal')->debug('Open door request', $body);
 
         switch ($event) {
-            case plog::EVENT_OPENED_BY_KEY:
-            case plog::EVENT_OPENED_BY_CODE:
+            case PlogFeature::EVENT_OPENED_BY_KEY:
+            case PlogFeature::EVENT_OPENED_BY_CODE:
                 $plog->addDoorOpenData($date, $ip, $event, $door, $detail);
 
                 return $this->rbtResponse();
 
-            case plog::EVENT_OPENED_GATES_BY_CALL:
+            case PlogFeature::EVENT_OPENED_GATES_BY_CALL:
                 return $this->rbtResponse();
 
-            case plog::EVENT_OPENED_BY_BUTTON:
+            case PlogFeature::EVENT_OPENED_BY_BUTTON:
                 $db = container(DatabaseService::class);
 
                 [0 => [
@@ -109,6 +119,9 @@ class ActionController extends Controller
         return $this->response(204);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function setRabbitGates(): Response
     {
         $body = $this->request->getParsedBody();
@@ -145,16 +158,17 @@ class ActionController extends Controller
 
     public function getSyslogConfig(): Response
     {
-        $config = config();
+        $config = config('feature.plog');
 
-        $payload = ['clickhouseService' => [
-            'host' => $config['backends']['plog']['host'],
-            'port' => $config['backends']['plog']['port'],
-            'database' => $config['backends']['plog']['database'],
-            'username' => $config['backends']['plog']['username'],
-            'password' => $config['backends']['plog']['password'],
-        ], 'hw' => $config['syslog_servers']];
-
-        return $this->rbtResponse(data: $payload);
+        return $this->rbtResponse(data: [
+            'clickhouseService' => [
+                'host' => $config['host'],
+                'port' => $config['port'],
+                'database' => $config['database'],
+                'username' => $config['username'],
+                'password' => $config['password'],
+            ],
+            'hw' => config('syslog_servers')
+        ]);
     }
 }

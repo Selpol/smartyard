@@ -7,11 +7,11 @@
 namespace api\cameras {
 
     use api\api;
+    use Selpol\Feature\Camera\CameraFeature;
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
     use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
     use Selpol\Validator\Rule;
-    use Selpol\Validator\ValidatorMessage;
 
     /**
      * camera method
@@ -22,16 +22,12 @@ namespace api\cameras {
         {
             $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
 
-            $cameras = backend('cameras');
-
-            return api::ANSWER($cameras->getCamera($validate['_id']));
+            return api::ANSWER(container(CameraFeature::class)->getCamera($validate['_id']));
         }
 
         public static function POST($params)
         {
-            $cameras = backend("cameras");
-
-            $cameraId = $cameras->addCamera($params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
+            $cameraId = container(CameraFeature::class)->addCamera($params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
 
             if ($cameraId) {
                 if ($params['frs'] && $params['frs'] !== '-')
@@ -47,12 +43,12 @@ namespace api\cameras {
 
         public static function PUT($params)
         {
-            $cameras = backend("cameras");
+            $feature = container(CameraFeature::class);
 
-            $camera = $cameras->getCamera($params['_id']);
+            $camera = $feature->getCamera($params['_id']);
 
             if ($camera) {
-                $success = $cameras->modifyCamera($params["_id"], $params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
+                $success = $feature->modifyCamera($params["_id"], $params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
 
                 if ($success) {
                     if ($camera['frs'] !== $params['frs']) {
@@ -75,12 +71,12 @@ namespace api\cameras {
 
         public static function DELETE($params)
         {
-            $cameras = backend("cameras");
+            $feature = container(CameraFeature::class);
 
-            $camera = $cameras->getCamera($params['_id']);
+            $camera = $feature->getCamera($params['_id']);
 
             if ($camera) {
-                $success = $cameras->deleteCamera($params["_id"]);
+                $success = $feature->deleteCamera($params["_id"]);
 
                 if ($success && $camera['frs'] && $camera['frs'] !== '-')
                     task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();

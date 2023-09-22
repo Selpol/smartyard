@@ -7,6 +7,9 @@
 namespace api\cameras {
 
     use api\api;
+    use Selpol\Device\Ip\Camera\CameraModel;
+    use Selpol\Feature\Camera\CameraFeature;
+    use Selpol\Feature\Frs\FrsFeature;
 
     /**
      * cameras method
@@ -16,14 +19,10 @@ namespace api\cameras {
 
         public static function GET($params)
         {
-            $cameras = backend("cameras");
-            $configs = backend("configs");
-            $frs = backend("frs");
-
             $response = [
-                "cameras" => $cameras->getCameras(),
-                "models" => $configs->getCamerasModels(),
-                "frsServers" => $frs->servers(),
+                "cameras" => container(CameraFeature::class)->getCameras(),
+                "models" => CameraModel::modelsToArray(),
+                "frsServers" => container(FrsFeature::class)->servers(),
             ];
 
             return api::ANSWER($response, "cameras");

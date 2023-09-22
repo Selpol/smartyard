@@ -43,6 +43,7 @@
 namespace api\accounts {
 
     use api\api;
+    use Selpol\Feature\User\UserFeature;
 
     /**
      * users method
@@ -52,7 +53,7 @@ namespace api\accounts {
 
         public static function GET($params)
         {
-            $users = backend('users')->getUsers();
+            $users = container(UserFeature::class)->getUsers();
 
             return api::ANSWER($users, ($users !== false) ? "users" : "notFound");
         }

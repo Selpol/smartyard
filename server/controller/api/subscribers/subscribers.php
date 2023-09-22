@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * subscribers method
@@ -15,7 +16,7 @@ namespace api\subscribers {
     {
         public static function GET($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $flat = [
                 "subscribers" => $households->getSubscribers(@$params["by"], @$params["query"]),

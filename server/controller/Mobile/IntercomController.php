@@ -2,10 +2,13 @@
 
 namespace Selpol\Controller\Mobile;
 
-use backends\plog\plog;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\Camera\CameraFeature;
+use Selpol\Feature\Frs\FrsFeature;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Selpol\Validator\Rule;
@@ -43,8 +46,7 @@ class IntercomController extends Controller
                 break;
             }
 
-        $households = backend("households");
-        $plog = backend("plog");
+        $households = container(HouseFeature::class);
 
         if (@$body['settings']) {
             $params = [];
@@ -71,20 +73,20 @@ class IntercomController extends Controller
 
             $disable_plog = null;
 
-            if (@$settings['disablePlog'] && $flat_owner && $plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['disablePlog'] && $flat_owner && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                 $disable_plog = ($settings['disablePlog'] == true);
 
             $hidden_plog = null;
 
-            if (@$settings['hiddenPlog'] && $flat_owner && $plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['hiddenPlog'] && $flat_owner && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                 $hidden_plog = ($settings['hiddenPlog'] == true);
 
-            if ($disable_plog === true) $params['plog'] = plog::ACCESS_DENIED;
+            if ($disable_plog === true) $params['plog'] = PlogFeature::ACCESS_DENIED;
             else if ($disable_plog === false) {
-                if ($hidden_plog === false) $params['plog'] = plog::ACCESS_ALL;
-                else $params['plog'] = plog::ACCESS_OWNER_ONLY;
-            } else if ($hidden_plog !== null && $flat_plog == plog::ACCESS_ALL || $flat_plog == plog::ACCESS_OWNER_ONLY)
-                $params['plog'] = $hidden_plog ? plog::ACCESS_OWNER_ONLY : plog::ACCESS_ALL;
+                if ($hidden_plog === false) $params['plog'] = PlogFeature::ACCESS_ALL;
+                else $params['plog'] = PlogFeature::ACCESS_OWNER_ONLY;
+            } else if ($hidden_plog !== null && $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY)
+                $params['plog'] = $hidden_plog ? PlogFeature::ACCESS_OWNER_ONLY : PlogFeature::ACCESS_ALL;
 
             $households->modifyFlat($flat_id, $params);
 
@@ -109,29 +111,25 @@ class IntercomController extends Controller
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
 
-        if ($flat_owner && $plog && $flat['plog'] != plog::ACCESS_RESTRICTED_BY_ADMIN) {
-            $result['disablePlog'] = $flat['plog'] == plog::ACCESS_DENIED;
-            $result['hiddenPlog'] = !($flat['plog'] == plog::ACCESS_ALL);
+        if ($flat_owner && $flat['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN) {
+            $result['disablePlog'] = $flat['plog'] == PlogFeature::ACCESS_DENIED;
+            $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
         }
 
-        //check for FRS presence on at least one entrance of the flat
-        $frs = backend("frs");
+        $frs = container(FrsFeature::class);
 
         if ($frs) {
-            $cameras = backend("cameras");
             $frsDisabled = null;
 
             foreach ($flat['entrances'] as $entrance) {
                 $e = $households->getEntrance($entrance['entranceId']);
 
-                if ($cameras) {
-                    $vstream = $cameras->getCamera($e['cameraId']);
+                $vstream = container(CameraFeature::class)->getCamera($e['cameraId']);
 
-                    if (strlen($vstream["frs"]) > 1) {
-                        $frsDisabled = false;
+                if (strlen($vstream["frs"]) > 1) {
+                    $frsDisabled = false;
 
-                        break;
-                    }
+                    break;
                 }
             }
 
@@ -155,9 +153,8 @@ class IntercomController extends Controller
 
         $validate = validator($this->request->getParsedBody(), ['domophoneId' => [Rule::id()], 'doorId' => [Rule::id()]]);
 
-        $households = backend("households");
+        $households = container(HouseFeature::class);
 
-        // Check intercom is blocking
         $blocked = true;
 
         foreach ($user['flats'] as $flat) {
@@ -182,18 +179,12 @@ class IntercomController extends Controller
         }
 
         if (!$blocked) {
-            $households = backend("households");
-            $domophone = $households->getDomophone($validate['domophoneId']);
-
             try {
-                $model = intercom($domophone["model"], $domophone["url"], $domophone["credentials"]);
+                $model = intercom($validate['domophoneId']);
 
                 $model->open($validate['doorId'] ?: 0);
 
-                $plog = backend("plog");
-
-                if ($plog)
-                    $plog->addDoorOpenDataById(time(), $validate['domophoneId'], $plog::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
+                container(PlogFeature::class)->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Throwable $throwable) {
                 logger('intercom')->error($throwable);
 
@@ -227,7 +218,7 @@ class IntercomController extends Controller
         if (!$f)
             return $this->rbtResponse(404, message: 'Квартира у абонента не найдена');
 
-        $households = backend("households");
+        $households = container(HouseFeature::class);
 
         $params = [];
         $params['openCode'] = '!';

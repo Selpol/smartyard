@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Frs;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Task\Task;
 
 class FrsRemoveStreamTask extends Task
@@ -25,7 +26,7 @@ class FrsRemoveStreamTask extends Task
      */
     public function onTask(): bool
     {
-        backend('frs')->removeStream($this->url, $this->cameraId);
+        container(FrsFeature::class)->removeStream($this->url, $this->cameraId);
 
         return true;
     }

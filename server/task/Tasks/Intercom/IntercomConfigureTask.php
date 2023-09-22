@@ -7,7 +7,11 @@ use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Feature\Address\AddressFeature;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Sip\SipFeature;
 use Selpol\Http\Uri;
+use Selpol\Service\DeviceService;
 use Throwable;
 
 class IntercomConfigureTask extends IntercomTask
@@ -21,7 +25,7 @@ class IntercomConfigureTask extends IntercomTask
 
     public function onTask(): bool
     {
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $domophone = $households->getDomophone($this->id);
 
@@ -43,12 +47,12 @@ class IntercomConfigureTask extends IntercomTask
 
         $this->setProgress(2);
 
-        $asterisk_server = backend('sip')->server("ip", $domophone['server']);
+        $asterisk_server = container(SipFeature::class)->server('ip', $domophone['server']);
 
         $panel_text = $entrances[0]['callerId'];
 
         try {
-            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = container(DeviceService::class)->intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
 
             if (!$device)
                 return false;
@@ -125,7 +129,7 @@ class IntercomConfigureTask extends IntercomTask
     private function cms(bool $is_shared, array $entrances, IntercomDevice $device): void
     {
         if (!$is_shared) {
-            $cms_allocation = backend('households')->getCms($entrances[0]['entranceId']);
+            $cms_allocation = container(HouseFeature::class)->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
                 $device->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
@@ -143,7 +147,7 @@ class IntercomConfigureTask extends IntercomTask
         $domophoneId = $this->id;
 
         foreach ($entrances as $entrance) {
-            $flats = backend('households')->getFlats('houseId', $entrance['houseId']);
+            $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 
             if (!$flats) {
                 continue;
@@ -153,7 +157,7 @@ class IntercomConfigureTask extends IntercomTask
             $end = end($flats)['flat'];
 
             $links[] = [
-                'addr' => backend('addresses')->getHouse($entrance['houseId'])['houseFull'],
+                'addr' => container(AddressFeature::class)->getHouse($entrance['houseId'])['houseFull'],
                 'prefix' => $entrance['prefix'],
                 'begin' => $begin,
                 'end' => $end,
@@ -186,7 +190,7 @@ class IntercomConfigureTask extends IntercomTask
                         intval($flat['openCode']) ?? 0
                     );
 
-                    $keys = backend('households')->getKeys('flatId', $flat['flatId']);
+                    $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
 
                     foreach ($keys as $key)
                         $device->addRfidDeffer($key['rfId'], $apartment);

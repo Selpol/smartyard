@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 
@@ -17,7 +18,7 @@ class MobileMiddleware implements MiddlewareInterface
 
         $jwt = $auth->getJwrOrThrow();
 
-        $subscribers = backend('households')->getSubscribers('aud_jti', $jwt['scopes'][1]);
+        $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $jwt['scopes'][1]);
 
         if (!$subscribers || count($subscribers) === 0) {
             /** @var HttpService $http */

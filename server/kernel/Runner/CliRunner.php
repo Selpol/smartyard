@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
+use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Kernel\Trait\ConfigTrait;
@@ -71,8 +72,7 @@ class CliRunner implements KernelRunner
             if ($command === 'check') return $this->amqpCheck();
             else echo $this->help('amqp');
         } else if ($group === 'rbt') {
-            if ($command === 'cleanup') $this->rbtCleanup();
-            else if ($command === 'reindex') $this->rbtReindex();
+            if ($command === 'reindex') $this->rbtReindex();
             else echo $this->help('rbt');
         } else if ($group === 'admin') {
             if ($command === 'password') $this->adminPassword($arguments['admin:password']);
@@ -182,25 +182,6 @@ class CliRunner implements KernelRunner
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    private function rbtCleanup(): void
-    {
-        $backends = config('backends');
-
-        foreach ($backends as $backend => $_) {
-            $b = backend($backend);
-
-            if ($b) {
-                $n = $b->cleanup();
-
-                echo "$backend: $n items cleaned\n";
-            } else echo "$backend: not found\n";
-        }
-    }
-
-    /**
      * @throws Exception
      */
     private function rbtReindex(): void
@@ -251,23 +232,15 @@ class CliRunner implements KernelRunner
 
         if ($part) {
             $start = microtime(true) * 1000;
-            $cronBackends = config('backends');
+            $this->logger->debug('Processing cron', ['part' => $part]);
 
-            $this->logger->debug('Processing cron', ['part' => $part, 'backends' => array_keys($cronBackends)]);
-
-            foreach ($cronBackends as $backend_name => $cfg) {
-                $backend = backend($backend_name);
-
-                if ($backend) {
-                    try {
-                        if ($backend->cron($part))
-                            $this->logger->debug('Success', ['backend' => $backend_name, 'part' => $part]);
-                        else
-                            $this->logger->error('Fail', ['backend' => $backend_name, 'part' => $part]);
-                    } catch (Exception $e) {
-                        $this->logger->error('Error cron' . PHP_EOL . $e, ['backend' => $backend_name, 'part' => $part]);
-                    }
-                } else $this->logger->error('Backend not found', ['backend' => $backend_name, 'part' => $part]);
+            try {
+                if (container(FrsFeature::class)->cron($part))
+                    $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
+                else
+                    $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+            } catch (Throwable $throwable) {
+                $this->logger->error('Error cron' . PHP_EOL . $throwable, ['feature' => FrsFeature::class, 'part' => $part]);
             }
 
             $this->logger->debug('Cron done', ['ellapsed_ms' => microtime(true) * 1000 - $start]);
@@ -496,7 +469,6 @@ class CliRunner implements KernelRunner
         if ($group === null || $group === 'rbt')
             $result[] = implode(PHP_EOL, [
                 '',
-                'rbt:cleanup                      - Очистить кэши РБТ',
                 'rbt:reindex                      - Обновить маршрутизацию API'
             ]);
 

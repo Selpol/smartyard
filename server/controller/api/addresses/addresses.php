@@ -7,6 +7,7 @@
 namespace api\addresses {
 
     use api\api;
+    use Selpol\Feature\Address\AddressFeature;
 
     /**
      * addresses method
@@ -15,7 +16,7 @@ namespace api\addresses {
     {
         public static function GET($params)
         {
-            $addresses = backend("addresses");
+            $addresses = container(AddressFeature::class);
 
             $regionId = @(int)$params["regionId"];
             $areaId = @(int)$params["areaId"];
@@ -28,11 +29,11 @@ namespace api\addresses {
 
             $r = [];
 
-            if (strpos($include, "regions") !== false) {
+            if (str_contains($include, "regions")) {
                 $r["regions"] = $addresses->getRegions();
             }
 
-            if (strpos($include, "areas") !== false) {
+            if (str_contains($include, "areas")) {
                 if ($areaId) {
                     $r["areas"] = [$addresses->getArea($areaId)];
                 } else {
@@ -40,7 +41,7 @@ namespace api\addresses {
                 }
             }
 
-            if (strpos($include, "cities") !== false) {
+            if (str_contains($include, "cities")) {
                 if ($cityId) {
                     $r["cities"] = [$addresses->getCity($cityId)];
                 } else {
@@ -48,7 +49,7 @@ namespace api\addresses {
                 }
             }
 
-            if (strpos($include, "settlements") !== false) {
+            if (str_contains($include, "settlements")) {
                 if ($settlementId) {
                     $r["settlements"] = [$addresses->getSettlement($settlementId)];
                 } else {
@@ -56,7 +57,7 @@ namespace api\addresses {
                 }
             }
 
-            if (strpos($include, "streets") !== false) {
+            if (str_contains($include, "streets")) {
                 if ($streetId) {
                     $r["streets"] = [$addresses->getStreet($streetId)];
                 } else {
@@ -64,7 +65,7 @@ namespace api\addresses {
                 }
             }
 
-            if (strpos($include, "houses") !== false) {
+            if (str_contains($include, "houses")) {
                 if ($houseId) {
                     $r["houses"] = [$addresses->getHouse($houseId)];
                 } else {

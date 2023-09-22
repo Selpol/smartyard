@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * house method
@@ -15,7 +16,7 @@ namespace api\houses {
     {
         public static function GET($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $entrances = $households->getSharedEntrances(@$params["_id"]);
 

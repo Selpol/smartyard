@@ -61,6 +61,11 @@ class IntercomModel
         ];
     }
 
+    public static function modelsToArray(): array
+    {
+        return array_map(static fn(IntercomModel $model) => $model->toArray(), self::models());
+    }
+
     /**
      * @return IntercomModel[]
      */

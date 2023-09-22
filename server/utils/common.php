@@ -117,3 +117,19 @@ if (!function_exists('ip_in_range')) {
         return (($ip_decimal & $netmask_decimal) == ($range_decimal & $netmask_decimal));
     }
 }
+
+if (!function_exists('temp_stream')) {
+    /**
+     * @param string $content
+     * @return bool|resource
+     */
+    function temp_stream(string $content)
+    {
+        $stream = fopen("php://temp", "w+");
+
+        fwrite($stream, $content, strlen($content));
+        fseek($stream, 0);
+
+        return $stream;
+    }
+}

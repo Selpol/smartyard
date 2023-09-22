@@ -31,6 +31,7 @@
 namespace api\geo {
 
     use api\api;
+    use Selpol\Feature\Geo\GeoFeature;
 
     /**
      * geo methods
@@ -40,22 +41,14 @@ namespace api\geo {
 
         public static function GET($params)
         {
-            $suggestions = backend("geocoder")->suggestions($params["search"]);
+            $suggestions = container(GeoFeature::class)->suggestions($params["search"]);
 
             return api::ANSWER($suggestions, ($suggestions !== false) ? "suggestions" : "404");
         }
 
         public static function index()
         {
-            $geocoder = backend("geocoder");
-
-            if ($geocoder) {
-                return [
-                    "GET",
-                ];
-            }
-
-            return false;
+            return ["GET"];
         }
     }
 }

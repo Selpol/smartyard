@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * keys method
@@ -16,8 +17,8 @@ namespace api\subscribers {
 
         public static function GET($params)
         {
-            $households = backend("households");
-            $keys = $households->getKeys('flatId', $params);
+            $households = container(HouseFeature::class);
+            $keys = $households->getKeys('flatId', null);
 
             return api::ANSWER($keys, ($keys !== false) ? "keys" : false);
         }

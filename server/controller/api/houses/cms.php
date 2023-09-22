@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\IntercomCmsTask;
 
     /**
@@ -16,7 +17,7 @@ namespace api\houses {
     {
         public static function GET($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $cms = $households->getCms($params["_id"]);
 
@@ -25,7 +26,7 @@ namespace api\houses {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->setCms($params["_id"], $params["cms"]);
 

@@ -46,6 +46,7 @@
 namespace api\authentication {
 
     use api\api;
+    use Selpol\Feature\User\UserFeature;
     use Selpol\Service\RedisService;
 
     /**
@@ -53,10 +54,9 @@ namespace api\authentication {
      */
     class whoAmI extends api
     {
-
         public static function GET($params)
         {
-            $user = backend('users')->getUser($params["_uid"]);
+            $user = container(UserFeature::class)->getUser($params["_uid"]);
 
             $extension = sprintf("7%09d", (int)$params["_uid"]);
 

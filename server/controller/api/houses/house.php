@@ -7,6 +7,9 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Device\Ip\Intercom\IntercomCms;
+    use Selpol\Device\Ip\Intercom\IntercomModel;
+    use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 
     /**
@@ -14,11 +17,9 @@ namespace api\houses {
      */
     class house extends api
     {
-
         public static function GET($params)
         {
-            $households = backend("households");
-            $configs = backend("configs");
+            $households = container(HouseFeature::class);
 
             if (!$households) {
                 return api::ERROR();
@@ -32,8 +33,8 @@ namespace api\houses {
                     "flats" => $flats,
                     "entrances" => $households->getEntrances("houseId", $params["_id"]),
                     "cameras" => $households->getCameras("houseId", $params["_id"]),
-                    "domophoneModels" => $configs->getDomophonesModels(),
-                    "cmses" => $configs->getCMSes(),
+                    "domophoneModels" => IntercomModel::modelsToArray(),
+                    "cmses" => IntercomCms::modelsToArray(),
                 ];
 
                 $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
@@ -44,7 +45,7 @@ namespace api\houses {
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $houseId = $params['_id'];
             $keys = $params['keys'];

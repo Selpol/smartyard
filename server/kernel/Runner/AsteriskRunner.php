@@ -6,8 +6,13 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use RedisException;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Push\PushFeature;
+use Selpol\Feature\Sip\SipFeature;
+use Selpol\Feature\User\UserFeature;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
+use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
@@ -74,7 +79,7 @@ class AsteriskRunner implements KernelRunner
                     case "autoopen":
                         $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat($params['flatId']);
 
@@ -90,7 +95,7 @@ class AsteriskRunner implements KernelRunner
                     case "flat":
                         $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat($params['flatId']);
 
@@ -103,7 +108,7 @@ class AsteriskRunner implements KernelRunner
                     case "flatIdByPrefix":
                         $params = validator($params, ['domophoneId' => [Rule::id()], 'prefix' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $apartment = $households->getFlats("flatIdByPrefix", $params);
 
@@ -116,7 +121,7 @@ class AsteriskRunner implements KernelRunner
                     case "apartment":
                         $params = validator($params, ['domophoneId' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $apartment = $households->getFlats("apartment", $params);
 
@@ -129,7 +134,7 @@ class AsteriskRunner implements KernelRunner
                     case "subscribers":
                         $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $flat = $households->getSubscribers("flatId", $params['flatId']);
 
@@ -142,7 +147,7 @@ class AsteriskRunner implements KernelRunner
                     case "domophone":
                         $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $domophone = $households->getDomophone($params['domophoneId']);
 
@@ -155,7 +160,7 @@ class AsteriskRunner implements KernelRunner
                     case "entrance":
                         $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
 
-                        $households = backend("households");
+                        $households = container(HouseFeature::class);
 
                         $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $params['domophoneId'], "output" => "0"]);
 
@@ -175,7 +180,7 @@ class AsteriskRunner implements KernelRunner
                         $redis = $kernel->getContainer()->get(RedisService::class)->getRedis();
 
                         if ($params["domophoneId"] >= 0) {
-                            $households = backend("households");
+                            $households = container(HouseFeature::class);
 
                             $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $params["domophoneId"], "output" => "0"]);
 
@@ -183,7 +188,7 @@ class AsteriskRunner implements KernelRunner
                                 $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
 
                                 if ($cameras && $cameras[0]) {
-                                    $model = camera($cameras[0]["model"], $cameras[0]["url"], $cameras[0]["credentials"]);
+                                    $model = container(DeviceService::class)->camera($cameras[0]["model"], $cameras[0]["url"], $cameras[0]["credentials"]);
 
                                     $redis->setex("shot_" . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
                                     $redis->setex("live_" . $params["hash"], 3 * 60, json_encode([
@@ -217,10 +222,8 @@ class AsteriskRunner implements KernelRunner
                             ]
                         );
 
-                        $isdn = backend("isdn");
-                        $sip = backend("sip");
 
-                        $server = $sip->server("extension", $params["extension"]);
+                        $server = container(SipFeature::class)->server('extension', $params['extension']);
 
                         $params = [
                             "token" => $params["token"],
@@ -240,7 +243,7 @@ class AsteriskRunner implements KernelRunner
                             "title" => 'Входящий вызов',
                         ];
 
-                        $stun = $sip->stun($params['extension']);
+                        $stun = container(SipFeature::class)->stun($params['extension']);
 
                         if ($stun) {
                             $params['stun'] = $stun;
@@ -249,7 +252,7 @@ class AsteriskRunner implements KernelRunner
 
                         $this->logger->debug('Send push', ['push' => $params]);
 
-                        $isdn->push($params);
+                        container(PushFeature::class)->push($params);
 
                         break;
                     default:
@@ -305,7 +308,7 @@ class AsteriskRunner implements KernelRunner
         $redis = $kernel->getContainer()->get(RedisService::class)->getRedis();
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $households = backend('households');
+            $households = container(HouseFeature::class);
 
             $panel = $households->getDomophone((int)substr($extension, 1));
 
@@ -396,7 +399,7 @@ class AsteriskRunner implements KernelRunner
 
         // sip extension
         if ($extension[0] === '4' && strlen($extension) === 10) {
-            $households = backend('households');
+            $households = container(HouseFeature::class);
 
             $flatId = (int)substr($extension, 1);
             $flat = $households->getFlat($flatId);
@@ -466,8 +469,7 @@ class AsteriskRunner implements KernelRunner
                 case 'endpoints':
                     $cred = $redis->get("webrtc_" . md5($extension));
 
-                    $users = backend("users");
-                    $user = $users->getUser((int)substr($extension, 1));
+                    $user = container(UserFeature::class)->getUser((int)substr($extension, 1));
 
                     if ($user && $cred) {
                         return [

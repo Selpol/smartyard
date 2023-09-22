@@ -39,6 +39,11 @@ class IntercomCms
         ];
     }
 
+    public static function modelsToArray(): array
+    {
+        return array_map(static fn(IntercomCms $cms) => $cms->toArray(), self::models());
+    }
+
     /**
      * @return IntercomCms[]
      */

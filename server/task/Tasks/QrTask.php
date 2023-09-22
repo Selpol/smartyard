@@ -2,12 +2,14 @@
 
 namespace Selpol\Task\Tasks;
 
-use backends\files\files;
 use chillerlan\QRCode\QRCode;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Psr\Container\ContainerExceptionInterface;
 use RuntimeException;
+use Selpol\Feature\Address\AddressFeature;
+use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Throwable;
 use ZipArchive;
@@ -17,8 +19,6 @@ class QrTask extends Task
     public int $houseId;
     public ?int $flatId;
     public bool $override;
-
-    private files $files;
 
     public function __construct(int $houseId, ?int $flatId, bool $override)
     {
@@ -34,17 +34,17 @@ class QrTask extends Task
      */
     public function onTask(): ?string
     {
-        $this->files = backend('files');
+        $file = container(FileFeature::class);
 
-        $house = backend('addresses')->getHouse($this->houseId);
+        $house = container(AddressFeature::class)->getHouse($this->houseId);
 
         if ($this->override) {
-            $uuids = $this->files->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
+            $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
 
             foreach ($uuids as $uuid)
-                $this->files->deleteFile($uuid['id']);
+                $file->deleteFile($uuid['id']);
         } else {
-            $uuids = $this->files->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
+            $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
 
             if (count($uuids) > 0)
                 return $uuids[count($uuids) - 1]['id'];
@@ -62,9 +62,9 @@ class QrTask extends Task
      */
     private function getOrCreateQr(array $house): array
     {
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
-        $flats = $households->getFlats('houseId', $this->houseId); // code
+        $flats = $households->getFlats('houseId', $this->houseId);
 
         $result = ['address' => $house['houseFull'], 'flats' => []];
 
@@ -112,7 +112,7 @@ class QrTask extends Task
 
             $zip->close();
 
-            return $this->files->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
+            return container(FileFeature::class)->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
         } catch (Throwable $throwable) {
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         } finally {

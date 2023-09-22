@@ -37,6 +37,7 @@
 namespace api\accounts {
 
     use api\api;
+    use Selpol\Feature\User\UserFeature;
 
     /**
      * users method
@@ -46,22 +47,14 @@ namespace api\accounts {
 
         public static function POST($params)
         {
-            $success = backend('users')->setPassword(@$params["_id"], $params["password"]);
+            $success = container(UserFeature::class)->setPassword(@$params["_id"], $params["password"]);
 
             return self::ANSWER($success, ($success !== false) ? false : "notFound");
         }
 
         public static function index()
         {
-            $users = backend("users");
-
-            if ($users && $users->capabilities()["mode"] === "rw") {
-                return [
-                    "POST" => "#personal",
-                ];
-            } else {
-                return false;
-            }
+            return ["POST" => "#personal"];
         }
     }
 }

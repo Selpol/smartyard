@@ -7,9 +7,9 @@
 namespace api\addresses {
 
     use api\api;
+    use Selpol\Feature\File\FileFeature;
     use Selpol\Task\Tasks\QrTask;
     use Selpol\Validator\Rule;
-    use Selpol\Validator\ValidatorMessage;
 
     /**
      * qr method
@@ -32,7 +32,7 @@ namespace api\addresses {
             header('Content-Type: application/zip');
             header('Content-Disposition: attachment; filename="' . $uuid . '.zip"');
 
-            echo backend('files')->getFileBytes($uuid);
+            echo container(FileFeature::class)->getFileBytes($uuid);
 
             exit(0);
         }

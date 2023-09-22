@@ -7,6 +7,9 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Device\Ip\Intercom\IntercomModel;
+    use Selpol\Feature\House\HouseFeature;
+    use Selpol\Feature\Sip\SipFeature;
 
     /**
      * domophones method
@@ -16,17 +19,15 @@ namespace api\houses {
 
         public static function GET($params)
         {
-            $households = backend("households");
-            $configs = backend("configs");
-            $sip = backend("sip");
+            $households = container(HouseFeature::class);
 
             if (!$households) {
                 return api::ERROR();
             } else {
                 $response = [
                     "domophones" => $households->getDomophones(),
-                    "models" => $configs->getDomophonesModels(),
-                    "servers" => $sip->server("all"),
+                    "models" => IntercomModel::modelsToArray(),
+                    "servers" => container(SipFeature::class)->server('all'),
                 ];
 
                 return api::ANSWER($response, "domophones");

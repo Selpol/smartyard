@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * entrance method
@@ -16,7 +17,7 @@ namespace api\houses {
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $cameraId = $households->addCamera("house", $params["houseId"], $params["cameraId"]);
 
@@ -25,7 +26,7 @@ namespace api\houses {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->unlinkCamera("house", $params["houseId"], $params["cameraId"]);
 

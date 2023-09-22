@@ -38,6 +38,7 @@
 namespace api\authentication {
 
     use api\api;
+    use Selpol\Feature\Authentication\AuthenticationFeature;
 
     /**
      * logout method
@@ -46,7 +47,7 @@ namespace api\authentication {
     {
         public static function POST($params)
         {
-            backend('authentication')->logout($params["_token"], @$params['mode'] == 'all');
+            container(AuthenticationFeature::class)->logout($params["_token"], @$params['mode'] == 'all');
 
             return ["204" => null];
         }

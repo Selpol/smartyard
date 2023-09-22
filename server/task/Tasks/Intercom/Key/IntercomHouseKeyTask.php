@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 
 class IntercomHouseKeyTask extends IntercomTask
@@ -20,7 +21,7 @@ class IntercomHouseKeyTask extends IntercomTask
      */
     public function onTask(): bool
     {
-        $entrances = backend('households')->getEntrances('houseId', $this->id);
+        $entrances = container(HouseFeature::class)->getEntrances('houseId', $this->id);
 
         if (!$entrances || count($entrances) === 0)
             return false;
@@ -38,21 +39,17 @@ class IntercomHouseKeyTask extends IntercomTask
      */
     private function entrance(array $entrance): void
     {
-        $domophone = backend('households')->getDomophone($entrance['domophoneId']);
-
-        if (!$domophone)
-            return;
-
         $domophoneId = $entrance['domophoneId'];
 
-        $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+        $device = intercom($domophoneId);
+
         if (!$device)
             return;
 
         if (!$device->ping())
             throw new RuntimeException(message: 'Устройство не доступно');
 
-        $flats = backend('households')->getFlats('houseId', $entrance['houseId']);
+        $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 
         foreach ($flats as $flat) {
             $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
@@ -66,7 +63,7 @@ class IntercomHouseKeyTask extends IntercomTask
                     if ($flat_entrance['apartment'] != $apartment)
                         $apartment = $flat_entrance['apartment'];
 
-                $keys = backend('households')->getKeys('flatId', $flat['flatId']);
+                $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
 
                 foreach ($keys as $key)
                     $device->addRfidDeffer($key['rfId'], $apartment);

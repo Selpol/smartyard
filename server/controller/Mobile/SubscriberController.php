@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Rule;
 use Selpol\Validator\ValidatorException;
@@ -27,7 +28,7 @@ class SubscriberController extends Controller
         if ($flat === null)
             return $this->rbtResponse(404, message: 'Квартира не найдена у абонента');
 
-        $subscribers = backend('households')->getSubscribers('flatId', $flat['flatId']);
+        $subscribers = container(HouseFeature::class)->getSubscribers('flatId', $flat['flatId']);
 
         return $this->rbtResponse(
             data: array_map(
@@ -64,7 +65,7 @@ class SubscriberController extends Controller
         if ($flat['role'] !== 0)
             return $this->rbtResponse(403, message: 'Недостаточно прав для добавления нового жителя');
 
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
 
@@ -105,7 +106,7 @@ class SubscriberController extends Controller
         if ($flat['role'] !== 0)
             return $this->rbtResponse(403, message: 'Недостаточно прав для удаления жителя');
 
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $subscribers = $households->getSubscribers('id', $validate['subscriberId']);
 

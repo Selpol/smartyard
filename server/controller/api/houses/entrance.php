@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * entrance method
@@ -17,7 +18,7 @@ namespace api\houses {
         {
             $entranceId = $params['_id'];
 
-            $entrance = backend('households')->getEntrance($entranceId);
+            $entrance = container(HouseFeature::class)->getEntrance($entranceId);
 
             if ($entrance)
                 return api::ANSWER($entrance, 'entrance');
@@ -27,7 +28,7 @@ namespace api\houses {
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             if (@$params["entranceId"]) {
                 $success = $households->addEntrance($params["houseId"], $params["entranceId"], $params["prefix"]);
@@ -42,7 +43,7 @@ namespace api\houses {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->modifyEntrance($params["_id"], $params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
@@ -51,7 +52,7 @@ namespace api\houses {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             if (@$params["houseId"]) {
                 $success = $households->deleteEntrance($params["_id"], $params["houseId"]);

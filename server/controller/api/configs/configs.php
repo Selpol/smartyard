@@ -7,6 +7,7 @@
 namespace api\configs {
 
     use api\api;
+    use Selpol\Feature\Frs\FrsFeature;
 
     /**
      * configs method
@@ -15,9 +16,7 @@ namespace api\configs {
     {
         public static function GET($params)
         {
-            $frs = backend("frs");
-
-            $sections = ["FRSServers" => $frs->servers(),];
+            $sections = ["FRSServers" => container(FrsFeature::class)->servers()];
 
             return api::ANSWER($sections, "sections");
         }

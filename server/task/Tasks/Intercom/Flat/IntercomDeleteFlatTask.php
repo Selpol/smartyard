@@ -27,13 +27,8 @@ class IntercomDeleteFlatTask extends Task
 
     private function delete(int $apartment, int $intercom): void
     {
-        $domophone = backend('households')->getDomophone($intercom);
-
-        if (!$domophone)
-            return;
-
         try {
-            $device = intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = intercom($intercom);
 
             if (!$device->ping())
                 throw new RuntimeException('Устройство не доступно');

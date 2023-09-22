@@ -2,8 +2,9 @@
 
 namespace Selpol\Task\Tasks\Plog;
 
-use backends\frs\frs;
-use backends\plog\plog;
+use Selpol\Feature\Frs\FrsFeature;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Plog\PlogFeature;
 use Throwable;
 
 class PlogOpenTask extends PlogTask
@@ -38,23 +39,23 @@ class PlogOpenTask extends PlogTask
 
         $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
 
-        $plog = backend('plog');
+        $plog = container(PlogFeature::class);
 
         $event_data = [];
         $event_id = false;
         $flat_list = [];
 
-        $event_data[plog::COLUMN_DATE] = $this->date;
-        $event_data[plog::COLUMN_EVENT] = $this->type;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_id'] = $this->id;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_output'] = $this->door;
-        $event_data[plog::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[plog::COLUMN_DOMOPHONE]['domophone_output']);
-        $event_data[plog::COLUMN_EVENT_UUID] = guid_v4();
+        $event_data[PlogFeature::COLUMN_DATE] = $this->date;
+        $event_data[PlogFeature::COLUMN_EVENT] = $this->type;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_id'] = $this->id;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_output'] = $this->door;
+        $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_output']);
+        $event_data[PlogFeature::COLUMN_EVENT_UUID] = guid_v4();
 
-        if ($this->type == plog::EVENT_OPENED_BY_KEY) {
-            $event_data[plog::COLUMN_OPENED] = 1;
+        if ($this->type == PlogFeature::EVENT_OPENED_BY_KEY) {
+            $event_data[PlogFeature::COLUMN_OPENED] = 1;
             $rfid_key = $this->detail;
-            $event_data[plog::COLUMN_RFID] = $rfid_key;
+            $event_data[PlogFeature::COLUMN_RFID] = $rfid_key;
 
             $flat_list = $this->getFlatIdByRfid($rfid_key);
 
@@ -64,42 +65,39 @@ class PlogOpenTask extends PlogTask
                 return false;
         }
 
-        if ($this->type == plog::EVENT_OPENED_BY_CODE) {
-            $event_data[plog::COLUMN_OPENED] = 1;
+        if ($this->type == PlogFeature::EVENT_OPENED_BY_CODE) {
+            $event_data[PlogFeature::COLUMN_OPENED] = 1;
             $open_code = $this->detail;
-            $event_data[plog::COLUMN_CODE] = $open_code;
+            $event_data[PlogFeature::COLUMN_CODE] = $open_code;
             $flat_list = $this->getFlatIdByCode($open_code);
 
             if (count($flat_list) == 0)
                 return false;
         }
 
-        if ($this->type == plog::EVENT_OPENED_BY_APP) {
-            $event_data[plog::COLUMN_OPENED] = 1;
+        if ($this->type == PlogFeature::EVENT_OPENED_BY_APP) {
+            $event_data[PlogFeature::COLUMN_OPENED] = 1;
             $user_phone = $this->detail;
-            $event_data[plog::COLUMN_PHONES]['user_phone'] = $user_phone;
+            $event_data[PlogFeature::COLUMN_PHONES]['user_phone'] = $user_phone;
             $flat_list = $this->getFlatIdByUserPhone($user_phone);
 
             if (!$flat_list || count($flat_list) == 0)
                 return false;
         }
 
-        if ($this->type == plog::EVENT_OPENED_BY_FACE) {
-            $event_data[plog::COLUMN_OPENED] = 1;
+        if ($this->type == PlogFeature::EVENT_OPENED_BY_FACE) {
+            $event_data[PlogFeature::COLUMN_OPENED] = 1;
 
             $details = explode("|", $this->detail);
 
             $face_id = $details[0];
             $event_id = $details[1];
 
-            $households = backend('households');
+            $households = container(HouseFeature::class);
 
             $entrance = $households->getEntrances("domophoneId", ["domophoneId" => $this->id, "output" => $this->door])[0];
 
-            $frs = backend("frs");
-
-            if ($frs)
-                $flat_list = $frs->getFlatsByFaceId($face_id, $entrance["entranceId"]);
+            $flat_list = container(FrsFeature::class)->getFlatsByFaceId($face_id, $entrance["entranceId"]);
 
             if (!$flat_list || count($flat_list) == 0)
                 return false;
@@ -108,16 +106,16 @@ class PlogOpenTask extends PlogTask
         $image_data = $plog->getCamshot($this->id, $this->date, $event_id);
 
         if ($image_data) {
-            if (isset($image_data[plog::COLUMN_IMAGE_UUID]))
-                $event_data[plog::COLUMN_IMAGE_UUID] = $image_data[plog::COLUMN_IMAGE_UUID];
+            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID]))
+                $event_data[PlogFeature::COLUMN_IMAGE_UUID] = $image_data[PlogFeature::COLUMN_IMAGE_UUID];
 
-            $event_data[plog::COLUMN_PREVIEW] = $image_data[plog::COLUMN_PREVIEW];
+            $event_data[PlogFeature::COLUMN_PREVIEW] = $image_data[PlogFeature::COLUMN_PREVIEW];
 
-            if (isset($image_data[plog::COLUMN_FACE])) {
-                $event_data[plog::COLUMN_FACE] = $image_data[plog::COLUMN_FACE];
+            if (isset($image_data[PlogFeature::COLUMN_FACE])) {
+                $event_data[PlogFeature::COLUMN_FACE] = $image_data[PlogFeature::COLUMN_FACE];
 
                 if (isset($face_id))
-                    $event_data[plog::COLUMN_FACE][frs::P_FACE_ID] = $face_id;
+                    $event_data[PlogFeature::COLUMN_FACE][FrsFeature::P_FACE_ID] = $face_id;
             }
         }
 

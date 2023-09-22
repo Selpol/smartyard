@@ -10,9 +10,10 @@
       "Selpol\\Http\\": "./http/",
       "Selpol\\Task\\": "./task/",
       "Selpol\\Router\\": "./router/",
+      "Selpol\\Service\\": "./service/",
       "Selpol\\Middleware\\": "./middleware/",
       "Selpol\\Controller\\": "./controller/",
-      "Selpol\\Service\\": "./service/",
+      "Selpol\\Feature\\": "./feature/",
       "Selpol\\Validator\\": "./validator/",
       "Selpol\\Device\\": "./device/",
       "Selpol\\Logger\\": "./logger/"

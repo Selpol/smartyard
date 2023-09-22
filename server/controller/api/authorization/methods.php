@@ -18,16 +18,16 @@
 namespace api\authorization {
 
     use api\api;
+    use Selpol\Feature\Authorization\AuthorizationFeature;
 
     /**
      * available method
      */
     class methods extends api
     {
-
         public static function GET($params)
         {
-            $methods = backend('authorization')->methods($params["all"]);
+            $methods = container(AuthorizationFeature::class)->methods($params["all"]);
 
             return api::ANSWER($methods, ($methods !== false) ? "methods" : "notFound");
         }

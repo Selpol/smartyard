@@ -8,7 +8,6 @@ class ClickhouseService
 {
     private string $host;
     private int $port;
-
     private string $username;
     private string $password;
 
@@ -23,21 +22,22 @@ class ClickhouseService
         $this->database = $database;
     }
 
-    function select($query)
+    function select(string $query): array|bool
     {
         $curl = curl_init();
         $headers = [];
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Content-Type: text/plain; charset=UTF-8',
-            "X-ClickHouse-User: {$this->username}",
-            "X-ClickHouse-Key: {$this->password}",
+            "X-ClickHouse-User: $this->username",
+            "X-ClickHouse-Key: $this->password",
         ]);
 
         curl_setopt($curl, CURLOPT_HEADERFUNCTION,
             function ($curl, $header) use (&$headers) {
                 $len = strlen($header);
                 $header = explode(':', $header, 2);
+
                 if (count($header) < 2)
                     return $len;
 
@@ -65,6 +65,7 @@ class ClickhouseService
 
             return false;
         }
+
         curl_close($curl);
 
         if (@$headers['x-clickhouseService-exception-code']) {
@@ -76,21 +77,22 @@ class ClickhouseService
         return $data;
     }
 
-    function insert($table, $data): bool|string
+    function insert(string $table, array $data): bool|string
     {
         $curl = curl_init();
         $headers = [];
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Content-Type: text/plain; charset=UTF-8',
-            "X-ClickHouse-User: {$this->username}",
-            "X-ClickHouse-Key: {$this->password}",
+            "X-ClickHouse-User: $this->username",
+            "X-ClickHouse-Key: $this->password",
         ]);
 
         curl_setopt($curl, CURLOPT_HEADERFUNCTION,
             function ($curl, $header) use (&$headers) {
                 $len = strlen($header);
                 $header = explode(':', $header, 2);
+
                 if (count($header) < 2)
                     return $len;
 
@@ -102,9 +104,8 @@ class ClickhouseService
 
         $_data = "";
 
-        foreach ($data as $line) {
+        foreach ($data as $line)
             $_data .= json_encode($line) . "\n";
-        }
 
         curl_setopt($curl, CURLOPT_POSTFIELDS, $_data);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -123,12 +124,10 @@ class ClickhouseService
 
             return false;
         }
+
         curl_close($curl);
 
-        if (@$headers['x-clickhouseService-exception-code']) {
-            return $error;
-        } else {
-            return true;
-        }
+        if (@$headers['x-clickhouseService-exception-code']) return $error;
+        else return true;
     }
 }

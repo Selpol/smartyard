@@ -2,21 +2,25 @@
 
 namespace Selpol\Controller\Mobile;
 
-use backends\plog\plog;
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\Camera\CameraFeature;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
 
 class AddressController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function getAddressList(): Response
     {
         $user = $this->getSubscriber();
 
-        $households = backend("households");
-        $plog = backend("plog");
-        $cameras = backend("cameras");
+        $households = container(HouseFeature::class);
 
         $houses = [];
         foreach ($user['flats'] as $flat) {
@@ -31,9 +35,9 @@ class AddressController extends Controller
 
                 $is_owner = ((int)$flat['role'] == 0);
                 $flat_plog = $households->getFlat($flat["flatId"])['plog'];
-                $has_plog = $plog && ($flat_plog == plog::ACCESS_ALL || $flat_plog == plog::ACCESS_OWNER_ONLY && $is_owner);
+                $has_plog = $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
 
-                if ($plog && $flat_plog != plog::ACCESS_RESTRICTED_BY_ADMIN)
+                if ($flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                     $house['hasPlog'] = $has_plog;
 
                 $house['cameras'] = $households->getCameras("houseId", $houseId);
@@ -63,14 +67,12 @@ class AddressController extends Controller
                 $door['name'] = $e['entrance'];
 
                 if ($e['cameraId']) {
-                    $cam = $cameras->getCamera($e["cameraId"]);
+                    $cam = container(CameraFeature::class)->getCamera($e["cameraId"]);
 
                     $house['cameras'][] = $cam;
                     $house['cctv']++;
                 }
 
-                // TODO: проверить обработку блокировки
-                //
                 if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'])
                     $door['blocked'] = "Услуга домофонии заблокирована";
 
@@ -78,7 +80,6 @@ class AddressController extends Controller
             }
         }
 
-        // конвертируем ассоциативные массивы в простые и удаляем лишние ключи
         foreach ($houses as $house_key => $h) {
             $houses[$house_key]['doors'] = array_values($h['doors']);
 
@@ -93,6 +94,9 @@ class AddressController extends Controller
         return $this->rbtResponse();
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function registerQR(): Response
     {
         $jwt = $this->getJwt();
@@ -111,7 +115,6 @@ class AddressController extends Controller
         if (!$code)
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
-        //полагаем, что хэш квартиры является суффиксом параметра QR
         $hash = '';
 
         for ($i = strlen($code) - 1; $i >= 0; --$i) {
@@ -124,7 +127,8 @@ class AddressController extends Controller
         if ($hash == '')
             return $this->rbtResponse(200, "QR-код не является кодом для доступа к квартире");
 
-        $households = backend("households");
+        $households = container(HouseFeature::class);
+
         $flat = $households->getFlats("code", ["code" => $hash])[0];
 
         if (!$flat)

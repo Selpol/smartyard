@@ -1,13 +1,10 @@
 <?php
 
-use backends\backend;
-use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Logger\FileLogger;
-use Selpol\Service\BackendService;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
@@ -18,17 +15,6 @@ if (!function_exists('logger')) {
     function logger(string $channel): LoggerInterface
     {
         return FileLogger::channel($channel);
-    }
-}
-
-if (!function_exists('backend')) {
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    function backend(string $backend, bool $login = false): backend|false
-    {
-        return container(BackendService::class)->get($backend, $login);
     }
 }
 
@@ -43,9 +29,9 @@ if (!function_exists('camera')) {
     /**
      * @throws NotFoundExceptionInterface
      */
-    function camera(string $model, string $url, string $password): CameraDevice|false
+    function camera(int $id): ?CameraDevice
     {
-        return container(DeviceService::class)->camera($model, $url, $password);
+        return container(DeviceService::class)->cameraById($id);
     }
 }
 
@@ -53,9 +39,9 @@ if (!function_exists('intercom')) {
     /**
      * @throws NotFoundExceptionInterface
      */
-    function intercom(string $model, string $url, string $password): IntercomDevice|false
+    function intercom(int $id): ?IntercomDevice
     {
-        return container(DeviceService::class)->intercom($model, $url, $password);
+        return container(DeviceService::class)->intercomById($id);
     }
 }
 

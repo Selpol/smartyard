@@ -47,16 +47,16 @@
 namespace api\authorization {
 
     use api\api;
+    use Selpol\Feature\Authorization\AuthorizationFeature;
 
     /**
      * available method
      */
     class available extends api
     {
-
         public static function GET($params)
         {
-            return api::SUCCESS("available", backend('authorization')->allowedMethods($params["_uid"]));
+            return api::SUCCESS("available", container(AuthorizationFeature::class)->allowedMethods($params["_uid"]));
         }
 
         public static function index()

@@ -5,6 +5,7 @@ namespace Selpol\Kernel\Runner;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
+use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
 use Selpol\Kernel\Kernel;
@@ -67,12 +68,6 @@ class FrontendRunner implements KernelRunner
         $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
         $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
 
-        $required_backends = ["authentication", "authorization", "users"];
-
-        foreach ($required_backends as $backend)
-            if (backend($backend) === false)
-                return $this->emit($this->option($this->response(500))->withStatusJson('Часть сервисов не доступна'));
-
         if ($token = $request->getQueryParam('_token'))
             $http_authorization = 'Bearer ' . urldecode($token);
 
@@ -104,7 +99,7 @@ class FrontendRunner implements KernelRunner
         } else if ($http_authorization) {
             $userAgent = $request->getHeader('User-Agent');
 
-            $auth = backend('authentication')->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
+            $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
             if (!$auth)
                 return $this->emit($this->option($this->response(403))->withStatusJson('Пользователь не авторизирован'));
@@ -115,9 +110,6 @@ class FrontendRunner implements KernelRunner
 
             $params["_login"] = $auth["login"];
             $params["_token"] = $auth["token"];
-
-            foreach ($required_backends as $backend)
-                backend($backend)->setCredentials($auth["uid"], $auth["login"]);
         }
 
         $params["_md5"] = md5(print_r($params, true));
@@ -158,10 +150,6 @@ class FrontendRunner implements KernelRunner
             foreach ($keys as $key)
                 $redis->del($key);
         }
-
-        if (array_key_exists('available', $params))
-            if (backend('users')->capabilities()['mode'] !== 'rw')
-                return $this->option($this->response(403))->withStatusJson('Недостаточно возможностей');
 
         return $this->option($this->response(204));
     }

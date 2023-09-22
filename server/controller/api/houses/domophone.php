@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
     use Selpol\Validator\Rule;
@@ -21,14 +22,14 @@ namespace api\houses {
         {
             $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
 
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             return api::ANSWER($households->getDomophone($validate['_id']));
         }
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $domophoneId = $households->addDomophone($params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["nat"], $params["comment"]);
 
@@ -43,7 +44,7 @@ namespace api\houses {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $domophone = $households->getDomophone($params['_id']);
 
@@ -66,7 +67,7 @@ namespace api\houses {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->deleteDomophone($params["_id"]);
 

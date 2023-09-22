@@ -55,8 +55,6 @@ class Kernel
         $this->loadConfig();
         $this->loadContainer();
 
-        require_once path('backends/backend.php');
-
         register_shutdown_function([$this, 'shutdown']);
         //set_error_handler([$this, 'error']);
 

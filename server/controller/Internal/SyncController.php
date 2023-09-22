@@ -5,6 +5,7 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Rule;
@@ -45,7 +46,7 @@ class SyncController extends Controller
     {
         $body = $this->request->getParsedBody();
 
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $result = [];
 
@@ -73,11 +74,14 @@ class SyncController extends Controller
         return $this->rbtResponse(404);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function updateSubscriberGroup(): Response
     {
         $body = $this->request->getParsedBody();
 
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $result = [];
 
@@ -110,7 +114,7 @@ class SyncController extends Controller
     {
         $body = $this->request->getParsedBody();
 
-        $households = backend('households');
+        $households = container(HouseFeature::class);
 
         $result = [];
 
@@ -180,6 +184,9 @@ class SyncController extends Controller
         return $this->rbtResponse(404);
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function updateSubscriberToFlatGroup(): Response
     {
         $body = $this->request->getParsedBody();

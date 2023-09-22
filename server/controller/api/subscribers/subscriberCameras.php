@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * suvscriberCameras method
@@ -16,7 +17,7 @@ namespace api\subscribers {
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $cameraId = $households->addCamera("subscriber", $params["subscriberId"], $params["cameraId"]);
 
@@ -25,7 +26,7 @@ namespace api\subscribers {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->unlinkCamera("subscriber", $params["subscriberId"], $params["cameraId"]);
 

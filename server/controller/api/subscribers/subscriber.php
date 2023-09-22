@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
 
     /**
      * subscriber method
@@ -15,7 +16,7 @@ namespace api\subscribers {
     {
         public static function GET($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $subscribers = $households->getSubscribers('id', $params['_id']);
 
@@ -27,7 +28,7 @@ namespace api\subscribers {
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $subscriberId = $households->addSubscriber($params["mobile"], $params["subscriberName"], $params["subscriberPatronymic"], null, @$params["flatId"], @$params["message"]);
 
@@ -36,7 +37,7 @@ namespace api\subscribers {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->modifySubscriber($params["_id"], $params)
                 && $households->setSubscriberFlats($params["_id"], $params["flats"]);
@@ -47,9 +48,9 @@ namespace api\subscribers {
         public static function DELETE($params)
         {
             if (array_key_exists('force', $params) && $params['force'])
-                return api::ANSWER(backend('households')->deleteSubscriber($params['subscriberId']));
+                return api::ANSWER(container(HouseFeature::class)->deleteSubscriber($params['subscriberId']));
 
-            return api::ANSWER(backend("households")->removeSubscriberFromFlat($params["_id"], $params["subscriberId"]));
+            return api::ANSWER(container(HouseFeature::class)->removeSubscriberFromFlat($params["_id"], $params["subscriberId"]));
         }
 
         public static function index()

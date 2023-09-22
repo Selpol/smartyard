@@ -15,17 +15,14 @@ class DatabaseService extends PDO
         $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    function trimParams($map): array
+    function trimParams(array|bool|null $map): array
     {
         $remap = [];
 
         if ($map) {
             foreach ($map as $key => $value) {
-                if (is_null($value)) {
-                    $remap[$key] = $value;
-                } else {
-                    $remap[$key] = trim($value);
-                }
+                if (is_null($value)) $remap[$key] = $value;
+                else $remap[$key] = trim($value);
             }
         }
 
@@ -36,24 +33,25 @@ class DatabaseService extends PDO
     {
         try {
             $sth = $this->prepare($query);
+
             if ($sth->execute($this->trimParams($params))) {
                 try {
                     return $this->lastInsertId();
                 } catch (Exception) {
                     return -1;
                 }
-            } else {
-                return false;
-            }
+            } else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
+
             return false;
         } catch (Exception $e) {
             last_error($e->getMessage());
             error_log(print_r($e, true));
+
             return false;
         }
     }
@@ -62,25 +60,26 @@ class DatabaseService extends PDO
     {
         try {
             $sth = $this->prepare($query);
-            if ($sth->execute($this->trimParams($params))) {
+
+            if ($sth->execute($this->trimParams($params)))
                 return $sth->rowCount();
-            } else {
-                return false;
-            }
+            else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
+
             return false;
         } catch (Exception $e) {
             last_error($e->getMessage());
             error_log(print_r($e, true));
+
             return false;
         }
     }
 
-    function modifyEx($query, $map, $params, $options = []): bool
+    function modifyEx(string $query, array $map, array $params, array $options = []): bool
     {
         $mod = false;
 
@@ -111,48 +110,38 @@ class DatabaseService extends PDO
         }
     }
 
-    function get($query, $params = [], $map = [], $options = [])
+    function get(string $query, array $params = [], array $map = [], array $options = []): bool|array
     {
         try {
             if ($params) {
                 $sth = $this->prepare($query);
-                if ($sth->execute($params)) {
+
+                if ($sth->execute($params))
                     $a = $sth->fetchAll(PDO::FETCH_ASSOC);
-                } else {
-                    return false;
-                }
-            } else {
-                $a = $this->query($query, PDO::FETCH_ASSOC)->fetchAll();
-            }
+                else return false;
+            } else $a = $this->query($query, PDO::FETCH_ASSOC)->fetchAll();
 
             $r = [];
 
             if ($map) {
                 foreach ($a as $f) {
                     $x = [];
-                    foreach ($map as $k => $l) {
+
+                    foreach ($map as $k => $l)
                         $x[$l] = $f[$k];
-                    }
+
                     $r[] = $x;
                 }
-            } else {
-                $r = $a;
+            } else $r = $a;
+
+            if (in_array('singlify', $options)) {
+                if (count($r) === 1) return $r[0];
+                else return false;
             }
 
-            if (in_array("singlify", $options)) {
-                if (count($r) === 1) {
-                    return $r[0];
-                } else {
-                    return false;
-                }
-            }
-
-            if (in_array("fieldlify", $options)) {
-                if (count($r) === 1) {
-                    return $r[0][array_key_first($r[0])];
-                } else {
-                    return false;
-                }
+            if (in_array('fieldlify', $options)) {
+                if (count($r) === 1) return $r[0][array_key_first($r[0])];
+                else return false;
             }
 
             return $r;
@@ -161,10 +150,12 @@ class DatabaseService extends PDO
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
+
             return false;
         } catch (Exception $e) {
             last_error($e->getMessage());
             error_log(print_r($e, true));
+
             return false;
         }
     }

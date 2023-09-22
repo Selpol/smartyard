@@ -7,7 +7,6 @@ use DateTimeImmutable;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\CacheInterface;
-use RedisException;
 use Selpol\Cache\Trait\CacheTrait;
 use Selpol\Container\Container;
 use Selpol\Service\RedisService;

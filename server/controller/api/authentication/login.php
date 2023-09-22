@@ -43,6 +43,7 @@
 namespace api\authentication {
 
     use api\api;
+    use Selpol\Feature\Authentication\AuthenticationFeature;
 
     /**
      * login method
@@ -53,7 +54,7 @@ namespace api\authentication {
         public static function POST($params)
         {
 
-            $auth = backend('authentication')->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]));
+            $auth = container(AuthenticationFeature::class)->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]));
 
             if ($auth["result"]) return ["200" => ["token" => $auth["token"],],];
             else return [$auth["code"] => ["error" => $auth["error"],]];

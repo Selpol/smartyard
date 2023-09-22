@@ -40,6 +40,11 @@ class CameraModel
         ];
     }
 
+    public static function modelsToArray(): array
+    {
+        return array_map(static fn(CameraModel $model) => $model->toArray(), self::models());
+    }
+
     /**
      * @return CameraModel[]
      */

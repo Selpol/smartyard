@@ -7,6 +7,7 @@
 namespace api\inbox {
 
     use api\api;
+    use Selpol\Feature\Inbox\InboxFeature;
 
     /**
      * message method
@@ -16,12 +17,10 @@ namespace api\inbox {
 
         public static function GET($params)
         {
-            $inbox = backend("inbox");
-
             if (@$params["messageId"]) {
-                $messages = $inbox->getMessages($params["_id"], "id", $params["messageId"]);
+                $messages = container(InboxFeature::class)->getMessages($params["_id"], "id", $params["messageId"]);
             } else {
-                $messages = $inbox->getMessages($params["_id"], "dates", ["dateFrom" => 0, "dateTo" => time()]);
+                $messages = container(InboxFeature::class)->getMessages($params["_id"], "dates", ["dateFrom" => 0, "dateTo" => time()]);
             }
 
             return api::ANSWER($messages, ($messages !== false) ? "messages" : "notAcceptable");
@@ -29,9 +28,7 @@ namespace api\inbox {
 
         public static function POST($params)
         {
-            $inbox = backend("inbox");
-
-            $msgId = $inbox->sendMessage($params["_id"], $params["title"], $params["body"], $params["action"]);
+            $msgId = container(InboxFeature::class)->sendMessage($params["_id"], $params["title"], $params["body"], $params["action"]);
 
             return api::ANSWER($msgId, ($msgId !== false) ? "$msgId" : "");
         }

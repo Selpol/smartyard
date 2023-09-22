@@ -47,116 +47,75 @@ return [
     'amqp' => [
         'host' => env('AMQP_HOST', '127.0.0.1'),
         'port' => env('AMQP_PORT', 5672),
-
         'username' => env('AMQP_USERNAME', 'guest'),
         'password' => env('AMQP_PASSWORD', 'guest')
     ],
 
-    'backends' => [
-        'authentication' => ['backend' => 'internal'],
-        'authorization' => ['backend' => 'internal'],
-        'users' => ['backend' => 'internal'],
-
-        'geocoder' => [
-            'backend' => 'dadata',
-
-            'token' => env('BACKEND_GEOCODER_DADATA')
-        ],
-
-        'files' => [
-            'backend' => 'mongo',
-
-            'db' => env('BACKEND_FILES_DB', 'rbt'),
-            'uri' => env('BACKEND_FILES_URI')
-        ],
-
-        'addresses' => ['backend' => 'internal'],
-        'households' => ['backend' => 'internal'],
-        'cameras' => ['backend' => 'internal'],
-
-        'isdn' => [
-            'backend' => env('BACKEND_ISDN_BACKEND'),
-
-            'endpoint' => env('BACKEND_ISDN_ENDPOINT'),
-            'secret' => env('BACKEND_ISDN_SECRET'),
-
-            'confirm_method' => 'outgoingCall'
-        ],
-
-        'inbox' => ['backend' => 'clickhouse'],
-
-        'plog' => [
-            'backend' => 'clickhouse',
-
-            'host' => env('BACKEND_PLOG_HOST'),
-            'port' => env('BACKEND_PLOG_PORT'),
-
-            'database' => env('BACKEND_PLOG_DATABASE'),
-            'username' => env('BACKEND_PLOG_USERNAME'),
-            'password' => env('BACKEND_PLOG_PASSWORD'),
-
-            'time_shift' => 60,
-            'max_call_length' => 120,
-            'ttl_temp_record' => 86400,
-            'ttl_camshot_days' => 180,
-
-            'back_time_shift_video_shot' => 3,
-
-            'cron_process_events_scheduler' => 'minutely'
-        ],
-
-        'configs' => ['backend' => 'internal'],
-
-        'dvr' => [
-            'backend' => 'internal',
-
-            /**
-             * @example BACKEND_DVR_SERVERS=[{"title": "DVR", "type": "flussonic", "url": "https://flussonic:8443", "token": "..."}]
-             */
-            'servers' => json_decode(env('BACKEND_DVR_SERVERS', '[]'), true)
-        ],
-
-        'dvr_exports' => [
-            'backend' => 'mongo',
-
-            'dvr_files_ttl' => 259200
-        ],
-
-        'sip' => [
-            'backend' => 'internal',
-
-            /**
-             * @example BACKEND_SIP_SERVERS=[{"title": "SIP", "type": "asterisk", "trunk": "first", "ip": "127.0.0.1"}]
-             */
-            'servers' => json_decode(env('BACKEND_SIP_SERVERS', '[]'), true),
-
-            'stuns' => explode(',', env('BACKEND_SIP_STUNS', 'stun://stun.l.google.com:19302'))
-        ],
-
+    'feature' => [
         'frs' => [
-            'backend' => 'internal',
-
             /**
-             * @example BACKEND_FRS_SERVERS=[{"title": "FRS", "url": "http://127.0.0.1:9051"}]
+             * @example FEATURE_FRS_SERVERS=[{"title": "FRS", "url": "http://127.0.0.1:9051"}]
              */
-            'servers' => json_decode(env('BACKEND_FRS_SERVERS', '[]'), true),
+            'servers' => json_decode(env('FEATURE_FRS_SERVERS', '[]'), true),
 
             'open_door_timeout' => 10,
 
             'cron_sync_data_scheduler' => '5min'
         ],
 
-        'oauth' => [
-            'backend' => 'internal',
-
-            'public_key' => env('BACKEND_OAUTH_PUBLIC_KEY'),
-            'audience' => env('BACKEND_OAUTH_AUDIENCE'),
-            'web_api' => env('BACKEND_OAUTH_WEB_API'),
-            'secret' => env('BACKEND_OAUTH_SECRET')
+        'dvr' => [
+            /**
+             * @example FEATURE_DVR_SERVERS=[{"title": "DVR", "type": "flussonic", "url": "https://flussonic:8443", "token": "..."}]
+             */
+            'servers' => json_decode(env('FEATURE_DVR_SERVERS', '[]'), true)
         ],
 
-        'task' => ['backend' => 'internal'],
-        'monitor' => ['backend' => 'internal']
+        'plog' => [
+            'host' => env('FEATURE_PLOG_HOST'),
+            'port' => env('FEATURE_PLOG_PORT'),
+            'database' => env('FEATURE_PLOG_DATABASE'),
+            'username' => env('FEATURE_PLOG_USERNAME'),
+            'password' => env('FEATURE_PLOG_PASSWORD'),
+
+            'max_call_length' => 120,
+            'ttl_camshot_days' => 180,
+
+            'back_time_shift_video_shot' => 3
+        ],
+
+        'file' => [
+            'db' => env('FEATURE_FILES_DB', 'rbt'),
+            'uri' => env('FEATURE_FILES_URI')
+        ],
+
+        'archive' => [
+            'dvr_files_ttl' => 259200
+        ],
+
+        'geo' => [
+            'token' => env('FEATURE_GEOCODER_DADATA')
+        ],
+
+        'push' => [
+            'endpoint' => env('FEATURE_ISDN_ENDPOINT'),
+            'secret' => env('FEATURE_ISDN_SECRET'),
+        ],
+
+        'sip' => [
+            /**
+             * @example FEATURE_SIP_SERVERS=[{"title": "SIP", "type": "asterisk", "trunk": "first", "ip": "127.0.0.1"}]
+             */
+            'servers' => json_decode(env('FEATURE_SIP_SERVERS', '[]'), true),
+
+            'stuns' => explode(',', env('FEATURE_SIP_STUNS', 'stun://stun.l.google.com:19302'))
+        ],
+
+        'oauth' => [
+            'public_key' => env('FEATURE_OAUTH_PUBLIC_KEY'),
+            'audience' => env('FEATURE_OAUTH_AUDIENCE'),
+            'web_api' => env('FEATURE_OAUTH_WEB_API'),
+            'secret' => env('FEATURE_OAUTH_SECRET')
+        ]
     ],
 
     'syslog_servers' => [

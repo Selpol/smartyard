@@ -7,6 +7,7 @@
 namespace api\houses {
 
     use api\api;
+    use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
     use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
@@ -22,14 +23,14 @@ namespace api\houses {
             if (!isset($flatId))
                 return api::ERROR('Неверный формат данных');
 
-            $flat = backend('households')->getFlat($flatId);
+            $flat = container(HouseFeature::class)->getFlat($flatId);
 
             return api::ANSWER($flat, ($flat !== false) ? 'flat' : 'notAcceptable');
         }
 
         public static function POST($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $flatId = $households->addFlat((int)$params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], (int)$params["manualBlock"], (int)$params["adminBlock"], $params["openCode"], (int)$params["plog"], (int)$params["autoOpen"], (int)$params["whiteRabbit"], (int)$params["sipEnabled"], $params["sipPassword"]);
 
@@ -41,7 +42,7 @@ namespace api\houses {
 
         public static function PUT($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $success = $households->modifyFlat($params["_id"], $params);
 
@@ -53,7 +54,7 @@ namespace api\houses {
 
         public static function DELETE($params)
         {
-            $households = backend("households");
+            $households = container(HouseFeature::class);
 
             $flat = $households->getFlat($params['_id']);
 

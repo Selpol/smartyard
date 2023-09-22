@@ -3,12 +3,18 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
+use RedisException;
 use Selpol\Controller\Controller;
 use Selpol\Http\Response;
+use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
 class CallController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     */
     public function camshot(): Response
     {
         $this->getSubscriber();
@@ -28,7 +34,7 @@ class CallController extends Controller
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws \RedisException
+     * @throws RedisException
      */
     public function live(): Response
     {
@@ -42,7 +48,7 @@ class CallController extends Controller
         $json_camera = container(RedisService::class)->getRedis()->get("live_" . $hash);
         $camera_params = json_decode($json_camera, true);
 
-        $model = camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
+        $model = container(DeviceService::class)->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
 
         if (!$model)
             return $this->rbtResponse(404, message: 'Камера не найдена');
