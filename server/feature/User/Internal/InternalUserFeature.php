@@ -36,27 +36,25 @@ class InternalUserFeature extends UserFeature
             }
 
             foreach ($_users as &$u) {
-                if ($u['uid'] !== $user->getIdentifier() && $user->getUsername() !== 'admin') {
+                if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin') {
+                    $u['sessions'] = [];
+
+                    $lk = $this->getRedis()->getRedis()->keys("auth_*_{$u['uid']}");
+
+                    foreach ($lk as $k)
+                        $u['sessions'][] = json_decode($this->getRedis()->getRedis()->get($k), true);
+
+                    $pk = $this->getRedis()->getRedis()->keys("persistent_*_{$u["uid"]}");
+
+                    foreach ($pk as $k) {
+                        $s = json_decode($this->getRedis()->getRedis()->get($k), true);
+                        $s["byPersistentToken"] = true;
+
+                        $u["sessions"][] = $s;
+                    }
+                } else {
                     unset($u['lastLogin']);
                     unset($u['lastAction']);
-
-                    continue;
-                }
-
-                $u['sessions'] = [];
-
-                $lk = $this->getRedis()->getRedis()->keys("auth_*_{$u['uid']}");
-
-                foreach ($lk as $k)
-                    $u['sessions'][] = json_decode($this->getRedis()->getRedis()->get($k), true);
-
-                $pk = $this->getRedis()->getRedis()->keys("persistent_*_{$u["uid"]}");
-
-                foreach ($pk as $k) {
-                    $s = json_decode($this->getRedis()->getRedis()->get($k), true);
-                    $s["byPersistentToken"] = true;
-
-                    $u["sessions"][] = $s;
                 }
             }
 
