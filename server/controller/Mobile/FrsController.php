@@ -41,7 +41,7 @@ class FrsController extends Controller
                 break;
             }
 
-        $faces = container(FrsFeature::class)->listFaces($flatId, $this->getUser()->getOriginalValue(), $flatOwner);
+        $faces = container(FrsFeature::class)->listFaces($flatId, $this->getUser()->getIdentifier(), $flatOwner);
         $result = [];
 
         foreach ($faces as $face)
