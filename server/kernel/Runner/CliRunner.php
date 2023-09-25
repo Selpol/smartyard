@@ -8,6 +8,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
+use RedisException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
 use Selpol\Feature\Frs\FrsFeature;
@@ -19,6 +20,7 @@ use Selpol\Logger\EchoLogger;
 use Selpol\Logger\GroupLogger;
 use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
+use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Task\Tasks\ReindexTask;
@@ -89,6 +91,7 @@ class CliRunner implements KernelRunner
             else if ($command === 'router') $this->kernelRouter();
             else if ($command === 'optimize') $this->kernelOptimize($kernel);
             else if ($command === 'clear') $this->kernelClear();
+            else if ($command === 'wipe') $this->kernelWipe();
             else echo $this->help('kernel');
         } else echo $this->help();
 
@@ -451,6 +454,15 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Kernel cleared');
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     */
+    private function kernelWipe(): void
+    {
+        container(PrometheusService::class)->wipe();
+    }
+
     private function help(?string $group = null): string
     {
         $result = [];
@@ -494,7 +506,8 @@ class CliRunner implements KernelRunner
                 'kernel:container                 - Показать зависимости приложения',
                 'kernel:router                    - Показать маршруты приложения',
                 'kernel:optimize                  - Оптимизировать приложение',
-                'kernel:clear                     - Очистить приложение'
+                'kernel:clear                     - Очистить приложение',
+                'kernel:wipe                      - Очистить метрики приложения'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;

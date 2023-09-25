@@ -3,6 +3,7 @@
 use Selpol\Controller\Internal\ActionController as InternalActionController;
 use Selpol\Controller\Internal\FrsController as InternalFrsController;
 use Selpol\Controller\Internal\SyncController as InternalSyncController;
+use Selpol\Controller\Internal\PrometheusController as InternalPrometheusController;
 use Selpol\Controller\Mobile\AddressController;
 use Selpol\Controller\Mobile\ArchiveController;
 use Selpol\Controller\Mobile\CallController;
@@ -16,10 +17,13 @@ use Selpol\Controller\Mobile\UserController;
 use Selpol\Middleware\InternalMiddleware;
 use Selpol\Middleware\JwtMiddleware;
 use Selpol\Middleware\MobileMiddleware;
+use Selpol\Middleware\PrometheusMiddleware;
 use Selpol\Middleware\RateLimitMiddleware;
 use Selpol\Router\RouterConfigurator as RC;
 
 return static function (RC $builder) {
+    $builder->include(PrometheusMiddleware::class);
+
     $builder->group('/internal', static function (RC $builder) {
         $builder->include(InternalMiddleware::class);
 
@@ -50,6 +54,8 @@ return static function (RC $builder) {
             $builder->put('/link', [InternalSyncController::class, 'updateSubscriberToFlatGroup']);
             $builder->delete('/link', [InternalSyncController::class, 'deleteSubscriberFromFlatGroup']);
         });
+
+        $builder->get('/prometheus', [InternalPrometheusController::class, 'index']);
     });
 
     $builder->group('/mobile', static function (RC $builder) {

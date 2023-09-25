@@ -2,6 +2,8 @@
 
 namespace Selpol\Router;
 
+use Selpol\Middleware\PrometheusMiddleware;
+
 class RouterConfigurator
 {
     private array $routes = [];
@@ -103,8 +105,8 @@ class RouterConfigurator
     private function applyMiddlewares(array &$route): void
     {
         if (array_key_exists('includes', $route) && array_key_exists('excludes', $route)) {
-            $route['includes'] = $route['includes'] + $this->includes;
-            $route['excludes'] = $route['excludes'] + $this->excludes;
+            $route['includes'] = array_merge($route['includes'], $this->includes);
+            $route['excludes'] = array_merge($route['excludes'], $this->excludes);
         } else foreach ($route as &$childRoute) $this->applyMiddlewares($childRoute);
     }
 

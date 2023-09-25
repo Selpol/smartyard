@@ -45,6 +45,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\DeviceService;
 use Selpol\Service\FrsService;
 use Selpol\Service\HttpService;
+use Selpol\Service\PrometheusService;
 use Selpol\Service\RedisService;
 use Selpol\Service\TaskService;
 
@@ -62,6 +63,8 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(AuthService::class);
 
     $builder->singleton(FrsService::class);
+
+    $builder->singleton(PrometheusService::class);
     //#endregion
 
     //#region Features
