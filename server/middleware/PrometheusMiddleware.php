@@ -19,11 +19,18 @@ class PrometheusMiddleware implements MiddlewareInterface
     {
         $prometheus = container(PrometheusService::class);
 
-        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['url', 'code']);
+        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['url']);
+        $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte');
 
         $response = $handler->handle($request);
 
-        $requestCount->incBy(1, [$request->getRequestTarget(), $response->getStatusCode()]);
+        $requestCount->incBy(1, [$request->getRequestTarget()]);
+        $requestBodySizeByte->incBy($request->getBody()->getSize() ?? 0, [$request->getRequestTarget()]);
+
+        if ($response->getStatusCode() !== 204) {
+            $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['url', 'code']);
+            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$request->getRequestTarget(), $response->getStatusCode()]);
+        }
 
         return $response;
     }
