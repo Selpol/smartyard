@@ -49,6 +49,11 @@ namespace api\houses {
             if ($success)
                 task(new IntercomSyncFlatTask($params['_id'], false))->high()->dispatch();
 
+            $error = last_error();
+
+            if ($error)
+                logger('frontend')->error('Error update flat ' . $error);
+
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
