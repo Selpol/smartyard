@@ -37,9 +37,9 @@ class RateLimitMiddleware implements MiddlewareInterface
                 return $handler->handle($request);
 
         $redis = container(RedisService::class)->getRedis();
-        $jwt = container(AuthService::class)->getJwt();
+        $token = container(AuthService::class)->getToken();
 
-        $key = 'rate-' . $ip . ($jwt ? ('-' . $jwt['sub'] . '-' . $jwt['aud']) : '');
+        $key = 'rate-' . $ip . ($token ? ('-' . $token->getIdentifierName() . '-' . $token->getIdentifier()) : '');
 
         if (!$redis->exists($key)) {
             $redis->incr($key);

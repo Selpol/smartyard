@@ -17,7 +17,7 @@ class ArchiveController extends Controller
      */
     public function prepare(): Response
     {
-        $user = $this->getSubscriber();
+        $userId = $this->getUser()->getIdentifier();
 
         $validate = validator($this->request->getParsedBody(), [
             'id' => [Rule::id()],
@@ -38,14 +38,14 @@ class ArchiveController extends Controller
         $archive = container(ArchiveFeature::class);
 
         // проверяем, не был ли уже запрошен данный кусок из архива.
-        $check = $archive->checkDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
+        $check = $archive->checkDownloadRecord($cameraId, $userId, $from, $to);
 
         if (@$check['id'])
             return $this->rbtResponse(200, $check['id']);
 
-        $result = (int)$archive->addDownloadRecord($cameraId, $user["subscriberId"], $from, $to);
+        $result = (int)$archive->addDownloadRecord($cameraId, $userId, $from, $to);
 
-        task(new RecordTask($user["subscriberId"], $result))->low()->dispatch();
+        task(new RecordTask($userId["subscriberId"], $result))->low()->dispatch();
 
         return $this->rbtResponse(200, $result);
     }

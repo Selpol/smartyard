@@ -19,7 +19,7 @@ class SubscriberController extends Controller
      */
     public function index(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
@@ -50,7 +50,7 @@ class SubscriberController extends Controller
      */
     public function store(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
@@ -92,7 +92,7 @@ class SubscriberController extends Controller
      */
     public function delete(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 

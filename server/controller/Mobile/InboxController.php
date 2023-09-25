@@ -17,11 +17,11 @@ class InboxController extends Controller
      */
     public function read(): Response
     {
-        $user = $this->getSubscriber();
+        $userId = $this->getUser()->getIdentifier();
 
         $validate = validator(['messageId' => $this->request->getQueryParam('messageId')], ['messageId' => [Rule::int(), Rule::min(0), Rule::max()]]);
 
-        container(InboxFeature::class)->markMessageAsRead($user['subscriberId'], $validate['messageId'] ?? false);
+        container(InboxFeature::class)->markMessageAsRead($userId, $validate['messageId'] ?? false);
 
         return $this->rbtResponse();
     }
@@ -31,8 +31,8 @@ class InboxController extends Controller
      */
     public function unread(): Response
     {
-        $user = $this->getSubscriber();
+        $userId = $this->getUser()->getIdentifier();
 
-        return $this->rbtResponse(data: ['count' => container(InboxFeature::class)->unRead($user['subscriberId']), 'chat' => 0]);
+        return $this->rbtResponse(data: ['count' => container(InboxFeature::class)->unRead($userId), 'chat' => 0]);
     }
 }

@@ -18,7 +18,7 @@ class AddressController extends Controller
      */
     public function getAddressList(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $households = container(HouseFeature::class);
 
@@ -99,9 +99,9 @@ class AddressController extends Controller
      */
     public function registerQR(): Response
     {
-        $jwt = $this->getJwt();
+        $token = $this->getToken();
 
-        $audJti = $jwt['scopes'][1];
+        $audJti = $token->getOriginalValue()['scopes'][1];
 
         $validate = validator($this->request->getParsedBody(), [
             'code' => [Rule::required(), Rule::nonNullable()],

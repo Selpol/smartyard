@@ -45,6 +45,8 @@ class CliRunner implements KernelRunner
      */
     function __invoke(Kernel $kernel): int
     {
+        chdir(path(''));
+
         $arguments = $this->getArguments();
 
         if (count($arguments) === 0) {

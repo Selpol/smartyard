@@ -5,64 +5,59 @@ namespace Selpol\Feature\User\Internal;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Service\AuthService;
 use Throwable;
 
 class InternalUserFeature extends UserFeature
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function getUsers(): bool|array
     {
+        $user = container(AuthService::class)->getUserOrThrow();
+
         try {
             $users = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login, primary_group from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
             $_users = [];
 
-            foreach ($users as $user) {
+            foreach ($users as $u) {
                 $_users[] = [
-                    "uid" => $user["uid"],
-                    "login" => $user["login"],
-                    "realName" => $user["real_name"],
-                    "eMail" => $user["e_mail"],
-                    "phone" => $user["phone"],
-                    "tg" => $user["tg"],
-                    "enabled" => $user["enabled"],
-                    "lastLogin" => $user["last_login"],
-                    "lastAction" => $this->getRedis()->getRedis()->get("last_" . md5($user["login"]))
+                    "uid" => $u["uid"],
+                    "login" => $u["login"],
+                    "realName" => $u["real_name"],
+                    "eMail" => $u["e_mail"],
+                    "phone" => $u["phone"],
+                    "tg" => $u["tg"],
+                    "enabled" => $u["enabled"],
+                    "lastLogin" => $u["last_login"],
+                    "lastAction" => $this->getRedis()->getRedis()->get("last_" . md5($u["login"]))
                 ];
             }
 
-//            $a = backend("authorization");
-//
-//            if ($a->allow([
-//                "_uid" => $this->uid,
-//                "_path" => ["api" => "accounts", "method" => "user"],
-//                "_request_method" => "POST",
-//            ])) {
-//                foreach ($_users as &$u) {
-//                    $u["sessions"] = [];
-//
-//                    $lk = $this->redis->keys("auth_*_{$u["uid"]}");
-//
-//                    foreach ($lk as $k)
-//                        $u["sessions"][] = json_decode($this->redis->get($k), true);
-//
-//                    $pk = $this->redis->keys("persistent_*_{$u["uid"]}");
-//
-//                    foreach ($pk as $k) {
-//                        $s = json_decode($this->redis->get($k), true);
-//                        $s["byPersistentToken"] = true;
-//
-//                        $u["sessions"][] = $s;
-//                    }
-//                }
-//            } else {
-//                foreach ($_users as &$u) {
-//                    unset($u["lastLogin"]);
-//                    unset($u["lastAction"]);
-//                }
-//            }
-
             foreach ($_users as &$u) {
-                unset($u["lastLogin"]);
-                unset($u["lastAction"]);
+                if ($u['uid'] !== $user->getIdentifier() && $user->getUsername() !== 'admin') {
+                    unset($u['lastLogin']);
+                    unset($u['lastAction']);
+
+                    continue;
+                }
+
+                $u['sessions'] = [];
+
+                $lk = $this->getRedis()->getRedis()->keys("auth_*_{$u['uid']}");
+
+                foreach ($lk as $k)
+                    $u['sessions'][] = json_decode($this->getRedis()->getRedis()->get($k), true);
+
+                $pk = $this->getRedis()->getRedis()->keys("persistent_*_{$u["uid"]}");
+
+                foreach ($pk as $k) {
+                    $s = json_decode($this->getRedis()->getRedis()->get($k), true);
+                    $s["byPersistentToken"] = true;
+
+                    $u["sessions"][] = $s;
+                }
             }
 
             return $_users;

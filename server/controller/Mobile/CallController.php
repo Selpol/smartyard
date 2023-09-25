@@ -17,7 +17,7 @@ class CallController extends Controller
      */
     public function camshot(): Response
     {
-        $this->getSubscriber();
+        $this->getUser();
 
         $hash = $this->getRoute()->getParam('hash');
 
@@ -38,7 +38,7 @@ class CallController extends Controller
      */
     public function live(): Response
     {
-        $this->getSubscriber();
+        $this->getUser();
 
         $hash = $this->getRoute()->getParam('hash');
 

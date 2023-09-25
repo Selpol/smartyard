@@ -22,7 +22,7 @@ class IntercomController extends Controller
      */
     public function intercom(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $body = $this->request->getParsedBody();
 
@@ -149,7 +149,7 @@ class IntercomController extends Controller
      */
     public function openDoor(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), ['domophoneId' => [Rule::id()], 'doorId' => [Rule::id()]]);
 
@@ -203,7 +203,7 @@ class IntercomController extends Controller
      */
     public function resetCode(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()]]);
 

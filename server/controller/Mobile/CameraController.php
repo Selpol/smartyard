@@ -19,7 +19,7 @@ class CameraController extends Controller
      */
     public function all(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), ['houseId' => [Rule::id()]]);
 
@@ -104,7 +104,7 @@ class CameraController extends Controller
      */
     public function events(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $body = $this->request->getParsedBody();
 

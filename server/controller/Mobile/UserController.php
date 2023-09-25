@@ -13,16 +13,22 @@ use Selpol\Validator\Rule;
 
 class UserController extends Controller
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function ping(): Response
     {
-        $this->getSubscriber();
+        $this->getUser();
 
         return $this->rbtResponse();
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function registerPushToken(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), [
             'pushToken' => [Rule::length(16), Filter::fullSpecialChars()],
@@ -74,15 +80,15 @@ class UserController extends Controller
      */
     public function sendName(): Response
     {
-        $user = $this->getSubscriber();
+        $userId = $this->getUser()->getIdentifier();
 
         $validate = validator($this->request->getParsedBody(), [
             'name' => [Rule::required(), Filter::fullSpecialChars(), Rule::length(max: 64), Rule::nonNullable()],
             'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
         ]);
 
-        if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($user['subscriberId'], ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
-        else container(HouseFeature::class)->modifySubscriber($user["subscriberId"], ["subscriberName" => $validate['name']]);
+        if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
+        else container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name']]);
 
         return $this->rbtResponse();
     }

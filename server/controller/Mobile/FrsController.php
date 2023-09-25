@@ -21,7 +21,7 @@ class FrsController extends Controller
      */
     public function index(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
@@ -57,7 +57,7 @@ class FrsController extends Controller
      */
     public function store(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator(['eventId' => $this->getRoute()->getParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
 
@@ -110,7 +110,7 @@ class FrsController extends Controller
      */
     public function delete(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
 

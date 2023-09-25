@@ -21,7 +21,7 @@ class PlogController extends Controller
      */
     public function index(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'day' => [Rule::required(), Rule::nonNullable()]]);
 
@@ -163,7 +163,7 @@ class PlogController extends Controller
 
     public function days(): Response
     {
-        $user = $this->getSubscriber();
+        $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'events' => [Rule::length(max: 64)]]);
 

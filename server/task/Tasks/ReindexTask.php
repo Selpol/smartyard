@@ -15,6 +15,8 @@ class ReindexTask extends Task
 
     public function onTask(): bool
     {
+        require_once path('/controller/api/api.php');
+
         $pdo = container(DatabaseService::class);
 
         $dir = path('controller/api');

@@ -2,74 +2,50 @@
 
 namespace Selpol\Service;
 
-use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Http\HttpException;
-use Selpol\Http\ServerRequest;
+use Selpol\Service\Auth\AuthTokenInterface;
+use Selpol\Service\Auth\AuthUserInterface;
 
 class AuthService
 {
-    private ?array $jwt = null;
+    private ?AuthTokenInterface $token = null;
+    private ?AuthUserInterface $user = null;
+
     private ?array $subscriber = null;
 
-    public function getJwt(): ?array
+    public function getToken(): ?AuthTokenInterface
     {
-        return $this->jwt;
+        return $this->token;
     }
 
-    public function getJwrOrThrow(): array
+    public function getTokenOrThrow(): AuthTokenInterface
     {
-        if ($this->jwt === null)
+        if ($this->token === null)
             throw new HttpException(message: 'Запрос не авторизирован', code: 401);
 
-        return $this->jwt;
+        return $this->token;
     }
 
-    public function setJwt(?array $jwt): void
+    public function setToken(?AuthTokenInterface $token): void
     {
-        $this->jwt = $jwt;
+        $this->token = $token;
     }
 
-    public function getSubscriber(): ?array
+    public function getUser(): ?AuthUserInterface
     {
-        return $this->subscriber;
+        return $this->user;
     }
 
-    public function getSubscriberOrThrow(): array
+    public function getUserOrThrow(): AuthUserInterface
     {
-        if ($this->subscriber === null)
+        if ($this->user === null)
             throw new HttpException(message: 'Запрос не авторизирован', code: 401);
 
-        return $this->subscriber;
+        return $this->user;
     }
 
-    public function setSubscriber(?array $subscriber): void
+    public function setUser(?AuthUserInterface $user): void
     {
-        $this->subscriber = $subscriber;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function setJwtFromRequest(ServerRequest $request): ?string
-    {
-        $token = $request->getHeader('Authorization');
-
-        if (count($token) === 0 || !str_starts_with($token[0], 'Bearer '))
-            return 'Запрос не авторизирован';
-
-        $bearer = substr($token[0], 7);
-
-        if (substr_count($bearer, '.') !== 2)
-            return 'Не верный формат токена';
-
-        $jwt = container(OauthFeature::class)->validateJwt($bearer);
-
-        if ($jwt === null)
-            return 'Запрос не авторизирован';
-
-        $this->setJwt($jwt);
-
-        return null;
+        $this->user = $user;
     }
 }

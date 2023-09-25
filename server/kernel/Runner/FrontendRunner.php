@@ -11,6 +11,9 @@ use Selpol\Http\ServerRequest;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Kernel\Runner\Trait\ResponseTrait;
+use Selpol\Service\Auth\Token\RedisAuthToken;
+use Selpol\Service\Auth\User\RedisAuthUser;
+use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
 
@@ -25,6 +28,8 @@ class FrontendRunner implements KernelRunner
      */
     function __invoke(Kernel $kernel): int
     {
+        require path('/controller/api/api.php');
+
         $http = $kernel->getContainer()->get(HttpService::class);
 
         $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
@@ -102,8 +107,11 @@ class FrontendRunner implements KernelRunner
             $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
             if (!$auth)
-                return $this->emit($this->option($this->response(403))->withStatusJson('Пользователь не авторизирован'));
-        } else return $this->emit($this->option($this->response(403))->withStatusJson('Данные авторизации не переданны'));
+                return $this->emit($this->option($this->response(401))->withStatusJson('Пользователь не авторизирован'));
+
+            container(AuthService::class)->setToken(new RedisAuthToken($auth['token']));
+            container(AuthService::class)->setUser(new RedisAuthUser($auth));
+        } else return $this->emit($this->option($this->response(401))->withStatusJson('Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
             $params["_uid"] = $auth["uid"];

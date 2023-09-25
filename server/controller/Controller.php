@@ -2,10 +2,13 @@
 
 namespace Selpol\Controller;
 
+use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
 use Selpol\Kernel\Kernel;
 use Selpol\Router\RouterMatch;
+use Selpol\Service\Auth\AuthTokenInterface;
+use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 
@@ -33,14 +36,20 @@ class Controller
         return $this->request->getAttribute('route');
     }
 
-    protected function getJwt(): array
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    protected function getToken(): AuthTokenInterface
     {
-        return container(AuthService::class)->getJwrOrThrow();
+        return container(AuthService::class)->getTokenOrThrow();
     }
 
-    protected function getSubscriber(): array
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    protected function getUser(): AuthUserInterface
     {
-        return container(AuthService::class)->getSubscriberOrThrow();
+        return container(AuthService::class)->getUserOrThrow();
     }
 
     protected function response(int $code = 200): Response
