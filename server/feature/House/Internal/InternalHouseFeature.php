@@ -416,26 +416,22 @@ class InternalHouseFeature extends HouseFeature
                 return false;
             }
             for ($i = 0; $i < count($entrances); $i++) {
-                if (!is_int($entrances[$i])) {
+                $ap = $params["flat"];
+                $lv = "";
+                if ($apartmentsAndLevels && @$apartmentsAndLevels[$entrances[$i]]) {
+                    $ap = (int)$apartmentsAndLevels[$entrances[$i]]["apartment"];
+                    if (!$ap || $ap <= 0 || $ap > 9999) {
+                        $ap = $params["flat"];
+                    }
+                    $lv = @$apartmentsAndLevels[$entrances[$i]]["apartmentLevels"];
+                }
+                if ($this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
+                        ":house_entrance_id" => $entrances[$i],
+                        ":house_flat_id" => $flatId,
+                        ":apartment" => $ap,
+                        ":cms_levels" => $lv,
+                    ]) === false) {
                     return false;
-                } else {
-                    $ap = $params["flat"];
-                    $lv = "";
-                    if ($apartmentsAndLevels && @$apartmentsAndLevels[$entrances[$i]]) {
-                        $ap = (int)$apartmentsAndLevels[$entrances[$i]]["apartment"];
-                        if (!$ap || $ap <= 0 || $ap > 9999) {
-                            $ap = $params["flat"];
-                        }
-                        $lv = @$apartmentsAndLevels[$entrances[$i]]["apartmentLevels"];
-                    }
-                    if ($this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
-                            ":house_entrance_id" => $entrances[$i],
-                            ":house_flat_id" => $flatId,
-                            ":apartment" => $ap,
-                            ":cms_levels" => $lv,
-                        ]) === false) {
-                        return false;
-                    }
                 }
             }
             return true;
