@@ -41,8 +41,7 @@ class FrsController extends Controller
                 break;
             }
 
-        $subscriber_id = (int)$user['subscriberId'];
-        $faces = container(FrsFeature::class)->listFaces($flatId, $subscriber_id, $flatOwner);
+        $faces = container(FrsFeature::class)->listFaces($flatId, $this->getUser()->getOriginalValue(), $flatOwner);
         $result = [];
 
         foreach ($faces as $face)
