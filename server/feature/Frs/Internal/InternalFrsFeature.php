@@ -236,19 +236,18 @@ class InternalFrsFeature extends FrsFeature
 
         $this->logger->debug('syncData() process', ['server' => $this->servers()]);
 
+        if (count($this->servers()) === 0)
+            return;
+
         //syncing all faces
         $frs_all_faces = [];
 
-        try {
-            foreach ($this->servers() as $frs_server) {
-                $all_faces = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_ALL_FACES);
+        foreach ($this->servers() as $frs_server) {
+            $all_faces = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_ALL_FACES);
 
-                if ($all_faces && array_key_exists(self::P_DATA, $all_faces)) {
-                    $frs_all_faces = array_merge($frs_all_faces, $all_faces[self::P_DATA]);
-                }
+            if ($all_faces && array_key_exists(self::P_DATA, $all_faces)) {
+                $frs_all_faces = array_merge($frs_all_faces, $all_faces[self::P_DATA]);
             }
-        } catch (Throwable $throwable) {
-            $this->logger->error('Error get all frs faces' . PHP_EOL . $throwable);
         }
 
         $rbt_all_faces = [];
@@ -295,21 +294,17 @@ class InternalFrsFeature extends FrsFeature
 
         $frs_all_data = [];
 
-        try {
-            foreach ($this->servers() as $frs_server) {
-                $frs_all_data[$frs_server[self::FRS_BASE_URL]] = [];
-                $streams = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_STREAMS);
+        foreach ($this->servers() as $frs_server) {
+            $frs_all_data[$frs_server[self::FRS_BASE_URL]] = [];
+            $streams = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_STREAMS);
 
-                if ($streams && isset($streams[self::P_DATA]) && is_array($streams[self::P_DATA]))
-                    foreach ($streams[self::P_DATA] as $item) {
-                        if (array_key_exists(self::P_FACE_IDS, $item))
-                            $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = $item[self::P_FACE_IDS];
-                        else
-                            $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = [];
-                    }
-            }
-        } catch (Throwable $throwable) {
-            $this->logger->error('Error get all frs data' . PHP_EOL . $throwable);
+            if ($streams && isset($streams[self::P_DATA]) && is_array($streams[self::P_DATA]))
+                foreach ($streams[self::P_DATA] as $item) {
+                    if (array_key_exists(self::P_FACE_IDS, $item))
+                        $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = $item[self::P_FACE_IDS];
+                    else
+                        $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = [];
+                }
         }
 
         $rbt_all_data = [];
