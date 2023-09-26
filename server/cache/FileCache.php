@@ -32,7 +32,7 @@ class FileCache implements CacheInterface
         if (file_exists(path('var/cache/' . $key . '.php')))
             unlink(path('var/cache/' . $key . '.php'));
 
-        return file_put_contents(path('var/cache/' . $key . '.php'), '<?php return ' . $this->export($value) . ';');
+        return file_put_contents(path('var/cache/' . $key . '.php'), '<?php return ' . $this->export($value) . ';') > 0;
     }
 
     public function delete(string $key): bool
