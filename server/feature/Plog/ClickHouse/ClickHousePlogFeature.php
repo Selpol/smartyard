@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\Plog\ClickHouse;
 
-use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Dvr\DvrFeature;
@@ -197,6 +196,23 @@ class ClickHousePlogFeature extends PlogFeature
 
         $start_date = $date - $this->max_call_length;
         $query = "select date, msg, unit from $database.syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
+
+        return $this->clickhouse->select($query);
+    }
+
+    public function getSyslogFilter(string $ip, ?string $message, ?int $page, ?int $size): false|array
+    {
+        $database = $this->clickhouse->database;
+
+        $query = "SELECT date, msg FROM $database.syslog s WHERE IPv4NumToString(s.ip) = '$ip'";
+
+        if ($message)
+            $query .= ' AND msg LIKE \'%' . $message . '%\'';
+
+        $query .= ' ORDER BY date DESC';
+
+        if ($page && $size)
+            $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
 
         return $this->clickhouse->select($query);
     }

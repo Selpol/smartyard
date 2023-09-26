@@ -112,4 +112,6 @@ abstract class PlogFeature extends Feature
     abstract public function addCallDoneData(int $date, string $ip, ?int $call_id): void;
 
     abstract public function getSyslog(string $ip, int $date): false|array;
+
+    abstract public function getSyslogFilter(string $ip, ?string $message, ?int $page, ?int $size): false|array;
 }

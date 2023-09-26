@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\Runner\CliRunner;
