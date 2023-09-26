@@ -10,7 +10,7 @@ class IntercomLockTask extends IntercomTask
 {
     public bool $lock;
 
-    public function __construct(bool $lock, int $id)
+    public function __construct(int $id, bool $lock)
     {
         parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Закрыто' : 'Открыто') . ')');
 
