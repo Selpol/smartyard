@@ -27,7 +27,7 @@ class IntercomLockTask extends IntercomTask
         if (!$device->ping())
             throw new RuntimeException(message: 'Устройство не доступно');
 
-        $device->unlocked($domophone['locksAreOpen']);
+        $device->unlocked((bool)$domophone['locksAreOpen']);
 
         return true;
     }
