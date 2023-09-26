@@ -801,10 +801,10 @@ class InternalHouseFeature extends HouseFeature
             return false;
         }
 
-        $subscriberId = $this->getDatabase()->get("select house_subscriber_id from houses_subscribers_mobile where id = :mobile",
-            ["mobile" => $mobile],
-            ["house_subscriber_id" => "subscriberId"],
-            ["fieldlify"]
+        $subscriberId = $this->getDatabase()->get(
+            "select house_subscriber_id from houses_subscribers_mobile where id = '$mobile'",
+            map: ["house_subscriber_id" => "subscriberId"],
+            options: ["fieldlify"]
         );
 
         if (!$subscriberId) {
