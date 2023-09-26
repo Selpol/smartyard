@@ -24,7 +24,7 @@ class PrometheusService
     private array $gauges = [];
 
     /** @var Histogram[] */
-    private array $histograms;
+    private array $histograms = [];
 
     /** @var Summary[] */
     private array $summaries = [];

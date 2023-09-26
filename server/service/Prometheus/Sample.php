@@ -18,6 +18,6 @@ class Sample
         $this->labelNames = $value['labelNames'];
         $this->labelValues = $value['labelValues'];
 
-        $this->value = $value['value'];
+        $this->value = intval($value['value']);
     }
 }
