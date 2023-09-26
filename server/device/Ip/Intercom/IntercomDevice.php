@@ -196,8 +196,8 @@ abstract class IntercomDevice extends IpDevice
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
         $this->clearRfid();
         $this->clearApartment();
+        $this->setSos(9998);
         $this->setConcierge(9999);
-        $this->setSos(112);
         $this->setCmsModel($cms_model);
         $this->setGate(false);
     }
