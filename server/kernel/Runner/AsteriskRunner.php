@@ -218,6 +218,7 @@ class AsteriskRunner implements KernelRunner
                                 'callerId' => [Filter::default('WebRTC', true), Rule::nonNullable()],
                                 'flatId' => [Rule::required(), Rule::int(), Rule::nonNullable()],
                                 'flatNumber' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+                                'domophoneId' => [Rule::id()]
                             ]
                         );
 
@@ -237,6 +238,7 @@ class AsteriskRunner implements KernelRunner
                             "ttl" => 30,
                             "platform" => (int)$params["platform"] ? "ios" : "android",
                             "callerId" => $params["callerId"],
+                            'domophoneId' => $params['domophoneId'],
                             "flatId" => $params["flatId"],
                             "flatNumber" => $params["flatNumber"],
                             "title" => 'Входящий вызов',

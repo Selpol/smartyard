@@ -127,7 +127,7 @@ function blacklist(flatId)
     return false
 end
 
-function push(token, tokenType, platform, extension, hash, callerId, flatId, dtmf, mobile, flatNumber)
+function push(token, tokenType, platform, extension, hash, callerId, flatId, dtmf, mobile, flatNumber, domophoneId)
     log_debug("sending push for: "..extension.." ["..mobile.."] ("..tokenType..", "..platform..")")
 
     dm("push", {
@@ -142,6 +142,7 @@ function push(token, tokenType, platform, extension, hash, callerId, flatId, dtm
         mobile = mobile,
         uniq = channel.CDR("uniqueid"):get(),
         flatNumber = flatNumber,
+        domophoneId = domophoneId
     })
 end
 
@@ -217,7 +218,7 @@ function mobile_intercom(flatId, flatNumber, domophoneId)
                         flatNumber = flatNumber,
                     }))
                 end
-                push(token, s.tokenType, s.platform, extension, hash, callerId, flatId, dtmf, s.mobile, flatNumber)
+                push(token, s.tokenType, s.platform, extension, hash, callerId, flatId, dtmf, s.mobile, flatNumber, domophoneId)
                 res = res .. "&Local/" .. extension
             end
         end
@@ -289,7 +290,7 @@ extensions = {
                     app.Wait(0.5)
                     if voip_crutch then
                         if voip_crutch['cycle'] % 10 == 0 then
-                            push(voip_crutch['token'], '0', voip_crutch['platform'], extension, voip_crutch['hash'], channel.CALLERID("name"):get(), voip_crutch['flatId'], voip_crutch['dtmf'], voip_crutch['mobile'] .. '*', voip_crutch['flatNumber'])
+                            push(voip_crutch['token'], '0', voip_crutch['platform'], extension, voip_crutch['hash'], channel.CALLERID("name"):get(), voip_crutch['flatId'], voip_crutch['dtmf'], voip_crutch['mobile'] .. '*', voip_crutch['flatNumber'], -1)
                         end
                         voip_crutch['cycle'] = voip_crutch['cycle'] + 1
                     end
