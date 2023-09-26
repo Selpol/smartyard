@@ -802,9 +802,9 @@ class InternalHouseFeature extends HouseFeature
         }
 
         $subscriber = $this->getDatabase()->get(
-            "select house_subscriber_id from houses_subscribers_mobile where id = '$mobile'",
+            "select house_subscriber_id from houses_subscribers_mobile where id = :mobile",
             ['mobile' => $mobile],
-            options: ["singlify"]
+            options: ['singlify']
         );
 
         $subscriberId = $subscriber ? $subscriber['house_subscriber_id'] : null;
