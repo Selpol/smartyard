@@ -218,7 +218,7 @@ class ClickHousePlogFeature extends PlogFeature
 
         $query .= ' ORDER BY date DESC';
 
-        if ($page && $size)
+        if ($page !== null && $size && $size > 0)
             $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
 
         return $this->clickhouse->select($query);
