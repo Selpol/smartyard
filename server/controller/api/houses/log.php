@@ -11,7 +11,7 @@ class log extends api
     public static function GET($params)
     {
         $validate = validator($params, [
-            'ip' => [Rule::ipV4()],
+            'ip' => [Rule::required(), Rule::ipV4(), Rule::nonNullable()],
 
             'message' => [Rule::length(max: 64)],
 
