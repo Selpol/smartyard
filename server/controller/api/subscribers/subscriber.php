@@ -30,7 +30,7 @@ namespace api\subscribers {
         {
             $households = container(HouseFeature::class);
 
-            $subscriberId = $households->addSubscriber($params["mobile"], @$params["subscriberName"], @$params["subscriberPatronymic"], null, @$params["flatId"], @$params["message"]);
+            $subscriberId = $households->addSubscriber($params["mobile"], @$params["subscriberName"], @$params["subscriberPatronymic"], null, array_key_exists('flatId', $params["flatId"]) ? intval($params['flatId']) : null, @$params["message"]);
 
             return api::ANSWER($subscriberId, ($subscriberId !== false) ? "subscriber" : false);
         }

@@ -793,7 +793,7 @@ class InternalHouseFeature extends HouseFeature
     public function addSubscriber(string|int $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
     {
         if (
-            !check_string($mobile, ["minLength" => 6, "maxLength" => 32, "validChars" => ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
+            !check_string($mobile, ["minLength" => 6, "maxLength" => 32, "validChars" => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
             !check_string($name, ["maxLength" => 32]) ||
             !check_string($patronymic, ["maxLength" => 32])
         ) {
@@ -817,7 +817,7 @@ class InternalHouseFeature extends HouseFeature
                 "subscriber_patronymic" => $patronymic,
                 "registered" => time(),
             ]);
-        } else if ($name && $patronymic) {
+        } else if (trim($name) && trim($patronymic)) {
             $this->modifySubscriber($subscriberId, [
                 "subscriberName" => $name,
                 "subscriberPatronymic" => $patronymic,
