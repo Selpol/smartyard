@@ -54,7 +54,7 @@ abstract class HouseFeature extends Feature
 
     abstract public function getSubscribers(string $by, mixed $query): bool|array;
 
-    abstract public function addSubscriber(string|int $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool;
+    abstract public function addSubscriber(string $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool;
 
     abstract public function modifySubscriber(int $subscriberId, array $params = []): bool|int;
 

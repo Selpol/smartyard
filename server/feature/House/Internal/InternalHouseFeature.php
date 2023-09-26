@@ -790,7 +790,7 @@ class InternalHouseFeature extends HouseFeature
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function addSubscriber(string|int $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
+    public function addSubscriber(string $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
     {
         if (
             !check_string($mobile, ["minLength" => 6, "maxLength" => 32, "validChars" => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
@@ -802,7 +802,7 @@ class InternalHouseFeature extends HouseFeature
         }
 
         $subscriberId = $this->getDatabase()->get("select house_subscriber_id from houses_subscribers_mobile where id = :mobile", [
-            "mobile" => $mobile,
+            "mobile" => trim($mobile),
         ], [
             "house_subscriber_id" => "subscriberId"
         ], [
