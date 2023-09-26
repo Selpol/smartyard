@@ -113,5 +113,5 @@ abstract class PlogFeature extends Feature
 
     abstract public function getSyslog(string $ip, int $date): false|array;
 
-    abstract public function getSyslogFilter(string $ip, ?string $message, ?int $page, ?int $size): false|array;
+    abstract public function getSyslogFilter(string $ip, ?string $message, ?int $minDate, ?int $maxDate, ?int $page, ?int $size): false|array;
 }

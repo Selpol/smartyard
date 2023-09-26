@@ -11,7 +11,6 @@ namespace api\houses {
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
     use Selpol\Validator\Rule;
-    use Selpol\Validator\ValidatorMessage;
 
     /**
      * domophone method

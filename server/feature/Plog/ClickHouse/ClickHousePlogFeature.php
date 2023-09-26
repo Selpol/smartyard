@@ -200,7 +200,7 @@ class ClickHousePlogFeature extends PlogFeature
         return $this->clickhouse->select($query);
     }
 
-    public function getSyslogFilter(string $ip, ?string $message, ?int $page, ?int $size): false|array
+    public function getSyslogFilter(string $ip, ?string $message, ?int $minDate, ?int $maxDate, ?int $page, ?int $size): false|array
     {
         $database = $this->clickhouse->database;
 
@@ -208,6 +208,13 @@ class ClickHousePlogFeature extends PlogFeature
 
         if ($message)
             $query .= ' AND msg LIKE \'%' . $message . '%\'';
+
+        if ($minDate && $maxDate)
+            $query .= ' AND date BETWEEN ' . $minDate . ' AND ' . $maxDate;
+        else if ($minDate)
+            $query .= ' AND date >= ' . $minDate;
+        else if ($maxDate)
+            $query .= ' AND date <= ' . $maxDate;
 
         $query .= ' ORDER BY date DESC';
 
