@@ -793,7 +793,7 @@ class InternalHouseFeature extends HouseFeature
     public function addSubscriber(string $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
     {
         if (
-            !check_string($mobile, ["minLength" => 6, "maxLength" => 32, "validChars" => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
+            !check_string($mobile, ["minLength" => 11, "maxLength" => 11, "validChars" => ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']]) ||
             !check_string($name, ["maxLength" => 32]) ||
             !check_string($patronymic, ["maxLength" => 32])
         ) {
@@ -801,13 +801,11 @@ class InternalHouseFeature extends HouseFeature
             return false;
         }
 
-        $subscriberId = $this->getDatabase()->get("select house_subscriber_id from houses_subscribers_mobile where id = :mobile", [
-            "mobile" => trim($mobile),
-        ], [
-            "house_subscriber_id" => "subscriberId"
-        ], [
-            "fieldlify",
-        ]);
+        $subscriberId = $this->getDatabase()->get("select house_subscriber_id from houses_subscribers_mobile where id = :mobile",
+            ["mobile" => $mobile],
+            ["house_subscriber_id" => "subscriberId"],
+            ["fieldlify"]
+        );
 
         if (!$subscriberId) {
             $subscriberId = $this->getDatabase()->insert("insert into houses_subscribers_mobile (id, aud_jti, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :aud_jti, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
