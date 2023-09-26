@@ -801,11 +801,13 @@ class InternalHouseFeature extends HouseFeature
             return false;
         }
 
-        $subscriberId = $this->getDatabase()->get(
+        $subscriber = $this->getDatabase()->get(
             "select house_subscriber_id from houses_subscribers_mobile where id = '$mobile'",
-            map: ["house_subscriber_id" => "subscriberId"],
-            options: ["fieldlify"]
+            ['mobile' => $mobile],
+            options: ["singlify"]
         );
+
+        $subscriberId = $subscriber ? $subscriber['house_subscriber_id'] : null;
 
         if (!$subscriberId) {
             $subscriberId = $this->getDatabase()->insert("insert into houses_subscribers_mobile (id, aud_jti, subscriber_name, subscriber_patronymic, registered, voip_enabled) values (:mobile, :aud_jti, :subscriber_name, :subscriber_patronymic, :registered, 1)", [
