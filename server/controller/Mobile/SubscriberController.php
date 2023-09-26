@@ -7,8 +7,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorException;
 
 class SubscriberController extends Controller
 {

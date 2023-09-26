@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Router;
 
 use Exception;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorException;
 
 class RouterMatch
 {

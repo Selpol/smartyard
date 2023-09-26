@@ -1,38 +1,21 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Intercom\Is;
 
-use Selpol\Device\DeviceException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Trait\IsTrait;
 use Selpol\Http\Stream;
 use Selpol\Service\HttpService;
 use Throwable;
 
 abstract class IsIntercom extends IntercomDevice
 {
-    public string $login = 'root';
+    use IsTrait;
 
     protected ?array $cmses = null;
     protected ?array $rfids = null;
     protected ?array $apartments = null;
-
-    public function getSysInfo(): array
-    {
-        try {
-            $info = $this->get('/system/info');
-            $version = $this->get('/v2/system/versions');
-
-            return [
-                'DeviceID' => $info['chipId'],
-                'DeviceModel' => $info['model'],
-
-                'HardwareVersion' => $version['opt']['versions']['hw']['name'],
-                'SoftwareVersion' => $version['opt']['name']
-            ];
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
-        }
-    }
 
     public function getSipStatus(): bool
     {

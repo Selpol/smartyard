@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Selpol\Cache\FileCache;
 use Selpol\Cache\RedisCache;

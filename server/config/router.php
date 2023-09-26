@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Selpol\Controller\Internal\ActionController as InternalActionController;
 use Selpol\Controller\Internal\FrsController as InternalFrsController;

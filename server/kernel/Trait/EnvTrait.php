@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Kernel\Trait;
 
@@ -13,7 +13,7 @@ trait EnvTrait
         return $this->env;
     }
 
-    public function getEnvValue(string $key, ?string $default = null): mixed
+    public function getEnvValue(string $key, mixed $default = null): mixed
     {
         $value = getenv($key);
 

@@ -1,8 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Http;
+namespace Selpol\Http\Exception;
 
 use RuntimeException;
+use Selpol\Http\Request;
+use Selpol\Http\Response;
 use Throwable;
 
 class HttpException extends RuntimeException

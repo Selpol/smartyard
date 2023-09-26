@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Camera;
 
-use Selpol\Device\DeviceException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Http\Stream;
 

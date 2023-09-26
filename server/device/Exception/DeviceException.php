@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Device;
+namespace Selpol\Device\Exception;
 
 use RuntimeException;
+use Selpol\Device\Device;
 use Throwable;
 
 class DeviceException extends RuntimeException

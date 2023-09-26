@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Container;
+namespace Selpol\Container\Exception;
 
 use Psr\Container\ContainerExceptionInterface;
 use RuntimeException;
+use Selpol\Container\Container;
 
 class ContainerException extends RuntimeException implements ContainerExceptionInterface
 {

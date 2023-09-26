@@ -8,11 +8,10 @@ use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use Selpol\Controller\Controller;
 use Selpol\Feature\Frs\FrsFeature;
-use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Service\RedisService;
-use Selpol\Validator\ValidatorException;
+use Selpol\Validator\Exception\ValidatorException;
 
 class FrsController extends Controller
 {

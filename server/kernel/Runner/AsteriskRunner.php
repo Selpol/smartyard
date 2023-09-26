@@ -14,10 +14,9 @@ use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorException;
-use Selpol\Validator\ValidatorMessage;
 use Throwable;
 
 class AsteriskRunner implements KernelRunner

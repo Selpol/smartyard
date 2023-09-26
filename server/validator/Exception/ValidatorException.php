@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Validator;
+namespace Selpol\Validator\Exception;
 
 use Exception;
+use Selpol\Validator\ValidatorMessage;
 use Throwable;
 
 class ValidatorException extends Exception

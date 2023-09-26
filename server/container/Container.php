@@ -1,9 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Container;
 
 use Exception;
 use Psr\Container\ContainerInterface;
+use Selpol\Container\Exception\ContainerNotFoundException;
 
 class Container implements ContainerInterface
 {

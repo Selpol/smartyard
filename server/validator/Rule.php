@@ -1,6 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Validator;
+
+use Selpol\Validator\Exception\ValidatorException;
 
 abstract class Rule extends ValidatorItem
 {

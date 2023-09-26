@@ -1,8 +1,9 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Container;
+namespace Selpol\Container\Exception;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Container\Container;
 
 class ContainerNotFoundException extends ContainerException implements NotFoundExceptionInterface
 {

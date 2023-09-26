@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
@@ -8,8 +8,8 @@ use Selpol\Logger\FileLogger;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Validator;
-use Selpol\Validator\ValidatorException;
 
 if (!function_exists('logger')) {
     function logger(string $channel): LoggerInterface
@@ -50,7 +50,7 @@ if (!function_exists('validator')) {
      * @param array $value
      * @param array $items
      * @return array
-     * @throws \Selpol\Http\HttpException
+     * @throws \Selpol\Http\Exception\HttpException
      */
     function validator(array $value, array $items): array
     {
@@ -59,7 +59,7 @@ if (!function_exists('validator')) {
         try {
             return $validator->validate();
         } catch (ValidatorException $e) {
-            throw new \Selpol\Http\HttpException(message: $e->getValidatorMessage()->getMessage(), code: 400);
+            throw new \Selpol\Http\Exception\HttpException(message: $e->getValidatorMessage()->getMessage(), code: 400);
         }
     }
 }

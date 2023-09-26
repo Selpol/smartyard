@@ -1,8 +1,8 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Service;
 
-use Selpol\Http\HttpException;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 

@@ -1,33 +1,16 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Camera\Is;
 
-use Selpol\Device\DeviceException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Device\Ip\Trait\IsTrait;
 use Selpol\Http\Stream;
 use Throwable;
 
 class IsCamera extends CameraDevice
 {
-    public string $login = 'root';
-
-    public function getSysInfo(): array
-    {
-        try {
-            $info = $this->get('/system/info');
-            $version = $this->get('/v2/system/versions');
-
-            return [
-                'DeviceID' => $info['chipId'],
-                'DeviceModel' => $info['model'],
-
-                'HardwareVersion' => $version['opt']['versions']['hw']['name'],
-                'SoftwareVersion' => $version['opt']['name']
-            ];
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
-        }
-    }
+    use IsTrait;
 
     public function getScreenshot(): Stream
     {

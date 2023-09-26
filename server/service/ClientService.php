@@ -1,10 +1,10 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Service;
 
 use InvalidArgumentException;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Http\HttpException;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Request;
 use Selpol\Http\Response;
 use Selpol\Http\Stream;

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Kernel\Kernel;
@@ -18,7 +18,7 @@ if (!function_exists('kernel')) {
 }
 
 if (!function_exists('env')) {
-    function env(?string $key = null, ?string $default = null): mixed
+    function env(?string $key = null, mixed $default = null): mixed
     {
         if ($key !== null)
             return kernel()->getEnvValue($key, $default);

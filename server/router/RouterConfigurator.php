@@ -1,8 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Router;
-
-use Selpol\Middleware\PrometheusMiddleware;
 
 class RouterConfigurator
 {

@@ -9,8 +9,8 @@ use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Rule;
-use Selpol\Validator\ValidatorException;
 
 class FrsController extends Controller
 {

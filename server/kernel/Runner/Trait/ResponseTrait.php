@@ -1,15 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Kernel\Runner\Trait;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Device\DeviceException;
-use Selpol\Http\HttpException;
+use Selpol\Device\Exception\DeviceException;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Response;
 use Selpol\Service\HttpService;
-use Selpol\Validator\ValidatorException;
+use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 trait ResponseTrait
