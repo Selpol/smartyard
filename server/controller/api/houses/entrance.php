@@ -8,6 +8,7 @@ namespace api\houses {
 
     use api\api;
     use Selpol\Feature\House\HouseFeature;
+    use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 
     /**
      * entrance method
@@ -46,6 +47,9 @@ namespace api\houses {
             $households = container(HouseFeature::class);
 
             $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
+
+            if ($success)
+                task(new IntercomLockTask((int)$params["_id"], (bool)$params["locksDisabled"]))->high()->dispatch();
 
             return api::ANSWER($success);
         }

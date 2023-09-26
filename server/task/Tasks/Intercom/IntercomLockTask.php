@@ -8,9 +8,13 @@ use Selpol\Service\DeviceService;
 
 class IntercomLockTask extends IntercomTask
 {
-    public function __construct(int $id)
+    public bool $lock;
+
+    public function __construct(bool $lock, int $id)
     {
-        parent::__construct($id, 'Синхронизация замка (' . $id . ')');
+        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Закрыто' : 'Открыто') . ')');
+
+        $this->lock = $lock;
     }
 
     public function onTask(): bool
@@ -27,7 +31,7 @@ class IntercomLockTask extends IntercomTask
         if (!$device->ping())
             throw new RuntimeException(message: 'Устройство не доступно');
 
-        $device->unlocked((bool)$domophone['locksAreOpen']);
+        $device->unlocked($this->lock);
 
         return true;
     }

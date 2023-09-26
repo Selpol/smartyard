@@ -52,7 +52,7 @@ namespace api\houses {
                 $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
 
                 if ($success) {
-                    task(new IntercomLockTask($params['_id']))->high()->dispatch();
+                    task(new IntercomLockTask($params['_id'], (bool)$params["locksAreOpen"]))->high()->dispatch();
 
                     if (array_key_exists('configure', $params) && $params['configure'])
                         task(new IntercomConfigureTask($params['_id']))->high()->dispatch();
