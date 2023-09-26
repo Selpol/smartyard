@@ -10,6 +10,7 @@ namespace api\houses {
     use Selpol\Feature\House\HouseFeature;
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
+    use Selpol\Task\Tasks\Intercom\IntercomLockTask;
     use Selpol\Validator\Rule;
 
     /**
@@ -51,6 +52,8 @@ namespace api\houses {
                 $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
 
                 if ($success) {
+                    task(new IntercomLockTask($params['_id']))->high()->dispatch();
+
                     if (array_key_exists('configure', $params) && $params['configure'])
                         task(new IntercomConfigureTask($params['_id']))->high()->dispatch();
 
