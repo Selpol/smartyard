@@ -142,6 +142,11 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
+    public function setEcho(bool $value): static
+    {
+        throw new DeviceException($this);
+    }
+
     public function setUnlockTime(int $time): static
     {
         throw new DeviceException($this);
@@ -194,6 +199,7 @@ abstract class IntercomDevice extends IpDevice
         $this->setNtp($ntp_server, $ntp_port);
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
+        $this->setEcho(false);
         $this->clearRfid();
         $this->clearApartment();
         $this->setSos(9998);

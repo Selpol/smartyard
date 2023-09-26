@@ -321,6 +321,13 @@ abstract class IsIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setEcho(bool $value): static
+    {
+        $this->put('/sip/options', ['echoD' => $value]);
+
+        return $this;
+    }
+
     public function setUnlockTime(int $time): static
     {
         $relays = $this->get('/relay/info');
