@@ -29,7 +29,7 @@ return [
     ],
 
     'db' => [
-        'dsn' => 'pgsql:host=' . env('DB_HOST', '127.0.0.1') . ';port=' . env('DB_PORT', 5432) . ';dbname=' . env('DB_DATABASE', 'rbt'),
+        'dsn' => 'pgsql:host=' . env('DB_HOST', '127.0.0.1') . ';port=' . intval(env('DB_PORT', '5432')) . ';dbname=' . env('DB_DATABASE', 'rbt'),
 
         'username' => env('DB_USERNAME', 'rbt'),
         'password' => env('DB_PASSWORD')
@@ -37,7 +37,7 @@ return [
 
     'redis' => [
         'host' => env('REDIS_HOST', '127.0.0.1'),
-        'port' => env('REDIS_PORT', 6379),
+        'port' => intval(env('REDIS_PORT', '6379')),
 
         'cache_ttl' => 3600,
         'token_idle_ttl' => 3600,
@@ -46,7 +46,7 @@ return [
 
     'amqp' => [
         'host' => env('AMQP_HOST', '127.0.0.1'),
-        'port' => env('AMQP_PORT', 5672),
+        'port' => intval(env('AMQP_PORT', '5672')),
         'username' => env('AMQP_USERNAME', 'guest'),
         'password' => env('AMQP_PASSWORD', 'guest')
     ],
