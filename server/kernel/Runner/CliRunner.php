@@ -11,6 +11,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
@@ -93,6 +94,8 @@ class CliRunner implements KernelRunner
             else if ($command === 'clear') $this->kernelClear();
             else if ($command === 'wipe') $this->kernelWipe();
             else echo $this->help('kernel');
+        } else if ($group === 'audit') {
+            if ($command === 'clear') $this->auditClear();
         } else echo $this->help();
 
         return 0;
@@ -452,6 +455,11 @@ class CliRunner implements KernelRunner
         $cache->clear();
 
         $this->logger->debug('Kernel cleared');
+    }
+
+    private function auditClear(): void
+    {
+        container(AuditFeature::class)->clear();;
     }
 
     /**

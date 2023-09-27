@@ -119,4 +119,12 @@ class InternalAuditFeature extends AuditFeature
             'event_message' => $audit['event_message']
         ]) ? $id : null;
     }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    public function clear(): void
+    {
+        $this->getDatabase()->modify('DELETE FROM audit');
+    }
 }
