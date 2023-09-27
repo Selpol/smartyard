@@ -69,8 +69,14 @@ class SubscriberController extends Controller
 
         $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
 
-        if (!$subscribers || count($subscribers) === 0)
-            return $this->rbtResponse(404, message: 'Житель не зарегестрирован');
+        if (!$subscribers || count($subscribers) === 0) {
+            $id = $households->addSubscriber($validate['mobile'], 'Имя', 'Отчество', flatId: $flatId);
+
+            if (!$id)
+                return $this->rbtResponse(400, message: 'Неудалось зарегестрировать жителя');
+
+            $subscribers = $households->getSubscribers('id', $id);
+        }
 
         $subscriber = $subscribers[0];
 
