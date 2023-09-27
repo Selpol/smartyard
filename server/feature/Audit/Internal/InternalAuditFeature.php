@@ -11,9 +11,69 @@ use Selpol\Service\AuthService;
 
 class InternalAuditFeature extends AuditFeature
 {
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     public function audits(int $userId, ?string $auditableId, ?string $auditableType, ?string $eventIp, ?string $eventType, ?string $eventTarget, ?string $eventCode, ?string $eventMessage, ?int $page, ?int $size): ?array
     {
-        return null;
+        $query = 'SELECT * FROM audit WHERE user_id = :user_id';
+
+        if ($auditableId)
+            $query .= ' AND auditable_id = :auditable_id';
+
+        if ($auditableType)
+            $query .= ' AND auditable_type = :auditable_type';
+
+        if ($eventIp)
+            $query .= ' AND event_ip = :event_ip';
+
+        if ($eventType)
+            $query .= ' AND event_type = :event_type';
+
+        if ($eventTarget)
+            $query .= ' AND event_target = :event_target';
+
+        if ($eventCode)
+            $query .= ' AND event_code = :event_code';
+
+        if ($eventMessage)
+            $query .= ' AND event_message LIKE :event_message';
+
+        $query .= ' ORDER BY date DESC';
+
+        if ($page !== null && $size && $size > 0)
+            $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
+
+        return $this->getDatabase()->get(
+            $query,
+            [
+                'user_id' => $userId,
+
+                'auditable_id' => $auditableId,
+                'auditable_type' => $auditableType,
+
+                'event_ip' => $eventIp,
+                'event_type' => $eventType,
+                'event_target' => $eventTarget,
+                'event_code' => $eventCode,
+                'event_message' => $eventMessage
+            ],
+            map: [
+                'user_id' => 'userId',
+
+                'auditable_id' => 'auditableId',
+                'auditable_type' => 'auditableType',
+
+                'event_ip' => 'eventIp',
+                'event_type' => 'eventType',
+                'event_target' => 'eventTarget',
+                'event_code' => 'eventCode',
+                'event_message' => 'eventMessage',
+
+                'created_at' => 'createdAt',
+                'updated_at' => 'updatedAt'
+            ]
+        );
     }
 
     /**
