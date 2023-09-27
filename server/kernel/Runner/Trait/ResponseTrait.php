@@ -46,12 +46,12 @@ trait ResponseTrait
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    private function response(int $code = 200): Response
+    protected function response(int $code = 200): Response
     {
         return container(HttpService::class)->createResponse($code);
     }
 
-    private function emit(ResponseInterface $response): int
+    protected function emit(ResponseInterface $response): int
     {
         try {
             header('HTTP/' . $response->getProtocolVersion() . ' ' . $response->getStatusCode() . ' ' . $response->getReasonPhrase());

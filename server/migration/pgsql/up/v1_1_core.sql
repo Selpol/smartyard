@@ -25,8 +25,7 @@ CREATE TABLE core_users
     tg            character varying,
     notification  character varying default 'tgEmail',
     default_route character varying,
-    last_login    integer,
-    primary_group integer
+    last_login    integer
 );
 
 CREATE UNIQUE INDEX core_users_login on core_users (login);

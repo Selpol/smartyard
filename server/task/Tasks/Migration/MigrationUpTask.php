@@ -10,7 +10,7 @@ class MigrationUpTask extends MigrationTask
 {
     public function __construct(int $dbVersion, ?int $version)
     {
-        parent::__construct('Повышение версии базы данных (' . $dbVersion . ', ' . $version . ')', $dbVersion, $version);
+        parent::__construct('Повышение версии базы данных (' . $dbVersion . ', ' . $version . ')', $dbVersion, $version ?? 999);
     }
 
     public function onTask(): bool

@@ -5,6 +5,7 @@ namespace Selpol\Kernel\Runner;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
@@ -37,7 +38,7 @@ class FrontendRunner implements KernelRunner
         $kernel->getContainer()->set(ServerRequest::class, $request);
 
         if ($request->getMethod() === 'OPTIONS')
-            return $this->emit($this->option($this->response(204))->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));
+            return $this->emit($this->response(204)->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));
 
         $http_authorization = $request->getHeader('Authorization');
 
@@ -49,7 +50,7 @@ class FrontendRunner implements KernelRunner
         $ip = connection_ip($request);
 
         if (!$ip)
-            return $this->emit($this->option($this->response(403))->withStatusJson('Неизвестный источник запроса'));
+            return $this->emit($this->response(403)->withStatusJson('Неизвестный источник запроса'));
 
         $path = explode("?", $request->getRequestTarget())[0];
 
@@ -95,23 +96,23 @@ class FrontendRunner implements KernelRunner
         $auth = false;
 
         if ($api == 'server' && $method == 'ping')
-            return $this->emit($this->option($this->response())->withString('pong'));
+            return $this->emit($this->response()->withString('pong'));
         else if ($api == 'accounts' && $method == 'forgot')
-            return $this->emit($this->forgot($params));
+            return $this->emit($this->audit($request, $this->forgot($params)));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password'])
-                return $this->emit($this->option($this->response(400))->withStatusJson('Логин или пароль не указан'));
+                return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
         } else if ($http_authorization) {
             $userAgent = $request->getHeader('User-Agent');
 
             $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
             if (!$auth)
-                return $this->emit($this->option($this->response(401))->withStatusJson('Пользователь не авторизирован'));
+                return $this->emit($this->response(401)->withStatusJson('Пользователь не авторизирован'));
 
             container(AuthService::class)->setToken(new RedisAuthToken($auth['token']));
             container(AuthService::class)->setUser(new RedisAuthUser($auth));
-        } else return $this->emit($this->option($this->response(401))->withStatusJson('Данные авторизации не переданны'));
+        } else return $this->emit($this->response(401)->withStatusJson('Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
             $params["_uid"] = $auth["uid"];
@@ -135,12 +136,24 @@ class FrontendRunner implements KernelRunner
 
                 $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit($this->option($this->response($code))->withJson($result[$code]));
-                else return $this->emit($this->option($this->response(500))->withStatusJson());
-            } else return $this->emit($this->option($this->response(404))->withStatusJson());
+                if ((int)$code) return $this->emit($this->audit($request, $this->response($code)->withJson($result[$code])));
+                else return $this->emit($this->audit($request, $this->response(500)->withStatusJson()));
+            } else return $this->emit($this->audit($request, $this->response(404)->withStatusJson()));
         }
 
-        return $this->emit($this->option($this->response(404))->withStatusJson());
+        return $this->emit($this->audit($request, $this->response(404)->withStatusJson()));
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    protected function response(int $code = 200): Response
+    {
+        return container(HttpService::class)->createResponse($code)
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', '*')
+            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
     }
 
     /**
@@ -159,14 +172,16 @@ class FrontendRunner implements KernelRunner
                 $redis->del($key);
         }
 
-        return $this->option($this->response(204));
+        return $this->response(204);
     }
 
-    private function option(Response $response): Response
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    private function audit(ServerRequest $request, Response $response): Response
     {
-        return $response
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Headers', '*')
-            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+        container(AuditFeature::class)->audit($request, $response);
+
+        return $response;
     }
 }

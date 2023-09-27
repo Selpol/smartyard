@@ -202,13 +202,6 @@
                             }
                         },
                         {
-                            id: "primaryGroup",
-                            type: "select2",
-                            value: response.user.primaryGroup,
-                            options: gs,
-                            title: i18n("users.primaryGroup"),
-                        },
-                        {
                             id: "phone",
                             type: "tel",
                             readonly: false,

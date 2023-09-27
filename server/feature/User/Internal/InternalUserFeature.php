@@ -18,7 +18,7 @@ class InternalUserFeature extends UserFeature
         $user = container(AuthService::class)->getUserOrThrow();
 
         try {
-            $users = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login, primary_group from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
+            $users = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
             $_users = [];
 
             foreach ($users as $u) {
@@ -68,7 +68,7 @@ class InternalUserFeature extends UserFeature
     public function getUser(int $uid): bool|array
     {
         try {
-            $user = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route, primary_group from core_users where uid = $uid", PDO::FETCH_ASSOC)->fetchAll();
+            $user = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route from core_users where uid = $uid", PDO::FETCH_ASSOC)->fetchAll();
 
             if (count($user)) {
                 $_user = [
@@ -191,7 +191,7 @@ class InternalUserFeature extends UserFeature
             $db = $this->getDatabase();
             $redis = $this->getRedis()->getRedis();
 
-            $sth = $db->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route, primary_group = :primary_group where uid = $uid");
+            $sth = $db->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
 
             if ($persistentToken && strlen(trim($persistentToken)) === 32 && $uid && $enabled) {
                 $redis->set("persistent_" . trim($persistentToken) . "_" . $uid, json_encode([
@@ -221,7 +221,6 @@ class InternalUserFeature extends UserFeature
                 ":notification" => trim($notification),
                 ":enabled" => $enabled ? "1" : "0",
                 ":default_route" => trim($defaultRoute),
-                ":primary_group" => 0,
             ]);
         } catch (Throwable $e) {
             error_log(print_r($e, true));
@@ -258,12 +257,12 @@ class InternalUserFeature extends UserFeature
         }
     }
 
-    private function generate_password(int $length = 8): string
+    private function generate_password(): string
     {
         $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $count = mb_strlen($chars);
 
-        for ($i = 0, $result = ''; $i < $length; $i++) {
+        for ($i = 0, $result = ''; $i < 8; $i++) {
             $index = rand(0, $count - 1);
             $result .= mb_substr($chars, $index, 1);
         }

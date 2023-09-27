@@ -7,6 +7,8 @@ use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Address\Internal\InternalAddressFeature;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Archive\Internal\InternalArchiveFeature;
+use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Audit\Internal\InternalAuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
 use Selpol\Feature\Authorization\AuthorizationFeature;
@@ -70,6 +72,8 @@ return static function (ContainerConfigurator $builder) {
     //#region Features
     $builder->singleton(AuthenticationFeature::class, InternalAuthenticationFeature::class);
     $builder->singleton(AuthorizationFeature::class, InternalAuthorizationFeature::class);
+
+    $builder->singleton(AuditFeature::class, InternalAuditFeature::class);
 
     $builder->singleton(OauthFeature::class, InternalOauthFeature::class);
     $builder->singleton(PushFeature::class, InternalPushFeature::class);
