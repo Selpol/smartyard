@@ -31,7 +31,7 @@ class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, 
             throw new RuntimeException('File is not exist');
 
         if (false === $resource = @fopen($filename, $mode)) {
-            if ('' === $mode || false === \in_array($mode[0], ['r', 'w', 'a', 'x', 'c'], true)) {
+            if ('' === $mode || false === in_array($mode[0], ['r', 'w', 'a', 'x', 'c'], true)) {
                 throw new InvalidArgumentException(sprintf('The mode "%s" is invalid.', $mode));
             }
 

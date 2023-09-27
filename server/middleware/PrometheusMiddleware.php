@@ -30,7 +30,16 @@ class PrometheusMiddleware implements MiddlewareInterface
         $code = $response->getStatusCode();
 
         $requestCount->incBy(1, [$target, $method, $code]);
-        $requestBodySizeByte->incBy($request->getBody()->getSize() ?? 0, [$target, $method, $code]);
+
+        $size = $request->getBody()->getSize();
+
+        if ($size === null) {
+            $request->getBody()->rewind();
+
+            $size = strlen($request->getBody()->getContents());
+        }
+
+        $requestBodySizeByte->incBy($size, [$target, $method, $code]);
 
         if ($response->getStatusCode() !== 204) {
             $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['url', 'method', 'code']);
