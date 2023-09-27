@@ -111,7 +111,7 @@ class FrsController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
+        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::uuid()]]);
 
         $frs = container(FrsFeature::class);
 
@@ -120,12 +120,14 @@ class FrsController extends Controller
 
         if ($validate['eventId']) {
             $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
+
             if (!$eventData)
                 $this->rbtResponse(404, message: 'Событие не найдено');
 
             $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
 
             $face = json_decode($eventData[PlogFeature::COLUMN_FACE]);
+
             if (isset($face->faceId) && $face->faceId > 0)
                 $face_id = (int)$face->faceId;
 
