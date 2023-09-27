@@ -46,6 +46,9 @@ class PrometheusMiddleware implements MiddlewareInterface
             $responseBodySizeByte->incBy($response->getBody()->getSize(), [$target, $method, $code]);
         }
 
+        $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['url', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
+        $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$target, $method, $code]);
+
         return $response;
     }
 }

@@ -17,6 +17,26 @@ class Gauge extends Collector
     }
 
     /**
+     * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     */
+    public function set(int|float $value, array $labels = []): void
+    {
+        container(PrometheusService::class)->updateGauge([
+            'name' => $this->getName(),
+            'help' => $this->getHelp(),
+            'type' => $this->getType(),
+
+            'labelNames' => $this->getLabelNames(),
+            'labelValues' => $labels,
+
+            'value' => $value,
+
+            'command' => self::COMMAND_SET
+        ]);
+    }
+
+    /**
      * @throws NotFoundExceptionInterface|RedisException
      */
     public function incBy(int|float $value, array $labels = []): void

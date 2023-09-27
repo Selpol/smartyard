@@ -14,8 +14,8 @@ use Selpol\Service\Prometheus\Metric;
 
 class PrometheusService
 {
-    const PREFIX = 'PROMETHEUS_';
-    const SUFFIX = '_METRIC_KEYS';
+    const PREFIX = 'prometheus';
+    const SUFFIX = 'keys';
 
     /** @var Counter[] */
     private array $counters = [];
@@ -77,7 +77,7 @@ LUA
             ,
             [
                 $this->toMetricKey($value),
-                self::PREFIX . Counter::TYPE . self::SUFFIX,
+                implode(':', [self::PREFIX, Counter::TYPE, self::SUFFIX]),
                 $this->toRedisCommand($value),
                 $value['value'],
                 json_encode($value['labelValues']),
@@ -103,6 +103,7 @@ LUA
         $redis = container(RedisService::class)->getRedis();
 
         $metaData = $value;
+
         unset($metaData['value'], $metaData['labelValues'], $metaData['command']);
 
         $redis->eval(
@@ -124,7 +125,7 @@ LUA
             ,
             [
                 $this->toMetricKey($value),
-                self::PREFIX . Histogram::TYPE . self::SUFFIX,
+                implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]),
                 $this->toRedisCommand($value),
                 json_encode($value['labelValues']),
                 $value['value'],
@@ -174,7 +175,7 @@ return result
 LUA,
             [
                 $this->toMetricKey($value),
-                self::PREFIX . Histogram::TYPE . self::SUFFIX,
+                implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]),
                 json_encode(['b' => 'sum', 'labelValues' => $value['labelValues']]),
                 json_encode(['b' => $bucketToIncrease, 'labelValues' => $value['labelValues']]),
                 $value['value'],
@@ -187,7 +188,7 @@ LUA,
     public function getSummary(string $namespace, string $name, string $help, array $labels = [], array $quantiles = null, int $maxAgeSeconds = 600): Summary
     {
         if (!array_key_exists($namespace . $name, $this->summaries))
-            $this->summaries[] = new Summary($namespace, $name, $help, $labels, $quantiles, $maxAgeSeconds);
+            $this->summaries[$namespace . $name] = new Summary($namespace, $name, $help, $labels, $quantiles, $maxAgeSeconds);
 
         return $this->summaries[$namespace . $name];
     }
@@ -200,7 +201,7 @@ LUA,
         $redis = container(RedisService::class)->getRedis();
 
         // store meta
-        $summaryKey = self::PREFIX . Summary::TYPE . self::SUFFIX;
+        $summaryKey = implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]);
         $metaKey = $summaryKey . ':' . $value['name'] . ':meta';
         $json = json_encode($this->metaData($value));
 
@@ -227,7 +228,7 @@ LUA,
     {
         $redis = container(RedisService::class)->getRedis();
 
-        $keys = $redis->keys(self::PREFIX . '*');
+        $keys = $redis->keys(self::PREFIX . ':*');
 
         if ($keys && count($keys))
             foreach ($keys as $key)
@@ -241,7 +242,7 @@ LUA,
     {
         $redis = container(RedisService::class)->getRedis();
 
-        $keys = $redis->sMembers(self::PREFIX . Histogram::TYPE . self::SUFFIX);
+        $keys = $redis->sMembers(implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]));
 
         sort($keys);
 
@@ -254,9 +255,10 @@ LUA,
                 continue;
 
             $histogram = json_decode($raw['__meta'], true);
-            unset($raw['__meta']);
-            $histogram['samples'] = [];
 
+            unset($raw['__meta']);
+
+            $histogram['samples'] = [];
             $histogram['buckets'][] = '+Inf';
 
             $allLabelValues = [];
@@ -271,6 +273,7 @@ LUA,
             }
 
             $allLabelValues = array_map("unserialize", array_unique(array_map("serialize", $allLabelValues)));
+
             sort($allLabelValues);
 
             foreach ($allLabelValues as $labelValues) {
@@ -318,7 +321,7 @@ LUA,
     {
         $redis = container(RedisService::class)->getRedis();
 
-        $keys = $redis->sMembers(self::PREFIX . Gauge::TYPE . self::SUFFIX);
+        $keys = $redis->sMembers(implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]));
         sort($keys);
         $gauges = [];
 
@@ -329,8 +332,11 @@ LUA,
                 continue;
 
             $gauge = json_decode($raw['__meta'], true);
+
             unset($raw['__meta']);
+
             $gauge['samples'] = [];
+
             foreach ($raw as $k => $value) {
                 $gauge['samples'][] = [
                     'name' => $gauge['name'],
@@ -355,7 +361,7 @@ LUA,
     {
         $redis = container(RedisService::class)->getRedis();
 
-        $keys = $redis->sMembers(self::PREFIX . Counter::TYPE . self::SUFFIX);
+        $keys = $redis->sMembers(implode(':', [self::PREFIX, Counter::TYPE, self::SUFFIX]));
         sort($keys);
         $counters = [];
 
@@ -391,7 +397,7 @@ LUA,
     {
         $redis = container(RedisService::class)->getRedis();
 
-        $summaryKey = self::PREFIX . Summary::TYPE . self::SUFFIX;
+        $summaryKey = implode(':', [self::PREFIX, Summary::TYPE, self::SUFFIX]);
 
         $keys = $redis->keys($summaryKey . ':*:meta');
 
