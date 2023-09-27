@@ -27,7 +27,7 @@ class log extends api
         if ($logs)
             return api::SUCCESS('logs', $logs);
 
-        return api::ERROR('Логи не найдены');
+        return api::SUCCESS('logs', []);
     }
 
     public static function index()
