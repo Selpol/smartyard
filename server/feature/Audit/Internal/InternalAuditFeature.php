@@ -54,7 +54,7 @@ class InternalAuditFeature extends AuditFeature
             $params['event_message'] = $eventMessage;
         }
 
-        $query .= ' ORDER BY date DESC';
+        $query .= ' ORDER BY created_at DESC';
 
         if ($page !== null && $size && $size > 0)
             $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
