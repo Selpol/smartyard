@@ -40,7 +40,7 @@ abstract class HouseFeature extends Feature
 
     abstract public function setCms(int $entranceId, array $cms): bool;
 
-    abstract public function getDomophones(string $by = "all", int $query = -1): bool|array;
+    abstract public function getDomophones(string $by = "all", string|int $query = -1): bool|array;
 
     abstract public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int;
 

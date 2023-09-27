@@ -526,7 +526,7 @@ class InternalHouseFeature extends HouseFeature
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function getDomophones(string $by = "all", int $query = -1): bool|array
+    public function getDomophones(string $by = "all", string|int $query = -1): bool|array
     {
         $q = "select * from houses_domophones order by house_domophone_id";
         $r = [

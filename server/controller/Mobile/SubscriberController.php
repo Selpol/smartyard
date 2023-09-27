@@ -54,7 +54,7 @@ class SubscriberController extends Controller
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
-        $validate = validator($this->request->getParsedBody(), [
+        $validate = validator($this->request->getParsedBody() ?? [], [
             'mobile' => [Rule::required(), Rule::int(), Rule::min(70000000000), Rule::max(79999999999), Rule::nonNullable()]
         ]);
 

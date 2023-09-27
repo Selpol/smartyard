@@ -18,7 +18,7 @@ class ActionController extends Controller
     {
         $body = $this->request->getParsedBody();
 
-        if (!isset($body["date"], $body["ip"],))
+        if (!isset($body["date"], $body["ip"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
         ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
