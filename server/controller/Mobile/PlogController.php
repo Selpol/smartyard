@@ -104,7 +104,7 @@ class PlogController extends Controller
                     switch ($event_type) {
                         case PlogFeature::EVENT_UNANSWERED_CALL:
                         case PlogFeature::EVENT_ANSWERED_CALL:
-                            $e_details['detailX']['opened'] = $row[PlogFeature::COLUMN_OPENED] == 1;
+                            $e_details['detailX']['opened'] = ($row[PlogFeature::COLUMN_OPENED] == 1) ? 't' : 'f';
                             break;
 
                         case PlogFeature::EVENT_OPENED_BY_KEY:
