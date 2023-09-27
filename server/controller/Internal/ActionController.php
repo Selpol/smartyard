@@ -83,7 +83,7 @@ class ActionController extends Controller
         switch ($event) {
             case PlogFeature::EVENT_OPENED_BY_KEY:
             case PlogFeature::EVENT_OPENED_BY_CODE:
-                $plog->addDoorOpenData($date, $ip, $event, $door, $detail);
+                $plog->addDoorOpenData($date, $ip, intval($event), intval($door), $detail);
 
                 return $this->rbtResponse();
 
