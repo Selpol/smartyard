@@ -17,27 +17,42 @@ class InternalAuditFeature extends AuditFeature
     public function audits(int $userId, ?string $auditableId, ?string $auditableType, ?string $eventIp, ?string $eventType, ?string $eventTarget, ?string $eventCode, ?string $eventMessage, ?int $page, ?int $size): ?array
     {
         $query = 'SELECT * FROM audit WHERE user_id = :user_id';
+        $params = ['user_id' => $userId];
 
-        if ($auditableId)
+        if ($auditableId) {
             $query .= ' AND auditable_id = :auditable_id';
+            $params['auditable_id'] = $auditableId;
+        }
 
-        if ($auditableType)
+        if ($auditableType) {
             $query .= ' AND auditable_type = :auditable_type';
+            $params['auditable_type'] = $auditableType;
+        }
 
-        if ($eventIp)
+        if ($eventIp) {
             $query .= ' AND event_ip = :event_ip';
+            $params['event_ip'] = $eventIp;
+        }
 
-        if ($eventType)
+        if ($eventType) {
             $query .= ' AND event_type = :event_type';
+            $params['event_type'] = $eventType;
+        }
 
-        if ($eventTarget)
+        if ($eventTarget) {
             $query .= ' AND event_target = :event_target';
+            $params['event_target'] = $eventTarget;
+        }
 
-        if ($eventCode)
+        if ($eventCode) {
             $query .= ' AND event_code = :event_code';
+            $params['event_code'] = $eventCode;
+        }
 
-        if ($eventMessage)
+        if ($eventMessage) {
             $query .= ' AND event_message LIKE :event_message';
+            $params['event_message'] = $eventMessage;
+        }
 
         $query .= ' ORDER BY date DESC';
 
@@ -46,18 +61,7 @@ class InternalAuditFeature extends AuditFeature
 
         return $this->getDatabase()->get(
             $query,
-            [
-                'user_id' => $userId,
-
-                'auditable_id' => $auditableId,
-                'auditable_type' => $auditableType,
-
-                'event_ip' => $eventIp,
-                'event_type' => $eventType,
-                'event_target' => $eventTarget,
-                'event_code' => $eventCode,
-                'event_message' => $eventMessage
-            ],
+            $params,
             map: [
                 'user_id' => 'userId',
 
