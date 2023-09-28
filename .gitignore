@@ -1,11 +1,7 @@
 **/node_modules
 **/.idea
 .phpdoc
-.eslintrc.yml
-.eslintrc.js
-jsconfig.json
 RBT/RBT.xcodeproj/
-/api/
 /client/lib/
 /client/lib/AdminLTE/
 /client/lib/qrcodejs/
@@ -22,7 +18,6 @@ RBT/RBT.xcodeproj/
 .bash_history
 *.apk
 .vscode
-__pycache__
 /package.json
 /package-lock.json
 /client/config/config.json
@@ -35,5 +30,3 @@ __pycache__
 package.json
 package-lock.json
 !/syslog/package.json
-/install/asterisk/config.lua
-/install/asterisk/extconfig.conf
