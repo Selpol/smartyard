@@ -9,6 +9,7 @@ use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
+use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
 
@@ -17,7 +18,7 @@ class CameraController extends Controller
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function all(): Response
+    public function index(): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -78,19 +79,7 @@ class CameraController extends Controller
                 if ($camera['cameraId'] === null)
                     continue;
 
-                $dvr = container(DvrFeature::class)->getDVRServerByStream($camera['dvrStream']);
-
-                $result[] = [
-                    "id" => $camera['cameraId'],
-                    "name" => $camera['name'],
-                    "lat" => strval($camera['lat']),
-                    "url" => $camera['dvrStream'],
-                    "token" => container(DvrFeature::class)->getDVRTokenForCam($camera, $user['subscriberId']),
-                    "lon" => strval($camera['lon']),
-                    "serverType" => $dvr['type'],
-                    'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),
-                    'timezone' => $camera['timezone']
-                ];
+                $result[] = $this->convertCamera($camera, $user);
             }
         }
 
@@ -98,6 +87,38 @@ class CameraController extends Controller
             return $this->rbtResponse(200, $result);
 
         return $this->rbtResponse(404, message: 'Камеры не найдены');
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function show(): Response
+    {
+        $user = $this->getUser()->getOriginalValue();
+
+        $cameraId = $this->getRoute()->getParamIdOrThrow('cameraId');
+        $houseId = Rule::id()->onItem('houseId', $this->request->getQueryParams());
+
+        $find = false;
+
+        foreach ($user['flats'] as $flat) {
+            if ($flat['addressHouseId'] == $houseId) {
+                $find = true;
+
+                break;
+            }
+        }
+
+        if (!$find)
+            return $this->rbtResponse(404, message: 'Камера не найдена');
+
+        $camera = container(CameraFeature::class)->getCamera($cameraId);
+
+        if (!$camera)
+            return $this->rbtResponse(404, message: 'Камера не найдена');
+
+        return $this->rbtResponse(data: $this->convertCamera($camera, $user));
     }
 
     /**
@@ -141,5 +162,25 @@ class CameraController extends Controller
             return $this->rbtResponse(200, array_map(static fn(array $item) => $item['date'], $events));
 
         return $this->rbtResponse(404, message: 'События не найдены');
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    private function convertCamera(array $camera, array $user): array
+    {
+        $dvr = container(DvrFeature::class)->getDVRServerByStream($camera['dvrStream']);
+
+        return [
+            "id" => $camera['cameraId'],
+            "name" => $camera['name'],
+            "lat" => strval($camera['lat']),
+            "url" => $camera['dvrStream'],
+            "token" => container(DvrFeature::class)->getDVRTokenForCam($camera, $user['subscriberId']),
+            "lon" => strval($camera['lon']),
+            "serverType" => $dvr['type'],
+            'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),
+            'timezone' => $camera['timezone']
+        ];
     }
 }

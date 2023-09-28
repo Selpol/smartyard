@@ -77,7 +77,9 @@ return static function (RC $builder) {
         });
 
         $builder->group('/cctv', static function (RC $builder) {
-            $builder->post('/all', [CameraController::class, 'all']);
+            $builder->post('/all', [CameraController::class, 'index']);
+            $builder->get('/{cameraId}', [CameraController::class, 'show']);
+
             $builder->post('/events', [CameraController::class, 'events']);
 
             $builder->post('/recPrepare', [ArchiveController::class, 'prepare']);

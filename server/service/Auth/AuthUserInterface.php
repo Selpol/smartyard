@@ -24,4 +24,10 @@ interface AuthUserInterface
      * @return T
      */
     public function getOriginalValue(): mixed;
+
+    /**
+     * Имеет ли пользователь возможность доступа к правам
+     * @return bool
+     */
+    public function canScope(): bool;
 }

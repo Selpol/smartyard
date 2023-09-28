@@ -11,8 +11,6 @@ class AuthService
     private ?AuthTokenInterface $token = null;
     private ?AuthUserInterface $user = null;
 
-    private ?array $subscriber = null;
-
     public function getToken(): ?AuthTokenInterface
     {
         return $this->token;
@@ -47,5 +45,13 @@ class AuthService
     public function setUser(?AuthUserInterface $user): void
     {
         $this->user = $user;
+    }
+
+    public function checkScope(string $value): bool
+    {
+        if ($this->user === null || !$this->user->canScope())
+            return false;
+
+        return true;
     }
 }

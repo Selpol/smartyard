@@ -30,4 +30,9 @@ class SubscriberAuthUser implements AuthUserInterface
     {
         return $this->value;
     }
+
+    public function canScope(): bool
+    {
+        return false;
+    }
 }

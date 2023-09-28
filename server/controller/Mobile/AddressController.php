@@ -61,8 +61,11 @@ class AddressController extends Controller
                 $e = $households->getEntrance($entrance['entranceId']);
 
                 $door = [];
+
                 $door['domophoneId'] = strval($e['domophoneId']);
                 $door['doorId'] = intval($e['domophoneOutput']);
+                $door['cameraId'] = intval($e['cameraId']);
+
                 $door['icon'] = $e['entranceType'];
                 $door['name'] = $e['entrance'];
 
