@@ -31,7 +31,7 @@ class audit extends api
         if ($audits)
             return api::SUCCESS('audits', $audits);
 
-        return api::ERROR('Логи не найдены');
+        return api::SUCCESS('audits', []);
     }
 
     public static function index(): array

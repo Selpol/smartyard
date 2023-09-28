@@ -97,7 +97,7 @@ class InternalAuditFeature extends AuditFeature
             'auditable_id' => '0',
             'auditable_type' => 'request',
 
-            'event_type' => 'request',
+            'event_type' => $request->getMethod(),
             'event_message' => 'Request'
         ]);
 
