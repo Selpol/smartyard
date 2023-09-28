@@ -51,7 +51,7 @@ abstract class IsIntercom extends IntercomDevice
 
     public function addRfid(string $code, int $apartment): void
     {
-        $this->post('/key/store', ['uuid' => $code, 'panelCode' => $apartment]);
+        $this->post('/key/store', ['uuid' => $code, 'panelCode' => $apartment, 'encryption' => true]);
     }
 
     public function addRfidDeffer(string $code, int $apartment): void
@@ -59,7 +59,7 @@ abstract class IsIntercom extends IntercomDevice
         if ($this->rfids === null)
             $this->rfids = [];
 
-        $this->rfids[] = ['uuid' => $code, 'panelCode' => $apartment];
+        $this->rfids[] = ['uuid' => $code, 'panelCode' => $apartment, 'encryption' => true];
     }
 
     public function removeRfid(string $code): void
