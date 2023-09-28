@@ -3,6 +3,8 @@
 return [
     'language' => env('LANGUAGE', 'ru'),
 
+    'audit' => env('AUDIT', 0),
+
     'api' => [
         'frontend' => env('API_FRONTEND', 'http://127.0.0.1/frontend'),
         'asterisk' => env('API_ASTERISK', 'http://127.0.0.1/asterisk'),
