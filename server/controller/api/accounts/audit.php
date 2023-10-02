@@ -20,7 +20,7 @@ class audit extends api
             'eventType' => [Rule::length()],
             'eventTarget' => [Rule::length()],
             'eventCode' => [Rule::length()],
-            'eventMessage' => [Rule::length(2048)],
+            'eventMessage' => [Rule::length(max: 2048)],
 
             'page' => [Rule::int(), Rule::min(0), Rule::max()],
             'size' => [Rule::int(), Rule::min(0), Rule::max(1000)]

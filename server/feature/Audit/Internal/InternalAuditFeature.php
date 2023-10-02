@@ -40,7 +40,7 @@ class InternalAuditFeature extends AuditFeature
         }
 
         if ($eventTarget) {
-            $query .= ' AND event_target = :event_target';
+            $query .= ' AND event_target LIKE :event_target';
             $params['event_target'] = $eventTarget;
         }
 
