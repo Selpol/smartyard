@@ -1,5 +1,7 @@
 FROM php:8.1-fpm-alpine
 
+ARG TZ
+
 WORKDIR /srv/app
 
 COPY --from=mlocati/php-extension-installer:latest --link /usr/bin/install-php-extensions /usr/local/bin/
@@ -78,6 +80,4 @@ RUN set -eux; \
 		sync; \
     fi
 
-ENV TZ=Europe/Moscow
-
-RUN cp /usr/share/zoneinfo/Europe/Moscow /etc/localtime
+RUN cp /usr/share/zoneinfo/$TZ /etc/localtime

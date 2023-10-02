@@ -48,7 +48,10 @@ services:
     networks:
       backend:
   php:
-    build: .
+    build:
+      context: .
+      args:
+        TZ: Europe/Moscow
     container_name: php
     volumes:
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key

@@ -17,15 +17,26 @@ class PrometheusMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $response = $handler->handle($request);
+
+        $this->processResponse($request, $response);
+
+        return $response;
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws RedisException
+     */
+    private function processResponse(ServerRequestInterface $request, ResponseInterface $response): void
+    {
+        $prometheus = container(PrometheusService::class);
+
         $target = $request->getRequestTarget();
         $method = $request->getMethod();
 
-        $prometheus = container(PrometheusService::class);
-
         $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['url', 'method', 'code']);
         $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte', ['url', 'method', 'code']);
-
-        $response = $handler->handle($request);
 
         $code = $response->getStatusCode();
 
@@ -48,7 +59,5 @@ class PrometheusMiddleware implements MiddlewareInterface
 
         $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['url', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
         $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$target, $method, $code]);
-
-        return $response;
     }
 }
