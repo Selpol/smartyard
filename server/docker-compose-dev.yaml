@@ -1,0 +1,76 @@
+version: "3"
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    container_name: nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx/dev-nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - php
+    networks:
+      frontend:
+  database:
+    image: postgres:15-alpine
+    container_name: database
+    volumes:
+      - ./docker/data/database:/var/lib/postgresql/data
+    env_file:
+      - .env
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+    environment:
+      - POSTGRES_DB=${DB_DATABASE}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - TZ=Europe/Moscow
+    networks:
+      backend:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      backend:
+  amqp:
+    image: heidiks/rabbitmq-delayed-message-exchange:3.10.2-management
+    container_name: amqp
+    environment:
+      - RABBITMQ_DEFAULT_USER=${AMQP_USERNAME}
+      - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
+    networks:
+      backend:
+  php:
+    build:
+      context: .
+      dockerfile: Dev.Dockerfile
+      args:
+        TZ: Europe/Moscow
+    container_name: php
+    volumes:
+      - ./:/srv/app
+      - ./docker/data/log:/srv/app/var/log
+    environment:
+      - DB_HOST=database
+      - DB_PORT=5432
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - AMQP_HOST=amqp
+      - AMQP_PORT=5672
+    depends_on:
+      - database
+      - redis
+      - amqp
+    networks:
+      backend:
+      frontend:
+
+networks:
+  frontend:
+  backend:
