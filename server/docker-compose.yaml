@@ -70,4 +70,3 @@ services:
 networks:
   frontend:
   backend:
-    driver: bridge
