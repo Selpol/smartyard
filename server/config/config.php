@@ -3,8 +3,6 @@
 return [
     'language' => env('LANGUAGE', 'ru'),
 
-    'audit' => env('AUDIT', 0),
-
     'api' => [
         'frontend' => env('API_FRONTEND', 'http://127.0.0.1/frontend'),
         'asterisk' => env('API_ASTERISK', 'http://127.0.0.1/asterisk'),
@@ -54,6 +52,10 @@ return [
     ],
 
     'feature' => [
+        'role' => [
+            'default_permissions' => explode(',', env('FEATURE_ROLE_PERMISSIONS', ''))
+        ],
+
         'frs' => [
             /**
              * @example FEATURE_FRS_SERVERS=[{"title": "FRS", "url": "http://127.0.0.1:9051"}]

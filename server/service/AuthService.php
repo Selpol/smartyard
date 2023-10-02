@@ -2,6 +2,10 @@
 
 namespace Selpol\Service;
 
+use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
+use Selpol\Cache\RedisCache;
+use Selpol\Feature\Role\RoleFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
@@ -47,11 +51,24 @@ class AuthService
         $this->user = $user;
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
+     */
     public function checkScope(string $value): bool
     {
         if ($this->user === null || !$this->user->canScope())
             return false;
 
-        return true;
+        $role = container(RoleFeature::class);
+
+        $defaultPermissions = $role->getDefaultPermissions();
+
+        if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions))
+            return true;
+
+        $permissions = container(RedisCache::class)->cache('user:permissions', static fn() => $role->findAllPermissionsForUser($this->user->getIdentifier()), 30);
+
+        return in_array('*', $permissions) || in_array($value, $permissions);
     }
 }

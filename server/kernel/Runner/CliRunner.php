@@ -13,6 +13,7 @@ use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
+use Selpol\Feature\Role\RoleFeature;
 use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Kernel\Trait\ConfigTrait;
@@ -24,7 +25,6 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
-use Selpol\Task\Tasks\ReindexTask;
 use Throwable;
 
 class CliRunner implements KernelRunner
@@ -96,6 +96,10 @@ class CliRunner implements KernelRunner
             else echo $this->help('kernel');
         } else if ($group === 'audit') {
             if ($command === 'clear') $this->auditClear();
+            else echo $this->help('audit');
+        } else if ($group === 'role') {
+            if ($command === 'init') $this->roleInit();
+            else echo $this->help('role');
         } else echo $this->help();
 
         return 0;
@@ -194,7 +198,88 @@ class CliRunner implements KernelRunner
      */
     private function rbtReindex(): void
     {
-        task(new ReindexTask())->sync();
+        require_once path('/controller/api/api.php');
+
+        $pdo = container(DatabaseService::class);
+
+        $dir = path('controller/api');
+        $apis = scandir($dir);
+
+        $pdo->exec("delete from core_api_methods");
+        $pdo->exec("delete from core_api_methods_common");
+        $pdo->exec("delete from core_api_methods_by_backend");
+        $pdo->exec("delete from core_api_methods_personal");
+
+        $add = $pdo->prepare("insert into core_api_methods (aid, api, method, request_method) values (:md5, :api, :method, :request_method)");
+        $aid = $pdo->prepare("select aid from core_api_methods where api = :api and method = :method and request_method = :request_method");
+        $adb = $pdo->prepare("insert into core_api_methods_by_backend (aid, backend) values (:aid, :backend)");
+        $ads = $pdo->prepare("update core_api_methods set permissions_same = :permissions_same where aid = :aid");
+
+        $n = 0;
+
+        foreach ($apis as $api) {
+            if ($api != "." && $api != ".." && is_dir($dir . "/$api")) {
+                $methods = scandir($dir . "/$api");
+
+                foreach ($methods as $method) {
+                    if ($method != "." && $method != ".." && str_ends_with($method, ".php") && is_file($dir . "/$api/$method")) {
+                        $method = substr($method, 0, -4);
+
+                        require_once $dir . "/$api/$method.php";
+
+                        if (class_exists("\\api\\$api\\$method")) {
+                            $request_methods = call_user_func(["\\api\\$api\\$method", "index"]);
+                            if ($request_methods) {
+                                foreach ($request_methods as $request_method => $backend) {
+                                    if (is_int($request_method)) {
+                                        $request_method = $backend;
+                                        $backend = false;
+                                    }
+
+                                    $md5 = md5("$api/$method/$request_method");
+                                    $add->execute([":md5" => $md5, ":api" => $api, ":method" => $method, ":request_method" => $request_method]);
+
+                                    if ($backend) {
+                                        switch ($backend) {
+                                            case "#common";
+                                                try {
+                                                    $pdo->exec("insert into core_api_methods_common (aid) values ('$md5')");
+                                                } catch (Exception) {
+                                                    // uniq violation?
+                                                }
+                                                break;
+                                            case "#personal";
+                                                try {
+                                                    $pdo->exec("insert into core_api_methods_personal (aid) values ('$md5')");
+                                                } catch (Exception) {
+                                                    // uniq violation?
+                                                }
+                                                break;
+                                            default:
+                                                if (str_starts_with($backend, "#same(")) {
+                                                    $same = explode(",", explode(")", explode("(", $backend)[1])[0]);
+                                                    if (count($same) === 3) {
+                                                        $same_api = trim($same[0]);
+                                                        $same_method = trim($same[1]);
+                                                        $same_request_method = trim($same[2]);
+                                                        $same_md5 = md5("$same_api/$same_method/$same_request_method");
+
+                                                        $ads->execute([":aid" => $md5, ":permissions_same" => $same_md5]);
+                                                    }
+                                                } else $adb->execute([":aid" => $md5, ":backend" => $backend]);
+
+                                                break;
+                                        }
+                                    }
+
+                                    $n++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -457,11 +542,6 @@ class CliRunner implements KernelRunner
         $this->logger->debug('Kernel cleared');
     }
 
-    private function auditClear(): void
-    {
-        container(AuditFeature::class)->clear();;
-    }
-
     /**
      * @throws NotFoundExceptionInterface
      * @throws RedisException
@@ -469,6 +549,61 @@ class CliRunner implements KernelRunner
     private function kernelWipe(): void
     {
         container(PrometheusService::class)->wipe();
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    private function auditClear(): void
+    {
+        container(AuditFeature::class)->clear();;
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    private function roleInit(): void
+    {
+        require_once path('/controller/api/api.php');
+
+        $db = container(DatabaseService::class);
+
+        $permissions = array_column(container(RoleFeature::class)->permissions(), 'title');
+
+        $dir = path('controller/api');
+        $apis = scandir($dir);
+
+        foreach ($apis as $api) {
+            if ($api != "." && $api != ".." && is_dir($dir . "/$api")) {
+                $methods = scandir($dir . "/$api");
+
+                foreach ($methods as $method) {
+                    if ($method != "." && $method != ".." && str_ends_with($method, ".php") && is_file($dir . "/$api/$method")) {
+                        $method = substr($method, 0, -4);
+
+                        require_once $dir . "/$api/$method.php";
+
+                        if (class_exists("\\api\\$api\\$method")) {
+                            $request_methods = call_user_func(["\\api\\$api\\$method", "index"]);
+
+                            if ($request_methods) {
+                                $keys = array_keys($request_methods);
+
+                                foreach ($keys as $key) {
+                                    $permission = $api . '-' . $method . '-' . strtolower($key);
+
+                                    if (!in_array($permission, $permissions)) {
+                                        $id = $db->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];
+
+                                        $db->insert('INSERT INTO permission(id, title, description) VALUES(:id, :title, :description)', ['id' => $id, 'title' => $permission, 'description' => $permission]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private function help(?string $group = null): string
@@ -516,6 +651,18 @@ class CliRunner implements KernelRunner
                 'kernel:optimize                  - Оптимизировать приложение',
                 'kernel:clear                     - Очистить приложение',
                 'kernel:wipe                      - Очистить метрики приложения'
+            ]);
+
+        if ($group === null || $group === 'audit')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'audit:clear                      - Очистить данные аудита'
+            ]);
+
+        if ($group === null || $group === 'role')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'role:init                        - Инициализация групп'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;

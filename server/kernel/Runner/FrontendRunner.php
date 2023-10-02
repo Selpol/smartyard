@@ -5,6 +5,7 @@ namespace Selpol\Kernel\Runner;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
@@ -29,6 +30,7 @@ class FrontendRunner implements KernelRunner
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws RedisException
+     * @throws InvalidArgumentException
      */
     function __invoke(Kernel $kernel): int
     {
@@ -131,11 +133,14 @@ class FrontendRunner implements KernelRunner
         if (@$params["_login"])
             container(RedisService::class)->getRedis()->set("last_" . md5($params["_login"]), time());
 
+        if (!container(AuthService::class)->checkScope($api . '-' . $method . '-' . $params['_request_method']))
+            return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
+
         if (file_exists(path("controller/api/$api/$method.php"))) {
             require_once path("controller/api/$api/$method.php");
 
             if (class_exists("\\api\\$api\\$method")) {
-                $result = call_user_func(["\\api\\$api\\$method", $params["_request_method"]], $params);
+                $result = call_user_func(["\\api\\$api\\$method", $params['_request_method']], $params);
 
                 $code = array_key_first($result);
 

@@ -85,9 +85,6 @@ class InternalAuditFeature extends AuditFeature
      */
     public function audit(ServerRequest $request, Response $response): ?int
     {
-        if (config('audit', 0) == 0)
-            return null;
-
         if ($request->getMethod() === 'OPTIONS')
             return null;
 

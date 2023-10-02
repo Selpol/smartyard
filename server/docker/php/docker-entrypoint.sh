@@ -53,6 +53,7 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
   fi
 
   php cli.php db:init
+  php cli.php role:init
 
   php cli.php rbt:reindex
 

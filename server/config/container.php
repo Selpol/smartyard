@@ -35,6 +35,8 @@ use Selpol\Feature\Plog\ClickHouse\ClickHousePlogFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Feature\Push\Internal\InternalPushFeature;
 use Selpol\Feature\Push\PushFeature;
+use Selpol\Feature\Role\Internal\InternalRoleFeature;
+use Selpol\Feature\Role\RoleFeature;
 use Selpol\Feature\Sip\Internal\InternalSipFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\Task\Internal\InternalTaskFeature;
@@ -73,6 +75,7 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(AuthenticationFeature::class, InternalAuthenticationFeature::class);
     $builder->singleton(AuthorizationFeature::class, InternalAuthorizationFeature::class);
 
+    $builder->singleton(RoleFeature::class, InternalRoleFeature::class);
     $builder->singleton(AuditFeature::class, InternalAuditFeature::class);
 
     $builder->singleton(OauthFeature::class, InternalOauthFeature::class);
