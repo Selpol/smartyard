@@ -53,6 +53,7 @@ services:
       args:
         TZ: Europe/Moscow
     container_name: php
+    restart: always
     volumes:
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
       - ./docker/data/log:/srv/app/var/log
