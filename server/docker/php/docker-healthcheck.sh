@@ -5,4 +5,4 @@ if env -i REQUEST_METHOD=GET SCRIPT_NAME=/ping SCRIPT_FILENAME=/ping cgi-fcgi -b
 	exit 0
 fi
 
-exit 1
+kill 1
