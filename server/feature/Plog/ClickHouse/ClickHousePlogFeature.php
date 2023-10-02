@@ -91,16 +91,21 @@ class ClickHousePlogFeature extends PlogFeature
                 if (!$camshot_data) {
                     //получение кадра с DVR-серевера, если нет кадра от FRS
                     $prefix = $cameras[0]["dvrStream"];
+
                     if ($prefix) {
                         $ts_event = $date - $this->back_time_shift_video_shot;
                         $filename = "/tmp/" . uniqid('camshot_') . ".jpeg";
+
                         $urlOfScreenshot = container(DvrFeature::class)->getUrlOfScreenshot($cameras[0], $ts_event, true);
+
+                        logger('plog')->debug('dvr camshot', ['url' => $urlOfScreenshot]);
 
                         if (str_contains($urlOfScreenshot, '.mp4')) {
                             shell_exec("ffmpeg -y -i " . $urlOfScreenshot . " -vframes 1 $filename 1>/dev/null 2>/dev/null");
                         } else {
                             file_put_contents($filename, file_get_contents($urlOfScreenshot));
                         }
+
                         if (file_exists($filename)) {
                             $camshot_data[self::COLUMN_IMAGE_UUID] = $file->toGUIDv4($file->addFile(
                                 "camshot",
@@ -110,7 +115,9 @@ class ClickHousePlogFeature extends PlogFeature
                                     "expire" => time() + $this->ttl_camshot_days * 86400,
                                 ]
                             ));
+
                             unlink($filename);
+
                             $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_DVR;
                         } else {
                             $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_NONE;
@@ -118,6 +125,8 @@ class ClickHousePlogFeature extends PlogFeature
                     } else {
                         $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_NONE;
                     }
+
+                    logger('plog')->debug('dvr camshot', ['data' => $camshot_data]);
                 }
             }
         }
