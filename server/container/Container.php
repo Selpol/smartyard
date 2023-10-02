@@ -86,6 +86,12 @@ class Container implements ContainerInterface
         return array_key_exists($id, $this->instances) || array_key_exists($id, $this->factories);
     }
 
+    public function unset(string $id): void
+    {
+        if (array_key_exists($id, $this->instances))
+            unset($this->instances[$id]);
+    }
+
     public function dispose(): void
     {
         foreach ($this->instances as $instance) {

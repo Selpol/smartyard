@@ -5,8 +5,9 @@ namespace Selpol\Service;
 use Exception;
 use PDO;
 use PDOException;
+use Selpol\Container\ContainerDispose;
 
-class DatabaseService extends PDO
+class DatabaseService extends PDO implements ContainerDispose
 {
     public function __construct()
     {
@@ -180,5 +181,10 @@ class DatabaseService extends PDO
 
             return false;
         }
+    }
+
+    public function dispose(): void
+    {
+        kernel()->getContainer()->unset(DatabaseService::class);
     }
 }
