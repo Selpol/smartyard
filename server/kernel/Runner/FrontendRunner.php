@@ -4,6 +4,7 @@ namespace Selpol\Kernel\Runner;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
 use RedisException;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
@@ -20,7 +21,9 @@ use Selpol\Service\RedisService;
 
 class FrontendRunner implements KernelRunner
 {
-    use ResponseTrait;
+    use ResponseTrait {
+        emit as protected traitEmit;
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -98,7 +101,7 @@ class FrontendRunner implements KernelRunner
         if ($api == 'server' && $method == 'ping')
             return $this->emit($this->response()->withString('pong'));
         else if ($api == 'accounts' && $method == 'forgot')
-            return $this->emit($this->audit($request, $this->forgot($params)));
+            return $this->emit($this->forgot($params));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password'])
                 return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
@@ -136,12 +139,12 @@ class FrontendRunner implements KernelRunner
 
                 $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit($this->audit($request, $this->response($code)->withJson($result[$code])));
-                else return $this->emit($this->audit($request, $this->response(500)->withStatusJson()));
-            } else return $this->emit($this->audit($request, $this->response(404)->withStatusJson()));
+                if ((int)$code) return $this->emit($this->response($code)->withJson($result[$code]));
+                else return $this->emit($this->response(500)->withStatusJson());
+            } else return $this->emit($this->response(404)->withStatusJson());
         }
 
-        return $this->emit($this->audit($request, $this->response(404)->withStatusJson()));
+        return $this->emit($this->response(404)->withStatusJson());
     }
 
     /**
@@ -154,6 +157,16 @@ class FrontendRunner implements KernelRunner
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    protected function emit(ResponseInterface $response): int
+    {
+        container(AuditFeature::class)->audit(container(ServerRequest::class), $response);
+
+        return $this->traitEmit($response);
     }
 
     /**
@@ -173,15 +186,5 @@ class FrontendRunner implements KernelRunner
         }
 
         return $this->response(204);
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    private function audit(ServerRequest $request, Response $response): Response
-    {
-        container(AuditFeature::class)->audit($request, $response);
-
-        return $response;
     }
 }

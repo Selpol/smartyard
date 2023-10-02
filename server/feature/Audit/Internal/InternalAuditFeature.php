@@ -88,6 +88,9 @@ class InternalAuditFeature extends AuditFeature
         if (config('audit', 0) == 0)
             return null;
 
+        if ($request->getMethod() === 'OPTIONS')
+            return null;
+
         $user = container(AuthService::class)->getUser();
 
         if (!($user instanceof RedisAuthUser))
