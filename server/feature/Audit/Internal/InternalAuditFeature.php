@@ -96,6 +96,8 @@ class InternalAuditFeature extends AuditFeature
         $audit->event_code = '';
 
         $audit->insert();
+
+        logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
     }
 
     /**
