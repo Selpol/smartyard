@@ -22,7 +22,7 @@ class MigrationDownTask extends MigrationTask
 
         $db = container(DatabaseService::class);
 
-        $db->beginTransaction();
+        $db->getConnection()->beginTransaction();
 
         foreach ($migrations as $migrationVersion => $migrationValues) {
             try {
@@ -31,10 +31,10 @@ class MigrationDownTask extends MigrationTask
                 foreach ($migrationValues as $migrationStep) {
                     $sql = trim(file_get_contents(path('migration/pgsql/down/' . $migrationStep)));
 
-                    $db->exec($sql);
+                    $db->getConnection()->exec($sql);
                 }
             } catch (Throwable $throwable) {
-                $db->rollBack();
+                $db->getConnection()->rollBack();
 
                 throw new RuntimeException($throwable->getMessage(), previous: $throwable);
             }
@@ -42,6 +42,6 @@ class MigrationDownTask extends MigrationTask
             $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'dbVersion'", ['version' => $migrationVersion - 1]);
         }
 
-        return $db->commit();
+        return $db->getConnection()->commit();
     }
 }

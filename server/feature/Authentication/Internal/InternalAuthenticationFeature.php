@@ -13,7 +13,7 @@ class InternalAuthenticationFeature extends AuthenticationFeature
      */
     public function checkAuth(string $login, string $password): int|bool
     {
-        $sth = $this->getDatabase()->prepare("select uid, password from core_users where login = :login and enabled = 1");
+        $sth = $this->getDatabase()->getConnection()->prepare("select uid, password from core_users where login = :login and enabled = 1");
 
         $sth->execute([":login" => $login]);
 

@@ -176,7 +176,7 @@ class AsteriskRunner implements KernelRunner
                     case "camshot":
                         $params = validator($params, ['domophoneId' => [Rule::id()], 'hash' => [Rule::required(), Rule::nonNullable()]]);
 
-                        $redis = $kernel->getContainer()->get(RedisService::class)->getRedis();
+                        $redis = $kernel->getContainer()->get(RedisService::class)->getConnection();
 
                         if ($params["domophoneId"] >= 0) {
                             $households = container(HouseFeature::class);
@@ -306,7 +306,7 @@ class AsteriskRunner implements KernelRunner
      */
     private function getExtension(Kernel $kernel, string $extension, string $section): array
     {
-        $redis = $kernel->getContainer()->get(RedisService::class)->getRedis();
+        $redis = $kernel->getContainer()->get(RedisService::class)->getConnection();
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
             $households = container(HouseFeature::class);

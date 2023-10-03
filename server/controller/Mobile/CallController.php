@@ -24,7 +24,7 @@ class CallController extends Controller
         if ($hash === null)
             return $this->rbtResponse(400, message: 'Не указан обязательный параметр');
 
-        $image = container(RedisService::class)->getRedis()->get('shot_' . $hash);
+        $image = container(RedisService::class)->getConnection()->get('shot_' . $hash);
 
         if ($image !== false)
             return $this->response()->withString($image)->withHeader('Content-Type', 'image/jpeg');
@@ -45,7 +45,7 @@ class CallController extends Controller
         if ($hash === null)
             return $this->rbtResponse(404, message: 'Не указан обязательный параметр');
 
-        $json_camera = container(RedisService::class)->getRedis()->get("live_" . $hash);
+        $json_camera = container(RedisService::class)->getConnection()->get("live_" . $hash);
         $camera_params = json_decode($json_camera, true);
 
         $model = container(DeviceService::class)->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);

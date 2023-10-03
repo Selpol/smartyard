@@ -7,37 +7,30 @@ use PDO;
 use PDOException;
 use Selpol\Container\ContainerDispose;
 
-class DatabaseService extends PDO implements ContainerDispose
+class DatabaseService implements ContainerDispose
 {
+    private ?PDO $connection;
+
     public function __construct()
     {
-        parent::__construct(config('db.dsn'), config('db.username'), config('db.password'), config('db.options'));
+        $this->connection = new PDO(config('db.dsn'), config('db.username'), config('db.password'), config('db.options'));
 
-        $this->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    function trimParams(array|bool|null $map): array
+    public function getConnection(): ?PDO
     {
-        $remap = [];
-
-        if ($map) {
-            foreach ($map as $key => $value) {
-                if (is_null($value)) $remap[$key] = $value;
-                else $remap[$key] = trim($value);
-            }
-        }
-
-        return $remap;
+        return $this->connection;
     }
 
     function insert($query, $params = [], $options = []): bool|int|string
     {
         try {
-            $sth = $this->prepare($query);
+            $sth = $this->connection->prepare($query);
 
-            if ($sth->execute($this->trimParams($params))) {
+            if ($sth->execute($this->remap($params))) {
                 try {
-                    return $this->lastInsertId();
+                    return $this->connection->lastInsertId();
                 } catch (Exception) {
                     return -1;
                 }
@@ -64,9 +57,9 @@ class DatabaseService extends PDO implements ContainerDispose
     function modify($query, $params = [], $options = []): bool|int
     {
         try {
-            $sth = $this->prepare($query);
+            $sth = $this->connection->prepare($query);
 
-            if ($sth->execute($this->trimParams($params)))
+            if ($sth->execute($this->remap($params)))
                 return $sth->rowCount();
             else return false;
         } catch (PDOException $e) {
@@ -95,9 +88,9 @@ class DatabaseService extends PDO implements ContainerDispose
         try {
             foreach ($map as $db => $param) {
                 if (array_key_exists($param, $params)) {
-                    $sth = $this->prepare(sprintf($query, $db, $db));
+                    $sth = $this->connection->prepare(sprintf($query, $db, $db));
 
-                    if ($sth->execute($this->trimParams([$db => $params[$param]])))
+                    if ($sth->execute($this->remap([$db => $params[$param]])))
                         if ($sth->rowCount())
                             $mod = true;
 
@@ -133,12 +126,12 @@ class DatabaseService extends PDO implements ContainerDispose
 
         try {
             if ($params) {
-                $sth = $this->prepare($query);
+                $sth = $this->connection->prepare($query);
 
                 if ($sth->execute($params))
                     $a = $sth->fetchAll(PDO::FETCH_ASSOC);
                 else return false;
-            } else $a = $this->query($query, PDO::FETCH_ASSOC)->fetchAll();
+            } else $a = $this->connection->query($query, PDO::FETCH_ASSOC)->fetchAll();
 
             $r = [];
 
@@ -185,6 +178,20 @@ class DatabaseService extends PDO implements ContainerDispose
 
     public function dispose(): void
     {
-        kernel()->getContainer()->unset(DatabaseService::class);
+        $this->connection = null;
+    }
+
+    private function remap(array|bool|null $map): array
+    {
+        $result = [];
+
+        if ($map) {
+            foreach ($map as $key => $value) {
+                if (is_null($value)) $result[$key] = $value;
+                else $result[$key] = trim($value);
+            }
+        }
+
+        return $result;
     }
 }

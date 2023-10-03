@@ -18,7 +18,7 @@ class InternalUserFeature extends UserFeature
         $user = container(AuthService::class)->getUserOrThrow();
 
         try {
-            $users = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
+            $users = $this->getDatabase()->getConnection()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
             $_users = [];
 
             foreach ($users as $u) {
@@ -31,7 +31,7 @@ class InternalUserFeature extends UserFeature
                     "tg" => $u["tg"],
                     "enabled" => $u["enabled"],
                     "lastLogin" => $u["last_login"],
-                    "lastAction" => $this->getRedis()->getRedis()->get("last_" . md5($u["login"]))
+                    "lastAction" => $this->getRedis()->getConnection()->get("last_" . md5($u["login"]))
                 ];
             }
 
@@ -39,15 +39,15 @@ class InternalUserFeature extends UserFeature
                 if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin') {
                     $u['sessions'] = [];
 
-                    $lk = $this->getRedis()->getRedis()->keys("auth_*_{$u['uid']}");
+                    $lk = $this->getRedis()->getConnection()->keys("auth_*_{$u['uid']}");
 
                     foreach ($lk as $k)
-                        $u['sessions'][] = json_decode($this->getRedis()->getRedis()->get($k), true);
+                        $u['sessions'][] = json_decode($this->getRedis()->getConnection()->get($k), true);
 
-                    $pk = $this->getRedis()->getRedis()->keys("persistent_*_{$u["uid"]}");
+                    $pk = $this->getRedis()->getConnection()->keys("persistent_*_{$u["uid"]}");
 
                     foreach ($pk as $k) {
-                        $s = json_decode($this->getRedis()->getRedis()->get($k), true);
+                        $s = json_decode($this->getRedis()->getConnection()->get($k), true);
                         $s["byPersistentToken"] = true;
 
                         $u["sessions"][] = $s;
@@ -68,7 +68,7 @@ class InternalUserFeature extends UserFeature
     public function getUser(int $uid): bool|array
     {
         try {
-            $user = $this->getDatabase()->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route from core_users where uid = $uid", PDO::FETCH_ASSOC)->fetchAll();
+            $user = $this->getDatabase()->getConnection()->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route from core_users where uid = $uid", PDO::FETCH_ASSOC)->fetchAll();
 
             if (count($user)) {
                 $_user = [
@@ -84,7 +84,7 @@ class InternalUserFeature extends UserFeature
                 ];
 
                 $persistent = false;
-                $_keys = $this->getRedis()->getRedis()->keys("persistent_*_" . $user[0]["uid"]);
+                $_keys = $this->getRedis()->getConnection()->keys("persistent_*_" . $user[0]["uid"]);
 
                 foreach ($_keys as $_key) {
                     $persistent = explode("_", $_key)[1];
@@ -110,9 +110,9 @@ class InternalUserFeature extends UserFeature
         $password = $this->generate_password();
 
         try {
-            $db = $this->getDatabase();
+            $connection = $this->getDatabase()->getConnection();
 
-            $sth = $db->prepare("insert into core_users (login, password, real_name, e_mail, phone, enabled) values (:login, :password, :real_name, :e_mail, :phone, 1)");
+            $sth = $connection->prepare("insert into core_users (login, password, real_name, e_mail, phone, enabled) values (:login, :password, :real_name, :e_mail, :phone, 1)");
 
             if ($sth->execute([
                 ":login" => $login,
@@ -121,7 +121,7 @@ class InternalUserFeature extends UserFeature
                 ":e_mail" => $eMail ? trim($eMail) : null,
                 ":phone" => $phone ? trim($phone) : null,
             ]))
-                return $db->lastInsertId();
+                return $connection->lastInsertId();
             else return false;
         } catch (Throwable $e) {
             error_log(print_r($e, true));
@@ -136,7 +136,7 @@ class InternalUserFeature extends UserFeature
             return false;
 
         try {
-            $sth = $this->getDatabase()->prepare("update core_users set password = :password where uid = $uid");
+            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set password = :password where uid = $uid");
 
             return $sth->execute([":password" => password_hash($password, PASSWORD_DEFAULT)]);
         } catch (Throwable $e) {
@@ -150,9 +150,9 @@ class InternalUserFeature extends UserFeature
     {
         if ($uid > 0) {
             try {
-                $this->getDatabase()->exec("delete from core_users where uid = $uid");
+                $this->getDatabase()->getConnection()->exec("delete from core_users where uid = $uid");
 
-                $redis = $this->getRedis()->getRedis();
+                $redis = $this->getRedis()->getConnection();
 
                 $_keys = $redis->keys("persistent_*_" . $uid);
 
@@ -171,7 +171,7 @@ class InternalUserFeature extends UserFeature
     public function modifyUserEnabled(int $uid, bool $enabled): bool
     {
         try {
-            $sth = $this->getDatabase()->prepare("update core_users set enabled = :enabled where uid = $uid");
+            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set enabled = :enabled where uid = $uid");
 
             return $sth->execute([":enabled" => $enabled ? "1" : "0"]);
         } catch (Throwable) {
@@ -189,9 +189,9 @@ class InternalUserFeature extends UserFeature
 
         try {
             $db = $this->getDatabase();
-            $redis = $this->getRedis()->getRedis();
+            $redis = $this->getRedis()->getConnection();
 
-            $sth = $db->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
+            $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
 
             if ($persistentToken && strlen(trim($persistentToken)) === 32 && $uid && $enabled) {
                 $redis->set("persistent_" . trim($persistentToken) . "_" . $uid, json_encode([
@@ -232,7 +232,7 @@ class InternalUserFeature extends UserFeature
     public function getUidByEMail(string $eMail): bool|int
     {
         try {
-            $sth = $this->getDatabase()->prepare("select uid from core_users where e_mail = :e_mail");
+            $sth = $this->getDatabase()->getConnection()->prepare("select uid from core_users where e_mail = :e_mail");
 
             if ($sth->execute([":e_mail" => $eMail])) {
                 $users = $sth->fetchAll(PDO::FETCH_ASSOC);

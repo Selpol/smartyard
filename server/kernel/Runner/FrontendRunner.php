@@ -131,7 +131,7 @@ class FrontendRunner implements KernelRunner
         $params["_ip"] = $ip;
 
         if (@$params["_login"])
-            container(RedisService::class)->getRedis()->set("last_" . md5($params["_login"]), time());
+            container(RedisService::class)->getConnection()->set("last_" . md5($params["_login"]), time());
 
         if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . $params['_request_method']))
             return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
@@ -182,7 +182,7 @@ class FrontendRunner implements KernelRunner
     private function forgot(array $params): Response
     {
         if (array_key_exists('token', $params)) {
-            $redis = container(RedisService::class)->getRedis();
+            $redis = container(RedisService::class)->getConnection();
 
             $keys = $redis->keys("forgot_{$params['token']}_*");
 

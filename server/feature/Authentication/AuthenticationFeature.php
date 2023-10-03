@@ -21,7 +21,7 @@ abstract class AuthenticationFeature extends Feature
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
         $db = container(DatabaseService::class);
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $uid = $this->checkAuth($login, $password);
         if ($uid !== false) {
@@ -75,7 +75,7 @@ abstract class AuthenticationFeature extends Feature
      */
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $authorization = explode(" ", $authorization);
 
@@ -156,7 +156,7 @@ abstract class AuthenticationFeature extends Feature
      */
     public function logout(string $token, bool $all = false): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $keys = $redis->keys("auth_" . $token . "_*");
 

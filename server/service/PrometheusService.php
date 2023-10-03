@@ -59,7 +59,7 @@ class PrometheusService
      */
     public function updateCounter(array $value): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $metaData = $value;
 
@@ -100,7 +100,7 @@ LUA
      */
     public function updateGauge(array $value): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $metaData = $value;
 
@@ -148,7 +148,7 @@ LUA
      */
     public function updateHistogram(array $value): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $bucketToIncrease = '+Inf';
 
@@ -198,7 +198,7 @@ LUA,
      */
     public function updateSummary(array $value): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         // store meta
         $summaryKey = implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]);
@@ -226,7 +226,7 @@ LUA,
      */
     public function wipe(): void
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $keys = $redis->keys(self::PREFIX . ':*');
 
@@ -240,7 +240,7 @@ LUA,
      */
     private function collectHistograms(): array
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]));
 
@@ -319,7 +319,7 @@ LUA,
      */
     private function collectGauges(): array
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]));
         sort($keys);
@@ -359,7 +359,7 @@ LUA,
      */
     private function collectCounters(): array
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Counter::TYPE, self::SUFFIX]));
         sort($keys);
@@ -395,7 +395,7 @@ LUA,
      */
     private function collectSummaries(): array
     {
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         $summaryKey = implode(':', [self::PREFIX, Summary::TYPE, self::SUFFIX]);
 

@@ -60,7 +60,7 @@ namespace api\authentication {
 
             $extension = sprintf("7%09d", (int)$params["_uid"]);
 
-            $redis = container(RedisService::class)->getRedis();
+            $redis = container(RedisService::class)->getConnection();
 
             $cred = $redis->get("webrtc_" . md5($extension));
 

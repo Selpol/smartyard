@@ -127,11 +127,6 @@ class CliRunner implements KernelRunner
         return $args;
     }
 
-    private function isCommand(array $arguments, string $command, bool $isset = false, int $max = 1): bool
-    {
-        return (count($arguments) <= $max) && array_key_exists($command, $arguments) && ($isset ? isset($arguments[$command]) : !isset($arguments[$command]));
-    }
-
     /**
      * @throws Exception
      */
@@ -139,7 +134,7 @@ class CliRunner implements KernelRunner
     {
         $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
 
-        $db = container(DatabaseService::class);
+        $db = container(DatabaseService::class)->getConnection();
 
         try {
             $query = $db->query("SELECT var_value FROM core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
@@ -200,20 +195,20 @@ class CliRunner implements KernelRunner
     {
         require_once path('/controller/api/api.php');
 
-        $pdo = container(DatabaseService::class);
+        $connection = container(DatabaseService::class)->getConnection();
 
         $dir = path('controller/api');
         $apis = scandir($dir);
 
-        $pdo->exec("delete from core_api_methods");
-        $pdo->exec("delete from core_api_methods_common");
-        $pdo->exec("delete from core_api_methods_by_backend");
-        $pdo->exec("delete from core_api_methods_personal");
+        $connection->exec("delete from core_api_methods");
+        $connection->exec("delete from core_api_methods_common");
+        $connection->exec("delete from core_api_methods_by_backend");
+        $connection->exec("delete from core_api_methods_personal");
 
-        $add = $pdo->prepare("insert into core_api_methods (aid, api, method, request_method) values (:md5, :api, :method, :request_method)");
-        $aid = $pdo->prepare("select aid from core_api_methods where api = :api and method = :method and request_method = :request_method");
-        $adb = $pdo->prepare("insert into core_api_methods_by_backend (aid, backend) values (:aid, :backend)");
-        $ads = $pdo->prepare("update core_api_methods set permissions_same = :permissions_same where aid = :aid");
+        $add = $connection->prepare("insert into core_api_methods (aid, api, method, request_method) values (:md5, :api, :method, :request_method)");
+        $aid = $connection->prepare("select aid from core_api_methods where api = :api and method = :method and request_method = :request_method");
+        $adb = $connection->prepare("insert into core_api_methods_by_backend (aid, backend) values (:aid, :backend)");
+        $ads = $connection->prepare("update core_api_methods set permissions_same = :permissions_same where aid = :aid");
 
         $n = 0;
 
@@ -243,14 +238,14 @@ class CliRunner implements KernelRunner
                                         switch ($backend) {
                                             case "#common";
                                                 try {
-                                                    $pdo->exec("insert into core_api_methods_common (aid) values ('$md5')");
+                                                    $connection->exec("insert into core_api_methods_common (aid) values ('$md5')");
                                                 } catch (Exception) {
                                                     // uniq violation?
                                                 }
                                                 break;
                                             case "#personal";
                                                 try {
-                                                    $pdo->exec("insert into core_api_methods_personal (aid) values ('$md5')");
+                                                    $connection->exec("insert into core_api_methods_personal (aid) values ('$md5')");
                                                 } catch (Exception) {
                                                     // uniq violation?
                                                 }
@@ -288,15 +283,15 @@ class CliRunner implements KernelRunner
      */
     private function adminPassword(string $password): void
     {
-        $db = container(DatabaseService::class);
+        $connection = container(DatabaseService::class)->getConnection();
 
         try {
-            $db->exec("insert into core_users (uid, login, password) values (0, 'admin', 'admin')");
+            $connection->exec("insert into core_users (uid, login, password) values (0, 'admin', 'admin')");
         } catch (Exception) {
         }
 
         try {
-            $sth = $db->prepare("update core_users set password = :password, login = 'admin', enabled = 1 where uid = 0");
+            $sth = $connection->prepare("update core_users set password = :password, login = 'admin', enabled = 1 where uid = 0");
             $sth->execute([":password" => password_hash($password, PASSWORD_DEFAULT)]);
 
             $this->logger->debug('Update admin password');

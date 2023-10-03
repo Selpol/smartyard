@@ -29,6 +29,7 @@
 namespace api\server {
 
     use api\api;
+    use Exception;
     use Selpol\Service\DatabaseService;
 
     /**
@@ -40,8 +41,8 @@ namespace api\server {
         public static function GET($params)
         {
             try {
-                $version = container(DatabaseService::class)->query("select var_value from vars where var_name = 'dbVersion'", \PDO::FETCH_ASSOC)->fetch()["var_value"];
-            } catch (\Exception $e) {
+                $version = container(DatabaseService::class)->getConnection()->query("select var_value from core_vars where var_name = 'dbVersion'", \PDO::FETCH_ASSOC)->fetch()["var_value"];
+            } catch (Exception) {
                 $version = 0;
             }
 

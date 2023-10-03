@@ -50,6 +50,9 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     function modifyRegion(int $regionId, string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool
     {
         if ($timezone == "-")
@@ -668,7 +671,7 @@ class InternalAddressFeature extends AddressFeature
      */
     function addHouseByMagic(string $houseUuid): bool|int
     {
-        $house = $this->getRedis()->getRedis()->get("house_" . $houseUuid);
+        $house = $this->getRedis()->getConnection()->get("house_" . $houseUuid);
 
         if ($house) {
             $house = json_decode($house, true);

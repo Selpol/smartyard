@@ -36,7 +36,7 @@ class RateLimitMiddleware implements MiddlewareInterface
             if (ip_in_range($ip, $item))
                 return $handler->handle($request);
 
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
         $token = container(AuthService::class)->getToken();
 
         $key = 'rate-' . $ip . ($token ? ('-' . $token->getIdentifierName() . '-' . $token->getIdentifier()) : '');

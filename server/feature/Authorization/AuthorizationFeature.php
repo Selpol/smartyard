@@ -21,9 +21,9 @@ abstract class AuthorizationFeature extends Feature
 
         try {
             if ($_all) {
-                $all = $db->query("select aid, api, method, request_method from core_api_methods", PDO::FETCH_ASSOC)->fetchAll();
+                $all = $db->getConnection()->query("select aid, api, method, request_method from core_api_methods", PDO::FETCH_ASSOC)->fetchAll();
             } else {
-                $all = $db->query("
+                $all = $db->getConnection()->query("
                             select
                                 aid,
                                 api,

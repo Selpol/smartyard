@@ -34,7 +34,7 @@ class FrsController extends Controller
 
         $frs_key = "frs_key_" . $camera_id;
 
-        $redis = container(RedisService::class)->getRedis();
+        $redis = container(RedisService::class)->getConnection();
 
         if ($redis->get($frs_key) != null)
             return $this->rbtResponse(204);

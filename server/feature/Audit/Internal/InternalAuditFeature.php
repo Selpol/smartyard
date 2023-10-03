@@ -105,7 +105,7 @@ class InternalAuditFeature extends AuditFeature
 
         $id = $db->get("SELECT NEXTVAL('audit_id_seq')", options: ['singlify'])['nextval'];
 
-        $statement = $db->prepare('INSERT INTO audit(id, user_id, auditable_id, auditable_type, event_ip, event_type, event_target, event_code, event_message) VALUES (:id, :user_id, :auditable_id, :auditable_type, :event_ip, :event_type, :event_target, :event_code, :event_message)');
+        $statement = $db->getConnection()->prepare('INSERT INTO audit(id, user_id, auditable_id, auditable_type, event_ip, event_type, event_target, event_code, event_message) VALUES (:id, :user_id, :auditable_id, :auditable_type, :event_ip, :event_type, :event_target, :event_code, :event_message)');
 
         return $statement->execute([
             'id' => $id,

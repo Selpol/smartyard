@@ -8,7 +8,7 @@ use Selpol\Container\ContainerDispose;
 
 class RedisService implements ContainerDispose
 {
-    private Redis $redis;
+    private ?Redis $redis;
 
     /**
      * @throws RedisException
@@ -23,7 +23,7 @@ class RedisService implements ContainerDispose
             $this->redis->auth(config('redis.password'));
     }
 
-    public function getRedis(): Redis
+    public function getConnection(): ?Redis
     {
         return $this->redis;
     }
@@ -34,5 +34,6 @@ class RedisService implements ContainerDispose
     function dispose(): void
     {
         $this->redis->close();
+        $this->redis = null;
     }
 }

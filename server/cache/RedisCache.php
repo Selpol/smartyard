@@ -29,7 +29,7 @@ class RedisCache implements CacheInterface
 
     public function get(string $key, mixed $default = null): mixed
     {
-        $value = $this->service->getRedis()->get('cache:' . $key);
+        $value = $this->service->getConnection()->get('cache:' . $key);
 
         if ($value === false)
             return $default;
@@ -43,24 +43,24 @@ class RedisCache implements CacheInterface
             $now = new DateTimeImmutable();
             $timeout = $now->add($ttl);
 
-            return $this->service->getRedis()->set('cache:' . $key, $value, $timeout->getTimestamp() - $now->getTimestamp());
+            return $this->service->getConnection()->set('cache:' . $key, $value, $timeout->getTimestamp() - $now->getTimestamp());
         }
 
-        return $this->service->getRedis()->set('cache:' . $key, $value, $ttl);
+        return $this->service->getConnection()->set('cache:' . $key, $value, $ttl);
     }
 
     public function delete(string $key): bool
     {
-        return $this->service->getRedis()->del('cache:' . $key) === 1;
+        return $this->service->getConnection()->del('cache:' . $key) === 1;
     }
 
     public function clear(): bool
     {
         try {
-            $keys = $this->service->getRedis()->keys('cache:*');
+            $keys = $this->service->getConnection()->keys('cache:*');
 
             if (count($keys) > 0)
-                $this->service->getRedis()->del($keys) > 0;
+                $this->service->getConnection()->del($keys) > 0;
 
             return true;
         } catch (Throwable) {
@@ -100,6 +100,6 @@ class RedisCache implements CacheInterface
 
     public function has(string $key): bool
     {
-        return $this->service->getRedis()->exists($key) !== false;
+        return $this->service->getConnection()->exists($key) !== false;
     }
 }
