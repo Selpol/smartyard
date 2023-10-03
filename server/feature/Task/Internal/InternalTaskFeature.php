@@ -5,6 +5,7 @@ namespace Selpol\Feature\Task\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
+use Selpol\Validator\Exception\ValidatorException;
 
 class InternalTaskFeature extends TaskFeature
 {
@@ -13,21 +14,23 @@ class InternalTaskFeature extends TaskFeature
      */
     public function page(int $size, int $page): array
     {
-        return $this->getDatabase()->get('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
+        return \Selpol\Entity\Model\Task::fetchAll('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
     }
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
-    public function add(Task $task, string $message, int $status): int
+    public function add(Task $task, string $message, int $status): void
     {
-        $db = $this->getDatabase();
+        $dbTask = new \Selpol\Entity\Model\Task();
 
-        $id = $db->get("SELECT NEXTVAL('task_id_seq')", options: ['singlify'])['nextval'];
+        $dbTask->data = serialize($task);
+        $dbTask->title = $task->title;
+        $dbTask->message = $message;
+        $dbTask->status = $status;
 
-        $statement = $db->getConnection()->prepare('INSERT INTO task(id, data, title, message, status) VALUES (:id, :data, :title, :message, :status)');
-
-        return $statement->execute(['id' => $id, 'data' => serialize($task), 'title' => $task->title, 'message' => $message, 'status' => $status]) ? $id : -1;
+        $dbTask->insert();
     }
 
     /**
@@ -35,20 +38,14 @@ class InternalTaskFeature extends TaskFeature
      */
     public function dispatch(int $id): bool
     {
-        $dbTask = $this->getDatabase()->get('SELECT data FROM task WHERE id = :id', ['id' => $id], options: ['singlify']);
+        $dbTask = \Selpol\Entity\Model\Task::fetchById($id);
 
-        if (!$dbTask) {
-            last_error('Задача не найдена');
-
-            return false;
-        }
-
-        $task = unserialize($dbTask['data']);
+        $task = unserialize($dbTask->data);
 
         if ($task instanceof Task)
             return task($task)->high()->dispatch();
 
-        logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask['data']]);
+        logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask->data]);
 
         return false;
     }
