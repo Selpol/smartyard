@@ -96,7 +96,7 @@ class InternalAuditFeature extends AuditFeature
         $audit->event_ip = connection_ip($request);
         $audit->event_type = $attribute['event_type'];
         $audit->event_target = $request->getRequestTarget();
-        $audit->event_code = $response->getStatusCode();
+        $audit->event_code = strval($response->getStatusCode());
         $audit->event_message = $attribute['event_message'];
 
         $audit->insert();
