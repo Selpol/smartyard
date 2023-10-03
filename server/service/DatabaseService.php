@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Service;
 
@@ -6,10 +6,13 @@ use Exception;
 use PDO;
 use PDOException;
 use Selpol\Container\ContainerDispose;
+use Selpol\Service\Database\Manager;
 
 class DatabaseService implements ContainerDispose
 {
     private ?PDO $connection;
+
+    private ?Manager $manager;
 
     public function __construct()
     {
@@ -17,11 +20,18 @@ class DatabaseService implements ContainerDispose
 
         $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 60);
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+        $this->manager = new Manager($this->connection);
     }
 
     public function getConnection(): ?PDO
     {
         return $this->connection;
+    }
+
+    public function getManager(): ?Manager
+    {
+        return $this->manager;
     }
 
     public function __call(string $name, array $arguments)
@@ -123,6 +133,7 @@ class DatabaseService implements ContainerDispose
 
                 }
             }
+
             return $mod;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
@@ -205,6 +216,7 @@ class DatabaseService implements ContainerDispose
 
     public function dispose(): void
     {
+        $this->manager = null;
         $this->connection = null;
     }
 

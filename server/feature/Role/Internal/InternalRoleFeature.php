@@ -3,7 +3,10 @@
 namespace Selpol\Feature\Role\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Entity\Model\Permission;
+use Selpol\Entity\Model\Role;
 use Selpol\Feature\Role\RoleFeature;
+use Selpol\Validator\Exception\ValidatorException;
 
 class InternalRoleFeature extends RoleFeature
 {
@@ -12,7 +15,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function roles(): array
     {
-        return $this->getDatabase()->get('SELECT * FROM role');
+        return Role::fetchAll('SELECT * FROM role');
     }
 
     /**
@@ -20,7 +23,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function permissions(): array
     {
-        return $this->getDatabase()->get('SELECT * FROM permission');
+        return Permission::fetchAll('SELECT * FROM permission');
     }
 
     /**
@@ -28,7 +31,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForRole(int $roleId): array
     {
-        return $this->getDatabase()->get('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)', ['role_id' => $roleId]);
+        return Permission::fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)', ['role_id' => $roleId]);
     }
 
     /**
@@ -36,7 +39,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findRolesForUser(int $userId): array
     {
-        return $this->getDatabase()->get('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return Permission::fetchAll('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
     }
 
     /**
@@ -44,59 +47,67 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForUser(int $userId): array
     {
-        return $this->getDatabase()->get('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return Permission::fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)', ['user_id' => $userId]);
     }
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
-    public function findAllPermissionsForUser(int $userId): array
+    public function createRole(string $title, string $description): Role
     {
-        if ($userId === 0)
-            return ['*'];
+        $role = new Role();
 
-        $result = $this->findPermissionsForUser($userId);
-        $roles = $this->findRolesForUser($userId);
+        $role->title = $title;
+        $role->description = $description;
 
-        foreach ($roles as $role)
-            $result = array_merge($result, $this->findPermissionsForRole($role['id']));
+        $role->insert();
+        $role->refresh();
 
-        return array_column($result, 'title');
+        return $role;
     }
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     * @throws ValidatorException
      */
-    public function createRole(string $title, string $description): ?int
+    public function updateRole(int $roleId, string $title, string $description): Role
     {
-        $id = $this->getDatabase()->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];
+        $role = Role::fetchById($roleId);
 
-        $success = $this->getDatabase()->insert('INSERT INTO role (id, title, description) VALUES (:id, :title, :description)', ['id' => $id, 'title' => $title, 'description' => $description]);
+        $role->title = $title;
+        $role->description = $description;
 
-        if ($success)
-            return $id;
+        $role->update();
+        $role->refresh();
 
-        return null;
+        return $role;
     }
 
     /**
      * @throws NotFoundExceptionInterface
-     */
-    public function updateRole(int $id, string $title, string $description): bool
-    {
-        $success = $this->getDatabase()->modify('UPDATE role SET title = :title, description = :description, updated_at = now() WHERE id = :id', ['id' => $id, 'title' => $title, 'description' => $description]);
-
-        return $success == true || $success == 1;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
     public function deleteRole(int $roleId): bool
     {
-        $success = $this->getDatabase()->modify('DELETE FROM role WHERE id = :id', ['id' => $roleId]);
+        return Role::fetchById($roleId)->delete();
+    }
 
-        return $success == true || $success == 1;
+    /**
+     * @throws ValidatorException
+     * @throws NotFoundExceptionInterface
+     */
+    public function updatePermission(int $permissionId, string $description): Permission
+    {
+        $permission = Permission::fetchById($permissionId);
+
+        $permission->description = $description;
+
+        $permission->update();
+        $permission->refresh();
+
+        return $permission;
     }
 
     /**
@@ -157,6 +168,23 @@ class InternalRoleFeature extends RoleFeature
         $success = $this->getDatabase()->modify('DELETE FROM user_permission WHERE user_id = :user_id AND permission_id = :permission_id', ['user_id' => $userId, 'permission_id' => $permissionId]);
 
         return $success == true || $success == 1;
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    public function getAllPermissionsForUser(int $userId): array
+    {
+        if ($userId === 0)
+            return ['*'];
+
+        $result = $this->findPermissionsForUser($userId);
+        $roles = $this->findRolesForUser($userId);
+
+        foreach ($roles as $role)
+            $result = array_merge($result, $this->findPermissionsForRole($role->id));
+
+        return array_map(static fn(Permission $permission) => $permission->title, $result);
     }
 
     public function getDefaultPermissions(): array
