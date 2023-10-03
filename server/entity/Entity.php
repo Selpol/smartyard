@@ -76,7 +76,12 @@ abstract class Entity implements JsonSerializable
      */
     public function __set(string $name, $value): void
     {
-        if (static::$validateSet) $this->value[$name] = validate($name, $value, $this->getCacheColumns()[$name]);
+        if (static::$validateSet)
+            $this->value[$name] = validate(
+                $name,
+                $value,
+                static::getCacheColumn($name)
+            );
         else $this->value[$name] = $value;
     }
 
@@ -213,8 +218,16 @@ abstract class Entity implements JsonSerializable
     private static function getCacheColumns(): array
     {
         if (static::$columns === null)
-            static::$columns = static::getColumns();
+            static::$columns = [];
 
-        return static::$columns;
+        if (!array_key_exists(static::class, static::$columns))
+            static::$columns[static::class] = static::getColumns();
+
+        return static::$columns[static::class];
+    }
+
+    private static function getCacheColumn(string $name): array
+    {
+        return static::getCacheColumns()[$name];
     }
 }
