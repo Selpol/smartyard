@@ -75,7 +75,7 @@ class InternalAuditFeature extends AuditFeature
 
         $audit = new Audit();
 
-        $audit->user_id = $user->getIdentifier();
+        $audit->user_id = intval($user->getIdentifier());
 
         $audit->auditable_id = $auditableId;
         $audit->auditable_type = $auditableType;
