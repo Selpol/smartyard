@@ -76,9 +76,8 @@ abstract class Entity implements JsonSerializable
      */
     public function __set(string $name, $value): void
     {
-        if (static::$validateSet) {
-            $this->value[$name] = validate($name, $value, $this->getCacheColumns()[$name]);
-        } else $this->value[$name] = $value;
+        if (static::$validateSet) $this->value[$name] = validate($name, $value, $this->getCacheColumns()[$name]);
+        else $this->value[$name] = $value;
     }
 
     /**
