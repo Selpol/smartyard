@@ -3,6 +3,7 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Validator\Rule;
 
 /**
@@ -34,5 +35,15 @@ class Permission extends Entity
             'created_at' => [Rule::length(32)],
             'updated_at' => [Rule::length(32)]
         ];
+    }
+
+    public function update(): bool
+    {
+        $result = parent::update();
+
+        if ($result)
+            container(AuditFeature::class)->audit(strval($this->validateId()), Permission::class, 'update', 'Обновление прав');
+
+        return $result;
     }
 }

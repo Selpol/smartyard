@@ -63,7 +63,7 @@ class Manager
         $value = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         if (!$value)
-            throw new EntityException('Сущности не найдены', 404);
+            return [];
 
         return array_map(static fn(array $item) => new $class($item), $value);
     }

@@ -4,8 +4,6 @@ namespace Selpol\Feature\Audit;
 
 use Selpol\Entity\Model\Audit;
 use Selpol\Feature\Feature;
-use Selpol\Http\Response;
-use Selpol\Http\ServerRequest;
 
 abstract class AuditFeature extends Feature
 {
@@ -24,7 +22,7 @@ abstract class AuditFeature extends Feature
      */
     public abstract function audits(int $userId, ?string $auditableId, ?string $auditableType, ?string $eventIp, ?string $eventType, ?string $eventTarget, ?string $eventCode, ?string $eventMessage, ?int $page, ?int $size): ?array;
 
-    public abstract function audit(ServerRequest $request, Response $response): void;
+    public abstract function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void;
 
     public abstract function clear(): void;
 }

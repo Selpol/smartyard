@@ -5,9 +5,7 @@ namespace Selpol\Feature\Audit\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Model\Audit;
 use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
-use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Validator\Exception\ValidatorException;
 
@@ -68,36 +66,34 @@ class InternalAuditFeature extends AuditFeature
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function audit(ServerRequest $request, Response $response): void
+    public function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void
     {
-        if ($request->getMethod() === 'OPTIONS')
+        if (!container(AuthService::class)->getUser()?->canScope())
             return;
 
         $user = container(AuthService::class)->getUser();
-
-        if (!($user instanceof RedisAuthUser))
-            return;
-
-        $attribute = $request->getAttribute('audit', [
-            'auditable_id' => '0',
-            'auditable_type' => 'request',
-
-            'event_type' => $request->getMethod(),
-            'event_message' => 'Request'
-        ]);
 
         $audit = new Audit();
 
         $audit->user_id = $user->getIdentifier();
 
-        $audit->auditable_id = $attribute['auditable_id'];
-        $audit->auditable_type = $attribute['auditable_type'];
+        $audit->auditable_id = $auditableId;
+        $audit->auditable_type = $auditableType;
 
-        $audit->event_ip = connection_ip($request);
-        $audit->event_type = $attribute['event_type'];
-        $audit->event_target = $request->getRequestTarget();
-        $audit->event_code = strval($response->getStatusCode());
-        $audit->event_message = $attribute['event_message'];
+        $audit->event_type = $eventType;
+        $audit->event_message = $eventMessage;
+
+        if (kernel()->getContainer()->has(ServerRequest::class)) {
+            $request = container(ServerRequest::class);
+
+            $audit->event_ip = connection_ip($request);
+            $audit->event_target = $request->getRequestTarget();
+        } else {
+            $audit->event_ip = '0.0.0.0';
+            $audit->event_target = '';
+        }
+
+        $audit->event_code = '';
 
         $audit->insert();
     }
