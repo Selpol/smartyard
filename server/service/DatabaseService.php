@@ -29,8 +29,14 @@ class DatabaseService implements ContainerDispose
         return call_user_func([$this->connection, $name], $arguments);
     }
 
-    public function insert(string $query, array $params = [], array $options = []): bool|int|string
+    public function insert(string $query, array|bool $params = [], array|bool $options = []): bool|int|string
     {
+        if (is_bool($params))
+            $params = [];
+
+        if (is_bool($options))
+            $options = [];
+
         try {
             $sth = $this->connection->prepare($query);
 
@@ -60,8 +66,14 @@ class DatabaseService implements ContainerDispose
         }
     }
 
-    public function modify(string $query, array $params = [], array $options = []): bool|int
+    public function modify(string $query, array|bool $params = [], array|bool $options = []): bool|int
     {
+        if (is_bool($params))
+            $params = [];
+
+        if (is_bool($options))
+            $options = [];
+
         try {
             $sth = $this->connection->prepare($query);
 
@@ -87,8 +99,17 @@ class DatabaseService implements ContainerDispose
         }
     }
 
-    public function modifyEx(string $query, array $map, array $params, array $options = []): bool
+    public function modifyEx(string $query, array|bool $map, array|bool $params, array|bool $options = []): bool
     {
+        if (is_bool($map))
+            $map = [];
+
+        if (is_bool($params))
+            $params = [];
+
+        if (is_bool($options))
+            $options = [];
+
         $mod = false;
 
         try {
