@@ -15,6 +15,7 @@ class DatabaseService implements ContainerDispose
     {
         $this->connection = new PDO(config('db.dsn'), config('db.username'), config('db.password'), config('db.options'));
 
+        $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 60);
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
@@ -23,7 +24,12 @@ class DatabaseService implements ContainerDispose
         return $this->connection;
     }
 
-    function insert($query, $params = [], $options = []): bool|int|string
+    public function __call(string $name, array $arguments)
+    {
+        return call_user_func([$this->connection, $name], $arguments);
+    }
+
+    public function insert(string $query, array $params = [], array $options = []): bool|int|string
     {
         try {
             $sth = $this->connection->prepare($query);
@@ -54,7 +60,7 @@ class DatabaseService implements ContainerDispose
         }
     }
 
-    function modify($query, $params = [], $options = []): bool|int
+    public function modify(string $query, array $params = [], array $options = []): bool|int
     {
         try {
             $sth = $this->connection->prepare($query);
@@ -81,7 +87,7 @@ class DatabaseService implements ContainerDispose
         }
     }
 
-    function modifyEx(string $query, array $map, array $params, array $options = []): bool
+    public function modifyEx(string $query, array $map, array $params, array $options = []): bool
     {
         $mod = false;
 
@@ -116,7 +122,7 @@ class DatabaseService implements ContainerDispose
         }
     }
 
-    function get(string $query, array|bool $params = [], array|bool $map = [], array $options = []): bool|array
+    public function get(string $query, array|bool $params = [], array|bool $map = [], array $options = []): bool|array
     {
         if (is_bool($params))
             $params = [];
@@ -181,7 +187,7 @@ class DatabaseService implements ContainerDispose
         $this->connection = null;
     }
 
-    private function remap(array|bool|null $map): array
+    private function remap(array|bool $map): array
     {
         $result = [];
 
