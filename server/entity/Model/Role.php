@@ -1,0 +1,69 @@
+<?php declare(strict_types=1);
+
+namespace Selpol\Entity\Model;
+
+use Selpol\Entity\Entity;
+use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Validator\Rule;
+
+/**
+ * @property int $id
+ *
+ * @property string $title
+ * @property string $description
+ *
+ * @property string $created_at
+ * @property string $updated_at
+ */
+class Role extends Entity
+{
+    public static string $table = 'role';
+
+    public static string $columnIdStrategy = 'role_id_seq';
+
+    public static ?string $columnCreate = 'created_at';
+    public static ?string $columnUpdate = 'updated_at';
+
+    protected static function getColumns(): array
+    {
+        return [
+            static::$columnId => [Rule::id()],
+
+            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'description' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+
+            'created_at' => [Rule::length(max: 32)],
+            'updated_at' => [Rule::length(max: 32)]
+        ];
+    }
+
+    public function insert(): bool
+    {
+        $result = parent::insert();
+
+        if ($result)
+            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'insert', 'Создание группы');
+
+        return $result;
+    }
+
+    public function update(): bool
+    {
+        $result = parent::update();
+
+        if ($result)
+            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'update', 'Обновление группы');
+
+        return $result;
+    }
+
+    public function delete(): bool
+    {
+        $result = parent::delete();
+
+        if ($result)
+            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'delete', 'Удаление группы');
+
+        return $result;
+    }
+}

@@ -10,6 +10,7 @@ use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
 use Selpol\Validator\Exception\ValidatorException;
 use Selpol\Validator\Validator;
+use Selpol\Validator\ValidatorItem;
 
 if (!function_exists('logger')) {
     function logger(string $channel): LoggerInterface
@@ -42,6 +43,25 @@ if (!function_exists('intercom')) {
     function intercom(int $id): ?IntercomDevice
     {
         return container(DeviceService::class)->intercomById($id);
+    }
+}
+
+if (!function_exists('validate')) {
+    /**
+     * @param string $name
+     * @param mixed $value
+     * @param array<ValidatorItem> $items
+     * @return mixed
+     * @throws ValidatorException
+     */
+    function validate(string $name, mixed $value, array $items): mixed
+    {
+        $result = $value;
+
+        foreach ($items as $item)
+            $result = $item->onItem($name, [$name => $value]);
+
+        return $result;
     }
 }
 

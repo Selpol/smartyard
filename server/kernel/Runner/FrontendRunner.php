@@ -4,10 +4,8 @@ namespace Selpol\Kernel\Runner;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ResponseInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
-use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
@@ -22,9 +20,7 @@ use Selpol\Service\RedisService;
 
 class FrontendRunner implements KernelRunner
 {
-    use ResponseTrait {
-        emit as protected traitEmit;
-    }
+    use ResponseTrait;
 
     /**
      * @throws ContainerExceptionInterface
@@ -162,16 +158,6 @@ class FrontendRunner implements KernelRunner
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    protected function emit(ResponseInterface $response): int
-    {
-        container(AuditFeature::class)->audit(container(ServerRequest::class), $response);
-
-        return $this->traitEmit($response);
     }
 
     /**

@@ -3,11 +3,11 @@
 namespace Selpol\Feature\Audit\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Entity\Model\Audit;
 use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
-use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
+use Selpol\Validator\Exception\ValidatorException;
 
 class InternalAuditFeature extends AuditFeature
 {
@@ -59,68 +59,45 @@ class InternalAuditFeature extends AuditFeature
         if ($page !== null && $size && $size > 0)
             $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
 
-        return $this->getDatabase()->get(
-            $query,
-            $params,
-            map: [
-                'user_id' => 'userId',
-
-                'auditable_id' => 'auditableId',
-                'auditable_type' => 'auditableType',
-
-                'event_ip' => 'eventIp',
-                'event_type' => 'eventType',
-                'event_target' => 'eventTarget',
-                'event_code' => 'eventCode',
-                'event_message' => 'eventMessage',
-
-                'created_at' => 'createdAt',
-                'updated_at' => 'updatedAt'
-            ]
-        );
+        return Audit::fetchAll($query, $params);
     }
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
-    public function audit(ServerRequest $request, Response $response): ?int
+    public function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void
     {
-        if ($request->getMethod() === 'OPTIONS')
-            return null;
+        if (!container(AuthService::class)->getUser()?->canScope())
+            return;
 
         $user = container(AuthService::class)->getUser();
 
-        if (!($user instanceof RedisAuthUser))
-            return null;
+        $audit = new Audit();
 
-        $audit = $request->getAttribute('audit', [
-            'auditable_id' => '0',
-            'auditable_type' => 'request',
+        $audit->user_id = intval($user->getIdentifier());
 
-            'event_type' => $request->getMethod(),
-            'event_message' => 'Request'
-        ]);
+        $audit->auditable_id = $auditableId;
+        $audit->auditable_type = $auditableType;
 
-        $db = $this->getDatabase();
+        $audit->event_type = $eventType;
+        $audit->event_message = $eventMessage;
 
-        $id = $db->get("SELECT NEXTVAL('audit_id_seq')", options: ['singlify'])['nextval'];
+        if (kernel()->getContainer()->has(ServerRequest::class)) {
+            $request = container(ServerRequest::class);
 
-        $statement = $db->getConnection()->prepare('INSERT INTO audit(id, user_id, auditable_id, auditable_type, event_ip, event_type, event_target, event_code, event_message) VALUES (:id, :user_id, :auditable_id, :auditable_type, :event_ip, :event_type, :event_target, :event_code, :event_message)');
+            $audit->event_ip = connection_ip($request);
+            $audit->event_target = $request->getRequestTarget();
+        } else {
+            $audit->event_ip = '0.0.0.0';
+            $audit->event_target = '';
+        }
 
-        return $statement->execute([
-            'id' => $id,
+        $audit->event_code = '';
 
-            'user_id' => $user->getIdentifier(),
+        $audit->insert();
 
-            'auditable_id' => $audit['auditable_id'],
-            'auditable_type' => $audit['auditable_type'],
-
-            'event_ip' => connection_ip($request),
-            'event_type' => $audit['event_type'],
-            'event_target' => $request->getRequestTarget(),
-            'event_code' => $response->getStatusCode(),
-            'event_message' => $audit['event_message']
-        ]) ? $id : null;
+        logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
     }
 
     /**
