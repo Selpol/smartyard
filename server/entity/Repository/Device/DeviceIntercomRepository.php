@@ -15,6 +15,8 @@ use Selpol\Entity\Repository;
  */
 class DeviceIntercomRepository extends Repository
 {
+    protected bool $audit = true;
+
     protected function __construct()
     {
         parent::__construct(DeviceIntercom::class);

@@ -35,34 +35,4 @@ class Role extends Entity
             'updated_at' => [Rule::length(max: 32)]
         ];
     }
-
-//    public function insert(): bool
-//    {
-//        $result = parent::insert();
-//
-//        if ($result)
-//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'insert', 'Создание группы');
-//
-//        return $result;
-//    }
-//
-//    public function update(): bool
-//    {
-//        $result = parent::update();
-//
-//        if ($result)
-//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'update', 'Обновление группы');
-//
-//        return $result;
-//    }
-//
-//    public function delete(): bool
-//    {
-//        $result = parent::delete();
-//
-//        if ($result)
-//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'delete', 'Удаление группы');
-//
-//        return $result;
-//    }
 }

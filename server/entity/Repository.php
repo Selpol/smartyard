@@ -3,6 +3,7 @@
 namespace Selpol\Entity;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Service\Database\Manager;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
@@ -21,6 +22,8 @@ abstract class Repository
     protected string $table;
 
     protected string $id;
+
+    protected bool $audit = false;
 
     protected array $columns;
 
@@ -87,7 +90,12 @@ abstract class Repository
 
         $entity->setValue(validator($value, $columns));
 
-        return $this->getManager()->insertEntity($entity);
+        $result = $this->getManager()->insertEntity($entity);
+
+        if ($result)
+            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'insert', 'Добавление новой сущности');
+
+        return $result;
     }
 
     /**
@@ -119,7 +127,12 @@ abstract class Repository
 
         $entity->setValue(validator($value, $columns));
 
-        return $this->getManager()->updateEntity($entity);
+        $result = $this->getManager()->updateEntity($entity);
+
+        if ($result)
+            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'update', 'Обновление сущности');
+
+        return $result;
     }
 
     /**
@@ -132,7 +145,12 @@ abstract class Repository
     {
         $entity->{$entity::$columnId} = validate($entity::$columnId, $entity->{$entity::$columnId}, $this->columns[$entity::$columnId]);
 
-        return $this->getManager()->deleteEntity($entity);
+        $result = $this->getManager()->deleteEntity($entity);
+
+        if ($result)
+            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'update', 'Удаление сущности');
+
+        return $result;
     }
 
     /**

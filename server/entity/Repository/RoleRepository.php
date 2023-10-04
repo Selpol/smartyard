@@ -15,6 +15,8 @@ use Selpol\Entity\Repository;
  */
 class RoleRepository extends Repository
 {
+    protected bool $audit = true;
+
     public function __construct()
     {
         parent::__construct(Role::class);

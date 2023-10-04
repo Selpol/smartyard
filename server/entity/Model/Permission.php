@@ -35,14 +35,4 @@ class Permission extends Entity
             'updated_at' => [Rule::length(32)]
         ];
     }
-
-//    public function update(): bool
-//    {
-//        $result = parent::update();
-//
-//        if ($result)
-//            container(AuditFeature::class)->audit(strval($this->id), Permission::class, 'update', 'Обновление прав');
-//
-//        return $result;
-//    }
 }
