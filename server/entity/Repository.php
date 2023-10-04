@@ -93,7 +93,7 @@ abstract class Repository
         $result = $this->getManager()->insertEntity($entity);
 
         if ($result)
-            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'insert', 'Добавление новой сущности');
+            container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'insert', 'Добавление новой сущности');
 
         return $result;
     }
@@ -130,7 +130,7 @@ abstract class Repository
         $result = $this->getManager()->updateEntity($entity);
 
         if ($result)
-            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'update', 'Обновление сущности');
+            container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'update', 'Обновление сущности');
 
         return $result;
     }
@@ -148,7 +148,7 @@ abstract class Repository
         $result = $this->getManager()->deleteEntity($entity);
 
         if ($result)
-            container(AuditFeature::class)->audit($entity->{$entity::$columnId}, $this->class, 'update', 'Удаление сущности');
+            container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'update', 'Удаление сущности');
 
         return $result;
     }
