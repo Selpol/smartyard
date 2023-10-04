@@ -23,6 +23,8 @@ class DvrServer extends Entity
 {
     public static string $table = 'dvr_servers';
 
+    public static string $columnIdStrategy = 'dvr_servers_id_seq';
+
     public static ?string $columnCreate = 'created_at';
     public static ?string $columnUpdate = 'updated_at';
 

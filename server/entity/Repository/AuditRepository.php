@@ -2,12 +2,14 @@
 
 namespace Selpol\Entity\Repository;
 
+use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Audit;
 use Selpol\Entity\Repository;
 
 /**
  * @method Audit fetch(string $query, array $params = [])
  * @method Audit[] fetchAll(string $query, array $params = [])
+ * @method Audit[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Audit findById(int $id)
  *

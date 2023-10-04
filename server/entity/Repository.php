@@ -64,6 +64,18 @@ abstract class Repository
     }
 
     /**
+     * @param int $page
+     * @param int $size
+     * @param Criteria|null $criteria
+     * @return array<TValue>
+     * @throws NotFoundExceptionInterface
+     */
+    public function fetchPaginate(int $page, int $size, ?Criteria $criteria = null): array
+    {
+        return $this->getManager()->fetchAllEntity($this->class, 'SELECT * FROM ' . $this->table . ' LIMIT :size OFFSET :page', ['page' => $page * $size, 'size' => $size]);
+    }
+
+    /**
      * @psalm-param TKey $id
      * @psalm-return TValue
      * @throws NotFoundExceptionInterface

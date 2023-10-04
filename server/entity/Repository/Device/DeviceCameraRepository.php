@@ -2,12 +2,14 @@
 
 namespace Selpol\Entity\Repository\Device;
 
+use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository;
 
 /**
  * @method DeviceCamera fetch(string $query, array $params = [])
  * @method DeviceCamera[] fetchAll(string $query, array $params = [])
+ * @method DeviceCamera[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method DeviceCamera findById(mixed $id)
  *

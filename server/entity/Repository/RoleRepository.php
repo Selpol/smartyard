@@ -2,12 +2,14 @@
 
 namespace Selpol\Entity\Repository;
 
+use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Role;
 use Selpol\Entity\Repository;
 
 /**
  * @method Role fetch(string $query, array $params = [])
  * @method Role[] fetchAll(string $query, array $params = [])
+ * @method Role[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Role findById(int $id)
  *

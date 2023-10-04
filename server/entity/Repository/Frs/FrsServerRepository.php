@@ -2,12 +2,14 @@
 
 namespace Selpol\Entity\Repository\Frs;
 
+use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Entity\Repository;
 
 /**
  * @method FrsServer fetch(string $query, array $params = [])
  * @method FrsServer[] fetchAll(string $query, array $params = [])
+ * @method FrsServer[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method FrsServer findById(int $id)
  *
