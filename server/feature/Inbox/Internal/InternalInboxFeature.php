@@ -50,6 +50,7 @@ class InternalInboxFeature extends InboxFeature
                 "timestamp" => time(),
                 "ttl" => 30,
                 "platform" => $subscriber["platform"] ? "ios" : "android",
+                'id' => $msgId,
                 "title" => $title,
                 "msg" => $msg,
                 "badge" => $unreaded,
