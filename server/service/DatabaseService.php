@@ -215,7 +215,7 @@ class DatabaseService implements ContainerDispose
         if ($map) {
             foreach ($map as $key => $value) {
                 if (is_null($value)) $result[$key] = $value;
-                else $result[$key] = trim($value);
+                else $result[$key] = is_string($value) ? trim($value) : $value;
             }
         }
 
