@@ -70,16 +70,12 @@ if (!function_exists('validator')) {
      * @param array $value
      * @param array $items
      * @return array
-     * @throws \Selpol\Http\Exception\HttpException
+     * @throws ValidatorException
      */
     function validator(array $value, array $items): array
     {
         $validator = new Validator($value, $items);
 
-        try {
-            return $validator->validate();
-        } catch (ValidatorException $e) {
-            throw new \Selpol\Http\Exception\HttpException(message: $e->getValidatorMessage()->getMessage(), code: 400);
-        }
+        return $validator->validate();
     }
 }

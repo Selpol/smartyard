@@ -4,6 +4,7 @@ namespace Selpol\Feature\Audit\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Model\Audit;
+use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Http\ServerRequest;
 use Selpol\Service\AuthService;
@@ -59,7 +60,7 @@ class InternalAuditFeature extends AuditFeature
         if ($page !== null && $size && $size > 0)
             $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
 
-        return Audit::fetchAll($query, $params);
+        return container(AuditRepository::class)->fetchAll($query, $params);
     }
 
     /**
@@ -95,7 +96,7 @@ class InternalAuditFeature extends AuditFeature
 
         $audit->event_code = '';
 
-        $audit->insert();
+        container(AuditRepository::class)->insert($audit);
 
         logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
     }

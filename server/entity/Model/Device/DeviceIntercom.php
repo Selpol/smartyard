@@ -27,13 +27,13 @@ use Selpol\Validator\Rule;
  *
  * @property string|null $comment
  */
-class Intercom extends Entity
+class DeviceIntercom extends Entity
 {
     public static string $table = 'houses_domophones';
 
     public static string $columnId = 'house_domophone_id';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

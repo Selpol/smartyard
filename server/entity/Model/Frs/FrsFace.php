@@ -17,7 +17,7 @@ class FrsFace extends Entity
 
     public static string $columnId = 'face_id';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
-use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Validator\Rule;
 
 /**
@@ -24,7 +23,7 @@ class Permission extends Entity
     public static ?string $columnCreate = 'created_at';
     public static ?string $columnUpdate = 'updated_at';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],
@@ -37,13 +36,13 @@ class Permission extends Entity
         ];
     }
 
-    public function update(): bool
-    {
-        $result = parent::update();
-
-        if ($result)
-            container(AuditFeature::class)->audit(strval($this->validateId()), Permission::class, 'update', 'Обновление прав');
-
-        return $result;
-    }
+//    public function update(): bool
+//    {
+//        $result = parent::update();
+//
+//        if ($result)
+//            container(AuditFeature::class)->audit(strval($this->id), Permission::class, 'update', 'Обновление прав');
+//
+//        return $result;
+//    }
 }

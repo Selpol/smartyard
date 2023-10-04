@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
-use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Validator\Rule;
 
 /**
@@ -24,7 +23,7 @@ class Role extends Entity
     public static ?string $columnCreate = 'created_at';
     public static ?string $columnUpdate = 'updated_at';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],
@@ -37,33 +36,33 @@ class Role extends Entity
         ];
     }
 
-    public function insert(): bool
-    {
-        $result = parent::insert();
-
-        if ($result)
-            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'insert', 'Создание группы');
-
-        return $result;
-    }
-
-    public function update(): bool
-    {
-        $result = parent::update();
-
-        if ($result)
-            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'update', 'Обновление группы');
-
-        return $result;
-    }
-
-    public function delete(): bool
-    {
-        $result = parent::delete();
-
-        if ($result)
-            container(AuditFeature::class)->audit(strval($this->validateId()), Role::class, 'delete', 'Удаление группы');
-
-        return $result;
-    }
+//    public function insert(): bool
+//    {
+//        $result = parent::insert();
+//
+//        if ($result)
+//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'insert', 'Создание группы');
+//
+//        return $result;
+//    }
+//
+//    public function update(): bool
+//    {
+//        $result = parent::update();
+//
+//        if ($result)
+//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'update', 'Обновление группы');
+//
+//        return $result;
+//    }
+//
+//    public function delete(): bool
+//    {
+//        $result = parent::delete();
+//
+//        if ($result)
+//            container(AuditFeature::class)->audit(strval($this->id), Role::class, 'delete', 'Удаление группы');
+//
+//        return $result;
+//    }
 }

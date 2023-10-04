@@ -5,7 +5,6 @@ namespace Selpol\Service\Database;
 use PDO;
 use Selpol\Entity\Entity;
 use Selpol\Entity\Exception\EntityException;
-use Selpol\Validator\Exception\ValidatorException;
 
 class Manager
 {
@@ -68,14 +67,12 @@ class Manager
         return array_map(static fn(array $item) => new $class($item), $value);
     }
 
-    /**
-     * @throws ValidatorException
-     */
     public function refreshEntity(Entity $entity): bool
     {
-        $id = $entity->validateId();
+        $value = $entity->getValue();
+        $id = $value[$entity::$columnId];
 
-        $statement = $this->connection->prepare('SELECT ' . implode(', ', $entity->getColumnsKeys()) . ' FROM ' . $entity::$table . ' WHERE ' . $entity::$columnId . ' = :' . $entity::$columnId);
+        $statement = $this->connection->prepare('SELECT * FROM ' . $entity::$table . ' WHERE ' . $entity::$columnId . ' = :' . $entity::$columnId);
 
         $result = $statement->execute([$entity::$columnId => $id]);
 
@@ -88,26 +85,25 @@ class Manager
         return false;
     }
 
-    /**
-     * @throws ValidatorException
-     */
     public function insertEntity(Entity $entity): bool
     {
-        $body = $entity->validateExistBody();
+        $value = $entity->getValue();
         $id = $this->getEntityId($entity);
 
-        $insertColumn = implode(', ', array_keys($body));
+        if (array_key_exists($entity::$columnId, $value))
+            unset($value[$entity::$columnId]);
 
-        $valuesColumnValue = implode(', ', array_map(static fn(string $key) => ':' . $key, array_keys($body)));
+        $insertColumn = implode(', ', array_keys($value));
+        $valuesColumnValue = implode(', ', array_map(static fn(string $key) => ':' . $key, array_keys($value)));
 
         if ($id !== null) {
             $insertColumn = $entity::$columnId . ', ' . $insertColumn;
             $valuesColumnValue = ':' . $entity::$columnId . ', ' . $valuesColumnValue;
 
-            $body = array_merge([$entity::$columnId => $id], $body);
+            $value = array_merge([$entity::$columnId => $id], $value);
         }
 
-        $result = $this->connection->prepare('INSERT INTO ' . $entity::$table . '(' . $insertColumn . ') VALUES(' . $valuesColumnValue . ')')->execute($body);
+        $result = $this->connection->prepare('INSERT INTO ' . $entity::$table . '(' . $insertColumn . ') VALUES(' . $valuesColumnValue . ')')->execute($value);
 
         if ($result) {
             if ($id === null)
@@ -119,34 +115,31 @@ class Manager
         return $result;
     }
 
-    /**
-     * @throws ValidatorException
-     */
     public function updateEntity(Entity $entity): bool
     {
-        $id = $entity->validateId();
-        $body = $entity->validateExistBody();
+        $value = $entity->getValue();
+        $id = $value[$entity::$columnId];
 
-        if ($entity::$columnCreate && array_key_exists($entity::$columnCreate, $body))
-            unset($body[$entity::$columnCreate]);
+        unset($value[$entity::$columnId]);
 
-        if ($entity::$columnUpdate && array_key_exists($entity::$columnUpdate, $body))
-            unset($body[$entity::$columnUpdate]);
+        if ($entity::$columnCreate && array_key_exists($entity::$columnCreate, $value))
+            unset($value[$entity::$columnCreate]);
 
-        $updateColumnValue = implode(', ', array_map(static fn(string $key) => $key . ' = :' . $key, array_keys($body)));
+        if ($entity::$columnUpdate && array_key_exists($entity::$columnUpdate, $value))
+            unset($value[$entity::$columnUpdate]);
+
+        $updateColumnValue = implode(', ', array_map(static fn(string $key) => $key . ' = :' . $key, array_keys($value)));
 
         if ($entity::$columnUpdate)
             $updateColumnValue .= ', ' . $entity::$columnUpdate . ' = NOW()';
 
-        return $this->connection->prepare('UPDATE ' . $entity::$table . ' SET ' . $updateColumnValue . ' WHERE ' . $entity::$columnId . ' = :' . $entity::$columnId)->execute(array_merge([$entity::$columnId => $id], $body));
+        return $this->connection->prepare('UPDATE ' . $entity::$table . ' SET ' . $updateColumnValue . ' WHERE ' . $entity::$columnId . ' = :' . $entity::$columnId)->execute(array_merge([$entity::$columnId => $id], $value));
     }
 
-    /**
-     * @throws ValidatorException
-     */
     public function deleteEntity(Entity $entity): bool
     {
-        $id = $entity->validateId();
+        $value = $entity->getValue();
+        $id = $value[$entity::$columnId];
 
         return $this->connection->prepare('DELETE FROM ' . $entity::$table . ' WHERE ' . $entity::$columnId . ' = :id')->execute(['id' => $id]);
     }

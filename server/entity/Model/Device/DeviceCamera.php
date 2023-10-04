@@ -39,13 +39,13 @@ use Selpol\Validator\Rule;
  *
  * @property string|null $comment
  */
-class Camera extends Entity
+class DeviceCamera extends Entity
 {
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

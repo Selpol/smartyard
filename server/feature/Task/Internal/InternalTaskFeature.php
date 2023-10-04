@@ -3,6 +3,7 @@
 namespace Selpol\Feature\Task\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
 use Selpol\Validator\Exception\ValidatorException;
@@ -14,7 +15,7 @@ class InternalTaskFeature extends TaskFeature
      */
     public function page(int $size, int $page): array
     {
-        return \Selpol\Entity\Model\Task::fetchAll('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
+        return container(TaskRepository::class)->fetchAll('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
     }
 
     /**
@@ -30,7 +31,7 @@ class InternalTaskFeature extends TaskFeature
         $dbTask->message = $message;
         $dbTask->status = $status;
 
-        $dbTask->insert();
+        container(TaskRepository::class)->insert($dbTask);
     }
 
     /**
@@ -38,7 +39,7 @@ class InternalTaskFeature extends TaskFeature
      */
     public function dispatch(int $id): bool
     {
-        $dbTask = \Selpol\Entity\Model\Task::fetchById($id);
+        $dbTask = container(TaskRepository::class)->findById($id);
 
         $task = unserialize($dbTask->data);
 

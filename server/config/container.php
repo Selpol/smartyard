@@ -3,6 +3,19 @@
 use Selpol\Cache\FileCache;
 use Selpol\Cache\RedisCache;
 use Selpol\Container\ContainerConfigurator;
+use Selpol\Entity\Repository\AuditRepository;
+use Selpol\Entity\Repository\Core\CoreUserRepository;
+use Selpol\Entity\Repository\Core\CoreVarRepository;
+use Selpol\Entity\Repository\Device\DeviceCameraRepository;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
+use Selpol\Entity\Repository\Dvr\DvrRecordRepository;
+use Selpol\Entity\Repository\Dvr\DvrServerRepository;
+use Selpol\Entity\Repository\Frs\FrsFaceRepository;
+use Selpol\Entity\Repository\Frs\FrsServerRepository;
+use Selpol\Entity\Repository\Inbox\InboxMessageRepository;
+use Selpol\Entity\Repository\PermissionRepository;
+use Selpol\Entity\Repository\RoleRepository;
+use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Address\Internal\InternalAddressFeature;
 use Selpol\Feature\Archive\ArchiveFeature;
@@ -98,6 +111,27 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(PlogFeature::class, ClickHousePlogFeature::class);
     $builder->singleton(DvrFeature::class, InternalDvrFeature::class);
     $builder->singleton(FrsFeature::class, InternalFrsFeature::class);
+    //#endregion
+
+    //#region Repositories
+    $builder->singleton(RoleRepository::class);
+    $builder->singleton(PermissionRepository::class);
+    $builder->singleton(AuditRepository::class);
+    $builder->singleton(TaskRepository::class);
+
+    $builder->singleton(CoreVarRepository::class);
+    $builder->singleton(CoreUserRepository::class);
+
+    $builder->singleton(DeviceCameraRepository::class);
+    $builder->singleton(DeviceIntercomRepository::class);
+
+    $builder->singleton(DvrServerRepository::class);
+    $builder->singleton(DvrRecordRepository::class);
+
+    $builder->singleton(FrsServerRepository::class);
+    $builder->singleton(FrsFaceRepository::class);
+
+    $builder->singleton(InboxMessageRepository::class);
     //#endregion
 
     $builder->singleton(FileCache::class);

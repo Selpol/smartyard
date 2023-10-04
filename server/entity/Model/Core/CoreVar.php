@@ -17,7 +17,7 @@ class CoreVar extends Entity
 
     public static string $columnId = 'var_id';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

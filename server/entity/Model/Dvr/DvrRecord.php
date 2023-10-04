@@ -25,7 +25,7 @@ class DvrRecord extends Entity
 
     public static string $columnId = 'record_id';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

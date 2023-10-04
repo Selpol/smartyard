@@ -32,6 +32,7 @@ class AsteriskRunner implements KernelRunner
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws RedisException
+     * @throws ValidatorException
      */
     function __invoke(Kernel $kernel): int
     {

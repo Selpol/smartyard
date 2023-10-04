@@ -5,6 +5,8 @@ namespace Selpol\Feature\Role\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
+use Selpol\Entity\Repository\PermissionRepository;
+use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Validator\Exception\ValidatorException;
 
@@ -15,7 +17,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function roles(): array
     {
-        return Role::fetchAll('SELECT * FROM role');
+        return container(RoleRepository::class)->fetchAll('SELECT * FROM role');
     }
 
     /**
@@ -23,7 +25,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function permissions(): array
     {
-        return Permission::fetchAll('SELECT * FROM permission');
+        return container(PermissionRepository::class)->fetchAll('SELECT * FROM permission');
     }
 
     /**
@@ -31,7 +33,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForRole(int $roleId): array
     {
-        return Permission::fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)', ['role_id' => $roleId]);
+        return container(PermissionRepository::class)->fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)', ['role_id' => $roleId]);
     }
 
     /**
@@ -39,7 +41,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findRolesForUser(int $userId): array
     {
-        return Permission::fetchAll('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return container(PermissionRepository::class)->fetchAll('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
     }
 
     /**
@@ -47,7 +49,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForUser(int $userId): array
     {
-        return Permission::fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return container(PermissionRepository::class)->fetchAll('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)', ['user_id' => $userId]);
     }
 
     /**
@@ -61,8 +63,7 @@ class InternalRoleFeature extends RoleFeature
         $role->title = $title;
         $role->description = $description;
 
-        $role->insert();
-        $role->refresh();
+        container(RoleRepository::class)->insertAndRefresh($role);
 
         return $role;
     }
@@ -74,13 +75,12 @@ class InternalRoleFeature extends RoleFeature
      */
     public function updateRole(int $roleId, string $title, string $description): Role
     {
-        $role = Role::fetchById($roleId);
+        $role = container(RoleRepository::class)->findById($roleId);
 
         $role->title = $title;
         $role->description = $description;
 
-        $role->update();
-        $role->refresh();
+        container(RoleRepository::class)->updateAndRefresh($role);
 
         return $role;
     }
@@ -91,7 +91,9 @@ class InternalRoleFeature extends RoleFeature
      */
     public function deleteRole(int $roleId): bool
     {
-        return Role::fetchById($roleId)->delete();
+        $role = container(RoleRepository::class)->findById($roleId);
+
+        return container(RoleRepository::class)->delete($role);
     }
 
     /**
@@ -100,12 +102,11 @@ class InternalRoleFeature extends RoleFeature
      */
     public function updatePermission(int $permissionId, string $description): Permission
     {
-        $permission = Permission::fetchById($permissionId);
+        $permission = container(PermissionRepository::class)->findById($permissionId);
 
         $permission->description = $description;
 
-        $permission->update();
-        $permission->refresh();
+        container(PermissionRepository::class)->updateAndRefresh($permission);
 
         return $permission;
     }

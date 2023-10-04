@@ -26,7 +26,7 @@ class DvrServer extends Entity
     public static ?string $columnCreate = 'created_at';
     public static ?string $columnUpdate = 'updated_at';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

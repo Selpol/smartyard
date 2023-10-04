@@ -1,0 +1,163 @@
+<?php declare(strict_types=1);
+
+namespace Selpol\Entity;
+
+use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Service\Database\Manager;
+use Selpol\Service\DatabaseService;
+use Selpol\Validator\Exception\ValidatorException;
+
+/**
+ * @template TKey of array-key
+ * @template TValue of Entity
+ */
+abstract class Repository
+{
+    /**
+     * @var class-string<TValue>
+     */
+    protected string $class;
+
+    protected string $table;
+
+    protected string $id;
+
+    protected array $columns;
+
+    /**
+     * @param class-string<TValue> $class
+     */
+    protected function __construct(string $class)
+    {
+        $this->class = $class;
+
+        $this->table = $class::$table;
+
+        $this->id = $class::$columnId;
+
+        $this->columns = $class::getColumns();
+    }
+
+    /**
+     * @psalm-param string $query
+     * @psalm-param array $params
+     * @psalm-return TValue
+     * @throws NotFoundExceptionInterface
+     */
+    public function fetch(string $query, array $params = []): Entity
+    {
+        return $this->getManager()->fetchEntity($this->class, $query, $params);
+    }
+
+    /**
+     * @param string $query
+     * @param array $params
+     * @return array<TValue>
+     * @throws NotFoundExceptionInterface
+     */
+    public function fetchAll(string $query, array $params = []): array
+    {
+        return $this->getManager()->fetchAllEntity($this->class, $query, $params);
+    }
+
+    /**
+     * @psalm-param TKey $id
+     * @psalm-return TValue
+     * @throws NotFoundExceptionInterface
+     */
+    public function findById(mixed $id): Entity
+    {
+        return $this->fetch('SELECT * FROM ' . $this->table . ' WHERE ' . $this->id . ' = :' . $this->id, [$this->id => $id]);
+    }
+
+    /**
+     * @psalm-param TValue $entity
+     * @psalm-return bool
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function insert(Entity $entity): bool
+    {
+        $value = $entity->getValue();
+        $columns = [];
+
+        foreach (array_keys($value) as $key)
+            if ($key !== $entity::$columnId)
+                $columns[$key] = $this->columns[$key];
+
+        $entity->setValue(validator($value, $columns));
+
+        return $this->getManager()->insertEntity($entity);
+    }
+
+    /**
+     * @psalm-param TValue $entity
+     * @psalm-return bool
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function refresh(Entity $entity): bool
+    {
+        $entity->{$entity::$columnId} = validate($entity::$columnId, $entity->{$entity::$columnId}, $this->columns[$entity::$columnId]);
+
+        return $this->getManager()->refreshEntity($entity);
+    }
+
+    /**
+     * @psalm-param TValue $entity
+     * @psalm-return bool
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function update(Entity $entity): bool
+    {
+        $value = $entity->getValue();
+        $columns = [];
+
+        foreach (array_keys($value) as $key)
+            $columns[$key] = $this->columns[$key];
+
+        $entity->setValue(validator($value, $columns));
+
+        return $this->getManager()->updateEntity($entity);
+    }
+
+    /**
+     * @psalm-param TValue $entity
+     * @psalm-return bool
+     * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
+     */
+    public function delete(Entity $entity): bool
+    {
+        $entity->{$entity::$columnId} = validate($entity::$columnId, $entity->{$entity::$columnId}, $this->columns[$entity::$columnId]);
+
+        return $this->getManager()->deleteEntity($entity);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws NotFoundExceptionInterface
+     */
+    public function insertAndRefresh(Entity $entity): bool
+    {
+        return $this->insert($entity) && $this->refresh($entity);
+    }
+
+    /**
+     * @throws ValidatorException
+     * @throws NotFoundExceptionInterface
+     */
+    public function updateAndRefresh(Entity $entity): bool
+    {
+        return $this->update($entity) && $this->refresh($entity);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    protected function getManager(): Manager
+    {
+        return container(DatabaseService::class)->getManager();
+    }
+}

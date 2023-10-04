@@ -27,6 +27,8 @@ return static function (RC $builder) {
     $builder->group('/internal', static function (RC $builder) {
         $builder->include(InternalMiddleware::class);
 
+        $builder->get('/test', [\Selpol\Controller\Internal\TestController::class, 'index']);
+
         $builder->group('/actions', static function (RC $builder) {
             $builder->get('/getSyslogConfig', [InternalActionController::class, 'getSyslogConfig']);
 

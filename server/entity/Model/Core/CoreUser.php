@@ -28,7 +28,7 @@ class CoreUser extends Entity
 
     public static string $columnId = 'uid';
 
-    protected static function getColumns(): array
+    public static function getColumns(): array
     {
         return [
             static::$columnId => [Rule::id()],

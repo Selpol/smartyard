@@ -11,6 +11,8 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
+use Selpol\Entity\Model\Permission;
+use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Role\RoleFeature;
@@ -25,6 +27,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
+use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 class CliRunner implements KernelRunner
@@ -556,6 +559,7 @@ class CliRunner implements KernelRunner
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws ValidatorException
      */
     private function roleInit(): void
     {
@@ -563,7 +567,12 @@ class CliRunner implements KernelRunner
 
         $db = container(DatabaseService::class);
 
-        $permissions = array_column(container(RoleFeature::class)->permissions(), 'title');
+        /** @var array<string, Permission> $titlePermissions */
+        $titlePermissions = array_reduce(container(RoleFeature::class)->permissions(), static function (array $previous, Permission $current) {
+            $previous[$current->title] = $current;
+
+            return $previous;
+        }, []);
 
         $dir = path('controller/api');
         $apis = scandir($dir);
@@ -585,13 +594,15 @@ class CliRunner implements KernelRunner
                                 $keys = array_keys($request_methods);
 
                                 foreach ($keys as $key) {
-                                    $permission = $api . '-' . $method . '-' . strtolower($key);
+                                    $permission = $api . '-' . $method . '-' . strtolower(is_int($key) ? $request_methods[$key] : $key);
 
-                                    if (!in_array($permission, $permissions)) {
+                                    if (!array_key_exists($permission, $titlePermissions)) {
                                         $id = $db->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];
 
                                         $db->insert('INSERT INTO permission(id, title, description) VALUES(:id, :title, :description)', ['id' => $id, 'title' => $permission, 'description' => $permission]);
                                     }
+
+                                    unset($titlePermissions[$permission]);
                                 }
                             }
                         }
@@ -599,6 +610,9 @@ class CliRunner implements KernelRunner
                 }
             }
         }
+
+        foreach ($titlePermissions as $permission)
+            container(PermissionRepository::class)->delete($permission);
     }
 
     private function help(?string $group = null): string
