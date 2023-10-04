@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\Intercom\Is\IsComX1Intercom;
+use Selpol\Device\Ip\Intercom\Is\IsIntercom;
 
 class IntercomModel
 {
@@ -81,7 +82,7 @@ class IntercomModel
                     'is',
                     1,
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
-                    IsComX1Intercom::class
+                    IsIntercom::class
                 )
             ];
 

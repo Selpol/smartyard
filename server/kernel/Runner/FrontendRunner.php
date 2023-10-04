@@ -138,10 +138,14 @@ class FrontendRunner implements KernelRunner
             if (class_exists("\\api\\$api\\$method")) {
                 $result = call_user_func(["\\api\\$api\\$method", $params['_request_method']], $params);
 
-                $code = array_key_first($result);
+                if ($result !== null) {
+                    $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit($this->response($code)->withJson($result[$code]));
-                else return $this->emit($this->response(500)->withStatusJson());
+                    if ((int)$code) return $this->emit($this->response($code)->withJson($result[$code]));
+                    else return $this->emit($this->response(500)->withStatusJson());
+                }
+
+                return $this->emit($this->response(204));
             } else return $this->emit($this->response(404)->withStatusJson());
         }
 
