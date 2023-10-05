@@ -236,15 +236,17 @@ class IsIntercom extends IntercomDevice
 
     public function setMifare(string $key, int $sector): static
     {
-        $this->put('/key/settings', [
-            'encryption' => [
-                'enabled' => true,
-                'key_type' => 'A',
-                'key_auth' => $key,
-                'sector' => $sector,
-                'increment' => ['enabled' => false, 'block' => 0, 'openByError' => false]
-            ]
-        ]);
+        if ($this->model->mifare) {
+            $this->put('/key/settings', [
+                'encryption' => [
+                    'enabled' => true,
+                    'key_type' => 'A',
+                    'key_auth' => $key,
+                    'sector' => $sector,
+                    'increment' => ['enabled' => false, 'block' => 0, 'openByError' => false]
+                ]
+            ]);
+        }
 
         return $this;
     }
