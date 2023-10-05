@@ -90,7 +90,7 @@ class IsIntercom extends IntercomDevice
         $this->rfids[] = ['uuid' => $code, 'panelCode' => $apartment, 'encryption' => true];
     }
 
-    public function removeRfid(string $code): void
+    public function removeRfid(string $code, int $apartment): void
     {
         $this->delete('/key/store/' . $code);
     }

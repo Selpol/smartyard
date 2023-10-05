@@ -62,7 +62,7 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function removeRfid(string $code): void
+    public function removeRfid(string $code, int $apartment): void
     {
         throw new DeviceException($this);
     }

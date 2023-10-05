@@ -62,7 +62,7 @@ class DksIntercom extends IntercomDevice
     public function addRfid(string $code, int $apartment): void
     {
         if ($this->model->mifare)
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment]);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'CipherIndex' => 1]);
         else
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment]);
     }
@@ -72,12 +72,12 @@ class DksIntercom extends IntercomDevice
         $this->addRfid($code, $apartment);
     }
 
-    public function removeRfid(string $code): void
+    public function removeRfid(string $code, int $apartment): void
     {
         if ($this->model->mifare)
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Key' => $code]);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Key' => $code, 'Apartment' => $apartment]);
         else
-            $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $code]);
+            $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $code, 'Apartment' => $apartment]);
     }
 
     public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
@@ -240,8 +240,10 @@ class DksIntercom extends IntercomDevice
 
     public function setMifare(string $key, int $sector): static
     {
-        if ($this->model->mifare)
-            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'set', 'Value' => $key, 'Type' => 1, 'Index' => $sector]);
+        if ($this->model->mifare) {
+            $this->get('/cgi-bin/cipher_cgi', ['action' => 'add', 'Value' => $key, 'Type' => 1, 'Index' => 1]);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'set', 'Sector' => $sector, 'AutoValidation' => 'off']);
+        }
 
         return $this;
     }

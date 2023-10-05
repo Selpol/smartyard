@@ -12,6 +12,7 @@ use Throwable;
 class IntercomDeleteKeyTask extends Task
 {
     public string $key;
+
     public int $flatId;
 
     public function __construct(string $key, int $flatId)
@@ -19,6 +20,7 @@ class IntercomDeleteKeyTask extends Task
         parent::__construct('Удалить ключ (' . $key . ', ' . $flatId . ')');
 
         $this->key = $key;
+
         $this->flatId = $flatId;
     }
 
@@ -60,7 +62,9 @@ class IntercomDeleteKeyTask extends Task
             if (!$device->ping())
                 throw new RuntimeException('Устройство не доступно');
 
-            $device->removeRfid($this->key);
+            $flat = container(HouseFeature::class)->getFlat($this->flatId);
+
+            $device->removeRfid($this->key, $flat['flat']);
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
 

@@ -65,6 +65,7 @@ class IntercomConfigureTask extends IntercomTask
             $is_shared = $entrances[0]['shared'];
 
             $this->clean($domophone, $asterisk_server, $cms_levels, $cms_model->model, $device);
+            $this->mifare($device);
             $this->cms($is_shared, $entrances, $device);
 
             $this->setProgress(50);
@@ -77,7 +78,6 @@ class IntercomConfigureTask extends IntercomTask
                 $device->setGate($links);
 
             $this->common($panel_text, $entrances, $device);
-            $this->mifare($device);
 
             $device->deffer();
 
