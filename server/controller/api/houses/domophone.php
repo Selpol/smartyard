@@ -39,7 +39,7 @@ namespace api\houses {
                 return api::ANSWER($domophoneId, 'domophoneId');
             }
 
-            return api::ERROR('Домофон не добавлена');
+            return api::ERROR('Домофон не добавлена' . PHP_EOL . last_error());
         }
 
         public static function PUT($params)

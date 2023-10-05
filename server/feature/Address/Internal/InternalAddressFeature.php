@@ -296,7 +296,7 @@ class InternalAddressFeature extends AddressFeature
     /**
      * @throws NotFoundExceptionInterface
      */
-    function addCity(int $regionId, int $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int|string
+    function addCity(int $regionId, ?int $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int|string
     {
         if ($timezone == '-')
             $timezone = null;

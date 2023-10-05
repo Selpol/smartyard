@@ -4,8 +4,7 @@ namespace Selpol\Device\Ip;
 
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
-use Selpol\Device\Ip\Camera\CameraDevice;
-use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Http\Response;
 use Selpol\Http\Uri;
 use Throwable;
 
@@ -29,7 +28,7 @@ abstract class IpDevice extends Device
             $url .= ':' . match (strtolower($this->uri->getScheme())) {
                     'http' => 80,
                     'https' => 443,
-                    default => 22,
+                    default => 22
                 };
         } else $url .= ':' . $this->uri->getPort();
 
@@ -57,63 +56,70 @@ abstract class IpDevice extends Device
         throw new DeviceException($this);
     }
 
-    public function asCamera(): ?CameraDevice
+    public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        if ($this instanceof CameraDevice)
-            return $this;
+        if (!str_starts_with($endpoint, '/'))
+            $endpoint = '/' . $endpoint;
 
-        return null;
-    }
-
-    public function asIntercom(): ?IntercomDevice
-    {
-        if ($this instanceof IntercomDevice)
-            return $this;
-
-        return null;
-    }
-
-    public function get(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
-    {
         try {
-            $response = $this->client()->get($this->uri . $endpoint, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
+            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
 
-            return $response->getParsedBody();
+            return $this->response($response, $parse);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
     }
 
-    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!str_starts_with($endpoint, '/'))
+            $endpoint = '/' . $endpoint;
+
         try {
             $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
 
-            return $response->getParsedBody();
+            return $this->response($response, $parse);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
     }
 
-    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!str_starts_with($endpoint, '/'))
+            $endpoint = '/' . $endpoint;
+
         try {
             $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
 
-            return $response->getParsedBody();
+            return $this->response($response, $parse);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
     }
 
-    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json']): mixed
+    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!str_starts_with($endpoint, '/'))
+            $endpoint = '/' . $endpoint;
+
         try {
             $response = $this->client()->delete($this->uri . $endpoint, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
 
-            return $response->getParsedBody();
+            return $this->response($response, $parse);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    private function response(Response $response, bool $parse): mixed
+    {
+        if ($parse)
+            return $response->getParsedBody();
+
+        if ($response->hasBody())
+            return $response->getBody()->getContents();
+
+        return '';
     }
 }

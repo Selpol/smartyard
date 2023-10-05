@@ -4,10 +4,35 @@ namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\IpDevice;
+use Selpol\Http\Uri;
 
 abstract class IntercomDevice extends IpDevice
 {
+    public IntercomModel $model;
+
+    public function __construct(Uri $uri, string $password, IntercomModel $model)
+    {
+        parent::__construct($uri, $password);
+
+        $this->model = $model;
+    }
+
     public function getSipStatus(): bool
+    {
+        throw new DeviceException($this);
+    }
+
+    public function getLineDialStatus(int $apartment): int
+    {
+        throw new DeviceException($this);
+    }
+
+    public function getRfids(): array
+    {
+        throw new DeviceException($this);
+    }
+
+    public function addCms(int $index, int $dozen, int $unit, int $apartment): void
     {
         throw new DeviceException($this);
     }
@@ -67,7 +92,7 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function setGate(bool $value): static
+    public function setGate(array $value): static
     {
         throw new DeviceException($this);
     }
@@ -152,6 +177,11 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
+    public function setDisplayText(string $title): static
+    {
+        throw new DeviceException($this);
+    }
+
     public function setVideoOverlay(string $title): static
     {
         throw new DeviceException($this);
@@ -182,12 +212,7 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this);
     }
 
-    public function clearCode(): void
-    {
-        throw new DeviceException($this);
-    }
-
-    public function clean(string $sip_server, string $ntp_server, string $syslog_server, string $sip_username, int $sip_port, int $ntp_port, int $syslog_port, string $main_door_dtmf, array $audio_levels, array $cms_levels, string $cms_model,): void
+    public function clean(string $sip_server, string $ntp_server, string $syslog_server, string $sip_username, int $sip_port, int $ntp_port, int $syslog_port, string $main_door_dtmf, array $audio_levels, array $cms_levels, ?string $cms_model): void
     {
         $this->setSyslog($syslog_server, $syslog_port);
         $this->setUnlockTime(5);
@@ -204,8 +229,8 @@ abstract class IntercomDevice extends IpDevice
         $this->clearApartment();
         $this->setSos(9998);
         $this->setConcierge(9999);
-        $this->setCmsModel($cms_model);
-        $this->setGate(false);
+        $this->setCmsModel($cms_model ?? '');
+        $this->setGate([]);
     }
 
     public function defferCmses(): void

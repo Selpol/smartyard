@@ -7,8 +7,6 @@ use Throwable;
 
 trait IsTrait
 {
-    public string $login = 'root';
-
     public function getSysInfo(): array
     {
         try {

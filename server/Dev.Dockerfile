@@ -39,10 +39,6 @@ RUN set -eux; \
 
 COPY --link docker/supervisor/* /etc/supervisor.d/
 
-COPY --link docker/php/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
-RUN chmod +x /usr/local/bin/docker-entrypoint
-
-ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
 ENV COMPOSER_ALLOW_SUPERUSER=1

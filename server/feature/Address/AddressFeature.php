@@ -32,7 +32,7 @@ abstract class AddressFeature extends Feature
 
     abstract function modifyCity(int|bool|null $cityId, int|bool|null $regionId, int|bool|null $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int;
 
-    abstract function addCity(int $regionId, int $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int|string;
+    abstract function addCity(int $regionId, ?int $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int|string;
 
     abstract function deleteCity(int $cityId): bool|int;
 

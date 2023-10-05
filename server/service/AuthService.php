@@ -67,7 +67,9 @@ class AuthService
         if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions))
             return true;
 
-        $permissions = container(RedisCache::class)->cache('user:permissions', static fn() => $role->getAllPermissionsForUser($this->user->getIdentifier()), 30);
+        $identifier = intval($this->user->getIdentifier());
+
+        $permissions = $role->getAllPermissionsForUser($identifier); //container(RedisCache::class)->cache('user:permissions', static fn() => $role->getAllPermissionsForUser($identifier), 30);
 
         return in_array('*', $permissions) || in_array($value, $permissions);
     }

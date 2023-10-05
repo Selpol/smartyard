@@ -74,7 +74,7 @@ class IntercomConfigureTask extends IntercomTask
             $this->flat($links, $entrances, $cms_levels, $is_shared, $device);
 
             if ($is_shared)
-                $device->setGate(count($links) > 0);
+                $device->setGate($links);
 
             $this->common($panel_text, $entrances, $device);
             $this->mifare($device);
@@ -92,7 +92,7 @@ class IntercomConfigureTask extends IntercomTask
     /**
      * @throws NotFoundExceptionInterface
      */
-    private function clean(array $domophone, array $asterisk_server, array $cms_levels, string $cms_model, IntercomDevice $device): void
+    private function clean(array $domophone, array $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
     {
         $this->setProgress(5);
 

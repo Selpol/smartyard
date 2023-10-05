@@ -28,6 +28,34 @@ class IsIntercom extends IntercomDevice
         }
     }
 
+    public function getLineDialStatus(int $apartment): int
+    {
+        $response = $this->get("/panelCode/$apartment/resist");
+
+        if (!$response || isset($response['errors']))
+            return 0;
+
+        return $response['resist'];
+    }
+
+    public function getRfids(): array
+    {
+        $return = [];
+
+        $rfids = $this->get('/key/store');
+
+        if ($rfids)
+            foreach ($rfids as $key)
+                $return[] = $key['uuid'];
+
+        return $return;
+    }
+
+    public function addCms(int $index, int $dozen, int $unit, int $apartment): void
+    {
+        $this->addCmsDefer($index, $dozen, $unit, $apartment);
+    }
+
     public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
     {
         if ($this->cmses === null)
@@ -137,9 +165,9 @@ class IsIntercom extends IntercomDevice
         return $this;
     }
 
-    public function setGate(bool $value): static
+    public function setGate(array $value): static
     {
-        $this->put('/gate/settings', ['gateMode' => $value, 'prefixHouse' => $value]);
+        $this->put('/gate/settings', ['gateMode' => count($value) > 0, 'prefixHouse' => count($value) > 0]);
 
         return $this;
     }
@@ -196,7 +224,7 @@ class IsIntercom extends IntercomDevice
             $this->client()->request(
                 container(HttpService::class)
                     ->createRequest('PUT', $this->uri . '/system/files/rsyslogd.conf')
-                    ->withBody(Stream::memory($this->getSyslogConfig($server, $port)))
+                    ->withBody(Stream::memory($this->getSyslogConfigHelp($server, $port)))
                     ->withHeader('Content-Type', 'text/plain')
             );
 
@@ -269,20 +297,8 @@ class IsIntercom extends IntercomDevice
 
     public function setCmsModel(string $value): static
     {
-        $model_id_map = [
-            'BK-100M' => 'VISIT',
-            'KMG-100' => 'CYFRAL',
-            'KKM-100S2' => 'CYFRAL',
-            'KM100-7.1' => 'ELTIS',
-            'KM100-7.5' => 'ELTIS',
-            'COM-100U' => 'METAKOM',
-            'COM-220U' => 'METAKOM',
-            'FACTORIAL 8x8' => 'FACTORIAL',
-        ];
-
-        $id = $model_id_map[strtoupper($value)];
-
-        $this->put('/switch/settings', ['modelId' => $id]);
+        if (array_key_exists(strtoupper($value), $this->model->cmsesMap))
+            $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($value)]]);
 
         $this->clearCms($value);
 
@@ -335,6 +351,11 @@ class IsIntercom extends IntercomDevice
         foreach ($relays as $relay)
             $this->put('/relay/' . $relay . '/settings', ['switchTime' => $time]);
 
+        return $this;
+    }
+
+    public function setDisplayText(string $title): static
+    {
         return $this;
     }
 
@@ -454,11 +475,6 @@ class IsIntercom extends IntercomDevice
         $this->delete('/key/store/clear');
     }
 
-    public function clearCode(): void
-    {
-        $this->delete('/key/store/clear');
-    }
-
     public function defferCmses(): void
     {
         if ($this->cmses) {
@@ -503,7 +519,7 @@ class IsIntercom extends IntercomDevice
         $this->defferApartments();
     }
 
-    private function getSyslogConfig(string $server, int $port): string
+    private function getSyslogConfigHelp(string $server, int $port): string
     {
         return '### TEMPLATES ###
 template(name="LongTagForwardFormat" type="list") {

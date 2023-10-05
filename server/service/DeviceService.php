@@ -29,7 +29,7 @@ class DeviceService
         $models = CameraModel::models();
 
         if (array_key_exists($model, $models))
-            return new $models[$model]->class(new Uri($url), $password);
+            return new $models[$model]->class(new Uri($url), $password, $models[$model]);
 
         return null;
     }
@@ -50,7 +50,7 @@ class DeviceService
         $models = IntercomModel::models();
 
         if (array_key_exists($model, $models))
-            return new $models[$model]->class(new Uri($url), $password);
+            return new $models[$model]->class(new Uri($url), $password, $models[$model]);
 
         return null;
     }

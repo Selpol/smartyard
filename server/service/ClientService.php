@@ -14,7 +14,7 @@ class ClientService
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function get(string $uri, array $headers = []): Response
+    public function get(string $uri, array $query = [], array $headers = []): Response
     {
         $request = container(HttpService::class)->createRequest('GET', $uri);
 

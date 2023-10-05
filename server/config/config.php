@@ -123,6 +123,7 @@ return [
     ],
 
     'syslog_servers' => [
+        'beward' => explode(',', env('SYSLOG_SERVERS_BEWARD', 'syslog://127.0.0.1:45450')),
         'is' => explode(',', env('SYSLOG_SERVERS_IS', 'syslog://127.0.0.1:45453'))
     ],
 
