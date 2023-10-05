@@ -49,7 +49,7 @@ class IntercomModel
         $this->cmses = $cmses;
         $this->cmsesMap = $cmsesMap;
 
-        $this->mifare = $mifare;
+        $this->mifare = $mifare && env('MIFARE_SECTOR', 0) > 0;
 
         $this->class = $class;
     }
