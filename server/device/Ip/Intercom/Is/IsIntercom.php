@@ -9,7 +9,7 @@ use Selpol\Http\Stream;
 use Selpol\Service\HttpService;
 use Throwable;
 
-abstract class IsIntercom extends IntercomDevice
+class IsIntercom extends IntercomDevice
 {
     use IsTrait;
 
