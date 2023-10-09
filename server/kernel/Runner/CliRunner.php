@@ -82,9 +82,6 @@ class CliRunner implements KernelRunner
         } else if ($group === 'amqp') {
             if ($command === 'check') return $this->amqpCheck();
             else echo $this->help('amqp');
-        } else if ($group === 'rbt') {
-            if ($command === 'reindex') $this->rbtReindex();
-            else echo $this->help('rbt');
         } else if ($group === 'admin') {
             if ($command === 'password') $this->adminPassword($arguments['admin:password']);
             else echo $this->help('admin');
@@ -193,95 +190,6 @@ class CliRunner implements KernelRunner
     private function amqpCheck(): int
     {
         return 0;
-    }
-
-    /**
-     * @throws Exception
-     */
-    private function rbtReindex(): void
-    {
-        require_once path('/controller/api/api.php');
-
-        $connection = container(DatabaseService::class)->getConnection();
-
-        $dir = path('controller/api');
-        $apis = scandir($dir);
-
-        $connection->exec("delete from core_api_methods");
-        $connection->exec("delete from core_api_methods_common");
-        $connection->exec("delete from core_api_methods_by_backend");
-        $connection->exec("delete from core_api_methods_personal");
-
-        $add = $connection->prepare("insert into core_api_methods (aid, api, method, request_method) values (:md5, :api, :method, :request_method)");
-        $aid = $connection->prepare("select aid from core_api_methods where api = :api and method = :method and request_method = :request_method");
-        $adb = $connection->prepare("insert into core_api_methods_by_backend (aid, backend) values (:aid, :backend)");
-        $ads = $connection->prepare("update core_api_methods set permissions_same = :permissions_same where aid = :aid");
-
-        $n = 0;
-
-        foreach ($apis as $api) {
-            if ($api != "." && $api != ".." && is_dir($dir . "/$api")) {
-                $methods = scandir($dir . "/$api");
-
-                foreach ($methods as $method) {
-                    if ($method != "." && $method != ".." && str_ends_with($method, ".php") && is_file($dir . "/$api/$method")) {
-                        $method = substr($method, 0, -4);
-
-                        require_once $dir . "/$api/$method.php";
-
-                        if (class_exists("\\api\\$api\\$method")) {
-                            $request_methods = call_user_func(["\\api\\$api\\$method", "index"]);
-                            if ($request_methods) {
-                                foreach ($request_methods as $request_method => $backend) {
-                                    if (is_int($request_method)) {
-                                        $request_method = $backend;
-                                        $backend = false;
-                                    }
-
-                                    $md5 = md5("$api/$method/$request_method");
-                                    $add->execute([":md5" => $md5, ":api" => $api, ":method" => $method, ":request_method" => $request_method]);
-
-                                    if ($backend) {
-                                        switch ($backend) {
-                                            case "#common";
-                                                try {
-                                                    $connection->exec("insert into core_api_methods_common (aid) values ('$md5')");
-                                                } catch (Exception) {
-                                                    // uniq violation?
-                                                }
-                                                break;
-                                            case "#personal";
-                                                try {
-                                                    $connection->exec("insert into core_api_methods_personal (aid) values ('$md5')");
-                                                } catch (Exception) {
-                                                    // uniq violation?
-                                                }
-                                                break;
-                                            default:
-                                                if (str_starts_with($backend, "#same(")) {
-                                                    $same = explode(",", explode(")", explode("(", $backend)[1])[0]);
-                                                    if (count($same) === 3) {
-                                                        $same_api = trim($same[0]);
-                                                        $same_method = trim($same[1]);
-                                                        $same_request_method = trim($same[2]);
-                                                        $same_md5 = md5("$same_api/$same_method/$same_request_method");
-
-                                                        $ads->execute([":aid" => $md5, ":permissions_same" => $same_md5]);
-                                                    }
-                                                } else $adb->execute([":aid" => $md5, ":backend" => $backend]);
-
-                                                break;
-                                        }
-                                    }
-
-                                    $n++;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /**
@@ -648,12 +556,6 @@ class CliRunner implements KernelRunner
             $result[] = implode(PHP_EOL, [
                 '',
                 'amqp:check                       - Проверка доступности AMQP'
-            ]);
-
-        if ($group === null || $group === 'rbt')
-            $result[] = implode(PHP_EOL, [
-                '',
-                'rbt:reindex                      - Обновить маршрутизацию API'
             ]);
 
         if ($group === null || $group === 'admin')

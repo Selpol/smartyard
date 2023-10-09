@@ -55,8 +55,6 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'php' ]; then
   php cli.php db:init
   php cli.php role:init
 
-  php cli.php rbt:reindex
-
   php cli.php cron:install
 
 	setfacl -R -m u:www-data:rwX -m u:"$(whoami)":rwX var
