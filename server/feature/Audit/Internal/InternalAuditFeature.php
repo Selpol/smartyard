@@ -69,7 +69,7 @@ class InternalAuditFeature extends AuditFeature
      */
     public function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void
     {
-        if (!container(AuthService::class)->getUser()?->canScope())
+        if (!container(AuthService::class)->getUser()?->canScope() !== true)
             return;
 
         $user = container(AuthService::class)->getUser();
