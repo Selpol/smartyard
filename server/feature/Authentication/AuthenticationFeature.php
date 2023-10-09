@@ -31,7 +31,7 @@ abstract class AuthenticationFeature extends Feature
             if (count($keys) > config('redis.max_allowed_tokens')) {
                 foreach ($keys as $key) {
                     try {
-                        $auth = json_decode($redis->get($key));
+                        $auth = json_decode($redis->get($key), true);
                         if (@(int)$auth["updated"] < $first_key_time) {
                             $first_key = $key;
                         }
