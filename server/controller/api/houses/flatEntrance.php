@@ -4,6 +4,7 @@ namespace api\houses;
 
 use api\api;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 
 class flatEntrance extends api
 {
@@ -15,6 +16,8 @@ class flatEntrance extends api
 
         foreach ($params['flats'] as $flat)
             $house->addEntranceToFlat($entrance, intval($flat['flatId']), intval($flat['apartment']));
+
+        task(new IntercomEntranceTask($entrance))->high()->dispatch();
 
         return self::ANSWER();
     }
