@@ -16,7 +16,7 @@ class dvr extends api
             'size' => [Rule::int(), Rule::min(0), Rule::max(1000)]
         ]);
 
-        return container(DvrServerRepository::class)->fetchPaginate($validate['page'], $validate['size'])->jsonSerialize();
+        return self::SUCCESS('servers', container(DvrServerRepository::class)->fetchPaginate($validate['page'], $validate['size']));
     }
 
     public static function POST($params)
