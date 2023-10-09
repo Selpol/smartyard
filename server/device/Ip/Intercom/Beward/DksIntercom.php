@@ -44,11 +44,6 @@ class DksIntercom extends IntercomDevice
         $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'set', 'Index' => $index, 'Dozens' => $dozen, 'Units' => $unit, 'Apartment' => $apartment]);
     }
 
-    public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
-    {
-        $this->addCms($index, $dozen, $unit, $apartment);
-    }
-
     public function addCode(int $code, int $apartment): void
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'set', 'Number' => $apartment, 'DoorCodeActive' => 'on', 'DoorCode' => $code]);
@@ -67,11 +62,6 @@ class DksIntercom extends IntercomDevice
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment]);
     }
 
-    public function addRfidDeffer(string $code, int $apartment): void
-    {
-        $this->addRfid($code, $apartment);
-    }
-
     public function removeRfid(string $code, int $apartment): void
     {
         if ($this->model->mifare)
@@ -83,11 +73,6 @@ class DksIntercom extends IntercomDevice
     public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         $this->setApartment($apartment, $handset, $sipNumbers, $levels, $code);
-    }
-
-    public function addApartmentDeffer(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
-    {
-        $this->addApartment($apartment, $handset, $sipNumbers, $levels, $code);
     }
 
     public function removeApartment(int $apartment): void
@@ -420,23 +405,7 @@ class DksIntercom extends IntercomDevice
         }
 
         foreach ($this->getRfids() as $rfid)
-            $this->removeRfid($rfid);
-    }
-
-    public function defferCmses(): void
-    {
-    }
-
-    public function defferRfids(): void
-    {
-    }
-
-    public function defferApartments(): void
-    {
-    }
-
-    public function deffer(): void
-    {
+            $this->removeRfid($rfid, 0);
     }
 
     protected function setAlarmHelp(string $name, mixed $value): static

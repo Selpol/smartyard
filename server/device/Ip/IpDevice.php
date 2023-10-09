@@ -13,11 +13,15 @@ abstract class IpDevice extends Device
     public string $login = 'root';
     public string $password;
 
+    protected array $requestOptions;
+
     public function __construct(Uri $uri, string $password)
     {
         parent::__construct($uri->withUserInfo($this->login, $password));
 
         $this->password = $password;
+
+        $this->requestOptions = ['basic' => $this->login . ':' . $this->password];
     }
 
     public function ping(): bool
@@ -53,7 +57,7 @@ abstract class IpDevice extends Device
 
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
     {
-        throw new DeviceException($this);
+        return $this;
     }
 
     public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
@@ -62,7 +66,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
+            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers, $this->requestOptions);
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -76,7 +80,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->post($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
+            $response = $this->client()->post($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, $this->requestOptions);
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -90,7 +94,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->put($this->uri . $endpoint, $body ? json_encode($body) : null, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
+            $response = $this->client()->put($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, $this->requestOptions);
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -104,7 +108,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->delete($this->uri . $endpoint, $headers + ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)]);
+            $response = $this->client()->delete($this->uri . $endpoint, $headers, $this->requestOptions);
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {

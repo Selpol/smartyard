@@ -81,8 +81,14 @@ class Response implements ResponseInterface
 
     public function getParsedBody(): mixed
     {
-        if ($this->parsedBody === null && isset($this->body))
-            $this->parsedBody = json_decode($this->body->getContents(), true);
+        if ($this->parsedBody === null && isset($this->body)) {
+            $contents = $this->body->getContents();
+
+            if (in_array('application/xml', $this->getHeader('Content-Type')))
+                $this->parsedBody = json_decode(json_encode(simplexml_load_string($contents)), true);
+            else
+                $this->parsedBody = json_decode($contents, true);
+        }
 
         return $this->parsedBody;
     }

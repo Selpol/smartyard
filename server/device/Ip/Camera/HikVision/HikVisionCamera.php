@@ -14,7 +14,7 @@ class HikVisionCamera extends CameraDevice
     public function getSysInfo(): array
     {
         try {
-            $info = $this->get('/System/deviceInfo');
+            $info = $this->get('/ISAPI/System/deviceInfo');
 
             return [
                 'DeviceID' => $info['deviceID'],

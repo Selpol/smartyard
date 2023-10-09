@@ -26,6 +26,14 @@ class Env {
         return this.getEnv('API_INTERNAL', 'http://127.0.0.1/internal')
     }
 
+    get hwBeward() {
+        return this.getEnv('HW_BEWARD', 45450);
+    }
+
+    get hwBewardDs() {
+        return this.getEnv('HW_BEWARD_DS', 45451);
+    }
+
     get hwIs() {
         return this.getEnv('HW_IS', 45453)
     }

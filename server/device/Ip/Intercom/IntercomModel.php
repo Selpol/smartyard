@@ -3,6 +3,8 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\Intercom\Beward\DksIntercom;
+use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
+use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
 use Selpol\Device\Ip\Intercom\Is\IsIntercom;
 
 class IntercomModel
@@ -120,6 +122,42 @@ class IntercomModel
                     false,
                     DksIntercom::class
                 ),
+                'dsk15103_52701' => new IntercomModel(
+                    'BEWARD DKS15103_rev5.2.7.0.1',
+                    'BEWARD',
+                    'DKS15103_rev5.2.7.0.1',
+                    'beward',
+                    'beward',
+                    3,
+                    ['kad2501', 'kkm-100s2', 'kkm-105'],
+                    ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
+                    true,
+                    DksIntercom::class
+                ),
+                'dks15104' => new IntercomModel(
+                    'BEWARD DKS15104',
+                    'BEWARD',
+                    'DKS15104',
+                    'beward',
+                    'beward',
+                    3,
+                    ['kad2501', 'kkm-100s2', 'kkm-105', 'kkm-108'],
+                    ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2, 'KKM-108' => 19],
+                    true,
+                    DksIntercom::class
+                ),
+                'dks15105' => new IntercomModel(
+                    'BEWARD DKS15105',
+                    'BEWARD',
+                    'DKS15105',
+                    'beward',
+                    'beward',
+                    3,
+                    ['kad2501', 'kad2502', 'kkm-100s2', 'kkm-105', 'kkm-108'],
+                    ['KKM-100S2' => 0, 'KKM-105' => 1, 'KKM-108' => 3, 'KAD2501' => 2, 'KAD2502' => 4],
+                    true,
+                    DksIntercom::class
+                ),
                 'dks15122' => new IntercomModel(
                     'BEWARD DKS15122',
                     'BEWARD',
@@ -143,6 +181,42 @@ class IntercomModel
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
                     true,
                     DksIntercom::class
+                ),
+                'kv6113' => new IntercomModel(
+                    'HikVision DS-KV6113',
+                    'HIKVISION',
+                    'DS-KV6113',
+                    'hikVision',
+                    'hikVision',
+                    1,
+                    [],
+                    [],
+                    true,
+                    HikVisionIntercom::class
+                ),
+                'ds06ap' => new IntercomModel(
+                    'BEWARD DS06A(P)',
+                    'BEWARD',
+                    'DS06A(P)',
+                    'beward_ds',
+                    'beward',
+                    3,
+                    [],
+                    [],
+                    true,
+                    DsIntercom::class
+                ),
+                'ds06m' => new IntercomModel(
+                    'BEWARD DS06M',
+                    'BEWARD',
+                    'DS06M',
+                    'beward_ds',
+                    'beward',
+                    3,
+                    [],
+                    [],
+                    true,
+                    DsIntercom::class
                 )
             ];
 

@@ -14,20 +14,20 @@ class ClientService
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function get(string $uri, array $query = [], array $headers = []): Response
+    public function get(string $uri, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('GET', $uri);
 
         foreach ($headers as $key => $value)
             $request->withHeader($key, $value);
 
-        return $this->request($request);
+        return $this->request($request, $options);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function post(string $uri, ?string $body = null, array $headers = []): Response
+    public function post(string $uri, ?string $body = null, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('POST', $uri);
 
@@ -37,13 +37,13 @@ class ClientService
         if ($body)
             $request->withBody(container(HttpService::class)->createStream($body));
 
-        return $this->request($request);
+        return $this->request($request, $options);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function put(string $uri, ?string $body = null, array $headers = []): Response
+    public function put(string $uri, ?string $body = null, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('PUT', $uri);
 
@@ -53,26 +53,26 @@ class ClientService
         if ($body)
             $request->withBody(container(HttpService::class)->createStream($body));
 
-        return $this->request($request);
+        return $this->request($request, $options);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function delete(string $uri, array $headers = []): Response
+    public function delete(string $uri, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('DELETE', $uri);
 
         foreach ($headers as $key => $value)
             $request->withHeader($key, $value);
 
-        return $this->request($request);
+        return $this->request($request, $options);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function request(Request $request): Response
+    public function request(Request $request, array $requestOptions = []): Response
     {
         $response = container(HttpService::class)->createResponse();
 
@@ -86,6 +86,14 @@ class ClientService
 
         $this->addHeaderFunction($options, $response);
         $this->addWriteFunction($options, $response);
+
+        if (array_key_exists('basic', $requestOptions)) {
+            $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+            $options[CURLOPT_USERPWD] = $requestOptions['basic'];
+        } else if (array_key_exists('digest', $requestOptions)) {
+            $options[CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
+            $options[CURLOPT_USERPWD] = $requestOptions['digest'];
+        }
 
         $ch = curl_init();
 

@@ -41,6 +41,7 @@
     "ext-mbstring": "*",
     "ext-openssl": "*",
     "ext-pcntl": "*",
+    "ext-simplexml": "*",
     "mongodb/mongodb": "^1.12",
     "chillerlan/php-qrcode": "^4.3",
     "phpoffice/phpword": "^1.1",
