@@ -119,4 +119,6 @@ syslog.on("message", async ({date, host, message}) => {
 
 syslog.on("error", (err) => console.error(err.message));
 
-syslog.start({port: hwVer === 'beward' ? env.hwBeward : env.hwBewardDs}).then(() => console.log(`${hwVer.toUpperCase()} syslog server running on port ${port}`));
+const port = hwVer === 'beward' ? env.hwBeward : env.hwBewardDs
+
+syslog.start({port}).then(() => console.log(`${hwVer.toUpperCase()} syslog server running on port ${port}`));
