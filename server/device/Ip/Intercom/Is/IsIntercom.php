@@ -38,6 +38,11 @@ class IsIntercom extends IntercomDevice
         return $response['resist'];
     }
 
+    public function getAllLineDialStatus(int $from, int $to): array
+    {
+        return $this->post('/panelCode/diag', range($from, $to));
+    }
+
     public function getRfids(): array
     {
         $return = [];

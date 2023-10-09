@@ -23,6 +23,11 @@ class DksIntercom extends IntercomDevice
         return (int)trim($this->get('/cgi-bin/intercom_cgi', ['action' => 'linelevel', 'Apartment' => $apartment]));
     }
 
+    public function getAllLineDialStatus(int $from, int $to): array
+    {
+        return [];
+    }
+
     public function getRfids(): array
     {
         $result = [];

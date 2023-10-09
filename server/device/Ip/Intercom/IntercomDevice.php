@@ -26,6 +26,11 @@ abstract class IntercomDevice extends IpDevice
         return 0;
     }
 
+    public function getAllLineDialStatus(int $from, int $to): array
+    {
+        return [];
+    }
+
     public function getRfids(): array
     {
         return [];
