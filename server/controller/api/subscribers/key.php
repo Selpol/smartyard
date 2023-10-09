@@ -41,7 +41,7 @@ namespace api\subscribers {
             $key->comments = $params['comments'];
 
             if (container(HouseKeyRepository::class)->insert($key)) {
-                task(new IntercomAddKeyTask($params['rfId'], $params['accessTo']))->high()->dispatch();
+                task(new IntercomAddKeyTask($key->rfid, $key->access_to))->high()->dispatch();
 
                 return self::ANSWER($key->house_rfid_id, 'key');
             }
@@ -63,7 +63,7 @@ namespace api\subscribers {
             $key = container(HouseKeyRepository::class)->findById($params['_id']);
 
             if (container(HouseKeyRepository::class)->delete($key)) {
-                task(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']))->high()->dispatch();
+                task(new IntercomDeleteKeyTask($key->rfid, $key->access_to))->high()->dispatch();
 
                 return self::ANSWER();
             }

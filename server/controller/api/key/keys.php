@@ -16,7 +16,7 @@ class keys extends api
             'size' => [Filter::default(10), Rule::int(), Rule::min(0), Rule::max(1000)]
         ]);
 
-        return container(HouseKeyRepository::class)->fetchPaginate($validate['page'], $validate['size']);
+        return container(HouseKeyRepository::class)->fetchPaginate($validate['page'], $validate['size'])->jsonSerialize();
     }
 
     public static function index(): array
