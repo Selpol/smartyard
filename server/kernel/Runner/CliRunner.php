@@ -102,6 +102,7 @@ class CliRunner implements KernelRunner
             else echo $this->help('audit');
         } else if ($group === 'role') {
             if ($command === 'init') $this->roleInit();
+            else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
         } else echo $this->help();
 
@@ -615,6 +616,20 @@ class CliRunner implements KernelRunner
             container(PermissionRepository::class)->delete($permission);
     }
 
+    /**
+     * @throws ValidatorException
+     * @throws NotFoundExceptionInterface
+     */
+    private function roleClear(): void
+    {
+        $permissions = container(RoleFeature::class)->permissions();
+
+        $repository = container(PermissionRepository::class);
+
+        foreach ($permissions as $permission)
+            $repository->delete($permission);
+    }
+
     private function help(?string $group = null): string
     {
         $result = [];
@@ -671,7 +686,8 @@ class CliRunner implements KernelRunner
         if ($group === null || $group === 'role')
             $result[] = implode(PHP_EOL, [
                 '',
-                'role:init                        - Инициализация групп'
+                'role:init                        - Инициализация групп',
+                'role:clear                       - Удалить группы'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;

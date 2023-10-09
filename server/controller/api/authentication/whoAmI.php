@@ -46,6 +46,7 @@
 namespace api\authentication {
 
     use api\api;
+    use Selpol\Feature\Sip\SipFeature;
     use Selpol\Feature\User\UserFeature;
     use Selpol\Service\RedisService;
 
@@ -69,6 +70,7 @@ namespace api\authentication {
 
             $redis->setex("webrtc_" . md5($extension), 24 * 60 * 60, $cred);
 
+            $user['webRtcDomain'] = container(SipFeature::class)->server('first')['ip'];
             $user["webRtcExtension"] = $extension;
             $user["webRtcPassword"] = $cred;
 

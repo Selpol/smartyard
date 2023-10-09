@@ -42,6 +42,8 @@ use Selpol\Feature\Inbox\Internal\InternalInboxFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Monitor\Internal\InternalMonitorFeature;
 use Selpol\Feature\Monitor\MonitorFeature;
+use Selpol\Feature\Mqtt\Internal\InternalMqttFeature;
+use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Feature\Oauth\Internal\InternalOauthFeature;
 use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Feature\Plog\ClickHouse\ClickHousePlogFeature;
@@ -86,7 +88,6 @@ return static function (ContainerConfigurator $builder) {
 
     //#region Features
     $builder->singleton(AuthenticationFeature::class, InternalAuthenticationFeature::class);
-    $builder->singleton(AuthorizationFeature::class, InternalAuthorizationFeature::class);
 
     $builder->singleton(RoleFeature::class, InternalRoleFeature::class);
     $builder->singleton(AuditFeature::class, InternalAuditFeature::class);
@@ -111,6 +112,8 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(PlogFeature::class, ClickHousePlogFeature::class);
     $builder->singleton(DvrFeature::class, InternalDvrFeature::class);
     $builder->singleton(FrsFeature::class, InternalFrsFeature::class);
+
+    $builder->singleton(MqttFeature::class, InternalMqttFeature::class);
     //#endregion
 
     //#region Repositories
