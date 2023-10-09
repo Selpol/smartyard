@@ -52,9 +52,9 @@ namespace api\accounts {
             return self::ANSWER($success, ($success !== false) ? false : "notFound");
         }
 
-        public static function index()
+        public static function index(): array
         {
-            return ["POST" => "#personal"];
+            return ["POST" => "[Пользователь] Обновить пароль"];
         }
     }
 }

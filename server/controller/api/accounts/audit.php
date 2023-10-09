@@ -36,6 +36,6 @@ class audit extends api
 
     public static function index(): array
     {
-        return ['GET' => '#same(accounts,audit,GET)'];
+        return ['GET' => '[Пользователь] Получить список действий'];
     }
 }

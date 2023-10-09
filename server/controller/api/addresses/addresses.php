@@ -78,7 +78,7 @@ namespace api\addresses {
 
         public static function index()
         {
-            return ["GET" => "#common"];
+            return ["GET" => "[Адрес] Получить список"];
         }
     }
 }

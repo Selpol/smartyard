@@ -211,7 +211,7 @@ namespace api\accounts {
 
         public static function index()
         {
-            return ["GET" => "#personal", "POST", "PUT" => "#personal", "DELETE"];
+            return ["GET" => "[Пользователь] Получить пользователя", "POST", "PUT" => "[Пользователь] Обновить пользователя", "DELETE" => '[Пользователь] Удалить пользователя'];
         }
     }
 }

@@ -42,8 +42,6 @@ abstract class RoleFeature extends Feature
 
     public abstract function deleteRole(int $roleId): bool;
 
-    public abstract function updatePermission(int $permissionId, string $description): Permission;
-
     public abstract function addPermissionToRole(int $roleId, int $permissionId): bool;
 
     public abstract function deletePermissionFromRole(int $roleId, int $permissionId): bool;

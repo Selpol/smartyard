@@ -79,7 +79,7 @@ namespace api\authentication {
 
         public static function index()
         {
-            return ["GET" => "#common"];
+            return ["GET" => "[Авторизация] Запросить дополнительные данные"];
         }
     }
 }

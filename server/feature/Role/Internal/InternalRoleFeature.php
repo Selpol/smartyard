@@ -97,21 +97,6 @@ class InternalRoleFeature extends RoleFeature
     }
 
     /**
-     * @throws ValidatorException
-     * @throws NotFoundExceptionInterface
-     */
-    public function updatePermission(int $permissionId, string $description): Permission
-    {
-        $permission = container(PermissionRepository::class)->findById($permissionId);
-
-        $permission->description = $description;
-
-        container(PermissionRepository::class)->updateAndRefresh($permission);
-
-        return $permission;
-    }
-
-    /**
      * @throws NotFoundExceptionInterface
      */
     public function addPermissionToRole(int $roleId, int $permissionId): bool

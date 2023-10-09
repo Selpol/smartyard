@@ -61,7 +61,7 @@ namespace api\authentication {
 
         public static function index()
         {
-            return ["POST" => "#common"];
+            return ["POST" => "[Авторизация] Войти"];
         }
     }
 }

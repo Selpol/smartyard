@@ -503,15 +503,16 @@ class CliRunner implements KernelRunner
                                 $keys = array_keys($request_methods);
 
                                 foreach ($keys as $key) {
-                                    $permission = $api . '-' . $method . '-' . strtolower(is_int($key) ? $request_methods[$key] : $key);
+                                    $title = $api . '-' . $method . '-' . strtolower(is_int($key) ? $request_methods[$key] : $key);
+                                    $description = is_int($key) ? $title : (str_starts_with('#', $request_methods[$key]) ? $title : $request_methods[$key]);
 
-                                    if (!array_key_exists($permission, $titlePermissions)) {
+                                    if (!array_key_exists($title, $titlePermissions)) {
                                         $id = $db->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];
 
-                                        $db->insert('INSERT INTO permission(id, title, description) VALUES(:id, :title, :description)', ['id' => $id, 'title' => $permission, 'description' => $permission]);
+                                        $db->insert('INSERT INTO permission(id, title, description) VALUES(:id, :title, :description)', ['id' => $id, 'title' => $title, 'description' => $description]);
                                     }
 
-                                    unset($titlePermissions[$permission]);
+                                    unset($titlePermissions[$title]);
                                 }
                             }
                         }

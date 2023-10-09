@@ -14,6 +14,6 @@ class permission extends api
 
     public static function index(): array
     {
-        return ['GET'];
+        return ['GET' => '[Авторизация] Получить список прав пользователя'];
     }
 }

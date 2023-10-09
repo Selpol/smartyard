@@ -60,7 +60,7 @@ namespace api\accounts {
 
         public static function index()
         {
-            return ["GET" => "#common"];
+            return ["GET" => "[Пользователи] Получить список"];
         }
     }
 }
