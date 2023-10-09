@@ -12,6 +12,7 @@ use RedisException;
 use Selpol\Cache\FileCache;
 use Selpol\Container\ContainerConfigurator;
 use Selpol\Entity\Model\Permission;
+use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -51,6 +52,8 @@ class CliRunner implements KernelRunner
      */
     function __invoke(Kernel $kernel): int
     {
+        var_dump(container(AuditRepository::class)->fetchPaginate(2, 10));
+
         chdir(path(''));
 
         $arguments = $this->getArguments();

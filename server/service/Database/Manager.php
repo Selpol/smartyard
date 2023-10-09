@@ -67,6 +67,40 @@ class Manager
         return array_map(static fn(array $item) => new $class($item), $value);
     }
 
+    public function fetchAllEntityPage(string $class, string $query, int $page, int $size, array $params = []): Page
+    {
+        if (!class_exists($class) | !is_subclass_of($class, Entity::class))
+            throw new EntityException('Сущности не существует', 500);
+
+        $table = $class::$table;
+        $id = $class::$columnId;
+
+        $statement = $this->connection->prepare("
+            WITH $table AS (SELECT * FROM $table$query)
+            SELECT * FROM (TABLE $table ORDER BY $id LIMIT :limit OFFSET :offset) sub
+            RIGHT JOIN (SELECT count(*) FROM $table) c(page_count) ON true;
+        ");
+
+        if (!$statement || !$statement->execute(array_merge($params, ['limit' => $size, 'offset' => $page * $size])))
+            throw new EntityException('Ошибка поиска сущности', 500);
+
+        $value = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        if (!$value || count($value) === 0)
+            return new Page([], 0, $page, $size);
+
+        $count = $value[0]['page_count'];
+
+        if ($value[0][$id] == null)
+            return new Page([], $count, $page, $size);
+
+        return new Page(array_map(static function (array $item) use ($class) {
+            unset($item['page_count']);
+
+            return new $class($item);
+        }, $value), $count, $page, $size);
+    }
+
     /**
      * @template T of Entity
      * @psalm-param class-string<T> $class
