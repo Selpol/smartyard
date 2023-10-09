@@ -119,16 +119,6 @@ return [
             'audience' => env('FEATURE_OAUTH_AUDIENCE'),
             'web_api' => env('FEATURE_OAUTH_WEB_API'),
             'secret' => env('FEATURE_OAUTH_SECRET')
-        ],
-
-        'mqtt' => [
-            'agent' => env('MQTT_AGENT'),
-            'ws' => env('MQTT_WS'),
-
-            'endpoint' => env('MQTT_ENDPOINT'),
-
-            'username' => env('MQTT_USERNAME'),
-            'password' => env('MQTT_PASSWORD')
         ]
     ],
 
