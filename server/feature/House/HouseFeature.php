@@ -30,6 +30,8 @@ abstract class HouseFeature extends Feature
 
     abstract function modifyFlat(int $flatId, array $params): bool;
 
+    abstract function addEntranceToFlat(int $entranceId, int $flatId, int $apartment): bool;
+
     abstract function deleteFlat(int $flatId): bool;
 
     abstract function doorOpened(int $flatId): bool|int;

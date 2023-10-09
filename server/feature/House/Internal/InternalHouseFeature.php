@@ -446,6 +446,19 @@ class InternalHouseFeature extends HouseFeature
     /**
      * @throws NotFoundExceptionInterface
      */
+    public function addEntranceToFlat(int $entranceId, int $flatId, int $apartment): bool
+    {
+        return $this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
+                ":house_entrance_id" => $entranceId,
+                ":house_flat_id" => $flatId,
+                ":apartment" => $apartment,
+                ":cms_levels" => '',
+            ]) == true;
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
     function deleteFlat(int $flatId): bool
     {
         return
