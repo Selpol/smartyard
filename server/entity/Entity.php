@@ -64,6 +64,19 @@ abstract class Entity implements JsonSerializable
         $this->value[$name] = $value;
     }
 
+    public function toArrayMap(array $value): array
+    {
+        $result = [];
+
+        $keys = array_keys($this->value);
+
+        foreach ($keys as $key)
+            if (array_key_exists($key, $value))
+                $result[$value[$key]] = $this->value[$key];
+
+        return $result;
+    }
+
     public function jsonSerialize(): array
     {
         return $this->value;

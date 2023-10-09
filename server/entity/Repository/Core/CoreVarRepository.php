@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository\Core;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method CoreVar fetch(string $query, array $params = [])
  * @method CoreVar[] fetchAll(string $query, array $params = [])
- * @method CoreVar[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<CoreVar> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method CoreVar findById(mixed $id)
  *

@@ -7,6 +7,7 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Entity\Repository\House\HouseKeyRepository;
     use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
     use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
@@ -18,9 +19,14 @@ namespace api\subscribers {
     {
         public static function GET($params)
         {
-            $key = container(HouseFeature::class)->getKey($params['_id']);
-
-            return api::ANSWER($key, ($key !== false) ? 'key' : false);
+            return self::SUCCESS('key', container(HouseKeyRepository::class)->findById($params['_id'])->toArrayMap([
+                'house_rfid_id' => 'keyId',
+                'rfid' => 'rfId',
+                'access_type' => 'accessType',
+                'access_to' => 'accessTo',
+                'last_seen' => 'lastSeen',
+                'comments' => 'comments'
+            ]));
         }
 
         public static function POST($params)
@@ -45,20 +51,15 @@ namespace api\subscribers {
 
         public static function DELETE($params)
         {
-            $households = container(HouseFeature::class);
+            $key = container(HouseKeyRepository::class)->findById($params['_id']);
 
-            $key = $households->getKey($params['_id']);
+            if (container(HouseKeyRepository::class)->delete($key)) {
+                task(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']))->high()->dispatch();
 
-            if ($key) {
-                $success = $households->deleteKey($params["_id"]);
-
-                if ($success)
-                    task(new IntercomDeleteKeyTask($key['rfId'], $key['accessTo']))->high()->dispatch();
-
-                return api::ANSWER($success);
+                return self::ANSWER();
             }
 
-            return api::ERROR('Ключ не найден');
+            return self::ANSWER(false);
         }
 
         public static function index()

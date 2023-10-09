@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository\House;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method HouseKey fetch(string $query, array $params = [])
  * @method HouseKey[] fetchAll(string $query, array $params = [])
- * @method HouseKey[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<HouseKey> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method HouseKey findById(int $id)
  *

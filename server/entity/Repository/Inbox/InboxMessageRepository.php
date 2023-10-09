@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository\Inbox;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Inbox\InboxMessage;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method InboxMessage fetch(string $query, array $params = [])
  * @method InboxMessage[] fetchAll(string $query, array $params = [])
- * @method InboxMessage[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<InboxMessage> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method InboxMessage findById(int $id)
  *

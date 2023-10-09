@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository\Dvr;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method DvrServer fetch(string $query, array $params = [])
  * @method DvrServer[] fetchAll(string $query, array $params = [])
- * @method DvrServer[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<DvrServer> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method DvrServer findById(mixed $id)
  *

@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Task;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method Task fetch(string $query, array $params = [])
  * @method Task[] fetchAll(string $query, array $params = [])
- * @method Task[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<Task> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Task findById(int $id)
  *

@@ -5,6 +5,7 @@ namespace Selpol\Entity;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Service\Database\Manager;
+use Selpol\Service\Database\Page;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 
@@ -67,14 +68,16 @@ abstract class Repository
      * @param int $page
      * @param int $size
      * @param Criteria|null $criteria
-     * @return array<TValue>
+     * @return Page<TValue>
      * @throws NotFoundExceptionInterface
      */
-    public function fetchPaginate(int $page, int $size, ?Criteria $criteria = null): array
+    public function fetchPaginate(int $page, int $size, ?Criteria $criteria = null): Page
     {
         $criteria = ($criteria ?? new Criteria())->page($page, $size);
 
-        return $this->getManager()->fetchAllEntity($this->class, 'SELECT * FROM ' . $this->table . ' ' . $criteria->getSqlString(), $criteria->getSqlParams());
+        $result = $this->getManager()->fetchAllEntityWithTotal($this->class, 'SELECT * FROM ' . $this->table . ' ' . $criteria->getSqlString(), $criteria->getSqlParams());
+
+        return new Page($result['data'], $result['total'], $page, $size);
     }
 
     /**

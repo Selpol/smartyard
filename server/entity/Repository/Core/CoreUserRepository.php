@@ -5,11 +5,12 @@ namespace Selpol\Entity\Repository\Core;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Repository;
+use Selpol\Service\Database\Page;
 
 /**
  * @method CoreUser fetch(string $query, array $params = [])
  * @method CoreUser[] fetchAll(string $query, array $params = [])
- * @method CoreUser[] fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Page<CoreUser> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method CoreUser findById(mixed $id)
  *
