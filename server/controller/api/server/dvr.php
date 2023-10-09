@@ -86,6 +86,6 @@ class dvr extends api
 
     public static function index(): array
     {
-        return ['GET', 'POST', 'PUT', 'DELETE'];
+        return ['GET' => '[Dvr] Получить список серверов', 'POST' => '[Dvr] Добавить сервер', 'PUT' => '[Dvr] Обновить сервер', 'DELETE' => '[Dvr] Удалить сервер'];
     }
 }

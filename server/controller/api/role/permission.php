@@ -14,6 +14,6 @@ class permission extends api
 
     public static function index(): array|bool
     {
-        return ['GET' => '#same(role,permission,GET)'];
+        return ['GET' => '[Права] Получить список'];
     }
 }

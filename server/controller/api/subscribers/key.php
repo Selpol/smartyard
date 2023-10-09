@@ -74,10 +74,10 @@ namespace api\subscribers {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "PUT" => "#same(addresses,house,PUT)",
-                "POST" => "#same(addresses,house,POST)",
-                "DELETE" => "#same(addresses,house,DELETE)",
+                "GET" => "[Ключи] Получить ключ",
+                "PUT" => "[Ключи] Обновить ключ",
+                "POST" => "[Ключи] Создать ключ",
+                "DELETE" => "[Ключи] Удалить ключ",
             ];
         }
     }

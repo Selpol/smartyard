@@ -40,7 +40,7 @@ namespace api\addresses {
         public static function index()
         {
             return [
-                "POST" => "#same(addresses,house,POST)"
+                "POST" => "[QR] Получить Qr для дома"
             ];
         }
     }

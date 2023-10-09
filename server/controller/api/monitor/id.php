@@ -56,6 +56,6 @@ class id extends api
 
     public static function index(): array
     {
-        return ['GET' => '#same(monitor,id,GET)', 'POST' => '#same(monitor,id,POST)'];
+        return ['GET' => '[Мониторинг] Запросить статус устройства', 'POST' => '[Мониторинг] Запросить статус группы устройств'];
     }
 }

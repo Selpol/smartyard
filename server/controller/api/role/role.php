@@ -45,10 +45,10 @@ class role extends api
     public static function index(): array|bool
     {
         return [
-            'GET' => '#same(role,role,GET)',
-            'POST' => '#same(role,role,POST',
-            'PUT' => '#same(role,role,PUT',
-            'DELETE' => '#same(role,role,DELETE',
+            'GET' => '[Роль] Получить список',
+            'POST' => '[Роль] Создать роль',
+            'PUT' => '[Роль] Обновить роль',
+            'DELETE' => '[Роль] Удалить роль',
         ];
     }
 }

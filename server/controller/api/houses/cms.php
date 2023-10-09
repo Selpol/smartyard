@@ -38,8 +38,8 @@ namespace api\houses {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "PUT" => "#same(addresses,house,PUT)",
+                "GET" => "[Дом] Получить КМС",
+                "PUT" => "[Дом] Обновить КМС",
             ];
         }
     }

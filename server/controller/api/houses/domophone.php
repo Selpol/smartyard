@@ -76,13 +76,13 @@ namespace api\houses {
             return api::ANSWER($success);
         }
 
-        public static function index()
+        public static function index(): array
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "PUT" => "#same(addresses,house,PUT)",
-                "POST" => "#same(addresses,house,PUT)",
-                "DELETE" => "#same(addresses,house,PUT)",
+                "GET" => "[Дом] Получить домофон",
+                "PUT" => "[Дом] Обновить домофон",
+                "POST" => "[Дом] Создать домофон",
+                "DELETE" => "[Дом] Удалить домофон",
             ];
         }
 

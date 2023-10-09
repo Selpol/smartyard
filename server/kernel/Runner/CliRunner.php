@@ -504,7 +504,7 @@ class CliRunner implements KernelRunner
 
                                 foreach ($keys as $key) {
                                     $title = $api . '-' . $method . '-' . strtolower(is_int($key) ? $request_methods[$key] : $key);
-                                    $description = is_int($key) ? $title : (str_starts_with('#', $request_methods[$key]) ? $title : $request_methods[$key]);
+                                    $description = is_int($key) ? $title : $request_methods[$key];
 
                                     if (!array_key_exists($title, $titlePermissions)) {
                                         $id = $db->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];

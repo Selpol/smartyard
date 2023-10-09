@@ -32,6 +32,6 @@ class log extends api
 
     public static function index()
     {
-        return ['GET' => '#same(houses,log,GET)'];
+        return ['GET' => '[Дом] Получить логи устройства'];
     }
 }

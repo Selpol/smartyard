@@ -53,11 +53,9 @@ namespace api\server {
             ];
         }
 
-        public static function index()
+        public static function index(): array
         {
-            return [
-                "GET" => "#common",
-            ];
+            return ["GET" => '[Сервер] Версия базы данных'];
         }
     }
 }

@@ -49,7 +49,7 @@ namespace api\addresses {
 
         public static function index()
         {
-            return ["GET", "PUT", "POST", "DELETE"];
+            return ["GET" => '[Дом] Получить список', "PUT" => '[Дом] Обновить дом', "POST" => '[Дом] Создать дом', "DELETE" => '[Дом] Удалить дом'];
         }
     }
 }

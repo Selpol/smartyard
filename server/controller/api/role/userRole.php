@@ -31,6 +31,6 @@ class userRole extends api
 
     public static function index(): array
     {
-        return ['GET' => '#same(role,userRole,GET)', 'POST' => '#same(role,userRole,POST)', 'DELETE' => '#same(role,userRole,DELETE)'];
+        return ['GET' => '[Пользователь-Роль] Получить список', 'POST' => '[Пользователь-Роль] Добавить связь', 'DELETE' => '[Пользователь-Роль] Удалить связь'];
     }
 }

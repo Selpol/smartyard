@@ -48,7 +48,7 @@ namespace api\geo {
 
         public static function index()
         {
-            return ["GET"];
+            return ["GET" => '[ГеоДанные] Получить список адресов'];
         }
     }
 }

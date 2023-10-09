@@ -31,7 +31,7 @@ namespace api\cameras {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
+                "GET" => "[Камера] Получить список",
             ];
         }
     }

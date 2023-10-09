@@ -21,6 +21,6 @@ class level extends api
 
     public static function index(): array
     {
-        return ["GET" => "#same(intercom,level,GET)"];
+        return ["GET" => "[Домофон] Запросить уровень"];
     }
 }

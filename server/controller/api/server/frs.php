@@ -72,6 +72,6 @@ class frs extends api
 
     public static function index(): array
     {
-        return ['GET', 'POST', 'PUT', 'DELETE'];
+        return ['GET' => '[Frs] Получить список серверов', 'POST' => '[Frs] Добавить сервер', 'PUT' => '[Frs] Обновить сервер', 'DELETE' => '[Frs] Удалить сервер'];
     }
 }

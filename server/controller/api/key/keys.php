@@ -21,6 +21,6 @@ class keys extends api
 
     public static function index(): array
     {
-        return ['GET'];
+        return ['GET' => '[Ключи] Получить список'];
     }
 }

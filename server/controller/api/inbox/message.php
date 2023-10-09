@@ -36,8 +36,8 @@ namespace api\inbox {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "POST" => "#same(addresses,house,PUT)",
+                "GET" => "[Сообщения] Получить список",
+                "POST" => "[Сообщения] Отправить сообщение пользователю",
             ];
         }
     }

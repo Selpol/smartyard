@@ -88,10 +88,10 @@ namespace api\houses {
         public static function index()
         {
             return [
-                'GET' => '#same(addresses,house,GET)',
-                "POST" => "#same(addresses,house,PUT)",
-                "PUT" => "#same(addresses,house,PUT)",
-                "DELETE" => "#same(addresses,house,PUT)",
+                'GET' => '[Дом] Получить квартиру',
+                "POST" => "[Дом] Создать квартиру",
+                "PUT" => "[Дом] Обновить квартиру",
+                "DELETE" => "[Дом] Удалить квартиру",
             ];
         }
     }

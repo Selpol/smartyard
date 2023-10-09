@@ -38,9 +38,9 @@ namespace api\addresses {
         public static function index()
         {
             return [
-                "PUT" => "#same(addresses,house,PUT)",
-                "POST" => "#same(addresses,house,POST)",
-                "DELETE" => "#same(addresses,house,DELETE)",
+                "PUT" => "[Город] Обновить город",
+                "POST" => "[Город] Создать город",
+                "DELETE" => "[Город] Удалить город",
             ];
         }
     }

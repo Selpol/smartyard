@@ -36,12 +36,12 @@ namespace api\addresses {
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
-        public static function index()
+        public static function index(): array
         {
             return [
-                "PUT" => "#same(addresses,house,PUT)",
-                "POST" => "#same(addresses,house,POST)",
-                "DELETE" => "#same(addresses,house,DELETE)",
+                "PUT" => "[Регион] Обновить регион",
+                "POST" => "[Регион] Создать регион",
+                "DELETE" => "[Регион] Удалить регион",
             ];
         }
     }

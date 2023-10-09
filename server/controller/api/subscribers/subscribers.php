@@ -30,7 +30,7 @@ namespace api\subscribers {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
+                "GET" => "[Абоненты] Получить список",
             ];
         }
     }

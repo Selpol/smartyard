@@ -36,8 +36,8 @@ namespace api\subscribers {
         public static function index()
         {
             return [
-                "POST" => "#same(addresses,house,POST)",
-                "DELETE" => "#same(addresses,house,DELETE)",
+                "POST" => "[Абоненты] Привязать камеру",
+                "DELETE" => "[Абоненты] Отвязать камеру",
             ];
         }
     }

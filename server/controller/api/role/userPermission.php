@@ -31,6 +31,6 @@ class userPermission extends api
 
     public static function index(): array
     {
-        return ['GET' => '#same(role,userPermission,GET)', 'POST' => '#same(role,userPermission,POST)', 'DELETE' => '#same(role,userPermission,DELETE)'];
+        return ['GET' => '[Пользователь-Права] Получить список', 'POST' => '[Пользователь-Права] Добавить связь', 'DELETE' => '[Пользователь-Права] Удалить связь'];
     }
 }

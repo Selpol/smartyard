@@ -26,7 +26,7 @@ namespace api\houses {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)"
+                "GET" => "[Дом] Получить общий вход"
             ];
         }
     }

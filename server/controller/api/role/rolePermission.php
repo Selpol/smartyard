@@ -31,6 +31,6 @@ class rolePermission extends api
 
     public static function index(): array
     {
-        return ['GET' => '#same(role,rolePermission,GET)', 'POST' => '#same(role,rolePermission,POST)', 'DELETE' => '#same(role,rolePermission,DELETE)'];
+        return ['GET' => '[Роль-Права] Получить список', 'POST' => '[Роль-Права] Добавить связь', 'DELETE' => '[Роль-Права] Удалить связь'];
     }
 }

@@ -90,10 +90,10 @@ namespace api\cameras {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "PUT" => "#same(addresses,house,PUT)",
-                "POST" => "#same(addresses,house,POST)",
-                "DELETE" => "#same(addresses,house,DELETE)",
+                "GET" => "[Камера] Получить камеру",
+                "PUT" => "[Камера] Обновить камеру",
+                "POST" => "[Камера] Создать камеру",
+                "DELETE" => "[Камера] Удалить камеру",
             ];
         }
 

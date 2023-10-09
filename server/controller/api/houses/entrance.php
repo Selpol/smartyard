@@ -67,13 +67,13 @@ namespace api\houses {
             return api::ANSWER($success);
         }
 
-        public static function index()
+        public static function index(): array
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "POST" => "#same(addresses,house,PUT)",
-                "PUT" => "#same(addresses,house,PUT)",
-                "DELETE" => "#same(addresses,house,PUT)",
+                "GET" => "[Дом] Получить вход",
+                "POST" => "[Дом] Создать вход",
+                "PUT" => "[Дом] Обновить вход",
+                "DELETE" => "[Дом] Удалить вход",
             ];
         }
     }

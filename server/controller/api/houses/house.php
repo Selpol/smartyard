@@ -21,26 +21,22 @@ namespace api\houses {
         {
             $households = container(HouseFeature::class);
 
-            if (!$households) {
-                return api::ERROR();
-            } else if ($params["_id"]) {
-                $flats = $households->getFlats("houseId", $params["_id"]);
+            $flats = $households->getFlats("houseId", $params["_id"]);
 
-                if ($flats)
-                    usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);
+            if ($flats)
+                usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);
 
-                $house = [
-                    "flats" => $flats,
-                    "entrances" => $households->getEntrances("houseId", $params["_id"]),
-                    "cameras" => $households->getCameras("houseId", $params["_id"]),
-                    "domophoneModels" => IntercomModel::modelsToArray(),
-                    "cmses" => IntercomCms::modelsToArray(),
-                ];
+            $house = [
+                "flats" => $flats,
+                "entrances" => $households->getEntrances("houseId", $params["_id"]),
+                "cameras" => $households->getCameras("houseId", $params["_id"]),
+                "domophoneModels" => IntercomModel::modelsToArray(),
+                "cmses" => IntercomCms::modelsToArray(),
+            ];
 
-                $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
+            $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
 
-                return api::ANSWER($house, "house");
-            }
+            return api::ANSWER($house, "house");
         }
 
         public static function POST($params)
@@ -62,8 +58,8 @@ namespace api\houses {
         public static function index()
         {
             return [
-                "GET" => "#same(addresses,house,GET)",
-                "POST" => "#same(addresses,house,POST)"
+                "GET" => "[Дом] Получить дом",
+                "POST" => "[Дом] Загрузить ключи"
             ];
         }
     }

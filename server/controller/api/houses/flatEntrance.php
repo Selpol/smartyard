@@ -24,6 +24,6 @@ class flatEntrance extends api
 
     public static function index(): array
     {
-        return ['POST'];
+        return ['POST' => '[Дом] Привязать вход к квартирам'];
     }
 }

@@ -24,7 +24,7 @@ namespace api\configs {
         public static function index()
         {
             return [
-                "GET" => "#common",
+                "GET" => "[Настройка] Получить список настроек",
             ];
         }
     }
