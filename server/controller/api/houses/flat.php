@@ -35,7 +35,7 @@ namespace api\houses {
             $flatId = $households->addFlat((int)$params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], (int)$params["manualBlock"], (int)$params["adminBlock"], $params["openCode"], (int)$params["plog"], (int)$params["autoOpen"], (int)$params["whiteRabbit"], (int)$params["sipEnabled"], $params["sipPassword"]);
 
             if ($flatId)
-                task(new IntercomSyncFlatTask($flatId, true))->high()->dispatch();
+                task(new IntercomSyncFlatTask($flatId, true))->sync();
 
             return api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
         }
@@ -47,7 +47,7 @@ namespace api\houses {
             $success = $households->modifyFlat($params["_id"], $params);
 
             if ($success)
-                task(new IntercomSyncFlatTask($params['_id'], false))->high()->dispatch();
+                task(new IntercomSyncFlatTask($params['_id'], false))->sync();
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
@@ -76,7 +76,7 @@ namespace api\houses {
                         return $previous;
                     }, []);
 
-                    task(new IntercomDeleteFlatTask($flat['flatId'], $flatEntrances))->high()->dispatch();
+                    task(new IntercomDeleteFlatTask($flat['flatId'], $flatEntrances))->sync();
                 }
 
                 return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");

@@ -49,7 +49,7 @@ namespace api\houses {
             $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
             if ($success)
-                task(new IntercomLockTask((int)$params["_id"], (bool)$params["locksDisabled"] ?? false))->high()->dispatch();
+                task(new IntercomLockTask((int)$params["_id"], (bool)$params["locksDisabled"] ?? false))->sync();
 
             return api::ANSWER($success);
         }

@@ -3,7 +3,6 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
-use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\DeviceService;
 
 class IntercomLockTask extends IntercomTask
@@ -19,11 +18,7 @@ class IntercomLockTask extends IntercomTask
 
     public function onTask(): bool
     {
-        $households = container(HouseFeature::class);
-
-        $domophone = $households->getDomophone($this->id);
-
-        $device = container(DeviceService::class)->intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+        $device = container(DeviceService::class)->intercomById($this->id);
 
         if (!$device)
             return false;
