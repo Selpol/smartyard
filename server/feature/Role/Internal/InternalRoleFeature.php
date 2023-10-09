@@ -41,7 +41,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findRolesForUser(int $userId): array
     {
-        return container(PermissionRepository::class)->fetchAll('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return container(RoleRepository::class)->fetchAll('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
     }
 
     /**
