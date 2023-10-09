@@ -101,32 +101,6 @@ class Manager
         }, $value), $count, $page, $size);
     }
 
-    /**
-     * @template T of Entity
-     * @psalm-param class-string<T> $class
-     * @psalm-param string $query
-     * @psalm-param array $params
-     * @psalm-return array<T>
-     * @throws EntityException
-     */
-    public function fetchAllEntityWithTotal(string $class, string $query, array $params = []): array
-    {
-        if (!class_exists($class) | !is_subclass_of($class, Entity::class))
-            throw new EntityException('Сущности не существует', 500);
-
-        $statement = $this->connection->prepare($query);
-
-        if (!$statement || !$statement->execute($params))
-            throw new EntityException('Ошибка поиска сущности', 500);
-
-        $value = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        if (!$value)
-            return ['total' => 0, 'data' => []];
-
-        return ['total' => $statement->rowCount(), 'data' => array_map(static fn(array $item) => new $class($item), $value)];
-    }
-
     public function refreshEntity(Entity $entity): bool
     {
         $value = $entity->getValue();

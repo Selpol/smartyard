@@ -53,7 +53,19 @@ class AuthService
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws InvalidArgumentException
+     */
+    public function getPermissions(): array
+    {
+        if ($this->user === null || !$this->user->canScope())
+            return [];
+
+        $identifier = intval($this->user->getIdentifier());
+
+        return container(RoleFeature::class)->getAllPermissionsForUser($identifier);
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
      */
     public function checkScope(string $value): bool
     {
@@ -69,7 +81,7 @@ class AuthService
 
         $identifier = intval($this->user->getIdentifier());
 
-        $permissions = $role->getAllPermissionsForUser($identifier); //container(RedisCache::class)->cache('user:permissions', static fn() => $role->getAllPermissionsForUser($identifier), 30);
+        $permissions = $role->getAllPermissionsForUser($identifier);
 
         return in_array('*', $permissions) || in_array($value, $permissions);
     }
