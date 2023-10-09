@@ -7,8 +7,8 @@
 namespace api\subscribers {
 
     use api\api;
+    use Selpol\Entity\Model\House\HouseKey;
     use Selpol\Entity\Repository\House\HouseKeyRepository;
-    use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
     use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
 
@@ -31,22 +31,31 @@ namespace api\subscribers {
 
         public static function POST($params)
         {
-            $households = container(HouseFeature::class);
+            $key = new HouseKey();
 
-            $keyId = $households->addKey($params["rfId"], $params["accessType"], $params["accessTo"], $params["comments"]);
+            $key->rfid = $params['rfId'];
 
-            task(new IntercomAddKeyTask($params['rfId'], $params['accessTo']))->high()->dispatch();
+            $key->access_type = $params['accessType'];
+            $key->access_to = $params['accessTo'];
 
-            return api::ANSWER($keyId, ($keyId !== false) ? "key" : false);
+            $key->comments = $params['comments'];
+
+            if (container(HouseKeyRepository::class)->insert($key)) {
+                task(new IntercomAddKeyTask($params['rfId'], $params['accessTo']))->high()->dispatch();
+
+                return self::ANSWER($key->house_rfid_id, 'key');
+            }
+
+            return self::ERROR('Не удалось добавить ключ');
         }
 
         public static function PUT($params)
         {
-            $households = container(HouseFeature::class);
+            $key = container(HouseKeyRepository::class)->findById($params['_id']);
 
-            $success = $households->modifyKey($params["_id"], $params["comments"]);
+            $key->comments = $params['comments'];
 
-            return api::ANSWER($success);
+            return self::ANSWER(container(HouseKeyRepository::class)->update($key));
         }
 
         public static function DELETE($params)
