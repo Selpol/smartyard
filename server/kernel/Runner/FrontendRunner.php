@@ -129,7 +129,7 @@ class FrontendRunner implements KernelRunner
         if (@$params["_login"])
             container(RedisService::class)->getConnection()->set("last_" . md5($params["_login"]), time());
 
-        if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . $params['_request_method']))
+        if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method'])))
             return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
 
         if (file_exists(path("controller/api/$api/$method.php"))) {
