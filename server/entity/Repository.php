@@ -72,7 +72,9 @@ abstract class Repository
      */
     public function fetchPaginate(int $page, int $size, ?Criteria $criteria = null): array
     {
-        return $this->getManager()->fetchAllEntity($this->class, 'SELECT * FROM ' . $this->table . ' LIMIT :size OFFSET :page', ['page' => $page * $size, 'size' => $size]);
+        $criteria = ($criteria ?? new Criteria())->page($page, $size);
+
+        return $this->getManager()->fetchAllEntity($this->class, 'SELECT * FROM ' . $this->table . ' ' . $criteria->getSqlString(), $criteria->getSqlParams());
     }
 
     /**
