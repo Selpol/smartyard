@@ -18,7 +18,7 @@ namespace api\subscribers {
         public static function GET($params)
         {
             $households = container(HouseFeature::class);
-            $keys = $households->getKeys('flatId', null);
+            $keys = $households->getKeys('flatId', $params['_id']);
 
             return api::ANSWER($keys, ($keys !== false) ? "keys" : false);
         }

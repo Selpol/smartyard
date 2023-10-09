@@ -12,6 +12,7 @@ use Selpol\Entity\Repository\Dvr\DvrRecordRepository;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Entity\Repository\Frs\FrsFaceRepository;
 use Selpol\Entity\Repository\Frs\FrsServerRepository;
+use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Entity\Repository\Inbox\InboxMessageRepository;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Entity\Repository\RoleRepository;
@@ -135,6 +136,8 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(FrsFaceRepository::class);
 
     $builder->singleton(InboxMessageRepository::class);
+
+    $builder->singleton(HouseKeyRepository::class);
     //#endregion
 
     $builder->singleton(FileCache::class);
