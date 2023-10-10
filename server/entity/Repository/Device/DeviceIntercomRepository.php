@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method DeviceIntercom fetch(string $query, array $params = [])
- * @method DeviceIntercom[] fetchAll(string $query, array $params = [])
+ * @method DeviceIntercom fetchRaw(string $query, array $params = [])
+ * @method DeviceIntercom[] fetchAllRaw(string $query, array $params = [])
  * @method Page<DeviceIntercom> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method DeviceIntercom findById(mixed $id)

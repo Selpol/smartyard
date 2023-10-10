@@ -2,9 +2,12 @@
 
 namespace Selpol\Device\Ip\Intercom\HikVision;
 
+use DateInterval;
+use DateTime;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Http\Uri;
+use Throwable;
 
 class HikVisionIntercom extends IntercomDevice
 {
@@ -25,13 +28,24 @@ class HikVisionIntercom extends IntercomDevice
             'DeviceID' => $response['deviceID'],
             'DeviceModel' => $response['model'],
             'HardwareVersion' => $response['hardwareVersion'],
-            'SoftwareVersion' => $response['firmwareVersion'] . ' ' . $response['firmwareReleasedDate'],
+            'SoftwareVersion' => $response['firmwareVersion'] . ' ' . $response['firmwareReleasedDate']
         ];
     }
 
     public function addRfid(string $code, int $apartment): void
     {
-        var_dump($this->put('/ISAPI/AccessControl/CardInfo/SetUp?format=json', ['employeeNo' => $apartment, 'cardNo' => sprintf("%'.010d", hexdec($code)), 'cardType' => 'normalCard']));
+        $lastApartment = $this->getLastApartment();
+
+        if ($lastApartment == null)
+            $lastApartment = $this->addUser("1", (string)$apartment)->getLastApartment();
+
+        if ($lastApartment['full'])
+            $lastApartment = $this->addUser((string)(intval($lastApartment['id']) + 1), (string)$apartment)->getLastApartment();
+
+        if ($lastApartment == null)
+            return;
+
+        $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastApartment['id'], 'cardNo' => sprintf("%'.010d", hexdec($code)), 'cardType' => 'normalCard']]);
     }
 
     public function removeRfid(string $code, int $apartment): void
@@ -42,11 +56,6 @@ class HikVisionIntercom extends IntercomDevice
     public function removeApartment(int $apartment): void
     {
         $this->put('/ISAPI/AccessControl/UserInfo/Delete?format=json', ['UserInfoDelCond' => ['EmployeeNoList' => [['employeeNo' => (string)$apartment]]]]);
-    }
-
-    public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static
-    {
-        return $this;
     }
 
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
@@ -128,26 +137,91 @@ class HikVisionIntercom extends IntercomDevice
             $this->removeApartment($apartment);
     }
 
-    private function apartmentExist(int $apartment): bool
+    private function addUser(string $id, string $name): static
     {
-        $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', [
-            'UserInfoSearchCond' => [
-                'searchID' => (string)$apartment,
-                'maxResults' => 1,
-                'searchResultPosition' => 0,
-                'EmployeeNoList' => [['employeeNo' => (string)$apartment]]]
+        $now = new DateTime();
+
+        $beginTime = $now->format('Y-m-dTH:i:s');
+        $endTime = $now->add(new DateInterval('P10Y'))->format('Y-m-dTH:i:s');
+
+        $this->post('/ISAPI/AccessControl/UserInfo/Record?format=json', [
+            'UserInfo' => [
+                'employeeNo' => $id,
+                'name' => $name,
+                'userType' => 'normal',
+                'localUIRight' => false,
+                'maxOpenDoorTime' => 0,
+                'Valid' => ['enable' => true, 'beginTime' => $beginTime, 'endTime' => $endTime, 'timeType' => 'local'],
+                'doorRight' => '1',
+                'RightPlan' => [['doorNo' => 1, 'planTemplateNo' => '1']],
+                'roomNumber' => 1,
+                'floorNumber' => 0,
+                'userVerifyMode' => ''
+            ]
         ]);
 
-        return $response['UserInfoSearch']['responseStatusStrg'] === 'OK';
+        return $this;
     }
 
-    private function getLastApartmentNumber(): int
+    private function setUser(string $id, string $name): static
+    {
+        $now = new DateTime();
+
+        $beginTime = $now->format('Y-m-dTH:i:s');
+        $endTime = $now->add(new DateInterval('P10Y'))->format('Y-m-dTH:i:s');
+
+        $this->put('/ISAPI/AccessControl/UserInfo/Modify?format=json', [
+            'UserInfo' => [
+                'employeeNo' => $id,
+                'name' => $name,
+                'userType' => 'normal',
+                'localUIRight' => false,
+                'maxOpenDoorTime' => 0,
+                'Valid' => ['enable' => true, 'beginTime' => $beginTime, 'endTime' => $endTime, 'timeType' => 'local'],
+                'doorRight' => '1',
+                'RightPlan' => [['doorNo' => 1, 'planTemplateNo' => '1']],
+                'roomNumber' => 1,
+                'floorNumber' => 0,
+                'userVerifyMode' => ''
+            ]
+        ]);
+
+        return $this;
+    }
+
+//    private function apartmentExist(int $apartment): bool
+//    {
+//        $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', [
+//            'UserInfoSearchCond' => [
+//                'searchID' => (string)$apartment,
+//                'maxResults' => 1,
+//                'searchResultPosition' => 0,
+//                'EmployeeNoList' => [['employeeNo' => (string)$apartment]]]
+//        ]);
+//
+//        return $response['UserInfoSearch']['responseStatusStrg'] === 'OK';
+//    }
+
+    public function getLastApartment(): ?array
     {
         $page = $this->getApartmentsCount();
 
-        $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 1, 'searchResultPosition' => $page - 1]]);
+        try {
+            $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 1, 'searchResultPosition' => $page - 1]]);
 
-        return intval($response['UserInfoSearch']['UserInfo'][0]['employeeNo']);
+            if (array_key_exists('statusCode', $response))
+                return null;
+
+            return [
+                'id' => $response['UserInfoSearch']['UserInfo'][0]['employeeNo'],
+                'name' => $response['UserInfoSearch']['UserInfo'][0]['name'],
+
+
+                'full' => $response['UserInfoSearch']['UserInfo'][0]['numOfCard'] == 5,
+            ];
+        } catch (Throwable) {
+            return null;
+        }
     }
 
     /**

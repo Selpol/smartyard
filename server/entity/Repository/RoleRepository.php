@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method Role fetch(string $query, array $params = [])
- * @method Role[] fetchAll(string $query, array $params = [])
+ * @method Role fetchRaw(string $query, array $params = [])
+ * @method Role[] fetchAllRaw(string $query, array $params = [])
  * @method Page<Role> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Role findById(int $id)

@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method DeviceCamera fetch(string $query, array $params = [])
- * @method DeviceCamera[] fetchAll(string $query, array $params = [])
+ * @method DeviceCamera fetchRaw(string $query, array $params = [])
+ * @method DeviceCamera[] fetchAllRaw(string $query, array $params = [])
  * @method Page<DeviceCamera> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method DeviceCamera findById(mixed $id)

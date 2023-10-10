@@ -15,7 +15,7 @@ class InternalTaskFeature extends TaskFeature
      */
     public function page(int $size, int $page): array
     {
-        return container(TaskRepository::class)->fetchAll('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
+        return container(TaskRepository::class)->fetchAllRaw('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
     }
 
     /**

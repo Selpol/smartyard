@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method FrsServer fetch(string $query, array $params = [])
- * @method FrsServer[] fetchAll(string $query, array $params = [])
+ * @method FrsServer fetchRaw(string $query, array $params = [])
+ * @method FrsServer[] fetchAllRaw(string $query, array $params = [])
  * @method Page<FrsServer> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method FrsServer findById(int $id)

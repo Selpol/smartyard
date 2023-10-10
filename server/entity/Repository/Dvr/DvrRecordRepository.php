@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method DvrRecord fetch(string $query, array $params = [])
- * @method DvrRecord[] fetchAll(string $query, array $params = [])
+ * @method DvrRecord fetchRaw(string $query, array $params = [])
+ * @method DvrRecord[] fetchAllRaw(string $query, array $params = [])
  * @method Page<DvrRecord> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method DvrRecord findById(mixed $id)

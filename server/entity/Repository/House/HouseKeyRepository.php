@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method HouseKey fetch(string $query, array $params = [])
- * @method HouseKey[] fetchAll(string $query, array $params = [])
+ * @method HouseKey fetchRaw(string $query, array $params = [])
+ * @method HouseKey[] fetchAllRaw(string $query, array $params = [])
  * @method Page<HouseKey> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method HouseKey findById(int $id)

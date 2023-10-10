@@ -48,7 +48,7 @@ abstract class Repository
      * @psalm-return TValue
      * @throws NotFoundExceptionInterface
      */
-    public function fetch(string $query, array $params = []): Entity
+    public function fetchRaw(string $query, array $params = []): Entity
     {
         return $this->getManager()->fetchEntity($this->class, $query, $params);
     }
@@ -59,7 +59,7 @@ abstract class Repository
      * @return array<TValue>
      * @throws NotFoundExceptionInterface
      */
-    public function fetchAll(string $query, array $params = []): array
+    public function fetchAllRaw(string $query, array $params = []): array
     {
         return $this->getManager()->fetchAllEntity($this->class, $query, $params);
     }
@@ -83,7 +83,7 @@ abstract class Repository
      */
     public function findById(mixed $id): Entity
     {
-        return $this->fetch('SELECT * FROM ' . $this->table . ' WHERE ' . $this->id . ' = :' . $this->id, [$this->id => $id]);
+        return $this->fetchRaw('SELECT * FROM ' . $this->table . ' WHERE ' . $this->id . ' = :' . $this->id, [$this->id => $id]);
     }
 
     /**

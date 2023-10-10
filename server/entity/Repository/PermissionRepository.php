@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method Permission fetch(string $query, array $params = [])
- * @method Permission[] fetchAll(string $query, array $params = [])
+ * @method Permission fetchRaw(string $query, array $params = [])
+ * @method Permission[] fetchAllRaw(string $query, array $params = [])
  * @method Page<Permission> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Permission findById(int $id)

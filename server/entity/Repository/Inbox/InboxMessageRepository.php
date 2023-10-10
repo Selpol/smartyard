@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method InboxMessage fetch(string $query, array $params = [])
- * @method InboxMessage[] fetchAll(string $query, array $params = [])
+ * @method InboxMessage fetchRaw(string $query, array $params = [])
+ * @method InboxMessage[] fetchAllRaw(string $query, array $params = [])
  * @method Page<InboxMessage> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method InboxMessage findById(int $id)

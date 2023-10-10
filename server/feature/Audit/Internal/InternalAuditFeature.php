@@ -60,7 +60,7 @@ class InternalAuditFeature extends AuditFeature
         if ($page !== null && $size && $size > 0)
             $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
 
-        return container(AuditRepository::class)->fetchAll($query, $params);
+        return container(AuditRepository::class)->fetchAllRaw($query, $params);
     }
 
     /**

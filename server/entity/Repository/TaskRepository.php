@@ -8,8 +8,8 @@ use Selpol\Entity\Repository;
 use Selpol\Service\Database\Page;
 
 /**
- * @method Task fetch(string $query, array $params = [])
- * @method Task[] fetchAll(string $query, array $params = [])
+ * @method Task fetchRaw(string $query, array $params = [])
+ * @method Task[] fetchAllRaw(string $query, array $params = [])
  * @method Page<Task> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
  *
  * @method Task findById(int $id)
