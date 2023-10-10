@@ -105,8 +105,12 @@ abstract class Repository
 
         $result = $this->getManager()->insertEntity($entity);
 
-        if ($this->audit && $result)
-            container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'insert', 'Добавление новой сущности');
+        if ($result) {
+            $entity->clearDirty();
+
+            if ($this->audit)
+                container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'insert', 'Добавление новой сущности');
+        }
 
         return $result;
     }
@@ -121,7 +125,12 @@ abstract class Repository
     {
         $entity->{$entity::$columnId} = validate($entity::$columnId, $entity->{$entity::$columnId}, $this->columns[$entity::$columnId]);
 
-        return $this->getManager()->refreshEntity($entity);
+        $result = $this->getManager()->refreshEntity($entity);
+
+        if ($result)
+            $entity->clearDirty();
+
+        return $result;
     }
 
     /**
@@ -132,18 +141,25 @@ abstract class Repository
      */
     public function update(Entity $entity): bool
     {
-        $value = $entity->getValue();
+        if (!$entity->isDirty())
+            return true;
+
+        $value = $entity->getDirtyValue();
         $columns = [];
 
         foreach (array_keys($value) as $key)
             $columns[$key] = $this->columns[$key];
 
-        $entity->setValue(validator($value, $columns));
+        $entity->setDirtyValue(validator($value, $columns));
 
         $result = $this->getManager()->updateEntity($entity);
 
-        if ($this->audit && $result)
-            container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'update', 'Обновление сущности');
+        if ($result) {
+            $entity->clearDirty();
+
+            if ($this->audit)
+                container(AuditFeature::class)->audit(strval($entity->{$entity::$columnId}), $this->class, 'update', 'Обновление сущности');
+        }
 
         return $result;
     }

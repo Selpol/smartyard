@@ -127,6 +127,12 @@ class Manager
         if (array_key_exists($entity::$columnId, $value))
             unset($value[$entity::$columnId]);
 
+        if ($entity::$columnCreate && array_key_exists($entity::$columnCreate, $value))
+            unset($value[$entity::$columnCreate]);
+
+        if ($entity::$columnUpdate && array_key_exists($entity::$columnUpdate, $value))
+            unset($value[$entity::$columnUpdate]);
+
         $insertColumn = implode(', ', array_keys($value));
         $valuesColumnValue = implode(', ', array_map(static fn(string $key) => ':' . $key, array_keys($value)));
 
@@ -151,10 +157,12 @@ class Manager
 
     public function updateEntity(Entity $entity): bool
     {
-        $value = $entity->getValue();
-        $id = $value[$entity::$columnId];
+        $value = $entity->getDirtyValue();
 
-        unset($value[$entity::$columnId]);
+        $id = $entity->{$entity::$columnId};
+
+        if (array_key_exists($entity::$columnId, $value))
+            unset($value[$entity::$columnId]);
 
         if ($entity::$columnCreate && array_key_exists($entity::$columnCreate, $value))
             unset($value[$entity::$columnCreate]);

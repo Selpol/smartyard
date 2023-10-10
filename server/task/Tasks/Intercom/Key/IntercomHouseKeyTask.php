@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 
 class IntercomHouseKeyTask extends IntercomTask
@@ -47,7 +48,7 @@ class IntercomHouseKeyTask extends IntercomTask
             return;
 
         if (!$device->ping())
-            throw new RuntimeException(message: 'Устройство не доступно');
+            throw new HttpException(message: 'Устройство не доступно');
 
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 

@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -58,7 +59,7 @@ class IntercomSyncFlatTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new RuntimeException('Устройство не доступно');
+                throw new HttpException(message: 'Устройство не доступно');
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
@@ -95,6 +96,9 @@ class IntercomSyncFlatTask extends Task
                 );
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            if ($throwable instanceof HttpException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

@@ -9,6 +9,8 @@ abstract class Entity implements JsonSerializable
 {
     private array $value;
 
+    private array $dirty;
+
     /**
      * Таблица сущности
      * @var string
@@ -49,9 +51,33 @@ abstract class Entity implements JsonSerializable
         return $this->value;
     }
 
+    public function getDirtyValue(): array
+    {
+        $result = [];
+
+        if (isset($this->dirty))
+            foreach ($this->dirty as $item)
+                $result[$item] = $this->value[$item];
+
+        return $result;
+    }
+
     public function setValue(array $value): void
     {
         $this->value = $value;
+    }
+
+    public function setDirtyValue(array $value): void
+    {
+        $this->dirty = array_keys($value);
+
+        foreach ($this->dirty as $item)
+            $this->value[$item] = $value[$item];
+    }
+
+    public function isDirty(): bool
+    {
+        return isset($this->dirty) && count($this->dirty) > 0;
     }
 
     public function __get(string $name)
@@ -61,6 +87,14 @@ abstract class Entity implements JsonSerializable
 
     public function __set(string $name, $value): void
     {
+        if (array_key_exists($name, $this->value) && $this->value[$name] === $value)
+            return;
+
+        if (!isset($this->dirty))
+            $this->dirty = [];
+
+        $this->dirty[] = $name;
+
         $this->value[$name] = $value;
     }
 
@@ -75,6 +109,11 @@ abstract class Entity implements JsonSerializable
                 $result[$value[$key]] = $this->value[$key];
 
         return $result;
+    }
+
+    public function clearDirty(): void
+    {
+        unset($this->dirty);
     }
 
     public function jsonSerialize(): array

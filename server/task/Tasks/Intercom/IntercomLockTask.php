@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Service\DeviceService;
 
 class IntercomLockTask extends IntercomTask
@@ -24,7 +25,7 @@ class IntercomLockTask extends IntercomTask
             return false;
 
         if (!$device->ping())
-            throw new RuntimeException(message: 'Устройство не доступно');
+            throw new HttpException(message: 'Устройство не доступно');
 
         $device->unlocked($this->lock);
 

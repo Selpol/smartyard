@@ -133,3 +133,18 @@ if (!function_exists('temp_stream')) {
         return $stream;
     }
 }
+
+if (!function_exists('generate_password')) {
+    function generate_password(int $length = 8): string
+    {
+        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        $count = mb_strlen($chars);
+
+        for ($i = 0, $result = ''; $i < $length; $i++) {
+            $index = rand(0, $count - 1);
+            $result .= mb_substr($chars, $index, 1);
+        }
+
+        return $result;
+    }
+}

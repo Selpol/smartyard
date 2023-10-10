@@ -158,6 +158,8 @@
 namespace api\accounts {
 
     use api\api;
+    use Selpol\Entity\Model\Core\CoreUser;
+    use Selpol\Entity\Repository\Core\CoreUserRepository;
     use Selpol\Feature\Authentication\AuthenticationFeature;
     use Selpol\Feature\User\UserFeature;
 
@@ -175,14 +177,27 @@ namespace api\accounts {
 
         public static function POST($params)
         {
-            $uid = container(UserFeature::class)->addUser($params["login"], $params["realName"], $params["eMail"], $params["phone"]);
+            $user = new CoreUser();
 
-            return api::ANSWER($uid, ($uid !== false) ? "uid" : "notAcceptable");
+            $user->login = $params['login'];
+            $user->password = password_hash(generate_password(), PASSWORD_DEFAULT);
+
+            $user->real_name = $params['realName'];
+            $user->e_mail = $params['eMail'];
+            $user->phone = $params['phone'];
+
+            $success = container(CoreUserRepository::class)->insert($user);
+
+            return self::ANSWER($success ? $user->uid : false, $success ? 'uid' : 'notAcceptable');
         }
 
         public static function PUT($params)
         {
             if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
+                $user = container(CoreUserRepository::class)->findById($params['_id']);
+
+                $user->enabled = $params['enabled'];
+
                 $success = container(UserFeature::class)->modifyUserEnabled($params['_id'], $params['enabled']);
 
                 return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
@@ -203,13 +218,16 @@ namespace api\accounts {
                 container(AuthenticationFeature::class)->logout($params["session"]);
 
                 $success = true;
-            } else
-                $success = container(UserFeature::class)->deleteUser($params["_id"]);
+            } else {
+                $user = container(CoreUserRepository::class)->findById($params['_id']);
+
+                $success = container(CoreUserRepository::class)->delete($user);
+            }
 
             return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
-        public static function index()
+        public static function index(): array
         {
             return ["GET" => "[Пользователь] Получить пользователя", "POST" => '[Пользователь] Создать пользователя', "PUT" => "[Пользователь] Обновить пользователя", "DELETE" => '[Пользователь] Удалить пользователя'];
         }

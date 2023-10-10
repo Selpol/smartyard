@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -42,7 +43,7 @@ class IntercomCmsTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new RuntimeException('Устройство не доступно');
+                throw new HttpException(message: 'Устройство не доступно');
 
             $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 
@@ -52,6 +53,9 @@ class IntercomCmsTask extends Task
             $device->deffer();
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            if ($throwable instanceof HttpException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

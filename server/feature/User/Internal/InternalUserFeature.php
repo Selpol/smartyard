@@ -107,7 +107,7 @@ class InternalUserFeature extends UserFeature
     public function addUser(string $login, ?string $realName = null, ?string $eMail = null, ?string $phone = null): int|bool
     {
         $login = trim($login);
-        $password = $this->generate_password();
+        $password = generate_password();
 
         try {
             $connection = $this->getDatabase()->getConnection();
@@ -255,18 +255,5 @@ class InternalUserFeature extends UserFeature
         } catch (Throwable) {
             return false;
         }
-    }
-
-    private function generate_password(): string
-    {
-        $chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        $count = mb_strlen($chars);
-
-        for ($i = 0, $result = ''; $i < 8; $i++) {
-            $index = rand(0, $count - 1);
-            $result .= mb_substr($chars, $index, 1);
-        }
-
-        return $result;
     }
 }

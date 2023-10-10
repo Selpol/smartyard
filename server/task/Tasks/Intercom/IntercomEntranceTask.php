@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -28,7 +29,7 @@ class IntercomEntranceTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new RuntimeException('Устройство не доступно');
+                throw new HttpException(message: 'Устройство не доступно');
 
             foreach ($flats as $flat) {
                 $apartment = $flat['flat'];
@@ -57,6 +58,9 @@ class IntercomEntranceTask extends Task
             return true;
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            if ($throwable instanceof HttpException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

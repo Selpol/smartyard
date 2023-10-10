@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Uri;
 use Selpol\Service\DeviceService;
 use Throwable;
@@ -58,7 +59,7 @@ class IntercomConfigureTask extends IntercomTask
                 return false;
 
             if (!$device->ping())
-                throw new RuntimeException(message: 'Устройство не доступно');
+                throw new HttpException(message: 'Устройство не доступно');
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);
@@ -84,6 +85,9 @@ class IntercomConfigureTask extends IntercomTask
             return true;
         } catch (Throwable $throwable) {
             logger('intercom')->error($throwable);
+
+            if ($throwable instanceof HttpException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
