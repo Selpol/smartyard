@@ -35,6 +35,7 @@ RUN set -eux; \
         mbstring \
         openssl \
         pcntl \
+        gd \
     ;
 
 COPY --link docker/supervisor/* /etc/supervisor.d/

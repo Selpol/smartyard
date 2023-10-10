@@ -6,13 +6,14 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Http\Uri;
-use Throwable;
 
 class DksIntercom extends IntercomDevice
 {
     use BewardTrait;
 
     public string $login = 'admin';
+
+    protected ?array $cmses = null;
 
     public function __construct(Uri $uri, string $password, IntercomModel $model)
     {
@@ -394,7 +395,7 @@ class DksIntercom extends IntercomDevice
 
     public function setVideoOverlay(string $title): static
     {
-        $this->post('/cgi-bin/textoverlay_cgi', ['action' => 'set', 'Title' => $title, 'TitleValue' => $title ? 1 : 0, 'DateValue' => 1, 'TimeValue' => 1, 'TimeFormat12' => 'False', 'DateFormat' => 2, 'WeekValue' => 1, 'BitrateValue' => 0, 'Color' => 0, 'ClientNum' => 0]);
+        $this->post('/cgi-bin/textoverlay_cgi', ['action' => 'set', 'Title' => $title, 'TitleValue' => $title ? 1 : 0, 'DateValue' => 1, 'TimeValue' => 1, 'TimeFormat12' => 'False', 'DateFormat' => 2, 'WeekValue' => 0, 'BitrateValue' => 0, 'Color' => 0, 'ClientNum' => 0]);
 
         return $this;
     }
@@ -452,6 +453,18 @@ class DksIntercom extends IntercomDevice
 
         foreach ($this->getRfids() as $rfid)
             $this->removeRfid($rfid, 0);
+    }
+
+    public function defferCmses(): void
+    {
+        if ($this->cmses) {
+            $this->cmses = null;
+        }
+    }
+
+    public function deffer(): void
+    {
+        $this->defferCmses();
     }
 
     protected function setAlarmHelp(string $name, mixed $value): static
