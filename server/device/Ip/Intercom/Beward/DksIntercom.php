@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Http\Uri;
+use Throwable;
 
 class DksIntercom extends IntercomDevice
 {
@@ -405,7 +406,11 @@ class DksIntercom extends IntercomDevice
                 for ($d = 0; $d <= 25; $d++)
                     $params["du{$i}_{$u}_$d"] = 0;
 
-        $this->post('/webs/kmnDUCfgEx', $params);
+        try {
+            $this->post('/webs/kmnDUCfgEx', $params);
+        } catch (Throwable $throwable) {
+            logger('intercom')->error($throwable);
+        }
     }
 
     public function clearRfid(): void
