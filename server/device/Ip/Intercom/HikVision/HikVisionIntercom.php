@@ -227,7 +227,7 @@ class HikVisionIntercom extends IntercomDevice
             $userInfos = $response['UserInfoSearch']['UserInfo'] ?? [];
 
             foreach ($userInfos as $userInfo)
-                $result[] = $userInfo['employeeNo'];
+                $result[] = intval($userInfo['employeeNo']);
         }
 
         return $result;
