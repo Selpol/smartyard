@@ -95,6 +95,11 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setVideoEncodingDefault(): static
+    {
+        return $this;
+    }
+
     public function setMotionDetection(int $sensitivity, int $left, int $top, int $width, int $height): static
     {
         return $this;
@@ -217,6 +222,7 @@ abstract class IntercomDevice extends IpDevice
         $this->setCallTimeout(45);
         $this->setTalkTimeout(90);
         //$this->setAudioLevels($audio_levels);
+        $this->setVideoEncodingDefault();
         $this->setCmsLevels($cms_levels);
         $this->setNtp($ntp_server, $ntp_port);
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);

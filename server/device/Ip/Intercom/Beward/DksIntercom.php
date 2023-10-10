@@ -154,6 +154,43 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setVideoEncodingDefault(): static
+    {
+        $this->get('/webs/videoEncodingCfgEx', [
+            'vlevel' => '0',
+            'encoder' => '0',
+            'sys_cif' => '1',
+            'advanced' => '1',
+            'ratectrl' => '0',
+            'quality' => '1',
+            'iq' => '1',
+            'rc' => '1',
+            'bitrate' => '1024',
+            'frmrate' => '15',
+            'frmintr' => '15',
+            'first' => '0',
+            'framingpos' => '0',
+            'vlevel2' => '0',
+            'encoder2' => '0',
+            'sys_cif2' => '1',
+            'advanced2' => '1',
+            'ratectrl2' => '0',
+            'quality2' => '1',
+            'iq2' => '1',
+            'rc2' => '1',
+            'bitrate2' => '348',
+            'frmrate2' => '25',
+            'frmintr2' => '50',
+            'first2' => '0',
+            'maxfrmintr' => '200',
+            'maxfrmrate' => '25',
+            'nlevel' => '1',
+            'nfluctuate' => '1',
+        ]);
+
+        return $this;
+    }
+
     public function setMotionDetection(int $sensitivity, int $left, int $top, int $width, int $height): static
     {
         $params = [
@@ -294,8 +331,8 @@ class DksIntercom extends IntercomDevice
 
     public function setCmsModel(string $value): static
     {
-        if (array_key_exists($value, $this->model->cmsesMap))
-            $this->get('/webs/kmnDUCfgEx', ['kmntype' => $this->model->cmsesMap[$value]]);
+        if (array_key_exists(strtoupper($value), $this->model->cmsesMap))
+            $this->get('/webs/kmnDUCfgEx', ['kmntype' => $this->model->cmsesMap[strtoupper($value)]]);
 
         $this->clearCms($value);
 
@@ -360,8 +397,6 @@ class DksIntercom extends IntercomDevice
 
     public function unlocked(bool $value): void
     {
-        $this->get('/webs/btnSettingEx', ['flag' => '4600', 'paramchannel' => '0', 'paramcmd' => '0', 'paramctrl' => (int)$value, 'paramstep' => '0', 'paramreserved' => '0']);
-
         $this->setIntercomHelp('DoorOpenMode', $value ? 'on' : 'off');
     }
 
@@ -399,18 +434,6 @@ class DksIntercom extends IntercomDevice
 
     public function clearCms(string $model): void
     {
-        $params = [];
-
-        for ($i = 0; $i <= 8; $i++)
-            for ($u = 0; $u <= 9; $u++)
-                for ($d = 0; $d <= 25; $d++)
-                    $params["du{$i}_{$u}_$d"] = 0;
-
-        try {
-            $this->post('/webs/kmnDUCfgEx', $params);
-        } catch (Throwable $throwable) {
-            logger('intercom')->error($throwable);
-        }
     }
 
     public function clearRfid(): void

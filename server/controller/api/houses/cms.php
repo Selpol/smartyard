@@ -30,12 +30,13 @@ namespace api\houses {
 
             $success = $households->setCms($params["_id"], $params["cms"]);
 
-            task(new IntercomCmsTask($params['_id']))->sync();
+            if ($success)
+                task(new IntercomCmsTask($params['_id']))->sync();
 
             return api::ANSWER($success);
         }
 
-        public static function index()
+        public static function index(): array
         {
             return [
                 "GET" => "[Дом] Получить КМС",

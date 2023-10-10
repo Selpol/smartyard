@@ -7,8 +7,8 @@
 namespace api\houses {
 
     use api\api;
+    use Psr\Container\NotFoundExceptionInterface;
     use Selpol\Feature\House\HouseFeature;
-    use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 
     /**
      * entrance method
@@ -38,6 +38,9 @@ namespace api\houses {
             } else {
                 $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
+                if ($entranceId)
+                    return self::updateIntercom(intval($params["domophoneId"]), $params["cms"], boolval($params["locksDisabled"]) ?? false);
+
                 return api::ANSWER($entranceId, ($entranceId !== false) ? "entranceId" : false);
             }
         }
@@ -49,7 +52,7 @@ namespace api\houses {
             $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
             if ($success)
-                task(new IntercomLockTask((int)$params["_id"], (bool)$params["locksDisabled"] ?? false))->sync();
+                return self::updateIntercom(intval($params["domophoneId"]), $params["cms"], boolval($params["locksDisabled"]) ?? false);
 
             return api::ANSWER($success);
         }
@@ -75,6 +78,22 @@ namespace api\houses {
                 "PUT" => "[Дом] Обновить вход",
                 "DELETE" => "[Дом] Удалить вход",
             ];
+        }
+
+        /**
+         * @throws NotFoundExceptionInterface
+         */
+        private static function updateIntercom(int $id, string $cms, bool $lock): ?array
+        {
+            $device = intercom($id);
+
+            if (!$device->ping())
+                return self::ERROR('Устройство не доступно');
+
+            $device->setCmsModel($cms);
+            $device->unlocked($lock);
+
+            return self::ANSWER();
         }
     }
 }

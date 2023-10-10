@@ -189,22 +189,12 @@ class HikVisionIntercom extends IntercomDevice
         return $this;
     }
 
-//    private function apartmentExist(int $apartment): bool
-//    {
-//        $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', [
-//            'UserInfoSearchCond' => [
-//                'searchID' => (string)$apartment,
-//                'maxResults' => 1,
-//                'searchResultPosition' => 0,
-//                'EmployeeNoList' => [['employeeNo' => (string)$apartment]]]
-//        ]);
-//
-//        return $response['UserInfoSearch']['responseStatusStrg'] === 'OK';
-//    }
-
     public function getLastApartment(): ?array
     {
         $page = $this->getApartmentsCount();
+
+        if ($page === 0)
+            return null;
 
         try {
             $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 1, 'searchResultPosition' => $page - 1]]);
@@ -215,7 +205,6 @@ class HikVisionIntercom extends IntercomDevice
             return [
                 'id' => $response['UserInfoSearch']['UserInfo'][0]['employeeNo'],
                 'name' => $response['UserInfoSearch']['UserInfo'][0]['name'],
-
 
                 'full' => $response['UserInfoSearch']['UserInfo'][0]['numOfCard'] == 5,
             ];
@@ -248,6 +237,6 @@ class HikVisionIntercom extends IntercomDevice
     {
         $response = $this->get('/ISAPI/AccessControl/UserInfo/Count');
 
-        return $response['UserInfoCount']['userNumber'];
+        return $response['UserInfoCount']['userNumber'] ?? 0;
     }
 }
