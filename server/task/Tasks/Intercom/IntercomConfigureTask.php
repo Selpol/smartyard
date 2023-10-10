@@ -181,7 +181,7 @@ class IntercomConfigureTask extends IntercomTask
                             $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
                         }
 
-                        if ($flat_entrance['apartment'] != $apartment) {
+                        if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
                             $apartment = $flat_entrance['apartment'];
                         }
                     }

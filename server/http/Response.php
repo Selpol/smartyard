@@ -5,6 +5,7 @@ namespace Selpol\Http;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 use Selpol\Http\Trait\MessageTrait;
+use Throwable;
 
 class Response implements ResponseInterface
 {
@@ -84,9 +85,13 @@ class Response implements ResponseInterface
         if ($this->parsedBody === null && isset($this->body)) {
             $contents = $this->body->getContents();
 
-            if (in_array('application/xml', $this->getHeader('Content-Type')))
-                $this->parsedBody = json_decode(json_encode(simplexml_load_string($contents)), true);
-            else
+            if (in_array('application/xml', $this->getHeader('Content-Type'))) {
+                if (str_starts_with($contents, '<') && str_ends_with($contents, '>'))
+                    $this->parsedBody = json_decode(json_encode(simplexml_load_string($contents)), true);
+                else if (str_starts_with($contents, '{') && str_ends_with($contents, '}'))
+                    $this->parsedBody = json_decode($contents, true);
+                else $this->parsedBody = [];
+            } else
                 $this->parsedBody = json_decode($contents, true);
         }
 

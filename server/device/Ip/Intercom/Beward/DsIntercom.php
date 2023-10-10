@@ -11,11 +11,6 @@ class DsIntercom extends IntercomDevice
 
     public string $login = 'admin';
 
-    public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
-    {
-        $this->setApartment($apartment, $handset, $sipNumbers, $levels, $code);
-    }
-
     public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static
     {
         $params = ['action' => 'set'];

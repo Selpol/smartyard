@@ -61,7 +61,7 @@ class IntercomHouseKeyTask extends IntercomTask
                 $apartment = $flat['flat'];
 
                 foreach ($flat_entrances as $flat_entrance)
-                    if ($flat_entrance['apartment'] != $apartment)
+                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
                         $apartment = $flat_entrance['apartment'];
 
                 $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);

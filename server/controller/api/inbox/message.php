@@ -14,7 +14,6 @@ namespace api\inbox {
      */
     class message extends api
     {
-
         public static function GET($params)
         {
             if (@$params["messageId"]) {

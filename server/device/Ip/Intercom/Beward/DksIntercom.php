@@ -75,11 +75,6 @@ class DksIntercom extends IntercomDevice
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $code, 'Apartment' => $apartment]);
     }
 
-    public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
-    {
-        $this->setApartment($apartment, $handset, $sipNumbers, $levels, $code);
-    }
-
     public function removeApartment(int $apartment): void
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => $apartment]);
