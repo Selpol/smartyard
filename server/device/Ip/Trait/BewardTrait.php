@@ -12,6 +12,8 @@ trait BewardTrait
         try {
             $response = $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: false);
 
+            logger('intercom')->debug('BewardTrait getSysInfo()', ['response' => $response]);
+
             return $this->parseParamValueHelp($response);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
