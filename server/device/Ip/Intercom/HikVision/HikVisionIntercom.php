@@ -37,7 +37,7 @@ class HikVisionIntercom extends IntercomDevice
         $lastApartment = $this->getLastApartment();
 
         if ($lastApartment == null)
-            $lastApartment = $this->addUser("1", (string)$apartment)->getLastApartment();
+            $lastApartment = $this->addUser('1', (string)$apartment)->getLastApartment();
 
         if ($lastApartment['full'])
             $lastApartment = $this->addUser((string)(intval($lastApartment['id']) + 1), (string)$apartment)->getLastApartment();
@@ -227,7 +227,7 @@ class HikVisionIntercom extends IntercomDevice
             $userInfos = $response['UserInfoSearch']['UserInfo'] ?? [];
 
             foreach ($userInfos as $userInfo)
-                $result[] = $userInfo['roomNumber'];
+                $result[] = $userInfo['employeeNo'];
         }
 
         return $result;
