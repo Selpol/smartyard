@@ -136,7 +136,7 @@ class IntercomConfigureTask extends IntercomTask
             $cms_allocation = container(HouseFeature::class)->getCms($entrances[0]['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $device->addCmsDefer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
+                $device->addCmsDeffer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
         }
     }
 

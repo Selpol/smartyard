@@ -40,7 +40,7 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
-    public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
+    public function addCmsDeffer(int $index, int $dozen, int $unit, int $apartment): void
     {
         $this->addCms($index, $dozen, $unit, $apartment);
     }

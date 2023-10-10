@@ -13,6 +13,8 @@ class HikVisionIntercom extends IntercomDevice
 {
     public string $login = 'admin';
 
+    protected ?array $rfids = null;
+
     public function __construct(Uri $uri, string $password, IntercomModel $model)
     {
         parent::__construct($uri, $password, $model);
@@ -36,16 +38,36 @@ class HikVisionIntercom extends IntercomDevice
     {
         $lastApartment = $this->getLastApartment();
 
-        if ($lastApartment == null)
-            $lastApartment = $this->addUser('1', (string)$apartment)->getLastApartment();
+        if ($lastApartment == null) {
+            $id = '1';
+            $name = (string)$apartment;
 
-        if ($lastApartment['full'])
-            $lastApartment = $this->addUser((string)(intval($lastApartment['id']) + 1), (string)$apartment)->getLastApartment();
+            $this->addUser($id, $name);
+
+            $lastApartment = ['id' => $id, 'name' => $name, 'count' => 0];
+        }
+
+        if ($lastApartment['count'] == 5) {
+            $id = (string)(intval($lastApartment['id']) + 1);
+            $name = (string)$apartment;
+
+            $this->addUser($id, $name);
+
+            $lastApartment = ['id' => $id, 'name' => $name, 'count' => 0];
+        }
 
         if ($lastApartment == null)
             return;
 
         $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastApartment['id'], 'cardNo' => sprintf("%'.010d", hexdec($code)), 'cardType' => 'normalCard']]);
+    }
+
+    public function addRfidDeffer(string $code, int $apartment): void
+    {
+        if ($this->rfids === null)
+            $this->rfids = [];
+
+        $this->rfids[] = ['code' => $code, 'apartment' => $apartment];
     }
 
     public function removeRfid(string $code, int $apartment): void
@@ -137,6 +159,54 @@ class HikVisionIntercom extends IntercomDevice
             $this->removeApartment($apartment);
     }
 
+    public function defferRfids(): void
+    {
+        if ($this->rfids) {
+            $lastApartment = $this->getLastApartment();
+
+            if ($lastApartment == null) {
+                $id = '1';
+
+                $this->addUser($id, $id);
+
+                sleep(1);
+
+                $lastApartment = ['id' => $id, 'name' => $id, 'count' => 0];
+            }
+
+            if ($lastApartment['count'] == 5) {
+                $id = (string)(intval($lastApartment['id']) + 1);
+
+                $this->addUser($id, $id);
+
+                sleep(1);
+
+                $lastApartment = ['id' => $id, 'name' => $id, 'count' => 0];
+            }
+
+            for ($i = 0; $i < count($this->rfids); $i++) {
+                $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastApartment['id'], 'cardNo' => sprintf("%'.010d", hexdec($this->rfids[$i]['code'])), 'cardType' => 'normalCard']]);
+
+                if ($i + 1 < count($this->rfids) && ++$lastApartment['count'] == 5) {
+                    $id = (string)(intval($lastApartment['id']) + 1);
+
+                    $this->addUser($id, $id);
+
+                    sleep(1);
+
+                    $lastApartment = ['id' => $id, 'name' => $id, 'count' => 0];
+                }
+            }
+
+            $this->rfids = null;
+        }
+    }
+
+    public function deffer(): void
+    {
+        $this->defferRfids();
+    }
+
     private function addUser(string $id, string $name): static
     {
         $now = new DateTime();
@@ -189,7 +259,7 @@ class HikVisionIntercom extends IntercomDevice
         return $this;
     }
 
-    public function getLastApartment(): ?array
+    private function getLastApartment(): ?array
     {
         $page = $this->getApartmentsCount();
 
@@ -197,18 +267,20 @@ class HikVisionIntercom extends IntercomDevice
             return null;
 
         try {
-            $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 1, 'searchResultPosition' => $page - 1]]);
+            $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => strval($page), 'maxResults' => 1, 'searchResultPosition' => $page - 1]]);
 
-            if (array_key_exists('statusCode', $response))
+            if (!array_key_exists('responseStatusStrg', $response) || $response['responseStatusStrg'] !== 'OK')
                 return null;
 
             return [
                 'id' => $response['UserInfoSearch']['UserInfo'][0]['employeeNo'],
                 'name' => $response['UserInfoSearch']['UserInfo'][0]['name'],
 
-                'full' => $response['UserInfoSearch']['UserInfo'][0]['numOfCard'] == 5,
+                'count' => $response['UserInfoSearch']['UserInfo'][0]['numOfCard'],
             ];
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            echo $throwable . PHP_EOL;
+
             return null;
         }
     }

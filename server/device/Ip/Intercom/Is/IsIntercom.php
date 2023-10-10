@@ -58,10 +58,10 @@ class IsIntercom extends IntercomDevice
 
     public function addCms(int $index, int $dozen, int $unit, int $apartment): void
     {
-        $this->addCmsDefer($index, $dozen, $unit, $apartment);
+        $this->addCmsDeffer($index, $dozen, $unit, $apartment);
     }
 
-    public function addCmsDefer(int $index, int $dozen, int $unit, int $apartment): void
+    public function addCmsDeffer(int $index, int $dozen, int $unit, int $apartment): void
     {
         if ($this->cmses === null)
             $this->cmses = [];
