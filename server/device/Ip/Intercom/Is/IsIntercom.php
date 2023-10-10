@@ -450,6 +450,11 @@ class IsIntercom extends IntercomDevice
         $this->put('/relay/' . ($value + 1) . '/open');
     }
 
+    public function call(int $apartment): void
+    {
+        $this->get('/sip/test/' . $apartment);
+    }
+
     public function clearApartment(): void
     {
         $this->delete('/panelCode/clear');
