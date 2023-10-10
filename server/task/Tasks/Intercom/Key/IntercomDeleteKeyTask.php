@@ -67,10 +67,10 @@ class IntercomDeleteKeyTask extends Task
 
             $device->removeRfid($this->key, $flat['flat']);
         } catch (Throwable $throwable) {
-            logger('intercom')->error($throwable);
-
             if ($throwable instanceof HttpException)
                 throw $throwable;
+
+            logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

@@ -63,10 +63,10 @@ class IntercomAddKeyTask extends Task
 
             $device->addRfid($this->key, $flat);
         } catch (Throwable $throwable) {
-            logger('intercom')->error($throwable);
-
             if ($throwable instanceof HttpException)
                 throw $throwable;
+
+            logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

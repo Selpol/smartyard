@@ -12,7 +12,7 @@ class HttpException extends RuntimeException
     private ?Request $request;
     private ?Response $response;
 
-    public function __construct(?Request $request = null, ?Response $response = null, string $message = "", int $code = 0, ?Throwable $previous = null)
+    public function __construct(?Request $request = null, ?Response $response = null, string $message = "", int $code = 400, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
