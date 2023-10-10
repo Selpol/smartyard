@@ -106,8 +106,12 @@ class DksIntercom extends IntercomDevice
             $params['DoorOpenLevel'] = $levels[1];
         }
 
-        for ($i = 1; $i <= count($sipNumbers); $i++)
-            $params['Phone' . $i] = $sipNumbers[$i - 1];
+        if (count($sipNumbers)) {
+            $sipNumbers = array_merge([$apartment], $sipNumbers);
+
+            for ($i = 1; $i <= count($sipNumbers); $i++)
+                $params['Phone' . $i] = $sipNumbers[$i - 1];
+        }
 
         if ($code !== 0 && $code)
             $params['DoorCode'] = $code;
