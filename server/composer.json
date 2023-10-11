@@ -27,8 +27,7 @@
   "repositories": [
     {
       "type": "git",
-      "url": "https://github.com/Selpol/validator.git",
-      "no-api": true
+      "url": "https://github.com/Selpol/validator.git"
     }
   ],
   "authors": [
