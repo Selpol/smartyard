@@ -66,11 +66,7 @@ COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
 
 COPY --link composer.* ./
 
-RUN --mount=type=secret,id=composer_auth,dst=/srv/app/auth.json set -eux; \
-    if [ -f composer.json ]; then \
-		composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress; \
-		composer clear-cache; \
-    fi
+RUN --mount=type=secret,id=composer_auth,dst=/srv/app/auth.json composer install --no-dev --no-scripts --no-autoloader --no-progress --no-interaction
 
 COPY --link  . ./
 RUN rm -Rf docker/
