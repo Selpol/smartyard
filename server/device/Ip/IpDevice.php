@@ -60,13 +60,13 @@ abstract class IpDevice extends Device
         return $this;
     }
 
-    public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true, array $options = []): mixed
     {
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers, $this->requestOptions);
+            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -74,13 +74,13 @@ abstract class IpDevice extends Device
         }
     }
 
-    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true, array $options = []): mixed
     {
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->post($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, $this->requestOptions);
+            $response = $this->client()->post($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -88,13 +88,13 @@ abstract class IpDevice extends Device
         }
     }
 
-    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true, array $options = []): mixed
     {
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->put($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, $this->requestOptions);
+            $response = $this->client()->put($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -102,13 +102,13 @@ abstract class IpDevice extends Device
         }
     }
 
-    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true, array $options = []): mixed
     {
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->delete($this->uri . $endpoint, $headers, $this->requestOptions);
+            $response = $this->client()->delete($this->uri . $endpoint, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {

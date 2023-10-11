@@ -2,9 +2,12 @@
 
 namespace Selpol\Device\Ip\Intercom\Beward;
 
+use CURLFile;
+use phpseclib3\Math\BigInteger\Engines\PHP;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
+use Selpol\Http\Stream;
 use Selpol\Http\Uri;
 
 class DksIntercom extends IntercomDevice
@@ -58,6 +61,14 @@ class DksIntercom extends IntercomDevice
     public function addCms(int $index, int $dozen, int $unit, int $apartment): void
     {
         $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'set', 'Index' => $index, 'Dozens' => $dozen, 'Units' => $unit, 'Apartment' => $apartment]);
+    }
+
+    public function addCmsDeffer(int $index, int $dozen, int $unit, int $apartment): void
+    {
+        if ($this->cmses === null)
+            $this->cmses = [];
+
+        $this->cmses[] = ['index' => $index, 'dozen' => $dozen, 'unit' => $unit, 'apartment' => $apartment];
     }
 
     public function addCode(int $code, int $apartment): void
@@ -458,6 +469,45 @@ class DksIntercom extends IntercomDevice
     public function defferCmses(): void
     {
         if ($this->cmses) {
+            ['model' => $model, 'cmses' => $cmses] = $this->cmsExport();
+
+            foreach ($this->cmses as $cms)
+                $cmses[$cms['index']][$cms['unit']][$cms['dozen']] = $cms['apartment'];
+
+            $content = $model . PHP_EOL . PHP_EOL;
+
+            foreach ($cmses as $cms) {
+                foreach ($cms as $cm)
+                    $content .= implode(',', $cm) . PHP_EOL;
+
+                $content .= PHP_EOL;
+            }
+
+            $filename = tempnam(sys_get_temp_dir(), 'dks-matrik');
+
+            $stream = fopen($filename, 'w');
+            fwrite($stream, $content);
+            fclose($stream);
+
+            try {
+                $ch = curl_init();
+
+                curl_setopt_array($ch, [
+                    CURLOPT_URL => $this->uri . '/cgi-bin/intercomdu_cgi?action=import',
+                    CURLOPT_POST => 1,
+                    CURLOPT_HTTPAUTH => CURLAUTH_DIGEST,
+                    CURLOPT_USERPWD => $this->login . ':' . $this->password,
+                    CURLOPT_HTTPHEADER => ['Content-Type:multipart/form-data'],
+                    CURLOPT_POSTFIELDS => ['data-binary' => new CURLFile($filename, posted_filename: 'matrix.csv'), 'text/csv'],
+                    CURLOPT_INFILESIZE => strlen($content)
+                ]);
+
+                curl_exec($ch);
+                curl_close($ch);
+            } finally {
+                unlink($filename);
+            }
+
             $this->cmses = null;
         }
     }
@@ -479,5 +529,27 @@ class DksIntercom extends IntercomDevice
         $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', $name => $value]);
 
         return $this;
+    }
+
+    private function cmsExport(): array
+    {
+        $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
+        $lines = explode(PHP_EOL, $content);
+
+        $model = 0;
+        $cmses = [];
+
+        for ($i = 0; $i < count($lines); $i++) {
+            if ($i === 0) $model = intval($lines[$i]);
+            else if ($lines[$i] === '') $cmses[] = [];
+            else {
+                $count = count(explode(',', $lines[$i]));
+
+                if ($count)
+                    $cmses[count($cmses) - 1][] = array_fill(0, $count, 0);
+            }
+        }
+
+        return ['model' => $model, 'cmses' => array_filter($cmses, static fn(array $cms) => count($cms) > 0)];
     }
 }
