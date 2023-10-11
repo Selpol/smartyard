@@ -35,7 +35,7 @@ class keys extends api
                     $flats[$key->access_to] = $db->get('SELECT address_house_id, flat FROM houses_flats WHERE house_flat_id = :house_flat_id', ['house_flat_id' => $key->access_to], options: ['singlify']);
 
                 if (!array_key_exists($flats[$key->access_to]['address_house_id'], $houses))
-                    $houses[$flats[$key->access_to]['address_house_id']] = $db->get('SELECT house_full FROM addresses_houses WHERE address_house_id = :address_house_id', ['address_house_id' => $flats[$key->access_to]], options: ['singlify'])['house_full'];
+                    $houses[$flats[$key->access_to]['address_house_id']] = $db->get('SELECT house_full FROM addresses_houses WHERE address_house_id = :address_house_id', ['address_house_id' => $flats[$key->access_to]]['address_house_id'], options: ['singlify'])['house_full'];
 
                 $key->flat = $flats[$key->access_to]['flat'];
 
