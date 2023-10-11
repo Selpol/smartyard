@@ -52,6 +52,7 @@ services:
       context: .
       args:
         TZ: Europe/Moscow
+        COMPOSER_AUTH: ${COMPOSER_AUTH}
     container_name: php
     restart: always
     volumes:
@@ -71,10 +72,6 @@ services:
     networks:
       backend:
       frontend:
-
-secrets:
-  composer_auth:
-    file: ./auth.json
 
 networks:
   frontend:

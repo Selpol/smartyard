@@ -1,6 +1,9 @@
 FROM php:8.2-fpm-alpine
 
 ARG TZ
+ARG COMPOSER_AUTH
+
+ENV COMPOSER_AUTH=$COMPOSER_AUTH
 
 WORKDIR /srv/app
 
@@ -15,7 +18,6 @@ RUN apk update && apk add --update --no-cache \
         supervisor \
         ffmpeg \
         tzdata \
-        openssh-client \
 	;
 
 RUN set -eux; \
@@ -60,13 +62,14 @@ ENTRYPOINT ["docker-entrypoint"]
 CMD ["php-fpm"]
 
 ENV COMPOSER_ALLOW_SUPERUSER=1
+
 ENV PATH="${PATH}:/root/.composer/vendor/bin"
 
 COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
 
 COPY --link composer.* ./
 
-RUN --mount=type=secret,id=composer_auth,dst=/srv/app/auth.json composer install --no-dev --no-scripts --no-autoloader --no-progress --no-interaction
+RUN composer install --no-dev --no-scripts --no-autoloader --no-progress --no-interaction
 
 COPY --link  . ./
 RUN rm -Rf docker/
