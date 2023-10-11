@@ -40,7 +40,7 @@ class keys extends api
                 $key->flat = $flats[$key->access_to]['flat'];
 
                 $key->house_id = $flats[$key->access_to]['address_house_id'];
-                $key->house_address = $houses[$flats[$key->access_to]];
+                $key->house_address = $houses[$flats[$key->access_to]['address_house_id']];
             }
         }
 
