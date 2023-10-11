@@ -4,6 +4,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Entity\Criteria;
 use Selpol\Logger\FileLogger;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Task;
@@ -77,5 +78,12 @@ if (!function_exists('validator')) {
         $validator = new Validator($value, $items);
 
         return $validator->validate();
+    }
+}
+
+if (!function_exists('criteria')) {
+    function criteria(): Criteria
+    {
+        return new Criteria();
     }
 }

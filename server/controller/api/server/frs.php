@@ -16,7 +16,7 @@ class frs extends api
             'size' => [Rule::int(), Rule::min(0), Rule::max(1000)]
         ]);
 
-        return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPaginate($validate['page'], $validate['size']));
+        return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPaginate($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST($params)

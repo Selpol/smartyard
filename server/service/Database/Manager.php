@@ -77,7 +77,7 @@ class Manager
 
         $statement = $this->connection->prepare("
             WITH $table AS (SELECT * FROM $table$query)
-            SELECT * FROM (TABLE $table ORDER BY $id LIMIT :limit OFFSET :offset) sub
+            SELECT * FROM (TABLE $table LIMIT :limit OFFSET :offset) sub
             RIGHT JOIN (SELECT count(*) FROM $table) c(page_count) ON true;
         ");
 
