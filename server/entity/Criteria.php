@@ -47,21 +47,33 @@ class Criteria
 
     public function between(string $column, mixed $left, mixed $right): static
     {
+        if ($left === null || $right === null)
+            return $this;
+
         return $this->addCondition('AND', $column, 'BETWEEN', [$left, $right]);
     }
 
     public function orBetween(string $column, mixed $left, mixed $right): static
     {
+        if ($left === null || $right === null)
+            return $this;
+
         return $this->addCondition('OR', $column, 'BETWEEN', [$left, $right]);
     }
 
-    public function like(string $column, string $value): static
+    public function like(string $column, ?string $value): static
     {
+        if ($value === null)
+            return $this;
+
         return $this->addCondition('AND', $column, 'LIKE', $value);
     }
 
-    public function orLike(string $column, string $value): static
+    public function orLike(string $column, ?string $value): static
     {
+        if ($value === null)
+            return $this;
+
         return $this->addCondition('OR', $column, 'LIKE', $value);
     }
 
