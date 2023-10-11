@@ -21,7 +21,7 @@ trait ResponseTrait
             if ($throwable instanceof HttpException)
                 $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
             else if ($throwable instanceof ValidatorException)
-                $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->getMessage());
+                $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->message);
             else if ($throwable instanceof DeviceException) {
                 logger('device')->error($throwable);
 
