@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Core;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $var_id
@@ -20,10 +19,10 @@ class CoreVar extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'var_name' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'var_value' => [Rule::length(max: 4096)]
+            'var_name' => rule()->required()->string()->nonNullable(),
+            'var_value' => rule()->string()->max(4096)
         ];
     }
 }

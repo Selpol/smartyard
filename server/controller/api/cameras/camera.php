@@ -11,7 +11,6 @@ namespace api\cameras {
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
     use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
-    use Selpol\Validator\Rule;
 
     /**
      * camera method
@@ -20,7 +19,7 @@ namespace api\cameras {
     {
         public static function GET($params)
         {
-            $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
+            $validate = validator($params, ['_id' => rule()->id()]);
 
             return api::ANSWER(container(CameraFeature::class)->getCamera($validate['_id']));
         }

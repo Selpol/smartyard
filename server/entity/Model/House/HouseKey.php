@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $house_rfid_id
@@ -26,16 +25,16 @@ class HouseKey extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'rfid' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'rfid' => rule()->required()->string()->nonNullable(),
 
-            'access_type' => [Rule::required(), Rule::in([0, 1, 2, 3, 4]), Rule::nonNullable()],
-            'access_to' => [Rule::id()],
+            'access_type' => rule()->required()->in([0, 1, 2, 3, 4])->nonNullable(),
+            'access_to' => rule()->id(),
 
-            'last_seen' => [Rule::int()],
+            'last_seen' => rule()->int(),
 
-            'comments' => [Rule::length()]
+            'comments' => rule()->string()
         ];
     }
 }

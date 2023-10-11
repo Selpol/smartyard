@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $house_entrance_id
@@ -40,30 +39,30 @@ class HouseEntrance extends Entity
     public static function getColumns(): array
     {
         return [
-            self::$columnId => [Rule::id()],
+            self::$columnId => rule()->id(),
 
-            'entrance_type' => [Rule::length()],
-            'entrance' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'entrance_type' => rule()->string(),
+            'entrance' => rule()->required()->string()->nonNullable(),
 
-            'lat' => [Rule::float()],
-            'lon' => [Rule::float()],
+            'lat' => rule()->float(),
+            'lon' => rule()->float(),
 
-            'shared' => [Rule::int()],
-            'plog' => [Rule::int()],
+            'shared' => rule()->int(),
+            'plog' => rule()->int(),
 
-            'caller_id' => [Rule::length()],
+            'caller_id' => rule()->string(),
 
-            'camera_id' => [Rule::int(), Rule::min(0), Rule::max()],
+            'camera_id' => rule()->int()->clamp(0),
 
-            'house_domophone_id' => [Rule::id()],
+            'house_domophone_id' => rule()->id(),
 
-            'domophone_output' => [Rule::int()],
+            'domophone_output' => rule()->int(),
 
-            'cms' => [Rule::length()],
-            'cms_type' => [Rule::int()],
-            'cms_levels' => [Rule::length()],
+            'cms' => rule()->string(),
+            'cms_type' => rule()->int(),
+            'cms_levels' => rule()->string(),
 
-            'locks_disabled' => [Rule::int()]
+            'locks_disabled' => rule()->int(),
         ];
     }
 }

@@ -10,8 +10,6 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
-use Selpol\Validator\Filter;
-use Selpol\Validator\Rule;
 
 class CameraController extends Controller
 {
@@ -22,7 +20,7 @@ class CameraController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['houseId' => [Rule::id()]]);
+        $validate = validator($this->request->getParsedBody(), ['houseId' => rule()->id()]);
 
         $house_id = $validate['houseId'];
         $households = container(HouseFeature::class);
@@ -98,7 +96,7 @@ class CameraController extends Controller
         $user = $this->getUser()->getOriginalValue();
 
         $cameraId = $this->getRoute()->getParamIdOrThrow('cameraId');
-        $houseId = Rule::id()->onItem('houseId', $this->request->getQueryParams());
+        $houseId = rule()->id()->onItem('houseId', $this->request->getQueryParams());
 
         $find = false;
 
@@ -131,8 +129,8 @@ class CameraController extends Controller
         $body = $this->request->getParsedBody();
 
         $validate = validator($body, [
-            'cameraId' => [Rule::id()],
-            'date' => [Filter::default(1), Rule::int(), Rule::min(0), Rule::max(14), Rule::nonNullable()]
+            'cameraId' => rule()->id(),
+            'date' => [filter()->default(1), rule()->int()->clamp(0, 14)->nonNullable()]
         ]);
 
         $households = container(HouseFeature::class);

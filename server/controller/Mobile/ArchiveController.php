@@ -8,7 +8,6 @@ use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\RecordTask;
-use Selpol\Validator\Rule;
 
 class ArchiveController extends Controller
 {
@@ -20,9 +19,9 @@ class ArchiveController extends Controller
         $userId = $this->getUser()->getIdentifier();
 
         $validate = validator($this->request->getParsedBody(), [
-            'id' => [Rule::id()],
-            'from' => [Rule::required()],
-            'to' => [Rule::required()]
+            'id' => rule()->id(),
+            'from' => rule()->required()->nonNullable(),
+            'to' => rule()->required()->nonNullable()
         ]);
 
         $cameraId = $validate['id'];

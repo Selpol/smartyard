@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Inbox;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $msg_id
@@ -21,27 +20,27 @@ class InboxMessage extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'house_subscriber_id' => [Rule::id()],
+            'house_subscriber_id' => rule()->id(),
 
-            'id' => [Rule::required(), Rule::nonNullable()],
+            'id' => rule()->required()->nonNullable(),
 
-            'date' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'date' => rule()->required()->int()->nonNullable(),
 
-            'title' => [Rule::length()],
-            'msg' => [Rule::required(), Rule::length(max: 4096), Rule::nonNullable()],
+            'title' => rule()->string(),
+            'msg' => rule()->required()->string()->max(4096)->nonNullable(),
 
-            'action' => [Rule::length()],
+            'action' => rule()->string(),
 
-            'expire' => [Rule::int()],
+            'expire' => rule()->int(),
 
-            'push_message_id' => [Rule::length(max: 4096)],
+            'push_message_id' => rule()->string()->max(4096),
 
-            'delivered' => [Rule::int()],
-            'readed' => [Rule::int()],
+            'delivered' => rule()->int(),
+            'readed' => rule()->int(),
 
-            'code' => [Rule::length()]
+            'code' => rule()->string()
         ];
     }
 }

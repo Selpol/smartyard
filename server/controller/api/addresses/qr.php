@@ -9,7 +9,6 @@ namespace api\addresses {
     use api\api;
     use Selpol\Feature\File\FileFeature;
     use Selpol\Task\Tasks\QrTask;
-    use Selpol\Validator\Rule;
 
     /**
      * qr method
@@ -18,10 +17,7 @@ namespace api\addresses {
     {
         public static function POST($params)
         {
-            $validate = validator($params, [
-                '_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
-                'override' => [Rule::required(), Rule::bool(), Rule::nonNullable()]
-            ]);
+            $validate = validator($params, ['_id' => rule()->id(), 'override' => rule()->required()->bool()->nonNullable()]);
 
             $uuid = task(new QrTask($validate['_id'], null, $validate['override']))->sync();
 
@@ -37,7 +33,7 @@ namespace api\addresses {
             exit(0);
         }
 
-        public static function index()
+        public static function index(): array
         {
             return [
                 "POST" => "[QR] Получить Qr для дома"

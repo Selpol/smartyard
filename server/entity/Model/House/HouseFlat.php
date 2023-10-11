@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $house_flat_id
@@ -42,33 +41,33 @@ class HouseFlat extends Entity
     public static function getColumns(): array
     {
         return [
-            self::$columnId => [Rule::id()],
+            self::$columnId => rule()->id(),
 
-            'address_house_id' => [Rule::id()],
+            'address_house_id' => rule()->id(),
 
-            'floor' => [Rule::int()],
+            'floor' => rule()->int(),
 
-            'flat' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()],
+            'flat' => rule()->required()->int()->clamp(0)->nonNullable(),
 
-            'code' => [Rule::length(min: 5, max: 5)],
+            'code' => rule()->string()->clamp(5, 5),
 
-            'plog' => [Rule::int()],
+            'plog' => rule()->int(),
 
-            'manual_block' => [Rule::int()],
-            'auto_block' => [Rule::int()],
-            'admin_block' => [Rule::int()],
+            'manual_block' => rule()->int(),
+            'auto_block' => rule()->int(),
+            'admin_block' => rule()->int(),
 
-            'open_code' => [Rule::length()],
+            'open_code' => rule()->string(),
 
-            'auto_open' => [Rule::int()],
+            'auto_open' => rule()->int(),
 
-            'white_rabbit' => [Rule::int()],
+            'white_rabbit' => rule()->int(),
 
-            'sip_enabled' => [Rule::int()],
-            'sip_password' => [Rule::length()],
+            'sip_enabled' => rule()->int(),
+            'sip_password' => rule()->string(),
 
-            'last_opened' => [Rule::int()],
-            'cms_enabled' => [Rule::int()]
+            'last_opened' => rule()->int(),
+            'cms_enabled' => rule()->int()
         ];
     }
 }

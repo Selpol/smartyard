@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $id
@@ -33,21 +32,21 @@ class Audit extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'user_id' => [Rule::id()],
+            'user_id' => rule()->id(),
 
-            'auditable_id' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'auditable_type' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'auditable_id' => rule()->required()->string()->nonNullable(),
+            'auditable_type' => rule()->required()->string()->nonNullable(),
 
-            'event_ip' => [Rule::required(), Rule::ipV4(), Rule::nonNullable()],
-            'event_type' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'event_target' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'event_code' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'event_message' => [Rule::required(), Rule::length(max: 4096), Rule::nonNullable()],
+            'event_ip' => rule()->required()->ipV4()->nonNullable(),
+            'event_type' => rule()->required()->string()->nonNullable(),
+            'event_target' => rule()->required()->string()->nonNullable(),
+            'event_code' => rule()->required()->string()->nonNullable(),
+            'event_message' => rule()->required()->string()->max(4096)->nonNullable(),
 
-            'created_at' => [Rule::length(max: 32)],
-            'updated_at' => [Rule::length(max: 32)]
+            'created_at' => rule()->string(),
+            'updated_at' => rule()->string()
         ];
     }
 }

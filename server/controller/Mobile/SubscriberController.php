@@ -8,7 +8,6 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
-use Selpol\Validator\Rule;
 
 class SubscriberController extends Controller
 {
@@ -55,7 +54,7 @@ class SubscriberController extends Controller
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
         $validate = validator($this->request->getParsedBody() ?? [], [
-            'mobile' => [Rule::required(), Rule::int(), Rule::min(70000000000), Rule::max(79999999999), Rule::nonNullable()]
+            'mobile' => rule()->required()->int()->min(70000000000)->max(79999999999)->nonNullable()
         ]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
@@ -102,7 +101,7 @@ class SubscriberController extends Controller
 
         $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
 
-        $validate = validator(['subscriberId' => $this->request->getQueryParam('subscriberId')], ['subscriberId' => [Rule::id()]]);
+        $validate = validator(['subscriberId' => $this->request->getQueryParam('subscriberId')], ['subscriberId' => rule()->id()]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 

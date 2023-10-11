@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Core;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $uid
@@ -31,21 +30,21 @@ class CoreUser extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'login' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'password' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'login' => rule()->required()->string()->nonNullable(),
+            'password' => rule()->required()->string()->nonNullable(),
 
-            'enabled' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'enabled' => rule()->required()->int()->nonNullable(),
 
-            'real_name' => [Rule::length()],
-            'e_mail' => [Rule::length()],
-            'phone' => [Rule::length()],
-            'tg' => [Rule::length()],
-            'notification' => [Rule::length()],
-            'default_route' => [Rule::length()],
+            'real_name' => rule()->string(),
+            'e_mail' => rule()->string(),
+            'phone' => rule()->string(),
+            'tg' => rule()->string(),
+            'notification' => rule()->string(),
+            'default_route' => rule()->string(),
 
-            'last_login' => [Rule::int()]
+            'last_login' => rule()->int()
         ];
     }
 }

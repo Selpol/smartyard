@@ -4,7 +4,6 @@ namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $house_domophone_id
@@ -36,25 +35,25 @@ class DeviceIntercom extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'enabled' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'enabled' => rule()->required()->int()->nonNullable(),
 
-            'model' => [Rule::required(), Rule::in(array_keys(IntercomModel::models())), Rule::nonNullable()],
-            'server' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()],
-            'credentials' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'dtmf' => [Rule::required(), Rule::length(1, 1), Rule::nonNullable()],
+            'model' => rule()->required()->in(array_keys(IntercomModel::models()))->nonNullable(),
+            'server' => rule()->required()->string()->nonNullable(),
+            'url' => rule()->required()->url()->nonNullable(),
+            'credentials' => rule()->required()->string()->nonNullable(),
+            'dtmf' => rule()->required()->string()->clamp(1, 1)->nonNullable(),
 
-            'first_time' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'first_time' => rule()->required()->int()->nonNullable(),
 
-            'nat' => [Rule::int()],
+            'nat' => rule()->int(),
 
-            'locks_are_open' => [Rule::int()],
+            'locks_are_open' => rule()->int(),
 
-            'ip' => [Rule::ipV4()],
+            'ip' => rule()->ipV4(),
 
-            'comment' => [Rule::length()]
+            'comment' => rule()->string()
         ];
     }
 }

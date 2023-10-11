@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Frs;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $face_id
@@ -20,10 +19,10 @@ class FrsFace extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'face_uuid' => [Rule::required(), Rule::uuid(), Rule::nonNullable()],
-            'event_uuid' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]
+            'face_uuid' => rule()->required()->uuid()->nonNullable(),
+            'event_uuid' => rule()->required()->uuid()->nonNullable()
         ];
     }
 }

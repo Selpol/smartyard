@@ -4,7 +4,6 @@ namespace Selpol\Router;
 
 use Exception;
 use Selpol\Validator\Exception\ValidatorException;
-use Selpol\Validator\Rule;
 
 class RouterMatch
 {
@@ -55,7 +54,7 @@ class RouterMatch
      */
     public function getParamIdOrThrow(string $key): int
     {
-        return Rule::id()->onItem($key, $this->params);
+        return rule()->id()->onItem($key, $this->params);
     }
 
     /**
@@ -63,7 +62,7 @@ class RouterMatch
      */
     public function getParamIntOrThrow(string $key): int
     {
-        return Rule::int()->onItem($key, $this->params);
+        return rule()->int()->onItem($key, $this->params);
     }
 
     public function getParamInt(string $key): ?int

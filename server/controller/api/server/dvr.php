@@ -5,15 +5,14 @@ namespace api\server;
 use api\api;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
-use Selpol\Validator\Rule;
 
 class dvr extends api
 {
     public static function GET($params)
     {
         $validate = validator($params, [
-            'page' => [Rule::int(), Rule::min(0), Rule::max()],
-            'size' => [Rule::int(), Rule::min(0), Rule::max(1000)]
+            'page' => rule()->int()->clamp(0),
+            'size' => rule()->int()->clamp(0, 512),
         ]);
 
         return self::SUCCESS('servers', container(DvrServerRepository::class)->fetchPaginate($validate['page'], $validate['size'], criteria()->asc('id')));
@@ -22,12 +21,12 @@ class dvr extends api
     public static function POST($params)
     {
         $dvrServer = new DvrServer(validator($params, [
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'type' => [Rule::required(), Rule::in(['flussonic', 'trassir']), Rule::nonNullable()],
+            'title' => rule()->required()->string()->max(1024)->nonNullable(),
+            'type' => rule()->required()->string()->in(['flussonic', 'trassir'])->nonNullable(),
 
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()],
+            'url' => rule()->required()->url()->nonNullable(),
 
-            'token' => [Rule::required(), Rule::length(), Rule::nonNullable()]
+            'token' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
 
         $result = container(DvrServerRepository::class)->insert($dvrServer);
@@ -41,14 +40,14 @@ class dvr extends api
     public static function PUT($params)
     {
         $validate = validator($params, [
-            '_id' => [Rule::id()],
+            '_id' => rule()->id(),
 
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'type' => [Rule::required(), Rule::in(['flussonic', 'trassir']), Rule::nonNullable()],
+            'title' => rule()->required()->string()->max(1024)->nonNullable(),
+            'type' => rule()->required()->string()->in(['flussonic', 'trassir'])->nonNullable(),
 
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()],
+            'url' => rule()->required()->url()->nonNullable(),
 
-            'token' => [Rule::required(), Rule::length(), Rule::nonNullable()]
+            'token' => rule()->required()->string()->max(1024)->nonNullable()
         ]);
 
         $dvrServer = container(DvrServerRepository::class)->findById($validate['_id']);
@@ -70,11 +69,9 @@ class dvr extends api
 
     public static function DELETE($params)
     {
-        $validate = validator($params, [
-            '_id' => [Rule::id()]
-        ]);
+        $id = rule()->id()->onItem('_id', $params);
 
-        $dvrServer = container(DvrServerRepository::class)->findById($validate['_id']);
+        $dvrServer = container(DvrServerRepository::class)->findById($id);
 
         $result = container(DvrServerRepository::class)->delete($dvrServer);
 

@@ -4,8 +4,6 @@ namespace api\role;
 
 use api\api;
 use Selpol\Feature\Role\RoleFeature;
-use Selpol\Validator\Filter;
-use Selpol\Validator\Rule;
 
 class role extends api
 {
@@ -17,8 +15,8 @@ class role extends api
     public static function POST($params)
     {
         $validate = validator($params, [
-            'title' => [Filter::fullSpecialChars(), Rule::required(), Rule::length(), Rule::nonNullable()],
-            'description' => [Filter::fullSpecialChars(), Rule::required(), Rule::length(), Rule::nonNullable()]
+            'title' => [filter()->fullSpecialChars(), rule()->required()->string()->max(1024)->nonNullable()],
+            'description' => [filter()->fullSpecialChars(), rule()->required()->string()->max(1024)->nonNullable()]
         ]);
 
         return parent::ANSWER(container(RoleFeature::class)->createRole($validate['title'], $validate['description']));
@@ -27,9 +25,9 @@ class role extends api
     public static function PUT($params)
     {
         $validate = validator($params, [
-            '_id' => [Rule::id()],
-            'title' => [Filter::fullSpecialChars(), Rule::required(), Rule::length(), Rule::nonNullable()],
-            'description' => [Filter::fullSpecialChars(), Rule::required(), Rule::length(), Rule::nonNullable()]
+            '_id' => rule()->id(),
+            'title' => [filter()->fullSpecialChars(), rule()->required()->string()->max(1024)->nonNullable()],
+            'description' => [filter()->fullSpecialChars(), rule()->required()->string()->max(1024)->nonNullable()]
         ]);
 
         return parent::ANSWER(container(RoleFeature::class)->updateRole($validate['_id'], $validate['title'], $validate['description']));
@@ -37,7 +35,7 @@ class role extends api
 
     public static function DELETE($params)
     {
-        $id = Rule::id()->onItem('_id', $params);
+        $id = rule()->id()->onItem('_id', $params);
 
         return self::ANSWER(container(RoleFeature::class)->deleteRole($id));
     }

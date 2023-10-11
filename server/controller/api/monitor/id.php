@@ -6,7 +6,6 @@ use api\api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Monitor\MonitorFeature;
-use Selpol\Validator\Rule;
 
 class id extends api
 {
@@ -16,7 +15,7 @@ class id extends api
      */
     public static function GET($params)
     {
-        $validate = validator($params, ['_id' => [Rule::id()]]);
+        $validate = validator($params, ['_id' => rule()->id()]);
 
         $monitor = container(MonitorFeature::class);
 
@@ -32,20 +31,14 @@ class id extends api
      */
     public static function POST($params)
     {
-        $ids = $params['ids'];
-
-        $validate = validator($ids, array_reduce(array_keys($ids), static function (array $previous, string|int $current) {
-            $previous[$current] = [Rule::id()];
-
-            return $previous;
-        }, []));
+        $validate = validator($params, ['ids.*' => rule()->id()]);
 
         $result = [];
 
         $monitor = container(MonitorFeature::class);
 
         if ($monitor) {
-            foreach ($validate as $id)
+            foreach ($validate['ids'] as $id)
                 $result[] = ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)];
 
             return api::ANSWER($result, 'status');

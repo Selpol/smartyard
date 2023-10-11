@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $house_subscriber_id
@@ -35,25 +34,25 @@ class HouseSubscriber extends Entity
     public static function getColumns(): array
     {
         return [
-            self::$columnId => [Rule::id()],
+            self::$columnId => rule()->id(),
 
-            'id' => [Rule::length()],
-            'aud_jti' => [Rule::length()],
-            'auth_token' => [Rule::length()],
+            'id' => rule()->string(),
+            'aud_jti' => rule()->string(),
+            'auth_token' => rule()->string(),
 
-            'platform' => [Rule::length()],
+            'platform' => rule()->string(),
 
-            'push_token' => [Rule::length(16)],
-            'push_token_type' => [Rule::int()],
+            'push_token' => rule()->string()->min(16),
+            'push_token_type' => rule()->int(),
 
-            'voip_token' => [Rule::length()],
-            'voip_enabled' => [Rule::int()],
+            'voip_token' => rule()->string(),
+            'voip_enabled' => rule()->int(),
 
-            'registered' => [Rule::int()],
-            'last_seen' => [Rule::int()],
+            'registered' => rule()->int(),
+            'last_seen' => rule()->int(),
 
-            'subscriber_name' => [Rule::length()],
-            'subscriber_patronymic' => [Rule::length()]
+            'subscriber_name' => rule()->string(),
+            'subscriber_patronymic' => rule()->string()
         ];
     }
 }

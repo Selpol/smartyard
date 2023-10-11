@@ -5,15 +5,14 @@ namespace api\server;
 use api\api;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Entity\Repository\Frs\FrsServerRepository;
-use Selpol\Validator\Rule;
 
 class frs extends api
 {
     public static function GET($params)
     {
         $validate = validator($params, [
-            'page' => [Rule::int(), Rule::min(0), Rule::max()],
-            'size' => [Rule::int(), Rule::min(0), Rule::max(1000)]
+            'page' => rule()->int()->clamp(0),
+            'size' => rule()->int()->clamp(0, 512),
         ]);
 
         return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPaginate($validate['page'], $validate['size'], criteria()->asc('id')));
@@ -22,8 +21,8 @@ class frs extends api
     public static function POST($params)
     {
         $frsServer = new FrsServer(validator($params, [
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()]
+            'title' => rule()->required()->string()->max(1024)->nonNullable(),
+            'url' => rule()->required()->url()->nonNullable()
         ]));
 
         $result = container(FrsServerRepository::class)->inser($frsServer);
@@ -37,10 +36,10 @@ class frs extends api
     public static function PUT($params)
     {
         $validate = validator($params, [
-            '_id' => [Rule::id()],
+            '_id' => rule()->id(),
 
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()]
+            'title' => rule()->required()->string()->max(1024)->nonNullable(),
+            'url' => rule()->required()->url()->nonNullable()
         ]);
 
         $frsServer = container(FrsServerRepository::class)->findById($validate['_id']);
@@ -58,9 +57,9 @@ class frs extends api
 
     public static function DELETE($params)
     {
-        $validate = validator($params, ['_id' => [Rule::id()]]);
+        $id = rule()->id()->onItem('_id', $params);
 
-        $frsServer = container(FrsServerRepository::class)->findById($validate['_id']);
+        $frsServer = container(FrsServerRepository::class)->findById($id);
 
         $result = container(FrsServerRepository::class)->delete($frsServer);
 

@@ -8,8 +8,6 @@ use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
-use Selpol\Validator\Filter;
-use Selpol\Validator\Rule;
 
 class AddressController extends Controller
 {
@@ -107,10 +105,10 @@ class AddressController extends Controller
         $audJti = $token->getOriginalValue()['scopes'][1];
 
         $validate = validator($this->request->getParsedBody(), [
-            'code' => [Rule::required(), Rule::nonNullable()],
-            'mobile' => [Rule::length(11, 11)],
-            'name' => [Filter::fullSpecialChars(), Rule::length(max: 64)],
-            'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
+            'code' => rule()->required()->nonNullable(),
+            'mobile' => rule()->clamp(11, 11),
+            'name' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
+            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
         ]);
 
         $code = $validate['QR'];

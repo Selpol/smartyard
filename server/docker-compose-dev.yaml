@@ -57,6 +57,7 @@ services:
       - ./:/srv/app
       - ./docker/data/log:/srv/app/var/log
     environment:
+      - COMPOSER_AUTH=${COMPOSER_AUTH}
       - DB_HOST=database
       - DB_PORT=5432
       - REDIS_HOST=redis

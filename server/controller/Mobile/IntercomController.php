@@ -11,7 +11,6 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
-use Selpol\Validator\Rule;
 use Throwable;
 
 class IntercomController extends Controller
@@ -26,7 +25,7 @@ class IntercomController extends Controller
 
         $body = $this->request->getParsedBody();
 
-        $validate = validator($body, ['flatId' => [Rule::id()]]);
+        $validate = validator($body, ['flatId' => rule()->id()]);
 
         $flat_id = $validate['flatId'];
 
@@ -151,7 +150,7 @@ class IntercomController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['domophoneId' => [Rule::id()], 'doorId' => [Rule::id()]]);
+        $validate = validator($this->request->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
 
         $households = container(HouseFeature::class);
 
@@ -205,7 +204,7 @@ class IntercomController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()]]);
+        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id()]);
 
         $flat_id = $validate['flatId'];
 

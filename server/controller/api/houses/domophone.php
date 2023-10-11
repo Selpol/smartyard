@@ -10,7 +10,6 @@ namespace api\houses {
     use Selpol\Feature\House\HouseFeature;
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
-    use Selpol\Validator\Rule;
 
     /**
      * domophone method
@@ -19,7 +18,7 @@ namespace api\houses {
     {
         public static function GET($params)
         {
-            $validate = validator($params, ['_id' => [Rule::required(), Rule::int(), Rule::min(0), Rule::max(), Rule::nonNullable()]]);
+            $validate = validator($params, ['_id' => rule()->id()]);
 
             $households = container(HouseFeature::class);
 

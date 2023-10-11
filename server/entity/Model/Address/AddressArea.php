@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Address;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $address_area_id
@@ -27,17 +26,17 @@ class AddressArea extends Entity
     public static function getColumns(): array
     {
         return [
-            self::$columnId => [Rule::id()],
+            self::$columnId => rule()->id(),
 
-            'address_region_id' => [Rule::id()],
+            'address_region_id' => rule()->id(),
 
-            'area_uuid' => [Rule::uuid()],
-            'area_with_type' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'area_type' => [Rule::length()],
-            'area_type_full' => [Rule::length()],
-            'area' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'area_uuid' => rule()->uuid(),
+            'area_with_type' => rule()->required()->string()->nonNullable(),
+            'area_type' => rule()->string(),
+            'area_type_full' => rule()->string(),
+            'area' => rule()->required()->string()->nonNullable(),
 
-            'timezone' => [Rule::length()]
+            'timezone' => rule()->string(),
         ];
     }
 }

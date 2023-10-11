@@ -4,7 +4,6 @@ namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $camera_id
@@ -48,37 +47,37 @@ class DeviceCamera extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'enabled' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'enabled' => rule()->required()->int()->nonNullable(),
 
-            'model' => [Rule::required(), Rule::in(array_keys(CameraModel::models())), Rule::nonNullable()],
-            'url' => [Rule::required(), Rule::url(), Rule::nonNullable()],
-            'stream' => [Rule::length()],
-            'credentials' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'name' => [Rule::length()],
-            'dvr_stream' => [Rule::length()],
-            'timezone' => [Rule::length()],
+            'model' => rule()->required()->in(array_keys(CameraModel::models()))->nonNullable(),
+            'url' => rule()->required()->url()->nonNullable(),
+            'stream' => rule()->string(),
+            'credentials' => rule()->required()->string()->nonNullable(),
+            'name' => rule()->string(),
+            'dvr_stream' => rule()->string(),
+            'timezone' => rule()->string(),
 
-            'lat' => [Rule::float()],
-            'lon' => [Rule::float()],
+            'lat' => rule()->float(),
+            'lon' => rule()->float(),
 
-            'direction' => [Rule::float()],
-            'angle' => [Rule::float()],
-            'distance' => [Rule::float()],
+            'direction' => rule()->float(),
+            'angle' => rule()->float(),
+            'distance' => rule()->float(),
 
-            'frs' => [Rule::length()],
+            'frs' => rule()->string(),
 
-            'md_left' => [Rule::int()],
-            'md_top' => [Rule::int()],
-            'md_width' => [Rule::int()],
-            'md_height' => [Rule::int()],
+            'md_left' => rule()->int(),
+            'md_top' => rule()->int(),
+            'md_width' => rule()->int(),
+            'md_height' => rule()->int(),
 
-            'common' => [Rule::int()],
+            'common' => rule()->int(),
 
-            'ip' => [Rule::ipV4()],
+            'ip' => rule()->ipV4(),
 
-            'comment' => [Rule::length()]
+            'comment' => rule()->string()
         ];
     }
 }

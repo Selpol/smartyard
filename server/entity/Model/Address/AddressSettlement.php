@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Address;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $address_settlement_id
@@ -28,18 +27,18 @@ class AddressSettlement extends Entity
     public static function getColumns(): array
     {
         return [
-            self::$columnId => [Rule::id()],
+            self::$columnId => rule()->id(),
 
-            'address_area_id' => [Rule::int(), Rule::min(0), Rule::max()],
-            'address_city_id' => [Rule::int(), Rule::min(0), Rule::max()],
+            'address_area_id' => rule()->int()->clamp(0),
+            'address_city_id' => rule()->int()->clamp(0),
 
-            'settlement_uuid' => [Rule::uuid()],
-            'settlement_with_type' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'settlement_type' => [Rule::length()],
-            'settlement_type_full' => [Rule::length()],
-            'settlement' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'settlement_uuid' => rule()->uuid(),
+            'settlement_with_type' => rule()->required()->string()->nonNullable(),
+            'settlement_type' => rule()->string(),
+            'settlement_type_full' => rule()->string(),
+            'settlement' => rule()->required()->string()->nonNullable(),
 
-            'timezone' => [Rule::length()]
+            'timezone' => rule()->string()
         ];
     }
 }

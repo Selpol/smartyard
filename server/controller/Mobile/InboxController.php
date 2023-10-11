@@ -7,7 +7,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Http\Response;
-use Selpol\Validator\Rule;
 
 class InboxController extends Controller
 {
@@ -19,7 +18,7 @@ class InboxController extends Controller
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator(['messageId' => $this->request->getQueryParam('messageId')], ['messageId' => [Rule::int(), Rule::min(0), Rule::max()]]);
+        $validate = validator(['messageId' => $this->request->getQueryParam('messageId')], ['messageId' => rule()->int()->clamp(0)]);
 
         container(InboxFeature::class)->markMessageAsRead($userId, $validate['messageId'] ?? false);
 

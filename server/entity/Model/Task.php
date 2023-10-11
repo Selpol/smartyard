@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $id
@@ -30,17 +29,17 @@ class Task extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'data' => [Rule::required(), Rule::nonNullable()],
+            'data' => rule()->required()->nonNullable(),
 
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'message' => [Rule::required(), Rule::length(max: 4096), Rule::nonNullable()],
+            'title' => rule()->required()->string()->nonNullable(),
+            'message' => rule()->required()->string()->clamp(0, 4096)->nonNullable(),
 
-            'status' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'status' => rule()->required()->int()->nonNullable(),
 
-            'created_at' => [Rule::length(max: 32)],
-            'updated_at' => [Rule::length(max: 32)]
+            'created_at' => rule()->string(),
+            'updated_at' => rule()->string()
         ];
     }
 }

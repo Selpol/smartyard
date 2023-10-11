@@ -8,7 +8,6 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
-use Selpol\Validator\Rule;
 use Throwable;
 
 class SyncController extends Controller
@@ -53,10 +52,10 @@ class SyncController extends Controller
         foreach ($body as $subscriber) {
             try {
                 $validate = validator($subscriber, [
-                    'id' => [Rule::required(), Rule::length(11, 11), Rule::nonNullable()],
-                    'audJti' => [Rule::required(), Rule::nonNullable()],
-                    'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
-                    'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
+                    'id' => rule()->required()->clamp(11, 11)->nonNullable(),
+                    'audJti' => rule()->required()->nonNullable(),
+                    'name' => rule()->required()->clamp(1, 32)->nonNullable(),
+                    'patronymic' => rule()->required()->clamp(1, 32)->nonNullable(),
                 ]);
 
                 $subscriberId = $households->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
@@ -88,9 +87,9 @@ class SyncController extends Controller
         foreach ($body as $subscriber) {
             try {
                 $validate = validator($subscriber, [
-                    'subscriberId' => [Rule::id()],
-                    'name' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()],
-                    'patronymic' => [Rule::required(), Rule::length(1, 32), Rule::nonNullable()]
+                    'subscriberId' => rule()->id(),
+                    'name' => rule()->required()->clamp(1, 32)->nonNullable(),
+                    'patronymic' => rule()->required()->clamp(1, 32)->nonNullable(),
                 ]);
 
                 if ($households->modifySubscriber($validate['subscriberId'], ['subscriberName' => $validate['name'], 'subscriberPatronymic' => $validate['patronymic']]))
@@ -141,7 +140,7 @@ class SyncController extends Controller
 
         foreach ($body as $item) {
             try {
-                $validate = validator($item, ['id' => [Rule::id()], 'autoBlock' => [Rule::required(), Rule::bool(), Rule::nonNullable()]]);
+                $validate = validator($item, ['id' => rule()->id(), 'autoBlock' => rule()->required()->bool()->nonNullable()]);
 
                 if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
                     $result[$validate['id']] = true;
@@ -169,7 +168,7 @@ class SyncController extends Controller
 
         foreach ($body as $item) {
             try {
-                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
+                $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id(), 'role' => rule()->required()->int()->nonNullable()]);
 
                 if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
@@ -197,7 +196,7 @@ class SyncController extends Controller
 
         foreach ($body as $item) {
             try {
-                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()], 'role' => [Rule::required(), Rule::int(), Rule::nonNullable()]]);
+                $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id(), 'role' => rule()->required()->int()->nonNullable()]);
 
                 if ($db->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
@@ -225,7 +224,7 @@ class SyncController extends Controller
 
         foreach ($body as $item) {
             try {
-                $validate = validator($item, ['subscriber' => [Rule::id()], 'flat' => [Rule::id()]]);
+                $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id()]);
 
                 if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;

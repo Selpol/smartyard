@@ -10,7 +10,6 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
-use Selpol\Validator\Rule;
 
 class FrsController extends Controller
 {
@@ -58,7 +57,7 @@ class FrsController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->getRoute()->getParam('eventId')], ['eventId' => [Rule::required(), Rule::uuid(), Rule::nonNullable()]]);
+        $validate = validator(['eventId' => $this->getRoute()->getParam('eventId')], ['eventId' => rule()->required()->uuid()->nonNullable()]);
 
         $frs = container(FrsFeature::class);
 
@@ -111,7 +110,7 @@ class FrsController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => [Rule::uuid()]]);
+        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => rule()->uuid()]);
 
         $frs = container(FrsFeature::class);
 

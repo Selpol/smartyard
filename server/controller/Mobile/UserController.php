@@ -8,8 +8,6 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Http\Response;
-use Selpol\Validator\Filter;
-use Selpol\Validator\Rule;
 
 class UserController extends Controller
 {
@@ -31,10 +29,10 @@ class UserController extends Controller
         $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($this->request->getParsedBody(), [
-            'pushToken' => [Rule::length(16), Filter::fullSpecialChars()],
-            'voipToken' => [Rule::length(16), Filter::fullSpecialChars()],
-            'production' => [Filter::default(false), Rule::bool(), Rule::nonNullable()],
-            'platform' => [Rule::in(['ios', 'android', 'huawei'])]
+            'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
+            'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
+            'production' => [filter()->default(false), rule()->bool()->nonNullable()],
+            'platform' => rule()->in(['ios', 'android', 'huawei'])
         ]);
 
         $households = container(HouseFeature::class);
@@ -83,8 +81,8 @@ class UserController extends Controller
         $userId = $this->getUser()->getIdentifier();
 
         $validate = validator($this->request->getParsedBody(), [
-            'name' => [Rule::required(), Filter::fullSpecialChars(), Rule::length(max: 64), Rule::nonNullable()],
-            'patronymic' => [Filter::fullSpecialChars(), Rule::length(max: 64)]
+            'name' => [filter()->fullSpecialChars(), rule()->required()->string()->max(64)->nonNullable()],
+            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)]
         ]);
 
         if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);

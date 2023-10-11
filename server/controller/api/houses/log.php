@@ -4,22 +4,21 @@ namespace api\houses;
 
 use api\api;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Validator\Rule;
 
 class log extends api
 {
     public static function GET($params)
     {
         $validate = validator($params, [
-            'ip' => [Rule::required(), Rule::ipV4(), Rule::nonNullable()],
+            'ip' => rule()->required()->ipV4()->nonNullable(),
 
-            'message' => [Rule::length(max: 64)],
+            'message' => rule()->string()->max(64),
 
-            'minDate' => [Rule::int()],
-            'maxDate' => [Rule::int()],
+            'minDate' => rule()->int(),
+            'maxDate' => rule()->int(),
 
-            'size' => [Rule::int(), Rule::min(0), Rule::max(1000)],
-            'page' => [Rule::int(), Rule::min(0), Rule::max()]
+            'page' => rule()->int()->clamp(0),
+            'size' => rule()->int()->clamp(1, 1000)
         ]);
 
         $logs = container(PlogFeature::class)->getSyslogFilter($validate['ip'], $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);

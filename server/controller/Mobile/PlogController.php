@@ -10,7 +10,6 @@ use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
-use Selpol\Validator\Rule;
 use Throwable;
 
 class PlogController extends Controller
@@ -23,7 +22,7 @@ class PlogController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'day' => [Rule::required(), Rule::nonNullable()]]);
+        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];
@@ -165,7 +164,7 @@ class PlogController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => [Rule::id()], 'events' => [Rule::length(max: 64)]]);
+        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];

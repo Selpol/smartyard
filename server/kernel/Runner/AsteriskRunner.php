@@ -15,8 +15,6 @@ use Selpol\Kernel\KernelRunner;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
-use Selpol\Validator\Filter;
-use Selpol\Validator\Rule;
 use Throwable;
 
 class AsteriskRunner implements KernelRunner
@@ -77,11 +75,9 @@ class AsteriskRunner implements KernelRunner
 
                 switch ($path[1]) {
                     case "autoopen":
-                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
-                        $flat = $households->getFlat($params['flatId']);
+                        $flat = $households->getFlat(intval($params));
 
                         $rabbit = (int)$flat["whiteRabbit"];
                         $result = $flat["autoOpen"] > time() || ($rabbit && $flat["lastOpened"] + $rabbit * 60 > time());
@@ -93,11 +89,9 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "flat":
-                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
-                        $flat = $households->getFlat($params['flatId']);
+                        $flat = $households->getFlat(intval($params));
 
                         echo json_encode($flat);
 
@@ -106,8 +100,6 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "flatIdByPrefix":
-                        $params = validator($params, ['domophoneId' => [Rule::id()], 'prefix' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
                         $apartment = $households->getFlats("flatIdByPrefix", $params);
@@ -119,8 +111,6 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "apartment":
-                        $params = validator($params, ['domophoneId' => [Rule::id()], 'flatNumber' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
                         $apartment = $households->getFlats("apartment", $params);
@@ -132,11 +122,9 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "subscribers":
-                        $params = validator(['flatId' => $params], ['flatId' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
-                        $flat = $households->getSubscribers("flatId", $params['flatId']);
+                        $flat = $households->getSubscribers("flatId", intval($params));
 
                         echo json_encode($flat);
 
@@ -145,11 +133,9 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "domophone":
-                        $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
-                        $domophone = $households->getDomophone($params['domophoneId']);
+                        $domophone = $households->getDomophone(intval($params));
 
                         echo json_encode($domophone);
 
@@ -158,11 +144,9 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "entrance":
-                        $params = validator(['domophoneId' => $params], ['domophoneId' => [Rule::id()]]);
-
                         $households = container(HouseFeature::class);
 
-                        $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $params['domophoneId'], "output" => "0"]);
+                        $entrances = $households->getEntrances("domophoneId", ["domophoneId" => intval($params), "output" => "0"]);
 
                         if ($entrances) {
                             echo json_encode($entrances[0]);
@@ -175,8 +159,6 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "camshot":
-                        $params = validator($params, ['domophoneId' => [Rule::id()], 'hash' => [Rule::required(), Rule::nonNullable()]]);
-
                         $redis = $kernel->getContainer()->get(RedisService::class)->getConnection();
 
                         if ($params["domophoneId"] >= 0) {
@@ -207,23 +189,6 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "push":
-                        $params = validator(
-                            $params,
-                            [
-                                'token' => [Rule::required(), Rule::nonNullable()],
-                                'tokenType' => [Rule::required(), Rule::int(), Rule::nonNullable()],
-                                'hash' => [Rule::required(), Rule::nonNullable()],
-                                'extension' => [Rule::required(), Rule::nonNullable()],
-                                'dtmf' => [Rule::required(), Rule::nonNullable()],
-                                'platform' => [Rule::required(), Rule::int(), Rule::in([0, 1]), Rule::nonNullable()],
-                                'callerId' => [Filter::default('WebRTC', true), Rule::nonNullable()],
-                                'flatId' => [Rule::required(), Rule::int(), Rule::nonNullable()],
-                                'flatNumber' => [Rule::required(), Rule::int(), Rule::nonNullable()],
-                                'domophoneId' => [Rule::id()]
-                            ]
-                        );
-
-
                         $server = container(SipFeature::class)->server('extension', $params['extension']);
 
                         $params = [
@@ -272,13 +237,7 @@ class AsteriskRunner implements KernelRunner
     public function onFailed(Throwable $throwable, bool $fatal): int
     {
         if ($throwable instanceof ValidatorException)
-            $this->logger->error(
-                $throwable->getValidatorMessage()->getMessage(),
-                [
-                    'key' => $throwable->getValidatorMessage()->getKey(),
-                    'value' => $throwable->getValidatorMessage()->getValue()
-                ]
-            );
+            $this->logger->error($throwable->getValidatorMessage()->message, ['key' => $throwable->getValidatorMessage()->key, 'value' => $throwable->getValidatorMessage()->value]);
         else
             $this->logger->emergency($throwable, ['fatal' => $fatal]);
 

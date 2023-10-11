@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model\Dvr;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $record_id
@@ -28,19 +27,19 @@ class DvrRecord extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'camera_id' => [Rule::id()],
-            'subscriber_id' => [Rule::id()],
+            'camera_id' => rule()->id(),
+            'subscriber_id' => rule()->id(),
 
-            'start' => [Rule::required(), Rule::int(), Rule::nonNullable()],
-            'finish' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'start' => rule()->required()->int()->nonNullable(),
+            'finish' => rule()->required()->int()->nonNullable(),
 
-            'filename' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'filename' => rule()->required()->string()->nonNullable(),
 
-            'expire' => [Rule::required(), Rule::int(), Rule::nonNullable()],
+            'expire' => rule()->required()->int()->nonNullable(),
 
-            'state' => [Rule::required(), Rule::in([0, 1, 2, 3]), Rule::nonNullable()]
+            'state' => rule()->required()->in([0, 1, 2, 3])->nonNullable()
         ];
     }
 }

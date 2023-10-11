@@ -3,7 +3,6 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Entity;
-use Selpol\Validator\Rule;
 
 /**
  * @property int $id
@@ -26,13 +25,13 @@ class Permission extends Entity
     public static function getColumns(): array
     {
         return [
-            static::$columnId => [Rule::id()],
+            static::$columnId => rule()->id(),
 
-            'title' => [Rule::required(), Rule::length(), Rule::nonNullable()],
-            'description' => [Rule::required(), Rule::length(), Rule::nonNullable()],
+            'title' => rule()->required()->string()->nonNullable(),
+            'description' => rule()->required()->string()->nonNullable(),
 
-            'created_at' => [Rule::length(32)],
-            'updated_at' => [Rule::length(32)]
+            'created_at' => rule()->string(),
+            'updated_at' => rule()->string()
         ];
     }
 }
