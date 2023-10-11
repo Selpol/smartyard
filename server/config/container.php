@@ -3,6 +3,12 @@
 use Selpol\Cache\FileCache;
 use Selpol\Cache\RedisCache;
 use Selpol\Container\ContainerConfigurator;
+use Selpol\Entity\Repository\Address\AddressAreaRepository;
+use Selpol\Entity\Repository\Address\AddressCityRepository;
+use Selpol\Entity\Repository\Address\AddressHouseRepository;
+use Selpol\Entity\Repository\Address\AddressRegionRepository;
+use Selpol\Entity\Repository\Address\AddressSettlementRepository;
+use Selpol\Entity\Repository\Address\AddressStreetRepository;
 use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
@@ -12,7 +18,10 @@ use Selpol\Entity\Repository\Dvr\DvrRecordRepository;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Entity\Repository\Frs\FrsFaceRepository;
 use Selpol\Entity\Repository\Frs\FrsServerRepository;
+use Selpol\Entity\Repository\House\HouseEntranceRepository;
+use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Entity\Repository\House\HouseKeyRepository;
+use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Entity\Repository\Inbox\InboxMessageRepository;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Entity\Repository\RoleRepository;
@@ -25,8 +34,6 @@ use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Audit\Internal\InternalAuditFeature;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
-use Selpol\Feature\Authorization\AuthorizationFeature;
-use Selpol\Feature\Authorization\Internal\InternalAuthorizationFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Camera\Internal\InternalCameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
@@ -43,8 +50,6 @@ use Selpol\Feature\Inbox\Internal\InternalInboxFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Monitor\Internal\InternalMonitorFeature;
 use Selpol\Feature\Monitor\MonitorFeature;
-use Selpol\Feature\Mqtt\Internal\InternalMqttFeature;
-use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Feature\Oauth\Internal\InternalOauthFeature;
 use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Feature\Plog\ClickHouse\ClickHousePlogFeature;
@@ -113,11 +118,16 @@ return static function (ContainerConfigurator $builder) {
     $builder->singleton(PlogFeature::class, ClickHousePlogFeature::class);
     $builder->singleton(DvrFeature::class, InternalDvrFeature::class);
     $builder->singleton(FrsFeature::class, InternalFrsFeature::class);
-
-    $builder->singleton(MqttFeature::class, InternalMqttFeature::class);
     //#endregion
 
     //#region Repositories
+    $builder->singleton(AddressRegionRepository::class);
+    $builder->singleton(AddressAreaRepository::class);
+    $builder->singleton(AddressCityRepository::class);
+    $builder->singleton(AddressSettlementRepository::class);
+    $builder->singleton(AddressStreetRepository::class);
+    $builder->singleton(AddressHouseRepository::class);
+
     $builder->singleton(RoleRepository::class);
     $builder->singleton(PermissionRepository::class);
     $builder->singleton(AuditRepository::class);
@@ -137,7 +147,10 @@ return static function (ContainerConfigurator $builder) {
 
     $builder->singleton(InboxMessageRepository::class);
 
+    $builder->singleton(HouseFlatRepository::class);
+    $builder->singleton(HouseEntranceRepository::class);
     $builder->singleton(HouseKeyRepository::class);
+    $builder->singleton(HouseSubscriberRepository::class);
     //#endregion
 
     $builder->singleton(FileCache::class);
