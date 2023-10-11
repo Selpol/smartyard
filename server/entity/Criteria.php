@@ -143,9 +143,8 @@ class Criteria
         if (isset($this->order)) {
             $result .= ' ORDER BY';
 
-            foreach ($this->order as $item) {
-                $result .= ' ' . $item['column'] . ' ' . $item['value'];
-            }
+            for ($i = 0; $i < count($this->order); $i++)
+                $result .= ($i === 0 ? ' ' : ', ') . $this->order[$i]['column'] . ' ' . $this->order[$i]['value'];
         }
 
         if (isset($this->limit))
