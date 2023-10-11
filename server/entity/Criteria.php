@@ -97,22 +97,31 @@ class Criteria
         return $this->order($column, 'DESC');
     }
 
-    public function limit(int $value): static
+    public function limit(?int $value): static
     {
+        if ($value === null)
+            return $this;
+
         $this->limit = $value;
 
         return $this;
     }
 
-    public function offset(int $value): static
+    public function offset(?int $value): static
     {
+        if ($value === null)
+            return $this;
+
         $this->offset = $value;
 
         return $this;
     }
 
-    public function page(int $value, int $size = 10): static
+    public function page(?int $value, int $size = 10): static
     {
+        if ($value === null)
+            return $this;
+
         return $this->limit($size)->offset($value * $size);
     }
 
