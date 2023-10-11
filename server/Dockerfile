@@ -66,7 +66,7 @@ COPY --from=composer/composer:2-bin --link /composer /usr/bin/composer
 
 COPY --link composer.* ./
 
-RUN set -eux; \
+RUN --mount=type=secret,id=composer_auth,dst=/srv/app/auth.json set -eux; \
     if [ -f composer.json ]; then \
 		composer install --prefer-dist --no-dev --no-autoloader --no-scripts --no-progress; \
 		composer clear-cache; \

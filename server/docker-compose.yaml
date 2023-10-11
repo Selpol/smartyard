@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
   nginx:
@@ -57,10 +57,7 @@ services:
     volumes:
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
       - ./docker/data/log:/srv/app/var/log
-    env_file:
-      - .env.prod
     environment:
-      - COMPOSER_AUTH=${COMPOSER_AUTH}
       - DB_HOST=database
       - DB_PORT=5432
       - REDIS_HOST=redis
@@ -74,6 +71,10 @@ services:
     networks:
       backend:
       frontend:
+
+secrets:
+  composer_auth:
+    file: ./auth.json
 
 networks:
   frontend:
