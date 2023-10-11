@@ -76,6 +76,13 @@ class ClientService
     {
         $response = container(HttpService::class)->createResponse();
 
+        if (array_key_exists('basic', $requestOptions)) {
+            $request->withHeader('Authorization', 'Basic ' . base64_encode($requestOptions['basic']));
+        } else if (array_key_exists('digest', $requestOptions)) {
+            $options[CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
+            $options[CURLOPT_USERPWD] = $requestOptions['digest'];
+        }
+
         $options = $this->createOptions($request);
 
         $this->addBodyOptions($options, $request);
@@ -86,14 +93,6 @@ class ClientService
 
         $this->addHeaderFunction($options, $response);
         $this->addWriteFunction($options, $response);
-
-        if (array_key_exists('basic', $requestOptions)) {
-            $options[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-            $options[CURLOPT_USERPWD] = $requestOptions['basic'];
-        } else if (array_key_exists('digest', $requestOptions)) {
-            $options[CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
-            $options[CURLOPT_USERPWD] = $requestOptions['digest'];
-        }
 
         $ch = curl_init();
 

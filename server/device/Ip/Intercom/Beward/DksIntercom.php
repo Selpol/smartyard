@@ -3,11 +3,9 @@
 namespace Selpol\Device\Ip\Intercom\Beward;
 
 use CURLFile;
-use phpseclib3\Math\BigInteger\Engines\PHP;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
-use Selpol\Http\Stream;
 use Selpol\Http\Uri;
 
 class DksIntercom extends IntercomDevice
