@@ -15,6 +15,7 @@ RUN apk update && apk add --update --no-cache \
         supervisor \
         ffmpeg \
         tzdata \
+        openssh \
 	;
 
 RUN set -eux; \
