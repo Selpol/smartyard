@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a05d26c76f036dd1632fcc1a10521771",
+    "content-hash": "9227f5fe7ac24f22f5744c45c1b1fa89",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1134,7 +1134,7 @@
             "version": "1.0.4",
             "source": {
                 "type": "git",
-                "url": "git@github.com:Selpol/validator.git",
+                "url": "https://github.com/Selpol/validator.git",
                 "reference": "48e5b7e98d2d42fbbea3b7068233075d8d04cb12"
             },
             "require": {
