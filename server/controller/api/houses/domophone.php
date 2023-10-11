@@ -7,7 +7,9 @@
 namespace api\houses {
 
     use api\api;
+    use Psr\Container\NotFoundExceptionInterface;
     use Selpol\Feature\House\HouseFeature;
+    use Selpol\Http\Exception\HttpException;
     use Selpol\Service\DatabaseService;
     use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
@@ -55,6 +57,8 @@ namespace api\houses {
 
                     if ($domophone['url'] !== $params['url'])
                         static::modifyIp($domophone['domophoneId'], $params['url']);
+
+                    static::unlock($params['_id'], boolval($domophone['locksAreOpen']));
                 }
 
                 return api::ANSWER($success);
@@ -88,6 +92,19 @@ namespace api\houses {
 
             if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
                 container(DatabaseService::class)->modify('UPDATE houses_domophones SET ip = :ip WHERE house_domophone_id = :id', ['ip' => $ip, 'id' => $id]);
+        }
+
+        /**
+         * @throws NotFoundExceptionInterface
+         */
+        private static function unlock(int $id, bool $value): void
+        {
+            $device = intercom($id);
+
+            if (!$device->ping())
+                throw new HttpException(message: 'Устройство не доступно');
+
+            $device->unlocked($value);
         }
     }
 }
