@@ -32,12 +32,14 @@ class keys extends api
         foreach ($data as $key) {
             if ($key->access_type === 2) {
                 if (!array_key_exists($key->access_to, $flats))
-                    $flats[$key->access_to] = $db->get('SELECT address_house_id FROM houses_flats WHERE house_flat_id = :house_flat_id', ['house_flat_id' => $key->access_to], options: ['singlify'])['address_house_id'];
+                    $flats[$key->access_to] = $db->get('SELECT address_house_id, flat FROM houses_flats WHERE house_flat_id = :house_flat_id', ['house_flat_id' => $key->access_to], options: ['singlify']);
 
-                if (!array_key_exists($flats[$key->access_to], $houses))
-                    $houses[$flats[$key->access_to]] = $db->get('SELECT house_full FROM addresses_houses WHERE address_house_id = :address_house_id', ['address_house_id' => $flats[$key->access_to]], options: ['singlify'])['house_full'];
+                if (!array_key_exists($flats[$key->access_to]['address_house_id'], $houses))
+                    $houses[$flats[$key->access_to]['address_house_id']] = $db->get('SELECT house_full FROM addresses_houses WHERE address_house_id = :address_house_id', ['address_house_id' => $flats[$key->access_to]], options: ['singlify'])['house_full'];
 
-                $key->house_id = $flats[$key->access_to];
+                $key->flat = $flats[$key->access_to]['flat'];
+
+                $key->house_id = $flats[$key->access_to]['address_house_id'];
                 $key->house_address = $houses[$flats[$key->access_to]];
             }
         }
