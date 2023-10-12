@@ -31,7 +31,7 @@ class UserController extends Controller
         $validate = validator($this->request->getParsedBody(), [
             'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
-            'production' => [filter()->default(false), rule()->bool()->nonNullable()],
+            'production' => [filter()->default(false), rule()->bool()],
             'platform' => rule()->in(['ios', 'android', 'huawei'])
         ]);
 
