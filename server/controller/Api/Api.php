@@ -37,7 +37,7 @@ class Api
      * @param integer $cache
      * @return array
      */
-    public static function ANSWER(bool|array $result = true, int|bool|array|string $answer = false, int $cache = -1): array
+    public static function ANSWER(bool|int|array $result = true, int|bool|array|string $answer = false, int $cache = -1): array
     {
         if ($result === false)
             return self::ERROR($answer);
