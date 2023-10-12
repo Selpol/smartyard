@@ -344,6 +344,23 @@ class ClickHousePlogFeature extends PlogFeature
         return $this->clickhouse->select($query);
     }
 
+    public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array
+    {
+        $database = $this->clickhouse->database;
+
+        $offset = $page * $size;
+
+        $query = "SELECT * FROM $database.plog WHERE NOT hidden AND flat_id = $flatId";
+
+        if ($type !== null)
+            $query .= " AND event = $type";
+
+        if ($opened !== null)
+            $query .= " AND opened = $opened";
+
+        return $this->clickhouse->select($query . " ORDER BY date LIMIT $size OFFSET $offset");
+    }
+
     /**
      * @inheritDoc
      */

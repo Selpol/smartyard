@@ -64,6 +64,8 @@ abstract class PlogFeature extends Feature
      */
     abstract public function getEventsByFlatsAndDomophone(array $flats_id, int $domophone_id, int $date): bool|array;
 
+    abstract public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array;
+
     /**
      * Get event's detail by UUID
      * @param string $uuid
