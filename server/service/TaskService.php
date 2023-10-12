@@ -9,11 +9,13 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
-use Selpol\Container\ContainerDispose;
+use Selpol\Framework\Container\Attribute\Singleton;
+use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Task\Task;
 use Selpol\Task\TaskCallback;
 
-class TaskService implements LoggerAwareInterface, ContainerDispose
+#[Singleton]
+class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 {
     use LoggerAwareTrait;
 
@@ -28,7 +30,7 @@ class TaskService implements LoggerAwareInterface, ContainerDispose
 
     public function __construct()
     {
-        $this->setLogger(logger('task'));
+        $this->setLogger(file_logger('task'));
     }
 
     /**
@@ -36,7 +38,7 @@ class TaskService implements LoggerAwareInterface, ContainerDispose
      */
     public function connect(): void
     {
-        $this->connection = new AMQPStreamConnection(config('amqp.host'), config('amqp.port'), config('amqp.username'), config('amqp.password'));
+        $this->connection = new AMQPStreamConnection(config_get('amqp.host'), config_get('amqp.port'), config_get('amqp.username'), config_get('amqp.password'));
         $this->channel = $this->connection->channel();
     }
 

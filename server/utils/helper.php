@@ -1,11 +1,9 @@
 <?php declare(strict_types=1);
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Log\LoggerInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Criteria;
-use Selpol\Logger\FileLogger;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskContainer;
@@ -14,13 +12,6 @@ use Selpol\Validator\Filter;
 use Selpol\Validator\Rule;
 use Selpol\Validator\Validator;
 use Selpol\Validator\ValidatorOnItemInterface;
-
-if (!function_exists('logger')) {
-    function logger(string $channel): LoggerInterface
-    {
-        return FileLogger::channel($channel);
-    }
-}
 
 if (!function_exists('task')) {
     function task(Task $task): TaskContainer

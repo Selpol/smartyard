@@ -3,8 +3,8 @@
 namespace Selpol\Service;
 
 use InvalidArgumentException;
-use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\Prometheus\Collector\Counter;
 use Selpol\Service\Prometheus\Collector\Gauge;
@@ -12,6 +12,7 @@ use Selpol\Service\Prometheus\Collector\Histogram;
 use Selpol\Service\Prometheus\Collector\Summary;
 use Selpol\Service\Prometheus\Metric;
 
+#[Singleton]
 class PrometheusService
 {
     const PREFIX = 'prometheus';
@@ -31,7 +32,7 @@ class PrometheusService
 
     /**
      * @return Metric[]
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function collect(): array
     {
@@ -55,7 +56,7 @@ class PrometheusService
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function updateCounter(array $value): void
     {
@@ -96,7 +97,7 @@ LUA
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function updateGauge(array $value): void
     {
@@ -144,7 +145,7 @@ LUA
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function updateHistogram(array $value): void
     {
@@ -194,7 +195,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function updateSummary(array $value): void
     {
@@ -222,7 +223,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     public function wipe(): void
     {
@@ -236,7 +237,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     private function collectHistograms(): array
     {
@@ -315,7 +316,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     private function collectGauges(): array
     {
@@ -355,7 +356,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     private function collectCounters(): array
     {
@@ -391,7 +392,7 @@ LUA,
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws RedisException
      */
     private function collectSummaries(): array
     {

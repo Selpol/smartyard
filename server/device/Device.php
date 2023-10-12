@@ -2,7 +2,6 @@
 
 namespace Selpol\Device;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Http\Uri;
 use Selpol\Service\ClientService;
@@ -24,9 +23,6 @@ abstract class Device
         return null;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     protected function client(): ClientService
     {
         return container(ClientService::class);

@@ -56,7 +56,7 @@ class FrsController extends Controller
             $model = intercom($domophone_id);
             $model->open($domophone_output);
 
-            $redis->set($frs_key, 1, config('feature.frs.open_door_timeout'));
+            $redis->set($frs_key, 1, config_get('feature.frs.open_door_timeout'));
 
             container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $face_id . "|" . $event_id);
         } catch (Exception) {

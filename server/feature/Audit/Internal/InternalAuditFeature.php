@@ -98,12 +98,9 @@ class InternalAuditFeature extends AuditFeature
 
         container(AuditRepository::class)->insert($audit);
 
-        logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
+        file_logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function clear(): void
     {
         $this->getDatabase()->modify('DELETE FROM audit');

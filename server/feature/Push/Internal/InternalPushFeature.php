@@ -24,7 +24,7 @@ class InternalPushFeature extends PushFeature
 
     private function request($data, $endpoint): bool|string
     {
-        $push = config('feature.push');
+        $push = config_get('feature.push');
 
         $request = curl_init($push['endpoint'] . $endpoint);
 

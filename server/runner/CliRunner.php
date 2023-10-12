@@ -1,25 +1,26 @@
 <?php
 
-namespace Selpol\Kernel\Runner;
+namespace Selpol\Runner;
 
 use Exception;
 use PDO;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Log\LoggerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
-use Selpol\Cache\FileCache;
-use Selpol\Container\ContainerConfigurator;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Role\RoleFeature;
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\KernelRunner;
-use Selpol\Kernel\Trait\ConfigTrait;
-use Selpol\Kernel\Trait\EnvTrait;
+use Selpol\Framework\Cache\FileCache;
+use Selpol\Framework\Container\ContainerConfigurator;
+use Selpol\Framework\Container\Trait\ContainerTrait;
+use Selpol\Framework\Kernel\Trait\ConfigTrait;
+use Selpol\Framework\Kernel\Trait\EnvTrait;
+use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
+use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
@@ -28,18 +29,9 @@ use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
-class CliRunner implements KernelRunner
+class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    private array $argv;
-
-    private LoggerInterface $logger;
-
-    public function __construct(array $argv, ?LoggerInterface $logger = null)
-    {
-        $this->argv = $argv;
-
-        $this->logger = $logger ?? stack_logger([echo_logger(), file_logger('cli')]);
-    }
+    use LoggerKernelTrait;
 
     /**
      * @throws ContainerExceptionInterface
@@ -47,11 +39,11 @@ class CliRunner implements KernelRunner
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    function __invoke(Kernel $kernel): int
+    function run(array $arguments): int
     {
         chdir(path(''));
 
-        $arguments = $this->getArguments();
+        $arguments = $this->getArguments($arguments);
 
         if (count($arguments) === 0) {
             echo $this->help();
@@ -88,7 +80,7 @@ class CliRunner implements KernelRunner
         } else if ($group === 'kernel') {
             if ($command === 'container') $this->kernelContainer();
             else if ($command === 'router') $this->kernelRouter();
-            else if ($command === 'optimize') $this->kernelOptimize($kernel);
+            else if ($command === 'optimize') $this->kernelOptimize();
             else if ($command === 'clear') $this->kernelClear();
             else if ($command === 'wipe') $this->kernelWipe();
             else echo $this->help('kernel');
@@ -104,21 +96,19 @@ class CliRunner implements KernelRunner
         return 0;
     }
 
-    public function onFailed(Throwable $throwable, bool $fatal): int
+    public function error(Throwable $throwable): int
     {
-        echo $throwable->getMessage();
-
-        $this->logger->error($throwable, ['fatal' => $fatal]);
+        $this->logger->error($throwable);
 
         return 0;
     }
 
-    private function getArguments(): array
+    private function getArguments(array $arguments): array
     {
         $args = [];
 
-        for ($i = 1; $i < count($this->argv); $i++) {
-            $a = explode('=', $this->argv[$i]);
+        for ($i = 1; $i < count($arguments); $i++) {
+            $a = explode('=', $arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }
@@ -126,9 +116,6 @@ class CliRunner implements KernelRunner
         return $args;
     }
 
-    /**
-     * @throws Exception
-     */
     private function dbInit(array $arguments): void
     {
         $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
@@ -187,10 +174,6 @@ class CliRunner implements KernelRunner
         return 0;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     private function adminPassword(string $password): void
     {
         $connection = container(DatabaseService::class)->getConnection();
@@ -212,10 +195,6 @@ class CliRunner implements KernelRunner
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     private function cronRun(array $arguments): void
     {
         $parts = ["minutely", "5min", "hourly", "daily", "monthly"];
@@ -333,11 +312,16 @@ class CliRunner implements KernelRunner
     private function kernelContainer(): void
     {
         if (file_exists(path('config/container.php'))) {
-            $callback = require path('config/container.php');
-            $builder = new ContainerConfigurator();
-            $callback($builder);
+            $container = new class {
+                use ContainerTrait;
 
-            $factories = $builder->getFactories();
+                public function __construct()
+                {
+                    $this->loadContainer(false);
+                }
+            };
+
+            $factories = $container->getContainer()->getFactories();
 
             $headers = ['TYPE', 'ID', 'FACTORY'];
             $result = [];
@@ -377,12 +361,12 @@ class CliRunner implements KernelRunner
      * @throws NotFoundExceptionInterface
      * @throws InvalidArgumentException
      */
-    private function kernelOptimize(Kernel $kernel): void
+    private function kernelOptimize(): void
     {
         $cache = container(FileCache::class);
 
-        $kernelEnv = $kernel->getEnv();
-        $kernelConfig = $kernel->getConfig();
+        $kernelEnv = kernel()->getEnv();
+        $kernelConfig = kernel()->getConfig();
 
         if (file_exists(path('.env'))) {
             $env = new class {
@@ -394,7 +378,7 @@ class CliRunner implements KernelRunner
                 }
             };
 
-            $kernel->setEnv($env->getEnv());
+            kernel()->setEnv($env->getEnv());
             $cache->set('env', $env->getEnv());
         }
 
@@ -408,16 +392,21 @@ class CliRunner implements KernelRunner
                 }
             };
 
-            $kernel->setConfig($config->getConfig());
+            kernel()->setConfig($config->getConfig());
             $cache->set('config', $config->getConfig());
         }
 
         if (file_exists(path('config/container.php'))) {
-            $callback = require path('config/container.php');
-            $builder = new ContainerConfigurator();
-            $callback($builder);
+            $container = new class {
+                use ContainerTrait;
 
-            $cache->set('container', $builder->getFactories());
+                public function __construct()
+                {
+                    $this->loadContainer(false);
+                }
+            };
+
+            $cache->set('container', $container->getContainer()->getFactories());
         }
 
         if (file_exists(path('config/router.php'))) {
@@ -428,16 +417,12 @@ class CliRunner implements KernelRunner
             $cache->set('router', $builder->collect());
         }
 
-        $kernel->setEnv($kernelEnv);
-        $kernel->setConfig($kernelConfig);
+        kernel()->setEnv($kernelEnv);
+        kernel()->setConfig($kernelConfig);
 
         $this->logger->debug('Kernel optimized');
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     private function kernelClear(): void
     {
         $cache = container(FileCache::class);
@@ -448,7 +433,6 @@ class CliRunner implements KernelRunner
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     private function kernelWipe(): void
@@ -456,9 +440,6 @@ class CliRunner implements KernelRunner
         container(PrometheusService::class)->wipe();
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function auditClear(): void
     {
         container(AuditFeature::class)->clear();;

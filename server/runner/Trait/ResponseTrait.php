@@ -1,9 +1,7 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Kernel\Runner\Trait;
+namespace Selpol\Runner\Trait;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Entity\Exception\EntityException;
@@ -15,7 +13,7 @@ use Throwable;
 
 trait ResponseTrait
 {
-    function onFailed(Throwable $throwable, bool $fatal): int
+    function error(Throwable $throwable): int
     {
         try {
             if ($throwable instanceof HttpException)
@@ -32,7 +30,7 @@ trait ResponseTrait
             } else if ($throwable instanceof EntityException)
                 $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
             else {
-                file_logger('response')->error($throwable, ['fatal' => $fatal]);
+                file_logger('response')->error($throwable);
 
                 $response = $this->response(500)->withStatusJson();
             }
@@ -45,10 +43,6 @@ trait ResponseTrait
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     protected function response(int $code = 200): Response
     {
         return container(HttpService::class)->createResponse($code);

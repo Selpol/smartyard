@@ -3,8 +3,11 @@
 namespace Selpol\Feature\Audit;
 
 use Selpol\Entity\Model\Audit;
+use Selpol\Feature\Audit\Internal\InternalAuditFeature;
 use Selpol\Feature\Feature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalAuditFeature::class)]
 abstract class AuditFeature extends Feature
 {
     /**

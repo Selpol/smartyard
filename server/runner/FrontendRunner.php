@@ -1,25 +1,28 @@
 <?php
 
-namespace Selpol\Kernel\Runner;
+namespace Selpol\Runner;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Feature\Authentication\AuthenticationFeature;
+use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
+use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\KernelRunner;
-use Selpol\Kernel\Runner\Trait\ResponseTrait;
+use Selpol\Runner\Trait\ResponseTrait;
 use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
 
-class FrontendRunner implements KernelRunner
+class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
+    use LoggerKernelTrait;
+
     use ResponseTrait;
 
     /**
@@ -28,15 +31,15 @@ class FrontendRunner implements KernelRunner
      * @throws RedisException
      * @throws InvalidArgumentException
      */
-    function __invoke(Kernel $kernel): int
+    function run(array $arguments): int
     {
         require path('/controller/api/api.php');
 
-        $http = $kernel->getContainer()->get(HttpService::class);
+        $http = container(HttpService::class);
 
         $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
-        $kernel->getContainer()->set(ServerRequest::class, $request);
+        kernel()->getContainer()->set(ServerRequest::class, $request);
 
         if ($request->getMethod() === 'OPTIONS')
             return $this->emit($this->response(204)->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));
@@ -55,7 +58,7 @@ class FrontendRunner implements KernelRunner
 
         $path = explode("?", $request->getRequestTarget())[0];
 
-        $server = parse_url(config('api.frontend'));
+        $server = parse_url(config_get('api.frontend'));
 
         if ($server && $server['path']) $path = substr($path, strlen($server['path']));
         if ($path && $path[0] == '/') $path = substr($path, 1);
@@ -152,10 +155,6 @@ class FrontendRunner implements KernelRunner
         return $this->emit($this->response(404)->withStatusJson());
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     protected function response(int $code = 200): Response
     {
         return container(HttpService::class)->createResponse($code)
@@ -165,8 +164,6 @@ class FrontendRunner implements KernelRunner
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     private function forgot(array $params): Response

@@ -17,8 +17,8 @@ class InternalMiddleware implements MiddlewareInterface
 
     public function __construct()
     {
-        $this->trust = config('internal.trust') ?? ['127.0.0.1/32'];
-        $this->logger = (config('internal.logger') ?? false) ? logger('internal') : null;
+        $this->trust = config_get('internal.trust') ?? ['127.0.0.1/32'];
+        $this->logger = (config_get('internal.logger') ?? false) ? file_logger('internal') : null;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

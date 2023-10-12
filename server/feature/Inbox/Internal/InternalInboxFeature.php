@@ -2,15 +2,11 @@
 
 namespace Selpol\Feature\Inbox\Internal;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Push\PushFeature;
 
 class InternalInboxFeature extends InboxFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function sendMessage(int $subscriberId, string $title, string $msg, string $action = "inbox"): string|bool
     {
         $db = $this->getDatabase();
@@ -71,9 +67,6 @@ class InternalInboxFeature extends InboxFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getMessages(int $subscriberId, string $by, mixed $params): array|bool
     {
         $w = "";
@@ -116,9 +109,6 @@ class InternalInboxFeature extends InboxFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function msgMonths(int $subscriberId): array
     {
         $months = $this->getDatabase()->get("select month from (select substr(date, 1, 7) as month from inbox where house_subscriber_id = :house_subscriber_id) group by month order by month", ["house_subscriber_id" => $subscriberId]);
@@ -131,9 +121,6 @@ class InternalInboxFeature extends InboxFeature
         return $r;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function markMessageAsRead(int $subscriberId, int|bool $msgId = false): bool|int
     {
         if ($msgId) {
@@ -143,9 +130,6 @@ class InternalInboxFeature extends InboxFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function markMessageAsDelivered(int $subscriberId, int|bool $msgId = false): bool|int
     {
         if ($msgId) {
@@ -155,9 +139,6 @@ class InternalInboxFeature extends InboxFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function unRead(int $subscriberId): array|bool
     {
         return $this->getDatabase()->get("select count(*) as unreaded from inbox where house_subscriber_id = :house_subscriber_id and readed = 0",
@@ -167,9 +148,6 @@ class InternalInboxFeature extends InboxFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function undelivered(int $subscriberId): array|bool
     {
         return $this->getDatabase()->get("select count(*) as undelivered from inbox where house_subscriber_id = :house_subscriber_id and delivered = 0",

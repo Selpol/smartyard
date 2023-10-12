@@ -3,19 +3,20 @@
 namespace Selpol\Feature\Authentication;
 
 use Exception;
-use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
+use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
 use Selpol\Feature\Feature;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 
+#[Singleton(InternalAuthenticationFeature::class)]
 abstract class AuthenticationFeature extends Feature
 {
     abstract public function checkAuth(string $login, string $password): int|bool;
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
@@ -28,7 +29,7 @@ abstract class AuthenticationFeature extends Feature
             $keys = $redis->keys("auth_*_" . $uid);
             $first_key = "";
             $first_key_time = time();
-            if (count($keys) > config('redis.max_allowed_tokens')) {
+            if (count($keys) > config_get('redis.max_allowed_tokens')) {
                 foreach ($keys as $key) {
                     try {
                         $auth = json_decode($redis->get($key), true);
@@ -52,7 +53,7 @@ abstract class AuthenticationFeature extends Feature
                 }
             }
 
-            $redis->setex("auth_" . $token . "_" . $uid, $rememberMe ? (7 * 24 * 60 * 60) : config('redis.token_idle_ttl'), json_encode([
+            $redis->setex("auth_" . $token . "_" . $uid, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
                 "uid" => (string)$uid,
                 "login" => $login,
                 "persistent" => $rememberMe,
@@ -70,7 +71,6 @@ abstract class AuthenticationFeature extends Feature
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
@@ -125,7 +125,7 @@ abstract class AuthenticationFeature extends Feature
 
                 $auth["token"] = $token;
 
-                $redis->setex($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config('redis.token_idle_ttl'), json_encode($auth));
+                $redis->setex($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode($auth));
 
                 if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) {
                     return $auth;
@@ -151,7 +151,6 @@ abstract class AuthenticationFeature extends Feature
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     public function logout(string $token, bool $all = false): void

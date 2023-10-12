@@ -5,7 +5,6 @@ namespace Selpol\Task\Tasks;
 use chillerlan\QRCode\QRCode;
 use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
-use Psr\Container\ContainerExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\File\FileFeature;
@@ -29,9 +28,6 @@ class QrTask extends Task
         $this->override = $override;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     */
     public function onTask(): ?string
     {
         $file = container(FileFeature::class);
@@ -57,9 +53,6 @@ class QrTask extends Task
         return $this->createQrZip($qr);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     */
     private function getOrCreateQr(array $house): array
     {
         $households = container(HouseFeature::class);

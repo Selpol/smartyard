@@ -51,7 +51,7 @@ class InternalDvrFeature extends DvrFeature
 
     public function getDVRServers(): array
     {
-        return config('feature.dvr.servers');
+        return config_get('feature.dvr.servers');
     }
 
     public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool

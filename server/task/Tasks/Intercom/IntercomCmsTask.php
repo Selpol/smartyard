@@ -2,8 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
@@ -21,10 +19,6 @@ class IntercomCmsTask extends Task
         $this->entranceId = $entranceId;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function onTask(): bool
     {
         $entrance = container(HouseFeature::class)->getEntrance($this->entranceId);
@@ -55,7 +49,7 @@ class IntercomCmsTask extends Task
             if ($throwable instanceof HttpException)
                 throw $throwable;
 
-            logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

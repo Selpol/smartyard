@@ -24,7 +24,7 @@ class ClickHousePlogFeature extends PlogFeature
 
     public function __construct()
     {
-        $plog = config('feature.plog');
+        $plog = config_get('feature.plog');
 
         $this->clickhouse = new ClickhouseService($plog['host'], $plog['port'], $plog['username'], $plog['password'], $plog['database']);
 
@@ -58,7 +58,7 @@ class ClickHousePlogFeature extends PlogFeature
                     $response = container(FrsFeature::class)->bestQualityByEventId($cameras[0], $event_id);
                 }
 
-                logger('plog')->debug('frs response', ['response' => $response]);
+                file_logger('plog')->debug('frs response', ['response' => $response]);
 
                 if ($response && $response[FrsFeature::P_CODE] == FrsFeature::R_CODE_OK && $response[FrsFeature::P_DATA]) {
                     $image_data = file_get_contents($response[FrsFeature::P_DATA][FrsFeature::P_SCREENSHOT]);
@@ -86,7 +86,7 @@ class ClickHousePlogFeature extends PlogFeature
                     }
                 }
 
-                logger('plog')->debug('frs camshot', ['data' => $camshot_data]);
+                file_logger('plog')->debug('frs camshot', ['data' => $camshot_data]);
 
                 if (!$camshot_data) {
                     //получение кадра с DVR-серевера, если нет кадра от FRS
@@ -98,7 +98,7 @@ class ClickHousePlogFeature extends PlogFeature
 
                         $urlOfScreenshot = container(DvrFeature::class)->getUrlOfScreenshot($cameras[0], $ts_event, true);
 
-                        logger('plog')->debug('dvr camshot', ['url' => $urlOfScreenshot]);
+                        file_logger('plog')->debug('dvr camshot', ['url' => $urlOfScreenshot]);
 
                         if (str_contains($urlOfScreenshot, '.mp4')) {
                             shell_exec("ffmpeg -y -i " . $urlOfScreenshot . " -vframes 1 $filename 1>/dev/null 2>/dev/null");
@@ -126,7 +126,7 @@ class ClickHousePlogFeature extends PlogFeature
                         $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_NONE;
                     }
 
-                    logger('plog')->debug('dvr camshot', ['data' => $camshot_data]);
+                    file_logger('plog')->debug('dvr camshot', ['data' => $camshot_data]);
                 }
             }
         }
@@ -171,7 +171,7 @@ class ClickHousePlogFeature extends PlogFeature
         try {
             task(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id))->delay(15)->default()->dispatch();
         } catch (Throwable $e) {
-            logger('task')->error('Error addCallDoneData' . PHP_EOL . $e);
+            file_logger('task')->error('Error addCallDoneData' . PHP_EOL . $e);
         }
     }
 
@@ -183,7 +183,7 @@ class ClickHousePlogFeature extends PlogFeature
         try {
             task(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
         } catch (Throwable $e) {
-            logger('task')->error('Error addDoorOpenData' . PHP_EOL . $e);
+            file_logger('task')->error('Error addDoorOpenData' . PHP_EOL . $e);
         }
     }
 
@@ -195,7 +195,7 @@ class ClickHousePlogFeature extends PlogFeature
         try {
             task(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
         } catch (Throwable $e) {
-            logger('task')->error('Error addDoorOpenDataById' . PHP_EOL . $e);
+            file_logger('task')->error('Error addDoorOpenDataById' . PHP_EOL . $e);
         }
     }
 

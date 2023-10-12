@@ -2,8 +2,11 @@
 
 namespace Selpol\Feature\Archive;
 
+use Selpol\Feature\Archive\Internal\InternalArchiveFeature;
 use Selpol\Feature\Feature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalArchiveFeature::class)]
 abstract class ArchiveFeature extends Feature
 {
     public abstract function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string;

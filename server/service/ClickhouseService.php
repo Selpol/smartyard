@@ -3,7 +3,9 @@
 namespace Selpol\Service;
 
 use Exception;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton]
 class ClickhouseService
 {
     private string $host;
@@ -61,7 +63,7 @@ class ClickhouseService
             $raw = curl_exec($curl);
             $data = @json_decode($raw, true)['data'];
         } catch (Exception $e) {
-            logger('clickhouseService')->error($e);
+            file_logger('clickhouseService')->error($e);
 
             return false;
         }
@@ -69,7 +71,7 @@ class ClickhouseService
         curl_close($curl);
 
         if (@$headers['x-clickhouseService-exception-code']) {
-            logger('clickhouseService')->error(trim($raw));
+            file_logger('clickhouseService')->error(trim($raw));
 
             return false;
         }
@@ -120,7 +122,7 @@ class ClickhouseService
         try {
             $error = curl_exec($curl);
         } catch (Exception $e) {
-            logger('clickhouse-service')->error('Error send command' . PHP_EOL . $e);
+            file_logger('clickhouse-service')->error('Error send command' . PHP_EOL . $e);
 
             return false;
         }

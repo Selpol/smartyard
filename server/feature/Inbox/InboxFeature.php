@@ -3,7 +3,10 @@
 namespace Selpol\Feature\Inbox;
 
 use Selpol\Feature\Feature;
+use Selpol\Feature\Inbox\Internal\InternalInboxFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalInboxFeature::class)]
 abstract class InboxFeature extends Feature
 {
     abstract public function sendMessage(int $subscriberId, string $title, string $msg, string $action = 'inbox'): string|bool;

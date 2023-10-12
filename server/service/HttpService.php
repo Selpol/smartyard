@@ -11,6 +11,7 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use RuntimeException;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Http\Request;
 use Selpol\Http\Response;
 use Selpol\Http\ServerRequest;
@@ -18,6 +19,7 @@ use Selpol\Http\Stream;
 use Selpol\Http\UploadedFile;
 use Selpol\Http\Uri;
 
+#[Singleton]
 class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {
     public function createRequest(string $method, $uri): Request

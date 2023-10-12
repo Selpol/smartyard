@@ -60,7 +60,7 @@ class IntercomEntranceTask extends Task
             if ($throwable instanceof HttpException)
                 throw $throwable;
 
-            logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

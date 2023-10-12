@@ -33,8 +33,8 @@ abstract class PlogTask extends Task
     {
         $households = container(HouseFeature::class);
 
-        $flats1 = array_map('self::getFlatId', $households->getFlats('rfId', ['rfId' => $rfid]));
-        $flats2 = array_map('self::getFlatId', $households->getFlats('domophoneId', $this->id));
+        $flats1 = array_map(self::getFlatId(...), $households->getFlats('rfId', ['rfId' => $rfid]));
+        $flats2 = array_map(self::getFlatId(...), $households->getFlats('domophoneId', $this->id));
 
         return array_intersect($flats1, $flats2);
     }
@@ -43,8 +43,8 @@ abstract class PlogTask extends Task
     {
         $households = container(HouseFeature::class);
 
-        $flats1 = array_map('self::getFlatId', $households->getFlats('openCode', ['openCode' => $code]));
-        $flats2 = array_map('self::getFlatId', $households->getFlats('domophoneId', $this->id));
+        $flats1 = array_map(self::getFlatId(...), $households->getFlats('openCode', ['openCode' => $code]));
+        $flats2 = array_map(self::getFlatId(...), $households->getFlats('domophoneId', $this->id));
 
         return array_intersect($flats1, $flats2);
     }
@@ -56,8 +56,8 @@ abstract class PlogTask extends Task
         $result = $households->getSubscribers('mobile', $user_phone);
 
         if ($result && $result[0]) {
-            $flats1 = array_map('self::getFlatId', $households->getFlats('subscriberId', ['id' => $user_phone]));
-            $flats2 = array_map('self::getFlatId', $households->getFlats('domophoneId', $this->id));
+            $flats1 = array_map(self::getFlatId(...), $households->getFlats('subscriberId', ['id' => $user_phone]));
+            $flats2 = array_map(self::getFlatId(...), $households->getFlats('domophoneId', $this->id));
 
             return array_intersect($flats1, $flats2);
         }

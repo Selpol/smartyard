@@ -5,7 +5,10 @@ namespace Selpol\Feature\Role;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
 use Selpol\Feature\Feature;
+use Selpol\Feature\Role\Internal\InternalRoleFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalRoleFeature::class)]
 abstract class RoleFeature extends Feature
 {
     /**

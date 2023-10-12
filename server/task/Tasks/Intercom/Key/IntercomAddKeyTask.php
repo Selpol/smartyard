@@ -2,8 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
@@ -23,10 +21,6 @@ class IntercomAddKeyTask extends Task
         $this->flatId = $flatId;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function onTask(): bool
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
@@ -50,9 +44,6 @@ class IntercomAddKeyTask extends Task
         return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function add(int $id, int $flat): void
     {
         try {
@@ -66,7 +57,7 @@ class IntercomAddKeyTask extends Task
             if ($throwable instanceof HttpException)
                 throw $throwable;
 
-            logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

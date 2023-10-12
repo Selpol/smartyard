@@ -4,7 +4,6 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Tasks\Intercom\IntercomTask;

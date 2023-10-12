@@ -3,16 +3,12 @@
 namespace Selpol\Feature\User\Internal;
 
 use PDO;
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\User\UserFeature;
 use Selpol\Service\AuthService;
 use Throwable;
 
 class InternalUserFeature extends UserFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getUsers(): bool|array
     {
         $user = container(AuthService::class)->getUserOrThrow();
@@ -179,9 +175,6 @@ class InternalUserFeature extends UserFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string|null $defaultRoute = '', bool|string|null $persistentToken = false): bool
     {
         if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"]))

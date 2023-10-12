@@ -3,14 +3,10 @@
 namespace Selpol\Feature\Authentication\Internal;
 
 use PDO;
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 
 class InternalAuthenticationFeature extends AuthenticationFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function checkAuth(string $login, string $password): int|bool
     {
         $sth = $this->getDatabase()->getConnection()->prepare("select uid, password from core_users where login = :login and enabled = 1");

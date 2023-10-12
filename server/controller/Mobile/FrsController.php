@@ -44,7 +44,7 @@ class FrsController extends Controller
         $result = [];
 
         foreach ($faces as $face)
-            $result[] = ['faceId' => $face[FrsFeature::P_FACE_ID], 'image' => config('api.mobile') . '/address/plogCamshot/' . $face[FrsFeature::P_FACE_IMAGE]];
+            $result[] = ['faceId' => $face[FrsFeature::P_FACE_ID], 'image' => config_get('api.mobile') . '/address/plogCamshot/' . $face[FrsFeature::P_FACE_IMAGE]];
 
         return $this->rbtResponse(data: $result);
     }

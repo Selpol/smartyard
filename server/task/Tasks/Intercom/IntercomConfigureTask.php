@@ -2,8 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
@@ -84,7 +82,7 @@ class IntercomConfigureTask extends IntercomTask
 
             return true;
         } catch (Throwable $throwable) {
-            logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable);
 
             if ($throwable instanceof HttpException)
                 throw $throwable;
@@ -93,21 +91,18 @@ class IntercomConfigureTask extends IntercomTask
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function clean(array $domophone, array $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
     {
         $this->setProgress(5);
 
-        $ntps = config('ntp_servers');
+        $ntps = config_get('ntp_servers');
 
         $ntp = new Uri($ntps[array_rand($ntps)]);
 
         $ntp_server = $ntp->getHost();
         $ntp_port = $ntp->getPort() ?? 123;
 
-        $syslogs = config('syslog_servers')[$domophone['json']['syslog']];
+        $syslogs = config_get('syslog_servers')[$domophone['json']['syslog']];
 
         $syslog = new Uri($syslogs[array_rand($syslogs)]);
 
@@ -126,10 +121,6 @@ class IntercomConfigureTask extends IntercomTask
         $this->setProgress(25);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     private function cms(bool $is_shared, array $entrances, IntercomDevice $device): void
     {
         if (!$is_shared) {
@@ -140,10 +131,6 @@ class IntercomConfigureTask extends IntercomTask
         }
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     private function flat(array &$links, array $entrances, array $cms_levels, bool $is_shared, IntercomDevice $device): void
     {
         $offset = 0;

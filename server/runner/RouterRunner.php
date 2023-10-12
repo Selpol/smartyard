@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Kernel\Runner;
+namespace Selpol\Runner;
 
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
@@ -9,54 +9,42 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Selpol\Container\Container;
+use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
+use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Http\ServerRequest;
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\KernelRunner;
-use Selpol\Kernel\Runner\Trait\ResponseTrait;
 use Selpol\Router\Router;
 use Selpol\Router\RouterMatch;
+use Selpol\Runner\Trait\ResponseTrait;
 use Selpol\Service\HttpService;
 
-class RouterRunner implements KernelRunner, RequestHandlerInterface
+class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
 {
+    use LoggerKernelTrait;
     use ResponseTrait;
-
-    private Router $router;
 
     /** @var string[] $middlewares */
     private array $middlewares = [];
-
-    public function __construct(Router $router)
-    {
-        $this->router = $router;
-    }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      * @throws Exception
      */
-    function __invoke(Kernel $kernel): int
+    function run(array $arguments): int
     {
-        $http = $kernel->getContainer()->get(HttpService::class);
+        $http = container(HttpService::class);
 
         $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
-        $kernel->getContainer()->set(ServerRequest::class, $request);
+        kernel()->getContainer()->set(ServerRequest::class, $request);
 
-        $route = $this->router->match($request);
+        $route = (new Router())->match($request);
 
         if ($route !== null) {
             $this->middlewares = $route->getMiddlewares();
 
-            return $this->emit($this->handle(
-                $request
-                    ->withAttribute('kernel', $kernel)
-                    ->withAttribute('container', $kernel->getContainer())
-                    ->withAttribute('http', $http)
-                    ->withAttribute('route', $route)
-            ));
+            return $this->emit($this->handle($request->withAttribute('http', $http)->withAttribute('route', $route)));
         }
 
         return $this->emit($this->response(404)->withStatusJson());
@@ -75,16 +63,8 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             if ($route === null)
                 return $this->response(404)->withStatusJson();
 
-            if ($route->getMethod() === 'file') {
-                if (!file_exists($route->getClass()))
-                    return $this->response(404)->withStatusJson();
-
-                return require_once $route->getClass();
-            } else if (!class_exists($route->getClass())) {
-                var_dump($route->getClass());
-
-                return $this->response(404)->withStatusJson();
-            }
+            if (!class_exists($route->getClass()))
+                return $this->response(500)->withStatusJson();
 
             $class = $route->getClass();
             $instance = new $class($request);
@@ -92,11 +72,8 @@ class RouterRunner implements KernelRunner, RequestHandlerInterface
             return $instance->{$route->getMethod()}($request);
         }
 
-        /** @var Container $container */
-        $container = $request->getAttribute('container');
-
         /** @var MiddlewareInterface $middleware */
-        $middleware = $container->make(array_shift($this->middlewares));
+        $middleware = kernel()->getContainer()->make(array_shift($this->middlewares));
 
         return $middleware->process($request, $this);
     }

@@ -185,7 +185,7 @@ class IntercomController extends Controller
 
                 container(PlogFeature::class)->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Throwable $throwable) {
-                logger('intercom')->error($throwable);
+                file_logger('intercom')->error($throwable);
 
                 return $this->rbtResponse(404, name: 'Ошибка', message: 'Домофон недоступен');
             }

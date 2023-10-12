@@ -63,7 +63,7 @@ class SyncController extends Controller
                 if ($subscriberId)
                     $result[$validate['id']] = $subscriberId;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 
@@ -95,7 +95,7 @@ class SyncController extends Controller
                 if ($households->modifySubscriber($validate['subscriberId'], ['subscriberName' => $validate['name'], 'subscriberPatronymic' => $validate['patronymic']]))
                     $result[$validate['subscriberId']] = true;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 
@@ -145,7 +145,7 @@ class SyncController extends Controller
                 if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
                     $result[$validate['id']] = true;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 
@@ -173,7 +173,7 @@ class SyncController extends Controller
                 if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 
@@ -201,7 +201,7 @@ class SyncController extends Controller
                 if ($db->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 
@@ -229,7 +229,7 @@ class SyncController extends Controller
                 if ($db->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             } catch (Throwable $throwable) {
-                logger('internal-sync')->error($throwable);
+                file_logger('internal-sync')->error($throwable);
             }
         }
 

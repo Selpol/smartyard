@@ -1,40 +1,31 @@
 <?php
 
-namespace Selpol\Kernel\Runner;
+namespace Selpol\Runner;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
-use Psr\Log\LoggerInterface;
 use RedisException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\KernelRunner;
+use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
+use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
-class AsteriskRunner implements KernelRunner
+class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    private LoggerInterface $logger;
-
-    public function __construct()
-    {
-        $this->logger = file_logger('asterisk');
-    }
+    use LoggerKernelTrait;
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      * @throws ValidatorException
      */
-    function __invoke(Kernel $kernel): int
+    function run(array $arguments): int
     {
-        $asterisk = config('asterisk');
+        $asterisk = config_get('asterisk');
 
         $ip = $_SERVER['REMOTE_ADDR'];
 
@@ -64,7 +55,7 @@ class AsteriskRunner implements KernelRunner
             case 'auths':
             case 'endpoints':
                 if (@$_POST['id'])
-                    echo $this->response($this->getExtension($kernel, $_POST['id'], $path[0]));
+                    echo $this->response($this->getExtension($_POST['id'], $path[0]));
 
                 break;
             case 'extensions':
@@ -159,7 +150,7 @@ class AsteriskRunner implements KernelRunner
                         break;
 
                     case "camshot":
-                        $redis = $kernel->getContainer()->get(RedisService::class)->getConnection();
+                        $redis = container(RedisService::class)->getConnection();
 
                         if ($params["domophoneId"] >= 0) {
                             $households = container(HouseFeature::class);
@@ -234,12 +225,9 @@ class AsteriskRunner implements KernelRunner
         return 0;
     }
 
-    public function onFailed(Throwable $throwable, bool $fatal): int
+    public function error(Throwable $throwable): int
     {
-        if ($throwable instanceof ValidatorException)
-            $this->logger->error($throwable->getValidatorMessage()->message, ['key' => $throwable->getValidatorMessage()->key, 'value' => $throwable->getValidatorMessage()->value]);
-        else
-            $this->logger->emergency($throwable, ['fatal' => $fatal]);
+        $this->logger->emergency($throwable);
 
         return 0;
     }
@@ -248,7 +236,7 @@ class AsteriskRunner implements KernelRunner
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url(config('api.asterisk'));
+        $server = parse_url(config_get('api.asterisk'));
 
         if ($server && $server['path'])
             $path = substr($path, strlen($server['path']));
@@ -260,13 +248,11 @@ class AsteriskRunner implements KernelRunner
     }
 
     /**
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
-     * @throws ContainerExceptionInterface
      */
-    private function getExtension(Kernel $kernel, string $extension, string $section): array
+    private function getExtension(string $extension, string $section): array
     {
-        $redis = $kernel->getContainer()->get(RedisService::class)->getConnection();
+        $redis = container(RedisService::class)->getConnection();
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
             $households = container(HouseFeature::class);

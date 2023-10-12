@@ -35,7 +35,7 @@ class PlogOpenTask extends PlogTask
 
     public function onTask(): bool
     {
-        $logger = logger('plog');
+        $logger = file_logger('plog');
 
         $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
 
@@ -126,7 +126,7 @@ class PlogOpenTask extends PlogTask
 
     public function onError(Throwable $throwable): void
     {
-        logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
+        file_logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
 
         $this->retryLow(300);
     }

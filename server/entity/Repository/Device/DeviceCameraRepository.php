@@ -5,6 +5,7 @@ namespace Selpol\Entity\Repository\Device;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Database\Page;
 
 /**
@@ -16,6 +17,7 @@ use Selpol\Service\Database\Page;
  *
  * @extends Repository<int, DeviceCamera>
  */
+#[Singleton]
 class DeviceCameraRepository extends Repository
 {
     protected bool $audit = true;

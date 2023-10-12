@@ -2,14 +2,13 @@
 
 namespace Selpol\Service;
 
-use Psr\Container\NotFoundExceptionInterface;
-use Psr\SimpleCache\InvalidArgumentException;
-use Selpol\Cache\RedisCache;
 use Selpol\Feature\Role\RoleFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 
+#[Singleton]
 class AuthService
 {
     private ?AuthTokenInterface $token = null;
@@ -51,9 +50,6 @@ class AuthService
         $this->user = $user;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getPermissions(): array
     {
         if ($this->user === null || !$this->user->canScope())
@@ -64,9 +60,6 @@ class AuthService
         return container(RoleFeature::class)->getAllPermissionsForUser($identifier);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function checkScope(string $value): bool
     {
         if ($this->user === null || !$this->user->canScope())

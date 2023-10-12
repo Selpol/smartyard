@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\Archive\Internal;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
@@ -11,12 +10,9 @@ use Throwable;
 
 class InternalArchiveFeature extends ArchiveFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string
     {
-        $dvr_files_ttl = config('feature.archive.dvr_files_ttl', 259200);
+        $dvr_files_ttl = config_get('feature.archive.dvr_files_ttl', 259200);
 
         $filename = guid_v4() . '.mp4';
 
@@ -31,9 +27,6 @@ class InternalArchiveFeature extends ArchiveFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function checkDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): array|false
     {
         return $this->getDatabase()->get(

@@ -46,7 +46,7 @@ class InternalTaskFeature extends TaskFeature
         if ($task instanceof Task)
             return task($task)->high()->dispatch();
 
-        logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask->data]);
+        file_logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask->data]);
 
         return false;
     }

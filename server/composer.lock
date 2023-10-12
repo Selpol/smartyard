@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9227f5fe7ac24f22f5744c45c1b1fa89",
+    "content-hash": "c1f7cc457a8c3deb34a5972fd82f20f5",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1128,6 +1128,38 @@
                 "source": "https://github.com/php-fig/simple-cache/tree/3.0.0"
             },
             "time": "2021-10-29T13:26:27+00:00"
+        },
+        {
+            "name": "selpol/framework",
+            "version": "1.0.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Selpol/framework.git",
+                "reference": "e1612ba81c4cd548da5b0b8d2bc57070b770d97b"
+            },
+            "require": {
+                "php": ">=8.2",
+                "psr/container": "^2.0",
+                "psr/log": "^3.0",
+                "psr/simple-cache": "^3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Selpol\\Framework\\": "src/"
+                },
+                "files": [
+                    "src/kernel.php",
+                    "src/helper.php"
+                ]
+            },
+            "authors": [
+                {
+                    "name": "Ruslan Khudoborodov",
+                    "email": "warfcevip@gmail.com"
+                }
+            ],
+            "time": "2023-10-12T09:51:55+00:00"
         },
         {
             "name": "selpol/validator",

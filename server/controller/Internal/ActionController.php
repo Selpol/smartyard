@@ -40,7 +40,7 @@ class ActionController extends Controller
 
         $db = container(DatabaseService::class);
 
-        $logger = logger('motion');
+        $logger = file_logger('motion');
 
         ["ip" => $ip, "motionActive" => $motionActive] = $body;
 
@@ -78,7 +78,7 @@ class ActionController extends Controller
 
         $plog = container(PlogFeature::class);
 
-        logger('internal')->debug('Open door request', $body);
+        file_logger('internal')->debug('Open door request', $body);
 
         switch ($event) {
             case PlogFeature::EVENT_OPENED_BY_KEY:
@@ -158,7 +158,7 @@ class ActionController extends Controller
 
     public function getSyslogConfig(): Response
     {
-        $config = config('feature.plog');
+        $config = config_get('feature.plog');
 
         return $this->rbtResponse(data: [
             'clickhouseService' => [
@@ -168,7 +168,7 @@ class ActionController extends Controller
                 'username' => $config['username'],
                 'password' => $config['password'],
             ],
-            'hw' => config('syslog_servers')
+            'hw' => config_get('syslog_servers')
         ]);
     }
 }

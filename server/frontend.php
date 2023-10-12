@@ -1,8 +1,13 @@
 <?php
 
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\Runner\FrontendRunner;
+use Selpol\Framework\Kernel\Kernel;
+use Selpol\Runner\FrontendRunner;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
-exit((new Kernel())->setRunner(new FrontendRunner())->bootstrap()->run());
+$kernel = new Kernel(new FrontendRunner());
+
+$kernel->getRunner()->setLogger(file_logger('frontend'));
+$kernel->bootstrap();
+
+exit($kernel->run([]));

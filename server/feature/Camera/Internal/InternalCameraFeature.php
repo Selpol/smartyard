@@ -2,15 +2,11 @@
 
 namespace Selpol\Feature\Camera\Internal;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Feature\Camera\CameraFeature;
 
 class InternalCameraFeature extends CameraFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getCameras(string|bool $by = false, $params = false): bool|array
     {
         $q = "select * from cameras order by camera_id";
@@ -55,9 +51,6 @@ class InternalCameraFeature extends CameraFeature
         else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addCamera($enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, int $mdLeft, int $mdTop, int $mdWidth, int $mdHeight, $common, $comment): bool|int
     {
         if (!$model)
@@ -95,9 +88,6 @@ class InternalCameraFeature extends CameraFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function modifyCamera(int $cameraId, $enabled, $model, $url, $stream, $credentials, $name, $dvrStream, $timezone, $lat, $lon, $direction, $angle, $distance, $frs, int $mdLeft, int $mdTop, int $mdWidth, int $mdHeight, $common, $comment): bool
     {
         if (!$model) {
@@ -140,9 +130,6 @@ class InternalCameraFeature extends CameraFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function deleteCamera(int $cameraId): bool
     {
         return $this->getDatabase()->modify("delete from cameras where camera_id = $cameraId");

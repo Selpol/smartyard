@@ -134,7 +134,7 @@ class PlogController extends Controller
                     }
                     if ((int)$row[PlogFeature::COLUMN_PREVIEW]) {
                         $img_uuid = $row[PlogFeature::COLUMN_IMAGE_UUID];
-                        $url = config('api.mobile') . "/address/plogCamshot/$img_uuid";
+                        $url = config_get('api.mobile') . "/address/plogCamshot/$img_uuid";
                         $e_details['preview'] = $url;
                     }
 
@@ -145,7 +145,7 @@ class PlogController extends Controller
                 return $this->rbtResponse(404, message: 'События не найдены');
             }
         } catch (Throwable $throwable) {
-            logger('plog')->debug($throwable);
+            file_logger('plog')->debug($throwable);
 
             return $this->rbtResponse(500);
         }
@@ -216,7 +216,7 @@ class PlogController extends Controller
 
             return $this->rbtResponse(404, message: 'События не найдены');
         } catch (Throwable $throwable) {
-            logger('plog')->debug($throwable);
+            file_logger('plog')->debug($throwable);
 
             return $this->rbtResponse(500);
         }

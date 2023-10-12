@@ -2,20 +2,18 @@
 
 namespace Selpol\Service;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Http\Uri;
 
+#[Singleton]
 class DeviceService
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function cameraById(int $id): ?CameraDevice
     {
         if ($camera = container(CameraFeature::class)->getCamera($id))
@@ -34,9 +32,6 @@ class DeviceService
         return null;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function intercomById(int $id): ?IntercomDevice
     {
         if ($domophone = container(HouseFeature::class)->getDomophone($id))

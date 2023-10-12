@@ -4,7 +4,10 @@ namespace Selpol\Feature\File;
 
 use MongoDB\UpdateResult;
 use Selpol\Feature\Feature;
+use Selpol\Feature\File\Mongo\MongoFileFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(MongoFileFeature::class)]
 abstract class FileFeature extends Feature
 {
     /**

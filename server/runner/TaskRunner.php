@@ -1,62 +1,50 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Kernel\Runner;
+namespace Selpol\Runner;
 
 use Exception;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Selpol\Feature\Task\TaskFeature;
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\KernelRunner;
+use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
+use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\TaskService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskCallback;
 use Throwable;
 
-class TaskRunner implements KernelRunner
+class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    private array $argv;
-
-    private LoggerInterface $logger;
-
-    public function __construct(array $argv, ?LoggerInterface $logger = null)
-    {
-        $this->argv = $argv;
-
-        $this->logger = $logger ?? file_logger('task');
-    }
+    use LoggerKernelTrait;
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws Exception
      */
-    function __invoke(Kernel $kernel): int
+    function run(array $arguments): int
     {
-        $arguments = $this->getArguments();
+        $arguments = $this->getArguments($arguments);
 
         $queue = array_key_exists('--queue', $arguments) ? $arguments['--queue'] : 'default';
 
         $this->registerSignal();
-        $this->registerDequeue($kernel, $queue);
+        $this->registerDequeue($queue);
 
         return 0;
     }
 
-    public function onFailed(Throwable $throwable, bool $fatal): int
+    public function error(Throwable $throwable): int
     {
-        $this->logger->error($throwable, ['fatal' => $fatal]);
+        $this->logger->error($throwable);
 
         return 0;
     }
 
-    private function getArguments(): array
+    private function getArguments(array $arguments): array
     {
         $args = [];
 
-        for ($i = 1; $i < count($this->argv); $i++) {
-            $a = explode('=', $this->argv[$i]);
+        for ($i = 1; $i < count($arguments); $i++) {
+            $a = explode('=', $arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }
@@ -80,13 +68,11 @@ class TaskRunner implements KernelRunner
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws Exception
      */
-    private function registerDequeue(Kernel $kernel, string $queue): void
+    private function registerDequeue(string $queue): void
     {
-        $service = $kernel->getContainer()->get(TaskService::class);
+        $service = container(TaskService::class);
         $service->setLogger(file_logger('task'));
 
         $service->dequeue($queue, new class($queue, file_logger('task-' . $queue)) implements TaskCallback {

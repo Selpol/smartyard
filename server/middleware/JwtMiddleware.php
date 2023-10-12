@@ -2,7 +2,6 @@
 
 namespace Selpol\Middleware;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -15,9 +14,6 @@ use Selpol\Service\HttpService;
 
 class JwtMiddleware implements MiddlewareInterface
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $result = $this->setJwtFromRequest($request);
@@ -32,9 +28,6 @@ class JwtMiddleware implements MiddlewareInterface
         return $handler->handle($request);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function setJwtFromRequest(ServerRequest $request): ?string
     {
         $token = $request->getHeader('Authorization');

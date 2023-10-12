@@ -4,9 +4,11 @@ namespace Selpol\Service;
 
 use Redis;
 use RedisException;
-use Selpol\Container\ContainerDispose;
+use Selpol\Framework\Container\Attribute\Singleton;
+use Selpol\Framework\Container\ContainerDisposeInterface;
 
-class RedisService implements ContainerDispose
+#[Singleton]
+class RedisService implements ContainerDisposeInterface
 {
     private ?Redis $redis;
 
@@ -17,10 +19,10 @@ class RedisService implements ContainerDispose
     {
         $this->redis = new Redis();
 
-        $this->redis->connect(config('redis.host'), config('redis.port'));
+        $this->redis->connect(config_get('redis.host'), config_get('redis.port'));
 
-        if (config('redis.password'))
-            $this->redis->auth(config('redis.password'));
+        if (config_get('redis.password'))
+            $this->redis->auth(config_get('redis.password'));
     }
 
     public function getConnection(): ?Redis

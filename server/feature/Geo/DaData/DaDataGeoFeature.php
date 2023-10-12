@@ -9,7 +9,7 @@ class DaDataGeoFeature extends GeoFeature
 {
     public function suggestions(string $search): bool|array
     {
-        $geo = config('feature.geo');
+        $geo = config_get('feature.geo');
 
         $curl = curl_init();
 

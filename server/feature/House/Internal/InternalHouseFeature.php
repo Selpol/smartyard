@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\House\Internal;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
@@ -13,9 +12,6 @@ use Throwable;
 
 class InternalHouseFeature extends HouseFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getFlatPlog(int $flatId): ?int
     {
         $result = $this->getDatabase()->get("select plog from houses_flats where house_flat_id = $flatId");
@@ -26,9 +22,6 @@ class InternalHouseFeature extends HouseFeature
         return null;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getFlats(string $by, mixed $params): bool|array
     {
         $q = "";
@@ -118,9 +111,6 @@ class InternalHouseFeature extends HouseFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getFlat(int $flatId): bool|array
     {
         $flat = $this->getDatabase()->get(
@@ -193,9 +183,6 @@ class InternalHouseFeature extends HouseFeature
         return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function createEntrance(int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool|int
     {
         if (!trim($entranceType) || !trim($entrance)) {
@@ -242,9 +229,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addEntrance(int $houseId, int $entranceId, int $prefix): bool|int
     {
         return $this->getDatabase()->modify("insert into houses_houses_entrances (address_house_id, house_entrance_id, prefix) values (:address_house_id, :house_entrance_id, :prefix)", [
@@ -254,9 +238,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyEntrance(int $entranceId, int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool
     {
         if (!trim($entranceType) || !trim($entrance))
@@ -300,9 +281,6 @@ class InternalHouseFeature extends HouseFeature
             ]) !== false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteEntrance(int $entranceId, int $houseId): bool
     {
         return
@@ -313,9 +291,6 @@ class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, int $manualBlock, int $adminBlock, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string
     {
         $autoOpen = (int)strtotime($autoOpen);
@@ -375,9 +350,6 @@ class InternalHouseFeature extends HouseFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyFlat(int $flatId, array $params): bool
     {
         if (array_key_exists("code", $params) && !check_string($params["code"])) {
@@ -448,9 +420,6 @@ class InternalHouseFeature extends HouseFeature
         return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addEntranceToFlat(int $entranceId, int $flatId, int $apartment): bool
     {
         return $this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
@@ -461,9 +430,6 @@ class InternalHouseFeature extends HouseFeature
             ]) == true;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteFlat(int $flatId): bool
     {
         return
@@ -478,9 +444,6 @@ class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_rfids where access_to not in (select house_flat_id from houses_flats) and access_type = 2") !== false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getSharedEntrances(int|bool $houseId = false): bool|array
     {
         if ($houseId) {
@@ -496,9 +459,6 @@ class InternalHouseFeature extends HouseFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function destroyEntrance(int $entranceId): bool
     {
         return
@@ -509,9 +469,6 @@ class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getCms(int $entranceId): bool|array
     {
         return $this->getDatabase()->get("select * from houses_entrances_cmses where house_entrance_id = $entranceId",
@@ -524,9 +481,6 @@ class InternalHouseFeature extends HouseFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function setCms(int $entranceId, array $cms): bool
     {
         $result = $this->getDatabase()->modify("delete from houses_entrances_cmses where house_entrance_id = $entranceId") !== false;
@@ -544,9 +498,6 @@ class InternalHouseFeature extends HouseFeature
         return $result;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getDomophones(string $by = "all", string|int $query = -1): bool|array
     {
         $q = "select * from houses_domophones order by house_domophone_id";
@@ -606,9 +557,6 @@ class InternalHouseFeature extends HouseFeature
         return $this->getDatabase()->get($q, map: $r);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int
     {
         $entrance = $this->getDatabase()->get("select house_domophone_id from houses_entrances where camera_id = $camera_id limit 1");
@@ -619,9 +567,6 @@ class InternalHouseFeature extends HouseFeature
         return null;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addDomophone(int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $nat, string $comment): bool|int|string
     {
         if (IntercomModel::model($model) === null) {
@@ -655,9 +600,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function modifyDomophone(int $domophoneId, int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $firstTime, int $nat, int $locksAreOpen, string $comment): bool|int
     {
         if (!trim($server)) {
@@ -696,9 +638,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function deleteDomophone(int $domophoneId): bool
     {
         return
@@ -713,9 +652,6 @@ class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getDomophone(int $domophoneId): bool|array
     {
         $domophone = $this->getDatabase()->get("select * from houses_domophones where house_domophone_id = $domophoneId",
@@ -742,9 +678,6 @@ class InternalHouseFeature extends HouseFeature
         return $domophone;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getSubscribers(string $by, mixed $query): bool|array
     {
         $q = "";
@@ -808,9 +741,6 @@ class InternalHouseFeature extends HouseFeature
         return $subscribers;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addSubscriber(string $mobile, string|null $name = null, string|null $patronymic = null, string|null $audJti = null, int|bool $flatId = false, array|bool $message = false): int|bool
     {
         if (
@@ -863,15 +793,12 @@ class InternalHouseFeature extends HouseFeature
             if ($id)
                 $this->modifySubscriber($subscriberId, ['audJti' => $id]);
         } catch (Throwable $throwable) {
-            logger('subscriber')->error($throwable);
+            file_logger('subscriber')->error($throwable);
         }
 
         return $subscriberId;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function modifySubscriber(int $subscriberId, array $params = []): bool|int
     {
         $db = $this->getDatabase();
@@ -893,7 +820,7 @@ class InternalHouseFeature extends HouseFeature
             try {
                 $audJti = container(OauthFeature::class)->register($params['mobile']);
             } catch (Throwable $throwable) {
-                logger('subscriber')->error($throwable);
+                file_logger('subscriber')->error($throwable);
             }
         }
 
@@ -983,9 +910,6 @@ class InternalHouseFeature extends HouseFeature
         return true;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function deleteSubscriber(int $subscriberId): bool|int
     {
         $result = $this->getDatabase()->modify("delete from houses_subscribers_mobile where house_subscriber_id = $subscriberId");
@@ -994,9 +918,6 @@ class InternalHouseFeature extends HouseFeature
         else return $this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id not in (select house_subscriber_id from houses_subscribers_mobile)");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
     {
         return $this->getDatabase()->insert(
@@ -1009,9 +930,6 @@ class InternalHouseFeature extends HouseFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int
     {
         return $this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id = :house_subscriber_id and house_flat_id = :house_flat_id", [
@@ -1020,9 +938,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function setSubscriberFlats(int $subscriberId, array $flats): bool
     {
         if (!$this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id = $subscriberId")) {
@@ -1042,9 +957,6 @@ class InternalHouseFeature extends HouseFeature
         return true;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getKeys(string $by, ?int $query): bool|array
     {
         $q = "";
@@ -1067,9 +979,6 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getKey(int $keyId): array|false
     {
         return $this->getDatabase()->get('select * from houses_rfids where house_rfid_id = :key_id', ['key_id' => $keyId], [
@@ -1082,9 +991,6 @@ class InternalHouseFeature extends HouseFeature
         ], ['singlify']);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addKey(string $rfId, int $accessType, $accessTo, string $comments): bool|int|string
     {
         if (!check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($comments, ["maxLength" => 128])) {
@@ -1100,33 +1006,21 @@ class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function deleteKey(int $keyId): bool|int
     {
         return $this->getDatabase()->modify("delete from houses_rfids where house_rfid_id = $keyId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function modifyKey(int $keyId, string $comments): bool|int
     {
         return $this->getDatabase()->modify("update houses_rfids set comments = :comments where house_rfid_id = $keyId", ["comments" => $comments]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function doorOpened(int $flatId): bool|int
     {
         return $this->getDatabase()->modify("update houses_flats set last_opened = :now where house_flat_id = $flatId", ["now" => time()]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getEntrance(int $entranceId): array|bool
     {
         return $this->getDatabase()->get("select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = $entranceId order by entrance_type, entrance",
@@ -1151,9 +1045,6 @@ class InternalHouseFeature extends HouseFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function dismissToken(string $token): bool
     {
         return
@@ -1162,9 +1053,6 @@ class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("update houses_subscribers_mobile set voip_token = null where voip_token = :voip_token", ["voip_token" => $token]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getEntrances(string $by, mixed $query): bool|array
     {
         $where = '';
@@ -1218,9 +1106,6 @@ class InternalHouseFeature extends HouseFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function addCamera(string $to, int $id, int $cameraId): bool|int|string
     {
         return match ($to) {
@@ -1231,9 +1116,6 @@ class InternalHouseFeature extends HouseFeature
         };
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function unlinkCamera(string $from, int $id, int $cameraId): bool|int
     {
         return match ($from) {
@@ -1244,9 +1126,6 @@ class InternalHouseFeature extends HouseFeature
         };
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getCameras(string $by, int $params): array
     {
         $query = match ($by) {

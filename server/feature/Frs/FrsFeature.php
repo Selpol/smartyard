@@ -3,7 +3,10 @@
 namespace Selpol\Feature\Frs;
 
 use Selpol\Feature\Feature;
+use Selpol\Feature\Frs\Internal\InternalFrsFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalFrsFeature::class)]
 abstract class FrsFeature extends Feature
 {
     //FRS params names

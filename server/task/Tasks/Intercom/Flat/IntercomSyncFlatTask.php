@@ -2,8 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
@@ -23,10 +21,6 @@ class IntercomSyncFlatTask extends Task
         $this->add = $add;
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function onTask(): bool
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
@@ -50,9 +44,6 @@ class IntercomSyncFlatTask extends Task
         return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function apartment(int $id, array $flat, array $entrance): void
     {
         try {
@@ -98,7 +89,7 @@ class IntercomSyncFlatTask extends Task
             if ($throwable instanceof HttpException)
                 throw $throwable;
 
-            logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

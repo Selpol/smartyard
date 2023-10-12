@@ -2,8 +2,6 @@
 
 namespace Selpol\Middleware;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -20,12 +18,10 @@ class RateLimitMiddleware implements MiddlewareInterface
 
     public function __construct()
     {
-        $this->trust = config('mobile.trust') ?? ['127.0.0.1/32'];
+        $this->trust = config_get('mobile.trust') ?? ['127.0.0.1/32'];
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

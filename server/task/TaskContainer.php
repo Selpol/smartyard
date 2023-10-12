@@ -57,7 +57,8 @@ class TaskContainer
 
     public function dispatch(): bool
     {
-        $logger = logger('task');
+        $logger = file_logger('task');
+
         $queue = $this->queue ?? TaskService::QUEUE_DEFAULT;
 
         try {

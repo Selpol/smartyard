@@ -28,7 +28,7 @@ class RecordTask extends Task
             $this->subscriberId,
             'Видео готово к загрузке',
             'Внимание! Файлы на сервере будут доступны в течение 3 суток',
-            config('api.mobile') . '/cctv/download/' . $uuid
+            config_get('api.mobile') . '/cctv/download/' . $uuid
         );
 
         return true;

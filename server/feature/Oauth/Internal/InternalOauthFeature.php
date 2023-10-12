@@ -8,7 +8,7 @@ class InternalOauthFeature extends OauthFeature
 {
     public function validateJwt(string $value): ?array
     {
-        $oauth = config('feature.oauth');
+        $oauth = config_get('feature.oauth');
 
         list($header, $payload, $signature) = explode('.', $value);
         $decoded_signature = base64_decode(str_replace(array('-', '_'), array('+', '/'), $signature));
@@ -38,7 +38,7 @@ class InternalOauthFeature extends OauthFeature
 
     private function request(string $endpoint, mixed $data): ?string
     {
-        $oauth = config('feature.oauth');
+        $oauth = config_get('feature.oauth');
 
         if (array_key_exists('web_api', $oauth) && array_key_exists('secret', $oauth)) {
             $webApi = $oauth['web_api'];
@@ -55,7 +55,7 @@ class InternalOauthFeature extends OauthFeature
             $response = curl_exec($request);
             $body = json_decode($response, true);
 
-            logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, $body);
+            file_logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, $body);
 
             if ($body['success'])
                 return $body['data'];

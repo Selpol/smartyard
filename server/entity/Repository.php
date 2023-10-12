@@ -2,7 +2,6 @@
 
 namespace Selpol\Entity;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Service\Database\Manager;
 use Selpol\Service\Database\Page;
@@ -46,7 +45,6 @@ abstract class Repository
      * @psalm-param string $query
      * @psalm-param array $params
      * @psalm-return TValue
-     * @throws NotFoundExceptionInterface
      */
     public function fetchRaw(string $query, array $params = []): Entity
     {
@@ -57,7 +55,6 @@ abstract class Repository
      * @param string $query
      * @param array $params
      * @return array<TValue>
-     * @throws NotFoundExceptionInterface
      */
     public function fetchAllRaw(string $query, array $params = []): array
     {
@@ -69,7 +66,6 @@ abstract class Repository
      * @param int $size
      * @param Criteria|null $criteria
      * @return Page<TValue>
-     * @throws NotFoundExceptionInterface
      */
     public function fetchPaginate(int $page, int $size, ?Criteria $criteria = null): Page
     {
@@ -79,7 +75,6 @@ abstract class Repository
     /**
      * @psalm-param TKey $id
      * @psalm-return TValue
-     * @throws NotFoundExceptionInterface
      */
     public function findById(mixed $id): Entity
     {
@@ -89,7 +84,6 @@ abstract class Repository
     /**
      * @psalm-param TValue $entity
      * @psalm-return bool
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function insert(Entity $entity): bool
@@ -118,7 +112,6 @@ abstract class Repository
     /**
      * @psalm-param TValue $entity
      * @psalm-return bool
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function refresh(Entity $entity): bool
@@ -136,7 +129,6 @@ abstract class Repository
     /**
      * @psalm-param TValue $entity
      * @psalm-return bool
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function update(Entity $entity): bool
@@ -167,7 +159,6 @@ abstract class Repository
     /**
      * @psalm-param TValue $entity
      * @psalm-return bool
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function delete(Entity $entity): bool
@@ -184,7 +175,6 @@ abstract class Repository
 
     /**
      * @throws ValidatorException
-     * @throws NotFoundExceptionInterface
      */
     public function insertAndRefresh(Entity $entity): bool
     {
@@ -193,16 +183,12 @@ abstract class Repository
 
     /**
      * @throws ValidatorException
-     * @throws NotFoundExceptionInterface
      */
     public function updateAndRefresh(Entity $entity): bool
     {
         return $this->update($entity) && $this->refresh($entity);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     protected function getManager(): Manager
     {
         return container(DatabaseService::class)->getManager();

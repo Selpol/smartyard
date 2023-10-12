@@ -1,8 +1,13 @@
 <?php
 
-use Selpol\Kernel\Kernel;
-use Selpol\Kernel\Runner\AsteriskRunner;
+use Selpol\Framework\Kernel\Kernel;
+use Selpol\Runner\AsteriskRunner;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
-exit((new Kernel())->setRunner(new AsteriskRunner())->bootstrap()->run());
+$kernel = new Kernel(new AsteriskRunner());
+
+$kernel->getRunner()->setLogger(file_logger('asterisk'));
+$kernel->bootstrap();
+
+exit($kernel->run([]));

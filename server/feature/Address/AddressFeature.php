@@ -2,8 +2,11 @@
 
 namespace Selpol\Feature\Address;
 
+use Selpol\Feature\Address\Internal\InternalAddressFeature;
 use Selpol\Feature\Feature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalAddressFeature::class)]
 abstract class AddressFeature extends Feature
 {
     abstract function getRegions(): bool|array;

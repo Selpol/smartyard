@@ -4,27 +4,22 @@ namespace Selpol\Cache;
 
 use DateInterval;
 use DateTimeImmutable;
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\CacheInterface;
-use Selpol\Cache\Trait\CacheTrait;
-use Selpol\Container\Container;
+use Selpol\Framework\Cache\Trait\CacheTrait;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\RedisService;
 use Throwable;
 
+#[Singleton]
 class RedisCache implements CacheInterface
 {
     use CacheTrait;
 
     private RedisService $service;
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    public function __construct(Container $container)
+    public function __construct()
     {
-        $this->service = $container->get(RedisService::class);
+        $this->service = container(RedisService::class);
     }
 
     public function get(string $key, mixed $default = null): mixed

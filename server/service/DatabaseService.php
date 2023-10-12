@@ -5,10 +5,12 @@ namespace Selpol\Service;
 use Exception;
 use PDO;
 use PDOException;
-use Selpol\Container\ContainerDispose;
+use Selpol\Framework\Container\Attribute\Singleton;
+use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Service\Database\Manager;
 
-class DatabaseService implements ContainerDispose
+#[Singleton]
+class DatabaseService implements ContainerDisposeInterface
 {
     private ?PDO $connection;
 
@@ -16,7 +18,7 @@ class DatabaseService implements ContainerDispose
 
     public function __construct()
     {
-        $this->connection = new PDO(config('db.dsn'), config('db.username'), config('db.password'), config('db.options'));
+        $this->connection = new PDO(config_get('db.dsn'), config_get('db.username'), config_get('db.password'), config_get('db.options'));
 
         $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 60);
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -59,7 +61,7 @@ class DatabaseService implements ContainerDispose
             } else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                logger('database')->error($e);
+                file_logger('database')->error($e);
 
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
@@ -67,7 +69,7 @@ class DatabaseService implements ContainerDispose
 
             return false;
         } catch (Exception $e) {
-            logger('database')->error($e);
+            file_logger('database')->error($e);
 
             last_error($e->getMessage());
             error_log(print_r($e, true));
@@ -92,7 +94,7 @@ class DatabaseService implements ContainerDispose
             else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                logger('database')->error($e);
+                file_logger('database')->error($e);
 
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
@@ -100,7 +102,7 @@ class DatabaseService implements ContainerDispose
 
             return false;
         } catch (Exception $e) {
-            logger('database')->error($e);
+            file_logger('database')->error($e);
 
             last_error($e->getMessage());
             error_log(print_r($e, true));
@@ -136,7 +138,7 @@ class DatabaseService implements ContainerDispose
             return $mod;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                logger('database')->error($e);
+                file_logger('database')->error($e);
 
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
@@ -144,7 +146,7 @@ class DatabaseService implements ContainerDispose
 
             return false;
         } catch (Exception $e) {
-            logger('database')->error($e);
+            file_logger('database')->error($e);
 
             last_error($e->getMessage());
             error_log(print_r($e, true));
@@ -196,7 +198,7 @@ class DatabaseService implements ContainerDispose
             return $r;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                logger('database')->error($e);
+                file_logger('database')->error($e);
 
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
@@ -204,7 +206,7 @@ class DatabaseService implements ContainerDispose
 
             return false;
         } catch (Exception $e) {
-            logger('database')->error($e);
+            file_logger('database')->error($e);
 
             last_error($e->getMessage());
             error_log(print_r($e, true));

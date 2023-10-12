@@ -8,9 +8,6 @@ use Selpol\Feature\Address\AddressFeature;
 
 class InternalAddressFeature extends AddressFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getRegions(): bool|array
     {
         return $this->getDatabase()->get(
@@ -28,9 +25,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getRegion(int $regionId): bool|array
     {
         return $this->getDatabase()->get(
@@ -50,9 +44,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyRegion(int $regionId, string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool
     {
         if ($timezone == "-")
@@ -74,9 +65,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addRegion(string $regionUuid, string $regionIsoCode, string $regionWithType, string $regionType, string $regionTypeFull, string $region, ?string $timezone = "-"): bool|int
     {
         if ($timezone == "-")
@@ -98,17 +86,11 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteRegion(int $regionId): bool
     {
         return $this->getDatabase()->modify("delete from addresses_regions where address_region_id = $regionId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getAreas(?int $regionId): bool|array
     {
         if ($regionId)
@@ -131,9 +113,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getArea(int $areaId): bool|array
     {
         return $this->getDatabase()->get("select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas where address_area_id = $areaId",
@@ -151,9 +130,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyArea(int|bool|null $areaId, int|bool|null $regionId, string $areaUuid, string $areaWithType, string $areaType, string $areaTypeFull, string $area, string $timezone = "-"): bool|int
     {
         if ($timezone == "-")
@@ -175,9 +151,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addArea(int $regionId, string $areaUuid, string $areaWithType, string $areaType, string $areaTypeFull, string $area, string $timezone = "-"): bool|int|string
     {
         if ($timezone == "-")
@@ -199,17 +172,11 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteArea(int $areaId): bool|int
     {
         return $this->getDatabase()->modify("delete from addresses_areas where address_area_id = $areaId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getCities(int|bool $regionId = false, int|bool $areaId = false): array|bool
     {
         if ($regionId && $areaId)
@@ -240,9 +207,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getCity(int $cityId): array|bool
     {
         return $this->getDatabase()->get(
@@ -262,9 +226,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyCity(int|bool|null $cityId, int|bool|null $regionId, int|bool|null $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int
     {
         if ($timezone == "-")
@@ -293,9 +254,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addCity(int $regionId, ?int $areaId, string $cityUuid, string $cityWithType, string $cityType, string $cityTypeFull, string $city, string $timezone = "-"): bool|int|string
     {
         if ($timezone == '-')
@@ -324,17 +282,11 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteCity(int $cityId): bool|int
     {
         return $this->getDatabase()->modify("delete from addresses_cities where address_city_id = $cityId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getSettlements(int|bool $areaId = false, int|bool $cityId = false): array|bool
     {
         if ($areaId && $cityId)
@@ -364,9 +316,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getSettlement(int $settlementId): array|bool
     {
         return $this->getDatabase()->get(
@@ -385,9 +334,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifySettlement(int|bool|null $settlementId, int|bool|null $areaId, int|bool|null $cityId, string $settlementUuid, string $settlementWithType, string $settlementType, string $settlementTypeFull, string $settlement): bool|int
     {
         if ($areaId && $cityId)
@@ -409,9 +355,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addSettlement(int|bool|null $areaId, int|bool|null $cityId, string $settlementUuid, string $settlementWithType, string $settlementType, string $settlementTypeFull, string $settlement): bool|int|string
     {
         if ($areaId && $cityId)
@@ -433,17 +376,11 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteSettlement(int $settlementId): bool|int
     {
         return $this->getDatabase()->modify("delete from addresses_settlements where address_settlement_id = $settlementId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getStreets(int|bool $cityId = false, int|bool $settlementId = false): bool|array
     {
         if ($cityId && $settlementId)
@@ -473,9 +410,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getStreet(int $streetId): bool|array
     {
         return $this->getDatabase()->get(
@@ -494,9 +428,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyStreet(int $streetId, int|bool|null $cityId, int|bool|null $settlementId, string $streetUuid, string $streetWithType, string $streetType, string $streetTypeFull, string $street): bool|int
     {
         if ($cityId && $settlementId)
@@ -521,9 +452,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addStreet(int|bool|null $cityId, int|bool|null $settlementId, string $streetUuid, string $streetWithType, string $streetType, string $streetTypeFull, string $street): bool|int|string
     {
         if ($cityId && $settlementId)
@@ -548,17 +476,11 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteStreet(int $streetId): bool|int
     {
         return $this->getDatabase()->modify("delete from addresses_streets where address_street_id = $streetId");
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getHouses(int|bool|null $settlementId = false, int|bool|null $streetId = false): bool|array
     {
         if ($settlementId && $streetId)
@@ -588,9 +510,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function getHouse(int $houseId): bool|array
     {
         return $this->getDatabase()->get(
@@ -609,9 +528,6 @@ class InternalAddressFeature extends AddressFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function modifyHouse(int $houseId, int|bool|null $settlementId, int|bool|null $streetId, string $houseUuid, string $houseType, string $houseTypeFull, string $houseFull, string $house): bool|int
     {
         if ($settlementId && $streetId)
@@ -633,9 +549,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function addHouse(int|bool|null $settlementId, int|bool|null $streetId, string $houseUuid, string $houseType, string $houseTypeFull, string $houseFull, string $house): bool|int|string
     {
         if ($settlementId && $streetId)
@@ -657,9 +570,6 @@ class InternalAddressFeature extends AddressFeature
         } else return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function deleteHouse(int $houseId): bool|int
     {
         return $this->getDatabase()->modify("delete from addresses_houses where address_house_id = $houseId");

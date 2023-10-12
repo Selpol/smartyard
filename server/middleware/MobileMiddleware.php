@@ -2,7 +2,6 @@
 
 namespace Selpol\Middleware;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -14,9 +13,6 @@ use Selpol\Service\HttpService;
 
 class MobileMiddleware implements MiddlewareInterface
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $auth = container(AuthService::class);

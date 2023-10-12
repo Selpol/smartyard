@@ -5,6 +5,7 @@ namespace Selpol\Entity\Repository;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Audit;
 use Selpol\Entity\Repository;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Database\Page;
 
 /**
@@ -16,6 +17,7 @@ use Selpol\Service\Database\Page;
  *
  * @extends Repository<int, Audit>
  */
+#[Singleton]
 class AuditRepository extends Repository
 {
     public function __construct()

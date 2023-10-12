@@ -2,15 +2,12 @@
 
 namespace Selpol\Feature\Frs\Internal;
 
-use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Psr\Log\LoggerInterface;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Throwable;
 
 class InternalFrsFeature extends FrsFeature
 {
@@ -18,22 +15,19 @@ class InternalFrsFeature extends FrsFeature
 
     public function __construct()
     {
-        $this->logger = logger('frs');
+        $this->logger = file_logger('frs');
     }
 
     private function camshotUrl(array $cam): string
     {
-        return config('api.private') . '/frs/camshot/' . $cam[self::CAMERA_ID];
+        return config_get('api.private') . '/frs/camshot/' . $cam[self::CAMERA_ID];
     }
 
     private function callback(array $cam): string
     {
-        return config('api.private') . '/frs/callback?stream_id=' . $cam[self::CAMERA_ID];
+        return config_get('api.private') . '/frs/callback?stream_id=' . $cam[self::CAMERA_ID];
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function addFace($data, $event_uuid)
     {
         $r = $this->getDatabase()->get("select face_id from frs_faces where face_id = :face_id", [":face_id" => $data[self::P_FACE_ID]], options: [self::PDO_SINGLIFY]);
@@ -68,7 +62,7 @@ class InternalFrsFeature extends FrsFeature
 
     public function servers(): array
     {
-        return config('feature.frs.servers');
+        return config_get('feature.frs.servers');
     }
 
     public function apiCall(string $base_url, string $method, array $params = []): array|bool
@@ -153,9 +147,6 @@ class InternalFrsFeature extends FrsFeature
         return $this->apiCall($cam[self::CAMERA_FRS], self::M_BEST_QUALITY, $method_params);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function registerFace(array $cam, string $event_uuid, int $left = 0, int $top = 0, int $width = 0, int $height = 0): array|bool
     {
         $event_data = container(PlogFeature::class)->getEventDetails($event_uuid);
@@ -163,7 +154,7 @@ class InternalFrsFeature extends FrsFeature
         if (!$event_data)
             return false;
 
-        $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_URL => config('api.mobile') . '/address/plogCamshot/' . $event_data['image_uuid']];
+        $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_URL => config_get('api.mobile') . '/address/plogCamshot/' . $event_data['image_uuid']];
 
         if ($width > 0 && $height > 0) {
             $method_params[self::P_FACE_LEFT] = $left;
@@ -194,20 +185,14 @@ class InternalFrsFeature extends FrsFeature
         return $this->apiCall($cam[self::CAMERA_FRS], self::M_MOTION_DETECTION, $method_params);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function cron($part): bool
     {
-        if ($part === config('feature.frs.cron_sync_data_scheduler'))
+        if ($part === config_get('feature.frs.cron_sync_data_scheduler'))
             $this->syncData();
 
         return true;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function deleteFaceId(int $face_id): void
     {
         $this->getDatabase()->modify("delete from frs_links_faces where face_id = :face_id", [":face_id" => $face_id]);
@@ -223,9 +208,6 @@ class InternalFrsFeature extends FrsFeature
         $this->getDatabase()->modify("delete from frs_faces where face_id = :face_id", [":face_id" => $face_id]);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     private function syncData(): void
     {
         if (!is_array($this->servers())) {
@@ -397,9 +379,6 @@ class InternalFrsFeature extends FrsFeature
         }
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function attachFaceId(int $face_id, int $flat_id, int $house_subscriber_id): bool|int|string
     {
         $r = $this->getDatabase()->get(
@@ -417,10 +396,6 @@ class InternalFrsFeature extends FrsFeature
         );
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ContainerExceptionInterface
-     */
     public function detachFaceId(int $face_id, int $house_subscriber_id): bool|int
     {
         $r = $this->getDatabase()->get(
@@ -448,18 +423,11 @@ class InternalFrsFeature extends FrsFeature
         return $r;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function detachFaceIdFromFlat(int $face_id, int $flat_id): bool|int
     {
         return $this->getDatabase()->modify("delete from frs_links_faces where face_id = :face_id and flat_id = :flat_id", [":face_id" => $face_id, ":flat_id" => $flat_id]);
     }
 
-    /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
     public function getEntranceByCameraId(int $camera_id): array|bool
     {
         $r = $this->getDatabase()->get("select he.house_entrance_id from houses_entrances he where he.camera_id = " . $camera_id . " limit 1", [], ["house_entrance_id" => "entranceId"]);
@@ -473,9 +441,6 @@ class InternalFrsFeature extends FrsFeature
         return false;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getFlatsByFaceId(int $face_id, int $entrance_id): array
     {
         $r = $this->getDatabase()->get("
@@ -493,9 +458,6 @@ class InternalFrsFeature extends FrsFeature
         return $result;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function isLikedFlag(int $flat_id, int $subscriber_id, ?int $face_id, ?string $event_uuid, bool $is_owner): bool
     {
         $is_liked1 = false;
@@ -528,9 +490,6 @@ class InternalFrsFeature extends FrsFeature
         return $is_owner && $is_liked1 || $is_liked2;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function listFaces(int $flat_id, int $subscriber_id, bool $is_owner = false): array
     {
         if ($is_owner) {
@@ -557,9 +516,6 @@ class InternalFrsFeature extends FrsFeature
         return $list_faces;
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function getRegisteredFaceId(string $event_uuid): int|bool
     {
         $r = $this->getDatabase()->get("select face_id from frs_faces where event_uuid = :event_uuid", [":event_uuid" => $event_uuid], [], [self::PDO_SINGLIFY]);

@@ -4,8 +4,7 @@
   "license": "GNU GENERAL PUBLIC LICENSE",
   "autoload": {
     "psr-4": {
-      "Selpol\\Kernel\\": "./kernel/",
-      "Selpol\\Container\\": "./container/",
+      "Selpol\\Runner\\": "./runner",
       "Selpol\\Cache\\": "./cache/",
       "Selpol\\Http\\": "./http/",
       "Selpol\\Task\\": "./task/",
@@ -15,8 +14,7 @@
       "Selpol\\Middleware\\": "./middleware/",
       "Selpol\\Controller\\": "./controller/",
       "Selpol\\Feature\\": "./feature/",
-      "Selpol\\Device\\": "./device/",
-      "Selpol\\Logger\\": "./logger/"
+      "Selpol\\Device\\": "./device/"
     },
     "files": [
       "utils/kernel.php",
@@ -25,6 +23,10 @@
     ]
   },
   "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/Selpol/framework.git"
+    },
     {
       "type": "git",
       "url": "https://github.com/Selpol/validator.git"
@@ -50,14 +52,12 @@
     "mongodb/mongodb": "^1.12",
     "chillerlan/php-qrcode": "^4.3",
     "phpoffice/phpword": "^1.1",
-    "psr/log": "^3.0",
-    "psr/container": "^2.0",
     "php-amqplib/php-amqplib": "^3.5",
-    "psr/simple-cache": "^3.0",
     "psr/http-message": "^2.0",
     "psr/http-server-handler": "^1.0",
     "psr/http-factory": "^1.0",
     "psr/http-server-middleware": "^1.0",
-    "selpol/validator": "^1.0"
+    "selpol/validator": "^1.0",
+    "selpol/framework": "^1.0"
   }
 }

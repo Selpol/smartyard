@@ -3,17 +3,15 @@
 namespace Selpol\Service;
 
 use InvalidArgumentException;
-use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Request;
 use Selpol\Http\Response;
 use Selpol\Http\Stream;
 
+#[Singleton]
 class ClientService
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function get(string $uri, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('GET', $uri);
@@ -24,9 +22,6 @@ class ClientService
         return $this->request($request, $options);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function post(string $uri, ?string $body = null, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('POST', $uri);
@@ -40,9 +35,6 @@ class ClientService
         return $this->request($request, $options);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function put(string $uri, ?string $body = null, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('PUT', $uri);
@@ -56,9 +48,6 @@ class ClientService
         return $this->request($request, $options);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function delete(string $uri, array $headers = [], array $options = []): Response
     {
         $request = container(HttpService::class)->createRequest('DELETE', $uri);
@@ -69,9 +58,6 @@ class ClientService
         return $this->request($request, $options);
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     public function request(Request $request, array $requestOptions = []): Response
     {
         $response = container(HttpService::class)->createResponse();

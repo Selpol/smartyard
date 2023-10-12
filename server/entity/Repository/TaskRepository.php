@@ -5,6 +5,7 @@ namespace Selpol\Entity\Repository;
 use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Task;
 use Selpol\Entity\Repository;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Database\Page;
 
 /**
@@ -16,6 +17,7 @@ use Selpol\Service\Database\Page;
  *
  * @extends Repository<int, Task>
  */
+#[Singleton]
 class TaskRepository extends Repository
 {
     public function __construct()

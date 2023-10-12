@@ -15,7 +15,7 @@ class MongoFileFeature extends FileFeature
 
     public function __construct()
     {
-        $file = config('feature.file');
+        $file = config_get('feature.file');
 
         $this->dbName = $file["db"] ?: "rbt";
 

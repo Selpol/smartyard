@@ -3,8 +3,11 @@
 namespace Selpol\Feature\Task;
 
 use Selpol\Feature\Feature;
+use Selpol\Feature\Task\Internal\InternalTaskFeature;
+use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Task\Task;
 
+#[Singleton(InternalTaskFeature::class)]
 abstract class TaskFeature extends Feature
 {
     /**
