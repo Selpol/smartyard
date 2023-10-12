@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\addresses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Task\Tasks\QrTask;
 
-class qr extends api
+class qr extends Api
 {
     public static function POST(array $params): array
     {

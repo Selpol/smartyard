@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class sharedEntrances extends api
+class sharedEntrances extends Api
 {
     public static function GET(array $params): array
     {
@@ -13,7 +13,7 @@ class sharedEntrances extends api
 
         $entrances = $households->getSharedEntrances(@$params["_id"]);
 
-        return api::ANSWER($entrances, ($entrances !== false) ? "entrances" : "notAcceptable");
+        return Api::ANSWER($entrances, ($entrances !== false) ? "entrances" : "notAcceptable");
     }
 
     public static function index(): bool|array

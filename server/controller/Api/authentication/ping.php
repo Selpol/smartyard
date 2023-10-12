@@ -2,9 +2,9 @@
 
 namespace Selpol\Controller\Api\authentication;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 
-class ping extends api
+class ping extends Api
 {
 
     public static function POST(array $params): array

@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomCmsTask;
 
-class cms extends api
+class cms extends Api
 {
     public static function GET(array $params): array
     {
@@ -14,7 +14,7 @@ class cms extends api
 
         $cms = $households->getCms($params['_id']);
 
-        return api::ANSWER($cms, ($cms !== false) ? 'cms' : false);
+        return Api::ANSWER($cms, ($cms !== false) ? 'cms' : false);
     }
 
     public static function PUT(array $params): array
@@ -26,7 +26,7 @@ class cms extends api
         if ($success)
             task(new IntercomCmsTask($params['_id']))->sync();
 
-        return api::ANSWER($success);
+        return Api::ANSWER($success);
     }
 
     public static function index(): array

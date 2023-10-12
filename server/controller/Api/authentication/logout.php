@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\authentication;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 
-class logout extends api
+class logout extends Api
 {
     public static function POST(array $params): array
     {

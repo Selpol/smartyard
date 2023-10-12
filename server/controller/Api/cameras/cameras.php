@@ -2,12 +2,12 @@
 
 namespace Selpol\Controller\Api\cameras;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Frs\FrsFeature;
 
-class cameras extends api
+class cameras extends Api
 {
     public static function GET(array $params): array
     {
@@ -17,7 +17,7 @@ class cameras extends api
             "frsServers" => container(FrsFeature::class)->servers(),
         ];
 
-        return api::ANSWER($response, "cameras");
+        return Api::ANSWER($response, "cameras");
     }
 
     public static function index(): bool|array

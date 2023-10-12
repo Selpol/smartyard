@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;;
+use Selpol\Controller\Api\Api;;
 use Selpol\Feature\Plog\PlogFeature;
 
-class log extends api
+class log extends Api
 {
     public static function GET(array $params): array
     {
@@ -24,9 +24,9 @@ class log extends api
         $logs = container(PlogFeature::class)->getSyslogFilter($validate['ip'], $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);
 
         if ($logs)
-            return api::SUCCESS('logs', $logs);
+            return Api::SUCCESS('logs', $logs);
 
-        return api::SUCCESS('logs', []);
+        return Api::SUCCESS('logs', []);
     }
 
     public static function index(): bool|array

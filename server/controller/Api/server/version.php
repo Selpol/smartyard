@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\server;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Exception;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 
-class version extends api
+class version extends Api
 {
     public static function GET(array $params): array
     {

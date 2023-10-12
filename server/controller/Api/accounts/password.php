@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\accounts;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\User\UserFeature;
 
-class password extends api
+class password extends Api
 {
 
     public static function POST(array $params): array

@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\accounts;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Audit\AuditFeature;
 
-class audit extends api
+class audit extends Api
 {
     public static function GET(array $params): array
     {
@@ -28,9 +28,9 @@ class audit extends api
         $audits = container(AuditFeature::class)->audits($validate['userId'], $validate['auditableId'], $validate['auditableType'], $validate['eventIp'], $validate['eventType'], $validate['eventTarget'], $validate['eventCode'], $validate['eventMessage'], $validate['page'], $validate['size']);
 
         if ($audits)
-            return api::SUCCESS('audits', $audits);
+            return Api::SUCCESS('audits', $audits);
 
-        return api::SUCCESS('audits', []);
+        return Api::SUCCESS('audits', []);
     }
 
     public static function index(): array

@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\intercom;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Service\DeviceService;
 
-class level extends api
+class level extends Api
 {
     public static function GET(array $params): array
     {

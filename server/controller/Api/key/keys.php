@@ -2,12 +2,12 @@
 
 namespace Selpol\Controller\Api\key;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Service\Database\Page;
 use Selpol\Service\DatabaseService;
 
-class keys extends api
+class keys extends Api
 {
     public static function GET(array $params): array
     {

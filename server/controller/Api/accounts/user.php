@@ -2,19 +2,19 @@
 
 namespace Selpol\Controller\Api\accounts;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\User\UserFeature;
 
-class user extends api
+class user extends Api
 {
     public static function GET(array $params): array
     {
         $user = container(UserFeature::class)->getUser($params["_id"]);
 
-        return api::ANSWER($user, ($user !== false) ? "user" : "notFound");
+        return Api::ANSWER($user, ($user !== false) ? "user" : "notFound");
     }
 
     public static function POST(array $params): array
@@ -50,7 +50,7 @@ class user extends api
         if (@$params["password"] && (int)$params["_id"]) {
             $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);
             return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
-        } else return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        } else return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
 
     }
 
@@ -66,7 +66,7 @@ class user extends api
             $success = container(CoreUserRepository::class)->delete($user);
         }
 
-        return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
     }
 
     public static function index(): array

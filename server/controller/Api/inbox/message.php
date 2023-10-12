@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\inbox;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Inbox\InboxFeature;
 
-class message extends api
+class message extends Api
 {
     public static function GET(array $params): array
     {
@@ -15,14 +15,14 @@ class message extends api
             $messages = container(InboxFeature::class)->getMessages($params["_id"], "dates", ["dateFrom" => 0, "dateTo" => time()]);
         }
 
-        return api::ANSWER($messages, ($messages !== false) ? "messages" : "notAcceptable");
+        return Api::ANSWER($messages, ($messages !== false) ? "messages" : "notAcceptable");
     }
 
     public static function POST(array $params): array
     {
         $msgId = container(InboxFeature::class)->sendMessage($params["_id"], $params["title"], $params["body"], $params["action"]);
 
-        return api::ANSWER($msgId, ($msgId !== false) ? "$msgId" : "");
+        return Api::ANSWER($msgId, ($msgId !== false) ? "$msgId" : "");
     }
 
     public static function index(): bool|array

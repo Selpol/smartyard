@@ -2,17 +2,17 @@
 
 namespace Selpol\Controller\Api\geo;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Geo\GeoFeature;
 
-class suggestions extends api
+class suggestions extends Api
 {
 
     public static function GET(array $params): array
     {
         $suggestions = container(GeoFeature::class)->suggestions($params["search"]);
 
-        return api::ANSWER($suggestions, ($suggestions !== false) ? "suggestions" : "404");
+        return Api::ANSWER($suggestions, ($suggestions !== false) ? "suggestions" : "404");
     }
 
     public static function index(): bool|array

@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\server;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 
-class dvr extends api
+class dvr extends Api
 {
     public static function GET(array $params): array
     {

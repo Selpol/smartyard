@@ -2,7 +2,7 @@
 
 namespace Selpol\Controller\Api;
 
-class api
+class Api
 {
     public static function GET(array $params): array
     {

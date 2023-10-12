@@ -2,23 +2,23 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
-class flat extends api
+class flat extends Api
 {
     public static function GET(array $params): array
     {
         $flatId = @$params['_id'];
 
         if (!isset($flatId))
-            return api::ERROR('Неверный формат данных');
+            return Api::ERROR('Неверный формат данных');
 
         $flat = container(HouseFeature::class)->getFlat($flatId);
 
-        return api::ANSWER($flat, ($flat !== false) ? 'flat' : 'notAcceptable');
+        return Api::ANSWER($flat, ($flat !== false) ? 'flat' : 'notAcceptable');
     }
 
     public static function POST(array $params): array
@@ -30,7 +30,7 @@ class flat extends api
         if ($flatId)
             task(new IntercomSyncFlatTask($flatId, true))->sync();
 
-        return api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
+        return Api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
     }
 
     public static function PUT(array $params): array
@@ -42,7 +42,7 @@ class flat extends api
         if ($success)
             task(new IntercomSyncFlatTask($params['_id'], false))->sync();
 
-        return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
     }
 
     public static function DELETE(array $params): array
@@ -72,10 +72,10 @@ class flat extends api
                 task(new IntercomDeleteFlatTask($flat['flatId'], $flatEntrances))->sync();
             }
 
-            return api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
-        return api::ERROR('Дом не найден');
+        return Api::ERROR('Дом не найден');
     }
 
     public static function index(): bool|array

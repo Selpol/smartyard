@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\subscribers;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class subscribers extends api
+class subscribers extends Api
 {
     public static function GET(array $params): array
     {
@@ -17,7 +17,7 @@ class subscribers extends api
             "keys" => $households->getKeys(@$params["by"], @$params["query"]),
         ];
 
-        return api::ANSWER($flat, $flat ? "flat" : false);
+        return Api::ANSWER($flat, $flat ? "flat" : false);
     }
 
     public static function index(): bool|array

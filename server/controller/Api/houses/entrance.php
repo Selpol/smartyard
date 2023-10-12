@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class entrance extends api
+class entrance extends Api
 {
     public static function GET(array $params): array
     {
@@ -14,9 +14,9 @@ class entrance extends api
         $entrance = container(HouseFeature::class)->getEntrance($entranceId);
 
         if ($entrance)
-            return api::ANSWER($entrance, 'entrance');
+            return Api::ANSWER($entrance, 'entrance');
 
-        return api::ERROR('Вход не найден');
+        return Api::ERROR('Вход не найден');
     }
 
     public static function POST(array $params): array
@@ -26,14 +26,14 @@ class entrance extends api
         if (@$params["entranceId"]) {
             $success = $households->addEntrance($params["houseId"], $params["entranceId"], $params["prefix"]);
 
-            return api::ANSWER($success);
+            return Api::ANSWER($success);
         } else {
             $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
             if ($entranceId)
                 return self::updateIntercom(intval($params["domophoneId"]), $params["cms"], boolval($params["locksDisabled"]) ?? false);
 
-            return api::ANSWER($entranceId, ($entranceId !== false) ? "entranceId" : false);
+            return Api::ANSWER($entranceId, ($entranceId !== false) ? "entranceId" : false);
         }
     }
 
@@ -46,7 +46,7 @@ class entrance extends api
         if ($success)
             return self::updateIntercom(intval($params["domophoneId"]), $params["cms"], boolval($params["locksDisabled"]) ?? false);
 
-        return api::ANSWER($success);
+        return Api::ANSWER($success);
     }
 
     public static function DELETE(array $params): array
@@ -59,7 +59,7 @@ class entrance extends api
             $success = $households->destroyEntrance($params["_id"]);
         }
 
-        return api::ANSWER($success);
+        return Api::ANSWER($success);
     }
 
     public static function index(): array

@@ -2,19 +2,19 @@
 
 namespace Selpol\Controller\Api\cameras;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
-class camera extends api
+class camera extends Api
 {
     public static function GET(array $params): array
     {
         $validate = validator($params, ['_id' => rule()->id()]);
 
-        return api::ANSWER(container(CameraFeature::class)->getCamera($validate['_id']));
+        return Api::ANSWER(container(CameraFeature::class)->getCamera($validate['_id']));
     }
 
     public static function POST(array $params): array
@@ -27,10 +27,10 @@ class camera extends api
 
             static::modifyIp($cameraId, $params['url']);
 
-            return api::ANSWER($cameraId, 'cameraId');
+            return Api::ANSWER($cameraId, 'cameraId');
         }
 
-        return api::ERROR('Камера не добавлена');
+        return Api::ERROR('Камера не добавлена');
     }
 
     public static function PUT(array $params): array
@@ -55,10 +55,10 @@ class camera extends api
                     static::modifyIp($camera['cameraId'], $params['url']);
             }
 
-            return api::ANSWER($success ?: $params["_id"], $success ? "cameraId" : false);
+            return Api::ANSWER($success ?: $params["_id"], $success ? "cameraId" : false);
         }
 
-        return api::ERROR('Камера не найдена');
+        return Api::ERROR('Камера не найдена');
     }
 
     public static function DELETE(array $params): array
@@ -73,10 +73,10 @@ class camera extends api
             if ($success && $camera['frs'] && $camera['frs'] !== '-')
                 task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();
 
-            return api::ANSWER($success);
+            return Api::ANSWER($success);
         }
 
-        return api::ERROR('Камера не найдена');
+        return Api::ERROR('Камера не найдена');
     }
 
     public static function index(): bool|array

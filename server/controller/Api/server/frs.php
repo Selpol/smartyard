@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\server;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Entity\Repository\Frs\FrsServerRepository;
 
-class frs extends api
+class frs extends Api
 {
     public static function GET(array $params): array
     {

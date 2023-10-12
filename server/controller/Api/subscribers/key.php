@@ -2,13 +2,13 @@
 
 namespace Selpol\Controller\Api\subscribers;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
 
-class key extends api
+class key extends Api
 {
     public static function GET(array $params): array
     {

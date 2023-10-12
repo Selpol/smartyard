@@ -2,7 +2,7 @@
 
 namespace Selpol\Controller\Api\task;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Task\TaskFeature;
@@ -17,7 +17,7 @@ class task
     {
         $tasks = container(TaskFeature::class)->page($params['size'], $params['page']);
 
-        return api::ANSWER($tasks, count($tasks) > 0 ? 'tasks' : false);
+        return Api::ANSWER($tasks, count($tasks) > 0 ? 'tasks' : false);
     }
 
     /**
@@ -28,7 +28,7 @@ class task
     {
         $result = container(TaskFeature::class)->dispatch($params['_id']);
 
-        return api::ANSWER($result, ($result !== false) ? "task" : false);
+        return Api::ANSWER($result, ($result !== false) ? "task" : false);
     }
 
     public static function index(): array

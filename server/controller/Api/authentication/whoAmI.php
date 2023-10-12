@@ -2,12 +2,12 @@
 
 namespace Selpol\Controller\Api\authentication;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
 use Selpol\Service\RedisService;
 
-class whoAmI extends api
+class whoAmI extends Api
 {
     public static function GET(array $params): array
     {
@@ -28,7 +28,7 @@ class whoAmI extends api
         $user["webRtcExtension"] = $extension;
         $user["webRtcPassword"] = $cred;
 
-        return api::ANSWER($user, ($user !== false) ? "user" : "notFound");
+        return Api::ANSWER($user, ($user !== false) ? "user" : "notFound");
     }
 
     public static function index(): bool|array

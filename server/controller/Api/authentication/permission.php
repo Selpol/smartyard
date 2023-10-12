@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\authentication;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Service\AuthService;
 
-class permission extends api
+class permission extends Api
 {
     public static function GET(array $params): array
     {

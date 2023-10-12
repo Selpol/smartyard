@@ -2,11 +2,11 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 
-class flatEntrance extends api
+class flatEntrance extends Api
 {
     public static function POST(array $params): array
     {

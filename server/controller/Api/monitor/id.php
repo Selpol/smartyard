@@ -2,12 +2,12 @@
 
 namespace Selpol\Controller\Api\monitor;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Monitor\MonitorFeature;
 
-class id extends api
+class id extends Api
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -20,9 +20,9 @@ class id extends api
         $monitor = container(MonitorFeature::class);
 
         if ($monitor)
-            return api::ANSWER(['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])], 'status');
+            return Api::ANSWER(['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])], 'status');
 
-        return api::ERROR('Мониторинг отключен');
+        return Api::ERROR('Мониторинг отключен');
     }
 
     /**
@@ -41,10 +41,10 @@ class id extends api
             foreach ($validate['ids'] as $id)
                 $result[] = ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)];
 
-            return api::ANSWER($result, 'status');
+            return Api::ANSWER($result, 'status');
         }
 
-        return api::ERROR('Мониторинг отключен');
+        return Api::ERROR('Мониторинг отключен');
     }
 
     public static function index(): array

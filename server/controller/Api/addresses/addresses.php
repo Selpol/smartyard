@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\addresses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
-class addresses extends api
+class addresses extends Api
 {
     public static function GET(array $params): array
     {
@@ -66,7 +66,7 @@ class addresses extends api
             }
         }
 
-        return api::ANSWER($r, ($r !== false) ? "addresses" : "badRequest");
+        return Api::ANSWER($r, ($r !== false) ? "addresses" : "badRequest");
     }
 
     public static function index(): bool|array

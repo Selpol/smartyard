@@ -2,12 +2,12 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 
-class domophones extends api
+class domophones extends Api
 {
 
     public static function GET(array $params): array
@@ -15,7 +15,7 @@ class domophones extends api
         $households = container(HouseFeature::class);
 
         if (!$households) {
-            return api::ERROR();
+            return Api::ERROR();
         } else {
             $response = [
                 "domophones" => $households->getDomophones(),
@@ -23,7 +23,7 @@ class domophones extends api
                 "servers" => container(SipFeature::class)->server('all'),
             ];
 
-            return api::ANSWER($response, "domophones");
+            return Api::ANSWER($response, "domophones");
         }
     }
 

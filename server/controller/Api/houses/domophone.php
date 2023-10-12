@@ -2,13 +2,13 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\api;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
-class domophone extends api
+class domophone extends Api
 {
     public static function GET(array $params): array
     {
@@ -16,7 +16,7 @@ class domophone extends api
 
         $households = container(HouseFeature::class);
 
-        return api::ANSWER($households->getDomophone($validate['_id']));
+        return Api::ANSWER($households->getDomophone($validate['_id']));
     }
 
     public static function POST(array $params): array
@@ -28,10 +28,10 @@ class domophone extends api
         if ($domophoneId) {
             static::modifyIp($domophoneId, $params['url']);
 
-            return api::ANSWER($domophoneId, 'domophoneId');
+            return Api::ANSWER($domophoneId, 'domophoneId');
         }
 
-        return api::ERROR('Домофон не добавлена' . PHP_EOL . last_error());
+        return Api::ERROR('Домофон не добавлена' . PHP_EOL . last_error());
     }
 
     public static function PUT(array $params): array
@@ -53,10 +53,10 @@ class domophone extends api
                 static::unlock($params['_id'], boolval($domophone['locksAreOpen']));
             }
 
-            return api::ANSWER($success);
+            return Api::ANSWER($success);
         }
 
-        return api::ERROR('Домофон не найден');
+        return Api::ERROR('Домофон не найден');
     }
 
     public static function DELETE(array $params): array
@@ -65,7 +65,7 @@ class domophone extends api
 
         $success = $households->deleteDomophone($params["_id"]);
 
-        return api::ANSWER($success);
+        return Api::ANSWER($success);
     }
 
     public static function index(): array

@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
@@ -136,8 +137,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (file_exists(path("controller/Api/$api/$method.php"))) {
             require_once path("controller/Api/$api/$method.php");
 
-            if (class_exists("Selpol\\Controller\\Api\\$api\\$method")) {
-                $result = call_user_func(["Selpol\\Controller\\Api\\$api\\$method", $params['_request_method']], $params);
+            /** @var class-string<Api> $class */
+            $class = "Selpol\\Controller\\Api\\$api\\$method";
+
+            if (class_exists($class)) {
+                $result = $class::{$params['_request_method']}($params);
 
                 if ($result !== null) {
                     $code = array_key_first($result);
