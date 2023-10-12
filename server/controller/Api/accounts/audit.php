@@ -21,8 +21,8 @@ class audit extends Api
             'eventCode' => rule()->string()->max(1024),
             'eventMessage' => rule()->string()->max(2048),
 
-            'page' => rule()->int()->clamp(0),
-            'size' => rule()->int()->clamp(1, 1000)
+            'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
+            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
         $audits = container(AuditFeature::class)->audits($validate['userId'], $validate['auditableId'], $validate['auditableType'], $validate['eventIp'], $validate['eventType'], $validate['eventTarget'], $validate['eventCode'], $validate['eventMessage'], $validate['page'], $validate['size']);

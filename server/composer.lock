@@ -1163,11 +1163,11 @@
         },
         {
             "name": "selpol/validator",
-            "version": "1.0.4",
+            "version": "1.0.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/validator.git",
-                "reference": "48e5b7e98d2d42fbbea3b7068233075d8d04cb12"
+                "reference": "38391f2b5ad5dd6dea1df53f09b576b9a216f3c5"
             },
             "require": {
                 "php": ">=8.2"
@@ -1188,7 +1188,7 @@
                 }
             ],
             "description": "Selpol validator library",
-            "time": "2023-10-11T13:07:33+00:00"
+            "time": "2023-10-12T13:20:35+00:00"
         },
         {
             "name": "symfony/polyfill-php80",

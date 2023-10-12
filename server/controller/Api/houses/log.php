@@ -17,8 +17,8 @@ class log extends Api
             'minDate' => rule()->int(),
             'maxDate' => rule()->int(),
 
-            'page' => rule()->int()->clamp(0),
-            'size' => rule()->int()->clamp(1, 1000)
+            'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
+            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
         $logs = container(PlogFeature::class)->getSyslogFilter($validate['ip'], $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);
