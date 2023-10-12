@@ -8,6 +8,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
+use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
@@ -450,8 +451,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function roleInit(): void
     {
-        require_once path('/controller/api/api.php');
-
         $db = container(DatabaseService::class);
 
         /** @var array<string, Permission> $titlePermissions */
@@ -461,7 +460,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             return $previous;
         }, []);
 
-        $dir = path('controller/api');
+        $dir = path('controller/Api');
         $apis = scandir($dir);
 
         foreach ($apis as $api) {
@@ -474,8 +473,11 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         require_once $dir . "/$api/$method.php";
 
-                        if (class_exists("\\api\\$api\\$method")) {
-                            $request_methods = call_user_func(["\\api\\$api\\$method", "index"]);
+                        /** @var class-string<Api> $class */
+                        $class = "Selpol\\Controller\\Api\\$api\\$method";
+
+                        if (class_exists($class)) {
+                            $request_methods = $class::index();
 
                             if ($request_methods) {
                                 $keys = array_keys($request_methods);
