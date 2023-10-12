@@ -23,7 +23,7 @@ trait ResponseTrait
             else if ($throwable instanceof ValidatorException)
                 $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->message);
             else if ($throwable instanceof DeviceException) {
-                logger('device')->error($throwable);
+                file_logger('device')->error($throwable);
 
                 if ($throwable->getDevice()->asIp()?->ping())
                     $response = $this->response(500)->withStatusJson('Ошибка взаимодействия с устройством');
@@ -32,14 +32,14 @@ trait ResponseTrait
             } else if ($throwable instanceof EntityException)
                 $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
             else {
-                logger('response')->error($throwable, ['fatal' => $fatal]);
+                file_logger('response')->error($throwable, ['fatal' => $fatal]);
 
                 $response = $this->response(500)->withStatusJson();
             }
 
             return $this->emit($response);
         } catch (Throwable $throwable) {
-            logger('response')->critical($throwable);
+            file_logger('response')->critical($throwable);
 
             return 1;
         }
@@ -112,7 +112,7 @@ trait ResponseTrait
                 $body->close();
             }
         } catch (Throwable $throwable) {
-            logger('response')->emergency('Emergency error' . PHP_EOL . $throwable);
+            file_logger('response')->emergency('Emergency error' . PHP_EOL . $throwable);
         }
 
         return 0;

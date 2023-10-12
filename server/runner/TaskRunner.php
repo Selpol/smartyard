@@ -24,7 +24,7 @@ class TaskRunner implements KernelRunner
     {
         $this->argv = $argv;
 
-        $this->logger = $logger ?? logger('task');
+        $this->logger = $logger ?? file_logger('task');
     }
 
     /**
@@ -87,9 +87,9 @@ class TaskRunner implements KernelRunner
     private function registerDequeue(Kernel $kernel, string $queue): void
     {
         $service = $kernel->getContainer()->get(TaskService::class);
-        $service->setLogger(logger('task'));
+        $service->setLogger(file_logger('task'));
 
-        $service->dequeue($queue, new class($queue, logger('task-' . $queue)) implements TaskCallback {
+        $service->dequeue($queue, new class($queue, file_logger('task-' . $queue)) implements TaskCallback {
             private string $queue;
 
             private LoggerInterface $logger;

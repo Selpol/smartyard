@@ -2,7 +2,6 @@
 
 namespace Selpol\Router;
 
-use Exception;
 use Selpol\Validator\Exception\ValidatorException;
 
 class RouterMatch
@@ -34,11 +33,6 @@ class RouterMatch
         return $this->method;
     }
 
-    public function getParams(): array
-    {
-        return $this->params;
-    }
-
     public function getMiddlewares(): array
     {
         return $this->middlewares;
@@ -54,7 +48,7 @@ class RouterMatch
      */
     public function getParamIdOrThrow(string $key): int
     {
-        return rule()->id()->onItem($key, $this->params);
+        return intval(rule()->id()->onItem($key, $this->params));
     }
 
     /**
@@ -62,15 +56,6 @@ class RouterMatch
      */
     public function getParamIntOrThrow(string $key): int
     {
-        return rule()->int()->onItem($key, $this->params);
-    }
-
-    public function getParamInt(string $key): ?int
-    {
-        try {
-            return $this->getParamIntOrThrow($key);
-        } catch (Exception) {
-            return null;
-        }
+        return intval(rule()->int()->onItem($key, $this->params));
     }
 }

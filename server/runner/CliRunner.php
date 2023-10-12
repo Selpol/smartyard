@@ -20,8 +20,6 @@ use Selpol\Kernel\Kernel;
 use Selpol\Kernel\KernelRunner;
 use Selpol\Kernel\Trait\ConfigTrait;
 use Selpol\Kernel\Trait\EnvTrait;
-use Selpol\Logger\EchoLogger;
-use Selpol\Logger\GroupLogger;
 use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
@@ -40,7 +38,7 @@ class CliRunner implements KernelRunner
     {
         $this->argv = $argv;
 
-        $this->logger = $logger ?? new GroupLogger([new EchoLogger(), logger('cli')]);
+        $this->logger = $logger ?? stack_logger([echo_logger(), file_logger('cli')]);
     }
 
     /**

@@ -23,7 +23,7 @@ class AsteriskRunner implements KernelRunner
 
     public function __construct()
     {
-        $this->logger = logger('asterisk');
+        $this->logger = file_logger('asterisk');
     }
 
     /**
