@@ -18,8 +18,8 @@ class event extends Api
             'type' => rule()->int(),
             'opened' => rule()->bool(),
 
-            'page' => rule()->int()->clamp(0),
-            'size' => rule()->int()->clamp(1, 1000)
+            'page' => [filter()->default(0), rule()->int()->clamp(0)],
+            'size' => [filter()->default(10), rule()->int()->clamp(1, 1000)]
         ]);
 
         $result = container(PlogFeature::class)->getEventsByFlat($flat->house_flat_id, $validate['type'], $validate['opened'], $validate['page'], $validate['size']);
