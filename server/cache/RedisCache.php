@@ -5,6 +5,7 @@ namespace Selpol\Cache;
 use DateInterval;
 use DateTimeImmutable;
 use Psr\SimpleCache\CacheInterface;
+use RedisException;
 use Selpol\Framework\Cache\Trait\CacheTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\RedisService;
@@ -32,6 +33,9 @@ class RedisCache implements CacheInterface
         return $value;
     }
 
+    /**
+     * @throws RedisException
+     */
     public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         if ($ttl instanceof DateInterval) {
@@ -44,6 +48,9 @@ class RedisCache implements CacheInterface
         return $this->service->getConnection()->set('cache:' . $key, $value, $ttl);
     }
 
+    /**
+     * @throws RedisException
+     */
     public function delete(string $key): bool
     {
         return $this->service->getConnection()->del('cache:' . $key) === 1;
@@ -93,6 +100,9 @@ class RedisCache implements CacheInterface
         }
     }
 
+    /**
+     * @throws RedisException
+     */
     public function has(string $key): bool
     {
         return $this->service->getConnection()->exists($key) !== false;

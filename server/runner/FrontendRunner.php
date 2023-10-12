@@ -33,8 +33,6 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     function run(array $arguments): int
     {
-        require path('/controller/api/api.php');
-
         $http = container(HttpService::class);
 
         $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
@@ -135,11 +133,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method'])))
             return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
 
-        if (file_exists(path("controller/api/$api/$method.php"))) {
-            require_once path("controller/api/$api/$method.php");
+        if (file_exists(path("controller/Api/$api/$method.php"))) {
+            require_once path("controller/Api/$api/$method.php");
 
-            if (class_exists("\\api\\$api\\$method")) {
-                $result = call_user_func(["\\api\\$api\\$method", $params['_request_method']], $params);
+            if (class_exists("Selpol\\Controller\\Api\\$api\\$method")) {
+                $result = call_user_func(["Selpol\\Controller\\Api\\$api\\$method", $params['_request_method']], $params);
 
                 if ($result !== null) {
                     $code = array_key_first($result);

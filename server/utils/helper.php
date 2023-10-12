@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Criteria;
@@ -21,9 +20,6 @@ if (!function_exists('task')) {
 }
 
 if (!function_exists('camera')) {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function camera(int $id): ?CameraDevice
     {
         return container(DeviceService::class)->cameraById($id);
@@ -31,9 +27,6 @@ if (!function_exists('camera')) {
 }
 
 if (!function_exists('intercom')) {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
     function intercom(int $id): ?IntercomDevice
     {
         return container(DeviceService::class)->intercomById($id);

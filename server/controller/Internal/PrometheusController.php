@@ -60,13 +60,11 @@ class PrometheusController extends Controller
 
         $labels = array_combine(array_merge($labelNames, $sample->labelNames), $sample->labelValues);
 
-        if ($labels === false) {
+        if ($labels === false)
             throw new RuntimeException('Unable to combine labels.');
-        }
 
-        foreach ($labels as $labelName => $labelValue) {
+        foreach ($labels as $labelName => $labelValue)
             $escapedLabels[] = $labelName . '="' . $this->escapeLabelValue((string)$labelValue) . '"';
-        }
 
         return $escapedLabels;
     }

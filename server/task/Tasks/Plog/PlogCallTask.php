@@ -237,6 +237,7 @@ class PlogCallTask extends PlogTask
             ["/Opening door by CMS handset for apartment \d+/", false, false, true, 0],
             ["/Open from handset!/", false, false, true, 0],
             ["/Open main door by DTMF/", false, false, true, 1],
+            ["/Opening main door by API command/", false, false, true, 0],
             ["/CMS handset call done for apartment \d+, handset is down/", false, false, false, 0],
             ["/SIP call done for apartment \d+, handset is down/", false, false, false, 1],
             ["/All calls are done for apartment \d+/", false, false, false, 1],
