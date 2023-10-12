@@ -358,7 +358,7 @@ class ClickHousePlogFeature extends PlogFeature
         if ($opened !== null)
             $query .= " AND opened = $opened";
 
-        return $this->clickhouse->select($query . " ORDER BY date LIMIT $size OFFSET $offset");
+        return $this->clickhouse->select($query . " ORDER BY date DESC LIMIT $size OFFSET $offset");
     }
 
     /**
