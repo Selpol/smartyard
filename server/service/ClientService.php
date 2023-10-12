@@ -78,12 +78,14 @@ class ClientService
 
         if (array_key_exists('basic', $requestOptions)) {
             $request->withHeader('Authorization', 'Basic ' . base64_encode($requestOptions['basic']));
-        } else if (array_key_exists('digest', $requestOptions)) {
-            $options[CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
-            $options[CURLOPT_USERPWD] = $requestOptions['digest'];
         }
 
         $options = $this->createOptions($request);
+
+        if (array_key_exists('digest', $requestOptions)) {
+            $options[CURLOPT_HTTPAUTH] = CURLAUTH_DIGEST;
+            $options[CURLOPT_USERPWD] = $requestOptions['digest'];
+        }
 
         $this->addBodyOptions($options, $request);
         $this->addHeadersOptions($options, $request);

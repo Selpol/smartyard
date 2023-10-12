@@ -7,6 +7,7 @@ use DateTime;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 use Throwable;
 
 class HikVisionIntercom extends IntercomDevice
@@ -15,7 +16,7 @@ class HikVisionIntercom extends IntercomDevice
 
     protected ?array $rfids = null;
 
-    public function __construct(Uri $uri, string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
     {
         parent::__construct($uri, $password, $model);
 

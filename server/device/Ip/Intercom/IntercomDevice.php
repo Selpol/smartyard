@@ -4,12 +4,13 @@ namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
     public IntercomModel $model;
 
-    public function __construct(Uri $uri, string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
     {
         parent::__construct($uri, $password);
 

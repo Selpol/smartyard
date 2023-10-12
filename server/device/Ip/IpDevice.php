@@ -6,16 +6,18 @@ use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Http\Response;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 use Throwable;
 
 abstract class IpDevice extends Device
 {
     public string $login = 'root';
+
     public string $password;
 
     protected array $requestOptions;
 
-    public function __construct(Uri $uri, string $password)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password)
     {
         parent::__construct($uri->withUserInfo($this->login, $password));
 

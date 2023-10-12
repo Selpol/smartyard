@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Http\Stream;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 use Throwable;
 
 class BewardCamera extends CameraDevice
@@ -16,7 +17,7 @@ class BewardCamera extends CameraDevice
 
     public string $login = 'admin';
 
-    public function __construct(Uri $uri, string $password, CameraModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, CameraModel $model)
     {
         parent::__construct($uri, $password, $model);
 

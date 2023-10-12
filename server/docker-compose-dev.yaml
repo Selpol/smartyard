@@ -52,6 +52,7 @@ services:
       dockerfile: Dev.Dockerfile
       args:
         TZ: Europe/Moscow
+        COMPOSER_AUTH: ${COMPOSER_AUTH}
     container_name: php
     volumes:
       - ./:/srv/app

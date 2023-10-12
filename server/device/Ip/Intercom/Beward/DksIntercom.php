@@ -7,6 +7,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 
 class DksIntercom extends IntercomDevice
 {
@@ -16,7 +17,7 @@ class DksIntercom extends IntercomDevice
 
     protected ?array $cmses = null;
 
-    public function __construct(Uri $uri, string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
     {
         parent::__construct($uri, $password, $model);
 
@@ -470,7 +471,7 @@ class DksIntercom extends IntercomDevice
             ['model' => $model, 'cmses' => $cmses] = $this->cmsExport();
 
             foreach ($this->cmses as $cms)
-                $cmses[$cms['index']][$cms['unit']][$cms['dozen']] = $cms['apartment'];
+                $cmses[$cms['index'] - 1][$cms['unit']][$cms['dozen']] = $cms['apartment'];
 
             $content = $model . PHP_EOL . PHP_EOL;
 

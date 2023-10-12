@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Http\Uri;
+use SensitiveParameter;
 
 class DsIntercom extends IntercomDevice
 {
@@ -13,7 +14,7 @@ class DsIntercom extends IntercomDevice
 
     public string $login = 'admin';
 
-    public function __construct(Uri $uri, string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
     {
         parent::__construct($uri, $password, $model);
 

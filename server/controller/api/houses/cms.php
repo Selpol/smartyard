@@ -9,6 +9,7 @@ namespace api\houses {
     use api\api;
     use Selpol\Feature\House\HouseFeature;
     use Selpol\Task\Tasks\Intercom\IntercomCmsTask;
+    use Throwable;
 
     /**
      * house method
@@ -19,16 +20,16 @@ namespace api\houses {
         {
             $households = container(HouseFeature::class);
 
-            $cms = $households->getCms($params["_id"]);
+            $cms = $households->getCms($params['_id']);
 
-            return api::ANSWER($cms, ($cms !== false) ? "cms" : false);
+            return api::ANSWER($cms, ($cms !== false) ? 'cms' : false);
         }
 
         public static function PUT($params)
         {
             $households = container(HouseFeature::class);
 
-            $success = $households->setCms($params["_id"], $params["cms"]);
+            $success = $households->setCms($params['_id'], $params['cms']);
 
             if ($success)
                 task(new IntercomCmsTask($params['_id']))->sync();
@@ -38,10 +39,7 @@ namespace api\houses {
 
         public static function index(): array
         {
-            return [
-                "GET" => "[Дом] Получить КМС",
-                "PUT" => "[Дом] Обновить КМС",
-            ];
+            return ['GET' => '[Дом] Получить КМС', 'PUT' => '[Дом] Обновить КМС'];
         }
     }
 }
