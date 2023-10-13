@@ -23,6 +23,7 @@ use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
+use Selpol\Service\MqttService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
@@ -41,6 +42,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     function run(array $arguments): int
     {
+        container(MqttService::class)->publish('test', ['Help!']);
+
+        return 0;
+
         chdir(path(''));
 
         $arguments = $this->getArguments($arguments);

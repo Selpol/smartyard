@@ -18,7 +18,13 @@ return [
     ],
 
     'mqtt' => [
-        'trust' => explode(',', env('MQTT_TRUST', '127.0.0.1/32'))
+        'trust' => explode(',', env('MQTT_TRUST', '0.0.0.0/0')),
+
+        'host' => env('MQTT_HOST', '127.0.0.1'),
+        'port' => env('MQTT_PORT', '1883'),
+
+        'username' => env('MQTT_USERNAME', 'username'),
+        'password' => env('MQTT_PASSWORD', 'password')
     ],
 
     'internal' => [

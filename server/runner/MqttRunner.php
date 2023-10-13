@@ -34,26 +34,28 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (!$trust)
             return $this->bad();
 
+        $input = json_decode(file_get_contents('php://input', true), true);
+
         $uri = new Uri($_SERVER['REQUEST_URI']);
         $path = $uri->getPath();
 
         if ($path === '/mqtt/user') {
-            if (!array_key_exists('username', $_POST) || !array_key_exists('password', $_POST) || !array_key_exists('clientid', $_POST))
+            if (!array_key_exists('username', $input) || !array_key_exists('password', $input) || !array_key_exists('clientid', $input))
                 return $this->bad();
 
-            if (container(MqttFeature::class)->checkUser($_POST['username'], $_POST['password'], $_POST['clientid']))
+            if (container(MqttFeature::class)->checkUser($input['username'], $input['password'], $input['clientid']))
                 return $this->ok();
         } else if ($path === '/mqtt/admin') {
-            if (!array_key_exists('username', $_POST))
+            if (!array_key_exists('username', $input))
                 return $this->bad();
 
-            if (container(MqttFeature::class)->checkAdmin($_POST['username']))
+            if (container(MqttFeature::class)->checkAdmin($input['username']))
                 return $this->ok();
         } else if ($path === '/mqtt/acl') {
-            if (!array_key_exists('username', $_POST) || !array_key_exists('clientid', $_POST) || !array_key_exists('topic', $_POST) || !array_key_exists('acc', $_POST))
+            if (!array_key_exists('username', $input) || !array_key_exists('clientid', $input) || !array_key_exists('topic', $input) || !array_key_exists('acc', $input))
                 return $this->bad();
 
-            if (container(MqttFeature::class)->checkAcl($_POST['username'], $_POST['clientid'], $_POST['topic'], intval($_POST['acc'])))
+            if (container(MqttFeature::class)->checkAcl($input['username'], $input['clientid'], $input['topic'], intval($input['acc'])))
                 return $this->ok();
         }
 
@@ -62,6 +64,8 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     public function error(Throwable $throwable): int
     {
+        file_logger('mqtt')->error($throwable);
+
         $this->bad();
 
         return 0;
@@ -69,7 +73,7 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     private function ok(): int
     {
-        header('HTTP/1.0 400 Bad Request');
+        header('HTTP/1.0 200 OK');
         header('Content-Type: application/json');
 
         echo '{ "Ok": true, "Error": "OK" }';

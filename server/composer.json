@@ -58,6 +58,7 @@
     "psr/http-factory": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "selpol/validator": "^1.0",
-    "selpol/framework": "^1.0"
+    "selpol/framework": "^1.0",
+    "php-mqtt/client": "^1.8"
   }
 }

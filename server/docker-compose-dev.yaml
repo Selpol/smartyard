@@ -67,13 +67,14 @@ services:
       - ./:/srv/app
       - ./docker/data/log:/srv/app/var/log
     environment:
-      - COMPOSER_AUTH=${COMPOSER_AUTH}
       - DB_HOST=database
       - DB_PORT=5432
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - AMQP_HOST=amqp
       - AMQP_PORT=5672
+      - MQTT_HOST=mqtt
+      - MQTT_PORT=1883
     depends_on:
       - database
       - redis

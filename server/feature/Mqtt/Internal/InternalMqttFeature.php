@@ -14,12 +14,15 @@ class InternalMqttFeature extends MqttFeature
      */
     public function checkUser(string $username, #[SensitiveParameter] string $password, string $clientId): bool
     {
+        if ($username === config_get('mqtt.username'))
+            return $password === config_get('mqtt.password');
+
         return $password === container(RedisService::class)->getConnection()->get('user:' . intval(substr($username, 1)) . ':ws');
     }
 
     public function checkAdmin(string $username): bool
     {
-        return intval(substr($username, 1)) === 0;
+        return $username === config_get('mqtt.username');
     }
 
     public function checkAcl(string $username, string $clientId, string $topic, int $acc): bool
