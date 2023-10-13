@@ -6,22 +6,22 @@ class Api
 {
     public static function GET(array $params): array
     {
-        return self::ANSWER(false, "badRequest");
+        return self::ANSWER(false, 'badRequest');
     }
 
     public static function POST(array $params): array
     {
-        return self::ANSWER(false, "badRequest");
+        return self::ANSWER(false, 'badRequest');
     }
 
     public static function PUT(array $params): array
     {
-        return self::ANSWER(false, "badRequest");
+        return self::ANSWER(false, 'badRequest');
     }
 
     public static function DELETE(array $params): array
     {
-        return self::ANSWER(false, "badRequest");
+        return self::ANSWER(false, 'badRequest');
     }
 
     /**
@@ -32,7 +32,7 @@ class Api
      * if true sends json with parent $answer
      * with default params returns 204
      *
-     * @param boolean|array $result
+     * @param integer|boolean|array $result
      * @param integer|boolean|array|string $answer
      * @param integer $cache
      * @return array
@@ -61,14 +61,14 @@ class Api
         global $redis_cache_ttl;
 
         if ($data !== false)
-            $r = ["200" => [$key => $data]];
+            $r = ['200' => [$key => $data]];
         else
-            $r = ["204" => false];
+            $r = ['204' => false];
 
         if ($cache < 0)
             $cache = $redis_cache_ttl;
 
-        $r[] = ["cache" => $cache];
+        $r[] = ['cache' => $cache];
 
         return $r;
     }

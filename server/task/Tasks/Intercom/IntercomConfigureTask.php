@@ -197,7 +197,7 @@ class IntercomConfigureTask extends IntercomTask
     {
         $device->setMotionDetection(0, 0, 0, 0, 0);
         $device->setVideoOverlay($panel_text);
-        $device->unlocked($entrances[0]['locksDisabled']);
+        $device->unlock($entrances[0]['locksDisabled']);
     }
 
     private function mifare(IntercomDevice $panel): void

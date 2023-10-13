@@ -43,7 +43,7 @@ class house extends Api
             $households->addKey($key["rfId"], 2, $key["accessTo"], '');
         }
 
-        task(new IntercomHouseKeyTask($houseId));
+        task(new IntercomHouseKeyTask($houseId))->high()->dispatch();
 
         return Api::ANSWER();
     }

@@ -4,7 +4,7 @@ namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Task\Tasks\Intercom\IntercomCmsTask;
+use Selpol\Task\Tasks\Intercom\Cms\IntercomSyncCmsTask;
 
 class cms extends Api
 {
@@ -24,7 +24,7 @@ class cms extends Api
         $success = $households->setCms($params['_id'], $params['cms']);
 
         if ($success)
-            task(new IntercomCmsTask($params['_id']))->sync();
+            task(new IntercomSyncCmsTask($params['_id']))->high()->dispatch();
 
         return Api::ANSWER($success);
     }

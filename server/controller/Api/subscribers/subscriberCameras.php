@@ -11,18 +11,18 @@ class subscriberCameras extends Api
     {
         $households = container(HouseFeature::class);
 
-        $cameraId = $households->addCamera("subscriber", $params["subscriberId"], $params["cameraId"]);
+        $cameraId = $households->addCamera('subscriber', $params['subscriberId'], $params['cameraId']);
 
-        return Api::ANSWER($cameraId, ($cameraId !== false) ? "cameraId" : "notAcceptable");
+        return Api::ANSWER($cameraId, ($cameraId !== false) ? 'cameraId' : 'notAcceptable');
     }
 
     public static function DELETE(array $params): array
     {
         $households = container(HouseFeature::class);
 
-        $success = $households->unlinkCamera("subscriber", $params["subscriberId"], $params["cameraId"]);
+        $success = $households->unlinkCamera('subscriber', $params['subscriberId'], $params['cameraId']);
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return Api::ANSWER($success, ($success !== false) ? false : 'notAcceptable');
     }
 
     public static function index(): bool|array

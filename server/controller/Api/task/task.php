@@ -33,9 +33,6 @@ class task
 
     public static function index(): array
     {
-        return [
-            "GET" => "[Задачи] Получить список",
-            "POST" => "[Задачи] Запустить задачу"
-        ];
+        return ['GET' => '[Задачи] Получить список', 'POST' => '[Задачи] Запустить задачу'];
     }
 }

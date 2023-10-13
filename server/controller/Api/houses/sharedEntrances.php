@@ -11,15 +11,13 @@ class sharedEntrances extends Api
     {
         $households = container(HouseFeature::class);
 
-        $entrances = $households->getSharedEntrances(@$params["_id"]);
+        $entrances = $households->getSharedEntrances(array_key_exists('_id', $params) ? $params['_id'] : false);
 
-        return Api::ANSWER($entrances, ($entrances !== false) ? "entrances" : "notAcceptable");
+        return Api::ANSWER($entrances, ($entrances !== false) ? 'entrances' : 'notAcceptable');
     }
 
     public static function index(): bool|array
     {
-        return [
-            "GET" => "[Дом] Получить общий вход"
-        ];
+        return ['GET' => '[Дом] Получить общий вход'];
     }
 }

@@ -12,12 +12,12 @@ class subscribers extends Api
         $households = container(HouseFeature::class);
 
         $flat = [
-            "subscribers" => $households->getSubscribers(@$params["by"], @$params["query"]),
-            "cameras" => $households->getCameras(@$params["by"], @$params["query"]),
-            "keys" => $households->getKeys(@$params["by"], @$params["query"]),
+            'subscribers' => $households->getSubscribers(@$params['by'], @$params['query']),
+            'cameras' => $households->getCameras(@$params['by'], @$params['query']),
+            'keys' => $households->getKeys(@$params['by'], @$params['query']),
         ];
 
-        return Api::ANSWER($flat, $flat ? "flat" : false);
+        return Api::ANSWER($flat, $flat ? 'flat' : false);
     }
 
     public static function index(): bool|array

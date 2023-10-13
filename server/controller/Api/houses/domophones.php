@@ -18,19 +18,17 @@ class domophones extends Api
             return Api::ERROR();
         } else {
             $response = [
-                "domophones" => $households->getDomophones(),
-                "models" => IntercomModel::modelsToArray(),
-                "servers" => container(SipFeature::class)->server('all'),
+                'domophones' => $households->getDomophones(),
+                'models' => IntercomModel::modelsToArray(),
+                'servers' => container(SipFeature::class)->server('all'),
             ];
 
-            return Api::ANSWER($response, "domophones");
+            return Api::ANSWER($response, 'domophones');
         }
     }
 
     public static function index(): bool|array
     {
-        return [
-            "GET" => "[Дом] Получить список домофонов",
-        ];
+        return ['GET' => '[Дом] Получить список домофонов'];
     }
 }

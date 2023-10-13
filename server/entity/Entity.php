@@ -80,6 +80,11 @@ abstract class Entity implements JsonSerializable
         return isset($this->dirty) && count($this->dirty) > 0;
     }
 
+    public function isDirtyValue(string $name): bool
+    {
+        return $this->isDirty() && in_array($name, $this->dirty);
+    }
+
     public function __get(string $name)
     {
         return $this->value[$name];

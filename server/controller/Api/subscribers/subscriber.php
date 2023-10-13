@@ -23,17 +23,17 @@ class subscriber extends Api
     {
         $households = container(HouseFeature::class);
 
-        $subscriberId = $households->addSubscriber($params["mobile"], @$params["subscriberName"], @$params["subscriberPatronymic"], null, array_key_exists('flatId', $params) ? intval($params['flatId']) : null, @$params["message"]);
+        $subscriberId = $households->addSubscriber($params['mobile'], @$params['subscriberName'], @$params['subscriberPatronymic'], null, array_key_exists('flatId', $params) ? intval($params['flatId']) : null, @$params['message']);
 
-        return Api::ANSWER($subscriberId, ($subscriberId !== false) ? "subscriber" : false);
+        return Api::ANSWER($subscriberId, ($subscriberId !== false) ? 'subscriber' : false);
     }
 
     public static function PUT(array $params): array
     {
         $households = container(HouseFeature::class);
 
-        $success = $households->modifySubscriber($params["_id"], $params)
-            && $households->setSubscriberFlats($params["_id"], $params["flats"]);
+        $success = $households->modifySubscriber($params['_id'], $params)
+            && $households->setSubscriberFlats($params['_id'], $params['flats']);
 
         return Api::ANSWER($success);
     }
@@ -43,16 +43,11 @@ class subscriber extends Api
         if (array_key_exists('force', $params) && $params['force'])
             return Api::ANSWER(container(HouseFeature::class)->deleteSubscriber($params['subscriberId']));
 
-        return Api::ANSWER(container(HouseFeature::class)->removeSubscriberFromFlat($params["_id"], $params["subscriberId"]));
+        return Api::ANSWER(container(HouseFeature::class)->removeSubscriberFromFlat($params['_id'], $params['subscriberId']));
     }
 
     public static function index(): bool|array
     {
-        return [
-            "GET" => "[Абоненты] Получить абонента",
-            "PUT" => "[Абоненты] Обновить абонента",
-            "POST" => "[Абоненты] Создать абонента",
-            "DELETE" => "[Абоненты] Удалить абонента",
-        ];
+        return ['GET' => '[Абоненты] Получить абонента', 'PUT' => '[Абоненты] Обновить абонента', 'POST' => '[Абоненты] Создать абонента', 'DELETE' => '[Абоненты] Удалить абонента'];
     }
 }

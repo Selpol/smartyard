@@ -144,7 +144,7 @@ class HikVisionIntercom extends IntercomDevice
         return $this;
     }
 
-    public function unlocked(bool $value): void
+    public function unlock(bool $value): void
     {
         $this->put('/ISAPI/AccessControl/RemoteControl/door/1', $value ? '<cmd>alwaysOpen</cmd>' : '<cmd>resume</cmd>', ['Content-Type' => 'application/xml']);
     }

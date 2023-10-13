@@ -410,7 +410,7 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
-    public function unlocked(bool $value): void
+    public function unlock(bool $value): void
     {
         $this->setIntercomHelp('DoorOpenMode', $value ? 'on' : 'off');
     }

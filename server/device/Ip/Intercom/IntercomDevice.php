@@ -191,7 +191,7 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
-    public function unlocked(bool $value): void
+    public function unlock(bool $value): void
     {
     }
 

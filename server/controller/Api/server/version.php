@@ -18,11 +18,7 @@ class version extends Api
             $version = 0;
         }
 
-        return [
-            "200" => [
-                "serverVersion" => $version,
-            ]
-        ];
+        return ['200' => ['serverVersion' => $version]];
     }
 
     public static function index(): array

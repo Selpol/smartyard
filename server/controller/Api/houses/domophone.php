@@ -70,12 +70,7 @@ class domophone extends Api
 
     public static function index(): array
     {
-        return [
-            "GET" => "[Дом] Получить домофон",
-            "PUT" => "[Дом] Обновить домофон",
-            "POST" => "[Дом] Создать домофон",
-            "DELETE" => "[Дом] Удалить домофон",
-        ];
+        return ['GET' => '[Дом] Получить домофон', 'PUT' => '[Дом] Обновить домофон', 'POST' => '[Дом] Создать домофон', 'DELETE' => '[Дом] Удалить домофон'];
     }
 
     private static function modifyIp(int $id, string $url): void
@@ -93,6 +88,6 @@ class domophone extends Api
         if (!$device->ping())
             throw new HttpException(message: 'Устройство не доступно');
 
-        $device->unlocked($value);
+        $device->unlock($value);
     }
 }

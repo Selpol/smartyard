@@ -439,7 +439,7 @@ class IsIntercom extends IntercomDevice
         return $this;
     }
 
-    public function unlocked(bool $value): void
+    public function unlock(bool $value): void
     {
         $relays = $this->get('/relay/info');
 

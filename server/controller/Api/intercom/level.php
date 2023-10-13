@@ -21,6 +21,6 @@ class level extends Api
 
     public static function index(): array
     {
-        return ["GET" => "[Домофон] Запросить уровень"];
+        return ['GET' => '[Домофон] Запросить уровень'];
     }
 }

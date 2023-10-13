@@ -1,6 +1,6 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Task\Tasks\Intercom;
+namespace Selpol\Task\Tasks\Intercom\Cms;
 
 use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
@@ -8,7 +8,7 @@ use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
-class IntercomCmsTask extends Task
+class IntercomSyncCmsTask extends Task
 {
     public int $entranceId;
 
