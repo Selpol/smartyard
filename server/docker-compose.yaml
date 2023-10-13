@@ -48,6 +48,15 @@ services:
       - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
     networks:
       backend:
+  mqtt:
+    image: iegomez/mosquitto-go-auth:2.0.0-mosquitto_2.0.14
+    container_name: mqtt
+    volumes:
+      - ./docker/mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf
+      - ./docker/mosquitto/cond.d:/mosquitto/conf.d
+    networks:
+      backend:
+      frontend:
   php:
     build:
       context: .
@@ -70,6 +79,7 @@ services:
       - database
       - redis
       - amqp
+      - mqtt
     networks:
       backend:
       frontend:
