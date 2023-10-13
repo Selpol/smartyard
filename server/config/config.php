@@ -17,6 +17,10 @@ return [
         'trust' => explode(',', env('ASTERISK_TRUST', '127.0.0.1/32'))
     ],
 
+    'mqtt' => [
+        'trust' => explode(',', env('MQTT_TRUST', '127.0.0.1/32'))
+    ],
+
     'internal' => [
         'logger' => env('INTERNAL_LOGGER', false),
 
