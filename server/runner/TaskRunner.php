@@ -4,10 +4,12 @@ namespace Selpol\Runner;
 
 use Exception;
 use Psr\Log\LoggerInterface;
+use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\MqttService;
 use Selpol\Service\TaskService;
 use Selpol\Task\Task;
 use Selpol\Task\TaskCallbackInterface;
@@ -92,8 +94,11 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $this->logger->info('Dequeue start task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
 
                 $feature = container(TaskFeature::class);
+                $service = container(MqttService::class);
 
                 try {
+                    $service->task($task->title, 'start');
+
                     $task->onTask();
 
                     $feature->releaseUnique($task);
@@ -107,6 +112,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     $feature->add($task, $throwable->getMessage(), 0);
 
                     $task->onError($throwable);
+                } finally {
+                    $service->task($task->title, 'done');
                 }
             }
         });

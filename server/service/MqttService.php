@@ -11,6 +11,7 @@ use PhpMqtt\Client\Exceptions\RepositoryException;
 use PhpMqtt\Client\MqttClient;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
+use Throwable;
 
 #[Singleton]
 class MqttService implements ContainerDisposeInterface
@@ -27,19 +28,20 @@ class MqttService implements ContainerDisposeInterface
         $this->client = new MqttClient($config['host'], intval($config['port']));
     }
 
-    /**
-     * @param string $topic
-     * @param mixed $data
-     * @throws ConfigurationInvalidException
-     * @throws ConnectingToBrokerFailedException
-     * @throws DataTransferException
-     * @throws RepositoryException
-     */
     public function publish(string $topic, mixed $data): void
     {
-        $this->connect();
+        try {
+            $this->connect();
 
-        $this->client->publish($topic, json_encode($data));
+            $this->client->publish($topic, json_encode($data));
+        } catch (Throwable $throwable) {
+            file_logger('mqtt')->error($throwable);
+        }
+    }
+
+    public function task(string $title, string $action): void
+    {
+        $this->publish('task', ['title' => $title, 'action' => $action]);
     }
 
     /**
