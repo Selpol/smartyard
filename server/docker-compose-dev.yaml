@@ -51,7 +51,7 @@ services:
     container_name: mqtt
     volumes:
       - ./docker/mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf
-      - ./docker/mosquitto/cond.d:/mosquitto/conf.d
+      - ./docker/mosquitto/conf.d:/mosquitto/conf.d
     networks:
       backend:
       frontend:
