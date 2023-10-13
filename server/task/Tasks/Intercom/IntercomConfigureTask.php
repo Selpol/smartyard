@@ -11,15 +11,21 @@ use Selpol\Feature\Sip\SipFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Uri;
 use Selpol\Service\DeviceService;
+use Selpol\Task\TaskUniqueInterface;
 use Throwable;
 
-class IntercomConfigureTask extends IntercomTask
+class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 {
     public int $id;
 
     public function __construct(int $id)
     {
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
+    }
+
+    public function unique(): array
+    {
+        return [IntercomConfigureTask::class, $this->id];
     }
 
     public function onTask(): bool

@@ -3,6 +3,7 @@
 namespace Selpol\Task;
 
 use Exception;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Service\TaskService;
 use Throwable;
 
@@ -67,6 +68,9 @@ class TaskContainer
             return true;
         } catch (Throwable $throwable) {
             $logger->error('Error dispatching task' . PHP_EOL . $throwable);
+
+            if ($throwable instanceof HttpException)
+                throw $throwable;
 
             return false;
         }
