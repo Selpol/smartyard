@@ -45,7 +45,7 @@ class user extends Api
             return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
-        $success = container(UserFeature::class)->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"], $params["persistentToken"]);
+        $success = container(UserFeature::class)->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"]);
 
         if (@$params["password"] && (int)$params["_id"]) {
             $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);

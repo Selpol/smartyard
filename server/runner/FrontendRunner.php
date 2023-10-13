@@ -18,7 +18,6 @@ use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
-use Selpol\Service\RedisService;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
@@ -101,7 +100,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($api == 'server' && $method == 'ping')
             return $this->emit($this->response()->withString('pong'));
         else if ($api == 'accounts' && $method == 'forgot')
-            return $this->emit($this->forgot($params));
+            return $this->emit($this->response(204));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password'])
                 return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
@@ -127,9 +126,6 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $params["_md5"] = md5(print_r($params, true));
 
         $params["_ip"] = $ip;
-
-        if (@$params["_login"])
-            container(RedisService::class)->getConnection()->set("last_" . md5($params["_login"]), time());
 
         if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method'])))
             return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
@@ -163,22 +159,5 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
-    }
-
-    /**
-     * @throws RedisException
-     */
-    private function forgot(array $params): Response
-    {
-        if (array_key_exists('token', $params)) {
-            $redis = container(RedisService::class)->getConnection();
-
-            $keys = $redis->keys("forgot_{$params['token']}_*");
-
-            foreach ($keys as $key)
-                $redis->del($key);
-        }
-
-        return $this->response(204);
     }
 }

@@ -39,15 +39,6 @@ class InternalUserFeature extends UserFeature
 
                     foreach ($lk as $k)
                         $u['sessions'][] = json_decode($this->getRedis()->getConnection()->get($k), true);
-
-                    $pk = $this->getRedis()->getConnection()->keys("persistent_*_{$u["uid"]}");
-
-                    foreach ($pk as $k) {
-                        $s = json_decode($this->getRedis()->getConnection()->get($k), true);
-                        $s["byPersistentToken"] = true;
-
-                        $u["sessions"][] = $s;
-                    }
                 } else {
                     unset($u['lastLogin']);
                     unset($u['lastAction']);
@@ -67,7 +58,7 @@ class InternalUserFeature extends UserFeature
             $user = $this->getDatabase()->getConnection()->query("select uid, login, real_name, e_mail, phone, tg, notification, enabled, default_route from core_users where uid = $uid", PDO::FETCH_ASSOC)->fetchAll();
 
             if (count($user)) {
-                $_user = [
+                return [
                     "uid" => $user[0]["uid"],
                     "login" => $user[0]["login"],
                     "realName" => $user[0]["real_name"],
@@ -78,20 +69,6 @@ class InternalUserFeature extends UserFeature
                     "enabled" => $user[0]["enabled"],
                     "defaultRoute" => $user[0]["default_route"]
                 ];
-
-                $persistent = false;
-                $_keys = $this->getRedis()->getConnection()->keys("persistent_*_" . $user[0]["uid"]);
-
-                foreach ($_keys as $_key) {
-                    $persistent = explode("_", $_key)[1];
-
-                    break;
-                }
-
-                if ($persistent)
-                    $_user["persistentToken"] = $persistent;
-
-                return $_user;
             } else return false;
         } catch (Throwable $e) {
             error_log(print_r($e, true));
@@ -147,13 +124,6 @@ class InternalUserFeature extends UserFeature
         if ($uid > 0) {
             try {
                 $this->getDatabase()->getConnection()->exec("delete from core_users where uid = $uid");
-
-                $redis = $this->getRedis()->getConnection();
-
-                $_keys = $redis->keys("persistent_*_" . $uid);
-
-                foreach ($_keys as $_key)
-                    $redis->del($_key);
             } catch (Throwable $e) {
                 error_log(print_r($e, true));
 
@@ -175,7 +145,7 @@ class InternalUserFeature extends UserFeature
         }
     }
 
-    public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string|null $defaultRoute = '', bool|string|null $persistentToken = false): bool
+    public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string|null $defaultRoute = ''): bool
     {
         if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"]))
             return false;
@@ -185,19 +155,6 @@ class InternalUserFeature extends UserFeature
             $redis = $this->getRedis()->getConnection();
 
             $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
-
-            if ($persistentToken && strlen(trim($persistentToken)) === 32 && $uid && $enabled) {
-                $redis->set("persistent_" . trim($persistentToken) . "_" . $uid, json_encode([
-                    "uid" => $uid,
-                    "login" => $db->get("select login from core_users where uid = $uid", options: ["fieldlify"]),
-                    "started" => time(),
-                ]));
-            } else {
-                $_keys = $redis->keys("persistent_*_" . $uid);
-
-                foreach ($_keys as $_key)
-                    $redis->del($_key);
-            }
 
             if (!$enabled) {
                 $_keys = $redis->keys("auth_*_" . $uid);

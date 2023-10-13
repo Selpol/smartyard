@@ -37,11 +37,11 @@ abstract class AuthenticationFeature extends Feature
                             $first_key = $key;
                         }
                     } catch (Exception) {
-                        $redis->delete($key);
+                        $redis->del($key);
                     }
                 }
 
-                $redis->delete($first_key);
+                $redis->del($first_key);
             }
             if ($rememberMe) {
                 $token = md5($uid . ":" . $login . ":" . $password . ":" . $did);
@@ -81,32 +81,6 @@ abstract class AuthenticationFeature extends Feature
 
         if ($authorization[0] === "Bearer") {
             $token = $authorization[1];
-
-            $keys = $redis->keys("persistent_" . $token . "_*");
-
-            foreach ($keys as $key) {
-                $auth = json_decode($redis->get($key), true);
-
-                if ($ua) {
-                    $auth["ua"] = $ua;
-                }
-
-                if ($ip) {
-                    $auth["ip"] = $ip;
-                }
-
-                $auth["updated"] = time();
-
-                $auth["token"] = $token;
-
-                $redis->set($key, json_encode($auth));
-
-                if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) {
-                    return $auth;
-                } else {
-                    $redis->del($key);
-                }
-            }
 
             $keys = $redis->keys("auth_" . $token . "_*");
 
