@@ -118,8 +118,12 @@ class SyncController extends Controller
         $result = [];
 
         foreach ($body as $item)
-            if ($households->deleteSubscriber($item))
-                $result[$item] = true;
+            try {
+                if ($households->deleteSubscriber($item))
+                    $result[$item] = true;
+            } catch (Throwable $throwable) {
+                file_logger('internal-sync')->error($throwable);
+            }
 
         if (count($result))
             return $this->rbtResponse(data: $result);
