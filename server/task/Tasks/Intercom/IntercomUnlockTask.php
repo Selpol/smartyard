@@ -11,7 +11,7 @@ class IntercomUnlockTask extends IntercomTask
 
     public function __construct(int $id, bool $lock)
     {
-        parent::__construct($id, 'Обновление замка (' . $id . ', ' . ($lock ? 'Открыто' : 'Закрыто') . ')');
+        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Открыто' : 'Закрыто') . ')');
 
         $this->lock = $lock;
     }

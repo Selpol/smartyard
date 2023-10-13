@@ -20,7 +20,7 @@ use Selpol\Service\Database\Page;
 #[Singleton]
 class CoreVarRepository extends Repository
 {
-    protected function __construct()
+    public function __construct()
     {
         parent::__construct(CoreVar::class);
     }

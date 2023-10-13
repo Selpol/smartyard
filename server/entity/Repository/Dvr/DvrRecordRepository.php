@@ -20,7 +20,7 @@ use Selpol\Service\Database\Page;
 #[Singleton]
 class DvrRecordRepository extends Repository
 {
-    protected function __construct()
+    public function __construct()
     {
         parent::__construct(DvrRecord::class);
     }

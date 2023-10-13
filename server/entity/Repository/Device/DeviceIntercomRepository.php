@@ -22,7 +22,7 @@ class DeviceIntercomRepository extends Repository
 {
     protected bool $audit = true;
 
-    protected function __construct()
+    public function __construct()
     {
         parent::__construct(DeviceIntercom::class);
     }
