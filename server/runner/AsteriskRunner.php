@@ -396,29 +396,31 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // webrtc extension
         if ($extension[0] === "7" && strlen($extension) === 10) {
+            $uid = intval(substr($extension, 1));
+
             switch ($section) {
                 case 'aors':
-                    $cred = $redis->get("webrtc_" . md5($extension));
+                    $password = $redis->get('user:' . $uid . ':ws');
 
-                    if ($cred)
+                    if ($password)
                         return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
 
                     break;
 
                 case 'auths':
-                    $cred = $redis->get("webrtc_" . md5($extension));
+                    $password = $redis->get('user:' . $uid . ':ws');
 
-                    if ($cred)
-                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $cred];
+                    if ($password)
+                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $password];
 
                     break;
 
                 case 'endpoints':
-                    $cred = $redis->get("webrtc_" . md5($extension));
+                    $password = $redis->get('user:' . $uid . ':ws');
 
-                    $user = container(UserFeature::class)->getUser((int)substr($extension, 1));
+                    $user = container(UserFeature::class)->getUser($uid);
 
-                    if ($user && $cred) {
+                    if ($user && $password) {
                         return [
                             "id" => $extension,
                             "auth" => $extension,

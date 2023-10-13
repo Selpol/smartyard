@@ -25,17 +25,20 @@ abstract class AuthenticationFeature extends Feature
         $redis = container(RedisService::class)->getConnection();
 
         $uid = $this->checkAuth($login, $password);
+
         if ($uid !== false) {
-            $keys = $redis->keys("auth_*_" . $uid);
+            $keys = $redis->keys('user:' . $uid . ':token:*');
+
             $first_key = "";
             $first_key_time = time();
+
             if (count($keys) > config_get('redis.max_allowed_tokens')) {
                 foreach ($keys as $key) {
                     try {
                         $auth = json_decode($redis->get($key), true);
-                        if (@(int)$auth["updated"] < $first_key_time) {
+
+                        if (@(int)$auth["updated"] < $first_key_time)
                             $first_key = $key;
-                        }
                     } catch (Exception) {
                         $redis->del($key);
                     }
@@ -43,17 +46,17 @@ abstract class AuthenticationFeature extends Feature
 
                 $redis->del($first_key);
             }
+
             if ($rememberMe) {
                 $token = md5($uid . ":" . $login . ":" . $password . ":" . $did);
             } else {
-                if ($did === "Base64") {
+                if ($did === "Base64")
                     $token = md5($uid . ":" . $login . ":" . $password);
-                } else {
+                else
                     $token = md5(guid_v4());
-                }
             }
 
-            $redis->setex("auth_" . $token . "_" . $uid, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
+            $redis->setex('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
                 "uid" => (string)$uid,
                 "login" => $login,
                 "persistent" => $rememberMe,
@@ -82,7 +85,7 @@ abstract class AuthenticationFeature extends Feature
         if ($authorization[0] === "Bearer") {
             $token = $authorization[1];
 
-            $keys = $redis->keys("auth_" . $token . "_*");
+            $keys = $redis->keys('user:*:token:' . $token);
 
             foreach ($keys as $key) {
                 $auth = json_decode($redis->get($key), true);
@@ -101,11 +104,8 @@ abstract class AuthenticationFeature extends Feature
 
                 $redis->setex($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode($auth));
 
-                if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) {
-                    return $auth;
-                } else {
-                    return false;
-                }
+                if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) return $auth;
+                else return false;
             }
         }
 
@@ -131,23 +131,18 @@ abstract class AuthenticationFeature extends Feature
     {
         $redis = container(RedisService::class)->getConnection();
 
-        $keys = $redis->keys("auth_" . $token . "_*");
-
         if ($all) {
+            $keys = $redis->keys('user:*:token:' . $token);
+
             foreach ($keys as $key) {
-                $uid = @explode("_", $key)[2];
-                $_keys = $redis->keys("auth_*_" . $uid);
+                $uid = @explode(':', $key)[1];
+                $_keys = $redis->keys('user:' . $uid . ':*');
 
                 foreach ($_keys as $_key)
                     $redis->del($_key);
 
                 break;
             }
-        } else {
-            $keys = $redis->keys("auth_" . $token . "_*");
-
-            foreach ($keys as $key)
-                $redis->del($key);
-        }
+        } else $redis->del('user:*:token:' . $token);
     }
 }

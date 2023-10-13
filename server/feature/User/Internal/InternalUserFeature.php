@@ -26,8 +26,7 @@ class InternalUserFeature extends UserFeature
                     "phone" => $u["phone"],
                     "tg" => $u["tg"],
                     "enabled" => $u["enabled"],
-                    "lastLogin" => $u["last_login"],
-                    "lastAction" => $this->getRedis()->getConnection()->get("last_" . md5($u["login"]))
+                    "lastLogin" => $u["last_login"]
                 ];
             }
 
@@ -35,7 +34,7 @@ class InternalUserFeature extends UserFeature
                 if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin') {
                     $u['sessions'] = [];
 
-                    $lk = $this->getRedis()->getConnection()->keys("auth_*_{$u['uid']}");
+                    $lk = $this->getRedis()->getConnection()->keys('user:' . $u['uid'] . ':token:*');
 
                     foreach ($lk as $k)
                         $u['sessions'][] = json_decode($this->getRedis()->getConnection()->get($k), true);
@@ -157,7 +156,7 @@ class InternalUserFeature extends UserFeature
             $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
 
             if (!$enabled) {
-                $_keys = $redis->keys("auth_*_" . $uid);
+                $_keys = $redis->keys('user:' . $uid . ':token:*');
 
                 foreach ($_keys as $_key)
                     $redis->del($_key);
