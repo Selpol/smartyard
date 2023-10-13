@@ -20,4 +20,12 @@ abstract class TaskFeature extends Feature
     public abstract function add(Task $task, string $message, int $status): void;
 
     public abstract function dispatch(int $id): bool;
+
+    public abstract function setUnique(Task $task): void;
+
+    public abstract function hasUnique(Task $task): bool;
+
+    public abstract function releaseUnique(Task $task): void;
+
+    public abstract function clearUnique(): void;
 }

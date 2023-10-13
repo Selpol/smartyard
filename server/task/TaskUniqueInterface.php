@@ -4,5 +4,5 @@ namespace Selpol\Task;
 
 interface TaskUniqueInterface
 {
-    public function unique(): array;
+    public function unique(): TaskUnique;
 }

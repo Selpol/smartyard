@@ -6,6 +6,7 @@ use RuntimeException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
+use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
 use Throwable;
 
@@ -20,9 +21,9 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
         $this->entranceId = $entranceId;
     }
 
-    public function unique(): array
+    public function unique(): TaskUnique
     {
-        return [IntercomSyncCmsTask::class, $this->entranceId];
+        return new TaskUnique([IntercomSyncCmsTask::class, $this->entranceId], 3600);
     }
 
     public function onTask(): bool

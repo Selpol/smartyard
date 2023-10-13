@@ -11,6 +11,7 @@ use Selpol\Feature\Sip\SipFeature;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Uri;
 use Selpol\Service\DeviceService;
+use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
 use Throwable;
 
@@ -23,9 +24,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
     }
 
-    public function unique(): array
+    public function unique(): TaskUnique
     {
-        return [IntercomConfigureTask::class, $this->id];
+        return new TaskUnique([IntercomConfigureTask::class, $this->id], 3600);
     }
 
     public function onTask(): bool

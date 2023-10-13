@@ -5,9 +5,11 @@ namespace Selpol\Task\Tasks;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Task\Task;
+use Selpol\Task\TaskUnique;
+use Selpol\Task\TaskUniqueInterface;
 use Throwable;
 
-class RecordTask extends Task
+class RecordTask extends Task implements TaskUniqueInterface
 {
     public int $subscriberId;
     public int $recordId;
@@ -18,6 +20,11 @@ class RecordTask extends Task
 
         $this->subscriberId = $subscriberId;
         $this->recordId = $recordId;
+    }
+
+    public function unique(): TaskUnique
+    {
+        return new TaskUnique([RecordTask::class, $this->recordId], 3600);
     }
 
     public function onTask(): bool

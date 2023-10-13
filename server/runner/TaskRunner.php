@@ -91,18 +91,22 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             {
                 $this->logger->info('Dequeue start task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
 
+                $feature = container(TaskFeature::class);
+
                 try {
                     $task->onTask();
 
-                    container(TaskFeature::class)->add($task, 'OK', 1);
+                    $feature->releaseUnique($task);
+                    $feature->add($task, 'OK', 1);
 
                     $this->logger->info('Dequeue complete task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
                 } catch (Throwable $throwable) {
                     $this->logger->info('Dequeue error task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
 
-                    $task->onError($throwable);
+                    $feature->releaseUnique($task);
+                    $feature->add($task, $throwable->getMessage(), 0);
 
-                    container(TaskFeature::class)->add($task, $throwable->getMessage(), 0);
+                    $task->onError($throwable);
                 }
             }
         });

@@ -23,6 +23,9 @@ class RedisCache implements CacheInterface
         $this->service = container(RedisService::class);
     }
 
+    /**
+     * @throws RedisException
+     */
     public function get(string $key, mixed $default = null): mixed
     {
         $value = $this->service->getConnection()->get('cache:' . $key);
@@ -70,6 +73,9 @@ class RedisCache implements CacheInterface
         }
     }
 
+    /**
+     * @throws RedisException
+     */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         foreach ($keys as $key)
@@ -105,6 +111,8 @@ class RedisCache implements CacheInterface
      */
     public function has(string $key): bool
     {
-        return $this->service->getConnection()->exists($key) !== false;
+        $result = $this->service->getConnection()->exists($key);
+
+        return $result !== false && $result > 0;
     }
 }

@@ -9,8 +9,10 @@ use PhpAmqpLib\Message\AMQPMessage;
 use PhpAmqpLib\Wire\AMQPTable;
 use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerAwareTrait;
+use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
+use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Selpol\Task\TaskCallbackInterface;
 
@@ -47,6 +49,13 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
      */
     public function enqueue(string $queue, Task $task, ?int $delay): void
     {
+        $feature = container(TaskFeature::class);
+
+        if ($feature->hasUnique($task))
+            throw new HttpException(null, null, 'Задача уже существует');
+
+        $feature->setUnique($task);
+
         if ($this->connection == null || $this->channel == null)
             $this->connect();
 

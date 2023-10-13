@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Migration;
 
 use Selpol\Task\Task;
+use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
 
 abstract class MigrationTask extends Task implements TaskUniqueInterface
@@ -18,9 +19,9 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
         $this->version = $version;
     }
 
-    public function unique(): array
+    public function unique(): TaskUnique
     {
-        return [MigrationTask::class, $this->dbVersion, $this->version];
+        return new TaskUnique([MigrationTask::class, $this->dbVersion, $this->version]);
     }
 
     protected function getMigration(string $path, ?int $min = null, ?int $max = null): array

@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
+use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
 
 class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
@@ -17,9 +18,9 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
         $this->lock = $lock;
     }
 
-    public function unique(): array
+    public function unique(): TaskUnique
     {
-        return [IntercomUnlockTask::class, $this->id, $this->lock];
+        return new TaskUnique([IntercomUnlockTask::class, $this->id]);
     }
 
     public function onTask(): bool

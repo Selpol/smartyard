@@ -3,9 +3,11 @@
 namespace Selpol\Feature\Task\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use RedisException;
 use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
+use Selpol\Task\TaskUniqueInterface;
 use Selpol\Validator\Exception\ValidatorException;
 
 class InternalTaskFeature extends TaskFeature
@@ -49,5 +51,54 @@ class InternalTaskFeature extends TaskFeature
         file_logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask->data]);
 
         return false;
+    }
+
+    /**
+     * @throws RedisException
+     */
+    public function setUnique(Task $task): void
+    {
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            $this->getRedis()->getConnection()->setex('task:unique:' . $unique->identifier, $unique->ttl, $unique->identifier);
+        }
+    }
+
+    /**
+     * @throws RedisException
+     */
+    public function hasUnique(Task $task): bool
+    {
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            return $this->getRedis()->getConnection()->exists('task:unique:' . $unique->identifier) === 1;
+        }
+
+        return false;
+    }
+
+    /**
+     * @throws RedisException
+     */
+    public function releaseUnique(Task $task): void
+    {
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            $this->getRedis()->getConnection()->del('task:unique:' . $unique->identifier);
+        }
+    }
+
+    /**
+     * @throws RedisException
+     */
+    public function clearUnique(): void
+    {
+        $keys = $this->getRedis()->getConnection()->keys('task:unique:*');
+
+        if (is_array($keys))
+            $this->getRedis()->getConnection()->del(...$keys);
     }
 }
