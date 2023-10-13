@@ -12,7 +12,7 @@ use Psr\Log\LoggerAwareTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Task\Task;
-use Selpol\Task\TaskCallback;
+use Selpol\Task\TaskCallbackInterface;
 
 #[Singleton]
 class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
@@ -68,7 +68,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
     /**
      * @throws Exception
      */
-    public function dequeue(string $queue, TaskCallback|callable $callback): void
+    public function dequeue(string $queue, TaskCallbackInterface $callback): void
     {
         if ($this->connection == null || $this->channel == null)
             $this->connect();
@@ -80,7 +80,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
                 $task = unserialize($message->body);
 
                 if ($task instanceof Task)
-                    $callback($task);
+                    $callback->task($task);
             } catch (Exception $exception) {
                 $this->logger?->error($exception);
             }

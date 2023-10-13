@@ -10,7 +10,7 @@ use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\TaskService;
 use Selpol\Task\Task;
-use Selpol\Task\TaskCallback;
+use Selpol\Task\TaskCallbackInterface;
 use Throwable;
 
 class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
@@ -75,7 +75,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $service = container(TaskService::class);
         $service->setLogger(file_logger('task'));
 
-        $service->dequeue($queue, new class($queue, file_logger('task-' . $queue)) implements TaskCallback {
+        $service->dequeue($queue, new class($queue, file_logger('task-' . $queue)) implements TaskCallbackInterface {
             private string $queue;
 
             private LoggerInterface $logger;
@@ -87,7 +87,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $this->logger = $logger;
             }
 
-            public function __invoke(Task $task): void
+            public function task(Task $task): void
             {
                 $this->logger->info('Dequeue start task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
 
