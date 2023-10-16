@@ -26,4 +26,9 @@ class HouseSubscriberRepository extends Repository
     {
         parent::__construct(HouseSubscriber::class);
     }
+
+    public function findByMobile(string $mobile): HouseSubscriber
+    {
+        return $this->fetchRaw('SELECT * FROM ' . $this->table . ' WHERE id = :id', [$this->id => $mobile]);
+    }
 }

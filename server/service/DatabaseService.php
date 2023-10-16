@@ -8,6 +8,7 @@ use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Service\Database\Manager;
+use Selpol\Service\Exception\DatabaseException;
 
 #[Singleton]
 class DatabaseService implements ContainerDisposeInterface
@@ -60,6 +61,9 @@ class DatabaseService implements ContainerDisposeInterface
                 }
             } else return false;
         } catch (PDOException $e) {
+            if ($e->getCode() == 23505)
+                throw new DatabaseException(DatabaseException::UNIQUE_VIOLATION, 'Ключ уже существует', previous: $e);
+
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));

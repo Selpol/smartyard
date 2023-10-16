@@ -5,9 +5,12 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Device\Exception\DeviceException;
+use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
+use Selpol\Service\Exception\DatabaseException;
 use Throwable;
 
 class SyncController extends Controller
@@ -57,12 +60,21 @@ class SyncController extends Controller
                     'name' => rule()->required()->clamp(1, 32)->nonNullable(),
                     'patronymic' => rule()->required()->clamp(1, 32)->nonNullable(),
                 ]);
+            } catch (Throwable) {
+                continue;
+            }
 
+            try {
                 $subscriberId = $households->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
                 if ($subscriberId)
                     $result[$validate['id']] = $subscriberId;
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation()) {
+                    $subscriber = container(HouseSubscriberRepository::class)->findById($validate['id']);
+
+                    $result[$validate['id']] = $subscriber->house_subscriber_id;
+                }
             }
         }
 
@@ -169,10 +181,16 @@ class SyncController extends Controller
         foreach ($body as $item) {
             try {
                 $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id(), 'role' => rule()->required()->int()->nonNullable()]);
+            } catch (Throwable) {
+                continue;
+            }
 
+            try {
                 if ($db->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation())
+                    $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             }
         }
 
@@ -196,10 +214,16 @@ class SyncController extends Controller
         foreach ($body as $item) {
             try {
                 $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id(), 'role' => rule()->required()->int()->nonNullable()]);
+            } catch (Throwable) {
+                continue;
+            }
 
+            try {
                 if ($db->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation())
+                    $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
             }
         }
 
