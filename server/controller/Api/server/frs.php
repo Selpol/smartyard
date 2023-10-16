@@ -25,9 +25,7 @@ class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]));
 
-        $result = container(FrsServerRepository::class)->inser($frsServer);
-
-        if ($result)
+        if (container(FrsServerRepository::class)->inser($frsServer))
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось создать');
@@ -47,9 +45,7 @@ class frs extends Api
         $frsServer->title = $validate['title'];
         $frsServer->url = $validate['url'];
 
-        $result = container(FrsServerRepository::class)->update($frsServer);
-
-        if ($result)
+        if (container(FrsServerRepository::class)->update($frsServer))
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось обновить');
@@ -61,9 +57,7 @@ class frs extends Api
 
         $frsServer = container(FrsServerRepository::class)->findById($id);
 
-        $result = container(FrsServerRepository::class)->delete($frsServer);
-
-        if ($result)
+        if (container(FrsServerRepository::class)->delete($frsServer))
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось удалить');

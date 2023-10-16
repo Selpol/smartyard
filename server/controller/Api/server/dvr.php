@@ -29,9 +29,7 @@ class dvr extends Api
             'token' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
 
-        $result = container(DvrServerRepository::class)->insert($dvrServer);
-
-        if ($result)
+        if (container(DvrServerRepository::class)->insert($dvrServer))
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось создать');
@@ -59,9 +57,7 @@ class dvr extends Api
 
         $dvrServer->token = $validate['token'];
 
-        $result = container(DvrServerRepository::class)->update($dvrServer);
-
-        if ($result)
+        if (container(DvrServerRepository::class)->update($dvrServer))
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось обновить');
@@ -73,9 +69,7 @@ class dvr extends Api
 
         $dvrServer = container(DvrServerRepository::class)->findById($id);
 
-        $result = container(DvrServerRepository::class)->delete($dvrServer);
-
-        if ($result)
+        if (container(DvrServerRepository::class)->delete($dvrServer))
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось удалить');
