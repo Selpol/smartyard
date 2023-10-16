@@ -39,9 +39,8 @@ class house extends Api
         $houseId = $params['_id'];
         $keys = $params['keys'];
 
-        foreach ($keys as $key) {
-            $households->addKey($key["rfId"], 2, $key["accessTo"], '');
-        }
+        foreach ($keys as $key)
+            $households->addKey($key["rfId"], 2, $key["accessTo"], array_key_exists('comment', $key) ? $key['comment'] : '');
 
         task(new IntercomHouseKeyTask($houseId))->high()->dispatch();
 
