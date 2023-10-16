@@ -7,7 +7,6 @@ use Selpol\Feature\User\UserFeature;
 
 class password extends Api
 {
-
     public static function POST(array $params): array
     {
         $success = container(UserFeature::class)->setPassword(@$params["_id"], $params["password"]);

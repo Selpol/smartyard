@@ -3,8 +3,8 @@
 namespace Selpol\Controller\Api\cameras;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Feature\Camera\CameraFeature;
-use Selpol\Service\DatabaseService;
+use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
@@ -12,71 +12,80 @@ class camera extends Api
 {
     public static function GET(array $params): array
     {
-        $validate = validator($params, ['_id' => rule()->id()]);
-
-        return Api::ANSWER(container(CameraFeature::class)->getCamera($validate['_id']));
+        return self::ANSWER(container(DeviceCameraRepository::class)->findById($params['_id'])->toArrayMap([
+            "camera_id" => "cameraId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "direction" => "direction",
+            "angle" => "angle",
+            "distance" => "distance",
+            "frs" => "frs",
+            "md_left" => "mdLeft",
+            "md_top" => "mdTop",
+            "md_width" => "mdWidth",
+            "md_height" => "mdHeight",
+            "common" => "common",
+            "comment" => "comment"
+        ]));
     }
 
     public static function POST(array $params): array
     {
-        $cameraId = container(CameraFeature::class)->addCamera($params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
+        $camera = new DeviceCamera();
 
-        if ($cameraId) {
-            if ($params['frs'] && $params['frs'] !== '-')
-                task(new FrsAddStreamTask($params['frs'], $cameraId))->high()->dispatch();
+        self::set($camera, $params);
 
-            static::modifyIp($cameraId, $params['url']);
+        if (container(DeviceCameraRepository::class)->insert($camera)) {
+            if ($camera->frs && $camera->frs !== '-')
+                task(new FrsAddStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
-            return Api::ANSWER($cameraId, 'cameraId');
+            return self::ANSWER($camera->camera_id, 'cameraId');
         }
 
-        return Api::ERROR('Камера не добавлена');
+        return self::ERROR('Неудалось добавить камеру');
     }
 
     public static function PUT(array $params): array
     {
-        $feature = container(CameraFeature::class);
+        $camera = container(DeviceCameraRepository::class)->findById($params['_id']);
 
-        $camera = $feature->getCamera($params['_id']);
+        self::set($camera, $params);
 
-        if ($camera) {
-            $success = $feature->modifyCamera($params["_id"], $params["enabled"], $params["model"], $params["url"], $params["stream"], $params["credentials"], $params["name"], $params["dvrStream"], $params["timezone"], $params["lat"], $params["lon"], $params["direction"], $params["angle"], $params["distance"], $params["frs"], $params["mdLeft"], $params["mdTop"], $params["mdWidth"], $params["mdHeight"], $params["common"], $params["comment"]);
+        if (container(DeviceCameraRepository::class)->update($camera)) {
+            if ($camera->frs !== $params['frs']) {
+                if ($camera->frs && $camera->frs !== '-')
+                    task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
-            if ($success) {
-                if ($camera['frs'] !== $params['frs']) {
-                    if ($camera['frs'] && $camera['frs'] !== '-')
-                        task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();
-
-                    if ($params['frs'] && $params['frs'] !== '-')
-                        task(new FrsAddStreamTask($params['frs'], $camera['cameraId']))->high()->dispatch();
-                }
-
-                if ($camera['url'] !== $params['url'])
-                    static::modifyIp($camera['cameraId'], $params['url']);
+                if ($params['frs'] && $params['frs'] !== '-')
+                    task(new FrsAddStreamTask($params['frs'], $camera->camera_id))->high()->dispatch();
             }
 
-            return Api::ANSWER($success ?: $params["_id"], $success ? "cameraId" : false);
+            return self::ANSWER($camera->camera_id, 'cameraId');
         }
 
-        return Api::ERROR('Камера не найдена');
+        return Api::ERROR('Неудалось обновить камеру');
     }
 
     public static function DELETE(array $params): array
     {
-        $feature = container(CameraFeature::class);
+        $camera = container(DeviceCameraRepository::class)->findById($params['_id']);
 
-        $camera = $feature->getCamera($params['_id']);
+        if (container(DeviceCameraRepository::class)->delete($camera)) {
+            if ($camera->frs && $camera->frs !== '-')
+                task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
-        if ($camera) {
-            $success = $feature->deleteCamera($params["_id"]);
-
-            if ($success && $camera['frs'] && $camera['frs'] !== '-')
-                task(new FrsRemoveStreamTask($camera['frs'], $camera['cameraId']))->high()->dispatch();
-
-            return Api::ANSWER($success);
+            return self::ANSWER();
         }
 
-        return Api::ERROR('Камера не найдена');
+        return Api::ERROR('Неудалось удалить камеру');
     }
 
     public static function index(): bool|array
@@ -89,11 +98,39 @@ class camera extends Api
         ];
     }
 
-    private static function modifyIp(int $id, string $url): void
+    private static function set(DeviceCamera $camera, array $params)
     {
-        $ip = gethostbyname(parse_url($url, PHP_URL_HOST));
+        $camera->enabled = $params['enabled'];
+
+        $camera->model = $params['model'];
+        $camera->url = $params['url'];
+        $camera->stream = $params['stream'];
+        $camera->credentials = $params['credentials'];
+        $camera->name = $params['name'];
+        $camera->dvr_stream = $params['dvrStream'];
+        $camera->timezone = $params['timezone'];
+
+        $camera->lat = $params['lat'];
+        $camera->lon = $params['lon'];
+
+        $camera->direction = $params['direction'];
+        $camera->angle = $params['angle'];
+        $camera->distance = $params['distance'];
+
+        $camera->frs = $params['frs'];
+
+        $camera->md_left = $params['mdLeft'];
+        $camera->md_top = $params['mdTop'];
+        $camera->md_width = $params['mdWidth'];
+        $camera->md_height = $params['mdHeight'];
+
+        $camera->common = $params['common'];
+
+        $camera->comment = $params['comment'];
+
+        $ip = gethostbyname(parse_url($camera->url, PHP_URL_HOST));
 
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
-            container(DatabaseService::class)->modify('UPDATE cameras SET ip = :ip WHERE camera_id = :id', ['ip' => $ip, 'id' => $id]);
+            $camera->ip = $ip;
     }
 }
