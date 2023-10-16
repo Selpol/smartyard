@@ -3,8 +3,6 @@
 namespace Selpol\Runner;
 
 use Exception;
-use Psr\Log\LoggerInterface;
-use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
@@ -12,7 +10,6 @@ use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\MqttService;
 use Selpol\Service\TaskService;
 use Selpol\Task\Task;
-use Selpol\Task\TaskCallbackInterface;
 use Throwable;
 
 class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
