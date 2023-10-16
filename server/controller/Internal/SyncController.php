@@ -38,7 +38,7 @@ class SyncController extends Controller
             return $this->rbtResponse(data: $result);
         }
 
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: []);
     }
 
     /**
@@ -78,10 +78,7 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -109,10 +106,7 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -134,10 +128,7 @@ class SyncController extends Controller
             } catch (Throwable) {
             }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -161,10 +152,7 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -194,10 +182,7 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -227,10 +212,7 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse(404);
+        return $this->rbtResponse(data: $result);
     }
 
     /**
@@ -254,9 +236,6 @@ class SyncController extends Controller
             }
         }
 
-        if (count($result))
-            return $this->rbtResponse(data: $result);
-
-        return $this->rbtResponse();
+        return $this->rbtResponse(data: $result);
     }
 }
