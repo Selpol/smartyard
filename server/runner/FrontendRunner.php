@@ -7,6 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
@@ -18,6 +19,7 @@ use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
+use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
@@ -127,8 +129,15 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $params["_ip"] = $ip;
 
-        if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method'])))
-            return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
+        if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method']))) {
+            try {
+                $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower($params['_request_method']));
+
+                return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия (' . $permission->description . ')'));
+            } catch (Throwable) {
+                return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
+            }
+        }
 
         if (file_exists(path("controller/Api/$api/$method.php"))) {
             require_once path("controller/Api/$api/$method.php");

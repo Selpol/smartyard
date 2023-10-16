@@ -26,4 +26,9 @@ class PermissionRepository extends Repository
     {
         parent::__construct(Permission::class);
     }
+
+    public function findByTitle(string $title): Permission
+    {
+        return $this->fetchRaw('SELECT * FROM ' . $this->table . ' WHERE title = :title', ['title' => $title]);
+    }
 }
