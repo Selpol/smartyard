@@ -31,7 +31,9 @@ abstract class Task
 
     public function setProgressCallback(?callable $callback): void
     {
-        $this->progressCallback = $callback;
+        if ($callback)
+            $this->progressCallback = $callback;
+        else unset($this->progressCallback);
     }
 
     protected function retryLow(?int $delay = null): bool
@@ -47,7 +49,7 @@ abstract class Task
 
     protected function setProgress(int|float $progress): void
     {
-        if ($this->progressCallback)
+        if (isset($this->progressCallback) && $this->progressCallback)
             call_user_func($this->progressCallback, $progress);
     }
 }
