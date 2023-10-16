@@ -77,7 +77,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
     /**
      * @throws Exception
      */
-    public function dequeue(string $queue, TaskCallbackInterface $callback): void
+    public function dequeue(string $queue, callable|TaskCallbackInterface $callback): void
     {
         if ($this->connection == null || $this->channel == null)
             $this->connect();
@@ -89,7 +89,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
                 $task = unserialize($message->body);
 
                 if ($task instanceof Task)
-                    call_user_func([$callback, 'task'], $task);
+                    $callback($task);
             } catch (Exception $exception) {
                 $this->logger?->error($exception);
             }

@@ -77,7 +77,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $service = container(TaskService::class);
         $service->setLogger(file_logger('task'));
 
-        $service->dequeue($queue, new class($queue, file_logger('task-' . $queue)) implements TaskCallbackInterface {
+        $callback = new class($queue, file_logger('task-' . $queue)) implements TaskCallbackInterface {
             private string $queue;
 
             private LoggerInterface $logger;
@@ -89,7 +89,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $this->logger = $logger;
             }
 
-            public function task(Task $task): void
+            public function __invoke(Task $task): void
             {
                 $this->logger->info('Dequeue start task', ['queue' => $this->queue, 'class' => get_class($task), 'title' => $task->title]);
 
@@ -122,6 +122,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     $service->task($uuid, $task->title, 'done', 100);
                 }
             }
-        });
+        };
+
+        $service->dequeue($queue, $callback);
     }
 }

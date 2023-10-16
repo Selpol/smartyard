@@ -4,5 +4,5 @@ namespace Selpol\Task;
 
 interface TaskCallbackInterface
 {
-    public function task(Task $task);
+    public function __invoke(Task $task);
 }
