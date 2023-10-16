@@ -80,8 +80,6 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $logger = file_logger('task-' . $queue);
 
         $service->dequeue($queue, static function (Task $task) use ($queue, $logger) {
-            $logger->info('Dequeue start task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
-
             $feature = container(TaskFeature::class);
             $service = container(MqttService::class);
 
@@ -92,15 +90,20 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $progress));
 
+                $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
+                $time = microtime(true);
+
                 $task->onTask();
+
+                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => (microtime(true) - $time) / 1000]);
 
                 $task->setProgressCallback(null);
 
                 $feature->add($task, 'OK', 1);
-
-                $logger->info('Dequeue complete task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
             } catch (Throwable $throwable) {
                 $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
+
+                $task->setProgressCallback(null);
 
                 $feature->add($task, $throwable->getMessage(), 0);
 
