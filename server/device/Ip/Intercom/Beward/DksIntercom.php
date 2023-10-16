@@ -38,7 +38,12 @@ class DksIntercom extends IntercomDevice
 
     public function getAllLineDialStatus(int $from, int $to): array
     {
-        return [];
+        $result = [];
+
+        for ($i = $from; $i <= $to; $i++)
+            $result[$i] = ['resit' => $this->getLineDialStatus($i)];
+
+        return $result;
     }
 
     public function getRfids(): array

@@ -28,8 +28,12 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
         $intercom = container(DeviceIntercomRepository::class)->findById($this->id);
         $device = intercom($intercom->house_domophone_id);
 
+        $this->setProgress(25);
+
         if (!$device->ping())
             throw new DeviceException($device, 'Устройство не доступно');
+
+        $this->setProgress(50);
 
         $device->unlock($this->lock);
 

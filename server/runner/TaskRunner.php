@@ -96,8 +96,12 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $feature = container(TaskFeature::class);
                 $service = container(MqttService::class);
 
+                $uuid = guid_v4();
+
                 try {
-                    $service->task($task->title, 'start');
+                    $service->task($uuid, $task->title, 'start', 0);
+
+                    $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $progress));
 
                     $task->onTask();
 
@@ -113,7 +117,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                     $task->onError($throwable);
                 } finally {
-                    $service->task($task->title, 'done');
+                    $task->setProgressCallback(null);
+
+                    $service->task($uuid, $task->title, 'done', 100);
                 }
             }
         });

@@ -7,7 +7,6 @@ use PhpMqtt\Client\Exceptions\ConfigurationInvalidException;
 use PhpMqtt\Client\Exceptions\ConnectingToBrokerFailedException;
 use PhpMqtt\Client\Exceptions\DataTransferException;
 use PhpMqtt\Client\Exceptions\ProtocolNotSupportedException;
-use PhpMqtt\Client\Exceptions\RepositoryException;
 use PhpMqtt\Client\MqttClient;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
@@ -39,9 +38,9 @@ class MqttService implements ContainerDisposeInterface
         }
     }
 
-    public function task(string $title, string $action): void
+    public function task(string $uuid, string $title, string $action, mixed $data): void
     {
-        $this->publish('task', ['title' => $title, 'action' => $action]);
+        $this->publish('task', ['uuid' => $uuid, 'title' => $title, 'action' => $action, 'data' => $data]);
     }
 
     /**

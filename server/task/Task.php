@@ -11,6 +11,8 @@ abstract class Task
 
     public int $retry = 0;
 
+    private mixed $progressCallback = null;
+
     public function __construct(string $title)
     {
         $this->title = $title;
@@ -27,6 +29,11 @@ abstract class Task
 
     }
 
+    public function setProgressCallback(?callable $callback): void
+    {
+        $this->progressCallback = $callback;
+    }
+
     protected function retryLow(?int $delay = null): bool
     {
         if ($this->retry > 0) {
@@ -40,6 +47,7 @@ abstract class Task
 
     protected function setProgress(int|float $progress): void
     {
-
+        if ($this->progressCallback)
+            call_user_func($this->progressCallback, $progress);
     }
 }

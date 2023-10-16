@@ -35,8 +35,12 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             $id = $entrance['domophoneId'];
             $device = intercom($id);
 
+            $this->setProgress(25);
+
             if (!$device->ping())
                 throw new HttpException(message: 'Устройство не доступно');
+
+            $this->setProgress(50);
 
             foreach ($flats as $flat) {
                 $apartment = $flat['flat'];
