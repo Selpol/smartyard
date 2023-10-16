@@ -8,6 +8,5 @@ require_once dirname(__FILE__) . '/vendor/autoload.php';
 $kernel = new Kernel(new FrontendRunner());
 
 $kernel->getRunner()->setLogger(file_logger('frontend'));
-$kernel->bootstrap();
 
-exit($kernel->run([]));
+exit($kernel->bootstrap()->run([]));
