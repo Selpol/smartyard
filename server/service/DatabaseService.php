@@ -61,8 +61,6 @@ class DatabaseService implements ContainerDisposeInterface
             } else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                file_logger('database')->error($e);
-
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
@@ -94,8 +92,6 @@ class DatabaseService implements ContainerDisposeInterface
             else return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                file_logger('database')->error($e);
-
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
@@ -138,8 +134,6 @@ class DatabaseService implements ContainerDisposeInterface
             return $mod;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                file_logger('database')->error($e);
-
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
@@ -198,8 +192,6 @@ class DatabaseService implements ContainerDisposeInterface
             return $r;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
-                file_logger('database')->error($e);
-
                 last_error($e->errorInfo[2] ?: $e->getMessage());
                 error_log(print_r($e, true));
             }
