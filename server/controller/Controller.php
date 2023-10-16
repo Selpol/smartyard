@@ -19,11 +19,6 @@ class Controller
         $this->request = $request;
     }
 
-    protected function getHttp(): HttpService
-    {
-        return $this->request->getAttribute('http');
-    }
-
     protected function getRoute(): RouterMatch
     {
         return $this->request->getAttribute('route');
@@ -41,7 +36,7 @@ class Controller
 
     protected function response(int $code = 200): Response
     {
-        return $this->getHttp()->createResponse($code);
+        return container(HttpService::class)->createResponse($code);
     }
 
     protected function rbtResponse(int $code = 200, mixed $data = null, ?string $name = null, ?string $message = null): Response

@@ -18,12 +18,8 @@ class JwtMiddleware implements MiddlewareInterface
     {
         $result = $this->setJwtFromRequest($request);
 
-        if ($result !== null) {
-            /** @var HttpService $http */
-            $http = $request->getAttribute('http');
-
-            return $http->createResponse(401)->withJson(['code' => 401, 'message' => $result]);
-        }
+        if ($result !== null)
+            return container(HttpService::class)->createResponse(401)->withJson(['code' => 401, 'message' => $result]);
 
         return $handler->handle($request);
     }

@@ -44,7 +44,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
         if ($route !== null) {
             $this->middlewares = $route->getMiddlewares();
 
-            return $this->emit($this->handle($request->withAttribute('http', $http)->withAttribute('route', $route)));
+            return $this->emit($this->handle($request->withAttribute('route', $route)));
         }
 
         return $this->emit($this->response(404)->withStatusJson());

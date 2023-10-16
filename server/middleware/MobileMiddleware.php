@@ -21,12 +21,8 @@ class MobileMiddleware implements MiddlewareInterface
 
         $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $token->getOriginalValue()['scopes'][1]);
 
-        if (!$subscribers || count($subscribers) === 0) {
-            /** @var HttpService $http */
-            $http = $request->getAttribute('http');
-
-            return $http->createResponse(401)->withJson(['code' => 401, 'message' => 'Абонент не найден']);
-        }
+        if (!$subscribers || count($subscribers) === 0)
+            return container(HttpService::class)->createResponse(401)->withJson(['code' => 401, 'message' => 'Абонент не найден']);
 
         $auth->setUser(new SubscriberAuthUser($subscribers[0]));
 
