@@ -9,19 +9,13 @@ use Selpol\Feature\Sip\SipFeature;
 
 class domophones extends Api
 {
-
     public static function GET(array $params): array
     {
         $households = container(HouseFeature::class);
 
-        if (!$households) {
-            return Api::ERROR();
-        } else {
-            $response = [
-                'domophones' => $households->getDomophones(),
-                'models' => IntercomModel::modelsToArray(),
-                'servers' => container(SipFeature::class)->server('all'),
-            ];
+        if (!$households) return Api::ERROR();
+        else {
+            $response = ['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray(), 'servers' => container(SipFeature::class)->server('all')];
 
             return Api::ANSWER($response, 'domophones');
         }

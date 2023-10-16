@@ -98,7 +98,7 @@ class camera extends Api
         ];
     }
 
-    private static function set(DeviceCamera $camera, array $params)
+    private static function set(DeviceCamera $camera, array $params): void
     {
         $camera->enabled = $params['enabled'];
 

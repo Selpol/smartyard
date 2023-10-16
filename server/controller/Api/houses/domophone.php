@@ -3,69 +3,70 @@
 namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Feature\House\HouseFeature;
+use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Http\Exception\HttpException;
-use Selpol\Service\DatabaseService;
-use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
 class domophone extends Api
 {
     public static function GET(array $params): array
     {
-        $validate = validator($params, ['_id' => rule()->id()]);
+        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id'])->toArrayMap([
+            "house_domophone_id" => "domophoneId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "server" => "server",
+            "url" => "url",
+            "credentials" => "credentials",
+            "dtmf" => "dtmf",
+            "first_time" => "firstTime",
+            "nat" => "nat",
+            "locks_are_open" => "locksAreOpen",
+            "comment" => "comment",
+            "ip" => "ip"
+        ]);
 
-        $households = container(HouseFeature::class);
+        $intercom['json'] = IntercomModel::models()[$intercom['model']]->toArray();
 
-        return Api::ANSWER($households->getDomophone($validate['_id']));
+        return self::ANSWER($intercom);
     }
 
     public static function POST(array $params): array
     {
-        $households = container(HouseFeature::class);
+        $intercom = new DeviceIntercom();
 
-        $domophoneId = $households->addDomophone($params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["nat"], $params["comment"]);
+        self::set($intercom, $params);
 
-        if ($domophoneId) {
-            static::modifyIp($domophoneId, $params['url']);
+        if (container(DeviceIntercomRepository::class)->insert($intercom))
+            return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
 
-            return Api::ANSWER($domophoneId, 'domophoneId');
-        }
-
-        return Api::ERROR('Домофон не добавлена' . PHP_EOL . last_error());
+        return Api::ERROR('Неудалось добавить домофон');
     }
 
     public static function PUT(array $params): array
     {
-        $households = container(HouseFeature::class);
+        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id']);
 
-        $domophone = $households->getDomophone($params['_id']);
+        self::set($intercom, $params);
 
-        if ($domophone) {
-            $success = $households->modifyDomophone($params["_id"], $params["enabled"], $params["model"], $params["server"], $params["url"], $params["credentials"], $params["dtmf"], $params["firstTime"], $params["nat"], $params["locksAreOpen"], $params["comment"]);
+        if (container(DeviceIntercomRepository::class)->update($intercom)) {
+            self::unlock($intercom->house_domophone_id, $intercom->locks_are_open);
 
-            if ($success) {
-                if (array_key_exists('configure', $params) && $params['configure'])
-                    task(new IntercomConfigureTask($params['_id']))->high()->dispatch();
-
-                if ($domophone['url'] !== $params['url'])
-                    static::modifyIp($domophone['domophoneId'], $params['url']);
-
-                static::unlock($params['_id'], boolval($domophone['locksAreOpen']));
-            }
-
-            return Api::ANSWER($success);
+            return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
         }
 
-        return Api::ERROR('Домофон не найден');
+        return Api::ERROR('Неудалось обновить домофон');
     }
 
     public static function DELETE(array $params): array
     {
-        $households = container(HouseFeature::class);
+        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id']);
 
-        $success = $households->deleteDomophone($params["_id"]);
+        if (container(DeviceIntercomRepository::class)->delete($intercom))
+            return self::ANSWER();
 
-        return Api::ANSWER($success);
+        return Api::ERROR('Неудалось удалить домофон');
     }
 
     public static function index(): array
@@ -73,12 +74,30 @@ class domophone extends Api
         return ['GET' => '[Дом] Получить домофон', 'PUT' => '[Дом] Обновить домофон', 'POST' => '[Дом] Создать домофон', 'DELETE' => '[Дом] Удалить домофон'];
     }
 
-    private static function modifyIp(int $id, string $url): void
+    private static function set(DeviceIntercom $intercom, array $params): void
     {
-        $ip = gethostbyname(parse_url($url, PHP_URL_HOST));
+        $intercom->enabled = $params['enabled'];
+
+        $intercom->model = $params['model'];
+        $intercom->server = $params['server'];
+        $intercom->url = $params['url'];
+        $intercom->credentials = $params['credentials'];
+        $intercom->dtmf = $params['dtmf'];
+
+        if (array_key_exists('firstTime', $params))
+            $intercom->first_time = $params['firstTime'];
+
+        $intercom->nat = $params['nat'];
+
+        if (array_key_exists('locksAreOpen', $params))
+            $intercom->locks_are_open = $params['locksAreOpen'];
+
+        $intercom->comment = $params['comment'];
+
+        $ip = gethostbyname(parse_url($intercom->url, PHP_URL_HOST));
 
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
-            container(DatabaseService::class)->modify('UPDATE houses_domophones SET ip = :ip WHERE house_domophone_id = :id', ['ip' => $ip, 'id' => $id]);
+            $intercom->ip = $ip;
     }
 
     private static function unlock(int $id, bool $value): void

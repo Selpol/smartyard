@@ -61,10 +61,7 @@ class flat extends Api
                     $currentEntrances = array_filter($entrances, static fn(array $entrance) => $entrance['entranceId'] == $current['entranceId']);
 
                     if (count($currentEntrances) > 0)
-                        $previous[] = [
-                            $flat['flat'] !== $current['apartment'] ? $current['apartment'] : $flat['flat'],
-                            $current['entranceId']
-                        ];
+                        $previous[] = [$flat['flat'] !== $current['apartment'] ? $current['apartment'] : $flat['flat'], $current['entranceId']];
 
                     return $previous;
                 }, []);
@@ -80,11 +77,6 @@ class flat extends Api
 
     public static function index(): bool|array
     {
-        return [
-            'GET' => '[Дом] Получить квартиру',
-            "POST" => "[Дом] Создать квартиру",
-            "PUT" => "[Дом] Обновить квартиру",
-            "DELETE" => "[Дом] Удалить квартиру",
-        ];
+        return ['GET' => '[Дом] Получить квартиру', 'POST' => '[Дом] Создать квартиру', 'PUT' => '[Дом] Обновить квартиру', 'DELETE' => '[Дом] Удалить квартиру'];
     }
 }
