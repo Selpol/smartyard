@@ -84,14 +84,16 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 
         $this->channel->queue_declare($queue, durable: true);
 
-        $this->channel->basic_consume($queue, no_ack: true, callback: static function (AMQPMessage $message) use ($callback) {
+        $logger = $this->logger;
+
+        $this->channel->basic_consume($queue, no_ack: true, callback: static function (AMQPMessage $message) use ($callback, $logger) {
             try {
                 $task = unserialize($message->body);
 
                 if ($task instanceof Task)
                     $callback($task);
             } catch (Exception $exception) {
-                $this->logger?->error($exception);
+                $logger?->error($exception);
             }
         });
 
