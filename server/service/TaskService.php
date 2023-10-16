@@ -89,7 +89,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
                 $task = unserialize($message->body);
 
                 if ($task instanceof Task)
-                    $callback->task($task);
+                    call_user_func([$callback, 'task'], $task);
             } catch (Exception $exception) {
                 $this->logger?->error($exception);
             }
