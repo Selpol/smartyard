@@ -2,24 +2,26 @@
 
 namespace Selpol\Controller\Api;
 
+use Selpol\Http\Response;
+
 class Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): array|Response
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): array|Response
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): array|Response
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): array|Response
     {
         return self::ANSWER(false, 'badRequest');
     }

@@ -149,6 +149,13 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $result = $class::{$params['_request_method']}($params);
 
                 if ($result !== null) {
+                    if ($result instanceof Response)
+                        return $this->emit(
+                            $result->withHeader('Access-Control-Allow-Origin', '*')
+                                ->withHeader('Access-Control-Allow-Headers', '*')
+                                ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+                        );
+
                     $code = array_key_first($result);
 
                     if ((int)$code) return $this->emit($this->response($code)->withJson($result[$code]));
