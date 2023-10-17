@@ -26,6 +26,7 @@ class AddressController extends Controller
             $houseId = $flat['addressHouseId'];
 
             $flatDetail = $households->getFlat($flat["flatId"]);
+            $block = $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'];
 
             if (array_key_exists($houseId, $houses)) $house = &$houses[$houseId];
             else {
@@ -49,7 +50,7 @@ class AddressController extends Controller
             if (!array_key_exists('flats', $house))
                 $house['flats'] = [];
 
-            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock']];
+            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block];
 
             $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
             $house['cctv'] = count($house['cameras']);
@@ -76,7 +77,7 @@ class AddressController extends Controller
                     $house['cctv']++;
                 }
 
-                $door['block'] = $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'];
+                $door['block'] = $block;
 
                 $house['doors'][$entrance['entranceId']] = $door;
             }
