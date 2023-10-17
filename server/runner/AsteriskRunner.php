@@ -84,7 +84,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $flat = $households->getFlat(intval($params));
 
-                        echo json_encode($flat);
+                        if (!$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock'])
+                            echo json_encode($flat);
 
                         $this->logger->debug('Get flat', ['flat' => $flat, 'params' => $params]);
 
@@ -93,22 +94,24 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case "flatIdByPrefix":
                         $households = container(HouseFeature::class);
 
-                        $apartment = $households->getFlats("flatIdByPrefix", $params);
+                        $apartments = array_filter($households->getFlats("flatIdByPrefix", $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
 
-                        echo json_encode($apartment);
+                        if (count($apartments) > 0)
+                            echo json_encode($apartments);
 
-                        $this->logger->debug('Get apartment', ['apartment' => $apartment, 'params' => $params]);
+                        $this->logger->debug('Get apartments', ['apartments' => $apartments, 'params' => $params]);
 
                         break;
 
                     case "apartment":
                         $households = container(HouseFeature::class);
 
-                        $apartment = $households->getFlats("apartment", $params);
+                        $apartments = array_filter($households->getFlats("apartment", $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
 
-                        echo json_encode($apartment);
+                        if (count($apartments) > 0)
+                            echo json_encode($apartments);
 
-                        $this->logger->debug('Get apartment', ['apartment' => $apartment, 'params' => $params]);
+                        $this->logger->debug('Get apartment', ['apartment' => $apartments, 'params' => $params]);
 
                         break;
 

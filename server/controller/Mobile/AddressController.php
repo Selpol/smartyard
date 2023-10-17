@@ -76,6 +76,8 @@ class AddressController extends Controller
                     $house['cctv']++;
                 }
 
+                $door['block'] = $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'];
+
                 $house['doors'][$entrance['entranceId']] = $door;
             }
         }
