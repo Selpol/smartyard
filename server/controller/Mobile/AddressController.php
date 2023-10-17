@@ -21,21 +21,25 @@ class AddressController extends Controller
         $households = container(HouseFeature::class);
 
         $houses = [];
+
         foreach ($user['flats'] as $flat) {
             $houseId = $flat['addressHouseId'];
+
+            $flatDetail = $households->getFlat($flat["flatId"]);
 
             if (array_key_exists($houseId, $houses)) $house = &$houses[$houseId];
             else {
                 $houses[$houseId] = [];
                 $house = &$houses[$houseId];
+
                 $house['houseId'] = strval($houseId);
                 $house['address'] = $flat['house']['houseFull'];
 
                 $is_owner = ((int)$flat['role'] == 0);
-                $flat_plog = $households->getFlat($flat["flatId"])['plog'];
-                $has_plog = $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
 
-                if ($flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+                $has_plog = $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
+
+                if ($flatDetail['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                     $house['hasPlog'] = $has_plog;
 
                 $house['cameras'] = $households->getCameras("houseId", $houseId);
@@ -45,12 +49,10 @@ class AddressController extends Controller
             if (!array_key_exists('flats', $house))
                 $house['flats'] = [];
 
-            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0];
+            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock']];
 
             $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
             $house['cctv'] = count($house['cameras']);
-
-            $flatDetail = $households->getFlat($flat['flatId']);
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 if (array_key_exists($entrance['entranceId'], $house['doors']))
@@ -73,9 +75,6 @@ class AddressController extends Controller
                     $house['cameras'][] = $cam;
                     $house['cctv']++;
                 }
-
-                if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'])
-                    $door['blocked'] = "Услуга домофонии заблокирована";
 
                 $house['doors'][$entrance['entranceId']] = $door;
             }
