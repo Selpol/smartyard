@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api;
 
+use Selpol\Entity\Entity;
 use Selpol\Http\Response;
 
 class Api
@@ -34,12 +35,12 @@ class Api
      * if true sends json with parent $answer
      * with default params returns 204
      *
-     * @param integer|boolean|array $result
+     * @param integer|boolean|array|Entity $result
      * @param integer|boolean|array|string $answer
      * @param integer $cache
      * @return array
      */
-    public static function ANSWER(bool|int|array $result = true, int|bool|array|string $answer = false, int $cache = -1): array
+    public static function ANSWER(bool|int|array|Entity $result = true, int|bool|array|string $answer = false, int $cache = -1): array
     {
         if ($result === false)
             return self::ERROR($answer);
