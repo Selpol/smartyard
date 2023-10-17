@@ -172,6 +172,13 @@ class IsIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setApartmentCms(int $apartment, bool $handset): static
+    {
+        $this->put('/panelCode/' . $apartment, ['callsEnabled' => ['handset' => $handset]]);
+
+        return $this;
+    }
+
     public function setGate(array $value): static
     {
         $this->put('/gate/settings', ['gateMode' => count($value) > 0, 'prefixHouse' => count($value) > 0]);

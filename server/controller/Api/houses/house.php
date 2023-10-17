@@ -5,6 +5,8 @@ namespace Selpol\Controller\Api\houses;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\House\HouseKey;
+use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 
@@ -34,13 +36,21 @@ class house extends Api
 
     public static function POST(array $params): array
     {
-        $households = container(HouseFeature::class);
+        $repository = container(HouseKeyRepository::class);
 
         $houseId = $params['_id'];
         $keys = $params['keys'];
 
-        foreach ($keys as $key)
-            $households->addKey($key["rfId"], 2, $key["accessTo"], array_key_exists('comment', $key) ? $key['comment'] : '');
+        foreach ($keys as $key) {
+            $houseKey = new HouseKey();
+
+            $houseKey->rfid = $key['rfId'];
+            $houseKey->access_type = 2;
+            $houseKey->access_to = $key['accessTo'];
+            $houseKey->comments = array_key_exists('comment', $key) ? $key['comment'] : '';
+
+            $repository->insert($houseKey);
+        }
 
         task(new IntercomHouseKeyTask($houseId))->high()->dispatch();
 

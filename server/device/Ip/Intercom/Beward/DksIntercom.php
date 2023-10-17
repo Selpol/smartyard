@@ -147,6 +147,13 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setApartmentCms(int $apartment, bool $handset): static
+    {
+        $this->get('/cgi-bin/apartment_cgi', ['action' => 'set', 'BlockCMS' => $handset ? 'off' : 'on']);
+
+        return $this;
+    }
+
     public function setGate(array $value): static
     {
         $params = [

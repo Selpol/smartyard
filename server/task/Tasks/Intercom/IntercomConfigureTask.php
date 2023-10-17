@@ -162,6 +162,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             ];
 
             foreach ($flats as $flat) {
+                $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
+
                 $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
                     return $entrance['domophoneId'] == $domophoneId;
                 });
@@ -182,7 +184,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                     $device->addApartmentDeffer(
                         $apartment + $offset,
-                        $is_shared ? false : $flat['cmsEnabled'],
+                        $is_shared ? false : ($block ? false : $flat['cmsEnabled']),
                         $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
                         $apartment_levels,
                         intval($flat['openCode']) ?? 0
