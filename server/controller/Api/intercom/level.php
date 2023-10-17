@@ -16,7 +16,7 @@ class level extends Api
         else if (array_key_exists('from', $params) && array_key_exists('to', $params))
             return self::SUCCESS('levels', $intercom->getAllLineDialStatus(intval($params['from']), intval($params['to'])));
 
-        return self::ERROR();
+        return self::ERROR('Данные не переданны');
     }
 
     public static function index(): array
