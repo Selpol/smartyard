@@ -11,6 +11,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
 class SyncController extends Controller
@@ -146,8 +147,11 @@ class SyncController extends Controller
             try {
                 $validate = validator($item, ['id' => rule()->id(), 'autoBlock' => rule()->required()->bool()->nonNullable()]);
 
-                if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']]))
+                if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'], 'flat_id' => $validate['id']])) {
                     $result[$validate['id']] = true;
+
+                    task(new IntercomCmsFlatTask($validate['id'], boolval($validate['autoBlock'])))->low()->dispatch();
+                }
             } catch (Throwable) {
             }
         }

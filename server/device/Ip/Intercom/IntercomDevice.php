@@ -91,6 +91,11 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setApartmentCms(int $apartment, bool $handset): static
+    {
+        return $this;
+    }
+
     public function setGate(array $value): static
     {
         return $this;
