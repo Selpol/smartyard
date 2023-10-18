@@ -19,6 +19,7 @@ use Selpol\Entity\Entity;
  * @property int|null $manual_block
  * @property int|null $auto_block
  * @property int|null $admin_block
+ * @property string|null $description_block
  *
  * @property string|null $open_code
  *
@@ -56,6 +57,7 @@ class HouseFlat extends Entity
             'manual_block' => rule()->int(),
             'auto_block' => rule()->int(),
             'admin_block' => rule()->int(),
+            'description_block' => rule()->string(),
 
             'open_code' => rule()->string(),
 

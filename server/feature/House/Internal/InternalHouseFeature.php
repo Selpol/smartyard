@@ -122,7 +122,8 @@ class InternalHouseFeature extends HouseFeature
                         plog,
                         coalesce(manual_block, 0) manual_block, 
                         coalesce(admin_block, 0) admin_block,
-                        coalesce(auto_block, 0) auto_block, 
+                        coalesce(auto_block, 0) auto_block,
+                        description_block,
                         open_code, 
                         auto_open, 
                         white_rabbit, 
@@ -141,6 +142,7 @@ class InternalHouseFeature extends HouseFeature
                 "manual_block" => "manualBlock",
                 "admin_block" => "adminBlock",
                 "auto_block" => "autoBlock",
+                "description_block" => "descriptionBlock",
                 "open_code" => "openCode",
                 "auto_open" => "autoOpen",
                 "white_rabbit" => "whiteRabbit",
@@ -723,6 +725,8 @@ class InternalHouseFeature extends HouseFeature
             "subscriber_name" => "subscriberName",
             "subscriber_patronymic" => "subscriberPatronymic",
             "voip_enabled" => "voipEnabled",
+            "admin_block" => "adminBlock",
+            "description_block" => "descriptionBlock"
         ]);
 
         $addresses = container(AddressFeature::class);
