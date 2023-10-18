@@ -49,6 +49,7 @@ class user extends Api
 
         if (@$params["password"] && (int)$params["_id"]) {
             $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);
+
             return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         } else return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
 
