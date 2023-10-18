@@ -8,9 +8,11 @@ use Selpol\Controller\Controller;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
+use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
@@ -151,6 +153,7 @@ class SyncController extends Controller
                     $result[$validate['id']] = true;
 
                     task(new IntercomCmsFlatTask($validate['id'], boolval($validate['autoBlock'])))->low()->dispatch();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $validate['autoBlock'] ? 'Ваша квартиры была заблокирована' : 'Ваша квартиры была разблокирована', 'inbox'))->low()->dispatch();
                 }
             } catch (Throwable) {
             }

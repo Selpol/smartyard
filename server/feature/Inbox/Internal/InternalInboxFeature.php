@@ -2,11 +2,20 @@
 
 namespace Selpol\Feature\Inbox\Internal;
 
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Push\PushFeature;
 
 class InternalInboxFeature extends InboxFeature
 {
+    public function sendMessageToFlat(int $flatId, string $title, string $msg, string $action = 'inbox'): void
+    {
+        $subscribers = container(HouseFeature::class)->getSubscribers('flatId', $flatId);
+
+        foreach ($subscribers as $subscriber)
+            $this->sendMessage($subscriber['subscriberId'], $title,  $msg, $action);
+    }
+
     public function sendMessage(int $subscriberId, string $title, string $msg, string $action = "inbox"): string|bool
     {
         $db = $this->getDatabase();
