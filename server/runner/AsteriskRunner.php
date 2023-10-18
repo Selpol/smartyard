@@ -304,58 +304,45 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // mobile extension
         if ($extension[0] === "2" && strlen($extension) === 10) {
-            $sipUserId = (int)substr($extension, 1);
-
             switch ($section) {
                 case 'aors':
-                    try {
-                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
+                    $cred = $redis->get('mobile_extension_' . $extension);
 
-                        if ($sipUser)
-                            return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
-                    } catch (Throwable) {
-
-                    }
+                    if ($cred)
+                        return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
 
                     break;
 
                 case 'auths':
-                    try {
-                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
+                    $cred = $redis->get('mobile_extension_' . $extension);
 
-                        if ($sipUser)
-                            return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $sipUser->password];
-                    } catch (Throwable) {
-
-                    }
+                    if ($cred)
+                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $cred];
 
                     break;
 
                 case 'endpoints':
-                    try {
-                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
+                    $cred = $redis->get('mobile_extension_' . $extension);
 
-                        if ($sipUser)
-                            return [
-                                "id" => $extension,
-                                "auth" => $extension,
-                                "outbound_auth" => $extension,
-                                "aors" => $extension,
-                                "callerid" => $extension,
-                                "context" => "default",
-                                "disallow" => "all",
-                                "allow" => "alaw,h264",
-                                "rtp_symmetric" => "yes",
-                                "force_rport" => "yes",
-                                "rewrite_contact" => "yes",
-                                "timers" => "no",
-                                "direct_media" => "no",
-                                "allow_subscribe" => "yes",
-                                "dtmf_mode" => "rfc4733",
-                                "ice_support" => "yes"
-                            ];
-                    } catch (Throwable) {
-
+                    if ($cred) {
+                        return [
+                            "id" => $extension,
+                            "auth" => $extension,
+                            "outbound_auth" => $extension,
+                            "aors" => $extension,
+                            "callerid" => $extension,
+                            "context" => "default",
+                            "disallow" => "all",
+                            "allow" => "alaw,h264",
+                            "rtp_symmetric" => "yes",
+                            "force_rport" => "yes",
+                            "rewrite_contact" => "yes",
+                            "timers" => "no",
+                            "direct_media" => "no",
+                            "allow_subscribe" => "yes",
+                            "dtmf_mode" => "rfc4733",
+                            "ice_support" => "yes",
+                        ];
                     }
 
                     break;
