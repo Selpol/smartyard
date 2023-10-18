@@ -45,6 +45,22 @@ class Criteria
         return $this->addCondition('OR', $column, $operator, $value);
     }
 
+    public function equal(string $column, mixed $value): static
+    {
+        if ($value === null)
+            return $this;
+
+        return $this->simple($column, '=', $value);
+    }
+
+    public function orEqual(string $column, mixed $value): static
+    {
+        if ($value === null)
+            return $this;
+
+        return $this->orSimple($column, '=', $value);
+    }
+
     public function between(string $column, mixed $left, mixed $right): static
     {
         if ($left === null || $right === null)

@@ -20,7 +20,7 @@ class sip extends Api
 
     public static function POST(array $params): array
     {
-        $dvrServer = new SipServer(validator($params, [
+        $sipServer = new SipServer(validator($params, [
             'title' => rule()->required()->string()->max(1024)->nonNullable(),
             'type' => rule()->required()->string()->in(['asterisk'])->nonNullable(),
 
@@ -30,8 +30,8 @@ class sip extends Api
             'internal_ip' => rule()->required()->ipV4()->nonNullable()
         ]));
 
-        if (container(SipServerRepository::class)->insert($dvrServer))
-            return self::SUCCESS('id', $dvrServer->id);
+        if (container(SipServerRepository::class)->insert($sipServer))
+            return self::SUCCESS('id', $sipServer->id);
 
         return self::ERROR('Не удалось создать');
     }

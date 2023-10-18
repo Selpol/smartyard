@@ -3,6 +3,7 @@
 namespace Selpol\Runner;
 
 use RedisException;
+use Selpol\Entity\Repository\Sip\SipUserRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -303,45 +304,58 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // mobile extension
         if ($extension[0] === "2" && strlen($extension) === 10) {
+            $sipUserId = (int)substr($extension, 1);
+
             switch ($section) {
                 case 'aors':
-                    $cred = $redis->get('mobile_extension_' . $extension);
+                    try {
+                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
 
-                    if ($cred)
-                        return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+                        if ($sipUser)
+                            return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
+                    } catch (Throwable) {
+
+                    }
 
                     break;
 
                 case 'auths':
-                    $cred = $redis->get('mobile_extension_' . $extension);
+                    try {
+                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
 
-                    if ($cred)
-                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $cred];
+                        if ($sipUser)
+                            return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $sipUser->password];
+                    } catch (Throwable) {
+
+                    }
 
                     break;
 
                 case 'endpoints':
-                    $cred = $redis->get('mobile_extension_' . $extension);
+                    try {
+                        $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 2);
 
-                    if ($cred) {
-                        return [
-                            "id" => $extension,
-                            "auth" => $extension,
-                            "outbound_auth" => $extension,
-                            "aors" => $extension,
-                            "callerid" => $extension,
-                            "context" => "default",
-                            "disallow" => "all",
-                            "allow" => "alaw,h264",
-                            "rtp_symmetric" => "yes",
-                            "force_rport" => "yes",
-                            "rewrite_contact" => "yes",
-                            "timers" => "no",
-                            "direct_media" => "no",
-                            "allow_subscribe" => "yes",
-                            "dtmf_mode" => "rfc4733",
-                            "ice_support" => "yes",
-                        ];
+                        if ($sipUser)
+                            return [
+                                "id" => $extension,
+                                "auth" => $extension,
+                                "outbound_auth" => $extension,
+                                "aors" => $extension,
+                                "callerid" => $extension,
+                                "context" => "default",
+                                "disallow" => "all",
+                                "allow" => "alaw,h264",
+                                "rtp_symmetric" => "yes",
+                                "force_rport" => "yes",
+                                "rewrite_contact" => "yes",
+                                "timers" => "no",
+                                "direct_media" => "no",
+                                "allow_subscribe" => "yes",
+                                "dtmf_mode" => "rfc4733",
+                                "ice_support" => "yes"
+                            ];
+                    } catch (Throwable) {
+
                     }
 
                     break;
