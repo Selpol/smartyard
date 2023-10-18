@@ -8,6 +8,7 @@ use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\MqttService;
+use Selpol\Service\PrometheusService;
 use Selpol\Service\TaskService;
 use Selpol\Task\Task;
 use Throwable;
@@ -79,8 +80,14 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $service->dequeue($queue, static function (Task $task) use ($queue, $logger) {
             $feature = container(TaskFeature::class);
             $service = container(MqttService::class);
+            $prometheus = container(PrometheusService::class);
+
+            $counter = $prometheus->getCounter('task', 'count', 'Task count', ['class', 'status']);
+            $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [1, 2, 5, 10, 15, 25, 50, 100, 250, 500]);
 
             $uuid = guid_v4();
+
+            $time = microtime(true) * 1000;
 
             try {
                 $service->task($uuid, $task->title, 'start', 0);
@@ -97,6 +104,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $task->setProgressCallback(null);
 
                 $feature->add($task, 'OK', 1);
+
+                $counter->incBy(1, [$task::class, true]);
+                $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
             } catch (Throwable $throwable) {
                 $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
 
@@ -105,6 +115,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $feature->add($task, $throwable->getMessage(), 0);
 
                 $task->onError($throwable);
+
+                $counter->incBy(1, [$task::class, false]);
+                $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
             } finally {
                 $feature->releaseUnique($task);
 
