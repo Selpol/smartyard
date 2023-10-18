@@ -30,7 +30,7 @@ class SipUser extends Entity
         return [
             static::$columnId => rule()->id(),
 
-            'type' => rule()->required()->int()->clamp(0, 9)->nonNullable(),
+            'type' => rule()->required()->int()->clamp(1, 9)->nonNullable(),
 
             'title' => rule()->required()->string()->nonNullable(),
 

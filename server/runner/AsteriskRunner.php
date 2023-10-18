@@ -387,7 +387,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 "force_rport" => "yes",
                                 "rewrite_contact" => "yes",
                                 "timers" => "no",
-                                "direct_media" => "no",
+                                "direct_media" => "yes",
                                 "allow_subscribe" => "yes",
                                 "dtmf_mode" => "rfc4733",
                                 "ice_support" => "no",

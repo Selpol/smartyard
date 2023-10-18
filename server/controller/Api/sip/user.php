@@ -11,7 +11,7 @@ class user extends Api
     public static function GET(array $params): array
     {
         $validate = validator($params, [
-            'type' => rule()->int()->clamp(0, 9),
+            'type' => rule()->int()->clamp(1, 9),
             'title' => rule()->string(),
 
             'page' => rule()->int()->clamp(0),
@@ -31,7 +31,7 @@ class user extends Api
     public static function POST(array $params): array
     {
         $sipUser = new SipUser(validator($params, [
-            'type' => rule()->required()->int()->clamp(0, 9)->nonNullable(),
+            'type' => rule()->required()->int()->clamp(1, 9)->nonNullable(),
 
             'title' => rule()->required()->string()->nonNullable(),
 
@@ -49,7 +49,7 @@ class user extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'type' => rule()->required()->int()->clamp(0, 9)->nonNullable(),
+            'type' => rule()->required()->int()->clamp(1, 9)->nonNullable(),
 
             'title' => rule()->required()->string()->nonNullable(),
 
