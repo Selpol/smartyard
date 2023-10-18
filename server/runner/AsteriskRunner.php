@@ -118,7 +118,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case "subscribers":
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers("flatId", intval($params)), static fn(array $subscriber) => !$subscriber['adminBlock']);
+                        $subscribers = array_filter($households->getSubscribers("flatId", intval($params)), static fn(array $subscriber) => !$subscriber['adminBlock'] && !$flat['manualBlock']);
 
                         if (count($subscribers) > 0)
                             echo json_encode($subscribers);

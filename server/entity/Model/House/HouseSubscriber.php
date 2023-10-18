@@ -25,6 +25,7 @@ use Selpol\Entity\Entity;
  * @property string|null $subscriber_name
  * @property string|null $subscriber_patronymic
  *
+ * @property int|null $manual_block
  * @property int|null $admin_block
  * @property string|null $description_block
  */
@@ -57,6 +58,7 @@ class HouseSubscriber extends Entity
             'subscriber_name' => rule()->string(),
             'subscriber_patronymic' => rule()->string(),
 
+            'manual_block' => rule()->int(),
             'admin_block' => rule()->int(),
             'description_block' => rule()->string()
         ];
