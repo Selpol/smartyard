@@ -18,7 +18,7 @@ class version extends Api
             $version = 0;
         }
 
-        return ['200' => ['serverVersion' => $version]];
+        return self::ANSWER(['version' => '0.0.0', 'dbVersion' => $version]);
     }
 
     public static function index(): array

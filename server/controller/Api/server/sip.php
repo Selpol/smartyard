@@ -55,9 +55,10 @@ class sip extends Api
         $sipServer->title = $validate['title'];
         $sipServer->type = $validate['type'];
 
-        $sipServer->url = $validate['url'];
+        $sipServer->trunk = $validate['trunk'];
 
-        $sipServer->token = $validate['token'];
+        $sipServer->external_ip = $validate['external_ip'];
+        $sipServer->internal_ip = $validate['internal_ip'];
 
         if (container(SipServerRepository::class)->update($sipServer))
             return self::SUCCESS('id', $sipServer->id);
