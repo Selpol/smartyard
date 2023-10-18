@@ -33,7 +33,7 @@ class RedisCache implements CacheInterface
         if ($value === false)
             return $default;
 
-        return $value;
+        return json_decode($value, true);
     }
 
     /**
@@ -45,10 +45,10 @@ class RedisCache implements CacheInterface
             $now = new DateTimeImmutable();
             $timeout = $now->add($ttl);
 
-            return $this->service->getConnection()->set('cache:' . $key, $value, $timeout->getTimestamp() - $now->getTimestamp());
+            return $this->service->getConnection()->set('cache:' . $key, json_encode($value), $timeout->getTimestamp() - $now->getTimestamp());
         }
 
-        return $this->service->getConnection()->set('cache:' . $key, $value, $ttl);
+        return $this->service->getConnection()->set('cache:' . $key, json_encode($value), $ttl);
     }
 
     /**

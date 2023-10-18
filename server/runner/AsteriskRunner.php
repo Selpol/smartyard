@@ -399,6 +399,40 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
         }
 
+        // mobile extension
+        if ($extension[0] === "5" && strlen($extension) === 10) {
+            $sipUserId = (int)substr($extension, 1);
+            $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, 5);
+
+            switch ($section) {
+                case 'aors':
+                    return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+
+                case 'auths':
+                    return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $sipUser->password];
+
+                case 'endpoints':
+                    return [
+                        "id" => $extension,
+                        "auth" => $extension,
+                        "outbound_auth" => $extension,
+                        "aors" => $extension,
+                        "callerid" => $extension,
+                        "context" => "default",
+                        "disallow" => "all",
+                        "allow" => "alaw,h264",
+                        "rtp_symmetric" => "yes",
+                        "force_rport" => "yes",
+                        "rewrite_contact" => "yes",
+                        "timers" => "no",
+                        "direct_media" => "no",
+                        "allow_subscribe" => "yes",
+                        "dtmf_mode" => "rfc4733",
+                        "ice_support" => "yes",
+                    ];
+            }
+        }
+
         // webrtc extension
         if ($extension[0] === "7" && strlen($extension) === 10) {
             $uid = intval(substr($extension, 1));
