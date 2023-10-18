@@ -725,6 +725,7 @@ class InternalHouseFeature extends HouseFeature
             "subscriber_name" => "subscriberName",
             "subscriber_patronymic" => "subscriberPatronymic",
             "voip_enabled" => "voipEnabled",
+            "manual_block" => "manualBlock",
             "admin_block" => "adminBlock",
             "description_block" => "descriptionBlock"
         ]);
