@@ -203,4 +203,9 @@ class DsIntercom extends IntercomDevice
     {
         $this->get('/cgi-bin/alarmout_cgi', ['action' => 'set', 'Output' => $value, 'Status' => 1]);
     }
+
+    public function call(int $apartment): void
+    {
+        $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
+    }
 }
