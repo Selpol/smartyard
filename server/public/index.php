@@ -8,6 +8,5 @@ require_once dirname(__FILE__, 2) . '/vendor/autoload.php';
 $kernel = new Kernel(new RouterRunner());
 
 $kernel->getRunner()->setLogger(file_logger('index'));
-$kernel->bootstrap();
 
-exit($kernel->run([]));
+exit($kernel->bootstrap()->run([]));

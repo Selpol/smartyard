@@ -25,7 +25,7 @@ class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]));
 
-        if (container(FrsServerRepository::class)->inser($frsServer))
+        if (container(FrsServerRepository::class)->insert($frsServer))
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось создать');
