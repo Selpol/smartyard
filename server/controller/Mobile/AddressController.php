@@ -50,7 +50,7 @@ class AddressController extends Controller
             if (!array_key_exists('flats', $house))
                 $house['flats'] = [];
 
-            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block];
+            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
 
             $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
             $house['cctv'] = count($house['cameras']);

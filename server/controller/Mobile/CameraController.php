@@ -31,6 +31,11 @@ class CameraController extends Controller
             if ($flat['addressHouseId'] != $house_id)
                 continue;
 
+            $flatDetail = $households->getFlat($flat['flatId']);
+
+            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
+                continue;
+
             $houseId = $flat['addressHouseId'];
 
             if (array_key_exists($houseId, $houses)) {
@@ -46,8 +51,6 @@ class CameraController extends Controller
             }
 
             $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
-
-            $flatDetail = $households->getFlat($flat['flatId']);
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 if (array_key_exists($entrance['entranceId'], $house['doors'])) {
