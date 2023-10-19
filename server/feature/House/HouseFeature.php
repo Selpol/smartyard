@@ -13,6 +13,8 @@ abstract class HouseFeature extends Feature
 
     abstract function getEntrance(int $entranceId): array|bool;
 
+    abstract function getEntranceWithPrefix(int $entranceId): array|bool;
+
     abstract function getEntrances(string $by, mixed $query): bool|array;
 
     abstract function addEntrance(int $houseId, int $entranceId, int $prefix): bool|int;

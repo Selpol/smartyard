@@ -450,12 +450,12 @@ class InternalHouseFeature extends HouseFeature
     {
         if ($houseId) {
             return $this->getDatabase()->get(
-                "select * from (select house_entrance_id, entrance_type, entrance, (select address_house_id from houses_houses_entrances where houses_houses_entrances.house_entrance_id = houses_entrances.house_entrance_id and address_house_id <> $houseId limit 1) address_house_id from houses_entrances where shared = 1 and house_entrance_id in (select house_entrance_id from houses_houses_entrances where house_entrance_id not in (select house_entrance_id from houses_houses_entrances where address_house_id = $houseId))) as t1 where address_house_id is not null",
+                "select * from (select house_entrance_id, entrance_type, entrance, (select address_house_id from houses_houses_entrances where houses_houses_entrances.house_entrance_id = houses_entrances.house_entrance_id and address_house_id <> $houseId limit 1) address_house_id from houses_entrances where shared = 1 and house_entrance_id in (select house_entrance_id from houses_houses_entrances where house_entrance_id not in (select house_entrance_id from houses_houses_entrances where address_house_id = $houseId))) as t1",
                 map: ["house_entrance_id" => "entranceId", "entrance_type" => "entranceType", "entrance" => "entrance", "address_house_id" => "houseId"]
             );
         } else {
             return $this->getDatabase()->get(
-                "select * from (select house_entrance_id, entrance_type, entrance, (select address_house_id from houses_houses_entrances where houses_houses_entrances.house_entrance_id = houses_entrances.house_entrance_id limit 1) address_house_id from houses_entrances where shared = 1) as t1 where address_house_id is not null",
+                "select * from (select house_entrance_id, entrance_type, entrance, (select address_house_id from houses_houses_entrances where houses_houses_entrances.house_entrance_id = houses_entrances.house_entrance_id limit 1) address_house_id from houses_entrances where shared = 1) as t1",
                 map: ["house_entrance_id" => "entranceId", "entrance_type" => "entranceType", "entrance" => "entrance", "address_house_id" => "houseId"]
             );
         }
@@ -1050,6 +1050,32 @@ class InternalHouseFeature extends HouseFeature
         );
     }
 
+    public function getEntranceWithPrefix(int $entranceId): array|bool
+    {
+        return $this->getDatabase()->get("select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, prefix, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_houses_entrances left join houses_entrances using (house_entrance_id) where house_entrance_id = $entranceId order by entrance_type, entrance",
+            map: [
+                "address_house_id" => "houseId",
+                "house_entrance_id" => "entranceId",
+                "entrance_type" => "entranceType",
+                "entrance" => "entrance",
+                "lat" => "lat",
+                "lon" => "lon",
+                "shared" => "shared",
+                "plog" => "plog",
+                "prefix" => "prefix",
+                "caller_id" => "callerId",
+                "house_domophone_id" => "domophoneId",
+                "domophone_output" => "domophoneOutput",
+                "cms" => "cms",
+                "cms_type" => "cmsType",
+                "camera_id" => "cameraId",
+                "cms_levels" => "cmsLevels",
+                "locks_disabled" => "locksDisabled"
+            ],
+            options: ["singlify"]
+        );
+    }
+
     public function dismissToken(string $token): bool
     {
         return
@@ -1106,7 +1132,7 @@ class InternalHouseFeature extends HouseFeature
                 "cms_type" => "cmsType",
                 "camera_id" => "cameraId",
                 "cms_levels" => "cmsLevels",
-                "locks_disabled" => "locksDisabled",
+                "locks_disabled" => "locksDisabled"
             ]
         );
     }

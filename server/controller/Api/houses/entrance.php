@@ -14,7 +14,7 @@ class entrance extends Api
     {
         $entranceId = $params['_id'];
 
-        $entrance = container(HouseFeature::class)->getEntrance($entranceId);
+        $entrance = container(HouseFeature::class)->getEntranceWithPrefix($entranceId);
 
         if ($entrance)
             return Api::ANSWER($entrance, 'entrance');
