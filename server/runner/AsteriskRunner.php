@@ -445,7 +445,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
         }
 
-        if (strlen($extension) === 10) {
+        if (strlen($extension) >= 6 && strlen($extension) <= 10) {
             try {
                 $sipUserId = (int)substr($extension, 1);
                 $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, (int)$extension[0]);
