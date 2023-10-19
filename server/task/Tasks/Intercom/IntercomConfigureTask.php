@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom;
 use RuntimeException;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -53,7 +54,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(2);
 
-        $asterisk_server = container(SipFeature::class)->server('ip', $domophone['server']);
+        $asterisk_server = container(SipFeature::class)->server('ip', $domophone['server'])[0];
 
         $panel_text = $entrances[0]['callerId'];
 
@@ -98,7 +99,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function clean(array $domophone, array $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
+    private function clean(array $domophone, SipServer $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
     {
         $this->setProgress(5);
 
@@ -117,8 +118,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $syslog_port = $syslog->getPort() ?? 514;
 
         $sip_username = sprintf("1%05d", $domophone['domophoneId']);
-        $sip_server = $asterisk_server['ip'];
-        $sip_port = @$asterisk_server['sip_udp_port'] ?? 5060;
+        $sip_server = $asterisk_server->internal_ip;
+        $sip_port = 5060;
 
         $audio_levels = [];
         $main_door_dtmf = $domophone['dtmf'];

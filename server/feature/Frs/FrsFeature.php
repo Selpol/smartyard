@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\Frs;
 
+use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Frs\Internal\InternalFrsFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
@@ -27,12 +28,6 @@ abstract class FrsFeature extends Feature
     const P_FACE_HEIGHT = "height";
     const P_FACE_ID = "faceId";
     const P_FACE_IMAGE = "faceImage";
-    const P_PARAMS = "params";
-    const P_PARAM_NAME = "paramName";
-    const P_PARAM_VALUE = "paramValue";
-    const P_QUALITY = "quality";
-    const P_DATE_START = "dateStart";
-    const P_DATE_END = "dateEnd";
     const P_MESSAGE = "message";
 
     //FRS method names
@@ -52,17 +47,10 @@ abstract class FrsFeature extends Feature
 
     //internal params names
     const CAMERA_ID = "cameraId";
-    const CAMERA_URL = "url";
-    const CAMERA_CREDENTIALS = "credentials";
     const CAMERA_FRS = "frs";
-    const FRS_BASE_URL = "url";
-    const FRS_STREAMS = "streams";
-    const FRS_ALL_FACES = "allFaces";
-    const FRS_FACES = "faces";
 
     //other
     const PDO_SINGLIFY = "singlify";
-    const PDO_FIELDLIFY = "fieldlify";
 
     const FLAG_CAN_LIKE = "canLike";
     const FLAG_CAN_DISLIKE = "canDislike";
@@ -70,6 +58,9 @@ abstract class FrsFeature extends Feature
 
     abstract public function cron(string $part): bool;
 
+    /**
+     * @return FrsServer[]
+     */
     abstract public function servers(): array;
 
     abstract public function apiCall(string $base_url, string $method, array $params = []): array|bool;

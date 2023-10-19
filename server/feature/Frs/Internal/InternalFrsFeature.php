@@ -3,6 +3,8 @@
 namespace Selpol\Feature\Frs\Internal;
 
 use Psr\Log\LoggerInterface;
+use Selpol\Entity\Model\Frs\FrsServer;
+use Selpol\Entity\Repository\Frs\FrsServerRepository;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -62,7 +64,7 @@ class InternalFrsFeature extends FrsFeature
 
     public function servers(): array
     {
-        return config_get('feature.frs.servers');
+        return container(FrsServerRepository::class)->fetchAllRaw('SELECT * FROM ' . FrsServer::$table);
     }
 
     public function apiCall(string $base_url, string $method, array $params = []): array|bool
@@ -225,7 +227,7 @@ class InternalFrsFeature extends FrsFeature
         $frs_all_faces = [];
 
         foreach ($this->servers() as $frs_server) {
-            $all_faces = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_ALL_FACES);
+            $all_faces = $this->apiCall($frs_server->url, self::M_LIST_ALL_FACES);
 
             if ($all_faces && array_key_exists(self::P_DATA, $all_faces)) {
                 $frs_all_faces = array_merge($frs_all_faces, $all_faces[self::P_DATA]);
@@ -267,7 +269,7 @@ class InternalFrsFeature extends FrsFeature
             $this->logger->debug('syncData() rbt remove faces', ['count' => count($diff_faces)]);
 
             foreach ($this->servers() as $frs_server) {
-                $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_DELETE_FACES, [self::P_FACE_IDS => $diff_faces]);
+                $this->apiCall($frs_server->url, self::M_DELETE_FACES, [self::P_FACE_IDS => $diff_faces]);
             }
         }
 
@@ -277,15 +279,15 @@ class InternalFrsFeature extends FrsFeature
         $frs_all_data = [];
 
         foreach ($this->servers() as $frs_server) {
-            $frs_all_data[$frs_server[self::FRS_BASE_URL]] = [];
-            $streams = $this->apiCall($frs_server[self::FRS_BASE_URL], self::M_LIST_STREAMS);
+            $frs_all_data[$frs_server->url] = [];
+            $streams = $this->apiCall($frs_server->url, self::M_LIST_STREAMS);
 
             if ($streams && isset($streams[self::P_DATA]) && is_array($streams[self::P_DATA]))
                 foreach ($streams[self::P_DATA] as $item) {
                     if (array_key_exists(self::P_FACE_IDS, $item))
-                        $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = $item[self::P_FACE_IDS];
+                        $frs_all_data[$frs_server->url][$item[self::P_STREAM_ID]] = $item[self::P_FACE_IDS];
                     else
-                        $frs_all_data[$frs_server[self::FRS_BASE_URL]][$item[self::P_STREAM_ID]] = [];
+                        $frs_all_data[$frs_server->url][$item[self::P_STREAM_ID]] = [];
                 }
         }
 

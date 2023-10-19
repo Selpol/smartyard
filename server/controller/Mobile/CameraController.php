@@ -179,7 +179,7 @@ class CameraController extends Controller
             "url" => $camera['dvrStream'],
             "token" => container(DvrFeature::class)->getDVRTokenForCam($camera, $user['subscriberId']),
             "lon" => strval($camera['lon']),
-            "serverType" => $dvr['type'],
+            "serverType" => $dvr->type,
             'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),
             'timezone' => $camera['timezone']
         ];

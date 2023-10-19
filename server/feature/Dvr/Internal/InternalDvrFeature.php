@@ -2,11 +2,13 @@
 
 namespace Selpol\Feature\Dvr\Internal;
 
+use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Feature\Dvr\DvrFeature;
 
 class InternalDvrFeature extends DvrFeature
 {
-    public function getDVRServerByStream(string $url): array
+    public function getDVRServerByStream(string $url): DvrServer
     {
         $dvr_servers = $this->getDVRServers();
 
@@ -20,7 +22,7 @@ class InternalDvrFeature extends DvrFeature
         $result = ['type' => 'flussonic']; // result by default if server not found in dvr_servers settings
 
         foreach ($dvr_servers as $server) {
-            $u = parse_url($server['url']);
+            $u = parse_url($server->url);
 
             if (
                 ($u['scheme'] == $scheme) &&
@@ -30,6 +32,7 @@ class InternalDvrFeature extends DvrFeature
                 (!@$u['port'] || $u['port'] == $port)
             ) {
                 $result = $server;
+
                 break;
             }
         }
@@ -41,62 +44,19 @@ class InternalDvrFeature extends DvrFeature
     {
         $dvrServer = $this->getDVRServerByStream($cam['dvrStream']);
 
-        $result = '';
-
-        if ($dvrServer)
-            $result = @$dvrServer['token'] ?: '';
-
-        return $result;
+        return $dvrServer->token;
     }
 
     public function getDVRServers(): array
     {
-        return config_get('feature.dvr.servers');
+        return container(DvrServerRepository::class)->fetchAllRaw('SELECT * FROM ' . DvrServer::$table);
     }
 
     public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool
     {
         $dvr = $this->getDVRServerByStream($cam['dvrStream']);
 
-        switch ($dvr['type']) {
-            case 'nimble':
-                $path = parse_url($cam['dvrStream'], PHP_URL_PATH);
-
-                if ($path[0] == '/') $path = substr($path, 1);
-
-                $stream = $path;
-                $token = $dvr['management_token'];
-                $host = $dvr['management_ip'];
-                $port = $dvr['management_port'];
-
-                $salt = rand(0, 1000000);
-                $str2hash = $salt . "/" . $token;
-                $md5raw = md5($str2hash, true);
-                $base64hash = base64_encode($md5raw);
-
-                return "http://$host:$port/manage/dvr/export_mp4/$stream?start=$start&end=$finish&salt=$salt&hash=$base64hash";
-            case 'macroscop':
-                $parsed_url = parse_url($cam['dvrStream']);
-
-                $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-                $host = $parsed_url['host'] ?? '';
-                $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-                $user = $parsed_url['user'] ?? '';
-                $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
-                $pass = ($user || $pass) ? "$pass@" : '';
-                $query = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-
-                $token = $this->getDVRTokenForCam($cam, $subscriberId);
-                if ($token !== '') {
-                    $query = $query . "&$token";
-                }
-
-                date_default_timezone_set('UTC');
-
-                $from_time = urlencode(date("d.m.Y H:i:s", $start));
-                $to_time = urlencode(date("d.m.Y H:i:s", $finish));
-
-                return "$scheme$user$pass$host$port/exportarchive$query&fromtime=$from_time&totime=$to_time";
+        switch ($dvr->type) {
             case 'trassir':
                 $parsed_url = parse_url($cam['dvrStream']);
 
@@ -211,32 +171,8 @@ class InternalDvrFeature extends DvrFeature
         $prefix = $cam['dvrStream'];
 
         $dvr = container(DvrFeature::class)->getDVRServerByStream($prefix);
-        $type = $dvr['type'];
 
-        switch ($type) {
-            case 'nimble':
-                return "$prefix/dvr_thumbnail_$time.mp4";
-            case 'macroscop':
-                $parsed_url = parse_url($cam['dvrStream']);
-
-                $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-                $host = $parsed_url['host'] ?? '';
-                $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-                $user = $parsed_url['user'] ?? '';
-                $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
-                $pass = ($user || $pass) ? "$pass@" : '';
-                // $path     = isset($parsed_url['path']) ? $parsed_url['path'] : '';
-                $query = isset($parsed_url['query']) ? '?' . $parsed_url['query'] : '';
-
-                if (isset($dvr['token'])) {
-                    $token = $dvr['token'];
-                    $query = $query . "&$token";
-                }
-
-                date_default_timezone_set('UTC');
-                $start_time = urlencode(date("d.m.Y H:i:s", $time));
-
-                return "$scheme$user$pass$host$port/site$query&withcontenttype=true&mode=archive&starttime=$start_time&resolutionx=480&resolutiony=270&streamtype=mainvideo";
+        switch ($dvr->type) {
             case 'trassir':
                 $parsed_url = parse_url($cam['dvrStream']);
 

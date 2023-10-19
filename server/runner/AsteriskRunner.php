@@ -185,15 +185,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         break;
 
                     case 'push':
-                        $server = container(SipFeature::class)->server('extension', $params['extension']);
+                        $server = container(SipFeature::class)->server('extension', $params['extension'])[0];
 
                         $params = [
                             'token' => $params['token'],
                             'type' => $params['tokenType'],
                             'hash' => $params['hash'],
                             'extension' => $params['extension'],
-                            'server' => $server['ip'],
-                            'port' => @$server['sip_tcp_port'] ?: 5060,
+                            'server' => $server->external_ip,
+                            'port' => 5060,
                             'transport' => 'tcp',
                             'dtmf' => $params['dtmf'],
                             'timestamp' => time(),

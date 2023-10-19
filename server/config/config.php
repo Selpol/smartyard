@@ -69,21 +69,9 @@ return [
         ],
 
         'frs' => [
-            /**
-             * @example FEATURE_FRS_SERVERS=[{"title": "FRS", "url": "http://127.0.0.1:9051"}]
-             */
-            'servers' => json_decode(env('FEATURE_FRS_SERVERS', '[]'), true),
-
             'open_door_timeout' => 10,
 
             'cron_sync_data_scheduler' => '5min'
-        ],
-
-        'dvr' => [
-            /**
-             * @example FEATURE_DVR_SERVERS=[{"title": "DVR", "type": "flussonic", "url": "https://flussonic:8443", "token": "..."}]
-             */
-            'servers' => json_decode(env('FEATURE_DVR_SERVERS', '[]'), true)
         ],
 
         'plog' => [
@@ -118,11 +106,6 @@ return [
         ],
 
         'sip' => [
-            /**
-             * @example FEATURE_SIP_SERVERS=[{"title": "SIP", "type": "asterisk", "trunk": "first", "ip": "127.0.0.1"}]
-             */
-            'servers' => json_decode(env('FEATURE_SIP_SERVERS', '[]'), true),
-
             'stuns' => explode(',', env('FEATURE_SIP_STUNS', 'stun://stun.l.google.com:19302'))
         ],
 

@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 
@@ -15,7 +16,7 @@ class domophones extends Api
 
         if (!$households) return Api::ERROR();
         else {
-            $response = ['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray(), 'servers' => container(SipFeature::class)->server('all')];
+            $response = ['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray(), 'servers' => array_map(static fn(SipServer $server) => $server->toArrayMap(['title' => 'title', 'type' => 'type', 'trunk' => 'trunk', 'internal_ip' => 'ip']), container(SipFeature::class)->server('all'))];
 
             return Api::ANSWER($response, 'domophones');
         }
