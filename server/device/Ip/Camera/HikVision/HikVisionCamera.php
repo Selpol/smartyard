@@ -4,12 +4,22 @@ namespace Selpol\Device\Ip\Camera\HikVision;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Http\Stream;
+use Selpol\Http\Uri;
+use SensitiveParameter;
 use Throwable;
 
 class HikVisionCamera extends CameraDevice
 {
     public string $login = 'admin';
+
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, CameraModel $model)
+    {
+        parent::__construct($uri, $password, $model);
+
+        $this->requestOptions = ['digest' => $this->login . ':' . $this->password];
+    }
 
     public function getSysInfo(): array
     {
@@ -30,7 +40,7 @@ class HikVisionCamera extends CameraDevice
     public function getScreenshot(): Stream
     {
         try {
-            return $this->client()->get($this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG', ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)])->getBody();
+            return $this->client()->get($this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG', options: $this->requestOptions)->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
