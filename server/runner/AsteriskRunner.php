@@ -60,19 +60,19 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 break;
             case 'extensions':
-                $params = json_decode(file_get_contents("php://input"), true);
+                $params = json_decode(file_get_contents('php://input'), true);
 
                 if (is_array($params))
                     ksort($params);
 
                 switch ($path[1]) {
-                    case "autoopen":
+                    case 'autoopen':
                         $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat(intval($params));
 
-                        $rabbit = (int)$flat["whiteRabbit"];
-                        $result = $flat["autoOpen"] > time() || ($rabbit && $flat["lastOpened"] + $rabbit * 60 > time());
+                        $rabbit = (int)$flat['whiteRabbit'];
+                        $result = $flat['autoOpen'] > time() || ($rabbit && $flat['lastOpened'] + $rabbit * 60 > time());
 
                         echo json_encode($result);
 
@@ -80,7 +80,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "flat":
+                    case 'flat':
                         $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat(intval($params));
@@ -92,10 +92,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "flatIdByPrefix":
+                    case 'flatIdByPrefix':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats("flatIdByPrefix", $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
+                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
 
                         if (count($apartments) > 0)
                             echo json_encode($apartments);
@@ -104,10 +104,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "apartment":
+                    case 'apartment':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats("apartment", $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
+                        $apartments = array_filter($households->getFlats('apartment', $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
 
                         if (count($apartments) > 0)
                             echo json_encode($apartments);
@@ -116,10 +116,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "subscribers":
+                    case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers("flatId", intval($params)), static fn(array $subscriber) => !$subscriber['adminBlock'] && !$subscriber['manualBlock']);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => !$subscriber['adminBlock'] && !$subscriber['manualBlock']);
 
                         if (count($subscribers) > 0)
                             echo json_encode($subscribers);
@@ -128,7 +128,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "domophone":
+                    case 'domophone':
                         $households = container(HouseFeature::class);
 
                         $domophone = $households->getDomophone(intval($params));
@@ -139,10 +139,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "entrance":
+                    case 'entrance':
                         $households = container(HouseFeature::class);
 
-                        $entrances = $households->getEntrances("domophoneId", ["domophoneId" => intval($params), "output" => "0"]);
+                        $entrances = $households->getEntrances('domophoneId', ['domophoneId' => intval($params), 'output' => '0']);
 
                         if ($entrances) {
                             echo json_encode($entrances[0]);
@@ -154,56 +154,56 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case "camshot":
+                    case 'camshot':
                         $redis = container(RedisService::class)->getConnection();
 
-                        if ($params["domophoneId"] >= 0) {
+                        if ($params['domophoneId'] >= 0) {
                             $households = container(HouseFeature::class);
 
-                            $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $params["domophoneId"], "output" => "0"]);
+                            $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $params['domophoneId'], 'output' => '0']);
 
                             if ($entrances && $entrances[0]) {
-                                $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
+                                $cameras = $households->getCameras('id', $entrances[0]['cameraId']);
 
                                 if ($cameras && $cameras[0]) {
-                                    $model = container(DeviceService::class)->camera($cameras[0]["model"], $cameras[0]["url"], $cameras[0]["credentials"]);
+                                    $model = container(DeviceService::class)->camera($cameras[0]['model'], $cameras[0]['url'], $cameras[0]['credentials']);
 
-                                    $redis->setex("shot_" . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
-                                    $redis->setex("live_" . $params["hash"], 3 * 60, json_encode([
-                                        "model" => $cameras[0]["model"],
-                                        "url" => $cameras[0]["url"],
-                                        "credentials" => $cameras[0]["credentials"],
+                                    $redis->setex('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
+                                    $redis->setex('live_' . $params["hash"], 3 * 60, json_encode([
+                                        'model' => $cameras[0]["model"],
+                                        'url' => $cameras[0]["url"],
+                                        'credentials' => $cameras[0]["credentials"],
                                     ]));
 
-                                    echo $params["hash"];
+                                    echo $params['hash'];
 
-                                    $this->logger->debug('camshot()', ['shot' => "shot_" . $params["hash"]]);
+                                    $this->logger->debug('camshot()', ['shot' => "shot_" . $params['hash']]);
                                 }
                             }
                         }
 
                         break;
 
-                    case "push":
+                    case 'push':
                         $server = container(SipFeature::class)->server('extension', $params['extension']);
 
                         $params = [
-                            "token" => $params["token"],
-                            "type" => $params["tokenType"],
-                            "hash" => $params["hash"],
-                            "extension" => $params["extension"],
-                            "server" => $server["ip"],
-                            "port" => @$server["sip_tcp_port"] ?: 5060,
-                            "transport" => "tcp",
-                            "dtmf" => $params["dtmf"],
-                            "timestamp" => time(),
-                            "ttl" => 30,
-                            "platform" => (int)$params["platform"] ? "ios" : "android",
-                            "callerId" => $params["callerId"],
+                            'token' => $params['token'],
+                            'type' => $params['tokenType'],
+                            'hash' => $params['hash'],
+                            'extension' => $params['extension'],
+                            'server' => $server['ip'],
+                            'port' => @$server['sip_tcp_port'] ?: 5060,
+                            'transport' => 'tcp',
+                            'dtmf' => $params['dtmf'],
+                            'timestamp' => time(),
+                            'ttl' => 30,
+                            'platform' => (int)$params['platform'] ? 'ios' : 'android',
+                            'callerId' => $params['callerId'],
                             'domophoneId' => $params['domophoneId'],
-                            "flatId" => $params["flatId"],
-                            "flatNumber" => $params["flatNumber"],
-                            "title" => 'Входящий вызов',
+                            'flatId' => $params['flatId'],
+                            'flatNumber' => $params['flatNumber'],
+                            'title' => 'Входящий вызов',
                         ];
 
                         $stun = container(SipFeature::class)->stun($params['extension']);
@@ -280,22 +280,22 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 case 'endpoints':
                     if ($panel && $panel['credentials']) {
                         return [
-                            "id" => $extension,
-                            "auth" => $extension,
-                            "outbound_auth" => $extension,
-                            "aors" => $extension,
-                            "callerid" => $extension,
-                            "context" => "default",
-                            "disallow" => "all",
-                            "allow" => "alaw,h264",
-                            "rtp_symmetric" => "no",
-                            "force_rport" => "no",
-                            "rewrite_contact" => "yes",
-                            "timers" => "no",
-                            "direct_media" => "no",
-                            "allow_subscribe" => "yes",
-                            "dtmf_mode" => "rfc4733",
-                            "ice_support" => "no",
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $extension,
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,h264',
+                            'rtp_symmetric' => 'no',
+                            'force_rport' => 'no',
+                            'rewrite_contact' => 'yes',
+                            'timers' => 'no',
+                            'direct_media' => 'no',
+                            'allow_subscribe' => 'yes',
+                            'dtmf_mode' => 'rfc4733',
+                            'ice_support' => 'no',
                         ];
                     }
                     break;
@@ -303,13 +303,13 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         // mobile extension
-        if ($extension[0] === "2" && strlen($extension) === 10) {
+        if ($extension[0] === '2' && strlen($extension) === 10) {
             switch ($section) {
                 case 'aors':
                     $cred = $redis->get('mobile_extension_' . $extension);
 
                     if ($cred)
-                        return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+                        return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     break;
 
@@ -317,7 +317,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     $cred = $redis->get('mobile_extension_' . $extension);
 
                     if ($cred)
-                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $cred];
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $cred];
 
                     break;
 
@@ -326,22 +326,22 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                     if ($cred) {
                         return [
-                            "id" => $extension,
-                            "auth" => $extension,
-                            "outbound_auth" => $extension,
-                            "aors" => $extension,
-                            "callerid" => $extension,
-                            "context" => "default",
-                            "disallow" => "all",
-                            "allow" => "alaw,h264",
-                            "rtp_symmetric" => "yes",
-                            "force_rport" => "yes",
-                            "rewrite_contact" => "yes",
-                            "timers" => "no",
-                            "direct_media" => "no",
-                            "allow_subscribe" => "yes",
-                            "dtmf_mode" => "rfc4733",
-                            "ice_support" => "yes",
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $extension,
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,h264',
+                            'rtp_symmetric' => 'yes',
+                            'force_rport' => 'yes',
+                            'rewrite_contact' => 'yes',
+                            'timers' => 'no',
+                            'direct_media' => 'no',
+                            'allow_subscribe' => 'yes',
+                            'dtmf_mode' => 'rfc4733',
+                            'ice_support' => 'yes',
                         ];
                     }
 
@@ -362,35 +362,36 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 switch ($section) {
                     case 'aors':
                         if ($cred)
-                            return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+                            return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                         break;
 
                     case 'auths':
                         if ($cred)
-                            return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $cred];
+                            return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $cred];
 
                         break;
 
                     case 'endpoints':
                         if ($cred) {
                             return [
-                                "id" => $extension,
-                                "auth" => $extension,
-                                "outbound_auth" => $extension,
-                                "aors" => $extension,
-                                "callerid" => $extension,
-                                "context" => "default",
-                                "disallow" => "all",
-                                "allow" => "alaw,h264",
-                                "rtp_symmetric" => "yes",
-                                "force_rport" => "yes",
-                                "rewrite_contact" => "yes",
-                                "timers" => "no",
-                                "direct_media" => "yes",
-                                "allow_subscribe" => "yes",
-                                "dtmf_mode" => "rfc4733",
-                                "ice_support" => "no",
+                                'id' => $extension,
+                                'auth' => $extension,
+                                'outbound_auth' => $extension,
+                                'aors' => $extension,
+                                'callerid' => $extension,
+                                'context' => 'default',
+                                'disallow' => 'all',
+                                'allow' => 'alaw,h264',
+                                'rtp_symmetric' => 'yes',
+                                'force_rport' => 'yes',
+                                'rewrite_contact' => 'yes',
+                                'timers' => 'no',
+                                'direct_media' => 'yes',
+                                'inband_progress' => 'yes',
+                                'allow_subscribe' => 'yes',
+                                'dtmf_mode' => 'rfc4733',
+                                'ice_support' => 'no',
                             ];
                         }
 
@@ -400,7 +401,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         // webrtc extension
-        if ($extension[0] === "7" && strlen($extension) === 10) {
+        if ($extension[0] === '7' && strlen($extension) === 10) {
             $uid = intval(substr($extension, 1));
 
             switch ($section) {
@@ -408,7 +409,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     $password = $redis->get('user:' . $uid . ':ws');
 
                     if ($password)
-                        return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+                        return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     break;
 
@@ -416,7 +417,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     $password = $redis->get('user:' . $uid . ':ws');
 
                     if ($password)
-                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $password];
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $password];
 
                     break;
 
@@ -427,16 +428,16 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                     if ($user && $password) {
                         return [
-                            "id" => $extension,
-                            "auth" => $extension,
-                            "outbound_auth" => $extension,
-                            "aors" => $extension,
-                            "callerid" => $user["realName"],
-                            "context" => "default",
-                            "disallow" => "all",
-                            "allow" => "alaw,h264",
-                            "dtmf_mode" => "rfc4733",
-                            "webrtc" => "yes",
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $user['realName'],
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,h264',
+                            'dtmf_mode' => 'rfc4733',
+                            'webrtc' => 'yes',
                         ];
                     }
 
@@ -451,29 +452,29 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 switch ($section) {
                     case 'aors':
-                        return ["id" => $extension, "max_contacts" => "1", "remove_existing" => "yes"];
+                        return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     case 'auths':
-                        return ["id" => $extension, "username" => $extension, "auth_type" => "userpass", "password" => $sipUser->password];
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $sipUser->password];
 
                     case 'endpoints':
                         return [
-                            "id" => $extension,
-                            "auth" => $extension,
-                            "outbound_auth" => $extension,
-                            "aors" => $extension,
-                            "callerid" => $extension,
-                            "context" => "default",
-                            "disallow" => "all",
-                            "allow" => "alaw,h264",
-                            "rtp_symmetric" => "yes",
-                            "force_rport" => "yes",
-                            "rewrite_contact" => "yes",
-                            "timers" => "no",
-                            "direct_media" => "no",
-                            "allow_subscribe" => "yes",
-                            "dtmf_mode" => "rfc4733",
-                            "ice_support" => "yes",
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $extension,
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,h264',
+                            'rtp_symmetric' => 'yes',
+                            'force_rport' => 'yes',
+                            'rewrite_contact' => 'yes',
+                            'timers' => 'no',
+                            'direct_media' => 'no',
+                            'allow_subscribe' => 'yes',
+                            'dtmf_mode' => 'rfc4733',
+                            'ice_support' => 'yes'
                         ];
                 }
             } catch (Throwable) {

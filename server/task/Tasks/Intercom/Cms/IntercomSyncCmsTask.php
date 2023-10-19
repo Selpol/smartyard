@@ -49,7 +49,7 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
             $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $device->addCmsDeffer($item['cms'] + 1, $item['dozen'], $item['unit'], $item['apartment']);
+                $device->addCmsDeffer($item['cms'] + 1, intval($item['dozen']), intval($item['unit']), intval($item['apartment']));
 
             $device->deffer();
         } catch (Throwable $throwable) {
