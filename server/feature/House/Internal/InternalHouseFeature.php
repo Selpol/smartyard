@@ -569,77 +569,6 @@ class InternalHouseFeature extends HouseFeature
         return null;
     }
 
-    public function addDomophone(int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $nat, string $comment): bool|int|string
-    {
-        if (IntercomModel::model($model) === null) {
-            last_error("modelUnknown");
-            return false;
-        }
-
-        if (!trim($server)) {
-            last_error("noServer");
-            return false;
-        }
-
-        if (!trim($url)) {
-            return false;
-        }
-
-        if (in_array(trim($dtmf), ["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]) === false) {
-            last_error("dtmf");
-            return false;
-        }
-
-        return $this->getDatabase()->insert("insert into houses_domophones (enabled, model, server, url, credentials, dtmf, nat, comment) values (:enabled, :model, :server, :url, :credentials, :dtmf, :nat, :comment)", [
-            "enabled" => $enabled,
-            "model" => $model,
-            "server" => $server,
-            "url" => $url,
-            "credentials" => $credentials,
-            "dtmf" => $dtmf,
-            "nat" => $nat,
-            "comment" => $comment,
-        ]);
-    }
-
-    public function modifyDomophone(int $domophoneId, int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $firstTime, int $nat, int $locksAreOpen, string $comment): bool|int
-    {
-        if (!trim($server)) {
-            last_error("noServer");
-            return false;
-        }
-
-        $models = IntercomModel::modelsToArray();
-
-        if (!@$models[$model]) {
-            last_error("modelUnknown");
-            return false;
-        }
-
-        if (!trim($url)) {
-            last_error("noUrl");
-            return false;
-        }
-
-        if (in_array(trim($dtmf), ["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]) === false) {
-            last_error("dtmf");
-            return false;
-        }
-
-        return $this->getDatabase()->modify("update houses_domophones set enabled = :enabled, model = :model, server = :server, url = :url, credentials = :credentials, dtmf = :dtmf, first_time = :first_time, nat = :nat, locks_are_open = :locks_are_open, comment = :comment where house_domophone_id = $domophoneId", [
-            "enabled" => $enabled,
-            "model" => $model,
-            "server" => $server,
-            "url" => $url,
-            "credentials" => $credentials,
-            "dtmf" => $dtmf,
-            "first_time" => $firstTime,
-            "nat" => $nat,
-            "locks_are_open" => $locksAreOpen,
-            "comment" => $comment,
-        ]);
-    }
-
     public function deleteDomophone(int $domophoneId): bool
     {
         return
@@ -669,7 +598,8 @@ class InternalHouseFeature extends HouseFeature
                 "nat" => "nat",
                 "locks_are_open" => "locksAreOpen",
                 "comment" => "comment",
-                "ip" => "ip"
+                "ip" => "ip",
+                'sos_number' => 'sosNumber'
             ],
             options: ["singlify"]
         );

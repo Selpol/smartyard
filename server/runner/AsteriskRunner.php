@@ -293,6 +293,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'allow_subscribe' => 'yes',
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'no',
+                            'sos_number' => $panel['sosNumber'] ?? env('SOS_NUMBER', '112')
                         ];
                 }
             }

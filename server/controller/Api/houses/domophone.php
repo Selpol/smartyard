@@ -25,7 +25,8 @@ class domophone extends Api
             "nat" => "nat",
             "locks_are_open" => "locksAreOpen",
             "comment" => "comment",
-            "ip" => "ip"
+            "ip" => "ip",
+            'sos_number' => 'sosNumber'
         ]);
 
         $intercom['json'] = IntercomModel::models()[$intercom['model']]->toArray();
@@ -97,6 +98,9 @@ class domophone extends Api
             $intercom->locks_are_open = $params['locksAreOpen'];
 
         $intercom->comment = $params['comment'];
+
+        if (array_key_exists('sosNumber', $params))
+            $intercom->sos_number = $params['sosNumber'];
 
         $ip = gethostbyname(parse_url($intercom->url, PHP_URL_HOST));
 

@@ -51,10 +51,6 @@ abstract class HouseFeature extends Feature
 
     abstract public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int;
 
-    abstract public function addDomophone(int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $nat, string $comment): bool|int|string;
-
-    abstract public function modifyDomophone(int $domophoneId, int $enabled, string $model, string $server, string $url, string $credentials, string $dtmf, int $firstTime, int $nat, int $locksAreOpen, string $comment): bool|int;
-
     abstract public function deleteDomophone(int $domophoneId): bool;
 
     abstract public function getDomophone(int $domophoneId): bool|array;

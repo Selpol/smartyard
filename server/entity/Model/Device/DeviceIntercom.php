@@ -25,6 +25,8 @@ use Selpol\Entity\Entity;
  * @property string|null $ip
  *
  * @property string|null $comment
+ *
+ * @property string|null $sos_number
  */
 class DeviceIntercom extends Entity
 {
@@ -43,7 +45,7 @@ class DeviceIntercom extends Entity
             'server' => rule()->required()->string()->nonNullable(),
             'url' => rule()->required()->url()->nonNullable(),
             'credentials' => rule()->required()->string()->nonNullable(),
-            'dtmf' => rule()->required()->string()->clamp(1, 1)->nonNullable(),
+            'dtmf' => rule()->required()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->nonNullable(),
 
             'first_time' => rule()->required()->int()->nonNullable(),
 
@@ -53,7 +55,9 @@ class DeviceIntercom extends Entity
 
             'ip' => rule()->ipV4(),
 
-            'comment' => rule()->string()
+            'comment' => rule()->string(),
+
+            'sos_number' => rule()->string()
         ];
     }
 }
