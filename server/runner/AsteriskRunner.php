@@ -264,21 +264,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             $panel = $households->getDomophone((int)substr($extension, 1));
 
-            switch ($section) {
-                case 'aors':
-                    if ($panel && $panel['credentials'])
+            if ($panel && $panel['credentials']) {
+                switch ($section) {
+                    case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
-                    break;
-
-                case 'auths':
-                    if ($panel && $panel['credentials'])
+                    case 'auths':
                         return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $panel['credentials']];
 
-                    break;
-
-                case 'endpoints':
-                    if ($panel && $panel['credentials']) {
+                    case 'endpoints':
                         return [
                             'id' => $extension,
                             'auth' => $extension,
@@ -297,35 +291,23 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'no',
                         ];
-                    }
-
-                    break;
+                }
             }
         }
 
         // mobile extension
         if ($extension[0] === '2' && strlen($extension) === 10) {
-            switch ($section) {
-                case 'aors':
-                    $cred = $redis->get('mobile_extension_' . $extension);
+            $cred = $redis->get('mobile_extension_' . $extension);
 
-                    if ($cred)
+            if ($cred) {
+                switch ($section) {
+                    case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
-                    break;
-
-                case 'auths':
-                    $cred = $redis->get('mobile_extension_' . $extension);
-
-                    if ($cred)
+                    case 'auths':
                         return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $cred];
 
-                    break;
-
-                case 'endpoints':
-                    $cred = $redis->get('mobile_extension_' . $extension);
-
-                    if ($cred) {
+                    case 'endpoints':
                         return [
                             'id' => $extension,
                             'auth' => $extension,
@@ -344,9 +326,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'yes',
                         ];
-                    }
-
-                    break;
+                }
             }
         }
 
@@ -357,46 +337,34 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $flatId = (int)substr($extension, 1);
             $flat = $households->getFlat($flatId);
 
-            if ($flat) {
-                $cred = $flat['sipPassword'];
-
+            if ($flat && $flat['sipPassword']) {
                 switch ($section) {
                     case 'aors':
-                        if ($cred)
-                            return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
-
-                        break;
+                        return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     case 'auths':
-                        if ($cred)
-                            return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $cred];
-
-                        break;
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $flat['sipPassword']];
 
                     case 'endpoints':
-                        if ($cred) {
-                            return [
-                                'id' => $extension,
-                                'auth' => $extension,
-                                'outbound_auth' => $extension,
-                                'aors' => $extension,
-                                'callerid' => $extension,
-                                'context' => 'default',
-                                'disallow' => 'all',
-                                'allow' => 'alaw,h264',
-                                'rtp_symmetric' => 'yes',
-                                'force_rport' => 'yes',
-                                'rewrite_contact' => 'yes',
-                                'timers' => 'no',
-                                'direct_media' => 'yes',
-                                'inband_progress' => 'yes',
-                                'allow_subscribe' => 'yes',
-                                'dtmf_mode' => 'rfc4733',
-                                'ice_support' => 'no',
-                            ];
-                        }
-
-                        break;
+                        return [
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $flat['flatId'],
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,h264',
+                            'rtp_symmetric' => 'yes',
+                            'force_rport' => 'yes',
+                            'rewrite_contact' => 'yes',
+                            'timers' => 'no',
+                            'direct_media' => 'yes',
+                            'inband_progress' => 'yes',
+                            'allow_subscribe' => 'yes',
+                            'dtmf_mode' => 'rfc4733',
+                            'ice_support' => 'no',
+                        ];
                 }
             }
         }
@@ -404,45 +372,36 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         // webrtc extension
         if ($extension[0] === '7' && strlen($extension) === 10) {
             $uid = intval(substr($extension, 1));
+            $password = $redis->get('user:' . $uid . ':ws');
 
-            switch ($section) {
-                case 'aors':
-                    $password = $redis->get('user:' . $uid . ':ws');
-
-                    if ($password)
+            if ($password) {
+                switch ($section) {
+                    case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
-                    break;
-
-                case 'auths':
-                    $password = $redis->get('user:' . $uid . ':ws');
-
-                    if ($password)
+                    case 'auths':
                         return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $password];
 
-                    break;
+                    case 'endpoints':
+                        $user = container(UserFeature::class)->getUser($uid);
 
-                case 'endpoints':
-                    $password = $redis->get('user:' . $uid . ':ws');
+                        if ($user) {
+                            return [
+                                'id' => $extension,
+                                'auth' => $extension,
+                                'outbound_auth' => $extension,
+                                'aors' => $extension,
+                                'callerid' => $user['realName'],
+                                'context' => 'default',
+                                'disallow' => 'all',
+                                'allow' => 'alaw,h264',
+                                'dtmf_mode' => 'rfc4733',
+                                'webrtc' => 'yes',
+                            ];
+                        }
 
-                    $user = container(UserFeature::class)->getUser($uid);
-
-                    if ($user && $password) {
-                        return [
-                            'id' => $extension,
-                            'auth' => $extension,
-                            'outbound_auth' => $extension,
-                            'aors' => $extension,
-                            'callerid' => $user['realName'],
-                            'context' => 'default',
-                            'disallow' => 'all',
-                            'allow' => 'alaw,h264',
-                            'dtmf_mode' => 'rfc4733',
-                            'webrtc' => 'yes',
-                        ];
-                    }
-
-                    break;
+                        break;
+                }
             }
         }
 
