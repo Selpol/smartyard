@@ -516,6 +516,7 @@ class InternalHouseFeature extends HouseFeature
             "locks_are_open" => "locksAreOpen",
             "comment" => "comment",
             "ip" => "ip",
+            'sos_number' => 'sosNumber'
         ];
 
         switch ($by) {
