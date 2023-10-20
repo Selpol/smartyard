@@ -281,7 +281,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $this->transcript($panel['comment']),
+                            'callerid' => $extension,
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,h264',
