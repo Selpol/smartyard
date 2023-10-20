@@ -20,6 +20,9 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
+    private const CYR = ['Љ', 'Њ', 'Џ', 'џ', 'ш', 'ђ', 'ч', 'ћ', 'ж', 'љ', 'њ', 'Ш', 'Ђ', 'Ч', 'Ћ', 'Ж', 'Ц', 'ц', 'а', 'б', 'в', 'г', 'д', 'е', 'ё', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц', 'ч', 'ш', 'щ', 'ъ', 'ы', 'ь', 'э', 'ю', 'я', 'А', 'Б', 'В', 'Г', 'Д', 'Е', 'Ё', 'Ж', 'З', 'И', 'Й', 'К', 'Л', 'М', 'Н', 'О', 'П', 'Р', 'С', 'Т', 'У', 'Ф', 'Х', 'Ц', 'Ч', 'Ш', 'Щ', 'Ъ', 'Ы', 'Ь', 'Э', 'Ю', 'Я'];
+    private const LAN = ['Lj', 'Nj', 'Dž', 'dž', 'š', 'đ', 'č', 'ć', 'ž', 'lj', 'nj', 'Š', 'Đ', 'Č', 'Ć', 'Ž', 'C', 'c', 'a', 'b', 'v', 'g', 'd', 'e', 'io', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'ts', 'ch', 'sh', 'sht', 'a', 'i', 'y', 'e', 'yu', 'ya', 'A', 'B', 'V', 'G', 'D', 'E', 'Io', 'Zh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'Ts', 'Ch', 'Sh', 'Sht', 'A', 'I', 'Y', 'e', 'Yu', 'Ya'];
+
     /**
      * @throws RedisException
      * @throws ValidatorException
@@ -278,7 +281,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $panel['comment'],
+                            'callerid' => $this->transcript($panel['comment']),
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,h264',
@@ -391,7 +394,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 'auth' => $extension,
                                 'outbound_auth' => $extension,
                                 'aors' => $extension,
-                                'callerid' => $user['realName'],
+                                'callerid' => $this->transcript($user['realName']),
                                 'context' => 'default',
                                 'disallow' => 'all',
                                 'allow' => 'alaw,h264',
@@ -423,7 +426,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $sipUser->title,
+                            'callerid' => $this->transcript($sipUser->title),
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,h264',
@@ -453,5 +456,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result .= urldecode($key) . '=' . urldecode($value) . '&';
 
         return $result;
+    }
+
+    public function transcript(string $value): string
+    {
+        return str_replace(self::CYR, self::LAN, $value);
     }
 }
