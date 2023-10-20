@@ -272,9 +272,9 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     break;
 
                 case 'auths':
-
                     if ($panel && $panel['credentials'])
                         return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $panel['credentials']];
+
                     break;
 
                 case 'endpoints':
@@ -284,7 +284,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $extension,
+                            'callerid' => $panel['comment'],
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,h264',
@@ -298,6 +298,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'ice_support' => 'no',
                         ];
                     }
+
                     break;
             }
         }
@@ -463,7 +464,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $extension,
+                            'callerid' => $sipUser->title,
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,h264',
