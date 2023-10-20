@@ -374,7 +374,7 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
-    public function setSos(int $value): static
+    public function setSos(string|int $value): static
     {
         return $this->setAlarmHelp('SOSCallNumber', $value);
     }

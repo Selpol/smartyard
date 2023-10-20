@@ -268,16 +268,14 @@ class IsIntercom extends IntercomDevice
     public function setAudioLevels(array $levels): static
     {
         if (count($levels) === 6)
-            $this->put('/levels', [
-                'volumes' => [
-                    'panelCall' => $levels[0],
-                    'panelTalk' => $levels[1],
-                    'thTalk' => $levels[2],
-                    'thCall' => $levels[3],
-                    'uartFrom' => $levels[4],
-                    'uartTo' => $levels[5],
-                ],
-            ]);
+            $this->put('/levels', ['volumes' => ['panelCall' => $levels[0], 'panelTalk' => $levels[1], 'thTalk' => $levels[2], 'thCall' => $levels[3], 'uartFrom' => $levels[4], 'uartTo' => $levels[5]]]);
+
+        return $this;
+    }
+
+    public function setAudioLevelsDefault(): static
+    {
+        $this->setAudioLevels([110, 130, 200, 185, 230, 120]);
 
         return $this;
     }
@@ -331,7 +329,7 @@ class IsIntercom extends IntercomDevice
         return $this;
     }
 
-    public function setSos(int $value): static
+    public function setSos(string|int $value): static
     {
         $this->put('/panelCode/settings', ['sosRoom' => (string)$value]);
 

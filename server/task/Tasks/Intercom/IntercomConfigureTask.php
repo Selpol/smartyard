@@ -121,10 +121,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $sip_server = $asterisk_server->internal_ip;
         $sip_port = 5060;
 
-        $audio_levels = [];
         $main_door_dtmf = $domophone['dtmf'];
 
-        $device->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $audio_levels, $cms_levels, $cms_model);
+        $device->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $cms_levels, $cms_model);
 
         $this->setProgress(25);
     }
