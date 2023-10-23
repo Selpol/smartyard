@@ -2,6 +2,7 @@
 
 namespace Selpol\Service\Database;
 
+use PDO;
 use PDOStatement;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Framework\Entity\EntityMessage;
@@ -22,7 +23,7 @@ readonly class EntityStatement implements EntityStatementInterface
 
     public function fetch(): ?array
     {
-        return $this->statement->fetch();
+        return $this->statement->fetch(PDO::FETCH_ASSOC);
     }
 
     public function fetchColumn(int $index): mixed
@@ -32,7 +33,7 @@ readonly class EntityStatement implements EntityStatementInterface
 
     public function fetchAll(): array
     {
-        return $this->statement->fetchAll();
+        return $this->statement->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function count(): int

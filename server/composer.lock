@@ -1251,11 +1251,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.13",
+            "version": "1.0.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "65cb932145a16e5f2249e5f7348ab1c079fbcb6f"
+                "reference": "a4ca5c176d8601d4aa5856db81d950ee0dd7b07d"
             },
             "require": {
                 "php": ">=8.2",
@@ -1280,7 +1280,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2023-10-23T09:40:04+00:00"
+            "time": "2023-10-23T09:55:00+00:00"
         },
         {
             "name": "selpol/validator",
