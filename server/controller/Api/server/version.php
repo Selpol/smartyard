@@ -3,18 +3,18 @@
 namespace Selpol\Controller\Api\server;
 
 use Selpol\Controller\Api\Api;
-use Exception;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
+use Throwable;
 
 class version extends Api
 {
     public static function GET(array $params): array
     {
         try {
-            $var = container(CoreVarRepository::class)->fetchRaw('SELECT * FROM core_vars WHERE var_name = :var_name', ['var_name' => 'dbVersion']);
+            $var = container(CoreVarRepository::class)->fetch(criteria()->equal('var_name', 'dbVersion'));
 
             $version = intval($var->var_value);
-        } catch (Exception) {
+        } catch (Throwable) {
             $version = 0;
         }
 

@@ -17,7 +17,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function roles(): array
     {
-        return container(RoleRepository::class)->fetchAllRaw('SELECT * FROM role');
+        return container(RoleRepository::class)->fetchAll();
     }
 
     /**
@@ -25,7 +25,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function permissions(): array
     {
-        return container(PermissionRepository::class)->fetchAllRaw('SELECT * FROM permission');
+        return container(PermissionRepository::class)->fetchAll();
     }
 
     /**
@@ -33,7 +33,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForRole(int $roleId): array
     {
-        return container(PermissionRepository::class)->fetchAllRaw('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)', ['role_id' => $roleId]);
+        return container(PermissionRepository::class)->fetchAll(criteria()->where('id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)')->bind('role_id', $roleId));
     }
 
     /**
@@ -41,7 +41,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findRolesForUser(int $userId): array
     {
-        return container(RoleRepository::class)->fetchAllRaw('SELECT * FROM role WHERE id IN(SELECT role_id FROM user_role WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return container(RoleRepository::class)->fetchAll(criteria()->where('id IN (SELECT role_id FROM user_role WHERE user_id = :user_id)')->bind('user_id', $userId));
     }
 
     /**
@@ -49,7 +49,7 @@ class InternalRoleFeature extends RoleFeature
      */
     public function findPermissionsForUser(int $userId): array
     {
-        return container(PermissionRepository::class)->fetchAllRaw('SELECT * FROM permission WHERE id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)', ['user_id' => $userId]);
+        return container(PermissionRepository::class)->fetchAll(criteria()->where('id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)')->bind('user_id', $userId));
     }
 
     /**

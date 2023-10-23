@@ -2,7 +2,6 @@
 
 namespace Selpol\Controller\Api;
 
-use Selpol\Entity\Entity;
 use Selpol\Http\Response;
 
 class Api

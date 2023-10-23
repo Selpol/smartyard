@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\task;
 use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 
 class task
@@ -15,9 +16,12 @@ class task
      */
     public static function GET($params): array
     {
-        $tasks = container(TaskFeature::class)->page($params['size'], $params['page']);
+        $validate = validator($params, [
+            'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
+            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
+        ]);
 
-        return Api::ANSWER($tasks, count($tasks) > 0 ? 'tasks' : false);
+        return Api::ANSWER(container(TaskRepository::class)->fetchPage($validate['page'], $validate['size']), 'tasks');
     }
 
     /**

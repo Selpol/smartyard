@@ -64,7 +64,7 @@ class InternalFrsFeature extends FrsFeature
 
     public function servers(): array
     {
-        return container(FrsServerRepository::class)->fetchAllRaw('SELECT * FROM ' . FrsServer::$table);
+        return container(FrsServerRepository::class)->fetchAll();
     }
 
     public function apiCall(string $base_url, string $method, array $params = []): array|bool

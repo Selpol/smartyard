@@ -14,14 +14,6 @@ class InternalTaskFeature extends TaskFeature
 {
     /**
      * @throws NotFoundExceptionInterface
-     */
-    public function page(int $size, int $page): array
-    {
-        return container(TaskRepository::class)->fetchAllRaw('SELECT id, title, message, status, created_at, updated_at FROM task ORDER BY created_at DESC OFFSET :page LIMIT :size', ['page' => $page * $size, 'size' => $size]);
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function add(Task $task, string $message, int $status): void
