@@ -149,7 +149,7 @@ class InternalRoleFeature extends RoleFeature
         if ($userId === 0)
             return ['*'];
 
-        return container(RedisCache::class)->cache('user:' . $userId . ':permission', static function () use ($userId) {
+        return container(RedisCache::class)->cache('user:' . $userId . ':permission', function () use ($userId) {
             $result = $this->findPermissionsForUser($userId);
             $roles = $this->findRolesForUser($userId);
 
