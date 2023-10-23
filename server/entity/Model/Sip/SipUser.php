@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Sip;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $id
@@ -22,8 +22,8 @@ class SipUser extends Entity
 
     public static string $columnIdStrategy = 'sip_user_id_seq';
 
-    public static ?string $columnCreate = 'created_at';
-    public static ?string $columnUpdate = 'updated_at';
+    public static ?string $columnCreateAt = 'created_at';
+    public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array
     {

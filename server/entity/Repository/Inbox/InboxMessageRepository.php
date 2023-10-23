@@ -2,24 +2,28 @@
 
 namespace Selpol\Entity\Repository\Inbox;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Inbox\InboxMessage;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method InboxMessage fetchRaw(string $query, array $params = [])
- * @method InboxMessage[] fetchAllRaw(string $query, array $params = [])
- * @method Page<InboxMessage> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method InboxMessage fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method InboxMessage[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<InboxMessage> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method InboxMessage findById(int $id)
  *
- * @extends Repository<int, InboxMessage>
+ * @extends EntityRepository<int, InboxMessage>
  */
 #[Singleton]
-class InboxMessageRepository extends Repository
+readonly class InboxMessageRepository extends EntityRepository
 {
+    use AuditTrait;
+
     public function __construct()
     {
         parent::__construct(InboxMessage::class);

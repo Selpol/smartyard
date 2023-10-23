@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Address;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $address_house_id

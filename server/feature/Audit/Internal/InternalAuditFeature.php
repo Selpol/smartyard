@@ -63,16 +63,18 @@ class InternalAuditFeature extends AuditFeature
         return container(AuditRepository::class)->fetchAllRaw($query, $params);
     }
 
+    public function canAudit(): bool
+    {
+        return container(AuthService::class)->getUser()?->canScope() === true;
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void
     {
-        if (container(AuthService::class)->getUser()?->canScope() !== true)
-            return;
-
-        $user = container(AuthService::class)->getUser();
+        $user = container(AuthService::class)->getUserOrThrow();
 
         $audit = new Audit();
 
@@ -97,8 +99,6 @@ class InternalAuditFeature extends AuditFeature
         $audit->event_code = '';
 
         container(AuditRepository::class)->insert($audit);
-
-        file_logger('audit')->debug('Insert new audit for user', ['id' => $audit->id, 'user_id' => $audit->user_id]);
     }
 
     public function clear(): void

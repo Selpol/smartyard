@@ -2,23 +2,24 @@
 
 namespace Selpol\Entity\Repository;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Audit;
-use Selpol\Entity\Repository;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Audit fetchRaw(string $query, array $params = [])
- * @method Audit[] fetchAllRaw(string $query, array $params = [])
- * @method Page<Audit> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Audit fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Audit[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<Audit> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method Audit findById(int $id)
  *
- * @extends Repository<int, Audit>
+ * @extends EntityRepository<int, Audit>
  */
 #[Singleton]
-class AuditRepository extends Repository
+readonly class AuditRepository extends EntityRepository
 {
     public function __construct()
     {

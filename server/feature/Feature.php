@@ -13,11 +13,6 @@ abstract class Feature
         return container(DatabaseService::class);
     }
 
-    protected function getManager(): Manager
-    {
-        return $this->getDatabase()->getManager();
-    }
-
     protected function getRedis(): RedisService
     {
         return container(RedisService::class);

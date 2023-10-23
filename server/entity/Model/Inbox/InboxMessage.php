@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Inbox;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $msg_id

@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Core;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $uid

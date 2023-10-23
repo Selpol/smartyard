@@ -3,7 +3,7 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Camera\CameraModel;
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $camera_id

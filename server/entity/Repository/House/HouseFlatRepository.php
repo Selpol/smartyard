@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\House;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\House\HouseFlat;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method HouseFlat fetchRaw(string $query, array $params = [])
- * @method HouseFlat[] fetchAllRaw(string $query, array $params = [])
- * @method Page<HouseFlat> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method HouseFlat fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method HouseFlat[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<HouseFlat> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method HouseFlat findById(int $id)
  *
- * @extends Repository<int, HouseFlat>
+ * @extends EntityRepository<int, HouseFlat>
  */
 #[Singleton]
-class HouseFlatRepository extends Repository
+readonly class HouseFlatRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Frs;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $face_id

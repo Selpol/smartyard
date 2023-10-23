@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\Address;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Address\AddressHouse;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method AddressHouse fetchRaw(string $query, array $params = [])
- * @method AddressHouse[] fetchAllRaw(string $query, array $params = [])
- * @method Page<AddressHouse> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method AddressHouse fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method AddressHouse[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<AddressHouse> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method AddressHouse findById(int $id)
  *
- * @extends Repository<int, AddressHouse>
+ * @extends EntityRepository<int, AddressHouse>
  */
 #[Singleton]
-class AddressHouseRepository extends Repository
+readonly class AddressHouseRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

@@ -15,7 +15,7 @@ class frs extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPaginate($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array

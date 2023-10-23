@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $id
@@ -19,8 +19,8 @@ class Permission extends Entity
 
     public static string $columnIdStrategy = 'permission_id_seq';
 
-    public static ?string $columnCreate = 'created_at';
-    public static ?string $columnUpdate = 'updated_at';
+    public static ?string $columnCreatedAt = 'created_at';
+    public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array
     {

@@ -2,23 +2,24 @@
 
 namespace Selpol\Entity\Repository\Core;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Core\CoreVar;
-use Selpol\Entity\Repository;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method CoreVar fetchRaw(string $query, array $params = [])
- * @method CoreVar[] fetchAllRaw(string $query, array $params = [])
- * @method Page<CoreVar> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method CoreVar fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method CoreVar[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<CoreVar> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method CoreVar findById(mixed $id)
  *
- * @extends Repository<int, CoreVar>
+ * @extends EntityRepository<int, CoreVar>
  */
 #[Singleton]
-class CoreVarRepository extends Repository
+readonly class CoreVarRepository extends EntityRepository
 {
     public function __construct()
     {

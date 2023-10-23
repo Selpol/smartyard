@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Permission;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Permission fetchRaw(string $query, array $params = [])
- * @method Permission[] fetchAllRaw(string $query, array $params = [])
- * @method Page<Permission> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Permission fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Permission[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<Permission> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method Permission findById(int $id)
  *
- * @extends Repository<int, Permission>
+ * @extends EntityRepository<int, Permission>
  */
 #[Singleton]
-class PermissionRepository extends Repository
+readonly class PermissionRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {
@@ -29,6 +31,6 @@ class PermissionRepository extends Repository
 
     public function findByTitle(string $title): Permission
     {
-        return $this->fetchRaw('SELECT * FROM ' . $this->table . ' WHERE title = :title', ['title' => $title]);
+        return $this->fetch(criteria()->equal('title', $title));
     }
 }

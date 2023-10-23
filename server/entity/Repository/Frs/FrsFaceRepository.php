@@ -2,23 +2,24 @@
 
 namespace Selpol\Entity\Repository\Frs;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Frs\FrsFace;
-use Selpol\Entity\Repository;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method FrsFace fetchRaw(string $query, array $params = [])
- * @method FrsFace[] fetchAllRaw(string $query, array $params = [])
- * @method Page<FrsFace> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method FrsFace fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method FrsFace[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<FrsFace> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method FrsFace findById(int $id)
  *
- * @extends Repository<int, FrsFace>
+ * @extends EntityRepository<int, FrsFace>
  */
 #[Singleton]
-class FrsFaceRepository extends Repository
+readonly class FrsFaceRepository extends EntityRepository
 {
     public function __construct()
     {

@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Frs;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $id
@@ -20,8 +20,8 @@ class FrsServer extends Entity
 
     public static string $columnIdStrategy = 'frs_servers_id_seq';
 
-    public static ?string $columnCreate = 'created_at';
-    public static ?string $columnUpdate = 'updated_at';
+    public static ?string $columnCreateAt = 'created_at';
+    public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array
     {

@@ -2,7 +2,7 @@
 
 namespace Selpol\Entity\Model\Dvr;
 
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $record_id

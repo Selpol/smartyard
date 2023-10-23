@@ -7,7 +7,6 @@ use PDO;
 use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
-use Selpol\Service\Database\Manager;
 use Selpol\Service\Exception\DatabaseException;
 
 #[Singleton]
@@ -15,26 +14,17 @@ class DatabaseService implements ContainerDisposeInterface
 {
     private ?PDO $connection;
 
-    private ?Manager $manager;
-
     public function __construct()
     {
         $this->connection = new PDO(config_get('db.dsn'), config_get('db.username'), config_get('db.password'), config_get('db.options'));
 
         $this->connection->setAttribute(PDO::ATTR_TIMEOUT, 60);
         $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        $this->manager = new Manager($this->connection);
     }
 
     public function getConnection(): ?PDO
     {
         return $this->connection;
-    }
-
-    public function getManager(): ?Manager
-    {
-        return $this->manager;
     }
 
     public function __call(string $name, array $arguments)
@@ -213,7 +203,6 @@ class DatabaseService implements ContainerDisposeInterface
 
     public function dispose(): void
     {
-        $this->manager = null;
         $this->connection = null;
     }
 

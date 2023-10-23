@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\Device;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method DeviceIntercom fetchRaw(string $query, array $params = [])
- * @method DeviceIntercom[] fetchAllRaw(string $query, array $params = [])
- * @method Page<DeviceIntercom> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method DeviceIntercom fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method DeviceIntercom[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<DeviceIntercom> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method DeviceIntercom findById(mixed $id)
  *
- * @extends Repository<int, DeviceIntercom>
+ * @extends EntityRepository<int, DeviceIntercom>
  */
 #[Singleton]
-class DeviceIntercomRepository extends Repository
+readonly class DeviceIntercomRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

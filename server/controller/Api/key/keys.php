@@ -4,7 +4,7 @@ namespace Selpol\Controller\Api\key;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\House\HouseKeyRepository;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityPage;
 use Selpol\Service\DatabaseService;
 
 class keys extends Api
@@ -19,7 +19,7 @@ class keys extends Api
             'size' => [filter()->default(10), rule()->int()->min(1)->max(512)],
         ]);
 
-        $page = container(HouseKeyRepository::class)->fetchPaginate($validate['page'], $validate['size'], criteria()->like('rfid', $validate['rfid'])->orLike('comments', $validate['comments'])->asc('house_rfid_id')->asc('access_to'));
+        $page = container(HouseKeyRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->like('rfid', $validate['rfid'])->orLike('comments', $validate['comments'])->asc('house_rfid_id')->asc('access_to'));
         $data = $page->getData();
 
         $flats = [];
@@ -42,7 +42,7 @@ class keys extends Api
             }
         }
 
-        return self::SUCCESS('keys', new Page($data, $page->getTotal(), $page->getPage(), $page->getSize()));
+        return self::SUCCESS('keys', new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
     }
 
     public static function index(): array

@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\House;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\House\HouseEntrance;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method HouseEntrance fetchRaw(string $query, array $params = [])
- * @method HouseEntrance[] fetchAllRaw(string $query, array $params = [])
- * @method Page<HouseEntrance> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method HouseEntrance fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method HouseEntrance[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<HouseEntrance> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method HouseEntrance findById(int $id)
  *
- * @extends Repository<int, HouseEntrance>
+ * @extends EntityRepository<int, HouseEntrance>
  */
 #[Singleton]
-class HouseEntranceRepository extends Repository
+readonly class HouseEntranceRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

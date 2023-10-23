@@ -2,23 +2,24 @@
 
 namespace Selpol\Entity\Repository;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Task;
-use Selpol\Entity\Repository;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Task fetchRaw(string $query, array $params = [])
- * @method Task[] fetchAllRaw(string $query, array $params = [])
- * @method Page<Task> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Task fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Task[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<Task> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method Task findById(int $id)
  *
- * @extends Repository<int, Task>
+ * @extends EntityRepository<int, Task>
  */
 #[Singleton]
-class TaskRepository extends Repository
+readonly class TaskRepository extends EntityRepository
 {
     public function __construct()
     {

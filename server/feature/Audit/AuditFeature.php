@@ -25,6 +25,8 @@ abstract class AuditFeature extends Feature
      */
     public abstract function audits(int $userId, ?string $auditableId, ?string $auditableType, ?string $eventIp, ?string $eventType, ?string $eventTarget, ?string $eventCode, ?string $eventMessage, ?int $page, ?int $size): ?array;
 
+    public abstract function canAudit(): bool;
+
     public abstract function audit(string $auditableId, string $auditableType, string $eventType, string $eventMessage): void;
 
     public abstract function clear(): void;

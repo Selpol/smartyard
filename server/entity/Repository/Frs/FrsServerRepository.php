@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\Frs;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Frs\FrsServer;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method FrsServer fetchRaw(string $query, array $params = [])
- * @method FrsServer[] fetchAllRaw(string $query, array $params = [])
- * @method Page<FrsServer> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method FrsServer fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method FrsServer[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<FrsServer> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method FrsServer findById(int $id)
  *
- * @extends Repository<int, FrsServer>
+ * @extends EntityRepository<int, FrsServer>
  */
 #[Singleton]
-class FrsServerRepository extends Repository
+readonly class FrsServerRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

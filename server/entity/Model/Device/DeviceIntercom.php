@@ -3,7 +3,7 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
-use Selpol\Entity\Entity;
+use Selpol\Framework\Entity\Entity;
 
 /**
  * @property int $house_domophone_id

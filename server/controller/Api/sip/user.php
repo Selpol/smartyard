@@ -20,7 +20,7 @@ class user extends Api
 
         return self::SUCCESS(
             'servers',
-            container(SipUserRepository::class)->fetchPaginate(
+            container(SipUserRepository::class)->fetchPage(
                 $validate['page'],
                 $validate['size'],
                 criteria()->orEqual('type', $validate['type'])->orLike('title', $validate['title'])->asc('id')

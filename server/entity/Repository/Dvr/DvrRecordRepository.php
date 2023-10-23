@@ -2,23 +2,24 @@
 
 namespace Selpol\Entity\Repository\Dvr;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Dvr\DvrRecord;
-use Selpol\Entity\Repository;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method DvrRecord fetchRaw(string $query, array $params = [])
- * @method DvrRecord[] fetchAllRaw(string $query, array $params = [])
- * @method Page<DvrRecord> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method DvrRecord fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method DvrRecord[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<DvrRecord> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method DvrRecord findById(mixed $id)
  *
- * @extends Repository<int, DvrRecord>
+ * @extends EntityRepository<int, DvrRecord>
  */
 #[Singleton]
-class DvrRecordRepository extends Repository
+readonly class DvrRecordRepository extends EntityRepository
 {
     public function __construct()
     {

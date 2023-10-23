@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Role;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Role fetchRaw(string $query, array $params = [])
- * @method Role[] fetchAllRaw(string $query, array $params = [])
- * @method Page<Role> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method Role fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Role[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<Role> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method Role findById(int $id)
  *
- * @extends Repository<int, Role>
+ * @extends EntityRepository<int, Role>
  */
 #[Singleton]
-class RoleRepository extends Repository
+readonly class RoleRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {

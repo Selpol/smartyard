@@ -2,25 +2,27 @@
 
 namespace Selpol\Entity\Repository\Sip;
 
-use Selpol\Entity\Criteria;
 use Selpol\Entity\Model\Sip\SipUser;
-use Selpol\Entity\Repository;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Service\Database\Page;
+use Selpol\Framework\Entity\EntityCriteria;
+use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Entity\EntityRepository;
+use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method SipUser fetchRaw(string $query, array $params = [])
- * @method SipUser[] fetchAllRaw(string $query, array $params = [])
- * @method Page<SipUser> fetchPaginate(int $page, int $size, ?Criteria $criteria = null)
+ * @method SipUser fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method SipUser[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method EntityPage<SipUser> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @method SipUser findById(mixed $id)
  *
- * @extends Repository<int, SipUser>
+ * @extends EntityRepository<int, SipUser>
  */
 #[Singleton]
-class SipUserRepository extends Repository
+readonly class SipUserRepository extends EntityRepository
 {
-    protected bool $audit = true;
+    use AuditTrait;
 
     public function __construct()
     {
@@ -29,6 +31,6 @@ class SipUserRepository extends Repository
 
     public function findByIdAndType(int $id, int $type): SipUser
     {
-        return $this->fetchRaw('SELECT * FROM ' . $this->table . ' WHERE id = :id AND type = :type', ['id' => $id, 'type' => $type]);
+        return $this->fetch(criteria()->equal('id', $id)->equal('type', $type));
     }
 }
