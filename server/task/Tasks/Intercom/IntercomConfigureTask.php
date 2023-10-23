@@ -37,8 +37,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $domophone = $households->getDomophone($this->id);
 
         if (!$domophone) {
-            echo 'Domophone not found' . PHP_EOL;
-
+            file_logger('intercom')->debug('Domophone not found', ['id' => $this->id]);
             return false;
         }
 
@@ -47,7 +46,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $this->id, 'output' => '0']);
 
         if (!$entrances) {
-            echo 'This domophone is not linked with any entrance' . PHP_EOL;
+            file_logger('intercom')->debug('This domophone is not linked with any entrance', ['id' => $this->id]);
 
             return false;
         }
@@ -90,7 +89,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             return true;
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            file_logger('intercom')->error($throwable, ['id' => $this->id]);
 
             if ($throwable instanceof HttpException)
                 throw $throwable;
