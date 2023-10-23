@@ -65,7 +65,10 @@ class InternalRoleFeature extends RoleFeature
         $role->title = $title;
         $role->description = $description;
 
-        container(RoleRepository::class)->insertAndRefresh($role);
+        $repository = container(RoleRepository::class);
+
+        $repository->insert($role);
+        $repository->refresh($role);
 
         return $role;
     }
@@ -82,7 +85,10 @@ class InternalRoleFeature extends RoleFeature
         $role->title = $title;
         $role->description = $description;
 
-        container(RoleRepository::class)->updateAndRefresh($role);
+        $repository = container(RoleRepository::class);
+
+        $repository->update($role);
+        $repository->refresh($role);
 
         return $role;
     }
