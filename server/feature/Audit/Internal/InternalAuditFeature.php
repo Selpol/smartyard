@@ -12,57 +12,6 @@ use Selpol\Validator\Exception\ValidatorException;
 
 class InternalAuditFeature extends AuditFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function audits(int $userId, ?string $auditableId, ?string $auditableType, ?string $eventIp, ?string $eventType, ?string $eventTarget, ?string $eventCode, ?string $eventMessage, ?int $page, ?int $size): ?array
-    {
-        $query = 'SELECT * FROM audit WHERE user_id = :user_id';
-        $params = ['user_id' => $userId];
-
-        if ($auditableId) {
-            $query .= ' AND auditable_id = :auditable_id';
-            $params['auditable_id'] = $auditableId;
-        }
-
-        if ($auditableType) {
-            $query .= ' AND auditable_type = :auditable_type';
-            $params['auditable_type'] = $auditableType;
-        }
-
-        if ($eventIp) {
-            $query .= ' AND event_ip = :event_ip';
-            $params['event_ip'] = $eventIp;
-        }
-
-        if ($eventType) {
-            $query .= ' AND event_type = :event_type';
-            $params['event_type'] = $eventType;
-        }
-
-        if ($eventTarget) {
-            $query .= ' AND event_target LIKE :event_target';
-            $params['event_target'] = $eventTarget;
-        }
-
-        if ($eventCode) {
-            $query .= ' AND event_code = :event_code';
-            $params['event_code'] = $eventCode;
-        }
-
-        if ($eventMessage) {
-            $query .= ' AND event_message LIKE :event_message';
-            $params['event_message'] = $eventMessage;
-        }
-
-        $query .= ' ORDER BY created_at DESC';
-
-        if ($page !== null && $size && $size > 0)
-            $query .= ' LIMIT ' . $size . ' OFFSET ' . ($page * $size);
-
-        return container(AuditRepository::class)->fetchAllRaw($query, $params);
-    }
-
     public function canAudit(): bool
     {
         return container(AuthService::class)->getUser()?->canScope() === true;

@@ -3,14 +3,14 @@
 namespace Selpol\Controller\Api\accounts;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Entity\Repository\AuditRepository;
 
 class audit extends Api
 {
     public static function GET(array $params): array
     {
         $validate = validator($params, [
-            'userId' => rule()->id(),
+            'userId' => rule()->int()->clamp(0),
 
             'auditableId' => rule()->string()->max(1024),
             'auditableType' => rule()->string()->max(1024),
@@ -25,12 +25,19 @@ class audit extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $audits = container(AuditFeature::class)->audits($validate['userId'], $validate['auditableId'], $validate['auditableType'], $validate['eventIp'], $validate['eventType'], $validate['eventTarget'], $validate['eventCode'], $validate['eventMessage'], $validate['page'], $validate['size']);
-
-        if ($audits)
-            return Api::SUCCESS('audits', $audits);
-
-        return Api::SUCCESS('audits', []);
+        return self::SUCCESS('audits', container(AuditRepository::class)->fetchPage(
+            $validate['page'],
+            $validate['size'],
+            criteria()
+                ->equal('user_id', $validate['userId'])
+                ->equal('auditable_id', $validate['auditableId'])
+                ->equal('auditable_type', $validate['auditableType'])
+                ->equal('event_ip', $validate['eventIp'])
+                ->equal('event_type', $validate['eventType'])
+                ->like('event_target', $validate['eventTarget'])
+                ->equal('event_code', $validate['eventCode'])
+                ->like('event_message', $validate['eventMessage'])
+        ));
     }
 
     public static function index(): array

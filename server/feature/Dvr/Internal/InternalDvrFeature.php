@@ -49,7 +49,7 @@ class InternalDvrFeature extends DvrFeature
 
     public function getDVRServers(): array
     {
-        return container(DvrServerRepository::class)->fetchAllRaw('SELECT * FROM ' . DvrServer::$table);
+        return container(DvrServerRepository::class)->fetchAll();
     }
 
     public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool
