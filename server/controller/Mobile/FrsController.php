@@ -11,7 +11,7 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
-class FrsController extends Controller
+readonly class FrsController extends Controller
 {
     /**
      * @throws ContainerExceptionInterface

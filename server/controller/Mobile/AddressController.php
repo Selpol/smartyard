@@ -9,7 +9,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 
-class AddressController extends Controller
+readonly class AddressController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

@@ -9,7 +9,7 @@ use Selpol\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
-class ActionController extends Controller
+readonly class ActionController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

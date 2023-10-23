@@ -9,7 +9,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Http\Response;
 
-class UserController extends Controller
+readonly class UserController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

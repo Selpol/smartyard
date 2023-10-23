@@ -13,7 +13,7 @@ use Selpol\Http\Response;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 
-class FrsController extends Controller
+readonly class FrsController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

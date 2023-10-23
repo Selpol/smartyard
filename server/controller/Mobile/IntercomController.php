@@ -13,7 +13,7 @@ use Selpol\Http\Response;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
-class IntercomController extends Controller
+readonly class IntercomController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

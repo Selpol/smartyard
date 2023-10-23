@@ -8,7 +8,7 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Http\Response;
 
-class InboxController extends Controller
+readonly class InboxController extends Controller
 {
     /**
      * @throws ContainerExceptionInterface

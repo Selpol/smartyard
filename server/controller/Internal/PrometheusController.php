@@ -11,7 +11,7 @@ use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
-class PrometheusController extends Controller
+readonly class PrometheusController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

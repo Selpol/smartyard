@@ -11,7 +11,7 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
-class CameraController extends Controller
+readonly class CameraController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

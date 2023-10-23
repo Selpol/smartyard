@@ -10,7 +10,7 @@ use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 
-class Controller
+readonly class Controller
 {
     protected ServerRequest $request;
 

@@ -9,7 +9,7 @@ use Selpol\Http\Response;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
-class CallController extends Controller
+readonly class CallController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

@@ -9,7 +9,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Http\Response;
 use Selpol\Task\Tasks\RecordTask;
 
-class ArchiveController extends Controller
+readonly class ArchiveController extends Controller
 {
     /**
      * @throws NotFoundExceptionInterface

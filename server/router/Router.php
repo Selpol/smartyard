@@ -4,9 +4,9 @@ namespace Selpol\Router;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-class Router
+readonly class Router
 {
-    private array $routes = [];
+    private array $routes;
 
     public function __construct(bool $configure = true)
     {
@@ -23,7 +23,7 @@ class Router
 
                 $this->routes = $builder->collect();
             }
-        }
+        } else $this->routes = [];
     }
 
     public function match(ServerRequestInterface $request): ?RouterMatch

@@ -12,7 +12,7 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Http\Response;
 use Throwable;
 
-class PlogController extends Controller
+readonly class PlogController extends Controller
 {
     /**
      * @throws ContainerExceptionInterface

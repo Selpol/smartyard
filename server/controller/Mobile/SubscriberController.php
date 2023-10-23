@@ -9,7 +9,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
-class SubscriberController extends Controller
+readonly class SubscriberController extends Controller
 {
     /**
      * @throws ContainerExceptionInterface
