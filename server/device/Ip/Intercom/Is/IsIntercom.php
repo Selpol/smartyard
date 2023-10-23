@@ -235,7 +235,7 @@ class IsIntercom extends IntercomDevice
     public function setSyslog(string $server, int $port): static
     {
         try {
-            $this->client()->request(
+            $this->client->request(
                 container(HttpService::class)
                     ->createRequest('PUT', $this->uri . '/system/files/rsyslogd.conf')
                     ->withBody(Stream::memory($this->getSyslogConfigHelp($server, $port)))

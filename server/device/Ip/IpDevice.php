@@ -68,7 +68,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers, array_merge($options, $this->requestOptions));
+            $response = $this->client->get($this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''), $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -82,7 +82,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->post($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
+            $response = $this->client->post($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -96,7 +96,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->put($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
+            $response = $this->client->put($this->uri . $endpoint, $body ? (is_string($body) ? $body : json_encode($body)) : null, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
@@ -110,7 +110,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $response = $this->client()->delete($this->uri . $endpoint, $headers, array_merge($options, $this->requestOptions));
+            $response = $this->client->delete($this->uri . $endpoint, $headers, array_merge($options, $this->requestOptions));
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {

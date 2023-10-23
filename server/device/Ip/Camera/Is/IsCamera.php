@@ -15,7 +15,7 @@ class IsCamera extends CameraDevice
     public function getScreenshot(): Stream
     {
         try {
-            return $this->client()->get($this->uri . '/camera/snapshot', ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)])->getBody();
+            return $this->client->get($this->uri . '/camera/snapshot', ['Authorization' => 'Basic ' . base64_encode($this->login . ':' . $this->password)])->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }

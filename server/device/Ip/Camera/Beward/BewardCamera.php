@@ -27,7 +27,7 @@ class BewardCamera extends CameraDevice
     public function getScreenshot(): Stream
     {
         try {
-            return $this->client()->get($this->uri . '/cgi-bin/images_cgi?channel=0', options: $this->requestOptions)->getBody();
+            return $this->client->get($this->uri . '/cgi-bin/images_cgi?channel=0', options: $this->requestOptions)->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }

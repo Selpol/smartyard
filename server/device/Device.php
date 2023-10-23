@@ -10,9 +10,13 @@ abstract class Device
 {
     public readonly Uri $uri;
 
+    protected ClientService $client;
+
     protected function __construct(Uri $uri)
     {
         $this->uri = $uri;
+
+        $this->client = container(ClientService::class);
     }
 
     public function asIp(): ?IpDevice
@@ -21,10 +25,5 @@ abstract class Device
             return $this;
 
         return null;
-    }
-
-    protected function client(): ClientService
-    {
-        return container(ClientService::class);
     }
 }
