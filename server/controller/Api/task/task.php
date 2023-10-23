@@ -21,7 +21,7 @@ class task
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return Api::ANSWER(container(TaskRepository::class)->fetchPage($validate['page'], $validate['size']), 'tasks');
+        return Api::ANSWER(container(TaskRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')), 'tasks');
     }
 
     /**

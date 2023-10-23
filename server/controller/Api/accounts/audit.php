@@ -37,6 +37,7 @@ class audit extends Api
                 ->like('event_target', $validate['eventTarget'])
                 ->equal('event_code', $validate['eventCode'])
                 ->like('event_message', $validate['eventMessage'])
+                ->desc('created_at')
         ));
     }
 
