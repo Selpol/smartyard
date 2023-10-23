@@ -6,7 +6,7 @@ use Exception;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton]
-class ClickhouseService
+readonly class ClickhouseService
 {
     private string $host;
     private int $port;

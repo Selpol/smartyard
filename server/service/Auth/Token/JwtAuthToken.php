@@ -7,7 +7,7 @@ use Selpol\Service\Auth\AuthTokenInterface;
 /**
  * @implements AuthTokenInterface<array>
  */
-class JwtAuthToken implements AuthTokenInterface
+readonly class JwtAuthToken implements AuthTokenInterface
 {
     private array $value;
 

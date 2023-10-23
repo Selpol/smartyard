@@ -7,7 +7,7 @@ use Selpol\Service\Auth\AuthUserInterface;
 /**
  * @implements AuthUserInterface<array>
  */
-class RedisAuthUser implements AuthUserInterface
+readonly class RedisAuthUser implements AuthUserInterface
 {
     private array $value;
 

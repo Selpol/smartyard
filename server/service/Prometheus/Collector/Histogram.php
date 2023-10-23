@@ -7,7 +7,7 @@ use RedisException;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\PrometheusService;
 
-class Histogram extends Collector
+readonly class Histogram extends Collector
 {
     const TYPE = 'histogram';
 

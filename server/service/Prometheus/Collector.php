@@ -2,7 +2,7 @@
 
 namespace Selpol\Service\Prometheus;
 
-abstract class Collector
+readonly abstract class Collector
 {
     const COMMAND_INCREMENT_INTEGER = 1;
     const COMMAND_INCREMENT_FLOAT = 2;

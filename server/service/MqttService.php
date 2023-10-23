@@ -13,7 +13,7 @@ use Selpol\Framework\Container\ContainerDisposeInterface;
 use Throwable;
 
 #[Singleton]
-class MqttService implements ContainerDisposeInterface
+readonly class MqttService implements ContainerDisposeInterface
 {
     private MqttClient $client;
 

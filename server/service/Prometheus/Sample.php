@@ -2,14 +2,14 @@
 
 namespace Selpol\Service\Prometheus;
 
-class Sample
+readonly class Sample
 {
-    public readonly string $name;
+    public string $name;
 
-    public readonly array $labelNames;
-    public readonly array $labelValues;
+    public array $labelNames;
+    public array $labelValues;
 
-    public readonly int|float $value;
+    public int|float $value;
 
     public function __construct(array $value)
     {

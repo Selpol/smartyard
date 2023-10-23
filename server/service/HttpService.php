@@ -20,7 +20,7 @@ use Selpol\Http\UploadedFile;
 use Selpol\Http\Uri;
 
 #[Singleton]
-class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
+readonly class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {
     public function createRequest(string $method, $uri): Request
     {

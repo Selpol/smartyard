@@ -5,7 +5,7 @@ namespace Selpol\Service;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton]
-class FrsService
+readonly class FrsService
 {
     public function request(string $method, string $url, mixed $payload = null, ?string $contentType = null, ?string $token = null): string|bool
     {

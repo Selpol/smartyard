@@ -10,7 +10,7 @@ use Selpol\Http\Response;
 use Selpol\Http\Stream;
 
 #[Singleton]
-class ClientService
+readonly class ClientService
 {
     public function get(string $uri, array $headers = [], array $options = []): Response
     {

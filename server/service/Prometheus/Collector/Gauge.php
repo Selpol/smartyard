@@ -7,7 +7,7 @@ use RedisException;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\PrometheusService;
 
-class Gauge extends Collector
+readonly class Gauge extends Collector
 {
     const TYPE = 'gauge';
 

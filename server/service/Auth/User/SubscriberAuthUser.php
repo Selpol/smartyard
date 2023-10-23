@@ -7,7 +7,7 @@ use Selpol\Service\Auth\AuthUserInterface;
 /**
  * @implements AuthUserInterface<array>
  */
-class SubscriberAuthUser implements AuthUserInterface
+readonly class SubscriberAuthUser implements AuthUserInterface
 {
     private array $value;
 

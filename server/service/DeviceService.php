@@ -12,7 +12,7 @@ use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Http\Uri;
 
 #[Singleton]
-class DeviceService
+readonly class DeviceService
 {
     public function cameraById(int $id): ?CameraDevice
     {

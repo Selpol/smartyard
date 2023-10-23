@@ -7,7 +7,7 @@ use RedisException;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\PrometheusService;
 
-class Counter extends Collector
+readonly class Counter extends Collector
 {
     const TYPE = 'counter';
 

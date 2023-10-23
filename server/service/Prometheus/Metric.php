@@ -2,7 +2,7 @@
 
 namespace Selpol\Service\Prometheus;
 
-class Metric
+readonly class Metric
 {
     public string $name;
     public string $type;
@@ -12,7 +12,7 @@ class Metric
     public array $labelNames;
 
     /** @var Sample[] */
-    public array $samples = [];
+    public array $samples;
 
     public function __construct(array $value)
     {
@@ -22,7 +22,11 @@ class Metric
 
         $this->labelNames = $value['labelNames'];
 
+        $result = [];
+
         foreach ($value['samples'] as $sample)
-            $this->samples[] = new Sample($sample);
+            $result[] = new Sample($sample);
+
+        $this->samples = $result;
     }
 }
