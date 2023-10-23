@@ -3,6 +3,8 @@
 namespace Selpol\Feature\Role\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\SimpleCache\InvalidArgumentException;
+use Selpol\Cache\RedisCache;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
 use Selpol\Entity\Repository\PermissionRepository;
@@ -140,19 +142,22 @@ class InternalRoleFeature extends RoleFeature
 
     /**
      * @throws NotFoundExceptionInterface
+     * @throws InvalidArgumentException
      */
     public function getAllPermissionsForUser(int $userId): array
     {
         if ($userId === 0)
             return ['*'];
 
-        $result = $this->findPermissionsForUser($userId);
-        $roles = $this->findRolesForUser($userId);
+        return container(RedisCache::class)->cache('user:' . $userId . ':permission', static function () use ($userId) {
+            $result = $this->findPermissionsForUser($userId);
+            $roles = $this->findRolesForUser($userId);
 
-        foreach ($roles as $role)
-            $result = array_merge($result, $this->findPermissionsForRole($role->id));
+            foreach ($roles as $role)
+                $result = array_merge($result, $this->findPermissionsForRole($role->id));
 
-        return array_map(static fn(Permission $permission) => $permission->title, $result);
+            return array_unique(array_map(static fn(Permission $permission) => $permission->title, $result));
+        }, 60);
     }
 
     public function getDefaultPermissions(): array
