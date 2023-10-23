@@ -8,7 +8,7 @@ use Selpol\Feature\File\Mongo\MongoFileFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(MongoFileFeature::class)]
-abstract class FileFeature extends Feature
+readonly abstract class FileFeature extends Feature
 {
     /**
      * @param string $realFileName

@@ -8,7 +8,7 @@ use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalAuditFeature::class)]
-abstract class AuditFeature extends Feature
+readonly abstract class AuditFeature extends Feature
 {
     public abstract function canAudit(): bool;
 

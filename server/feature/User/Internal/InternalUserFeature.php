@@ -7,7 +7,7 @@ use Selpol\Feature\User\UserFeature;
 use Selpol\Service\AuthService;
 use Throwable;
 
-class InternalUserFeature extends UserFeature
+readonly class InternalUserFeature extends UserFeature
 {
     public function getUsers(): bool|array
     {

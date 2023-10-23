@@ -12,7 +12,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 
 #[Singleton(InternalAuthenticationFeature::class)]
-abstract class AuthenticationFeature extends Feature
+readonly abstract class AuthenticationFeature extends Feature
 {
     abstract public function checkAuth(string $login, string $password): int|bool;
 

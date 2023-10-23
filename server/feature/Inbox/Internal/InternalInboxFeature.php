@@ -6,7 +6,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Push\PushFeature;
 
-class InternalInboxFeature extends InboxFeature
+readonly class InternalInboxFeature extends InboxFeature
 {
     public function sendMessageToFlat(int $flatId, string $title, string $msg, string $action = 'inbox'): void
     {

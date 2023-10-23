@@ -10,7 +10,7 @@ use Selpol\Http\ServerRequest;
 use Selpol\Service\AuthService;
 use Selpol\Validator\Exception\ValidatorException;
 
-class InternalAuditFeature extends AuditFeature
+readonly class InternalAuditFeature extends AuditFeature
 {
     public function canAudit(): bool
     {

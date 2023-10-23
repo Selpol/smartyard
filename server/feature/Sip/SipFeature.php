@@ -8,7 +8,7 @@ use Selpol\Feature\Sip\Internal\InternalSipFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalSipFeature::class)]
-abstract class SipFeature extends Feature
+readonly abstract class SipFeature extends Feature
 {
     /**
      * @param string $by

@@ -14,7 +14,7 @@ use Selpol\Task\Tasks\Plog\PlogCallTask;
 use Selpol\Task\Tasks\Plog\PlogOpenTask;
 use Throwable;
 
-class ClickHousePlogFeature extends PlogFeature
+readonly class ClickHousePlogFeature extends PlogFeature
 {
     private ClickhouseService $clickhouse;
 

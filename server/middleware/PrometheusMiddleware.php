@@ -10,7 +10,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use RedisException;
 use Selpol\Service\PrometheusService;
 
-class PrometheusMiddleware implements MiddlewareInterface
+readonly class PrometheusMiddleware implements MiddlewareInterface
 {
     /**
      * @throws NotFoundExceptionInterface|RedisException

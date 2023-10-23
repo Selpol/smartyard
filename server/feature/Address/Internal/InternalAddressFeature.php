@@ -6,7 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use Selpol\Feature\Address\AddressFeature;
 
-class InternalAddressFeature extends AddressFeature
+readonly class InternalAddressFeature extends AddressFeature
 {
     function getRegions(): bool|array
     {

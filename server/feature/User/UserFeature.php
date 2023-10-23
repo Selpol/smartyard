@@ -7,7 +7,7 @@ use Selpol\Feature\User\Internal\InternalUserFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalUserFeature::class)]
-abstract class UserFeature extends Feature
+readonly abstract class UserFeature extends Feature
 {
     abstract public function getUsers(): bool|array;
 

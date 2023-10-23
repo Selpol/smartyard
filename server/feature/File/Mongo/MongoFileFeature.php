@@ -8,7 +8,7 @@ use MongoDB\Client;
 use MongoDB\UpdateResult;
 use Selpol\Feature\File\FileFeature;
 
-class MongoFileFeature extends FileFeature
+readonly class MongoFileFeature extends FileFeature
 {
     private Client $mongo;
     private string $dbName;

@@ -10,7 +10,7 @@ use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Validator\Exception\ValidatorException;
 
-class InternalTaskFeature extends TaskFeature
+readonly class InternalTaskFeature extends TaskFeature
 {
     /**
      * @throws NotFoundExceptionInterface

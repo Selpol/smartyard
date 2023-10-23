@@ -5,7 +5,7 @@ namespace Selpol\Feature\Camera\Internal;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Feature\Camera\CameraFeature;
 
-class InternalCameraFeature extends CameraFeature
+readonly class InternalCameraFeature extends CameraFeature
 {
     public function getCameras(string|bool $by = false, $params = false): bool|array
     {

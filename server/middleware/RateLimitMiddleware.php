@@ -12,7 +12,7 @@ use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
 
-class RateLimitMiddleware implements MiddlewareInterface
+readonly class RateLimitMiddleware implements MiddlewareInterface
 {
     private array $trust;
 

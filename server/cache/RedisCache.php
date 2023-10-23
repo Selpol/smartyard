@@ -12,7 +12,7 @@ use Selpol\Service\RedisService;
 use Throwable;
 
 #[Singleton]
-class RedisCache implements CacheInterface
+readonly class RedisCache implements CacheInterface
 {
     use CacheTrait;
 

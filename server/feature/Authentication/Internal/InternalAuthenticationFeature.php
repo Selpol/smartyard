@@ -5,7 +5,7 @@ namespace Selpol\Feature\Authentication\Internal;
 use PDO;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 
-class InternalAuthenticationFeature extends AuthenticationFeature
+readonly class InternalAuthenticationFeature extends AuthenticationFeature
 {
     public function checkAuth(string $login, string $password): int|bool
     {

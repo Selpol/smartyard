@@ -4,7 +4,7 @@ namespace Selpol\Runner\Trait;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Device\Exception\DeviceException;
-use Selpol\Entity\Exception\EntityException;
+use Selpol\Framework\Entity\Exception\EntityException;
 use Selpol\Http\Exception\HttpException;
 use Selpol\Http\Response;
 use Selpol\Service\HttpService;
@@ -28,7 +28,7 @@ trait ResponseTrait
                 else
                     $response = $this->response(500)->withStatusJson('Устройство не доступно');
             } else if ($throwable instanceof EntityException)
-                $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
+                $response = $this->response($throwable->getCode())->withStatusJson($throwable->getLocalizedMessage());
             else {
                 file_logger('response')->error($throwable);
 

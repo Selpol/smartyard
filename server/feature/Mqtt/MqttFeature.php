@@ -8,7 +8,7 @@ use Selpol\Framework\Container\Attribute\Singleton;
 use SensitiveParameter;
 
 #[Singleton(InternalMqttFeature::class)]
-abstract class MqttFeature extends Feature
+readonly abstract class MqttFeature extends Feature
 {
     public abstract function checkUser(string $username, #[SensitiveParameter] string $password, string $clientId): bool;
 

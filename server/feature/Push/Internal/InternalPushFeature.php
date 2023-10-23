@@ -4,7 +4,7 @@ namespace Selpol\Feature\Push\Internal;
 
 use Selpol\Feature\Push\PushFeature;
 
-class InternalPushFeature extends PushFeature
+readonly class InternalPushFeature extends PushFeature
 {
     public function push(array $push): bool|string
     {

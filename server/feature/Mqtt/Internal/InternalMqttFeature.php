@@ -7,7 +7,7 @@ use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Service\RedisService;
 use SensitiveParameter;
 
-class InternalMqttFeature extends MqttFeature
+readonly class InternalMqttFeature extends MqttFeature
 {
     /**
      * @throws RedisException

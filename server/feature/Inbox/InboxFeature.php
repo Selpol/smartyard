@@ -7,7 +7,7 @@ use Selpol\Feature\Inbox\Internal\InternalInboxFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalInboxFeature::class)]
-abstract class InboxFeature extends Feature
+readonly abstract class InboxFeature extends Feature
 {
     public abstract function sendMessageToFlat(int $flatId, string $title, string $msg, string $action = 'inbox'): void;
 

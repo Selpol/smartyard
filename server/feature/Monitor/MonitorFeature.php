@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Feature\Monitor;
 
@@ -7,7 +7,7 @@ use Selpol\Feature\Monitor\Internal\InternalMonitorFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalMonitorFeature::class)]
-abstract class MonitorFeature extends Feature
+readonly abstract class MonitorFeature extends Feature
 {
     public abstract function ping(int $id): bool;
 

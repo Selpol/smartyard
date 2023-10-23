@@ -12,7 +12,7 @@ use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 
-class JwtMiddleware implements MiddlewareInterface
+readonly class JwtMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

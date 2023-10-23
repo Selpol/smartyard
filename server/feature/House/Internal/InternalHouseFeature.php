@@ -10,7 +10,7 @@ use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Oauth\OauthFeature;
 use Throwable;
 
-class InternalHouseFeature extends HouseFeature
+readonly class InternalHouseFeature extends HouseFeature
 {
     public function getFlatPlog(int $flatId): ?int
     {

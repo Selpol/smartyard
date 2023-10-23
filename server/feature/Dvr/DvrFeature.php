@@ -8,7 +8,7 @@ use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalDvrFeature::class)]
-abstract class DvrFeature extends Feature
+readonly abstract class DvrFeature extends Feature
 {
     public abstract function getDVRServerByStream(string $url): DvrServer;
 

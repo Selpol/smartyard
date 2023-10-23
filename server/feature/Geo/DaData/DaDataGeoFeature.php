@@ -5,7 +5,7 @@ namespace Selpol\Feature\Geo\DaData;
 use Selpol\Feature\Geo\GeoFeature;
 use Throwable;
 
-class DaDataGeoFeature extends GeoFeature
+readonly class DaDataGeoFeature extends GeoFeature
 {
     public function suggestions(string $search): bool|array
     {

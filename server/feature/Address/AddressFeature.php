@@ -7,7 +7,7 @@ use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalAddressFeature::class)]
-abstract class AddressFeature extends Feature
+readonly abstract class AddressFeature extends Feature
 {
     abstract function getRegions(): bool|array;
 

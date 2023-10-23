@@ -2,11 +2,10 @@
 
 namespace Selpol\Feature;
 
-use Selpol\Service\Database\Manager;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 
-abstract class Feature
+readonly abstract class Feature
 {
     protected function getDatabase(): DatabaseService
     {

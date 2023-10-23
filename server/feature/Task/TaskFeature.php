@@ -8,7 +8,7 @@ use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Task\Task;
 
 #[Singleton(InternalTaskFeature::class)]
-abstract class TaskFeature extends Feature
+readonly abstract class TaskFeature extends Feature
 {
     public abstract function add(Task $task, string $message, int $status): void;
 

@@ -5,7 +5,7 @@ namespace Selpol\Feature\Sip\Internal;
 use Selpol\Entity\Repository\Sip\SipServerRepository;
 use Selpol\Feature\Sip\SipFeature;
 
-class InternalSipFeature extends SipFeature
+readonly class InternalSipFeature extends SipFeature
 {
     public function server(string $by, string|int|null $query = null): array
     {

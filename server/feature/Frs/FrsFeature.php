@@ -8,7 +8,7 @@ use Selpol\Feature\Frs\Internal\InternalFrsFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalFrsFeature::class)]
-abstract class FrsFeature extends Feature
+readonly abstract class FrsFeature extends Feature
 {
     //FRS params names
     const P_CODE = "code";

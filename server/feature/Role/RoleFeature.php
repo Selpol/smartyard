@@ -9,7 +9,7 @@ use Selpol\Feature\Role\Internal\InternalRoleFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalRoleFeature::class)]
-abstract class RoleFeature extends Feature
+readonly abstract class RoleFeature extends Feature
 {
     /**
      * @return array<Role>

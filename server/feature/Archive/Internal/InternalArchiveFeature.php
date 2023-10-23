@@ -8,7 +8,7 @@ use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Throwable;
 
-class InternalArchiveFeature extends ArchiveFeature
+readonly class InternalArchiveFeature extends ArchiveFeature
 {
     public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string
     {

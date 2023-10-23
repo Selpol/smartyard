@@ -11,7 +11,7 @@ use Selpol\Service\Auth\User\SubscriberAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\HttpService;
 
-class MobileMiddleware implements MiddlewareInterface
+readonly class MobileMiddleware implements MiddlewareInterface
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

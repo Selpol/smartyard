@@ -28,8 +28,6 @@ return [
     ],
 
     'internal' => [
-        'logger' => env('INTERNAL_LOGGER', false),
-
         'trust' => explode(',', env('INTERNAL_TRUST', '127.0.0.1/32'))
     ],
 

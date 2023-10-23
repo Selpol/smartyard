@@ -12,7 +12,7 @@ use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Validator\Exception\ValidatorException;
 
-class InternalRoleFeature extends RoleFeature
+readonly class InternalRoleFeature extends RoleFeature
 {
     /**
      * @throws NotFoundExceptionInterface

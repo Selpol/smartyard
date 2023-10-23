@@ -7,7 +7,7 @@ use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalCameraFeature::class)]
-abstract class CameraFeature extends Feature
+readonly abstract class CameraFeature extends Feature
 {
     abstract public function getCameras(string|bool $by = false, mixed $params = false): array|bool;
 

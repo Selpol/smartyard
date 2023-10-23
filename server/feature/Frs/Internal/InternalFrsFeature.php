@@ -11,7 +11,7 @@ use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 
-class InternalFrsFeature extends FrsFeature
+readonly class InternalFrsFeature extends FrsFeature
 {
     private LoggerInterface $logger;
 

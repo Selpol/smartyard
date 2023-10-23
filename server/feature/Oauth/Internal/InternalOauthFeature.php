@@ -4,7 +4,7 @@ namespace Selpol\Feature\Oauth\Internal;
 
 use Selpol\Feature\Oauth\OauthFeature;
 
-class InternalOauthFeature extends OauthFeature
+readonly class InternalOauthFeature extends OauthFeature
 {
     public function validateJwt(string $value): ?array
     {

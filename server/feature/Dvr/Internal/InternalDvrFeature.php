@@ -6,7 +6,7 @@ use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Feature\Dvr\DvrFeature;
 
-class InternalDvrFeature extends DvrFeature
+readonly class InternalDvrFeature extends DvrFeature
 {
     public function getDVRServerByStream(string $url): DvrServer
     {

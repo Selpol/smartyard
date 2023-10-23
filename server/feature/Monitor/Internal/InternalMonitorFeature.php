@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Feature\Monitor\Internal;
 
@@ -6,7 +6,7 @@ use Selpol\Cache\RedisCache;
 use Selpol\Feature\Monitor\MonitorFeature;
 use Throwable;
 
-class InternalMonitorFeature extends MonitorFeature
+readonly class InternalMonitorFeature extends MonitorFeature
 {
     public function ping(int $id): bool
     {

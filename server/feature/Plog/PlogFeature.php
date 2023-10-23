@@ -7,7 +7,7 @@ use Selpol\Feature\Plog\ClickHouse\ClickHousePlogFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(ClickHousePlogFeature::class)]
-abstract class PlogFeature extends Feature
+readonly abstract class PlogFeature extends Feature
 {
     //типы событий
     const EVENT_UNANSWERED_CALL = 1;

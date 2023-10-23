@@ -4,7 +4,7 @@ namespace Selpol\Router;
 
 use Selpol\Validator\Exception\ValidatorException;
 
-class RouterMatch
+readonly class RouterMatch
 {
     private string $class;
     private string $method;
