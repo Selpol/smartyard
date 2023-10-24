@@ -41,6 +41,6 @@ if (!function_exists('json_response')) {
     {
         return http()->createResponse()
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(http()->createStream(json_encode($body)));
+            ->withBody(http()->createStream(json_encode($body, JSON_UNESCAPED_UNICODE)));
     }
 }
