@@ -99,14 +99,14 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     {
         $this->setProgress(5);
 
-        $ntps = config_get('ntp_servers');
+        $ntps = config('ntp_servers');
 
         $ntp = new Uri($ntps[array_rand($ntps)]);
 
         $ntp_server = $ntp->getHost();
         $ntp_port = $ntp->getPort() ?? 123;
 
-        $syslogs = config_get('syslog_servers')[$domophone['json']['syslog']];
+        $syslogs = config('syslog_servers')[$domophone['json']['syslog']];
 
         $syslog = new Uri($syslogs[array_rand($syslogs)]);
 

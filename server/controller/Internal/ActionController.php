@@ -168,7 +168,7 @@ readonly class ActionController extends Controller
                 'username' => $config['username'],
                 'password' => $config['password'],
             ],
-            'hw' => config_get('syslog_servers')
+            'hw' => config('syslog_servers')
         ]);
     }
 }

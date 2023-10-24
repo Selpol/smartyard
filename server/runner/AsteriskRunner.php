@@ -29,7 +29,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     function run(array $arguments): int
     {
-        $asterisk = config_get('asterisk');
+        $asterisk = config('asterisk');
 
         $ip = $_SERVER['REMOTE_ADDR'];
 

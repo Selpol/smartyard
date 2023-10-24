@@ -22,7 +22,7 @@ readonly class MqttService implements ContainerDisposeInterface
      */
     public function __construct()
     {
-        $config = config_get('mqtt');
+        $config = config('mqtt');
 
         $this->client = new MqttClient($config['host'], intval($config['port']));
     }
@@ -59,7 +59,7 @@ readonly class MqttService implements ContainerDisposeInterface
     private function connect(): void
     {
         if (!$this->client->isConnected()) {
-            $config = config_get('mqtt');
+            $config = config('mqtt');
 
             $this->client->connect((new ConnectionSettings())->setUsername($config['username'])->setPassword($config['password']));
         }

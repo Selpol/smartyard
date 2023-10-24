@@ -18,7 +18,7 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
             return $this->bad();
 
-        $mqtt = config_get('mqtt');
+        $mqtt = config('mqtt');
 
         $ip = $_SERVER['REMOTE_ADDR'];
 
