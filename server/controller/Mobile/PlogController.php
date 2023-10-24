@@ -155,7 +155,7 @@ readonly class PlogController extends Controller
     {
         $file = container(FileFeature::class);
 
-        $uuid = $file->fromGUIDv4($this->getRoute()->getParam('uuid'));
+        $uuid = $file->fromGUIDv4($this->route->getParam('uuid'));
 
         return http()->createResponse()
             ->withHeader('Content-Type', 'image/jpeg')

@@ -104,7 +104,7 @@ readonly class IntercomController extends Controller
         $result = [];
 
         $result['allowDoorCode'] = true;
-        $result['doorCode'] = @$flat['openCode'] ?: '00000'; // TODO: разобраться с тем, как работает отключение кода
+        $result['doorCode'] = @$flat['openCode'] ?: '00000';
         $result['CMS'] = (bool)(@$flat['cmsEnabled']);
         $result['VoIP'] = (bool)(@$subscriber['voipEnabled']);
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
