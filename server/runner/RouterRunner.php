@@ -69,9 +69,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
                 return $this->rbtResponse(500);
 
             $class = $route->getClass();
-            $instance = new $class($request);
+            $instance = new $class($route);
 
-            return $instance->{$route->getMethod()}($route);
+            return $instance->{$route->getMethod()}();
         }
 
         /** @var MiddlewareInterface $middleware */
