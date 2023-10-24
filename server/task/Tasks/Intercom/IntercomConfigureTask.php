@@ -87,6 +87,15 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $device->deffer();
 
+            $syslogs = config('syslog_servers')[$domophone['json']['syslog']];
+
+            $syslog = new Uri($syslogs[array_rand($syslogs)]);
+
+            $syslog_server = $syslog->getHost();
+            $syslog_port = $syslog->getPort() ?? 514;
+
+            $device->setSyslog($syslog_server, $syslog_port);
+
             return true;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable, ['id' => $this->id]);
@@ -106,20 +115,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $ntp_server = $ntp->getHost();
         $ntp_port = $ntp->getPort() ?? 123;
 
-        $syslogs = config('syslog_servers')[$domophone['json']['syslog']];
-
-        $syslog = new Uri($syslogs[array_rand($syslogs)]);
-
-        $syslog_server = $syslog->getHost();
-        $syslog_port = $syslog->getPort() ?? 514;
-
         $sip_username = sprintf("1%05d", $domophone['domophoneId']);
         $sip_server = $asterisk_server->internal_ip;
         $sip_port = 5060;
 
         $main_door_dtmf = $domophone['dtmf'];
 
-        $device->clean($sip_server, $ntp_server, $syslog_server, $sip_username, $sip_port, $ntp_port, $syslog_port, $main_door_dtmf, $cms_levels, $cms_model);
+        $device->clean($sip_server, $ntp_server, $sip_username, $sip_port, $ntp_port, $main_door_dtmf, $cms_levels, $cms_model);
 
         $this->setProgress(25);
     }

@@ -225,9 +225,8 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
-    public function clean(string $sip_server, string $ntp_server, string $syslog_server, string $sip_username, int $sip_port, int $ntp_port, int $syslog_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
+    public function clean(string $sip_server, string $ntp_server, string $sip_username, int $sip_port, int $ntp_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
     {
-        $this->setSyslog($syslog_server, $syslog_port);
         $this->setUnlockTime(5);
         $this->setPublicCode(0);
         $this->setCallTimeout(45);
