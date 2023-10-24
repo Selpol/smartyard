@@ -4,8 +4,7 @@ namespace Selpol\Controller\Api\addresses;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\File\FileFeature;
-use Selpol\Http\Response;
-use Selpol\Service\HttpService;
+use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\QrTask;
 
 class qr extends Api
@@ -16,8 +15,8 @@ class qr extends Api
 
         $uuid = task(new QrTask($validate['_id'], null, $validate['override']))->sync();
 
-        $response = container(HttpService::class)->createResponse();
-        $response->withBody(container(HttpService::class)->createStreamFromResource(container(FileFeature::class)->getFileStream($uuid)));
+        $response = http()->createResponse();
+        $response->withBody(http()->createStreamFromResource(container(FileFeature::class)->getFileStream($uuid)));
 
         return $response
             ->withHeader('Content-Type', 'application/zip')

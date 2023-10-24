@@ -7,7 +7,6 @@ use Selpol\Feature\House\HouseFeature;
 
 class cameras extends Api
 {
-
     public static function POST(array $params): array
     {
         $households = container(HouseFeature::class);

@@ -4,8 +4,8 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
@@ -54,7 +54,7 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
             return;
 
         if (!$device->ping())
-            throw new HttpException(message: 'Устройство не доступно');
+            throw new DeviceException($device, message: 'Устройство не доступно');
 
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 

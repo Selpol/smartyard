@@ -3,8 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom\Key;
 
 use RuntimeException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -50,13 +50,10 @@ class IntercomAddKeyTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $device->addRfid($this->key, $flat);
         } catch (Throwable $throwable) {
-            if ($throwable instanceof HttpException)
-                throw $throwable;
-
             file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);

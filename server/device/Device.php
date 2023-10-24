@@ -3,20 +3,20 @@
 namespace Selpol\Device;
 
 use Selpol\Device\Ip\IpDevice;
-use Selpol\Http\Uri;
-use Selpol\Service\ClientService;
+use Selpol\Framework\Client\Client;
+use Selpol\Framework\Http\Uri;
 
 abstract class Device
 {
     public readonly Uri $uri;
 
-    protected ClientService $client;
+    protected readonly Client $client;
 
     protected function __construct(Uri $uri)
     {
         $this->uri = $uri;
 
-        $this->client = container(ClientService::class);
+        $this->client = container(Client::class);
     }
 
     public function asIp(): ?IpDevice

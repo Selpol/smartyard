@@ -3,14 +3,14 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
-use Selpol\Http\Exception\HttpException;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 use Selpol\Service\DeviceService;
 use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
@@ -64,7 +64,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 return false;
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);
@@ -90,9 +90,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return true;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable, ['id' => $this->id]);
-
-            if ($throwable instanceof HttpException)
-                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

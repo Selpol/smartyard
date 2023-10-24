@@ -9,7 +9,6 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\Auth\User\SubscriberAuthUser;
 use Selpol\Service\AuthService;
-use Selpol\Service\HttpService;
 
 readonly class MobileMiddleware implements MiddlewareInterface
 {
@@ -22,7 +21,7 @@ readonly class MobileMiddleware implements MiddlewareInterface
         $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $token->getOriginalValue()['scopes'][1]);
 
         if (!$subscribers || count($subscribers) === 0)
-            return container(HttpService::class)->createResponse(401)->withJson(['code' => 401, 'message' => 'Абонент не найден']);
+            return json_response(['code' => 401, 'message' => 'Абонент не найден'])->withStatus(401);
 
         $auth->setUser(new SubscriberAuthUser($subscribers[0]));
 

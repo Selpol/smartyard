@@ -3,7 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
-use Selpol\Http\Exception\HttpException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -32,13 +32,10 @@ class IntercomDeleteFlatTask extends Task
             $device = intercom($intercom);
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $device->removeApartment($apartment);
         } catch (Throwable $throwable) {
-            if ($throwable instanceof HttpException)
-                throw $throwable;
-
             file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);

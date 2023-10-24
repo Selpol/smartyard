@@ -5,7 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use Selpol\Controller\Controller;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
@@ -19,7 +19,7 @@ readonly class CallController extends Controller
     {
         $this->getUser();
 
-        $hash = $this->getRoute()->getParam('hash');
+        $hash = $this->route->getParam('hash');
 
         if ($hash === null)
             return $this->rbtResponse(400, message: 'Не указан обязательный параметр');
@@ -27,7 +27,9 @@ readonly class CallController extends Controller
         $image = container(RedisService::class)->getConnection()->get('shot_' . $hash);
 
         if ($image !== false)
-            return $this->response()->withString($image)->withHeader('Content-Type', 'image/jpeg');
+            return http()->createResponse()
+                ->withHeader('Content-Type', 'image/jpeg')
+                ->withBody(http()->createStream($image));
 
         return $this->rbtResponse(404, message: 'Скриншот не найден');
     }
@@ -40,7 +42,7 @@ readonly class CallController extends Controller
     {
         $this->getUser();
 
-        $hash = $this->getRoute()->getParam('hash');
+        $hash = $this->route->getParam('hash');
 
         if ($hash === null)
             return $this->rbtResponse(404, message: 'Не указан обязательный параметр');
@@ -53,6 +55,6 @@ readonly class CallController extends Controller
         if (!$model)
             return $this->rbtResponse(404, message: 'Камера не найдена');
 
-        return $this->response()->withBody($model->getScreenshot())->withHeader('Content-Type', 'image/jpeg');
+        return http()->createResponse()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
     }
 }

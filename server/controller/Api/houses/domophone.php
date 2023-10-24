@@ -3,10 +3,10 @@
 namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
 class domophone extends Api
@@ -113,7 +113,7 @@ class domophone extends Api
         $device = intercom($id);
 
         if (!$device->ping())
-            throw new HttpException(message: 'Устройство не доступно');
+            throw new DeviceException($device, message: 'Устройство не доступно');
 
         $device->unlock($value);
     }

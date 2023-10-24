@@ -12,16 +12,32 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use RuntimeException;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Http\Request;
-use Selpol\Http\Response;
-use Selpol\Http\ServerRequest;
-use Selpol\Http\Stream;
-use Selpol\Http\UploadedFile;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Request;
+use Selpol\Framework\Http\Response;
+use Selpol\Framework\Http\ServerRequest;
+use Selpol\Framework\Http\Stream;
+use Selpol\Framework\Http\UploadedFile;
+use Selpol\Framework\Http\Uri;
 
 #[Singleton]
 readonly class HttpService implements RequestFactoryInterface, ResponseFactoryInterface, ServerRequestFactoryInterface, StreamFactoryInterface, UploadedFileFactoryInterface, UriFactoryInterface
 {
+    public function getParsedBody(Stream $body, ?array $contentType = null): mixed
+    {
+        $contents = $body->getContents();
+
+        if ($contents) {
+            if ($contentType && in_array('application/xml', $contentType)) {
+                if (str_starts_with($contents, '<') && str_ends_with($contents, '>'))
+                    return json_decode(json_encode(simplexml_load_string($contents)), true);
+                else if (str_starts_with($contents, '{') && str_ends_with($contents, '}'))
+                    return json_decode($contents, true);
+            } else return json_decode($contents, true);
+        }
+
+        return null;
+    }
+
     public function createRequest(string $method, $uri): Request
     {
         return new Request($method, $uri);

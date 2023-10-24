@@ -6,7 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Model\Audit;
 use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Http\ServerRequest;
+use Selpol\Framework\Http\ServerRequest;
 use Selpol\Service\AuthService;
 use Selpol\Validator\Exception\ValidatorException;
 

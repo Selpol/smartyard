@@ -3,8 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
@@ -38,7 +38,7 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             $this->setProgress(25);
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $this->setProgress(50);
 
@@ -68,9 +68,6 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             }
             return true;
         } catch (Throwable $throwable) {
-            if ($throwable instanceof HttpException)
-                throw $throwable;
-
             file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);

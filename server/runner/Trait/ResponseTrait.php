@@ -5,9 +5,9 @@ namespace Selpol\Runner\Trait;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Entity\Exception\EntityException;
-use Selpol\Http\Exception\HttpException;
-use Selpol\Http\Response;
-use Selpol\Service\HttpService;
+use Selpol\Framework\Http\Exception\HttpException;
+use Selpol\Framework\Http\Response;
+use Selpol\Service\Exception\AuthException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -17,22 +17,24 @@ trait ResponseTrait
     {
         try {
             if ($throwable instanceof HttpException)
-                $response = $this->response($throwable->getCode())->withStatusJson($throwable->getMessage());
+                $response = $this->rbtResponse($throwable->getCode(), $throwable->getMessage());
             else if ($throwable instanceof ValidatorException)
-                $response = $this->response(400)->withStatusJson($throwable->getValidatorMessage()->message);
+                $response = $this->rbtResponse(400, $throwable->getValidatorMessage()->message);
             else if ($throwable instanceof DeviceException) {
                 file_logger('device')->error($throwable);
 
                 if ($throwable->getDevice()->asIp()?->ping())
-                    $response = $this->response(500)->withStatusJson('Ошибка взаимодействия с устройством');
+                    $response = $this->rbtResponse(500, 'Ошибка взаимодействия с устройством');
                 else
-                    $response = $this->response(500)->withStatusJson('Устройство не доступно');
+                    $response = $this->rbtResponse(500, 'Устройство не доступно');
             } else if ($throwable instanceof EntityException)
-                $response = $this->response($throwable->getCode())->withStatusJson($throwable->getLocalizedMessage());
+                $response = $this->rbtResponse($throwable->getCode(), $throwable->getLocalizedMessage());
+            else if ($throwable instanceof AuthException)
+                $response = $this->rbtResponse(401, $throwable->getMessage());
             else {
                 file_logger('response')->error($throwable);
 
-                $response = $this->response(500)->withStatusJson();
+                $response = $this->rbtResponse(500);
             }
 
             return $this->emit($response);
@@ -45,7 +47,16 @@ trait ResponseTrait
 
     protected function response(int $code = 200): Response
     {
-        return container(HttpService::class)->createResponse($code);
+        return http()->createResponse($code);
+    }
+
+    protected function rbtResponse(int $code = 200, ?string $message = null): Response
+    {
+        return json_response([
+            'code' => $code,
+            'name' => Response::$codes[$code]['name'],
+            'message' => $message ?: Response::$codes[$code]['message']
+        ])->withStatus($code);
     }
 
     protected function emit(ResponseInterface $response): int

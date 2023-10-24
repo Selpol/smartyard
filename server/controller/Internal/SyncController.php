@@ -7,7 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
@@ -21,7 +21,7 @@ readonly class SyncController extends Controller
      */
     public function getHouseGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -47,7 +47,7 @@ readonly class SyncController extends Controller
      */
     public function addSubscriberGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -87,7 +87,7 @@ readonly class SyncController extends Controller
      */
     public function updateSubscriberGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -116,7 +116,7 @@ readonly class SyncController extends Controller
      */
     public function deleteSubscriberGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -137,7 +137,7 @@ readonly class SyncController extends Controller
      */
     public function updateFlatGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -165,7 +165,7 @@ readonly class SyncController extends Controller
      */
     public function addSubscriberToFlatGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -195,7 +195,7 @@ readonly class SyncController extends Controller
      */
     public function updateSubscriberToFlatGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -225,7 +225,7 @@ readonly class SyncController extends Controller
      */
     public function deleteSubscriberFromFlatGroup(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $db = container(DatabaseService::class);
 

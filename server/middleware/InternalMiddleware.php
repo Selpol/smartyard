@@ -6,8 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Selpol\Http\Response;
-use Selpol\Service\HttpService;
+use Selpol\Framework\Http\Response;
 
 readonly class InternalMiddleware implements MiddlewareInterface
 {
@@ -23,14 +22,12 @@ readonly class InternalMiddleware implements MiddlewareInterface
         $ip = connection_ip($request);
 
         if ($ip === null)
-            return container(HttpService::class)->createResponse(404)
-                ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
+            return json_response(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
 
         foreach ($this->trust as $item)
             if (ip_in_range($ip, $item))
                 return $handler->handle($request);
 
-        return container(HttpService::class)->createResponse(404)
-            ->withJson(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']]);
+        return json_response(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
     }
 }

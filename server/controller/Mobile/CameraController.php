@@ -8,7 +8,7 @@ use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
 readonly class CameraController extends Controller
@@ -20,7 +20,7 @@ readonly class CameraController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['houseId' => rule()->id()]);
+        $validate = validator($this->route->getRequest()->getParsedBody(), ['houseId' => rule()->id()]);
 
         $house_id = $validate['houseId'];
         $households = container(HouseFeature::class);
@@ -98,8 +98,8 @@ readonly class CameraController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $cameraId = $this->getRoute()->getParamIdOrThrow('cameraId');
-        $houseId = rule()->id()->onItem('houseId', $this->request->getQueryParams());
+        $cameraId = $this->route->getParamIdOrThrow('cameraId');
+        $houseId = rule()->id()->onItem('houseId', $this->route->getRequest()->getQueryParams());
 
         $find = false;
 
@@ -129,7 +129,7 @@ readonly class CameraController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $validate = validator($body, [
             'cameraId' => rule()->id(),

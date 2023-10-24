@@ -4,9 +4,9 @@ namespace Selpol\Service;
 
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
+use Selpol\Service\Exception\AuthException;
 
 #[Singleton]
 class AuthService
@@ -22,7 +22,7 @@ class AuthService
     public function getTokenOrThrow(): AuthTokenInterface
     {
         if ($this->token === null)
-            throw new HttpException(message: 'Запрос не авторизирован', code: 401);
+            throw new AuthException(message: 'Запрос не авторизирован', code: 401);
 
         return $this->token;
     }
@@ -40,7 +40,7 @@ class AuthService
     public function getUserOrThrow(): AuthUserInterface
     {
         if ($this->user === null)
-            throw new HttpException(message: 'Запрос не авторизирован', code: 401);
+            throw new AuthException(message: 'Запрос не авторизирован', code: 401);
 
         return $this->user;
     }

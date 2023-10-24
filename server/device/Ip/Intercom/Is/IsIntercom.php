@@ -4,11 +4,7 @@ namespace Selpol\Device\Ip\Intercom\Is;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\IsTrait;
-use Selpol\Http\Stream;
-use Selpol\Http\Uri;
-use Selpol\Service\HttpService;
 use Throwable;
 
 class IsIntercom extends IntercomDevice
@@ -235,11 +231,11 @@ class IsIntercom extends IntercomDevice
     public function setSyslog(string $server, int $port): static
     {
         try {
-            $this->client->request(
-                container(HttpService::class)
-                    ->createRequest('PUT', $this->uri . '/system/files/rsyslogd.conf')
-                    ->withBody(Stream::memory($this->getSyslogConfigHelp($server, $port)))
+            $this->client->send(
+                http()->createRequest('PUT', $this->uri . '/system/files/rsyslogd.conf')
                     ->withHeader('Content-Type', 'text/plain')
+                    ->withBody(http()->createStream($this->getSyslogConfigHelp($server, $port))),
+                $this->clientOption
             );
 
             return $this;

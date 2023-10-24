@@ -6,7 +6,7 @@ use CURLFile;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
 class DksIntercom extends IntercomDevice
@@ -21,7 +21,7 @@ class DksIntercom extends IntercomDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->requestOptions = ['digest' => $this->login . ':' . $this->password];
+        $this->clientOption->digest($this->login, $this->password);
     }
 
     public function getSipStatus(): bool

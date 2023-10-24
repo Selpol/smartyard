@@ -7,7 +7,7 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 
 readonly class AddressController extends Controller
 {
@@ -106,7 +106,7 @@ readonly class AddressController extends Controller
 
         $audJti = $token->getOriginalValue()['scopes'][1];
 
-        $validate = validator($this->request->getParsedBody(), [
+        $validate = validator($this->route->getRequest()->getParsedBody(), [
             'code' => rule()->required()->nonNullable(),
             'mobile' => rule()->clamp(11, 11),
             'name' => [filter()->fullSpecialChars(), rule()->string()->max(64)],

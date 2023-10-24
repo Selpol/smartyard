@@ -2,26 +2,19 @@
 
 namespace Selpol\Controller;
 
-use Selpol\Http\Response;
-use Selpol\Http\ServerRequest;
+use Selpol\Framework\Http\Response;
 use Selpol\Router\RouterMatch;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\AuthService;
-use Selpol\Service\HttpService;
 
 readonly class Controller
 {
-    protected ServerRequest $request;
+    protected RouterMatch $route;
 
-    public function __construct(ServerRequest $request)
+    public function __construct(RouterMatch $route)
     {
-        $this->request = $request;
-    }
-
-    protected function getRoute(): RouterMatch
-    {
-        return $this->request->getAttribute('route');
+        $this->route = $route;
     }
 
     protected function getToken(): AuthTokenInterface
@@ -32,11 +25,6 @@ readonly class Controller
     protected function getUser(): AuthUserInterface
     {
         return container(AuthService::class)->getUserOrThrow();
-    }
-
-    protected function response(int $code = 200): Response
-    {
-        return container(HttpService::class)->createResponse($code);
     }
 
     protected function rbtResponse(int $code = 200, mixed $data = null, ?string $name = null, ?string $message = null): Response
@@ -59,9 +47,9 @@ readonly class Controller
             if ($message !== null) $body['message'] = $message;
             if ($data !== null) $body['data'] = $data;
 
-            return $this->response($code)->withJson($body);
+            return json_response($body)->withStatus($code);
         }
 
-        return $this->response($code);
+        return http()->createResponse($code);
     }
 }

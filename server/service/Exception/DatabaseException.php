@@ -2,10 +2,10 @@
 
 namespace Selpol\Service\Exception;
 
-use Selpol\Http\Exception\HttpException;
+use RuntimeException;
 use Throwable;
 
-class DatabaseException extends HttpException
+class DatabaseException extends RuntimeException
 {
     public const UNIQUE_VIOLATION = 1 << 0;
 
@@ -13,7 +13,7 @@ class DatabaseException extends HttpException
 
     public function __construct(int $flag, string $message = "", int $code = 400, ?Throwable $previous = null)
     {
-        parent::__construct(null, null, $message, $code, $previous);
+        parent::__construct($message, $code, $previous);
 
         $this->flag = $flag;
     }

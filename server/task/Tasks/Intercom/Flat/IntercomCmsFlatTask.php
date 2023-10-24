@@ -3,8 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -50,7 +50,7 @@ class IntercomCmsFlatTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $apartment = $flat['flat'];
 
@@ -68,9 +68,6 @@ class IntercomCmsFlatTask extends Task
 
             $device->setApartmentCms($apartment, $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),);
         } catch (Throwable $throwable) {
-            if ($throwable instanceof HttpException)
-                throw $throwable;
-
             file_logger('intercom')->error($throwable);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);

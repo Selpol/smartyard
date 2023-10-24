@@ -9,7 +9,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Throwable;
 
 readonly class PlogController extends Controller
@@ -22,7 +22,7 @@ readonly class PlogController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
+        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];
@@ -157,14 +157,16 @@ readonly class PlogController extends Controller
 
         $uuid = $file->fromGUIDv4($this->getRoute()->getParam('uuid'));
 
-        return $this->response()->withStream($file->getFileStream($uuid))->withHeader('Content-Type', 'image/jpeg');
+        return http()->createResponse()
+            ->withHeader('Content-Type', 'image/jpeg')
+            ->withBody(http()->createStreamFromResource($file->getFileStream($uuid)));
     }
 
     public function days(): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
+        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];

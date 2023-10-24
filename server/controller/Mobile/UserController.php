@@ -7,7 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 
 readonly class UserController extends Controller
 {
@@ -28,7 +28,7 @@ readonly class UserController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), [
+        $validate = validator($this->route->getRequest()->getParsedBody(), [
             'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'production' => [filter()->default(false), rule()->bool()],
@@ -80,7 +80,7 @@ readonly class UserController extends Controller
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($this->request->getParsedBody(), [
+        $validate = validator($this->route->getRequest()->getParsedBody(), [
             'name' => [filter()->fullSpecialChars(), rule()->required()->string()->max(64)->nonNullable()],
             'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)]
         ]);

@@ -839,6 +839,12 @@ readonly class InternalHouseFeature extends HouseFeature
             }
         }
 
+        if (array_key_exists('descriptionBlock', $params)) {
+            if ($db->modify("update houses_subscribers_mobile set description_block = :description_block where house_subscriber_id = $subscriberId", ["description_block" => $params["descriptionBlock"]]) === false) {
+                return false;
+            }
+        }
+
         if ($db->modify("update houses_subscribers_mobile set last_seen = :last_seen where house_subscriber_id = $subscriberId", ["last_seen" => time()]) === false) {
             return false;
         }

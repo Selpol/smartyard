@@ -7,10 +7,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Feature\Oauth\OauthFeature;
-use Selpol\Http\ServerRequest;
+use Selpol\Framework\Http\ServerRequest;
 use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
-use Selpol\Service\HttpService;
 
 readonly class JwtMiddleware implements MiddlewareInterface
 {
@@ -19,7 +18,7 @@ readonly class JwtMiddleware implements MiddlewareInterface
         $result = $this->setJwtFromRequest($request);
 
         if ($result !== null)
-            return container(HttpService::class)->createResponse(401)->withJson(['code' => 401, 'message' => $result]);
+            return json_response(['code' => 401, 'message' => $result])->withStatus(401);
 
         return $handler->handle($request);
     }

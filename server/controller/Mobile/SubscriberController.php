@@ -6,7 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
 readonly class SubscriberController extends Controller
@@ -20,7 +20,7 @@ readonly class SubscriberController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
+        $flatId = $this->route->getParamIntOrThrow('flatId');
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
@@ -51,9 +51,9 @@ readonly class SubscriberController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
+        $flatId = $this->route->getParamIntOrThrow('flatId');
 
-        $validate = validator($this->request->getParsedBody() ?? [], [
+        $validate = validator($this->route->getRequest()->getParsedBody() ?? [], [
             'mobile' => rule()->required()->int()->min(70000000000)->max(79999999999)->nonNullable()
         ]);
 
@@ -99,9 +99,9 @@ readonly class SubscriberController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
+        $flatId = $this->route->getParamIntOrThrow('flatId');
 
-        $validate = validator(['subscriberId' => $this->request->getQueryParam('subscriberId')], ['subscriberId' => rule()->id()]);
+        $validate = validator(['subscriberId' => $this->route->getRequest()->getQueryParams()['subscriberId']], ['subscriberId' => rule()->id()]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 

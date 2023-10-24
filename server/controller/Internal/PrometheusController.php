@@ -6,7 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use RuntimeException;
 use Selpol\Controller\Controller;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
@@ -31,9 +31,9 @@ readonly class PrometheusController extends Controller
                 $result[] = $this->renderSample($metric, $sample);
         }
 
-        return $this->response()
-            ->withAddedHeader('Content-Type', 'text/plain; version=0.0.4')
-            ->withString(implode("\n", $result) . "\n");
+        return http()->createResponse()
+            ->withHeader('Content-Type', 'text/plain; version=0.0.4')
+            ->withBody(http()->createStream(implode("\n", $result) . "\n"));
     }
 
     private function renderSample(Metric $metric, Sample $sample): string

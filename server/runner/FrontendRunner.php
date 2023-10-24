@@ -4,28 +4,30 @@ namespace Selpol\Runner;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
+use Selpol\Framework\Http\Response;
+use Selpol\Framework\Http\ServerRequest;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Http\Response;
-use Selpol\Http\ServerRequest;
 use Selpol\Runner\Trait\ResponseTrait;
 use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
-use Selpol\Service\HttpService;
 use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
-    use ResponseTrait;
+    use ResponseTrait {
+        emit as frontendEmit;
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -35,9 +37,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     function run(array $arguments): int
     {
-        $http = container(HttpService::class);
+        $request = http()->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
-        $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
+        $request->withParsedBody(http()->getParsedBody($request->getBody(), $request->getHeader('Content-Type')));
 
         kernel()->getContainer()->set(ServerRequest::class, $request);
 
@@ -54,7 +56,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $ip = connection_ip($request);
 
         if (!$ip)
-            return $this->emit($this->response(403)->withStatusJson('Неизвестный источник запроса'));
+            return $this->emit($this->rbtResponse(401, 'Неизвестный источник запроса'));
 
         $path = explode("?", $request->getRequestTarget())[0];
 
@@ -78,9 +80,6 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
         $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
 
-        if ($token = $request->getQueryParam('_token'))
-            $http_authorization = 'Bearer ' . urldecode($token);
-
         $params += $request->getQueryParams();
 
         if (count($_POST)) {
@@ -100,23 +99,23 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $auth = false;
 
         if ($api == 'server' && $method == 'ping')
-            return $this->emit($this->response()->withString('pong'));
+            return $this->emit($this->rbtResponse()->withBody(http()->createStream('pong')));
         else if ($api == 'accounts' && $method == 'forgot')
             return $this->emit($this->response(204));
         else if ($api == 'authentication' && $method == 'login') {
             if (!@$params['login'] || !@$params['password'])
-                return $this->emit($this->response(400)->withStatusJson('Логин или пароль не указан'));
+                return $this->emit($this->rbtResponse(400, 'Логин или пароль не указан'));
         } else if ($http_authorization) {
             $userAgent = $request->getHeader('User-Agent');
 
             $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
 
             if (!$auth)
-                return $this->emit($this->response(401)->withStatusJson('Пользователь не авторизирован'));
+                return $this->emit($this->rbtResponse(401, 'Пользователь не авторизирован'));
 
             container(AuthService::class)->setToken(new RedisAuthToken($auth['token']));
             container(AuthService::class)->setUser(new RedisAuthUser($auth));
-        } else return $this->emit($this->response(401)->withStatusJson('Данные авторизации не переданны'));
+        } else return $this->emit($this->rbtResponse(401, 'Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
             $params["_uid"] = $auth["uid"];
@@ -133,9 +132,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             try {
                 $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower($params['_request_method']));
 
-                return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия (' . $permission->description . ')'));
+                return $this->emit($this->rbtResponse(403, 'Недостаточно прав для данного действия (' . $permission->description . ')'));
             } catch (Throwable) {
-                return $this->emit($this->response(403)->withStatusJson('Недостаточно прав для данного действия'));
+                return $this->emit($this->rbtResponse(403, 'Недостаточно прав для данного действия'));
             }
         }
 
@@ -150,30 +149,28 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 if ($result !== null) {
                     if ($result instanceof Response)
-                        return $this->emit(
-                            $result->withHeader('Access-Control-Allow-Origin', '*')
-                                ->withHeader('Access-Control-Allow-Headers', '*')
-                                ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
-                        );
+                        return $this->emit($result);
 
                     $code = array_key_first($result);
 
-                    if ((int)$code) return $this->emit($this->response($code)->withJson($result[$code]));
-                    else return $this->emit($this->response(500)->withStatusJson());
+                    if ((int)$code) return $this->emit(json_response($result[$code])->withStatus($code));
+                    else return $this->emit($this->rbtResponse(500));
                 }
 
                 return $this->emit($this->response(204));
-            } else return $this->emit($this->response(404)->withStatusJson());
+            } else return $this->emit($this->rbtResponse(404));
         }
 
-        return $this->emit($this->response(404)->withStatusJson());
+        return $this->emit($this->rbtResponse(404));
     }
 
-    protected function response(int $code = 200): Response
+    protected function emit(ResponseInterface $response): int
     {
-        return container(HttpService::class)->createResponse($code)
-            ->withHeader('Access-Control-Allow-Origin', '*')
-            ->withHeader('Access-Control-Allow-Headers', '*')
-            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+        return $this->frontendEmit(
+            $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', '*')
+                ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+        );
     }
 }

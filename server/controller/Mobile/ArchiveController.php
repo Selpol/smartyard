@@ -6,7 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\File\FileFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\RecordTask;
 
 readonly class ArchiveController extends Controller
@@ -18,7 +18,7 @@ readonly class ArchiveController extends Controller
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($this->request->getParsedBody(), [
+        $validate = validator($this->route->getRequest()->getParsedBody(), [
             'id' => rule()->id(),
             'from' => rule()->required()->nonNullable(),
             'to' => rule()->required()->nonNullable()
@@ -54,7 +54,7 @@ readonly class ArchiveController extends Controller
      */
     public function download(): Response
     {
-        $uuid = $this->getRoute()->getParam('uuid');
+        $uuid = $this->route->getParam('uuid');
 
         if ($uuid === null)
             return $this->rbtResponse(404, message: 'Не указан идентификатор');
@@ -64,9 +64,9 @@ readonly class ArchiveController extends Controller
         $stream = $file->getFileStream($uuid);
         $info = $file->getFileInfo($uuid);
 
-        return $this->response()
+        return http()->createResponse()
             ->withHeader('Content-Type', 'video/mp4')
             ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-            ->withStream($stream);
+            ->withBody(http()->createStreamFromResource($stream));
     }
 }

@@ -9,7 +9,7 @@ use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
@@ -23,7 +23,7 @@ readonly class IntercomController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         $validate = validator($body, ['flatId' => rule()->id()]);
 
@@ -150,7 +150,7 @@ readonly class IntercomController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
+        $validate = validator($this->route->getRequest()->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
 
         $households = container(HouseFeature::class);
 
@@ -204,7 +204,7 @@ readonly class IntercomController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->request->getParsedBody(), ['flatId' => rule()->id()]);
+        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id()]);
 
         $flat_id = $validate['flatId'];
 

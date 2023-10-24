@@ -4,8 +4,8 @@ namespace Selpol\Device\Ip\Camera;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\IpDevice;
-use Selpol\Http\Stream;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Stream;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
 abstract class CameraDevice extends IpDevice

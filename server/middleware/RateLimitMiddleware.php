@@ -7,9 +7,8 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RedisException;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\AuthService;
-use Selpol\Service\HttpService;
 use Selpol\Service\RedisService;
 
 readonly class RateLimitMiddleware implements MiddlewareInterface
@@ -44,13 +43,11 @@ readonly class RateLimitMiddleware implements MiddlewareInterface
             $value = $redis->incr($key);
 
             if ($value > 60) {
-                $http = container(HttpService::class);
-
                 $ttl = $redis->ttl($key);
 
-                return $http->createResponse(429)
-                    ->withHeader('Retry-After', $ttl)
-                    ->withJson(['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд']);
+                return json_response(['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
+                    ->withStatus(429)
+                    ->withHeader('Retry-After', $ttl);
             }
         }
 

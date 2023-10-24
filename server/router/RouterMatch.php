@@ -2,10 +2,13 @@
 
 namespace Selpol\Router;
 
+use Selpol\Framework\Http\ServerRequest;
 use Selpol\Validator\Exception\ValidatorException;
 
 readonly class RouterMatch
 {
+    private ServerRequest $request;
+
     private string $class;
     private string $method;
 
@@ -13,14 +16,21 @@ readonly class RouterMatch
 
     private array $middlewares;
 
-    public function __construct(string $class, string $method, array $params, array $middlewares)
+    public function __construct(ServerRequest $request, string $class, string $method, array $params, array $middlewares)
     {
+        $this->request = $request;
+
         $this->class = $class;
         $this->method = $method;
 
         $this->params = $params;
 
         $this->middlewares = $middlewares;
+    }
+
+    public function getRequest(): ServerRequest
+    {
+        return $this->request;
     }
 
     public function getClass(): string
@@ -41,6 +51,13 @@ readonly class RouterMatch
     public function getParam(string $key): ?string
     {
         return array_key_exists($key, $this->params) ? $this->params[$key] : null;
+    }
+
+    public function getQuery(string $key): ?string
+    {
+        $query = $this->request->getQueryParams();
+
+        return array_key_exists($key, $query) ? $query[$key] : null;
     }
 
     /**

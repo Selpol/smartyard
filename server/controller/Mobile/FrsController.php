@@ -8,7 +8,7 @@ use Selpol\Controller\Controller;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Validator\Exception\ValidatorException;
 
 readonly class FrsController extends Controller
@@ -22,7 +22,7 @@ readonly class FrsController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->getRoute()->getParamIntOrThrow('flatId');
+        $flatId = $this->route->getParamIntOrThrow('flatId');
 
         $flatIds = array_map(static fn($item) => $item['flatId'], $user['flats']);
 
@@ -57,7 +57,7 @@ readonly class FrsController extends Controller
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->getRoute()->getParam('eventId')], ['eventId' => rule()->required()->uuid()->nonNullable()]);
+        $validate = validator(['eventId' => $this->route->getParam('eventId')], ['eventId' => rule()->required()->uuid()->nonNullable()]);
 
         $frs = container(FrsFeature::class);
 
@@ -108,9 +108,11 @@ readonly class FrsController extends Controller
      */
     public function delete(): Response
     {
+        $query = $this->route->getRequest()->getQueryParams();
+
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->request->getQueryParam('eventId')], ['eventId' => rule()->uuid()]);
+        $validate = validator(['eventId' => $query['eventId']], ['eventId' => rule()->uuid()]);
 
         $frs = container(FrsFeature::class);
 
@@ -135,8 +137,8 @@ readonly class FrsController extends Controller
             if ($face_id2 === false)
                 $face_id2 = null;
         } else {
-            $flat_id = (int)$this->request->getQueryParam('flatId');
-            $face_id = (int)$this->request->getQueryParam('faceId');
+            $flat_id = (int)$query['flatId'];
+            $face_id = (int)$query['faceId'];
         }
 
         if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))

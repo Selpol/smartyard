@@ -2,7 +2,7 @@
 
 namespace Selpol\Router;
 
-use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Framework\Http\ServerRequest;
 
 readonly class Router
 {
@@ -26,7 +26,7 @@ readonly class Router
         } else $this->routes = [];
     }
 
-    public function match(ServerRequestInterface $request): ?RouterMatch
+    public function match(ServerRequest $request): ?RouterMatch
     {
         $method = $request->getMethod();
 
@@ -67,7 +67,7 @@ readonly class Router
         }
 
         if ($routes && array_key_exists('class', $routes) && array_key_exists('method', $routes) && array_key_exists('middlewares', $routes))
-            return new RouterMatch($routes['class'], $routes['method'], $params, $routes['middlewares']);
+            return new RouterMatch($request, $routes['class'], $routes['method'], $params, $routes['middlewares']);
 
         return null;
     }

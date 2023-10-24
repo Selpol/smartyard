@@ -9,7 +9,7 @@ use RedisException;
 use Selpol\Controller\Controller;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 
@@ -22,9 +22,9 @@ readonly class FrsController extends Controller
      */
     public function callback(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
-        $camera_id = $this->request->getQueryParam('stream_id');
+        $camera_id = $this->route->getQuery('stream_id');
 
         $face_id = (int)$body[FrsFeature::P_FACE_ID];
         $event_id = (int)$body[FrsFeature::P_EVENT_ID];
@@ -73,11 +73,11 @@ readonly class FrsController extends Controller
      */
     public function camshot(): Response
     {
-        $model = camera($this->getRoute()->getParamIdOrThrow('id'));
+        $model = camera($this->route->getParamIdOrThrow('id'));
 
         if (!$model)
             return $this->rbtResponse(204);
 
-        return $this->response()->withBody($model->getScreenshot())->withHeader('Content-Type', 'image/jpeg');
+        return http()->createResponse()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
     }
 }

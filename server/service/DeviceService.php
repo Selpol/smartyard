@@ -9,7 +9,7 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 
 #[Singleton]
 readonly class DeviceService

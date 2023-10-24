@@ -3,7 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\IpDevice;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice

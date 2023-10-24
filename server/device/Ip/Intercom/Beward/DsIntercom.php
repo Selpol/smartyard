@@ -5,7 +5,7 @@ namespace Selpol\Device\Ip\Intercom\Beward;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
 class DsIntercom extends IntercomDevice
@@ -18,7 +18,7 @@ class DsIntercom extends IntercomDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->requestOptions = ['digest' => $this->login . ':' . $this->password];
+        $this->clientOption->digest($this->login, $this->password);
     }
 
     public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static

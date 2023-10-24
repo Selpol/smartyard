@@ -6,8 +6,8 @@ use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Trait\BewardTrait;
-use Selpol\Http\Stream;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Stream;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
@@ -21,13 +21,13 @@ class BewardCamera extends CameraDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->requestOptions = ['digest' => $this->login . ':' . $this->password];
+        $this->clientOption->digest($this->login, $this->password);
     }
 
     public function getScreenshot(): Stream
     {
         try {
-            return $this->client->get($this->uri . '/cgi-bin/images_cgi?channel=0', options: $this->requestOptions)->getBody();
+            return $this->client->send(http()->createRequest('GET', $this->uri . '/cgi-bin/images_cgi?channel=0'), $this->clientOption)->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }

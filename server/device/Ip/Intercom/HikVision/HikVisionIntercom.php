@@ -6,7 +6,7 @@ use DateInterval;
 use DateTime;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
-use Selpol\Http\Uri;
+use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
@@ -20,7 +20,7 @@ class HikVisionIntercom extends IntercomDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->requestOptions = ['digest' => $this->login . ':' . $this->password];
+        $this->clientOption->digest($this->login, $this->password);
     }
 
     public function getSysInfo(): array

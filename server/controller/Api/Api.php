@@ -2,7 +2,7 @@
 
 namespace Selpol\Controller\Api;
 
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 
 class Api
 {

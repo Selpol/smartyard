@@ -12,7 +12,7 @@ use Psr\Log\LoggerAwareTrait;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
-use Selpol\Http\Exception\HttpException;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
 use Selpol\Task\TaskCallbackInterface;
 
@@ -52,7 +52,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
         $feature = container(TaskFeature::class);
 
         if ($feature->hasUnique($task))
-            throw new HttpException(null, null, 'Задача уже существует');
+            throw new KernelException('Задача уже существует');
 
         $feature->setUnique($task);
 

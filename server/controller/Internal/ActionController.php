@@ -5,7 +5,7 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Http\Response;
+use Selpol\Framework\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
@@ -16,7 +16,7 @@ readonly class ActionController extends Controller
      */
     public function callFinished(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         if (!isset($body["date"], $body["ip"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
@@ -33,7 +33,7 @@ readonly class ActionController extends Controller
      */
     public function motionDetection(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         if (!isset($body["ip"], $body["motionActive"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
@@ -68,7 +68,7 @@ readonly class ActionController extends Controller
      */
     public function openDoor(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         if (!isset($body["date"], $body["ip"], $body["event"], $body["door"], $body["detail"])) return $this->rbtResponse(400);
 
@@ -113,10 +113,10 @@ readonly class ActionController extends Controller
                     return $this->rbtResponse(201, $apiResponse);
                 }
 
-                return $this->response(204);
+                return http()->createResponse(204);
         }
 
-        return $this->response(204);
+        return http()->createResponse(204);
     }
 
     /**
@@ -124,7 +124,7 @@ readonly class ActionController extends Controller
      */
     public function setRabbitGates(): Response
     {
-        $body = $this->request->getParsedBody();
+        $body = $this->route->getRequest()->getParsedBody();
 
         if (!isset(
             $body["ip"],
