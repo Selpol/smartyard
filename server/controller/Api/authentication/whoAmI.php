@@ -26,7 +26,10 @@ class whoAmI extends Api
 
         $redis->setex('user:' . $params['_uid'] . ':ws', 24 * 60 * 60, $password);
 
-        $user['wsDomain'] = container(SipFeature::class)->server('first')[0]->external_ip;
+        $sipServer = container(SipFeature::class)->server('first')[0];
+
+        $user['wsTitle'] = $sipServer->title;
+        $user['wsDomain'] = $sipServer->external_ip;
 
         $user["wsUsername"] = sprintf("7%09d", (int)$params["_uid"]);
         $user["wsPassword"] = $password;
