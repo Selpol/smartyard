@@ -39,18 +39,22 @@ abstract class IpDevice extends Device
                 };
         } else $url .= ':' . $this->uri->getPort();
 
-        $fp = @stream_socket_client($url, timeout: 1);
+        try {
+            $fp = stream_socket_client($url, timeout: 1);
 
-        if ($fp) {
-            fclose($fp);
+            if ($fp) {
+                fclose($fp);
 
-            if (array_key_exists('DeviceID', $this->getSysInfo()))
-                return true;
+                if (array_key_exists('DeviceID', $this->getSysInfo()))
+                    return true;
+
+                return false;
+            }
 
             return false;
+        } catch (Throwable) {
+            return false;
         }
-
-        return false;
     }
 
     public function getSysInfo(): array
