@@ -23,7 +23,6 @@ class domophone extends Api
             "dtmf" => "dtmf",
             "first_time" => "firstTime",
             "nat" => "nat",
-            "locks_are_open" => "locksAreOpen",
             "comment" => "comment",
             "ip" => "ip",
             'sos_number' => 'sosNumber'
@@ -53,8 +52,6 @@ class domophone extends Api
         self::set($intercom, $params);
 
         if (container(DeviceIntercomRepository::class)->update($intercom)) {
-            self::unlock($intercom->house_domophone_id, $intercom->locks_are_open);
-
             if (array_key_exists('configure', $params) && $params['configure'])
                 task(new IntercomConfigureTask($intercom->house_domophone_id))->high()->dispatch();
 
@@ -94,9 +91,6 @@ class domophone extends Api
 
         $intercom->nat = $params['nat'];
 
-        if (array_key_exists('locksAreOpen', $params))
-            $intercom->locks_are_open = $params['locksAreOpen'];
-
         $intercom->comment = $params['comment'];
 
         if (array_key_exists('sosNumber', $params))
@@ -106,15 +100,5 @@ class domophone extends Api
 
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
             $intercom->ip = $ip;
-    }
-
-    private static function unlock(int $id, bool $value): void
-    {
-        $device = intercom($id);
-
-        if (!$device->ping())
-            throw new DeviceException($device, message: 'Устройство не доступно');
-
-        $device->unlock($value);
     }
 }

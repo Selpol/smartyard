@@ -20,8 +20,6 @@ use Selpol\Framework\Entity\Entity;
  *
  * @property int|null $nat
  *
- * @property int $locks_are_open
- *
  * @property string|null $ip
  *
  * @property string|null $comment
@@ -50,8 +48,6 @@ class DeviceIntercom extends Entity
             'first_time' => rule()->required()->int()->nonNullable(),
 
             'nat' => rule()->int(),
-
-            'locks_are_open' => rule()->int(),
 
             'ip' => rule()->ipV4(),
 

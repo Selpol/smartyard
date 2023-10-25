@@ -513,7 +513,6 @@ readonly class InternalHouseFeature extends HouseFeature
             "dtmf" => "dtmf",
             "first_time" => "firstTime",
             "nat" => "nat",
-            "locks_are_open" => "locksAreOpen",
             "comment" => "comment",
             "ip" => "ip",
             'sos_number' => 'sosNumber'
@@ -597,7 +596,6 @@ readonly class InternalHouseFeature extends HouseFeature
                 "dtmf" => "dtmf",
                 "first_time" => "firstTime",
                 "nat" => "nat",
-                "locks_are_open" => "locksAreOpen",
                 "comment" => "comment",
                 "ip" => "ip",
                 'sos_number' => 'sosNumber'
