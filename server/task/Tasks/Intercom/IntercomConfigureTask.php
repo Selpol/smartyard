@@ -12,22 +12,19 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
 use Selpol\Service\DeviceService;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 
 class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public int $id;
 
     public function __construct(int $id)
     {
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomConfigureTask::class, $this->id], 3600);
     }
 
     public function onTask(): bool
@@ -38,6 +35,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if (!$domophone) {
             file_logger('intercom')->debug('Domophone not found', ['id' => $this->id]);
+
             return false;
         }
 

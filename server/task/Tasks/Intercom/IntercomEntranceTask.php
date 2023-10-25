@@ -6,12 +6,14 @@ use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 
 class IntercomEntranceTask extends Task implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public int $entranceId;
 
     public function __construct(int $entranceId)
@@ -19,11 +21,6 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
         parent::__construct('Синхронизация входа (' . $entranceId . ')');
 
         $this->entranceId = $entranceId;
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomEntranceTask::class, $this->entranceId], 3600);
     }
 
     public function onTask(): bool

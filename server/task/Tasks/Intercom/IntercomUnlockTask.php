@@ -4,11 +4,15 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 
 class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
+    public $taskUniqueTtl = 60;
+
     public bool $lock;
 
     public function __construct(int $id, bool $lock)
@@ -16,11 +20,6 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
         parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Открыто' : 'Закрыто') . ')');
 
         $this->lock = $lock;
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomUnlockTask::class, $this->id]);
     }
 
     public function onTask(): bool

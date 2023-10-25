@@ -3,15 +3,17 @@
 namespace Selpol\Task\Tasks\Intercom\Cms;
 
 use RuntimeException;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Http\Exception\HttpException;
 use Selpol\Task\Task;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 
 class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public int $entranceId;
 
     public function __construct(int $entranceId)
@@ -19,11 +21,6 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
         parent::__construct('Конфигурация CMS (' . $entranceId . ')');
 
         $this->entranceId = $entranceId;
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomSyncCmsTask::class, $this->entranceId], 3600);
     }
 
     public function onTask(): bool
@@ -44,7 +41,7 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new HttpException(message: 'Устройство не доступно');
+                throw new DeviceException($device, message: 'Устройство не доступно');
 
             $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 
@@ -53,7 +50,7 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
 
             $device->deffer();
         } catch (Throwable $throwable) {
-            if ($throwable instanceof HttpException)
+            if ($throwable instanceof DeviceException)
                 throw $throwable;
 
             file_logger('intercom')->error($throwable);

@@ -5,11 +5,15 @@ namespace Selpol\Task\Tasks\Intercom\Cms;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 
 class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
+    public $taskUniqueTtl = 600;
+
     public string $cms;
 
     public function __construct(int $id, string $cms)
@@ -17,11 +21,6 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
         parent::__construct($id, 'Установка CMS (' . $id . ', ' . $cms . ')');
 
         $this->cms = $cms;
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomSetCmsTask::class, $this->id], 600);
     }
 
     public function onTask(): bool

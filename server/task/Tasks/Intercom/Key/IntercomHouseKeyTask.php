@@ -7,19 +7,16 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 
 class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public function __construct(int $id)
     {
         parent::__construct($id, 'Синхронизация ключей на дому (' . $id . ')');
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([IntercomHouseKeyTask::class, $this->id], 3600);
     }
 
     /**
