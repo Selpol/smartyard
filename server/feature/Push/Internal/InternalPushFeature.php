@@ -34,7 +34,8 @@ readonly class InternalPushFeature extends PushFeature
         curl_setopt($request, CURLOPT_POST, 1);
         curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
 
-        curl_exec($request);
+        file_logger('notification')->debug(curl_exec($request), ['endpoint' => $endpoint, 'data' => $data]);
+
         curl_close($request);
 
         return false;
