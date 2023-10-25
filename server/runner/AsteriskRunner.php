@@ -202,7 +202,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'timestamp' => time(),
                             'ttl' => 30,
                             'platform' => (int)$params['platform'] ? 'ios' : 'android',
-                            'callerId' => $params['callerId'],
+                            'callerId' => $params['callerId'] ?: 'WebRTC',
                             'domophoneId' => $params['domophoneId'],
                             'flatId' => $params['flatId'],
                             'flatNumber' => $params['flatNumber'],
