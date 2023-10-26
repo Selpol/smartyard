@@ -28,9 +28,4 @@ readonly class HouseSubscriberRepository extends EntityRepository
     {
         parent::__construct(HouseSubscriber::class);
     }
-
-    public function findByMobile(string $mobile): HouseSubscriber
-    {
-        return $this->fetch(criteria()->equal('id', $mobile));
-    }
 }

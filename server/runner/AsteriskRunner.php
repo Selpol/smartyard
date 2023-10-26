@@ -431,7 +431,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'callerid' => $this->transcript($sipUser->title),
                             'context' => 'default',
                             'disallow' => 'all',
-                            'allow' => 'alaw,h264',
+                            'allow' => 'alaw,ulaw,h264',
                             'rtp_symmetric' => 'yes',
                             'force_rport' => 'yes',
                             'rewrite_contact' => 'yes',
