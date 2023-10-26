@@ -88,7 +88,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $flat = $households->getFlat(intval($params));
 
-                        if (!$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock'])
+                        if ($flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0)
                             echo json_encode($flat);
 
                         $this->logger->debug('Get flat', ['flat' => $flat, 'params' => $params]);
@@ -98,7 +98,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'flatIdByPrefix':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
+                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => $flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0);
 
                         if (count($apartments) > 0)
                             echo json_encode($apartments);
@@ -110,19 +110,20 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'apartment':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats('apartment', $params), static fn(array $flat) => !$flat['autoBlock'] && !$flat['adminBlock'] && !$flat['manualBlock']);
+                        $apartments = $households->getFlats('apartment', $params);
+                        $filterApartments = array_filter($apartments, static fn(array $flat) => $flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0);
 
-                        if (count($apartments) > 0)
-                            echo json_encode($apartments);
+                        if (count($filterApartments) > 0)
+                            echo json_encode($filterApartments);
 
-                        $this->logger->debug('Get apartment', ['apartment' => $apartments, 'params' => $params]);
+                        $this->logger->debug('Get apartment', ['apartments' => count($apartments), 'filterApartment' => count($filterApartments), 'params' => $params]);
 
                         break;
 
                     case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => !$subscriber['adminBlock'] && !$subscriber['manualBlock']);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => $subscriber['adminBlock'] == 0 && $subscriber['manualBlock'] == 0);
 
                         if (count($subscribers) > 0)
                             echo json_encode($subscribers);
