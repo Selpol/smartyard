@@ -200,7 +200,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     private function common(string $panel_text, array $entrances, IntercomDevice $device): void
     {
-        $device->setMotionDetection(1, 0, 0, 0, 0);
+        $device->setMotionDetection(4, 0, 0, 704, 576);
         $device->setVideoOverlay($panel_text);
         $device->unlock($entrances[0]['locksDisabled']);
     }
