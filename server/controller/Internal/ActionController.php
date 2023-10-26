@@ -38,6 +38,8 @@ readonly class ActionController extends Controller
         if (!isset($body["ip"], $body["motionActive"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
+        file_logger('internal')->debug('Motion detection', $body);
+
         $db = container(DatabaseService::class);
 
         $logger = file_logger('motion');
