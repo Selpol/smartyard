@@ -162,7 +162,7 @@ readonly class InternalRoleFeature extends RoleFeature
             foreach ($roles as $role)
                 $result = array_merge($result, $this->findPermissionsForRole($role->id));
 
-            return array_unique(array_map(static fn(Permission $permission) => $permission->title, $result));
+            return array_values(array_unique(array_map(static fn(Permission $permission) => $permission->title, $result)));
         }, 60);
     }
 
