@@ -34,7 +34,7 @@ class whoAmI extends Api
         $user["wsUsername"] = sprintf("7%09d", (int)$params["_uid"]);
         $user["wsPassword"] = $password;
 
-        return Api::ANSWER($user, ($user !== false) ? "user" : "notFound");
+        return Api::ANSWER($user, ($user !== false) ? "user" : "forbidden");
     }
 
     public static function index(): bool|array

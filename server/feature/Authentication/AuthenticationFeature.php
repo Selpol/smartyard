@@ -70,7 +70,7 @@ readonly abstract class AuthenticationFeature extends Feature
             $db->modify("update core_users set last_login = " . time() . " where uid = " . $uid, false, ["silent"]);
 
             return ["result" => true, "token" => $token, "login" => $login, "ua" => $ua, "uid" => $uid];
-        } else return ["result" => false, "code" => 404, "error" => "userNotFound"];
+        } else return ["result" => false, "code" => 403, "error" => "forbidden"];
     }
 
     /**

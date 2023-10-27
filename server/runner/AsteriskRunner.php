@@ -3,11 +3,13 @@
 namespace Selpol\Runner;
 
 use RedisException;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Entity\Repository\Sip\SipUserRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
@@ -264,17 +266,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $redis = container(RedisService::class)->getConnection();
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $households = container(HouseFeature::class);
+            $intercom = container(DeviceIntercomRepository::class)->findById((int)substr($extension, 1), (new EntitySetting())->columns(['credentials', 'sos_number']));
 
-            $panel = $households->getDomophone((int)substr($extension, 1));
-
-            if ($panel && $panel['credentials']) {
+            if ($intercom && $intercom->credentials) {
                 switch ($section) {
                     case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     case 'auths':
-                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $panel['credentials']];
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $intercom->credentials];
 
                     case 'endpoints':
                         return [
@@ -294,7 +294,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'allow_subscribe' => 'yes',
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'no',
-                            'sos_number' => $panel['sosNumber'] ?? env('SOS_NUMBER', '112')
+                            'sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
                         ];
                 }
             }
