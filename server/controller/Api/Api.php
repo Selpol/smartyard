@@ -90,11 +90,11 @@ readonly abstract class Api
                 $error = 'unknown';
         }
 
-        $errors = ['badRequest' => 400, 'forbidden' => 403, 'notFound' => 404, 'notAcceptable' => 406];
+        $errors = ['badRequest' => 400, 'forbidden' => 403, 'notFound' => 404, 'notAcceptable' => 406, 'unknown' => 418];
 
-        $code = @$errors[$error] ?: 400;
+        $code = array_key_exists($error, $errors) ? $errors[$error] : 400;
 
-        return [$code => ['error' => $error]];
+        return [$code => ['error' => array_key_exists($code, Response::$codes) ? Response::$codes[$code]['message'] : $error]];
     }
 
     /**

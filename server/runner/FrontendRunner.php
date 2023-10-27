@@ -67,8 +67,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $m = explode('/', $path);
 
-        $api = @$m[0];
-        $method = @$m[1];
+        if (count($m) < 2)
+            return $this->emit($this->rbtResponse(404));
+
+        $api = $m[0];
+        $method = $m[1];
 
         $params = [];
 
@@ -77,8 +80,15 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $params["_path"] = ["api" => $api, "method" => $method];
 
-        $params["_request_method"] = @$_SERVER['REQUEST_METHOD'];
-        $params["ua"] = @$_SERVER["HTTP_USER_AGENT"];
+        if (!$_SERVER['REQUEST_METHOD'])
+            return $this->emit($this->rbtResponse(404));
+
+        $params["_request_method"] = $_SERVER['REQUEST_METHOD'];
+
+        if (!$_SERVER['HTTP_USER_AGENT'])
+            return $this->emit($this->rbtResponse(404));
+
+        $params["ua"] = $_SERVER["HTTP_USER_AGENT"];
 
         $params += $request->getQueryParams();
 
