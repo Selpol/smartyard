@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\accounts;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 
-class password extends Api
+readonly class password extends Api
 {
     public static function POST(array $params): array
     {

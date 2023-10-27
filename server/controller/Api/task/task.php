@@ -8,7 +8,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 
-class task
+readonly class task extends Api
 {
     /**
      * @throws ContainerExceptionInterface

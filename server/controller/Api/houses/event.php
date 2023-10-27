@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Feature\Plog\PlogFeature;
 
-class event extends Api
+readonly class event extends Api
 {
     public static function GET(array $params): array
     {

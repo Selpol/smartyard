@@ -8,7 +8,7 @@ use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\AuthService;
 
-class logout extends Api
+readonly class logout extends Api
 {
     /**
      * @throws RedisException

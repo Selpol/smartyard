@@ -138,30 +138,24 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
         }
 
-        if (file_exists(path("controller/Api/$api/$method.php"))) {
-            require_once path("controller/Api/$api/$method.php");
+        /** @var class-string<Api> $class */
+        $class = "Selpol\\Controller\\Api\\$api\\$method";
 
-            /** @var class-string<Api> $class */
-            $class = "Selpol\\Controller\\Api\\$api\\$method";
+        if (class_exists($class)) {
+            $result = $class::{$params['_request_method']}($params);
 
-            if (class_exists($class)) {
-                $result = $class::{$params['_request_method']}($params);
+            if ($result !== null) {
+                if ($result instanceof Response)
+                    return $this->emit($result);
 
-                if ($result !== null) {
-                    if ($result instanceof Response)
-                        return $this->emit($result);
+                $code = array_key_first($result);
 
-                    $code = array_key_first($result);
+                if ((int)$code) return $this->emit(json_response($result[$code])->withStatus($code));
+                else return $this->emit($this->rbtResponse(500));
+            }
 
-                    if ((int)$code) return $this->emit(json_response($result[$code])->withStatus($code));
-                    else return $this->emit($this->rbtResponse(500));
-                }
-
-                return $this->emit($this->response(204));
-            } else return $this->emit($this->rbtResponse(404));
-        }
-
-        return $this->emit($this->rbtResponse(404));
+            return $this->emit($this->response(204));
+        } else return $this->emit($this->rbtResponse(404));
     }
 
     protected function emit(ResponseInterface $response): int

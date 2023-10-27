@@ -8,7 +8,7 @@ use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\User\UserFeature;
 
-class user extends Api
+readonly class user extends Api
 {
     public static function GET(array $params): array
     {

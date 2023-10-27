@@ -8,7 +8,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSetCmsTask;
 use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
 
-class entrance extends Api
+readonly class entrance extends Api
 {
     public static function GET(array $params): array
     {

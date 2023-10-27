@@ -7,7 +7,7 @@ use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Service\DatabaseService;
 
-class keys extends Api
+readonly class keys extends Api
 {
     public static function GET(array $params): array
     {

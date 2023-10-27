@@ -10,7 +10,7 @@ use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 
-class house extends Api
+readonly class house extends Api
 {
     public static function GET(array $params): array
     {

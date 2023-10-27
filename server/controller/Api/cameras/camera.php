@@ -8,7 +8,7 @@ use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
-class camera extends Api
+readonly class camera extends Api
 {
     public static function GET(array $params): array
     {

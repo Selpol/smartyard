@@ -8,7 +8,7 @@ use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Frs\FrsFeature;
 
-class cameras extends Api
+readonly class cameras extends Api
 {
     public static function GET(array $params): array
     {

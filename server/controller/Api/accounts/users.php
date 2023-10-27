@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\accounts;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\User\UserFeature;
 
-class users extends Api
+readonly class users extends Api
 {
     public static function GET(array $params): array
     {

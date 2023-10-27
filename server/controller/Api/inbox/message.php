@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\inbox;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Inbox\InboxFeature;
 
-class message extends Api
+readonly class message extends Api
 {
     public static function GET(array $params): array
     {

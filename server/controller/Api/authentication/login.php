@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\authentication;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 
-class login extends Api
+readonly class login extends Api
 {
     public static function POST(array $params): array
     {

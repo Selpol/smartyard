@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Throwable;
 
-class version extends Api
+readonly class version extends Api
 {
     public static function GET(array $params): array
     {

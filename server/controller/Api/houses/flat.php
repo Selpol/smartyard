@@ -7,7 +7,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
-class flat extends Api
+readonly class flat extends Api
 {
     public static function GET(array $params): array
     {

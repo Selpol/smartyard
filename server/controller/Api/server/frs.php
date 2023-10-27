@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Entity\Repository\Frs\FrsServerRepository;
 
-class frs extends Api
+readonly class frs extends Api
 {
     public static function GET(array $params): array
     {

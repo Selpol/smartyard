@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\role;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Role\RoleFeature;
 
-class userRole extends Api
+readonly class userRole extends Api
 {
     public static function GET(array $params): array
     {

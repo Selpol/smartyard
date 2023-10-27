@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\subscribers;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class subscribers extends Api
+readonly class subscribers extends Api
 {
     public static function GET(array $params): array
     {

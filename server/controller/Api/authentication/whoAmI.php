@@ -8,7 +8,7 @@ use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
 use Selpol\Service\RedisService;
 
-class whoAmI extends Api
+readonly class whoAmI extends Api
 {
     /**
      * @throws RedisException

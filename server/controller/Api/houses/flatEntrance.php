@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 
-class flatEntrance extends Api
+readonly class flatEntrance extends Api
 {
     public static function POST(array $params): array
     {

@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\houses;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class sharedEntrances extends Api
+readonly class sharedEntrances extends Api
 {
     public static function GET(array $params): array
     {

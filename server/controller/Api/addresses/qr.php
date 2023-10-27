@@ -7,7 +7,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\QrTask;
 
-class qr extends Api
+readonly class qr extends Api
 {
     public static function POST(array $params): Response
     {

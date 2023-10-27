@@ -9,7 +9,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Monitor\MonitorFeature;
 
-class id extends Api
+readonly class id extends Api
 {
     /**
      * @throws NotFoundExceptionInterface

@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\addresses;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
-class addresses extends Api
+readonly class addresses extends Api
 {
     public static function GET(array $params): array
     {

@@ -8,7 +8,7 @@ use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 
-class domophones extends Api
+readonly class domophones extends Api
 {
     public static function GET(array $params): array
     {

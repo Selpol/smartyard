@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\houses;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class cameras extends Api
+readonly class cameras extends Api
 {
     public static function POST(array $params): array
     {

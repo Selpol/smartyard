@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\addresses;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
-class settlement extends Api
+readonly class settlement extends Api
 {
     public static function PUT(array $params): array
     {

@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Entity\Repository\Sip\SipUserRepository;
 
-class user extends Api
+readonly class user extends Api
 {
     public static function GET(array $params): array
     {

@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\houses;
 use Selpol\Controller\Api\Api;;
 use Selpol\Feature\Plog\PlogFeature;
 
-class log extends Api
+readonly class log extends Api
 {
     public static function GET(array $params): array
     {

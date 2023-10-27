@@ -3,14 +3,13 @@
 namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
-class domophone extends Api
+readonly class domophone extends Api
 {
     public static function GET(array $params): array
     {

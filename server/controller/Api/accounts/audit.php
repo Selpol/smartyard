@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\accounts;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\AuditRepository;
 
-class audit extends Api
+readonly class audit extends Api
 {
     public static function GET(array $params): array
     {

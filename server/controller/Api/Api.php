@@ -4,7 +4,7 @@ namespace Selpol\Controller\Api;
 
 use Selpol\Framework\Http\Response;
 
-class Api
+readonly abstract class Api
 {
     public static function GET(array $params): array|Response
     {

@@ -6,7 +6,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSyncCmsTask;
 
-class cms extends Api
+readonly class cms extends Api
 {
     public static function GET(array $params): array
     {

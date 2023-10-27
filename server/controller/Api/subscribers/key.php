@@ -8,7 +8,7 @@ use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
 
-class key extends Api
+readonly class key extends Api
 {
     public static function GET(array $params): array
     {

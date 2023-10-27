@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\geo;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Geo\GeoFeature;
 
-class suggestions extends Api
+readonly class suggestions extends Api
 {
 
     public static function GET(array $params): array

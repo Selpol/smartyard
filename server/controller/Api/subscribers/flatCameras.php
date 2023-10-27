@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\subscribers;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
-class flatCameras extends Api
+readonly class flatCameras extends Api
 {
     public static function POST(array $params): array
     {
