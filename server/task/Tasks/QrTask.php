@@ -10,13 +10,15 @@ use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
-use Selpol\Task\TaskUnique;
 use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 use ZipArchive;
 
 class QrTask extends Task implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public int $houseId;
     public ?int $flatId;
     public bool $override;
@@ -28,11 +30,6 @@ class QrTask extends Task implements TaskUniqueInterface
         $this->houseId = $houseId;
         $this->flatId = $flatId;
         $this->override = $override;
-    }
-
-    public function unique(): TaskUnique
-    {
-        return new TaskUnique([QrTask::class, $this->houseId, $this->flatId]);
     }
 
     public function onTask(): ?string

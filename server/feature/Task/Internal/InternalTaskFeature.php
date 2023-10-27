@@ -53,7 +53,7 @@ readonly class InternalTaskFeature extends TaskFeature
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
 
-            $this->getRedis()->getConnection()->setex('task:unique:' . $unique->identifier, $unique->ttl, $unique->identifier);
+            $this->getRedis()->getConnection()->setex('task:unique:' . $unique[0], $unique[1], $unique[0]);
         }
     }
 
@@ -65,7 +65,7 @@ readonly class InternalTaskFeature extends TaskFeature
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
 
-            return $this->getRedis()->getConnection()->exists('task:unique:' . $unique->identifier) === 1;
+            return $this->getRedis()->getConnection()->exists('task:unique:' . $unique[0]) === 1;
         }
 
         return false;
@@ -79,7 +79,7 @@ readonly class InternalTaskFeature extends TaskFeature
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
 
-            $this->getRedis()->getConnection()->del('task:unique:' . $unique->identifier);
+            $this->getRedis()->getConnection()->del('task:unique:' . $unique[0]);
         }
     }
 

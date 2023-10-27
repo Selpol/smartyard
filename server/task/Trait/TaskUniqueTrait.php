@@ -4,7 +4,6 @@ namespace Selpol\Task\Trait;
 
 use ReflectionClass;
 use ReflectionProperty;
-use Selpol\Task\TaskUnique;
 
 /**
  * @property int $taskUniqueTtl
@@ -12,17 +11,22 @@ use Selpol\Task\TaskUnique;
  */
 trait TaskUniqueTrait
 {
-    public function unique(): TaskUnique
+    public function unique(): array
     {
         $class = new ReflectionClass($this);
         $properties = $class->getProperties(ReflectionProperty::IS_PUBLIC);
 
         $value = [$class->getName()];
 
+        $exclude = ['title', 'retry', 'taskUniqueIgnore', 'taskUniqueTtl'];
+
+        if (isset($this->taskUniqueIgnore))
+            $exclude = array_merge($this->taskUniqueIgnore, $exclude);
+
         foreach ($properties as $property)
-            if (!$property->isStatic() && !in_array($property->getName(), $this->taskUniqueIgnore ?? ['title', 'retry', 'taskUniqueIgnore', 'taskUniqueTtl']))
+            if (!$property->isStatic() && !in_array($property->getName(), $exclude))
                 $value[] = $property->getValue($this);
 
-        return new TaskUnique($value, $this->taskUniqueTtl ?? 3600);
+        return [implode('/', $value), $this->taskUniqueTtl ?? 3600];
     }
 }
