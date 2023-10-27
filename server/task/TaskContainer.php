@@ -3,7 +3,8 @@
 namespace Selpol\Task;
 
 use Exception;
-use Selpol\Http\Exception\HttpException;
+use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Service\TaskService;
 use Throwable;
 
@@ -65,11 +66,14 @@ class TaskContainer
         try {
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 
+            if (container(AuditFeature::class)->canAudit())
+                container(AuditFeature::class)->audit('-1', $this->task::class, 'task', 'Запуск новой задачи');
+
             return true;
         } catch (Throwable $throwable) {
             $logger->error('Error dispatching task' . PHP_EOL . $throwable);
 
-            if ($throwable instanceof HttpException)
+            if ($throwable instanceof KernelException)
                 throw $throwable;
 
             return false;

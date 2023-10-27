@@ -7,6 +7,7 @@ use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
 class domophone extends Api
@@ -52,8 +53,12 @@ class domophone extends Api
         self::set($intercom, $params);
 
         if (container(DeviceIntercomRepository::class)->update($intercom)) {
-            if (array_key_exists('configure', $params) && $params['configure'])
+            if (array_key_exists('configure', $params) && $params['configure']) {
                 task(new IntercomConfigureTask($intercom->house_domophone_id))->high()->dispatch();
+
+                if (container(AuditFeature::class)->canAudit())
+                    container(AuditFeature::class)->audit(strval($intercom->house_domophone_id), DeviceIntercom::class, 'update', 'Синхронизация домофона');
+            }
 
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
         }
