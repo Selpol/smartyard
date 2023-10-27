@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method DvrServer[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<DvrServer> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method DvrServer findById(mixed $id)
+ * @method DvrServer|null findById(mixed $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, DvrServer>
  */

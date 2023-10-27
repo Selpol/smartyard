@@ -14,7 +14,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method Task[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<Task> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method Task findById(int $id)
+ * @method Task|null findById(int $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, Task>
  */

@@ -14,7 +14,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method FrsFace[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<FrsFace> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method FrsFace findById(int $id)
+ * @method FrsFace|null findById(int $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, FrsFace>
  */

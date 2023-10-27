@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method HouseKey[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<HouseKey> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method HouseKey findById(int $id)
+ * @method HouseKey|null findById(int $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, HouseKey>
  */

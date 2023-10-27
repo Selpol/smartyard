@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method Role[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<Role> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method Role findById(int $id)
+ * @method Role|null findById(int $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, Role>
  */

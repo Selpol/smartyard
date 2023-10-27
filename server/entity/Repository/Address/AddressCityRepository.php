@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method AddressCity[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<AddressCity> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method AddressCity findById(int $id)
+ * @method AddressCity|null findById(int $id, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, AddressCity>
  */

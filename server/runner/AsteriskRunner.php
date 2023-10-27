@@ -4,6 +4,7 @@ namespace Selpol\Runner;
 
 use RedisException;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
+use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Entity\Repository\Sip\SipUserRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
@@ -294,7 +295,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'allow_subscribe' => 'yes',
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'no',
-                            'sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
+                            'set_var=sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
                         ];
                 }
             }
@@ -337,18 +338,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // sip extension
         if ($extension[0] === '4' && strlen($extension) === 10) {
-            $households = container(HouseFeature::class);
+            $flat = container(HouseFlatRepository::class)->findById((int)substr($extension, 1), (new EntitySetting())->columns(['house_flat_id', 'sip_password']));
 
-            $flatId = (int)substr($extension, 1);
-            $flat = $households->getFlat($flatId);
-
-            if ($flat && $flat['sipPassword']) {
+            if ($flat && $flat->sip_password) {
                 switch ($section) {
                     case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
 
                     case 'auths':
-                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $flat['sipPassword']];
+                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $flat->sip_password];
 
                     case 'endpoints':
                         return [
@@ -356,7 +354,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $flat['flatId'],
+                            'callerid' => $flat->house_flat_id,
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,ulaw,h264',
