@@ -16,46 +16,6 @@ readonly class InternalRoleFeature extends RoleFeature
 {
     /**
      * @throws NotFoundExceptionInterface
-     */
-    public function roles(): array
-    {
-        return container(RoleRepository::class)->fetchAll();
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function permissions(): array
-    {
-        return container(PermissionRepository::class)->fetchAll();
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function findPermissionsForRole(int $roleId): array
-    {
-        return container(PermissionRepository::class)->fetchAll(criteria()->where('id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)')->bind('role_id', $roleId));
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function findRolesForUser(int $userId): array
-    {
-        return container(RoleRepository::class)->fetchAll(criteria()->where('id IN (SELECT role_id FROM user_role WHERE user_id = :user_id)')->bind('user_id', $userId));
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    public function findPermissionsForUser(int $userId): array
-    {
-        return container(PermissionRepository::class)->fetchAll(criteria()->where('id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)')->bind('user_id', $userId));
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     public function createRole(string $title, string $description): Role
@@ -156,11 +116,11 @@ readonly class InternalRoleFeature extends RoleFeature
             return ['*'];
 
         return container(RedisCache::class)->cache('user:' . $userId . ':permission', function () use ($userId) {
-            $result = $this->findPermissionsForUser($userId);
-            $roles = $this->findRolesForUser($userId);
+            $result = container(PermissionRepository::class)->findByUserId($userId);
+            $roles = container(RoleRepository::class)->findByUserId($userId);
 
             foreach ($roles as $role)
-                $result = array_merge($result, $this->findPermissionsForRole($role->id));
+                $result = array_merge($result, container(PermissionRepository::class)->findByRoleId($role->id));
 
             return array_values(array_unique(array_map(static fn(Permission $permission) => $permission->title, $result)));
         }, 60);

@@ -33,4 +33,22 @@ readonly class PermissionRepository extends EntityRepository
     {
         return $this->fetch(criteria()->equal('title', $title));
     }
+
+    /**
+     * @param int $roleId
+     * @return Permission[]
+     */
+    public function findByRoleId(int $roleId): array
+    {
+        return $this->fetchAll(criteria()->where('id IN(SELECT permission_id FROM role_permission WHERE role_id = :role_id)')->bind('role_id', $roleId));
+    }
+
+    /**
+     * @param int $userId
+     * @return Permission[]
+     */
+    public function findByUserId(int $userId): array
+    {
+        return $this->fetchAll(criteria()->where('id IN(SELECT permission_id FROM user_permission WHERE user_id = :user_id)')->bind('user_id', $userId));
+    }
 }

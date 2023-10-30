@@ -454,7 +454,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $db = container(DatabaseService::class);
 
         /** @var array<string, Permission> $titlePermissions */
-        $titlePermissions = array_reduce(container(RoleFeature::class)->permissions(), static function (array $previous, Permission $current) {
+        $titlePermissions = array_reduce(container(PermissionRepository::class)->fetchAll(), static function (array $previous, Permission $current) {
             $previous[$current->title] = $current;
 
             return $previous;
@@ -511,7 +511,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function roleClear(): void
     {
-        $permissions = container(RoleFeature::class)->permissions();
+        $permissions = container(PermissionRepository::class)->fetchAll();
 
         $repository = container(PermissionRepository::class);
 

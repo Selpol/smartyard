@@ -28,4 +28,13 @@ readonly class RoleRepository extends EntityRepository
     {
         parent::__construct(Role::class);
     }
+
+    /**
+     * @param int $userId
+     * @return Role[]
+     */
+    public function findByUserId(int $userId): array
+    {
+        return $this->fetchAll(criteria()->where('id IN (SELECT role_id FROM user_role WHERE user_id = :user_id)')->bind('user_id', $userId));
+    }
 }

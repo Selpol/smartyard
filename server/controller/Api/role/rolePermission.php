@@ -3,6 +3,7 @@
 namespace Selpol\Controller\Api\role;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Role\RoleFeature;
 
 readonly class rolePermission extends Api
@@ -11,7 +12,7 @@ readonly class rolePermission extends Api
     {
         $id = rule()->id()->onItem('_id', $params);
 
-        return self::SUCCESS('permissions', container(RoleFeature::class)->findPermissionsForRole($id));
+        return self::SUCCESS('permissions', container(PermissionRepository::class)->findByRoleId($id));
     }
 
     public static function POST(array $params): array
