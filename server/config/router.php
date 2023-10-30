@@ -28,8 +28,6 @@ return static function (RC $builder) {
         $builder->include(InternalMiddleware::class);
 
         $builder->group('/actions', static function (RC $builder) {
-            $builder->get('/getSyslogConfig', [InternalActionController::class, 'getSyslogConfig']);
-
             $builder->post('/callFinished', [InternalActionController::class, 'callFinished']);
             $builder->post('/motionDetection', [InternalActionController::class, 'motionDetection']);
             $builder->post('/openDoor', [InternalActionController::class, 'openDoor']);

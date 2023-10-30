@@ -4,7 +4,9 @@ namespace Selpol\Controller\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
+use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
@@ -40,27 +42,24 @@ readonly class ActionController extends Controller
 
         file_logger('internal')->debug('Motion detection', $body);
 
-        $db = container(DatabaseService::class);
-
         $logger = file_logger('motion');
 
         ["ip" => $ip, "motionActive" => $motionActive] = $body;
 
-        $query = 'SELECT camera_id, frs FROM cameras WHERE frs != :frs AND ip = :ip';
-        $params = ["ip" => $ip, "frs" => "-"];
-        $result = $db->get($query, $params);
+        $deviceCamera = container(DeviceCameraRepository::class)->fetch(
+            criteria()->simple('frs', '!=', '-')->equal('ip', $ip),
+            (new EntitySetting())->columns(['camera_id', 'frs'])
+        );
 
-        if (!$result) {
+        if (!$deviceCamera) {
             $logger->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $ip]);
 
             return $this->rbtResponse(400, message: 'Детектор движений не включен');
         }
 
-        [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $result;
+        $payload = ["streamId" => $deviceCamera->camera_id, "start" => $motionActive ? 't' : 'f'];
 
-        $payload = ["streamId" => $streamId, "start" => $motionActive ? 't' : 'f'];
-
-        container(FrsService::class)->request('POST', $frsUrl . "/api/motionDetection", $payload);
+        container(FrsService::class)->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
 
         return $this->rbtResponse();
     }
@@ -95,17 +94,13 @@ readonly class ActionController extends Controller
             case PlogFeature::EVENT_OPENED_BY_BUTTON:
                 $db = container(DatabaseService::class);
 
-                [0 => [
-                    "camera_id" => $streamId,
-                    "frs" => $frsUrl
-                ]] = $db->get(
+                [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $db->get(
                     'SELECT frs, camera_id FROM cameras 
                         WHERE camera_id = (
                         SELECT camera_id FROM houses_domophones 
                         LEFT JOIN houses_entrances USING (house_domophone_id)
                         WHERE ip = :ip AND domophone_output = :door)',
-                    ["ip" => $ip, "door" => $door],
-                    []
+                    ["ip" => $ip, "door" => $door]
                 );
 
                 if (isset($frsUrl)) {
@@ -128,16 +123,10 @@ readonly class ActionController extends Controller
     {
         $body = $this->route->getRequest()->getParsedBody();
 
-        if (!isset(
-            $body["ip"],
-            $body["prefix"],
-            $body["apartmentNumber"],
-            $body["apartmentId"],
-            $body["date"],
-        ))
+        if (!isset($body["ip"], $body["prefix"], $body["apartmentNumber"], $body["apartmentId"], $body["date"]))
             return $this->rbtResponse(400, message: 'Неверный формат данных');
 
-        ["ip" => $ip, "prefix" => $prefix, "apartmentNumber" => $apartment_number, "apartmentId" => $apartment_id, "date" => $date,] = $body;
+        ["ip" => $ip, "prefix" => $prefix, "apartmentNumber" => $apartment_number, "apartmentId" => $apartment_id, "date" => $date] = $body;
 
         $query = "UPDATE houses_flats SET last_opened = :last_opened
         WHERE (flat = :flat OR house_flat_id = :house_flat_id) AND white_rabbit > 0 AND address_house_id = (
@@ -145,32 +134,12 @@ readonly class ActionController extends Controller
         WHERE prefix = :prefix AND house_entrance_id = (
         SELECT house_entrance_id FROM houses_domophones LEFT JOIN houses_entrances USING (house_domophone_id) 
         WHERE ip = :ip AND entrance_type = 'wicket'))";
-        $params = [
-            "ip" => $ip,
-            "flat" => $apartment_number,
-            "house_flat_id" => $apartment_id,
-            "prefix" => $prefix,
-            "last_opened" => $date,
-        ];
 
-        $result = container(DatabaseService::class)->modify($query, $params);
+        $result = container(DatabaseService::class)->modify(
+            $query,
+            ['ip' => $ip, 'flat' => $apartment_number, 'house_flat_id' => $apartment_id, 'prefix' => $prefix, 'last_opened' => $date]
+        );
 
         return $this->rbtResponse(202, ['id' => $result]);
-    }
-
-    public function getSyslogConfig(): Response
-    {
-        $config = config_get('feature.plog');
-
-        return $this->rbtResponse(data: [
-            'clickhouseService' => [
-                'host' => $config['host'],
-                'port' => $config['port'],
-                'database' => $config['database'],
-                'username' => $config['username'],
-                'password' => $config['password'],
-            ],
-            'hw' => config('syslog_servers')
-        ]);
     }
 }

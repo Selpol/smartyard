@@ -6,6 +6,10 @@ use Selpol\Framework\Http\Response;
 
 readonly abstract class Api
 {
+    private function __construct()
+    {
+    }
+
     public static function GET(array $params): array|Response
     {
         return self::ANSWER(false, 'badRequest');
