@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
+use SensitiveParameter;
 use Throwable;
 
 trait IsTrait
@@ -23,5 +24,12 @@ trait IsTrait
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    public function setLoginPassword(#[SensitiveParameter] string $password): static
+    {
+        $this->put('/user/change_password', ['newPassword' => $password]);
+
+        return $this;
     }
 }

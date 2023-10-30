@@ -57,6 +57,7 @@ return [
     'amqp' => [
         'host' => env('AMQP_HOST', '127.0.0.1'),
         'port' => intval(env('AMQP_PORT', '5672')),
+
         'username' => env('AMQP_USERNAME', 'guest'),
         'password' => env('AMQP_PASSWORD', 'guest')
     ],

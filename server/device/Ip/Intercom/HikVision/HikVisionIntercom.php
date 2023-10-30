@@ -6,12 +6,15 @@ use DateInterval;
 use DateTime;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
 class HikVisionIntercom extends IntercomDevice
 {
+    use HikVisionTrait;
+
     public string $login = 'admin';
 
     protected ?array $rfids = null;

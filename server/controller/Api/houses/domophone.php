@@ -51,16 +51,8 @@ readonly class domophone extends Api
 
         self::set($intercom, $params);
 
-        if (container(DeviceIntercomRepository::class)->update($intercom)) {
-            if (array_key_exists('configure', $params) && $params['configure']) {
-                task(new IntercomConfigureTask($intercom->house_domophone_id))->high()->dispatch();
-
-                if (container(AuditFeature::class)->canAudit())
-                    container(AuditFeature::class)->audit(strval($intercom->house_domophone_id), DeviceIntercom::class, 'update', 'Синхронизация домофона');
-            }
-
+        if (container(DeviceIntercomRepository::class)->update($intercom))
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
-        }
 
         return Api::ERROR('Неудалось обновить домофон');
     }

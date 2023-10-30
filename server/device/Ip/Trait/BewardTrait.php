@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
+use SensitiveParameter;
 use Throwable;
 
 trait BewardTrait
@@ -16,6 +17,13 @@ trait BewardTrait
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    public function setLoginPassword(#[SensitiveParameter] string $password): static
+    {
+        $this->get('/cgi-bin/pwdgrp_cgi', ['action' => 'update', 'username' => $this->login, 'password' => $password, 'blockdoors' => 1]);
+
+        return $this;
     }
 
     protected function parseParamValueHelp(string $response): array

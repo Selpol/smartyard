@@ -62,6 +62,11 @@ abstract class IpDevice extends Device
         throw new DeviceException($this);
     }
 
+    public function setLoginPassword(#[SensitiveParameter] string $password): static
+    {
+        return $this;
+    }
+
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
     {
         return $this;
