@@ -28,6 +28,8 @@ readonly class password extends Api
 
                 $password = generate_password();
 
+                file_logger('intercom')->debug('Обновление пароля устройства', ['id' => $deviceIntercom->house_domophone_id, 'password' => $password]);
+
                 try {
                     $sipServer = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
