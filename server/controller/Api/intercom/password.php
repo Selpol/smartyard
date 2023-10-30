@@ -7,6 +7,7 @@ use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Http\Uri;
 use Selpol\Service\DeviceService;
 use Throwable;
 
@@ -27,8 +28,6 @@ readonly class password extends Api
 
                 $password = generate_password();
 
-                $intercom->setLoginPassword($password);
-
                 try {
                     $sipServer = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
@@ -37,7 +36,11 @@ readonly class password extends Api
                     $intercom->setSip($username, $password, $sipServer->internal_ip, 5060);
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
+
+                    return self::ERROR('Неудалось обновить sip аккаунт домофона');
                 }
+
+                $intercom->setLoginPassword($password);
 
                 $oldIntercomPassword = $deviceIntercom->credentials;
                 $deviceIntercom->credentials = $password;
@@ -50,6 +53,8 @@ readonly class password extends Api
 
                 if ($deviceCamera) {
                     $oldCameraPassword = $deviceIntercom->credentials;
+
+                    $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($intercom->login, $password);
                     $deviceCamera->credentials = $password;
 
                     if (!container(DeviceCameraRepository::class)->update($deviceCamera)) {
@@ -58,6 +63,8 @@ readonly class password extends Api
                         return self::ERROR('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');
                     }
                 }
+
+                return self::ANSWER();
             }
 
             return self::ERROR('Неудалось определить модель устройства');
