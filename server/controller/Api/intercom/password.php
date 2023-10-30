@@ -56,7 +56,9 @@ readonly class password extends Api
                 if ($deviceCamera) {
                     $oldCameraPassword = $deviceIntercom->credentials;
 
-                    $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($intercom->login, $password);
+                    if ($deviceCamera->stream && trim($deviceCamera->stream) !== '')
+                        $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($intercom->login, $password);
+
                     $deviceCamera->credentials = $password;
 
                     if (!container(DeviceCameraRepository::class)->update($deviceCamera)) {
