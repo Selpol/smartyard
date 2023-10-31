@@ -19,97 +19,97 @@ use Selpol\Middleware\JwtMiddleware;
 use Selpol\Middleware\MobileMiddleware;
 use Selpol\Middleware\PrometheusMiddleware;
 use Selpol\Middleware\RateLimitMiddleware;
-use Selpol\Router\RouterConfigurator as RC;
+use Selpol\Router\RouterConfigurator;
 
-return static function (RC $builder) {
-    $builder->include(PrometheusMiddleware::class);
+return static function (RouterConfigurator $configurator) {
+    $configurator->include(PrometheusMiddleware::class);
 
-    $builder->group('/internal', static function (RC $builder) {
-        $builder->include(InternalMiddleware::class);
+    $configurator->group('/internal', static function (RouterConfigurator $configurator) {
+        $configurator->include(InternalMiddleware::class);
 
-        $builder->group('/actions', static function (RC $builder) {
-            $builder->post('/callFinished', [InternalActionController::class, 'callFinished']);
-            $builder->post('/motionDetection', [InternalActionController::class, 'motionDetection']);
-            $builder->post('/openDoor', [InternalActionController::class, 'openDoor']);
-            $builder->post('/setRabbitGates', [InternalActionController::class, 'setRabbitGates']);
+        $configurator->group('/actions', static function (RouterConfigurator $configurator) {
+            $configurator->post('/callFinished', [InternalActionController::class, 'callFinished']);
+            $configurator->post('/motionDetection', [InternalActionController::class, 'motionDetection']);
+            $configurator->post('/openDoor', [InternalActionController::class, 'openDoor']);
+            $configurator->post('/setRabbitGates', [InternalActionController::class, 'setRabbitGates']);
         });
 
-        $builder->group('/frs', static function (RC $builder) {
-            $builder->post('/callback', [InternalFrsController::class, 'callback']);
-            $builder->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
+        $configurator->group('/frs', static function (RouterConfigurator $configurator) {
+            $configurator->post('/callback', [InternalFrsController::class, 'callback']);
+            $configurator->get('/camshot/{id}', [InternalFrsController::class, 'camshot']);
         });
 
-        $builder->group('/sync', static function (RC $builder) {
-            $builder->post('/house', [InternalSyncController::class, 'getHouseGroup']);
+        $configurator->group('/sync', static function (RouterConfigurator $configurator) {
+            $configurator->post('/house', [InternalSyncController::class, 'getHouseGroup']);
 
-            $builder->post('/subscriber', [InternalSyncController::class, 'addSubscriberGroup']);
-            $builder->put('/subscriber', [InternalSyncController::class, 'updateSubscriberGroup']);
-            $builder->delete('/subscriber', [InternalSyncController::class, 'deleteSubscriberGroup']);
+            $configurator->post('/subscriber', [InternalSyncController::class, 'addSubscriberGroup']);
+            $configurator->put('/subscriber', [InternalSyncController::class, 'updateSubscriberGroup']);
+            $configurator->delete('/subscriber', [InternalSyncController::class, 'deleteSubscriberGroup']);
 
-            $builder->put('/flat', [InternalSyncController::class, 'updateFlatGroup']);
+            $configurator->put('/flat', [InternalSyncController::class, 'updateFlatGroup']);
 
-            $builder->post('/link', [InternalSyncController::class, 'addSubscriberToFlatGroup']);
-            $builder->put('/link', [InternalSyncController::class, 'updateSubscriberToFlatGroup']);
-            $builder->delete('/link', [InternalSyncController::class, 'deleteSubscriberFromFlatGroup']);
+            $configurator->post('/link', [InternalSyncController::class, 'addSubscriberToFlatGroup']);
+            $configurator->put('/link', [InternalSyncController::class, 'updateSubscriberToFlatGroup']);
+            $configurator->delete('/link', [InternalSyncController::class, 'deleteSubscriberFromFlatGroup']);
         });
 
-        $builder->get('/prometheus', [InternalPrometheusController::class, 'index']);
+        $configurator->get('/prometheus', [InternalPrometheusController::class, 'index']);
     });
 
-    $builder->group('/mobile', static function (RC $builder) {
-        $builder->include(JwtMiddleware::class);
-        $builder->include(MobileMiddleware::class);
-        $builder->include(RateLimitMiddleware::class);
+    $configurator->group('/mobile', static function (RouterConfigurator $configurator) {
+        $configurator->include(JwtMiddleware::class);
+        $configurator->include(MobileMiddleware::class);
+        $configurator->include(RateLimitMiddleware::class);
 
-        $builder->group('/address', static function (RC $builder) {
-            $builder->post('/getAddressList', [AddressController::class, 'getAddressList']);
-            $builder->post('/registerQR', [AddressController::class, 'registerQR'], excludes: [MobileMiddleware::class]);
+        $configurator->group('/address', static function (RouterConfigurator $configurator) {
+            $configurator->post('/getAddressList', [AddressController::class, 'getAddressList']);
+            $configurator->post('/registerQR', [AddressController::class, 'registerQR'], excludes: [MobileMiddleware::class]);
 
-            $builder->post('/intercom', [IntercomController::class, 'intercom']);
-            $builder->post('/openDoor', [IntercomController::class, 'openDoor']);
-            $builder->post('/resetCode', [IntercomController::class, 'resetCode']);
+            $configurator->post('/intercom', [IntercomController::class, 'intercom']);
+            $configurator->post('/openDoor', [IntercomController::class, 'openDoor']);
+            $configurator->post('/resetCode', [IntercomController::class, 'resetCode']);
 
-            $builder->post('/plog', [PlogController::class, 'index']);
-            $builder->get('/plogCamshot/{uuid}', [PlogController::class, 'camshot'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
-            $builder->post('/plogDays', [PlogController::class, 'days']);
+            $configurator->post('/plog', [PlogController::class, 'index']);
+            $configurator->get('/plogCamshot/{uuid}', [PlogController::class, 'camshot'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
+            $configurator->post('/plogDays', [PlogController::class, 'days']);
         });
 
-        $builder->group('/cctv', static function (RC $builder) {
-            $builder->post('/all', [CameraController::class, 'index']);
-            $builder->get('/{cameraId}', [CameraController::class, 'show']);
+        $configurator->group('/cctv', static function (RouterConfigurator $configurator) {
+            $configurator->post('/all', [CameraController::class, 'index']);
+            $configurator->get('/{cameraId}', [CameraController::class, 'show']);
 
-            $builder->post('/events', [CameraController::class, 'events']);
+            $configurator->post('/events', [CameraController::class, 'events']);
 
-            $builder->post('/recPrepare', [ArchiveController::class, 'prepare']);
-            $builder->get('/download/{uuid}', [ArchiveController::class, 'download'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
+            $configurator->post('/recPrepare', [ArchiveController::class, 'prepare']);
+            $configurator->get('/download/{uuid}', [ArchiveController::class, 'download'], excludes: [JwtMiddleware::class, MobileMiddleware::class]);
         });
 
-        $builder->group('/call', static function (RC $builder) {
-            $builder->get('/camshot/{hash}', [CallController::class, 'camshot']);
-            $builder->get('/live/{hash}', [CallController::class, 'live']);
+        $configurator->group('/call', static function (RouterConfigurator $configurator) {
+            $configurator->get('/camshot/{hash}', [CallController::class, 'camshot']);
+            $configurator->get('/live/{hash}', [CallController::class, 'live']);
         });
 
-        $builder->group('/frs', static function (RC $builder) {
-            $builder->get('/{flatId}', [FrsController::class, 'index']);
-            $builder->post('/{eventId}', [FrsController::class, 'store']);
-            $builder->delete('/', [FrsController::class, 'delete']);
+        $configurator->group('/frs', static function (RouterConfigurator $configurator) {
+            $configurator->get('/{flatId}', [FrsController::class, 'index']);
+            $configurator->post('/{eventId}', [FrsController::class, 'store']);
+            $configurator->delete('/', [FrsController::class, 'delete']);
         });
 
-        $builder->group('/inbox', static function (RC $builder) {
-            $builder->post('/read', [InboxController::class, 'read']);
-            $builder->post('/unread', [InboxController::class, 'unread']);
+        $configurator->group('/inbox', static function (RouterConfigurator $configurator) {
+            $configurator->post('/read', [InboxController::class, 'read']);
+            $configurator->post('/unread', [InboxController::class, 'unread']);
         });
 
-        $builder->group('/subscriber', static function (RC $builder) {
-            $builder->get('/{flatId}', [SubscriberController::class, 'index']);
-            $builder->post('/{flatId}', [SubscriberController::class, 'store']);
-            $builder->delete('/{flatId}', [SubscriberController::class, 'delete']);
+        $configurator->group('/subscriber', static function (RouterConfigurator $configurator) {
+            $configurator->get('/{flatId}', [SubscriberController::class, 'index']);
+            $configurator->post('/{flatId}', [SubscriberController::class, 'store']);
+            $configurator->delete('/{flatId}', [SubscriberController::class, 'delete']);
         });
 
-        $builder->group('/user', static function (RC $builder) {
-            $builder->post('/ping', [UserController::class, 'ping']);
-            $builder->post('/registerPushToken', [UserController::class, 'registerPushToken']);
-            $builder->post('/sendName', [UserController::class, 'sendName']);
+        $configurator->group('/user', static function (RouterConfigurator $configurator) {
+            $configurator->post('/ping', [UserController::class, 'ping']);
+            $configurator->post('/registerPushToken', [UserController::class, 'registerPushToken']);
+            $configurator->post('/sendName', [UserController::class, 'sendName']);
         });
     });
 };
