@@ -6,7 +6,10 @@ use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Sip\SipServer;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -31,9 +34,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     {
         $households = container(HouseFeature::class);
 
-        $domophone = $households->getDomophone($this->id);
+        $deviceIntercom = container(DeviceIntercomRepository::class)->findById($this->id);
+        $deviceModel = IntercomModel::model($deviceIntercom->model);
 
-        if (!$domophone) {
+        if (!$deviceIntercom || !$deviceModel) {
             file_logger('intercom')->debug('Domophone not found', ['id' => $this->id]);
 
             return false;
@@ -51,12 +55,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(2);
 
-        $asterisk_server = container(SipFeature::class)->server('ip', $domophone['server'])[0];
+        $asterisk_server = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
         $panel_text = $entrances[0]['callerId'];
 
         try {
-            $device = container(DeviceService::class)->intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+            $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
             if (!$device)
                 return false;
@@ -64,11 +68,20 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if (!$device->ping())
                 throw new DeviceException($device, message: 'Устройство не доступно');
 
+            if ($deviceIntercom->first_time == 0) {
+                $device->prepare();
+
+                $deviceIntercom->first_time = 1;
+
+                container(DeviceIntercomRepository::class)->update($deviceIntercom);
+                container(DeviceIntercomRepository::class)->refresh($deviceIntercom);
+            }
+
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);
             $is_shared = $entrances[0]['shared'];
 
-            $this->clean($domophone, $asterisk_server, $cms_levels, $cms_model->model, $device);
+            $this->clean($deviceIntercom, $asterisk_server, $cms_levels, $cms_model->model, $device);
             $this->mifare($device);
             $this->cms($is_shared, $entrances, $device);
 
@@ -85,7 +98,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $device->deffer();
 
-            $syslogs = config('syslog_servers')[$domophone['json']['syslog']];
+            $syslogs = config('syslog_servers')[$deviceModel->syslog];
 
             $syslog = new Uri($syslogs[array_rand($syslogs)]);
 
@@ -102,7 +115,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function clean(array $domophone, SipServer $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
+    private function clean(DeviceIntercom $deviceIntercom, SipServer $asterisk_server, array $cms_levels, ?string $cms_model, IntercomDevice $device): void
     {
         $this->setProgress(5);
 
@@ -113,11 +126,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $ntp_server = $ntp->getHost();
         $ntp_port = $ntp->getPort() ?? 123;
 
-        $sip_username = sprintf("1%05d", $domophone['domophoneId']);
+        $sip_username = sprintf("1%05d", $deviceIntercom->house_domophone_id);
         $sip_server = $asterisk_server->internal_ip;
         $sip_port = 5060;
 
-        $main_door_dtmf = $domophone['dtmf'];
+        $main_door_dtmf = $deviceIntercom->dtmf;
 
         $device->clean($sip_server, $ntp_server, $sip_username, $sip_port, $ntp_port, $main_door_dtmf, $cms_levels, $cms_model);
 

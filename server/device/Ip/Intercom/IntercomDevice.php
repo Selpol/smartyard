@@ -225,14 +225,18 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
+    public function prepare(): void
+    {
+        $this->setAudioLevelsDefault();
+        $this->setVideoEncodingDefault();
+    }
+
     public function clean(string $sip_server, string $ntp_server, string $sip_username, int $sip_port, int $ntp_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
     {
         $this->setUnlockTime(5);
         $this->setPublicCode(0);
         $this->setCallTimeout(45);
         $this->setTalkTimeout(90);
-        $this->setAudioLevelsDefault();
-        $this->setVideoEncodingDefault();
         $this->setCmsLevels($cms_levels);
         $this->setNtp($ntp_server, $ntp_port);
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);
