@@ -82,10 +82,10 @@ readonly abstract class Api
     /**
      * more specific (error only) return function
      *
-     * @param string $error
+     * @param bool|int|string $error
      * @return array
      */
-    public static function ERROR(string $error = ''): array
+    public static function ERROR(bool|int|string $error = ''): array
     {
         if (!$error) {
             $error = last_error();
