@@ -18,12 +18,21 @@ readonly class EntityStatement implements EntityStatementInterface
 
     public function execute(?array $value = null): bool
     {
-        return $this->statement->execute($value);
+        if ($value)
+            foreach ($value as $key => $item) {
+                if (is_bool($item)) $this->statement->bindParam($key, $item, PDO::PARAM_BOOL);
+                else if (is_int($item)) $this->statement->bindParam($key, $item, PDO::PARAM_INT);
+                else $this->statement->bindParam($key, $item);
+            }
+
+        return $this->statement->execute();
     }
 
     public function fetch(): ?array
     {
-        return $this->statement->fetch(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetch(PDO::FETCH_ASSOC);
+
+        return $result === false ? null : $result;
     }
 
     public function fetchColumn(int $index): mixed
@@ -33,7 +42,9 @@ readonly class EntityStatement implements EntityStatementInterface
 
     public function fetchAll(): array
     {
-        return $this->statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetchAll(PDO::FETCH_ASSOC);
+
+        return $result === false ? [] : $result;
     }
 
     public function count(): int
