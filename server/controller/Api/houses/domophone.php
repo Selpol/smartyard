@@ -6,25 +6,23 @@ use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
-use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
 readonly class domophone extends Api
 {
     public static function GET(array $params): array
     {
         $intercom = container(DeviceIntercomRepository::class)->findById($params['_id'])->toArrayMap([
-            "house_domophone_id" => "domophoneId",
-            "enabled" => "enabled",
-            "model" => "model",
-            "server" => "server",
-            "url" => "url",
-            "credentials" => "credentials",
-            "dtmf" => "dtmf",
-            "first_time" => "firstTime",
-            "nat" => "nat",
-            "comment" => "comment",
-            "ip" => "ip",
+            'house_domophone_id' => 'domophoneId',
+            'enabled' => 'enabled',
+            'model' => 'model',
+            'server' => 'server',
+            'url' => 'url',
+            'credentials' => 'credentials',
+            'dtmf' => 'dtmf',
+            'first_time' => 'firstTime',
+            'nat' => 'nat',
+            'comment' => 'comment',
+            'ip' => 'ip',
             'sos_number' => 'sosNumber'
         ]);
 
