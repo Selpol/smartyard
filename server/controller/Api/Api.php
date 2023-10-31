@@ -49,6 +49,8 @@ readonly abstract class Api
             return self::ERROR($answer);
         else if (is_int($answer) || is_bool($answer) || is_string($answer))
             return self::SUCCESS($answer, $result, $cache);
+        else if (!$answer)
+            return self::SUCCESS(true, false, $cache);
 
         return self::ERROR('unknown');
     }

@@ -3,6 +3,7 @@
 namespace Selpol\Entity\Repository\Core;
 
 use Selpol\Entity\Model\Core\CoreVar;
+use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Entity\EntityCriteria;
 use Selpol\Framework\Entity\EntityPage;
@@ -21,6 +22,8 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class CoreVarRepository extends EntityRepository
 {
+    use AuditTrait;
+
     public function __construct()
     {
         parent::__construct(CoreVar::class);

@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Controller\Internal;
 
@@ -33,7 +33,7 @@ readonly class PrometheusController extends Controller
 
         return http()->createResponse()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
-            ->withBody(http()->createStream(implode("\n", $result) . "\n"));
+            ->withBody(http()->createStream(implode(PHP_EOL, $result) . PHP_EOL));
     }
 
     private function renderSample(Metric $metric, Sample $sample): string

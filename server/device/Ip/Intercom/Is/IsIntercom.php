@@ -458,6 +458,11 @@ class IsIntercom extends IntercomDevice
         $this->get('/sip/test/' . $apartment);
     }
 
+    public function callStop(): void
+    {
+        $this->put('/v1/call/stop');
+    }
+
     public function clearApartment(): void
     {
         $this->delete('/panelCode/clear');

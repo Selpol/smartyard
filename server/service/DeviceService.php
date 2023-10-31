@@ -6,9 +6,11 @@ use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
+use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Uri;
 
 #[Singleton]
@@ -34,8 +36,8 @@ readonly class DeviceService
 
     public function intercomById(int $id): ?IntercomDevice
     {
-        if ($domophone = container(HouseFeature::class)->getDomophone($id))
-            return $this->intercom($domophone['model'], $domophone['url'], $domophone['credentials']);
+        if ($deviceIntercom = container(DeviceIntercomRepository::class)->findById($id, (new EntitySetting())->columns(['model', 'url', 'credentials'])))
+            return $this->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
         return null;
     }

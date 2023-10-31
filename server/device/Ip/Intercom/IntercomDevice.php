@@ -213,6 +213,10 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
+    public function callStop(): void
+    {
+    }
+
     public function clearApartment(): void
     {
     }
