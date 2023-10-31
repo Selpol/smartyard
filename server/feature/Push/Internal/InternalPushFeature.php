@@ -1,8 +1,11 @@
-<?php
+<?php declare(strict_types=1);
 
 namespace Selpol\Feature\Push\Internal;
 
 use Selpol\Feature\Push\PushFeature;
+use Selpol\Framework\Client\Client;
+use Selpol\Framework\Client\ClientOption;
+use Selpol\Framework\Http\Stream;
 
 readonly class InternalPushFeature extends PushFeature
 {
@@ -26,18 +29,16 @@ readonly class InternalPushFeature extends PushFeature
     {
         $push = config_get('feature.push');
 
-        $request = curl_init($push['endpoint'] . $endpoint);
+        $request = http()->createRequest('POST', $push['endpoint'] . $endpoint);
 
-        curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($request, CURLOPT_USERPWD, $push['secret']);
-        curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
-        curl_setopt($request, CURLOPT_POST, 1);
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
+        $request->withHeader('Content-Type', 'application/json')
+            ->withBody(Stream::memory(json_encode($data, JSON_UNESCAPED_UNICODE)));
 
-        file_logger('notification')->debug(curl_exec($request), ['endpoint' => $endpoint, 'data' => $data]);
+        $response = container(Client::class)->send($request, (new ClientOption())->raw(CURLOPT_USERPWD, $push['secret']));
+        $content = $response->getBody()->getContents();
 
-        curl_close($request);
+        file_logger('notification')->debug($content, ['endpoint' => $endpoint, 'data' => $data]);
 
-        return false;
+        return $content;
     }
 }
