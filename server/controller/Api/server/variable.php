@@ -15,7 +15,7 @@ readonly class variable extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('variables', container(CoreVarRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('id')));
+        return self::SUCCESS('variables', container(CoreVarRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('var_id')));
     }
 
     public static function PUT(array $params): array|Response
