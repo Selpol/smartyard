@@ -13,7 +13,6 @@ use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
-use Selpol\Feature\Role\RoleFeature;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
 use Selpol\Framework\Kernel\Trait\ConfigTrait;

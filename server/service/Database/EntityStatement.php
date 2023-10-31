@@ -20,9 +20,9 @@ readonly class EntityStatement implements EntityStatementInterface
     {
         if ($value)
             foreach ($value as $key => $item) {
-                if (is_bool($item)) $this->statement->bindParam($key, $item, PDO::PARAM_BOOL);
-                else if (is_int($item)) $this->statement->bindParam($key, $item, PDO::PARAM_INT);
-                else $this->statement->bindParam($key, $item);
+                if (is_bool($item)) $this->statement->bindValue($key, $item, PDO::PARAM_BOOL);
+                else if (is_int($item)) $this->statement->bindValue($key, $item, PDO::PARAM_INT);
+                else $this->statement->bindValue($key, $item);
             }
 
         return $this->statement->execute();
