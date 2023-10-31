@@ -16,7 +16,6 @@ use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Router\Router;
 use Selpol\Router\RouterMatch;
 use Selpol\Runner\Trait\ResponseTrait;
-use Selpol\Service\HttpService;
 
 class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
 {
@@ -33,9 +32,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      */
     function run(array $arguments): int
     {
-        $http = container(HttpService::class);
-
-        $request = $http->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
+        $request = http()->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
         $request->withParsedBody(http()->getParsedBody($request->getBody(), $request->getHeader('Content-Type')));
 

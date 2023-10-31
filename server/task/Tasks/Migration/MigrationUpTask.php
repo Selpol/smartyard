@@ -32,7 +32,7 @@ class MigrationUpTask extends MigrationTask
                     $db->getConnection()->exec($sql);
                 }
             } catch (Throwable $throwable) {
-                $db->rollBack();
+                $db->getConnection()->rollBack();
 
                 throw new RuntimeException($throwable->getMessage(), previous: $throwable);
             }
