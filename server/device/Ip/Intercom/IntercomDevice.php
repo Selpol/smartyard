@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\IpDevice;
+use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
@@ -237,10 +238,17 @@ abstract class IntercomDevice extends IpDevice
 
     public function clean(string $sip_server, string $ntp_server, string $sip_username, int $sip_port, int $ntp_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
     {
-        $this->setUnlockTime(5);
+        $clean = $this->getIntercomClean();
+
+        $this->setUnlockTime($clean['unlockTime']);
+        $this->setCallTimeout($clean['callTimeout']);
+        $this->setTalkTimeout($clean['talkTimeout']);
+
+        $this->setSos($clean['sos']);
+        $this->setConcierge($clean['concierge']);
+
         $this->setPublicCode(0);
-        $this->setCallTimeout(45);
-        $this->setTalkTimeout(90);
+
         $this->setCmsLevels($cms_levels);
         $this->setNtp($ntp_server, $ntp_port);
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);
@@ -248,8 +256,6 @@ abstract class IntercomDevice extends IpDevice
         $this->setEcho(false);
         $this->clearRfid();
         $this->clearApartment();
-        $this->setSos('SOS');
-        $this->setConcierge(9999);
         $this->setCmsModel($cms_model ?? '');
         $this->setGate([]);
     }
@@ -268,5 +274,25 @@ abstract class IntercomDevice extends IpDevice
 
     public function deffer(): void
     {
+    }
+
+    private function getIntercomClean(): array
+    {
+        $coreVar = container(CoreVarRepository::class)->findByName('intercom.clean');
+
+        $value = $coreVar->var_value ? json_decode($coreVar->var_value, true) : [];
+
+        if (!is_array($value))
+            $value = [];
+
+        return [
+            'unlockTime' => $value['unlockTime'] ?? 5,
+
+            'callTimeout' => $value['callTimeout'] ?? 45,
+            'talkTimeout' => $value['talkTimeout'] ?? 90,
+
+            'sos' => $value['sos'] ?? 'SOS',
+            'concierge' => $value['concierge'] ?? 9999
+        ];
     }
 }

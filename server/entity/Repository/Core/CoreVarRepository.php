@@ -28,4 +28,9 @@ readonly class CoreVarRepository extends EntityRepository
     {
         parent::__construct(CoreVar::class);
     }
+
+    public function findByName(string $name): ?CoreVar
+    {
+        return $this->fetch(criteria()->equal('var_name', $name));
+    }
 }

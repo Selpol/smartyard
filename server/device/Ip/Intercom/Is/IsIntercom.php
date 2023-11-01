@@ -5,6 +5,7 @@ namespace Selpol\Device\Ip\Intercom\Is;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Trait\IsTrait;
+use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Throwable;
 
 class IsIntercom extends IntercomDevice
@@ -271,7 +272,12 @@ class IsIntercom extends IntercomDevice
 
     public function setAudioLevelsDefault(): static
     {
-        $this->setAudioLevels([110, 130, 200, 185, 230, 120]);
+        $coreVar = container(CoreVarRepository::class)->findByName('intercom.is.audio');
+
+        if ($coreVar && $coreVar->var_value)
+            $this->setAudioLevels(json_decode($coreVar->var_value, true));
+        else
+            $this->setAudioLevels([110, 130, 200, 185, 230, 120]);
 
         return $this;
     }
