@@ -7,6 +7,7 @@ use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Entity\Exception\EntityException;
 use Selpol\Framework\Http\Exception\HttpException;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Service\Exception\AuthException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
@@ -31,6 +32,8 @@ trait ResponseTrait
                 $response = $this->rbtResponse($throwable->getCode(), $throwable->getLocalizedMessage());
             else if ($throwable instanceof AuthException)
                 $response = $this->rbtResponse(401, $throwable->getMessage());
+            else if ($throwable instanceof KernelException)
+                $response = $this->rbtResponse(500, $throwable->getMessage());
             else {
                 file_logger('response')->error($throwable);
 
