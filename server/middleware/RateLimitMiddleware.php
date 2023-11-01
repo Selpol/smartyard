@@ -45,8 +45,7 @@ readonly class RateLimitMiddleware implements MiddlewareInterface
             if ($value > 60) {
                 $ttl = $redis->ttl($key);
 
-                return json_response(['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
-                    ->withStatus(429)
+                return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
                     ->withHeader('Retry-After', $ttl);
             }
         }

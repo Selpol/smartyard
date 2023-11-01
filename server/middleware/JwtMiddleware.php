@@ -18,7 +18,7 @@ readonly class JwtMiddleware implements MiddlewareInterface
         $result = $this->setJwtFromRequest($request);
 
         if ($result !== null)
-            return json_response(['code' => 401, 'message' => $result])->withStatus(401);
+            return json_response(401, body: ['code' => 401, 'message' => $result])->withStatus(401);
 
         return $handler->handle($request);
     }

@@ -1,6 +1,5 @@
 <?php declare(strict_types=1);
 
-use Psr\Http\Message\ResponseInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Service\DeviceService;
@@ -33,14 +32,5 @@ if (!function_exists('http')) {
     function http(): HttpService
     {
         return container(HttpService::class);
-    }
-}
-
-if (!function_exists('json_response')) {
-    function json_response(mixed $body): ResponseInterface
-    {
-        return http()->createResponse()
-            ->withHeader('Content-Type', 'application/json')
-            ->withBody(http()->createStream(json_encode($body, JSON_UNESCAPED_UNICODE)));
     }
 }

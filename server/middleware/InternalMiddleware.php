@@ -22,12 +22,12 @@ readonly class InternalMiddleware implements MiddlewareInterface
         $ip = connection_ip($request);
 
         if ($ip === null)
-            return json_response(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
+            return json_response(404, body: ['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
 
         foreach ($this->trust as $item)
             if (ip_in_range($ip, $item))
                 return $handler->handle($request);
 
-        return json_response(['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
+        return json_response(404, body: ['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
     }
 }

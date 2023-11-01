@@ -21,7 +21,7 @@ readonly class MobileMiddleware implements MiddlewareInterface
         $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $token->getOriginalValue()['scopes'][1]);
 
         if (!$subscribers || count($subscribers) === 0)
-            return json_response(['code' => 401, 'message' => 'Абонент не найден'])->withStatus(401);
+            return json_response(401, body: ['code' => 401, 'message' => 'Абонент не найден'])->withStatus(401);
 
         $auth->setUser(new SubscriberAuthUser($subscribers[0]));
 

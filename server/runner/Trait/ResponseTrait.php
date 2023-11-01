@@ -52,11 +52,11 @@ trait ResponseTrait
 
     protected function rbtResponse(int $code = 200, ?string $message = null): Response
     {
-        return json_response([
+        return json_response($code, body: [
             'code' => $code,
             'name' => Response::$codes[$code]['name'],
             'message' => $message ?: Response::$codes[$code]['message']
-        ])->withStatus($code);
+        ]);
     }
 
     protected function emit(ResponseInterface $response): int

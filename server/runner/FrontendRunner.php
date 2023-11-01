@@ -51,8 +51,6 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (count($http_authorization) == 0) $http_authorization = false;
         else $http_authorization = $http_authorization[0];
 
-        $http_refresh = $request->hasHeader('X-Api-Refresh');
-
         $ip = connection_ip($request);
 
         if (!$ip)
@@ -160,7 +158,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit(json_response($result[$code])->withStatus($code));
+                if ((int)$code) return $this->emit(json_response($code, $result[$code])->withStatus($code));
                 else return $this->emit($this->rbtResponse(500));
             }
 
