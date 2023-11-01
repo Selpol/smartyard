@@ -9,10 +9,13 @@ readonly class stop extends Api
 {
     public static function GET(array $params): array|Response
     {
-        $intercom = intercom(rule()->id()->onItem('_id', $params));
+        $device = intercom(rule()->id()->onItem('_id', $params));
 
-        if ($intercom) {
-            $intercom->callStop();
+        if ($device) {
+            if (!$device->ping())
+                return self::ERROR('Устройство не доступно');
+
+            $device->callStop();
 
             return self::ANSWER();
         }

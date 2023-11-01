@@ -3,8 +3,10 @@
 namespace Selpol\Controller\Api\intercom;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Http\Uri;
@@ -67,6 +69,9 @@ readonly class password extends Api
                         return self::ERROR('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');
                     }
                 }
+
+                if (container(AuditFeature::class)->canAudit())
+                    container(AuditFeature::class)->audit(strval($deviceIntercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
 
                 return self::ANSWER();
             }
