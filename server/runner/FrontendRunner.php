@@ -158,7 +158,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $code = array_key_first($result);
 
-                if ((int)$code) return $this->emit(json_response($code, $result[$code])->withStatus($code));
+                if ((int)$code) return $this->emit(json_response($code, body: $result[$code]));
                 else return $this->emit($this->rbtResponse(500));
             }
 

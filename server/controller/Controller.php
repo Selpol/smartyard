@@ -47,7 +47,7 @@ readonly class Controller
             if ($message !== null) $body['message'] = $message;
             if ($data !== null) $body['data'] = $data;
 
-            return json_response($code, body: $body)->withStatus($code);
+            return json_response($code, body: $body);
         }
 
         return http()->createResponse($code);
