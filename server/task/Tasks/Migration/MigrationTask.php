@@ -14,20 +14,22 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
 
     public int $dbVersion;
     public ?int $version;
+    public bool $force;
 
-    public function __construct(string $title, int $dbVersion, ?int $version)
+    public function __construct(string $title, int $dbVersion, ?int $version, bool $force)
     {
         parent::__construct($title);
 
         $this->dbVersion = $dbVersion;
         $this->version = $version;
+        $this->force = $force;
     }
 
     protected function getMigration(string $path, ?int $min = null, ?int $max = null): array
     {
         $files = scandir(path('migration/pgsql/' . $path . '/'));
 
-        return array_reduce($files, static function (array $previous, string $file) use ($min, $max) {
+        $result = array_reduce($files, static function (array $previous, string $file) use ($min, $max) {
             if (!str_starts_with($file, 'v') || !str_ends_with($file, '.sql'))
                 return $previous;
 
@@ -52,5 +54,9 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
 
             return $previous;
         }, []);
+
+        ksort($result);
+
+        return $result;
     }
 }

@@ -3,12 +3,12 @@
 namespace Selpol\Runner;
 
 use Exception;
-use PDO;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -117,26 +117,32 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private function dbInit(array $arguments): void
     {
         $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
-
-        $db = container(DatabaseService::class)->getConnection();
+        $force = array_key_exists('--force', $arguments);
 
         try {
-            $query = $db->query("SELECT var_value FROM core_vars where var_name = 'database.version'", PDO::FETCH_ASSOC);
+            $coreVar = CoreVar::getRepository()->findByName('database.version');
 
-            $version = $query ? (int)($query->fetch())['var_value'] : 0;
+            $version = intval($coreVar->var_value) ?? 0;
         } catch (Throwable) {
             $version = 0;
         }
 
         if ($initDbVersion !== null) {
             if ($initDbVersion > $version) {
-                if (task(new MigrationUpTask($version, $initDbVersion))->sync())
+                $this->logger->debug('Start upgrading migration from ' . $version . ' to ' . $initDbVersion);
+
+                if (task(new MigrationUpTask($version, $initDbVersion, $force))->sync())
                     $this->logger->debug('Upgrade migration from ' . $version . ' to ' . $initDbVersion);
-            } else if ($initDbVersion < $version)
-                if (task(new MigrationDownTask($version, $initDbVersion))->sync())
+            } else if ($initDbVersion < $version) {
+                $this->logger->debug('Start downgrading migration from ' . $version . ' to ' . $initDbVersion);
+
+                if (task(new MigrationDownTask($version, $initDbVersion, $force))->sync())
                     $this->logger->debug('Downgrade migration from ' . $version . ' to ' . $initDbVersion);
+            }
         } else {
-            if (task(new MigrationUpTask($version, null))->sync())
+            $this->logger->debug('Start upgrading migration from ' . $version . ' to latest');
+
+            if (task(new MigrationUpTask($version, null, $force))->sync())
                 $this->logger->debug('Upgrade migration from ' . $version . ' to latest');
         }
     }

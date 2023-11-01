@@ -8,9 +8,9 @@ use Throwable;
 
 class MigrationDownTask extends MigrationTask
 {
-    public function __construct(int $dbVersion, ?int $version)
+    public function __construct(int $dbVersion, ?int $version, bool $force)
     {
-        parent::__construct('Понижение версии базы данных (' . $dbVersion . ', ' . $version . ')', $dbVersion, $version);
+        parent::__construct('Понижение версии базы данных (' . $dbVersion . ', ' . $version . ')', $dbVersion, $version, $force);
     }
 
     public function onTask(): bool
@@ -34,9 +34,11 @@ class MigrationDownTask extends MigrationTask
                     $db->getConnection()->exec($sql);
                 }
             } catch (Throwable $throwable) {
-                $db->getConnection()->rollBack();
+                if (!$this->force) {
+                    $db->getConnection()->rollBack();
 
-                throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+                    throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+                }
             }
 
             $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'database.version'", ['version' => $migrationVersion - 1]);
