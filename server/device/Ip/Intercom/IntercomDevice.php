@@ -218,6 +218,14 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
+    public function reboot(): void
+    {
+    }
+
+    public function reset(): void
+    {
+    }
+
     public function clearApartment(): void
     {
     }

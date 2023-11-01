@@ -37,7 +37,7 @@ class MigrationUpTask extends MigrationTask
                 throw new RuntimeException($throwable->getMessage(), previous: $throwable);
             }
 
-            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'dbVersion'", ['version' => $migrationVersion]);
+            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'database.version'", ['version' => $migrationVersion]);
         }
 
         return $db->getConnection()->commit();

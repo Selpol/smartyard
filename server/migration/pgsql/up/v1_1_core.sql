@@ -10,7 +10,7 @@ CREATE INDEX core_vars_id on core_vars (var_id);
 CREATE INDEX core_vars_var_name on core_vars (var_name);
 
 INSERT INTO core_vars (var_name, var_value)
-values ('dbVersion', '0');
+values ('database.version', '0');
 
 -- users
 CREATE TABLE core_users

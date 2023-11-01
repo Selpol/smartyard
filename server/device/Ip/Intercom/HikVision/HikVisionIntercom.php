@@ -157,6 +157,16 @@ class HikVisionIntercom extends IntercomDevice
         $this->put('/ISAPI/AccessControl/RemoteControl/door/' . ($value + 1), '<cmd>open</cmd>', ['Content-Type' => 'application/xml']);
     }
 
+    public function reboot(): void
+    {
+        $this->put('/ISAPI/System/reboot');
+    }
+
+    public function reset(): void
+    {
+        $this->put('/ISAPI/System/factoryReset', ['mode' => 'basic']);
+    }
+
     public function clearApartment(): void
     {
         foreach ($this->getApartments() as $apartment)

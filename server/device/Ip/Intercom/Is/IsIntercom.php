@@ -469,6 +469,16 @@ class IsIntercom extends IntercomDevice
         $this->put('/v1/call/stop');
     }
 
+    public function reboot(): void
+    {
+        $this->put('/system/reboot');
+    }
+
+    public function reset(): void
+    {
+        $this->put('/system/factory-reset');
+    }
+
     public function clearApartment(): void
     {
         $this->delete('/panelCode/clear');

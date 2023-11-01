@@ -122,7 +122,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $db = container(DatabaseService::class)->getConnection();
 
         try {
-            $query = $db->query("SELECT var_value FROM core_vars where var_name = 'dbVersion'", PDO::FETCH_ASSOC);
+            $query = $db->query("SELECT var_value FROM core_vars where var_name = 'database.version'", PDO::FETCH_ASSOC);
 
             $version = $query ? (int)($query->fetch())['var_value'] : 0;
         } catch (Throwable) {
