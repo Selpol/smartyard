@@ -34,7 +34,7 @@ class IsIntercom extends IntercomDevice
         if (!$response || isset($response['errors']))
             return 0;
 
-        return $response['resist'];
+        return intval($response['resist']);
     }
 
     public function getAllLineDialStatus(int $from, int $to): array

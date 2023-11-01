@@ -12,7 +12,7 @@ readonly class reset extends Api
 {
     public static function GET(array $params): array|Response
     {
-        $intercom = intercom(rule()->id()->onItem('_id', $params));
+        $intercom = intercom(intval(rule()->id()->onItem('_id', $params)));
 
         if ($intercom) {
             file_logger('intercom')->debug('Сброс домофона', ['id' => $params['_id'], 'user' => container(AuthService::class)->getUserOrThrow()->getIdentifier()]);
