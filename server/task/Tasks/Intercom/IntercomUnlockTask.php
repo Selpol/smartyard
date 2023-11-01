@@ -3,7 +3,6 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Exception\DeviceException;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
 
@@ -24,8 +23,10 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
 
     public function onTask(): bool
     {
-        $intercom = container(DeviceIntercomRepository::class)->findById($this->id);
-        $device = intercom($intercom->house_domophone_id);
+        $device = intercom($this->id);
+
+        if (!$device)
+            throw new DeviceException($device, 'Устройство не найдено');
 
         $this->setProgress(25);
 

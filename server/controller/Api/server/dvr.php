@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\server;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 
 readonly class dvr extends Api
 {
@@ -15,7 +14,7 @@ readonly class dvr extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', container(DvrServerRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::SUCCESS('servers', DvrServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -29,7 +28,7 @@ readonly class dvr extends Api
             'token' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
 
-        if (container(DvrServerRepository::class)->insert($dvrServer))
+        if ($dvrServer->insert())
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось создать');
@@ -48,7 +47,7 @@ readonly class dvr extends Api
             'token' => rule()->required()->string()->max(1024)->nonNullable()
         ]);
 
-        $dvrServer = container(DvrServerRepository::class)->findById($validate['_id']);
+        $dvrServer = DvrServer::findById($validate['_id'], setting: setting()->nonNullable());
 
         $dvrServer->title = $validate['title'];
         $dvrServer->type = $validate['type'];
@@ -57,7 +56,7 @@ readonly class dvr extends Api
 
         $dvrServer->token = $validate['token'];
 
-        if (container(DvrServerRepository::class)->update($dvrServer))
+        if ($dvrServer->update())
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось обновить');
@@ -65,11 +64,9 @@ readonly class dvr extends Api
 
     public static function DELETE(array $params): array
     {
-        $id = rule()->id()->onItem('_id', $params);
+        $dvrServer = DvrServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        $dvrServer = container(DvrServerRepository::class)->findById($id);
-
-        if (container(DvrServerRepository::class)->delete($dvrServer))
+        if ($dvrServer?->delete())
             return self::SUCCESS('id', $dvrServer->id);
 
         return self::ERROR('Не удалось удалить');

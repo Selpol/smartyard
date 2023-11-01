@@ -1303,11 +1303,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.19",
+            "version": "1.0.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "9ce1a5cf0fa7b8da0c9dfdd14cb553e3cb0b1661"
+                "reference": "0b30676dfe9c0f96f2a8dcb99a785cc459a1deff"
             },
             "require": {
                 "ext-curl": "*",
@@ -1315,6 +1315,8 @@
                 "psr/container": "^2.0",
                 "psr/http-client": "^1.0",
                 "psr/http-message": "^2.0",
+                "psr/http-server-handler": "^1.0",
+                "psr/http-server-middleware": "^1.0",
                 "psr/log": "^3.0",
                 "psr/simple-cache": "^3.0",
                 "selpol/validator": "^1.0"
@@ -1335,7 +1337,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2023-10-24T13:07:03+00:00"
+            "time": "2023-11-01T09:47:17+00:00"
         },
         {
             "name": "selpol/validator",

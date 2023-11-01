@@ -4,7 +4,6 @@ namespace Selpol\Feature\Task\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
-use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
@@ -25,7 +24,7 @@ readonly class InternalTaskFeature extends TaskFeature
         $dbTask->message = $message;
         $dbTask->status = $status;
 
-        container(TaskRepository::class)->insert($dbTask);
+        $dbTask->insert();
     }
 
     /**
@@ -33,7 +32,7 @@ readonly class InternalTaskFeature extends TaskFeature
      */
     public function dispatch(int $id): bool
     {
-        $dbTask = container(TaskRepository::class)->findById($id);
+        $dbTask = \Selpol\Entity\Model\Task::findById($id, setting: setting()->nonNullable());
 
         $task = unserialize($dbTask->data);
 

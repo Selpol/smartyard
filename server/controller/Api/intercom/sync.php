@@ -4,9 +4,7 @@ namespace Selpol\Controller\Api\intercom;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 
@@ -14,9 +12,9 @@ readonly class sync extends Api
 {
     public static function GET(array $params): array|Response
     {
-        $deviceIntercom = container(DeviceIntercomRepository::class)->findById(
+        $deviceIntercom = DeviceIntercom::findById(
             rule()->id()->onItem('_id', $params),
-            (new EntitySetting())->columns(['house_domophone_id'])
+            setting: setting()->columns(['house_domophone_id'])
         );
 
         if ($deviceIntercom) {

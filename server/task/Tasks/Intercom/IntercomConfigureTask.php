@@ -9,7 +9,6 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Sip\SipServer;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -34,7 +33,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     {
         $households = container(HouseFeature::class);
 
-        $deviceIntercom = container(DeviceIntercomRepository::class)->findById($this->id);
+        $deviceIntercom = DeviceIntercom::findById($this->id, setting: setting()->nonNullable());
         $deviceModel = IntercomModel::model($deviceIntercom->model);
 
         if (!$deviceIntercom || !$deviceModel) {
@@ -73,8 +72,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 $deviceIntercom->first_time = 1;
 
-                container(DeviceIntercomRepository::class)->update($deviceIntercom);
-                container(DeviceIntercomRepository::class)->refresh($deviceIntercom);
+                $deviceIntercom->update();
+                $deviceIntercom->refresh();
             }
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));

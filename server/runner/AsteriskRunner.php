@@ -3,14 +3,13 @@
 namespace Selpol\Runner;
 
 use RedisException;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
-use Selpol\Entity\Repository\House\HouseFlatRepository;
-use Selpol\Entity\Repository\Sip\SipUserRepository;
+use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
-use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
@@ -267,7 +266,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $redis = container(RedisService::class)->getConnection();
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $intercom = container(DeviceIntercomRepository::class)->findById((int)substr($extension, 1), (new EntitySetting())->columns(['credentials', 'sos_number']));
+            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials', 'sos_number']));
 
             if ($intercom && $intercom->credentials) {
                 switch ($section) {
@@ -338,7 +337,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // sip extension
         if ($extension[0] === '4' && strlen($extension) === 10) {
-            $flat = container(HouseFlatRepository::class)->findById((int)substr($extension, 1), (new EntitySetting())->columns(['house_flat_id', 'sip_password']));
+            $flat = HouseFlat::findById((int)substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
 
             if ($flat && $flat->sip_password) {
                 switch ($section) {
@@ -411,7 +410,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (strlen($extension) >= 6 && strlen($extension) <= 10) {
             try {
                 $sipUserId = (int)substr($extension, 1);
-                $sipUser = container(SipUserRepository::class)->findByIdAndType($sipUserId, (int)$extension[0]);
+                $sipUser = SipUser::getRepository()->findByIdAndType($sipUserId, (int)$extension[0]);
 
                 switch ($section) {
                     case 'aors':

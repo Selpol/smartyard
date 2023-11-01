@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\sip;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Sip\SipUser;
-use Selpol\Entity\Repository\Sip\SipUserRepository;
 
 readonly class user extends Api
 {
@@ -20,7 +19,7 @@ readonly class user extends Api
 
         return self::SUCCESS(
             'servers',
-            container(SipUserRepository::class)->fetchPage(
+            SipUser::fetchPage(
                 $validate['page'],
                 $validate['size'],
                 criteria()->orEqual('type', $validate['type'])->orLike('title', $validate['title'])->asc('id')
@@ -38,7 +37,7 @@ readonly class user extends Api
             'password' => rule()->required()->string()->nonNullable()
         ]));
 
-        if (container(SipUserRepository::class)->insert($sipUser))
+        if ($sipUser->insert())
             return self::SUCCESS('id', $sipUser->id);
 
         return self::ERROR('Не удалось создать');
@@ -56,14 +55,14 @@ readonly class user extends Api
             'password' => rule()->required()->string()->nonNullable()
         ]);
 
-        $sipUser = container(SipUserRepository::class)->findById($validate['_id']);
+        $sipUser = SipUser::findById($validate['_id'], setting: setting()->nonNullable());
 
         $sipUser->type = $validate['type'];
         $sipUser->title = $validate['title'];
 
         $sipUser->password = $validate['password'];
 
-        if (container(SipUserRepository::class)->update($sipUser))
+        if ($sipUser->update())
             return self::SUCCESS('id', $sipUser->id);
 
         return self::ERROR('Не удалось обновить');
@@ -71,11 +70,9 @@ readonly class user extends Api
 
     public static function DELETE(array $params): array
     {
-        $id = rule()->id()->onItem('_id', $params);
+        $sipUser = SipUser::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        $sipUser = container(SipUserRepository::class)->findById($id);
-
-        if (container(SipUserRepository::class)->delete($sipUser))
+        if ($sipUser->delete())
             return self::SUCCESS('id', $sipUser->id);
 
         return self::ERROR('Не удалось удалить');

@@ -3,7 +3,7 @@
 namespace Selpol\Controller\Api\server;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\Core\CoreVarRepository;
+use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Framework\Http\Response;
 
 readonly class variable extends Api
@@ -15,12 +15,12 @@ readonly class variable extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('variables', container(CoreVarRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('var_id')));
+        return self::SUCCESS('variables', CoreVar::fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('var_id')));
     }
 
     public static function PUT(array $params): array|Response
     {
-        $coreVar = container(CoreVarRepository::class)->findById(rule()->id()->onItem('_id', $params));
+        $coreVar = CoreVar::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($coreVar) {
             if (!$coreVar->editable)
@@ -28,7 +28,7 @@ readonly class variable extends Api
 
             $coreVar->var_value = rule()->string()->onItem('var_value', $params);
 
-            return self::ANSWER(container(CoreVarRepository::class)->update($coreVar));
+            return self::ANSWER($coreVar->update());
         }
 
         return self::ERROR('Переменная не найдена');

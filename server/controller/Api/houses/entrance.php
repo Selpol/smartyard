@@ -3,7 +3,7 @@
 namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\House\HouseEntranceRepository;
+use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSetCmsTask;
 use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
@@ -46,7 +46,7 @@ readonly class entrance extends Api
     {
         $households = container(HouseFeature::class);
 
-        $entrance = container(HouseEntranceRepository::class)->findById(intval($params['_id']));
+        $entrance = HouseEntrance::findById(intval($params['_id']), setting: setting()->nonNullable());
 
         $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 

@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $house_rfid_id
@@ -18,6 +20,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class HouseKey extends Entity
 {
+    /**
+     * @use RepositoryTrait<HouseKeyRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'houses_rfids';
 
     public static string $columnId = 'house_rfid_id';

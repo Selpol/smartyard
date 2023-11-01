@@ -14,8 +14,8 @@ return static function (ContainerConfigurator $configurator) {
 
     $configurator->singleton(Client::class);
 
-    $configurator->scan('Selpol\\Service\\', path('service/'));
-    $configurator->scan('Selpol\\Feature\\', path('feature/'));
+    $configurator->psr4('Selpol\\Service\\');
+    $configurator->psr4('Selpol\\Feature\\');
 
-    $configurator->scan('Selpol\\Entity\\Repository\\', path('entity/Repository/'));
+    $configurator->psr4('Selpol\\Entity\\Repository\\');
 };

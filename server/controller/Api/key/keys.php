@@ -3,7 +3,7 @@
 namespace Selpol\Controller\Api\key;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\House\HouseKeyRepository;
+use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Service\DatabaseService;
 
@@ -19,7 +19,7 @@ readonly class keys extends Api
             'size' => [filter()->default(10), rule()->int()->min(1)->max(512)],
         ]);
 
-        $page = container(HouseKeyRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->like('rfid', $validate['rfid'])->orLike('comments', $validate['comments'])->asc('house_rfid_id')->asc('access_to'));
+        $page = HouseKey::fetchPage($validate['page'], $validate['size'], criteria()->like('rfid', $validate['rfid'])->orLike('comments', $validate['comments'])->asc('house_rfid_id')->asc('access_to'));
         $data = $page->getData();
 
         $flats = [];

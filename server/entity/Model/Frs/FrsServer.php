@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Frs;
 
+use Selpol\Entity\Repository\Frs\FrsServerRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -16,6 +18,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class FrsServer extends Entity
 {
+    /**
+     * @use RepositoryTrait<FrsServerRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'frs_servers';
 
     public static string $columnIdStrategy = 'frs_servers_id_seq';

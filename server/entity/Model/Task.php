@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model;
 
+use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -19,6 +21,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class Task extends Entity
 {
+    /**
+     * @use RepositoryTrait<TaskRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'task';
 
     public static string $columnIdStrategy = 'task_id_seq';

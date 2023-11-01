@@ -3,9 +3,6 @@
 namespace Selpol\Feature\Push\Internal;
 
 use Selpol\Feature\Push\PushFeature;
-use Selpol\Framework\Client\Client;
-use Selpol\Framework\Client\ClientOption;
-use Selpol\Framework\Http\Stream;
 
 readonly class InternalPushFeature extends PushFeature
 {

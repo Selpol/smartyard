@@ -36,8 +36,6 @@ readonly class house extends Api
 
     public static function POST(array $params): array
     {
-        $repository = container(HouseKeyRepository::class);
-
         $houseId = $params['_id'];
         $keys = $params['keys'];
 
@@ -49,7 +47,7 @@ readonly class house extends Api
             $houseKey->access_to = $key['accessTo'];
             $houseKey->comments = array_key_exists('comment', $key) ? $key['comment'] : '';
 
-            $repository->insert($houseKey);
+            $houseKey->insert();
         }
 
         task(new IntercomHouseKeyTask($houseId))->high()->dispatch();

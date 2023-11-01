@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Frs;
 
+use Selpol\Entity\Repository\Frs\FrsFaceRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $face_id
@@ -12,6 +14,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class FrsFace extends Entity
 {
+    /**
+     * @use RepositoryTrait<FrsFaceRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'frs_faces';
 
     public static string $columnId = 'face_id';

@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Address;
 
+use Selpol\Entity\Repository\Address\AddressRegionRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $address_region_id
@@ -18,6 +20,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class AddressRegion extends Entity
 {
+    /**
+     * @use RepositoryTrait<AddressRegionRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'addresses_regions';
 
     public static string $columnId = 'address_region_id';

@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model;
 
+use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -15,6 +17,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class Role extends Entity
 {
+    /**
+     * @use RepositoryTrait<RoleRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'role';
 
     public static string $columnIdStrategy = 'role_id_seq';

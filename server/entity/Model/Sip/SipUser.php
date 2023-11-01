@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Sip;
 
+use Selpol\Entity\Repository\Sip\SipUserRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -18,6 +20,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class SipUser extends Entity
 {
+    /**
+     * @use RepositoryTrait<SipUserRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'sip_user';
 
     public static string $columnIdStrategy = 'sip_user_id_seq';

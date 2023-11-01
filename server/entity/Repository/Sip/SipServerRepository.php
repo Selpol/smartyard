@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method SipServer[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<SipServer> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method SipServer|null findById(mixed $id, ?EntitySetting $setting = null)
+ * @method SipServer|null findById(mixed $id, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, SipServer>
  */

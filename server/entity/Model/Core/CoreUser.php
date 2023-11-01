@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Core;
 
+use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $uid
@@ -23,6 +25,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class CoreUser extends Entity
 {
+    /**
+     * @use RepositoryTrait<CoreUserRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'core_users';
 
     public static string $columnId = 'uid';

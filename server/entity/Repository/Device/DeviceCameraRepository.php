@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method DeviceCamera[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<DeviceCamera> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method DeviceCamera|null findById(mixed $id, ?EntitySetting $setting = null)
+ * @method DeviceCamera|null findById(mixed $id, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, DeviceCamera>
  */

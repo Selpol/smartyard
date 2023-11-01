@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\accounts;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
-use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\User\UserFeature;
 
@@ -28,7 +27,7 @@ readonly class user extends Api
         $user->e_mail = $params['eMail'];
         $user->phone = $params['phone'];
 
-        $success = container(CoreUserRepository::class)->insert($user);
+        $success = $user->insert();
 
         return self::ANSWER($success ? $user->uid : false, $success ? 'uid' : 'notAcceptable');
     }
@@ -36,7 +35,7 @@ readonly class user extends Api
     public static function PUT(array $params): array
     {
         if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
-            $user = container(CoreUserRepository::class)->findById($params['_id']);
+            $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
 
             $user->enabled = $params['enabled'];
 
@@ -62,9 +61,9 @@ readonly class user extends Api
 
             $success = true;
         } else {
-            $user = container(CoreUserRepository::class)->findById($params['_id']);
+            $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
 
-            $success = container(CoreUserRepository::class)->delete($user);
+            $success = $user->delete();
         }
 
         return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");

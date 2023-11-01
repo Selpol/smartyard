@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $house_flat_id
@@ -35,6 +37,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class HouseFlat extends Entity
 {
+    /**
+     * @use RepositoryTrait<HouseFlatRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'houses_flats';
 
     public static string $columnId = 'house_flat_id';

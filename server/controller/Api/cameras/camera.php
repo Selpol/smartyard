@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\cameras;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
-use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
@@ -12,7 +11,7 @@ readonly class camera extends Api
 {
     public static function GET(array $params): array
     {
-        return self::ANSWER(container(DeviceCameraRepository::class)->findById($params['_id'])->toArrayMap([
+        return self::ANSWER(DeviceCamera::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             "camera_id" => "cameraId",
             "enabled" => "enabled",
             "model" => "model",
@@ -43,7 +42,7 @@ readonly class camera extends Api
 
         self::set($camera, $params);
 
-        if (container(DeviceCameraRepository::class)->insert($camera)) {
+        if ($camera->insert()) {
             if ($camera->frs && $camera->frs !== '-')
                 task(new FrsAddStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
@@ -55,11 +54,11 @@ readonly class camera extends Api
 
     public static function PUT(array $params): array
     {
-        $camera = container(DeviceCameraRepository::class)->findById($params['_id']);
+        $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
         self::set($camera, $params);
 
-        if (container(DeviceCameraRepository::class)->update($camera)) {
+        if ($camera->update()) {
             if ($camera->frs !== $params['frs']) {
                 if ($camera->frs && $camera->frs !== '-')
                     task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
@@ -76,9 +75,9 @@ readonly class camera extends Api
 
     public static function DELETE(array $params): array
     {
-        $camera = container(DeviceCameraRepository::class)->findById($params['_id']);
+        $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
-        if (container(DeviceCameraRepository::class)->delete($camera)) {
+        if ($camera->delete()) {
             if ($camera->frs && $camera->frs !== '-')
                 task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 

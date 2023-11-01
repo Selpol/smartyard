@@ -10,7 +10,6 @@ use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Permission;
-use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Framework\Cache\FileCache;
@@ -453,7 +452,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $db = container(DatabaseService::class);
 
         /** @var array<string, Permission> $titlePermissions */
-        $titlePermissions = array_reduce(container(PermissionRepository::class)->fetchAll(), static function (array $previous, Permission $current) {
+        $titlePermissions = array_reduce(Permission::fetchAll(), static function (array $previous, Permission $current) {
             $previous[$current->title] = $current;
 
             return $previous;
@@ -501,7 +500,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         foreach ($titlePermissions as $permission)
-            container(PermissionRepository::class)->delete($permission);
+            $permission->delete();
     }
 
     /**
@@ -510,12 +509,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function roleClear(): void
     {
-        $permissions = container(PermissionRepository::class)->fetchAll();
-
-        $repository = container(PermissionRepository::class);
+        $permissions = Permission::fetchAll();
 
         foreach ($permissions as $permission)
-            $repository->delete($permission);
+            $permission->delete();
     }
 
     private function help(?string $group = null): string

@@ -3,7 +3,9 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $camera_id
@@ -40,6 +42,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class DeviceCamera extends Entity
 {
+    /**
+     * @use RepositoryTrait<DeviceCameraRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';

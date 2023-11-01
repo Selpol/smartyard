@@ -3,7 +3,6 @@
 namespace Selpol\Controller\Api\accounts;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\AuditRepository;
 
 readonly class audit extends Api
 {
@@ -25,7 +24,7 @@ readonly class audit extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::SUCCESS('audits', container(AuditRepository::class)->fetchPage(
+        return self::SUCCESS('audits', \Selpol\Entity\Model\Audit::fetchPage(
             $validate['page'],
             $validate['size'],
             criteria()

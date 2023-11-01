@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Address;
 
+use Selpol\Entity\Repository\Address\AddressSettlementRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $address_settlement_id
@@ -20,6 +22,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class AddressSettlement extends Entity
 {
+    /**
+     * @use RepositoryTrait<AddressSettlementRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'addresses_settlements';
 
     public static string $columnId = 'address_settlement_id';

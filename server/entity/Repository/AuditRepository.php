@@ -14,7 +14,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method Audit[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<Audit> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method Audit|null findById(int $id, ?EntitySetting $setting = null)
+ * @method Audit|null findById(int $id, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, Audit>
  */

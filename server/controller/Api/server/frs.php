@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\server;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Frs\FrsServer;
-use Selpol\Entity\Repository\Frs\FrsServerRepository;
 
 readonly class frs extends Api
 {
@@ -15,7 +14,7 @@ readonly class frs extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', container(FrsServerRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::SUCCESS('servers', FrsServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -25,7 +24,7 @@ readonly class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]));
 
-        if (container(FrsServerRepository::class)->insert($frsServer))
+        if ($frsServer->insert())
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось создать');
@@ -40,12 +39,12 @@ readonly class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]);
 
-        $frsServer = container(FrsServerRepository::class)->findById($validate['_id']);
+        $frsServer = FrsServer::findById($validate['_id'], setting: setting()->nonNullable());
 
         $frsServer->title = $validate['title'];
         $frsServer->url = $validate['url'];
 
-        if (container(FrsServerRepository::class)->update($frsServer))
+        if ($frsServer->update())
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось обновить');
@@ -53,11 +52,9 @@ readonly class frs extends Api
 
     public static function DELETE(array $params): array
     {
-        $id = rule()->id()->onItem('_id', $params);
+        $frsServer = FrsServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        $frsServer = container(FrsServerRepository::class)->findById($id);
-
-        if (container(FrsServerRepository::class)->delete($frsServer))
+        if ($frsServer?->delete())
             return self::SUCCESS('id', $frsServer->id);
 
         return self::ERROR('Не удалось удалить');

@@ -5,7 +5,7 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
-use Selpol\Entity\Repository\House\HouseSubscriberRepository;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Service\DatabaseService;
@@ -72,7 +72,7 @@ readonly class SyncController extends Controller
                     $result[$validate['id']] = $subscriberId;
             } catch (Throwable $throwable) {
                 if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation()) {
-                    $subscriber = container(HouseSubscriberRepository::class)->findById($validate['id']);
+                    $subscriber = HouseSubscriber::findById($validate['id'], setting: setting()->nonNullable());
 
                     $result[$validate['id']] = $subscriber->house_subscriber_id;
                 }

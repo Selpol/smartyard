@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model;
 
+use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -15,6 +17,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class Permission extends Entity
 {
+    /**
+     * @use RepositoryTrait<PermissionRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'permission';
 
     public static string $columnIdStrategy = 'permission_id_seq';

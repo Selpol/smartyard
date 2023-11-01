@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Core;
 
+use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $var_id
@@ -20,6 +22,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class CoreVar extends Entity
 {
+    /**
+     * @use RepositoryTrait<CoreVarRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'core_vars';
 
     public static string $columnId = 'var_id';

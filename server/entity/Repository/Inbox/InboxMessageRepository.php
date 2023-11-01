@@ -15,7 +15,7 @@ use Selpol\Framework\Entity\EntitySetting;
  * @method InboxMessage[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<InboxMessage> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
- * @method InboxMessage|null findById(int $id, ?EntitySetting $setting = null)
+ * @method InboxMessage|null findById(int $id, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
  * @extends EntityRepository<int, InboxMessage>
  */

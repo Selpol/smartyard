@@ -4,7 +4,6 @@ namespace Selpol\Feature\Frs\Internal;
 
 use Psr\Log\LoggerInterface;
 use Selpol\Entity\Model\Frs\FrsServer;
-use Selpol\Entity\Repository\Frs\FrsServerRepository;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -64,7 +63,7 @@ readonly class InternalFrsFeature extends FrsFeature
 
     public function servers(): array
     {
-        return container(FrsServerRepository::class)->fetchAll();
+        return FrsServer::fetchAll();
     }
 
     public function apiCall(string $base_url, string $method, array $params = []): array|bool

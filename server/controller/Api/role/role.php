@@ -3,14 +3,13 @@
 namespace Selpol\Controller\Api\role;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Feature\Role\RoleFeature;
 
 readonly class role extends Api
 {
     public static function GET(array $params): array
     {
-        return self::SUCCESS('roles', container(RoleRepository::class)->fetchAll());
+        return self::SUCCESS('roles', \Selpol\Entity\Model\Role::fetchAll());
     }
 
     public static function POST(array $params): array

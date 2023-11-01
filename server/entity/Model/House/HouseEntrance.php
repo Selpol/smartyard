@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Repository\House\HouseEntranceRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $house_entrance_id
@@ -32,6 +34,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class HouseEntrance extends Entity
 {
+    /**
+     * @use RepositoryTrait<HouseEntranceRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'houses_entrances';
 
     public static string $columnId = 'house_entrance_id';

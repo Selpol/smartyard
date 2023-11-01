@@ -4,7 +4,7 @@ namespace Selpol\Controller\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Controller;
-use Selpol\Entity\Repository\Device\DeviceCameraRepository;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
@@ -46,7 +46,7 @@ readonly class ActionController extends Controller
 
         ["ip" => $ip, "motionActive" => $motionActive] = $body;
 
-        $deviceCamera = container(DeviceCameraRepository::class)->fetch(
+        $deviceCamera = DeviceCamera::fetch(
             criteria()->simple('frs', '!=', '-')->equal('ip', $ip),
             (new EntitySetting())->columns(['camera_id', 'frs'])
         );

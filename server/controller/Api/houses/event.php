@@ -3,16 +3,14 @@
 namespace Selpol\Controller\Api\houses;
 
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Repository\House\HouseFlatRepository;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Plog\PlogFeature;
 
 readonly class event extends Api
 {
     public static function GET(array $params): array
     {
-        $id = rule()->id()->onItem('_id', $params);
-
-        $flat = container(HouseFlatRepository::class)->findById($id);
+        $flat = HouseFlat::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         $validate = validator($params, [
             'type' => rule()->int(),

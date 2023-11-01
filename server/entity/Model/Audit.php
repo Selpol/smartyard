@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model;
 
+use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -22,6 +24,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class Audit extends Entity
 {
+    /**
+     * @use RepositoryTrait<AuditRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'audit';
 
     public static string $columnIdStrategy = 'audit_id_seq';

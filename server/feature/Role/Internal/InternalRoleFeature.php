@@ -25,10 +25,8 @@ readonly class InternalRoleFeature extends RoleFeature
         $role->title = $title;
         $role->description = $description;
 
-        $repository = container(RoleRepository::class);
-
-        $repository->insert($role);
-        $repository->refresh($role);
+        $role->insert();
+        $role->refresh();
 
         return $role;
     }
@@ -40,15 +38,13 @@ readonly class InternalRoleFeature extends RoleFeature
      */
     public function updateRole(int $roleId, string $title, string $description): Role
     {
-        $role = container(RoleRepository::class)->findById($roleId);
+        $role = Role::findById($roleId, setting: setting()->nonNullable());
 
         $role->title = $title;
         $role->description = $description;
 
-        $repository = container(RoleRepository::class);
-
-        $repository->update($role);
-        $repository->refresh($role);
+        $role->update();
+        $role->refresh();
 
         return $role;
     }
@@ -59,9 +55,9 @@ readonly class InternalRoleFeature extends RoleFeature
      */
     public function deleteRole(int $roleId): bool
     {
-        $role = container(RoleRepository::class)->findById($roleId);
+        $role = Role::findById($roleId, setting: setting()->nonNullable());
 
-        return container(RoleRepository::class)->delete($role);
+        return $role->delete();
     }
 
     public function addPermissionToRole(int $roleId, int $permissionId): bool

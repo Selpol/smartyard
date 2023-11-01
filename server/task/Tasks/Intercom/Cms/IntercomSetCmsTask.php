@@ -3,7 +3,6 @@
 namespace Selpol\Task\Tasks\Intercom\Cms;
 
 use Selpol\Device\Exception\DeviceException;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -25,10 +24,9 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
 
     public function onTask(): bool
     {
-        $intercom = container(DeviceIntercomRepository::class)->findById($this->id);
-        $device = intercom($intercom->house_domophone_id);
+        $device = intercom($this->id);
 
-        if (!$device->ping())
+        if ($device?->ping() !== true)
             throw new DeviceException($device, 'Устройство не доступно');
 
         $device->setCmsModel($this->cms);

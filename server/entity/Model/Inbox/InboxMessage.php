@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Inbox;
 
+use Selpol\Entity\Repository\Inbox\InboxMessageRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $msg_id
@@ -13,6 +15,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class InboxMessage extends Entity
 {
+    /**
+     * @use RepositoryTrait<InboxMessageRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'inbox';
 
     public static string $columnId = 'msg_id';

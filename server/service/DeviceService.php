@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -36,7 +37,7 @@ readonly class DeviceService
 
     public function intercomById(int $id): ?IntercomDevice
     {
-        if ($deviceIntercom = container(DeviceIntercomRepository::class)->findById($id, (new EntitySetting())->columns(['model', 'url', 'credentials'])))
+        if ($deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable()))
             return $this->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
         return null;

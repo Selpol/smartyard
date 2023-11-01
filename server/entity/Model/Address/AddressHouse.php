@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Address;
 
+use Selpol\Entity\Repository\Address\AddressHouseRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $address_house_id
@@ -20,6 +22,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class AddressHouse extends Entity
 {
+    /**
+     * @use RepositoryTrait<AddressHouseRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'addresses_houses';
 
     public static string $columnId = 'address_house_id';

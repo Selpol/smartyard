@@ -3,9 +3,8 @@
 namespace Selpol\Controller\Api\intercom;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Repository\Device\DeviceCameraRepository;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Response;
@@ -17,10 +16,10 @@ readonly class password extends Api
 {
     public static function GET(array $params): array|Response
     {
-        $deviceIntercom = container(DeviceIntercomRepository::class)->findById(rule()->id()->onItem('_id', $params));
+        $deviceIntercom = DeviceIntercom::findById(rule()->id()->onItem('_id', $params));
 
         if ($deviceIntercom) {
-            $deviceCamera = container(DeviceCameraRepository::class)->fetch(criteria()->equal('url', $deviceIntercom->url));
+            $deviceCamera = DeviceCamera::fetch(criteria()->equal('url', $deviceIntercom->url));
 
             $intercom = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceCamera->url, $deviceIntercom->credentials);
 
@@ -49,7 +48,7 @@ readonly class password extends Api
                 $oldIntercomPassword = $deviceIntercom->credentials;
                 $deviceIntercom->credentials = $password;
 
-                if (!container(DeviceIntercomRepository::class)->update($deviceIntercom)) {
+                if (!$deviceIntercom->update()) {
                     file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
 
                     return self::ERROR('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')');
@@ -63,7 +62,7 @@ readonly class password extends Api
 
                     $deviceCamera->credentials = $password;
 
-                    if (!container(DeviceCameraRepository::class)->update($deviceCamera)) {
+                    if (!$deviceCamera->update()) {
                         file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
 
                         return self::ERROR('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');

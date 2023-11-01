@@ -1,6 +1,7 @@
 <?php
 
 use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Framework\Entity\EntitySetting;
 
 $lastError = false;
 
@@ -146,5 +147,12 @@ if (!function_exists('generate_password')) {
         }
 
         return $result;
+    }
+}
+
+if (!function_exists('setting')) {
+    function setting(): EntitySetting
+    {
+        return new EntitySetting();
     }
 }

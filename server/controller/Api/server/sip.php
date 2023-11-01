@@ -4,7 +4,6 @@ namespace Selpol\Controller\Api\server;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Sip\SipServer;
-use Selpol\Entity\Repository\Sip\SipServerRepository;
 
 readonly class sip extends Api
 {
@@ -15,7 +14,7 @@ readonly class sip extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', container(SipServerRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::SUCCESS('servers', SipServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -30,7 +29,7 @@ readonly class sip extends Api
             'internal_ip' => rule()->required()->ipV4()->nonNullable()
         ]));
 
-        if (container(SipServerRepository::class)->insert($sipServer))
+        if ($sipServer->insert())
             return self::SUCCESS('id', $sipServer->id);
 
         return self::ERROR('Не удалось создать');
@@ -50,7 +49,7 @@ readonly class sip extends Api
             'internal_ip' => rule()->required()->ipV4()->nonNullable()
         ]);
 
-        $sipServer = container(SipServerRepository::class)->findById($validate['_id']);
+        $sipServer = SipServer::findById($validate['_id'], setting: setting()->nonNullable());
 
         $sipServer->title = $validate['title'];
         $sipServer->type = $validate['type'];
@@ -60,7 +59,7 @@ readonly class sip extends Api
         $sipServer->external_ip = $validate['external_ip'];
         $sipServer->internal_ip = $validate['internal_ip'];
 
-        if (container(SipServerRepository::class)->update($sipServer))
+        if ($sipServer->update())
             return self::SUCCESS('id', $sipServer->id);
 
         return self::ERROR('Не удалось обновить');
@@ -68,11 +67,9 @@ readonly class sip extends Api
 
     public static function DELETE(array $params): array
     {
-        $id = rule()->id()->onItem('_id', $params);
+        $sipServer = SipServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        $sipServer = container(SipServerRepository::class)->findById($id);
-
-        if (container(SipServerRepository::class)->delete($sipServer))
+        if ($sipServer->delete())
             return self::SUCCESS('id', $sipServer->id);
 
         return self::ERROR('Не удалось удалить');

@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Dvr;
 
+use Selpol\Entity\Repository\Dvr\DvrRecordRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $record_id
@@ -20,6 +22,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class DvrRecord extends Entity
 {
+    /**
+     * @use RepositoryTrait<DvrRecordRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'camera_records';
 
     public static string $columnId = 'record_id';

@@ -2,7 +2,9 @@
 
 namespace Selpol\Entity\Model\Dvr;
 
+use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $id
@@ -20,6 +22,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class DvrServer extends Entity
 {
+    /**
+     * @use RepositoryTrait<DvrServerRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'dvr_servers';
 
     public static string $columnIdStrategy = 'dvr_servers_id_seq';

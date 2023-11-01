@@ -4,7 +4,6 @@ namespace Selpol\Feature\Audit\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Entity\Model\Audit;
-use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Http\ServerRequest;
 use Selpol\Service\AuthService;
@@ -47,7 +46,7 @@ readonly class InternalAuditFeature extends AuditFeature
 
         $audit->event_code = '';
 
-        container(AuditRepository::class)->insert($audit);
+        $audit->insert();
     }
 
     public function clear(): void

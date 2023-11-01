@@ -3,7 +3,9 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
  * @property int $house_domophone_id
@@ -28,6 +30,11 @@ use Selpol\Framework\Entity\Entity;
  */
 class DeviceIntercom extends Entity
 {
+    /**
+     * @use RepositoryTrait<DeviceIntercomRepository>
+     */
+    use RepositoryTrait;
+
     public static string $table = 'houses_domophones';
 
     public static string $columnId = 'house_domophone_id';

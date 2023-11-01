@@ -5,7 +5,6 @@ namespace Selpol\Controller\Api\task;
 use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Entity\Repository\TaskRepository;
 use Selpol\Feature\Task\TaskFeature;
 
 readonly class task extends Api
@@ -21,7 +20,7 @@ readonly class task extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return Api::ANSWER(container(TaskRepository::class)->fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')), 'tasks');
+        return Api::ANSWER(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')), 'tasks');
     }
 
     /**

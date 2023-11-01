@@ -5,13 +5,12 @@ namespace Selpol\Controller\Api\houses;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 
 readonly class domophone extends Api
 {
     public static function GET(array $params): array
     {
-        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id'])->toArrayMap([
+        $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             'house_domophone_id' => 'domophoneId',
             'enabled' => 'enabled',
             'model' => 'model',
@@ -37,7 +36,7 @@ readonly class domophone extends Api
 
         self::set($intercom, $params);
 
-        if (container(DeviceIntercomRepository::class)->insert($intercom))
+        if ($intercom->insert())
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
 
         return Api::ERROR('Неудалось добавить домофон');
@@ -45,11 +44,11 @@ readonly class domophone extends Api
 
     public static function PUT(array $params): array
     {
-        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id']);
+        $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
         self::set($intercom, $params);
 
-        if (container(DeviceIntercomRepository::class)->update($intercom))
+        if ($intercom->update())
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
 
         return Api::ERROR('Неудалось обновить домофон');
@@ -57,9 +56,9 @@ readonly class domophone extends Api
 
     public static function DELETE(array $params): array
     {
-        $intercom = container(DeviceIntercomRepository::class)->findById($params['_id']);
+        $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
-        if (container(DeviceIntercomRepository::class)->delete($intercom))
+        if ($intercom->delete())
             return self::ANSWER();
 
         return Api::ERROR('Неудалось удалить домофон');
