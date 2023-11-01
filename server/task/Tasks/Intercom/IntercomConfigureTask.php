@@ -118,20 +118,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     {
         $this->setProgress(5);
 
-        $ntps = config('ntp_servers');
-
-        $ntp = new Uri($ntps[array_rand($ntps)]);
-
-        $ntp_server = $ntp->getHost();
-        $ntp_port = $ntp->getPort() ?? 123;
-
         $sip_username = sprintf("1%05d", $deviceIntercom->house_domophone_id);
         $sip_server = $asterisk_server->internal_ip;
         $sip_port = 5060;
 
         $main_door_dtmf = $deviceIntercom->dtmf;
 
-        $device->clean($sip_server, $ntp_server, $sip_username, $sip_port, $ntp_port, $main_door_dtmf, $cms_levels, $cms_model);
+        $device->clean($sip_server, $sip_username, $sip_port, $main_door_dtmf, $cms_levels, $cms_model);
 
         $this->setProgress(25);
     }

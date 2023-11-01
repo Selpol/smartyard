@@ -9,8 +9,11 @@ CREATE TABLE core_vars
 CREATE INDEX core_vars_id on core_vars (var_id);
 CREATE INDEX core_vars_var_name on core_vars (var_name);
 
-INSERT INTO core_vars (var_name, var_value)
-values ('database.version', '0');
+INSERT INTO core_vars (var_name, var_value, editable)
+VALUES ('database.version', '0', false),
+       ('intercom.clean', '{"unlockTime": 5, "callTimeout": 45, "talkTimeout": 90, "sos": "SOS", "concierge": 9999 }', true),
+       ('intercom.ntp', '["ntp://10.103.128.80:123"]', true),
+       ('intercom.is.audio', '[255, 255, 255, 255, 255, 255]', true);
 
 -- users
 CREATE TABLE core_users

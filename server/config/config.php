@@ -121,7 +121,5 @@ return [
         'beward_ds' => explode(',', env('SYSLOG_SERVERS_BEWARD_DS', 'syslog://127.0.0.1:45451')),
         'is' => explode(',', env('SYSLOG_SERVERS_IS', 'syslog://127.0.0.1:45453')),
         'hikVision' => explode(',', env('SYSLOG_SERVERS_HIKVISION', 'syslog://127.0.0.1:45454')),
-    ],
-
-    'ntp_servers' => explode(',', env('NTP_SERVERS', 'ntp://127.0.0.1:123'))
+    ]
 ];

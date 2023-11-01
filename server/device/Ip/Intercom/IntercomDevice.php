@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\IpDevice;
+use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
@@ -244,9 +245,10 @@ abstract class IntercomDevice extends IpDevice
         $this->setVideoEncodingDefault();
     }
 
-    public function clean(string $sip_server, string $ntp_server, string $sip_username, int $sip_port, int $ntp_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
+    public function clean(string $sip_server, string $sip_username, int $sip_port, string $main_door_dtmf, array $cms_levels, ?string $cms_model): void
     {
         $clean = $this->getIntercomClean();
+        $ntp = $this->getIntercomNtp();
 
         $this->setUnlockTime($clean['unlockTime']);
         $this->setCallTimeout($clean['callTimeout']);
@@ -258,12 +260,18 @@ abstract class IntercomDevice extends IpDevice
         $this->setPublicCode(0);
 
         $this->setCmsLevels($cms_levels);
-        $this->setNtp($ntp_server, $ntp_port);
+
+        $this->setNtp($ntp[0], $ntp[1]);
+
         $this->setSip($sip_username, $this->password, $sip_server, $sip_port);
+
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
+
         $this->setEcho(false);
+
         $this->clearRfid();
         $this->clearApartment();
+
         $this->setCmsModel($cms_model ?? '');
         $this->setGate([]);
     }
@@ -302,5 +310,16 @@ abstract class IntercomDevice extends IpDevice
             'sos' => $value['sos'] ?? 'SOS',
             'concierge' => $value['concierge'] ?? 9999
         ];
+    }
+
+    private function getIntercomNtp(): array
+    {
+        $coreVar = CoreVar::getRepository()->findByName('intercom.ntp');
+        $servers = json_decode($coreVar->var_value, true);
+
+        $server = array_rand($servers);
+        $ntp = uri($server);
+
+        return [$ntp->getHost(), $ntp->getPort() ?? 123];
     }
 }
