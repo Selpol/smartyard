@@ -317,7 +317,7 @@ abstract class IntercomDevice extends IpDevice
         $coreVar = CoreVar::getRepository()->findByName('intercom.ntp');
         $servers = json_decode($coreVar->var_value, true);
 
-        $server = array_rand($servers);
+        $server = $servers[array_rand($servers)];
         $ntp = uri($server);
 
         return [$ntp->getHost(), $ntp->getPort() ?? 123];
