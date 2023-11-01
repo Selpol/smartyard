@@ -31,9 +31,9 @@ readonly class PrometheusController extends Controller
                 $result[] = $this->renderSample($metric, $sample);
         }
 
-        return http()->createResponse()
+        return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
-            ->withBody(http()->createStream(implode(PHP_EOL, $result) . PHP_EOL));
+            ->withBody(stream(implode(PHP_EOL, $result) . PHP_EOL));
     }
 
     private function renderSample(Metric $metric, Sample $sample): string

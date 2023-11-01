@@ -37,9 +37,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     function run(array $arguments): int
     {
-        $request = http()->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
+        $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
-        $request->withParsedBody(http()->getParsedBody($request->getBody(), $request->getHeader('Content-Type')));
+        $request->withParsedBody(parse_body($request));
 
         kernel()->getContainer()->set(ServerRequest::class, $request);
 
@@ -107,7 +107,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $auth = false;
 
         if ($api == 'server' && $method == 'ping')
-            return $this->emit($this->rbtResponse()->withBody(http()->createStream('pong')));
+            return $this->emit($this->rbtResponse()->withBody(stream('pong')));
         else if ($api == 'accounts' && $method == 'forgot')
             return $this->emit($this->response(204));
         else if ($api == 'authentication' && $method == 'login') {

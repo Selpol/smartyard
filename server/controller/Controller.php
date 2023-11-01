@@ -50,6 +50,6 @@ readonly class Controller
             return json_response($code, body: $body);
         }
 
-        return http()->createResponse($code);
+        return response($code);
     }
 }

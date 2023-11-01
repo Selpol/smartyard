@@ -32,9 +32,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      */
     function run(array $arguments): int
     {
-        $request = http()->createServerRequest($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
+        $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
-        $request->withParsedBody(http()->getParsedBody($request->getBody(), $request->getHeader('Content-Type')));
+        $request->withParsedBody(parse_body($request));
 
         kernel()->getContainer()->set(ServerRequest::class, $request);
 

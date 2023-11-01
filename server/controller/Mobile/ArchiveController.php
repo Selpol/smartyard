@@ -64,9 +64,9 @@ readonly class ArchiveController extends Controller
         $stream = $file->getFileStream($uuid);
         $info = $file->getFileInfo($uuid);
 
-        return http()->createResponse()
+        return response()
             ->withHeader('Content-Type', 'video/mp4')
             ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-            ->withBody(http()->createStreamFromResource($stream));
+            ->withBody(stream($stream));
     }
 }

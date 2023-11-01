@@ -78,7 +78,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $request = http()->createRequest('GET', $this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
+            $request = request('GET', $this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
@@ -97,16 +97,16 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $request = http()->createRequest('POST', $this->uri . $endpoint);
+            $request = request('POST', $this->uri . $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
 
             if ($body) {
                 if (is_string($body))
-                    $request->withBody(http()->createStream($body));
+                    $request->withBody(stream($body));
                 else
-                    $request->withBody(http()->createStream(json_encode($body)));
+                    $request->withBody(stream(json_encode($body)));
             }
 
             $response = $this->client->send($request, $this->clientOption);
@@ -123,16 +123,16 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $request = http()->createRequest('PUT', $this->uri . $endpoint);
+            $request = request('PUT', $this->uri . $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
 
             if ($body) {
                 if (is_string($body))
-                    $request->withBody(http()->createStream($body));
+                    $request->withBody(stream($body));
                 else
-                    $request->withBody(http()->createStream(json_encode($body)));
+                    $request->withBody(stream(json_encode($body)));
             }
 
             $response = $this->client->send($request, $this->clientOption);
@@ -149,7 +149,7 @@ abstract class IpDevice extends Device
             $endpoint = '/' . $endpoint;
 
         try {
-            $request = http()->createRequest('DELETE', $this->uri . $endpoint);
+            $request = request('DELETE', $this->uri . $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
@@ -165,7 +165,7 @@ abstract class IpDevice extends Device
     private function response(Response $response, bool $parse): mixed
     {
         if ($parse)
-            return http()->getParsedBody($response->getBody(), $response->getHeader('Content-Type'));
+            return parse_body($response);
 
         return $response->getBody()->getContents();
     }

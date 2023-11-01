@@ -233,9 +233,9 @@ class IsIntercom extends IntercomDevice
     {
         try {
             $this->client->send(
-                http()->createRequest('PUT', $this->uri . '/system/files/rsyslogd.conf')
+                request('PUT', $this->uri . '/system/files/rsyslogd.conf')
                     ->withHeader('Content-Type', 'text/plain')
-                    ->withBody(http()->createStream($this->getSyslogConfigHelp($server, $port))),
+                    ->withBody(stream($this->getSyslogConfigHelp($server, $port))),
                 $this->clientOption
             );
 

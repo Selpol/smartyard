@@ -110,10 +110,10 @@ readonly class ActionController extends Controller
                     return $this->rbtResponse(201, $apiResponse);
                 }
 
-                return http()->createResponse(204);
+                return response(204);
         }
 
-        return http()->createResponse(204);
+        return response(204);
     }
 
     /**

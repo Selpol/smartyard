@@ -43,7 +43,7 @@ class HikVisionCamera extends CameraDevice
     public function getScreenshot(): Stream
     {
         try {
-            return $this->client->send(http()->createRequest('GET', $this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG'), $this->clientOption)->getBody();
+            return $this->client->send(request('GET', $this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG'), $this->clientOption)->getBody();
         } catch (Throwable $throwable) {
             throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
         }

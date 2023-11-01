@@ -30,24 +30,24 @@ readonly class FrsController extends Controller
         $event_id = (int)$body[FrsFeature::P_EVENT_ID];
 
         if (!isset($camera_id) || $face_id == 0 || $event_id == 0)
-            return $this->rbtResponse(204);
+            return response(204);
 
         $frs_key = "frs_key_" . $camera_id;
 
         $redis = container(RedisService::class)->getConnection();
 
         if ($redis->get($frs_key) != null)
-            return $this->rbtResponse(204);
+            return response(204);
 
         $entrance = container(FrsFeature::class)->getEntranceByCameraId($camera_id);
 
         if (!$entrance)
-            return $this->rbtResponse(204);
+            return response(204);
 
         $flats = container(FrsFeature::class)->getFlatsByFaceId($face_id, $entrance["entranceId"]);
 
         if (!$flats)
-            return $this->rbtResponse(204);
+            return response(204);
 
         $domophone_id = $entrance["domophoneId"];
         $domophone_output = $entrance["domophoneOutput"];
@@ -63,7 +63,7 @@ readonly class FrsController extends Controller
             return $this->rbtResponse(404);
         }
 
-        return $this->rbtResponse(204);
+        return response(204);
     }
 
     /**
@@ -76,8 +76,8 @@ readonly class FrsController extends Controller
         $model = camera($this->route->getParamIdOrThrow('id'));
 
         if (!$model)
-            return $this->rbtResponse(204);
+            return response(204);
 
-        return http()->createResponse()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
+        return response()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
     }
 }

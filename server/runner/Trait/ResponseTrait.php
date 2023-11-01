@@ -47,7 +47,7 @@ trait ResponseTrait
 
     protected function response(int $code = 200): Response
     {
-        return http()->createResponse($code);
+        return response($code);
     }
 
     protected function rbtResponse(int $code = 200, ?string $message = null): Response

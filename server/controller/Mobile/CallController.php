@@ -27,9 +27,9 @@ readonly class CallController extends Controller
         $image = container(RedisService::class)->getConnection()->get('shot_' . $hash);
 
         if ($image !== false)
-            return http()->createResponse()
+            return response()
                 ->withHeader('Content-Type', 'image/jpeg')
-                ->withBody(http()->createStream($image));
+                ->withBody(stream($image));
 
         return $this->rbtResponse(404, message: 'Скриншот не найден');
     }
@@ -55,6 +55,6 @@ readonly class CallController extends Controller
         if (!$model)
             return $this->rbtResponse(404, message: 'Камера не найдена');
 
-        return http()->createResponse()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
+        return response()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
     }
 }

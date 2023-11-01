@@ -157,9 +157,9 @@ readonly class PlogController extends Controller
 
         $uuid = $file->fromGUIDv4($this->route->getParam('uuid'));
 
-        return http()->createResponse()
+        return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(http()->createStreamFromResource($file->getFileStream($uuid)));
+            ->withBody(stream($file->getFileStream($uuid)));
     }
 
     public function days(): Response
