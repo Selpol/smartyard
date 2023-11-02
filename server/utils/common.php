@@ -169,3 +169,31 @@ if (!function_exists('rbt_response')) {
         ]);
     }
 }
+
+if (!function_exists('user_response')) {
+    function user_response(int $code = 200, mixed $data = null, ?string $name = null, ?string $message = null): ResponseInterface
+    {
+        if ($code !== 204) {
+            $body = ['code' => $code];
+
+            if ($message === null) {
+                if ($name)
+                    $message = $name;
+                else if (array_key_exists($code, Response::$codes))
+                    $message = Response::$codes[$code]['message'];
+            }
+
+            if ($name === null) {
+                if (array_key_exists($code, Response::$codes))
+                    $body['name'] = Response::$codes[$code]['name'];
+            } else $body['name'] = $name;
+
+            if ($message !== null) $body['message'] = $message;
+            if ($data !== null) $body['data'] = $data;
+
+            return json_response($code, body: $body);
+        }
+
+        return response($code);
+    }
+}

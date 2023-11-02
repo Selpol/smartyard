@@ -4,20 +4,26 @@ namespace Selpol\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RedisException;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\AuthService;
 use Selpol\Service\RedisService;
 
-readonly class RateLimitMiddleware implements MiddlewareInterface
+readonly class RateLimitMiddleware extends RouteMiddleware
 {
     private array $trust;
 
-    public function __construct()
+    private int $count;
+    private int $ttl;
+
+    public function __construct(array $config)
     {
-        $this->trust = config_get('mobile.trust') ?? ['127.0.0.1/32'];
+        $this->trust = $config['trust'];
+
+        $this->count = $config['count'];
+        $this->ttl = $config['ttl'];
     }
 
     /**
@@ -38,11 +44,11 @@ readonly class RateLimitMiddleware implements MiddlewareInterface
 
         if (!$redis->exists($key)) {
             $redis->incr($key);
-            $redis->expire($key, 60);
+            $redis->expire($key, $this->ttl);
         } else {
             $value = $redis->incr($key);
 
-            if ($value > 60) {
+            if ($value > $this->count) {
                 $ttl = $redis->ttl($key);
 
                 return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])

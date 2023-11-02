@@ -4,24 +4,31 @@ namespace Selpol\Controller\Internal;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
+use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
-readonly class SyncController extends Controller
+#[Controller('/internal/sync')]
+readonly class SyncRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function getHouseGroup(): Response
+    #[Post('/house')]
+    public function getHouseGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -36,18 +43,19 @@ readonly class SyncController extends Controller
                     'flats' => $db->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $houses[$i]['address_house_id']])
                 ];
 
-            return $this->rbtResponse(data: $result);
+            return user_response(data: $result);
         }
 
-        return $this->rbtResponse(data: []);
+        return user_response(data: []);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function addSubscriberGroup(): Response
+    #[Post('/subscriber')]
+    public function addSubscriberGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -79,15 +87,16 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function updateSubscriberGroup(): Response
+    #[Put('/subscriber')]
+    public function updateSubscriberGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -107,16 +116,17 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function deleteSubscriberGroup(): Response
+    #[Delete('/subscriber')]
+    public function deleteSubscriberGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $households = container(HouseFeature::class);
 
@@ -129,15 +139,16 @@ readonly class SyncController extends Controller
             } catch (Throwable) {
             }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function updateFlatGroup(): Response
+    #[Put('/flat')]
+    public function updateFlatGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -157,15 +168,16 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function addSubscriberToFlatGroup(): Response
+    #[Post('/link')]
+    public function addSubscriberToFlatGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -187,15 +199,16 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function updateSubscriberToFlatGroup(): Response
+    #[Put('/link')]
+    public function updateSubscriberToFlatGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -217,15 +230,16 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function deleteSubscriberFromFlatGroup(): Response
+    #[Delete('/link')]
+    public function deleteSubscriberFromFlatGroup(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $db = container(DatabaseService::class);
 
@@ -241,6 +255,6 @@ readonly class SyncController extends Controller
             }
         }
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 }

@@ -4,25 +4,31 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Throwable;
 
-readonly class PlogController extends Controller
+#[Controller('/mobile/address')]
+readonly class PlogRbtController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function index(): Response
+    #[Post('/plog')]
+    public function index(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
+        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];
@@ -31,7 +37,7 @@ readonly class PlogController extends Controller
 
         $f = in_array($flat_id, $flat_ids);
         if (!$f)
-            return $this->rbtResponse(404, message: 'У абонента нет доступа');
+            return user_response(404, message: 'У абонента нет доступа');
 
         $flat_owner = false;
 
@@ -46,7 +52,7 @@ readonly class PlogController extends Controller
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
-            return $this->rbtResponse(403, message: 'Недостаточно прав');
+            return user_response(403, message: 'Недостаточно прав');
 
         try {
             $date = date('Ymd', strtotime($validate['day']));
@@ -140,33 +146,31 @@ readonly class PlogController extends Controller
 
                     $events_details[] = $e_details;
                 }
-                return $this->rbtResponse(data: $events_details);
+                return user_response(data: $events_details);
             } else {
-                return $this->rbtResponse(404, message: 'События не найдены');
+                return user_response(404, message: 'События не найдены');
             }
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
 
-            return $this->rbtResponse(500);
+            return user_response(500);
         }
     }
 
-    public function camshot(): Response
+    #[Get('/plogCamshot/{uuid}')]
+    public function camshot(string $uuid, FileFeature $feature): Response
     {
-        $file = container(FileFeature::class);
-
-        $uuid = $file->fromGUIDv4($this->route->getParam('uuid'));
-
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(stream($file->getFileStream($uuid)));
+            ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($uuid))));
     }
 
-    public function days(): Response
+    #[Post('/plogDays')]
+    public function days(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
+        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
 
         $households = container(HouseFeature::class);
         $flat_id = $validate['flatId'];
@@ -175,7 +179,7 @@ readonly class PlogController extends Controller
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404, message: 'Квартира не найдена');
+            return user_response(404, message: 'Квартира не найдена');
 
         $flat_owner = false;
         foreach ($user['flats'] as $flat)
@@ -189,7 +193,7 @@ readonly class PlogController extends Controller
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
-            return $this->rbtResponse(403, message: 'Недостаточно прав');
+            return user_response(403, message: 'Недостаточно прав');
 
         $filter_events = false;
 
@@ -214,13 +218,13 @@ readonly class PlogController extends Controller
             $result = container(PlogFeature::class)->getEventsDays($flat_id, $filter_events);
 
             if ($result)
-                return $this->rbtResponse(200, $result);
+                return user_response(200, $result);
 
-            return $this->rbtResponse(404, message: 'События не найдены');
+            return user_response(404, message: 'События не найдены');
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
 
-            return $this->rbtResponse(500);
+            return user_response(500);
         }
     }
 }

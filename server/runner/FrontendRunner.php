@@ -5,13 +5,13 @@ namespace Selpol\Runner;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Http\Response;
-use Selpol\Framework\Http\ServerRequest;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
@@ -44,7 +44,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $request->withParsedBody(parse_body($request));
 
-        kernel()->getContainer()->set(ServerRequest::class, $request);
+        kernel()->getContainer()->set(ServerRequestInterface::class, $request);
 
         if ($request->getMethod() === 'OPTIONS')
             return $this->emit(response(204)->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));

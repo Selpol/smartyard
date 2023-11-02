@@ -4,32 +4,37 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Validator\Exception\ValidatorException;
 
-readonly class FrsController extends Controller
+#[Controller('/mobile/frs')]
+readonly class FrsRbtController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function index(): Response
+    #[Get('/{flatId}')]
+    public function index(int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $flatId = $this->route->getParamIntOrThrow('flatId');
 
         $flatIds = array_map(static fn($item) => $item['flatId'], $user['flats']);
 
         $f = in_array($flatId, $flatIds);
 
         if (!$f)
-            $this->rbtResponse(404, message: 'Квартира не найдена');
+            user_response(404, message: 'Квартира не найдена');
 
         $flatOwner = false;
 
@@ -46,28 +51,29 @@ readonly class FrsController extends Controller
         foreach ($faces as $face)
             $result[] = ['faceId' => $face[FrsFeature::P_FACE_ID], 'image' => config_get('api.mobile') . '/address/plogCamshot/' . $face[FrsFeature::P_FACE_IMAGE]];
 
-        return $this->rbtResponse(data: $result);
+        return user_response(data: $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function store(): Response
+    #[Post('/{eventId}')]
+    public function store(string $eventId): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator(['eventId' => $this->route->getParam('eventId')], ['eventId' => rule()->required()->uuid()->nonNullable()]);
+        $validate = validator(['eventId' => $eventId], ['eventId' => rule()->required()->uuid()->nonNullable()]);
 
         $frs = container(FrsFeature::class);
 
         $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
 
         if ($eventData === false)
-            return $this->rbtResponse(404, message: 'Событие не найдено');
+            return user_response(404, message: 'Событие не найдено');
 
         if ($eventData[PlogFeature::COLUMN_PREVIEW] == PlogFeature::PREVIEW_NONE)
-            $this->rbtResponse(404, message: 'Нет кадра события');
+            return user_response(404, message: 'Нет кадра события');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
@@ -75,7 +81,7 @@ readonly class FrsController extends Controller
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            $this->rbtResponse(404, message: 'Квартира не найдена');
+            return user_response(404, message: 'Квартира не найдена');
 
         $households = container(HouseFeature::class);
         $domophone = json_decode($eventData[PlogFeature::COLUMN_DOMOPHONE], false);
@@ -89,26 +95,27 @@ readonly class FrsController extends Controller
                 $result = $frs->registerFace($cameras[0], $validate['eventId'], $face['left'] ?? 0, $face['top'] ?? 0, $face['width'] ?? 0, $face['height'] ?? 0);
 
                 if (!isset($result[FrsFeature::P_FACE_ID]))
-                    return $this->rbtResponse(400, message: $result[FrsFeature::P_MESSAGE]);
+                    return user_response(400, message: $result[FrsFeature::P_MESSAGE]);
 
                 $face_id = (int)$result[FrsFeature::P_FACE_ID];
                 $subscriber_id = (int)$user['subscriberId'];
 
                 $frs->attachFaceId($face_id, $flat_id, $subscriber_id);
 
-                return $this->rbtResponse();
+                return user_response();
             }
         }
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function delete(): Response
+    #[Delete]
+    public function delete(ServerRequestInterface $request): Response
     {
-        $query = $this->route->getRequest()->getQueryParams();
+        $query = $request->getQueryParams();
 
         $user = $this->getUser()->getOriginalValue();
 
@@ -123,7 +130,7 @@ readonly class FrsController extends Controller
             $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
 
             if (!$eventData)
-                $this->rbtResponse(404, message: 'Событие не найдено');
+                return user_response(404, message: 'Событие не найдено');
 
             $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
 
@@ -142,13 +149,13 @@ readonly class FrsController extends Controller
         }
 
         if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))
-            return $this->rbtResponse(404);
+            return user_response(404);
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404);
+            return user_response(404);
 
         $flat_owner = false;
 
@@ -169,6 +176,6 @@ readonly class FrsController extends Controller
             if ($face_id2 > 0) $frs->detachFaceId($face_id2, $subscriber_id);
         }
 
-        return $this->rbtResponse();
+        return user_response();
     }
 }

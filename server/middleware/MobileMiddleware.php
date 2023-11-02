@@ -4,13 +4,13 @@ namespace Selpol\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\Auth\User\SubscriberAuthUser;
 use Selpol\Service\AuthService;
 
-readonly class MobileMiddleware implements MiddlewareInterface
+readonly class MobileMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

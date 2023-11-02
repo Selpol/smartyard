@@ -5,12 +5,12 @@ namespace Selpol\Middleware;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use RedisException;
+use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\PrometheusService;
 
-readonly class PrometheusMiddleware implements MiddlewareInterface
+readonly class PrometheusMiddleware extends RouteMiddleware
 {
     /**
      * @throws NotFoundExceptionInterface|RedisException

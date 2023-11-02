@@ -17,9 +17,9 @@ use Selpol\Framework\Container\Trait\ContainerTrait;
 use Selpol\Framework\Kernel\Trait\ConfigTrait;
 use Selpol\Framework\Kernel\Trait\EnvTrait;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Router\RouterConfigurator;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
@@ -77,7 +77,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else echo $this->help('cron');
         } else if ($group === 'kernel') {
             if ($command === 'container') $this->kernelContainer();
-            else if ($command === 'router') $this->kernelRouter();
             else if ($command === 'optimize') $this->kernelOptimize();
             else if ($command === 'clear') $this->kernelClear();
             else if ($command === 'wipe') $this->kernelWipe();
@@ -338,28 +337,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
     }
 
-    private function kernelRouter(): void
-    {
-        if (file_exists(path('config/router.php'))) {
-            $callback = require path('config/router.php');
-            $builder = new RouterConfigurator();
-            $callback($builder);
-
-            $routes = $builder->collect();
-
-            $headers = ['METHOD', 'PATH', 'CLASS', 'MIDDLEWARES'];
-            $result = [];
-
-            foreach ($routes as $method => $methodRoutes)
-                foreach ($methodRoutes as $methodPath => $pathRoutes)
-                    $this->routeCompact($result, $method, $methodPath, $pathRoutes);
-
-            usort($result, static fn(array $a, array $b) => strcmp($a['PATH'], $b['PATH']));
-
-            $this->logger->debug($this->table($headers, $result));
-        }
-    }
-
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
@@ -414,11 +391,16 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         if (file_exists(path('config/router.php'))) {
-            $callback = require path('config/router.php');
-            $builder = new RouterConfigurator();
-            $callback($builder);
+            $router = new class {
+                use RouterTrait;
 
-            $cache->set('router', $builder->collect());
+                public function __construct()
+                {
+                    $this->loadRouter(false);
+                }
+            };
+
+            $cache->set('router', $router->getRouter()->getRoutes());
         }
 
         kernel()->setEnv($kernelEnv);
@@ -556,7 +538,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result[] = implode(PHP_EOL, [
                 '',
                 'kernel:container                 - Показать зависимости приложения',
-                'kernel:router                    - Показать маршруты приложения',
                 'kernel:optimize                  - Оптимизировать приложение',
                 'kernel:clear                     - Очистить приложение',
                 'kernel:wipe                      - Очистить метрики приложения'
@@ -603,19 +584,5 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result .= sprintf($mask, ...array_map(static fn(string $header) => $value[$header], $headers)) . PHP_EOL;
 
         return $result;
-    }
-
-    private function routeCompact(array &$result, string $method, string $path, array $value): void
-    {
-        foreach ($value as $valuePath => $route) {
-            if (array_key_exists('class', $route))
-                $result[] = [
-                    'METHOD' => $method,
-                    'PATH' => $path . $valuePath,
-                    'CLASS' => substr($route['class'], 17) . '@' . $route['method'],
-                    'MIDDLEWARES' => count($route['middlewares'])
-                ];
-            else $this->routeCompact($result, $method, $path . $valuePath, $route);
-        }
     }
 }

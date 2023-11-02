@@ -4,26 +4,31 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
-readonly class IntercomController extends Controller
+#[Controller('/mobile/intercom')]
+readonly class IntercomRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function intercom(): Response
+    #[Post('/intercom')]
+    public function intercom(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $validate = validator($body, ['flatId' => rule()->id()]);
 
@@ -34,7 +39,7 @@ readonly class IntercomController extends Controller
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(403, message: 'Квартира не находится в списках абонента');
+            return user_response(403, message: 'Квартира не находится в списках абонента');
 
         $flat_owner = false;
 
@@ -137,20 +142,21 @@ readonly class IntercomController extends Controller
         }
 
         if ($result)
-            return $this->rbtResponse(200, $result);
+            return user_response(200, $result);
 
-        return $this->rbtResponse(404, message: 'Ничего нет');
+        return user_response(404, message: 'Ничего нет');
     }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function openDoor(): Response
+    #[Post('/openDoor')]
+    public function openDoor(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
+        $validate = validator($request->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
 
         $households = container(HouseFeature::class);
 
@@ -187,35 +193,36 @@ readonly class IntercomController extends Controller
             } catch (Throwable $throwable) {
                 file_logger('intercom')->error($throwable);
 
-                return $this->rbtResponse(404, name: 'Ошибка', message: 'Домофон недоступен');
+                return user_response(404, name: 'Ошибка', message: 'Домофон недоступен');
             }
 
-            return $this->rbtResponse();
+            return user_response();
         }
 
-        return $this->rbtResponse(404, name: 'Не найдено', message: 'Услуга недоступна (договор заблокирован либо не оплачен)');
+        return user_response(404, name: 'Не найдено', message: 'Услуга недоступна (договор заблокирован либо не оплачен)');
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function resetCode(): Response
+    #[Post('/resetCode')]
+    public function resetCode(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), ['flatId' => rule()->id()]);
+        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id()]);
 
         $flat_id = $validate['flatId'];
 
         if (!$flat_id)
-            return $this->rbtResponse(404, message: 'Квартира не найдена');
+            return user_response(404, message: 'Квартира не найдена');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return $this->rbtResponse(404, message: 'Квартира у абонента не найдена');
+            return user_response(404, message: 'Квартира у абонента не найдена');
 
         $households = container(HouseFeature::class);
 
@@ -226,6 +233,6 @@ readonly class IntercomController extends Controller
 
         task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
 
-        return $this->rbtResponse(200, ["code" => intval($flat['openCode'])]);
+        return user_response(200, ["code" => intval($flat['openCode'])]);
     }
 }

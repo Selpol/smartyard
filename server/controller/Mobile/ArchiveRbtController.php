@@ -3,22 +3,30 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\JwtMiddleware;
+use Selpol\Middleware\MobileMiddleware;
 use Selpol\Task\Tasks\RecordTask;
 
-readonly class ArchiveController extends Controller
+#[Controller('/mobile/cctv')]
+readonly class ArchiveRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function prepare(): Response
+    #[Post('/recPrepare')]
+    public function prepare(ServerRequestInterface $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), [
+        $validate = validator($request->getParsedBody(), [
             'id' => rule()->id(),
             'from' => rule()->required()->nonNullable(),
             'to' => rule()->required()->nonNullable()
@@ -32,7 +40,7 @@ readonly class ArchiveController extends Controller
         $to = strtotime($validate['to']);
 
         if (!$from || !$to)
-            return $this->rbtResponse(400, message: 'Неверный формат данных');
+            return user_response(400, message: 'Неверный формат данных');
 
         $archive = container(ArchiveFeature::class);
 
@@ -40,25 +48,21 @@ readonly class ArchiveController extends Controller
         $check = $archive->checkDownloadRecord($cameraId, $userId, $from, $to);
 
         if (@$check['id'])
-            return $this->rbtResponse(200, $check['id']);
+            return user_response(200, $check['id']);
 
         $result = (int)$archive->addDownloadRecord($cameraId, $userId, $from, $to);
 
         task(new RecordTask($userId, $result))->low()->dispatch();
 
-        return $this->rbtResponse(200, $result);
+        return user_response(200, $result);
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function download(): Response
+    #[Get('/download/{uuid}', excludes: [JwtMiddleware::class, MobileMiddleware::class])]
+    public function download(string $uuid): Response
     {
-        $uuid = $this->route->getParam('uuid');
-
-        if ($uuid === null)
-            return $this->rbtResponse(404, message: 'Не указан идентификатор');
-
         $file = container(FileFeature::class);
 
         $stream = $file->getFileStream($uuid);

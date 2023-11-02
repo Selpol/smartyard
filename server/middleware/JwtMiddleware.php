@@ -4,14 +4,14 @@ namespace Selpol\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Framework\Http\ServerRequest;
+use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
 
-readonly class JwtMiddleware implements MiddlewareInterface
+readonly class JwtMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

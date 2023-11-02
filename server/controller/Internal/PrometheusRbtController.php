@@ -5,18 +5,22 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use RuntimeException;
-use Selpol\Controller\Controller;
+use Selpol\Controller\RbtController;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
-readonly class PrometheusController extends Controller
+#[Controller('/internal/prometheus')]
+readonly class PrometheusRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
+    #[Get]
     public function index(): Response
     {
         $metrics = container(PrometheusService::class)->collect();

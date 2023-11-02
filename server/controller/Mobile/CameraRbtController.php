@@ -3,24 +3,30 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Validator\Exception\ValidatorException;
 
-readonly class CameraController extends Controller
+#[Controller('/mobile/cctv')]
+readonly class CameraRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function index(): Response
+    #[Post('/all')]
+    public function index(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), ['houseId' => rule()->id()]);
+        $validate = validator($request->getParsedBody(), ['houseId' => rule()->id()]);
 
         $house_id = $validate['houseId'];
         $households = container(HouseFeature::class);
@@ -85,21 +91,21 @@ readonly class CameraController extends Controller
         }
 
         if (count($result))
-            return $this->rbtResponse(200, $result);
+            return user_response(200, $result);
 
-        return $this->rbtResponse(404, message: 'Камеры не найдены');
+        return user_response(404, message: 'Камеры не найдены');
     }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function show(): Response
+    #[Get('/{cameraId}')]
+    public function show(ServerRequestInterface $request, int $cameraId): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $cameraId = $this->route->getParamIdOrThrow('cameraId');
-        $houseId = rule()->id()->onItem('houseId', $this->route->getRequest()->getQueryParams());
+        $houseId = rule()->id()->onItem('houseId', $request->getQueryParams());
 
         $find = false;
 
@@ -112,24 +118,25 @@ readonly class CameraController extends Controller
         }
 
         if (!$find)
-            return $this->rbtResponse(404, message: 'Камера не найдена');
+            return user_response(404, message: 'Камера не найдена');
 
         $camera = container(CameraFeature::class)->getCamera($cameraId);
 
         if (!$camera)
-            return $this->rbtResponse(404, message: 'Камера не найдена');
+            return user_response(404, message: 'Камера не найдена');
 
-        return $this->rbtResponse(data: $this->convertCamera($camera, $user));
+        return user_response(data: $this->convertCamera($camera, $user));
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function events(): Response
+    #[Post('/events')]
+    public function events(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         $validate = validator($body, [
             'cameraId' => rule()->id(),
@@ -141,7 +148,7 @@ readonly class CameraController extends Controller
         $domophoneId = $households->getDomophoneIdByEntranceCameraId($validate['cameraId']);
 
         if (is_null($domophoneId))
-            return $this->rbtResponse(404, message: 'Домофон не найден');
+            return user_response(404, message: 'Домофон не найден');
 
         $flats = array_filter(
             array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
@@ -155,14 +162,14 @@ readonly class CameraController extends Controller
         $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
 
         if (count($flatsId) == 0)
-            return $this->rbtResponse(404, message: 'Квартира у абонента не найдена');
+            return user_response(404, message: 'Квартира у абонента не найдена');
 
         $events = container(PlogFeature::class)->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $validate['date']);
 
         if ($events)
-            return $this->rbtResponse(200, array_map(static fn(array $item) => $item['date'], $events));
+            return user_response(200, array_map(static fn(array $item) => $item['date'], $events));
 
-        return $this->rbtResponse(404, message: 'События не найдены');
+        return user_response(404, message: 'События не найдены');
     }
 
     /**

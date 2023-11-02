@@ -4,31 +4,37 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Push\PushFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Post;
 
-readonly class UserController extends Controller
+#[Controller('/mobile/user')]
+readonly class UserRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
+    #[Post('/ping')]
     public function ping(): Response
     {
         $this->getUser();
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function registerPushToken(): Response
+    #[Post('/registerPushToken')]
+    public function registerPushToken(ServerRequestInterface $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), [
+        $validate = validator($request->getParsedBody(), [
             'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'production' => [filter()->default(false), rule()->bool()],
@@ -42,7 +48,7 @@ readonly class UserController extends Controller
         $production = trim($validate['production']);
 
         if (!array_key_exists('platform', $validate) || ($validate['platform'] != 'ios' && $validate['platform'] != 'android' && $validate['platform'] != 'huawei'))
-            return $this->rbtResponse(400, message: 'Неверный тип платформы');
+            return user_response(400, message: 'Неверный тип платформы');
 
         if ($validate['platform'] == 'ios') {
             $platform = 1;
@@ -69,18 +75,19 @@ readonly class UserController extends Controller
         if (!$validate['voipToken'])
             $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public function sendName(): Response
+    #[Post('/sendName')]
+    public function sendName(ServerRequestInterface $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), [
+        $validate = validator($request->getParsedBody(), [
             'name' => [filter()->fullSpecialChars(), rule()->required()->string()->max(64)->nonNullable()],
             'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)]
         ]);
@@ -88,6 +95,6 @@ readonly class UserController extends Controller
         if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
         else container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name']]);
 
-        return $this->rbtResponse();
+        return user_response();
     }
 }

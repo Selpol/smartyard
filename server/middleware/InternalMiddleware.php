@@ -4,17 +4,17 @@ namespace Selpol\Middleware;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Route\RouteMiddleware;
 
-readonly class InternalMiddleware implements MiddlewareInterface
+readonly class InternalMiddleware extends RouteMiddleware
 {
     private array $trust;
 
-    public function __construct()
+    public function __construct(array $trust)
     {
-        $this->trust = config_get('internal.trust') ?? ['127.0.0.1/32'];
+        $this->trust = $trust;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

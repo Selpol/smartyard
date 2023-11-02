@@ -4,32 +4,37 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Validator\Exception\ValidatorException;
 
-readonly class SubscriberController extends Controller
+#[Controller('/mobile/subscriber')]
+readonly class SubscriberRbtController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function index(): Response
+    #[Get('/{flatId}')]
+    public function index(int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $flatId = $this->route->getParamIntOrThrow('flatId');
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return $this->rbtResponse(404, message: 'Квартира не найдена у абонента');
+            return user_response(404, message: 'Квартира не найдена у абонента');
 
         $subscribers = container(HouseFeature::class)->getSubscribers('flatId', $flat['flatId']);
 
-        return $this->rbtResponse(
+        return user_response(
             data: array_map(
                 fn(array $subscriber) => [
                     'subscriberId' => $subscriber['subscriberId'],
@@ -47,22 +52,21 @@ readonly class SubscriberController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function store(): Response
+    #[Post('/{flatId}')]
+    public function store(ServerRequestInterface $request, int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->route->getParamIntOrThrow('flatId');
-
-        $validate = validator($this->route->getRequest()->getParsedBody() ?? [], [
+        $validate = validator($request->getParsedBody() ?? [], [
             'mobile' => rule()->required()->int()->min(70000000000)->max(79999999999)->nonNullable()
         ]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return $this->rbtResponse(404, message: 'Квартира не найдена у абонента');
+            return user_response(404, message: 'Квартира не найдена у абонента');
         if ($flat['role'] !== 0)
-            return $this->rbtResponse(403, message: 'Недостаточно прав для добавления нового жителя');
+            return user_response(403, message: 'Недостаточно прав для добавления нового жителя');
 
         $households = container(HouseFeature::class);
 
@@ -72,7 +76,7 @@ readonly class SubscriberController extends Controller
             $id = $households->addSubscriber($validate['mobile'], 'Имя', 'Отчество', flatId: $flatId);
 
             if (!$id)
-                return $this->rbtResponse(400, message: 'Неудалось зарегестрировать жителя');
+                return user_response(400, message: 'Неудалось зарегестрировать жителя');
 
             $subscribers = $households->getSubscribers('id', $id);
         }
@@ -82,12 +86,12 @@ readonly class SubscriberController extends Controller
         $subscriberFlat = $this->getFlat($subscriber['flats'], $flat['flatId']);
 
         if ($subscriberFlat)
-            $this->rbtResponse(400, message: 'Житель уже добавлен');
+            return user_response(400, message: 'Житель уже добавлен');
 
         if (!$households->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId']))
-            $this->rbtResponse(400, message: 'Житель не был добавлен');
+            return user_response(400, message: 'Житель не был добавлен');
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
@@ -95,43 +99,42 @@ readonly class SubscriberController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function delete(): Response
+    #[Delete('/{flatId}')]
+    public function delete(ServerRequestInterface $request, int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flatId = $this->route->getParamIntOrThrow('flatId');
-
-        $validate = validator(['subscriberId' => $this->route->getRequest()->getQueryParams()['subscriberId']], ['subscriberId' => rule()->id()]);
+        $validate = validator(['subscriberId' => $request->getQueryParams()['subscriberId']], ['subscriberId' => rule()->id()]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return $this->rbtResponse(404, message: 'Квартира не найдена');
+            return user_response(404, message: 'Квартира не найдена');
 
         if ($flat['role'] !== 0)
-            return $this->rbtResponse(403, message: 'Недостаточно прав для удаления жителя');
+            return user_response(403, message: 'Недостаточно прав для удаления жителя');
 
         $households = container(HouseFeature::class);
 
         $subscribers = $households->getSubscribers('id', $validate['subscriberId']);
 
         if (!$subscribers || count($subscribers) === 0)
-            return $this->rbtResponse(404, message: 'Житель не зарегестрирован');
+            return user_response(404, message: 'Житель не зарегестрирован');
 
         $subscriber = $subscribers[0];
 
         $subscriberFlat = $this->getFlat($subscriber['flats'], $flat['flatId']);
 
         if (!$subscriberFlat)
-            return $this->rbtResponse(400, message: 'Житель не заселен в данной квартире');
+            return user_response(400, message: 'Житель не заселен в данной квартире');
 
         if ($subscriberFlat['role'] == 0)
-            return $this->rbtResponse(403, message: 'Житель является владельцем квартиры');
+            return user_response(403, message: 'Житель является владельцем квартиры');
 
         if (!$households->removeSubscriberFromFlat($flat['flatId'], $subscriber['subscriberId']))
-            return $this->rbtResponse(400, message: 'Житель не был удален');
+            return user_response(400, message: 'Житель не был удален');
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     private function getFlat(array $value, int $id): ?array

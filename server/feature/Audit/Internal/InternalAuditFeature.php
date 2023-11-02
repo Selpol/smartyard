@@ -3,9 +3,9 @@
 namespace Selpol\Feature\Audit\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Entity\Model\Audit;
 use Selpol\Feature\Audit\AuditFeature;
-use Selpol\Framework\Http\ServerRequest;
 use Selpol\Service\AuthService;
 use Selpol\Validator\Exception\ValidatorException;
 
@@ -34,8 +34,8 @@ readonly class InternalAuditFeature extends AuditFeature
         $audit->event_type = $eventType;
         $audit->event_message = $eventMessage;
 
-        if (kernel()->getContainer()->has(ServerRequest::class)) {
-            $request = container(ServerRequest::class);
+        if (kernel()->getContainer()->has(ServerRequestInterface::class)) {
+            $request = container(ServerRequestInterface::class);
 
             $audit->event_ip = connection_ip($request);
             $audit->event_target = $request->getRequestTarget();

@@ -3,17 +3,23 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\MobileMiddleware;
 
-readonly class AddressController extends Controller
+#[Controller('/mobile/address')]
+readonly class AddressRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
+    #[Post('/getAddressList')]
     public function getAddressList(): Response
     {
         $user = $this->getUser()->getOriginalValue();
@@ -92,21 +98,22 @@ readonly class AddressController extends Controller
         $result = array_values($houses);
 
         if (count($result))
-            return $this->rbtResponse(data: $result);
+            return user_response(data: $result);
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function registerQR(): Response
+    #[Post('/registerQR', excludes: [MobileMiddleware::class])]
+    public function registerQR(ServerRequestInterface $request): Response
     {
         $token = $this->getToken();
 
         $audJti = $token->getOriginalValue()['scopes'][1];
 
-        $validate = validator($this->route->getRequest()->getParsedBody(), [
+        $validate = validator($request->getParsedBody(), [
             'code' => rule()->required()->nonNullable(),
             'mobile' => rule()->clamp(11, 11),
             'name' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
@@ -116,7 +123,7 @@ readonly class AddressController extends Controller
         $code = $validate['QR'];
 
         if (!$code)
-            return $this->rbtResponse(400, message: 'Неверный формат данных');
+            return user_response(400, message: 'Неверный формат данных');
 
         $hash = '';
 
@@ -128,14 +135,14 @@ readonly class AddressController extends Controller
         }
 
         if ($hash == '')
-            return $this->rbtResponse(200, "QR-код не является кодом для доступа к квартире");
+            return user_response(200, "QR-код не является кодом для доступа к квартире");
 
         $households = container(HouseFeature::class);
 
         $flat = $households->getFlats("code", ["code" => $hash])[0];
 
         if (!$flat)
-            return $this->rbtResponse(200, "QR-код не является кодом для доступа к квартире");
+            return user_response(200, "QR-код не является кодом для доступа к квартире");
 
         $flat_id = (int)$flat["flatId"];
 
@@ -147,17 +154,17 @@ readonly class AddressController extends Controller
             $patronymic = $validate['patronymic'];
 
             if (strlen($mobile) !== 11)
-                return $this->rbtResponse(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
+                return user_response(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
 
-            if (!$name) return $this->rbtResponse(400, message: 'Имя обязательно для заполнения');
-            if (!$patronymic) return $this->rbtResponse(400, message: 'Отчество обязательно для заполнения');
+            if (!$name) return user_response(400, message: 'Имя обязательно для заполнения');
+            if (!$patronymic) return user_response(400, message: 'Отчество обязательно для заполнения');
 
             if ($households->addSubscriber($mobile, $name, $patronymic)) {
                 $subscribers = $households->getSubscribers('mobile', $mobile);
 
                 if (count($subscribers) > 0)
                     $households->modifySubscriber($subscribers[0]['subscriberId'], ['audJti' => $audJti]);
-            } else return $this->rbtResponse(422, 'Не удалось зарегестрироваться');
+            } else return user_response(422, 'Не удалось зарегестрироваться');
         }
 
         if ($subscribers && count($subscribers) > 0) {
@@ -165,11 +172,11 @@ readonly class AddressController extends Controller
 
             foreach ($subscriber['flats'] as $item)
                 if ((int)$item['flatId'] == $flat_id)
-                    return $this->rbtResponse(200, "У вас уже есть доступ к данной квартире");
+                    return user_response(200, "У вас уже есть доступ к данной квартире");
 
             if ($households->addSubscriber($subscriber["mobile"], flatId: $flat_id))
-                return $this->rbtResponse(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-            else return $this->rbtResponse(400, message: 'Неудалось добавиться в квартиру');
-        } else return $this->rbtResponse(404, message: 'Абонент не найден');
+                return user_response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
+            else return user_response(400, message: 'Неудалось добавиться в квартиру');
+        } else return user_response(404, message: 'Абонент не найден');
     }
 }

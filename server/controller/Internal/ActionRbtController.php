@@ -3,42 +3,48 @@
 namespace Selpol\Controller\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\Controller;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\RbtController;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
-readonly class ActionController extends Controller
+#[Controller('/internal/actions')]
+readonly class ActionRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function callFinished(): Response
+    #[Post('/callFinished')]
+    public function callFinished(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         if (!isset($body["date"], $body["ip"]))
-            return $this->rbtResponse(400, message: 'Неверный формат данных');
+            return user_response(400, message: 'Неверный формат данных');
 
         ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
 
         container(PlogFeature::class)->addCallDoneData($date, $ip, $callId);
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function motionDetection(): Response
+    #[Post('/motionDetection')]
+    public function motionDetection(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         if (!isset($body["ip"], $body["motionActive"]))
-            return $this->rbtResponse(400, message: 'Неверный формат данных');
+            return user_response(400, message: 'Неверный формат данных');
 
         file_logger('internal')->debug('Motion detection', $body);
 
@@ -54,28 +60,29 @@ readonly class ActionController extends Controller
         if (!$deviceCamera) {
             $logger->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $ip]);
 
-            return $this->rbtResponse(400, message: 'Детектор движений не включен');
+            return user_response(400, message: 'Детектор движений не включен');
         }
 
         $payload = ["streamId" => $deviceCamera->camera_id, "start" => $motionActive ? 't' : 'f'];
 
         container(FrsService::class)->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
 
-        return $this->rbtResponse();
+        return user_response();
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function openDoor(): Response
+    #[Post('/openDoor')]
+    public function openDoor(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
-        if (!isset($body["date"], $body["ip"], $body["event"], $body["door"], $body["detail"])) return $this->rbtResponse(400);
+        if (!isset($body["date"], $body["ip"], $body["event"], $body["door"], $body["detail"])) return user_response(400);
 
         ["date" => $date, "ip" => $ip, "event" => $event, "door" => $door, "detail" => $detail] = $body;
 
-        if (!isset($date, $ip, $event, $door, $detail)) return $this->rbtResponse(400, message: 'Неверный формат данных');
+        if (!isset($date, $ip, $event, $door, $detail)) return user_response(400, message: 'Неверный формат данных');
 
         $plog = container(PlogFeature::class);
 
@@ -86,10 +93,10 @@ readonly class ActionController extends Controller
             case PlogFeature::EVENT_OPENED_BY_CODE:
                 $plog->addDoorOpenData($date, $ip, intval($event), intval($door), $detail);
 
-                return $this->rbtResponse();
+                return user_response();
 
             case PlogFeature::EVENT_OPENED_GATES_BY_CALL:
-                return $this->rbtResponse();
+                return user_response();
 
             case PlogFeature::EVENT_OPENED_BY_BUTTON:
                 $db = container(DatabaseService::class);
@@ -107,7 +114,7 @@ readonly class ActionController extends Controller
                     $payload = ["streamId" => strval($streamId)];
                     $apiResponse = container(FrsService::class)->request('POST', $frsUrl . "/api/doorIsOpen", $payload);
 
-                    return $this->rbtResponse(201, $apiResponse);
+                    return user_response(201, $apiResponse);
                 }
 
                 return response(204);
@@ -119,12 +126,13 @@ readonly class ActionController extends Controller
     /**
      * @throws NotFoundExceptionInterface
      */
-    public function setRabbitGates(): Response
+    #[Post('/setRabbitGates')]
+    public function setRabbitGates(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
         if (!isset($body["ip"], $body["prefix"], $body["apartmentNumber"], $body["apartmentId"], $body["date"]))
-            return $this->rbtResponse(400, message: 'Неверный формат данных');
+            return user_response(400, message: 'Неверный формат данных');
 
         ["ip" => $ip, "prefix" => $prefix, "apartmentNumber" => $apartment_number, "apartmentId" => $apartment_id, "date" => $date] = $body;
 
@@ -140,6 +148,6 @@ readonly class ActionController extends Controller
             ['ip' => $ip, 'flat' => $apartment_number, 'house_flat_id' => $apartment_id, 'prefix' => $prefix, 'last_opened' => $date]
         );
 
-        return $this->rbtResponse(202, ['id' => $result]);
+        return user_response(202, ['id' => $result]);
     }
 }

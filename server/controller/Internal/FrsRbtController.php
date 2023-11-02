@@ -5,26 +5,32 @@ namespace Selpol\Controller\Internal;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use RedisException;
-use Selpol\Controller\Controller;
+use Selpol\Controller\RbtController;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 
-readonly class FrsController extends Controller
+#[Controller('/internal/frs')]
+readonly class FrsRbtController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      * @throws RedisException
      * @throws ContainerExceptionInterface
      */
-    public function callback(): Response
+    #[Post('/callback')]
+    public function callback(ServerRequestInterface $request): Response
     {
-        $body = $this->route->getRequest()->getParsedBody();
+        $body = $request->getParsedBody();
 
-        $camera_id = $this->route->getQuery('stream_id');
+        $camera_id = $request->getQueryParams()['stream_id'];
 
         $face_id = (int)$body[FrsFeature::P_FACE_ID];
         $event_id = (int)$body[FrsFeature::P_EVENT_ID];
@@ -60,7 +66,7 @@ readonly class FrsController extends Controller
 
             container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $face_id . "|" . $event_id);
         } catch (Exception) {
-            return $this->rbtResponse(404);
+            return user_response(404);
         }
 
         return response(204);
@@ -71,13 +77,14 @@ readonly class FrsController extends Controller
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    public function camshot(): Response
+    #[Get('/camshot/{id}')]
+    public function camshot(int $id): Response
     {
-        $model = camera($this->route->getParamIdOrThrow('id'));
+        $camera = camera($id);
 
-        if (!$model)
+        if (!$camera)
             return response(204);
 
-        return response(headers: ['Content-Type' => 'image/jpeg'])->withBody($model->getScreenshot());
+        return response(headers: ['Content-Type' => 'image/jpeg'])->withBody($camera->getScreenshot());
     }
 }
