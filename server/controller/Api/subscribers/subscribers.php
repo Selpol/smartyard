@@ -2,12 +2,13 @@
 
 namespace Selpol\Controller\Api\subscribers;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
 readonly class subscribers extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -17,7 +18,10 @@ readonly class subscribers extends Api
             'keys' => $households->getKeys(@$params['by'], @$params['query']),
         ];
 
-        return Api::ANSWER($flat, $flat ? 'flat' : false);
+        if ($flat)
+            return self::success($flat);
+
+        return self::error('Не удалось получить квартиру');
     }
 
     public static function index(): bool|array
