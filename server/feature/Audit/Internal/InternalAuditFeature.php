@@ -51,6 +51,6 @@ readonly class InternalAuditFeature extends AuditFeature
 
     public function clear(): void
     {
-        $this->getDatabase()->modify('DELETE FROM audit');
+        Audit::getRepository()->deleteSql();
     }
 }

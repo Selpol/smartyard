@@ -78,6 +78,6 @@ readonly class FrsController extends Controller
         if (!$model)
             return response(204);
 
-        return response()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
+        return response(headers: ['Content-Type' => 'image/jpeg'])->withBody($model->getScreenshot());
     }
 }

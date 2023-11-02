@@ -55,6 +55,6 @@ readonly class CallController extends Controller
         if (!$model)
             return $this->rbtResponse(404, message: 'Камера не найдена');
 
-        return response()->withHeader('Content-Type', 'image/jpeg')->withBody($model->getScreenshot());
+        return response(headers: ['Content-Type' => 'image/jpeg'])->withBody($model->getScreenshot());
     }
 }

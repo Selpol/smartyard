@@ -491,9 +491,12 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     $description = is_int($key) ? $title : $request_methods[$key];
 
                                     if (!array_key_exists($title, $titlePermissions)) {
-                                        $id = $db->get("SELECT NEXTVAL('permission_id_seq')", options: ['singlify'])['nextval'];
+                                        $permission = new Permission();
 
-                                        $db->insert('INSERT INTO permission(id, title, description) VALUES(:id, :title, :description)', ['id' => $id, 'title' => $title, 'description' => $description]);
+                                        $permission->title = $title;
+                                        $permission->description = $description;
+
+                                        $permission->insert();
                                     }
 
                                     unset($titlePermissions[$title]);
@@ -515,10 +518,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function roleClear(): void
     {
-        $permissions = Permission::fetchAll();
-
-        foreach ($permissions as $permission)
-            $permission->delete();
+        Permission::getRepository()->deleteSql();
     }
 
     private function help(?string $group = null): string

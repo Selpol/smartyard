@@ -3,6 +3,7 @@
 namespace Selpol\Feature\Camera\Internal;
 
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Camera\CameraFeature;
 
 readonly class InternalCameraFeature extends CameraFeature
@@ -132,6 +133,6 @@ readonly class InternalCameraFeature extends CameraFeature
 
     public function deleteCamera(int $cameraId): bool
     {
-        return $this->getDatabase()->modify("delete from cameras where camera_id = $cameraId");
+        return DeviceCamera::findById($cameraId, setting: setting()->columns(['camera_id']))->delete();
     }
 }
