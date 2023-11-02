@@ -11,7 +11,7 @@ readonly class call extends Api
         $device = intercom($params['_id']);
 
         if (!$device->ping())
-            return self::ERROR('Устройство не доступно');
+            return self::FALSE('Устройство не доступно');
 
         $device->call($params['apartment']);
 

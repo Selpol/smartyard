@@ -25,7 +25,7 @@ readonly class reset extends Api
             return self::ANSWER();
         }
 
-        return self::ERROR('Домофон не найден');
+        return self::FALSE('Домофон не найден');
     }
 
     public static function index(): array|bool

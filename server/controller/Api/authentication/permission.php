@@ -9,7 +9,7 @@ readonly class permission extends Api
 {
     public static function GET(array $params): array
     {
-        return self::SUCCESS('permissions', container(AuthService::class)->getPermissions());
+        return self::TRUE('permissions', container(AuthService::class)->getPermissions());
     }
 
     public static function index(): array

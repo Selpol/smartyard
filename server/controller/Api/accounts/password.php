@@ -18,7 +18,7 @@ readonly class password extends Api
         if ($user->update())
             return self::ANSWER($user->uid, 'userId');
 
-        return self::ERROR('Неудалось обновить пароль');
+        return self::FALSE('Неудалось обновить пароль');
     }
 
     public static function index(): array

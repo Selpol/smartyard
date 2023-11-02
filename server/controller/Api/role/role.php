@@ -9,7 +9,7 @@ readonly class role extends Api
 {
     public static function GET(array $params): array
     {
-        return self::SUCCESS('roles', \Selpol\Entity\Model\Role::fetchAll());
+        return self::TRUE('roles', \Selpol\Entity\Model\Role::fetchAll());
     }
 
     public static function POST(array $params): array

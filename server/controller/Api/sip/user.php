@@ -17,7 +17,7 @@ readonly class user extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS(
+        return self::TRUE(
             'servers',
             SipUser::fetchPage(
                 $validate['page'],
@@ -38,9 +38,9 @@ readonly class user extends Api
         ]));
 
         if ($sipUser->insert())
-            return self::SUCCESS('id', $sipUser->id);
+            return self::TRUE('id', $sipUser->id);
 
-        return self::ERROR('Не удалось создать');
+        return self::FALSE('Не удалось создать');
     }
 
     public static function PUT(array $params): array
@@ -63,9 +63,9 @@ readonly class user extends Api
         $sipUser->password = $validate['password'];
 
         if ($sipUser->update())
-            return self::SUCCESS('id', $sipUser->id);
+            return self::TRUE('id', $sipUser->id);
 
-        return self::ERROR('Не удалось обновить');
+        return self::FALSE('Не удалось обновить');
     }
 
     public static function DELETE(array $params): array
@@ -73,9 +73,9 @@ readonly class user extends Api
         $sipUser = SipUser::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($sipUser->delete())
-            return self::SUCCESS('id', $sipUser->id);
+            return self::TRUE('id', $sipUser->id);
 
-        return self::ERROR('Не удалось удалить');
+        return self::FALSE('Не удалось удалить');
     }
 
     public static function index(): array

@@ -14,7 +14,7 @@ readonly class sip extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', SipServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::TRUE('servers', SipServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -30,9 +30,9 @@ readonly class sip extends Api
         ]));
 
         if ($sipServer->insert())
-            return self::SUCCESS('id', $sipServer->id);
+            return self::TRUE('id', $sipServer->id);
 
-        return self::ERROR('Не удалось создать');
+        return self::FALSE('Не удалось создать');
     }
 
     public static function PUT(array $params): array
@@ -60,9 +60,9 @@ readonly class sip extends Api
         $sipServer->internal_ip = $validate['internal_ip'];
 
         if ($sipServer->update())
-            return self::SUCCESS('id', $sipServer->id);
+            return self::TRUE('id', $sipServer->id);
 
-        return self::ERROR('Не удалось обновить');
+        return self::FALSE('Не удалось обновить');
     }
 
     public static function DELETE(array $params): array
@@ -70,9 +70,9 @@ readonly class sip extends Api
         $sipServer = SipServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($sipServer->delete())
-            return self::SUCCESS('id', $sipServer->id);
+            return self::TRUE('id', $sipServer->id);
 
-        return self::ERROR('Не удалось удалить');
+        return self::FALSE('Не удалось удалить');
     }
 
     public static function index(): array

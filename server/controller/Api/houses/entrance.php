@@ -19,7 +19,7 @@ readonly class entrance extends Api
         if ($entrance)
             return Api::ANSWER($entrance, 'entrance');
 
-        return Api::ERROR('Вход не найден');
+        return Api::FALSE('Вход не найден');
     }
 
     public static function POST(array $params): array

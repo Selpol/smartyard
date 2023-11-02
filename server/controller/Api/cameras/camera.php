@@ -49,7 +49,7 @@ readonly class camera extends Api
             return self::ANSWER($camera->camera_id, 'cameraId');
         }
 
-        return self::ERROR('Неудалось добавить камеру');
+        return self::FALSE('Неудалось добавить камеру');
     }
 
     public static function PUT(array $params): array
@@ -70,7 +70,7 @@ readonly class camera extends Api
             return self::ANSWER($camera->camera_id, 'cameraId');
         }
 
-        return Api::ERROR('Неудалось обновить камеру');
+        return Api::FALSE('Неудалось обновить камеру');
     }
 
     public static function DELETE(array $params): array
@@ -84,7 +84,7 @@ readonly class camera extends Api
             return self::ANSWER();
         }
 
-        return Api::ERROR('Неудалось удалить камеру');
+        return Api::FALSE('Неудалось удалить камеру');
     }
 
     public static function index(): bool|array

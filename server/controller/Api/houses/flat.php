@@ -14,7 +14,7 @@ readonly class flat extends Api
         $flatId = @$params['_id'];
 
         if (!isset($flatId))
-            return Api::ERROR('Неверный формат данных');
+            return Api::FALSE('Неверный формат данных');
 
         $flat = container(HouseFeature::class)->getFlat($flatId);
 
@@ -72,7 +72,7 @@ readonly class flat extends Api
             return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
         }
 
-        return Api::ERROR('Дом не найден');
+        return Api::FALSE('Дом не найден');
     }
 
     public static function index(): bool|array

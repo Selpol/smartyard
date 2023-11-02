@@ -16,7 +16,7 @@ readonly class subscriber extends Api
         if ($subscribers && count($subscribers) === 1)
             return Api::ANSWER($subscribers[0]);
 
-        return Api::ERROR();
+        return Api::FALSE();
     }
 
     public static function POST(array $params): array

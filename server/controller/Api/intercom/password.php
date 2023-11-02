@@ -25,7 +25,7 @@ readonly class password extends Api
 
             if ($intercom) {
                 if (!$intercom->ping())
-                    return self::ERROR('Устройство не доступно');
+                    return self::FALSE('Устройство не доступно');
 
                 $password = generate_password();
 
@@ -40,7 +40,7 @@ readonly class password extends Api
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
-                    return self::ERROR('Неудалось обновить sip аккаунт домофона');
+                    return self::FALSE('Неудалось обновить sip аккаунт домофона');
                 }
 
                 $intercom->setLoginPassword($password);
@@ -51,7 +51,7 @@ readonly class password extends Api
                 if (!$deviceIntercom->update()) {
                     file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
 
-                    return self::ERROR('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')');
+                    return self::FALSE('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')');
                 }
 
                 if ($deviceCamera) {
@@ -65,7 +65,7 @@ readonly class password extends Api
                     if (!$deviceCamera->update()) {
                         file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
 
-                        return self::ERROR('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');
+                        return self::FALSE('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');
                     }
                 }
 
@@ -75,10 +75,10 @@ readonly class password extends Api
                 return self::ANSWER();
             }
 
-            return self::ERROR('Неудалось определить модель устройства');
+            return self::FALSE('Неудалось определить модель устройства');
         }
 
-        return self::ERROR('Домофон не найден');
+        return self::FALSE('Домофон не найден');
     }
 
     public static function index(): array|bool

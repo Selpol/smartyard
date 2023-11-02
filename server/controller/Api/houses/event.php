@@ -23,9 +23,9 @@ readonly class event extends Api
         $result = container(PlogFeature::class)->getEventsByFlat($flat->house_flat_id, $validate['type'], $validate['opened'], $validate['page'], $validate['size']);
 
         if ($result)
-            return self::SUCCESS('events', $result);
+            return self::TRUE('events', $result);
 
-        return self::SUCCESS('events', []);
+        return self::TRUE('events', []);
     }
 
     public static function index(): array|bool

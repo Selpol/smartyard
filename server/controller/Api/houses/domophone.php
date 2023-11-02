@@ -39,7 +39,7 @@ readonly class domophone extends Api
         if ($intercom->insert())
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
 
-        return Api::ERROR('Неудалось добавить домофон');
+        return Api::FALSE('Неудалось добавить домофон');
     }
 
     public static function PUT(array $params): array
@@ -51,7 +51,7 @@ readonly class domophone extends Api
         if ($intercom->update())
             return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
 
-        return Api::ERROR('Неудалось обновить домофон');
+        return Api::FALSE('Неудалось обновить домофон');
     }
 
     public static function DELETE(array $params): array
@@ -61,7 +61,7 @@ readonly class domophone extends Api
         if ($intercom->delete())
             return self::ANSWER();
 
-        return Api::ERROR('Неудалось удалить домофон');
+        return Api::FALSE('Неудалось удалить домофон');
     }
 
     public static function index(): array

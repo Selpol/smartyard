@@ -14,7 +14,7 @@ readonly class frs extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', FrsServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::TRUE('servers', FrsServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -25,9 +25,9 @@ readonly class frs extends Api
         ]));
 
         if ($frsServer->insert())
-            return self::SUCCESS('id', $frsServer->id);
+            return self::TRUE('id', $frsServer->id);
 
-        return self::ERROR('Не удалось создать');
+        return self::FALSE('Не удалось создать');
     }
 
     public static function PUT(array $params): array
@@ -45,9 +45,9 @@ readonly class frs extends Api
         $frsServer->url = $validate['url'];
 
         if ($frsServer->update())
-            return self::SUCCESS('id', $frsServer->id);
+            return self::TRUE('id', $frsServer->id);
 
-        return self::ERROR('Не удалось обновить');
+        return self::FALSE('Не удалось обновить');
     }
 
     public static function DELETE(array $params): array
@@ -55,9 +55,9 @@ readonly class frs extends Api
         $frsServer = FrsServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($frsServer?->delete())
-            return self::SUCCESS('id', $frsServer->id);
+            return self::TRUE('id', $frsServer->id);
 
-        return self::ERROR('Не удалось удалить');
+        return self::FALSE('Не удалось удалить');
     }
 
     public static function index(): array

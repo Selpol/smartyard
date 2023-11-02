@@ -42,7 +42,7 @@ readonly class keys extends Api
             }
         }
 
-        return self::SUCCESS('keys', new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
+        return self::TRUE('keys', new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
     }
 
     public static function index(): array

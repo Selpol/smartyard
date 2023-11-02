@@ -24,9 +24,9 @@ readonly class log extends Api
         $logs = container(PlogFeature::class)->getSyslogFilter($validate['ip'], $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);
 
         if ($logs)
-            return Api::SUCCESS('logs', $logs);
+            return Api::TRUE('logs', $logs);
 
-        return Api::SUCCESS('logs', []);
+        return Api::TRUE('logs', []);
     }
 
     public static function index(): bool|array

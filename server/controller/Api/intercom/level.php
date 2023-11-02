@@ -11,11 +11,11 @@ readonly class level extends Api
         $intercom = intercom(intval(rule()->id()->onItem('_id', $params)));
 
         if (array_key_exists('apartment', $params))
-            return self::SUCCESS('level', ['resist' => $intercom->getLineDialStatus($params['apartment'])]);
+            return self::TRUE('level', ['resist' => $intercom->getLineDialStatus($params['apartment'])]);
         else if (array_key_exists('from', $params) && array_key_exists('to', $params))
-            return self::SUCCESS('levels', $intercom->getAllLineDialStatus(intval($params['from']), intval($params['to'])));
+            return self::TRUE('levels', $intercom->getAllLineDialStatus(intval($params['from']), intval($params['to'])));
 
-        return self::ERROR('Данные не переданны');
+        return self::FALSE('Данные не переданны');
     }
 
     public static function index(): array

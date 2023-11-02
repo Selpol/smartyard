@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Framework\Http\Response;
 
 readonly abstract class Api
@@ -46,13 +47,13 @@ readonly abstract class Api
     public static function ANSWER(mixed $result = true, int|bool|array|string $answer = false, int $cache = -1): array
     {
         if ($result === false)
-            return self::ERROR($answer);
+            return self::FALSE($answer);
         else if (is_int($answer) || is_bool($answer) || is_string($answer))
-            return self::SUCCESS($answer, $result, $cache);
+            return self::TRUE($answer, $result, $cache);
         else if (!$answer)
-            return self::SUCCESS(true, false, $cache);
+            return self::TRUE(true, false, $cache);
 
-        return self::ERROR('unknown');
+        return self::FALSE('unknown');
     }
 
     /**
@@ -64,7 +65,7 @@ readonly abstract class Api
      *
      * @return array[]
      */
-    public static function SUCCESS(string|bool|int $key, mixed $data, int $cache = -1): array
+    public static function TRUE(string|bool|int $key, mixed $data, int $cache = -1): array
     {
         global $redis_cache_ttl;
 
@@ -87,7 +88,7 @@ readonly abstract class Api
      * @param bool|int|string $error
      * @return array
      */
-    public static function ERROR(bool|int|string $error = ''): array
+    public static function FALSE(bool|int|string $error = ''): array
     {
         if (!$error) {
             $error = last_error();
@@ -101,6 +102,25 @@ readonly abstract class Api
         $code = array_key_exists($error, $errors) ? $errors[$error] : 400;
 
         return [$code => ['error' => array_key_exists($code, Response::$codes) ? Response::$codes[$code]['message'] : $error]];
+    }
+
+    public static function success(mixed $data = null, int $code = 200): ResponseInterface
+    {
+        return json_response(
+            $code,
+            body: $data === null ? ['success' => true] : ['success' => true, 'data' => $data]
+        );
+    }
+
+    public static function error(?string $message = null, int $code = 500): ResponseInterface
+    {
+        return json_response(
+            $code,
+            body: [
+                'success' => false,
+                'message' => $message ?? (array_key_exists($code, Response::$codes) ? Response::$codes[$code] : 'Неизвестная ошибка')
+            ]
+        );
     }
 
     /**

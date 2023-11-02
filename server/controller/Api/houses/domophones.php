@@ -12,7 +12,7 @@ readonly class domophones extends Api
     {
         $households = container(HouseFeature::class);
 
-        if (!$households) return Api::ERROR();
+        if (!$households) return Api::FALSE();
         else {
             $response = ['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray()];
 

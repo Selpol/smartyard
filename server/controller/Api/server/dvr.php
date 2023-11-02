@@ -14,7 +14,7 @@ readonly class dvr extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('servers', DvrServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::TRUE('servers', DvrServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function POST(array $params): array
@@ -29,9 +29,9 @@ readonly class dvr extends Api
         ]));
 
         if ($dvrServer->insert())
-            return self::SUCCESS('id', $dvrServer->id);
+            return self::TRUE('id', $dvrServer->id);
 
-        return self::ERROR('Не удалось создать');
+        return self::FALSE('Не удалось создать');
     }
 
     public static function PUT(array $params): array
@@ -57,9 +57,9 @@ readonly class dvr extends Api
         $dvrServer->token = $validate['token'];
 
         if ($dvrServer->update())
-            return self::SUCCESS('id', $dvrServer->id);
+            return self::TRUE('id', $dvrServer->id);
 
-        return self::ERROR('Не удалось обновить');
+        return self::FALSE('Не удалось обновить');
     }
 
     public static function DELETE(array $params): array
@@ -67,9 +67,9 @@ readonly class dvr extends Api
         $dvrServer = DvrServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($dvrServer?->delete())
-            return self::SUCCESS('id', $dvrServer->id);
+            return self::TRUE('id', $dvrServer->id);
 
-        return self::ERROR('Не удалось удалить');
+        return self::FALSE('Не удалось удалить');
     }
 
     public static function index(): array

@@ -24,7 +24,7 @@ readonly class audit extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::SUCCESS('audits', \Selpol\Entity\Model\Audit::fetchPage(
+        return self::TRUE('audits', \Selpol\Entity\Model\Audit::fetchPage(
             $validate['page'],
             $validate['size'],
             criteria()

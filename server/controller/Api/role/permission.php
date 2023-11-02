@@ -8,7 +8,7 @@ readonly class permission extends Api
 {
     public static function GET(array $params): array
     {
-        return self::SUCCESS('permissions', \Selpol\Entity\Model\Permission::fetchAll());
+        return self::TRUE('permissions', \Selpol\Entity\Model\Permission::fetchAll());
     }
 
     public static function index(): array|bool

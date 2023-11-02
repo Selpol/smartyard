@@ -11,7 +11,7 @@ readonly class key extends Api
 {
     public static function GET(array $params): array
     {
-        return self::SUCCESS('key', HouseKey::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
+        return self::TRUE('key', HouseKey::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             'house_rfid_id' => 'keyId',
             'rfid' => 'rfId',
             'access_type' => 'accessType',
@@ -38,7 +38,7 @@ readonly class key extends Api
             return self::ANSWER($key->house_rfid_id, 'key');
         }
 
-        return self::ERROR('Не удалось добавить ключ');
+        return self::FALSE('Не удалось добавить ключ');
     }
 
     public static function PUT(array $params): array

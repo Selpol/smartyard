@@ -15,7 +15,7 @@ readonly class variable extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::SUCCESS('variables', CoreVar::fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('var_id')));
+        return self::TRUE('variables', CoreVar::fetchPage($validate['page'], $validate['size'], criteria()->equal('hidden', false)->asc('var_id')));
     }
 
     public static function PUT(array $params): array|Response
@@ -24,14 +24,14 @@ readonly class variable extends Api
 
         if ($coreVar) {
             if (!$coreVar->editable)
-                return self::ERROR('Переменную нельзя изменить');
+                return self::FALSE('Переменную нельзя изменить');
 
             $coreVar->var_value = rule()->string()->onItem('var_value', $params);
 
             return self::ANSWER($coreVar->update());
         }
 
-        return self::ERROR('Переменная не найдена');
+        return self::FALSE('Переменная не найдена');
     }
 
     public static function index(): array|bool

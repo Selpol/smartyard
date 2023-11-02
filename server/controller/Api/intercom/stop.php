@@ -13,14 +13,14 @@ readonly class stop extends Api
 
         if ($device) {
             if (!$device->ping())
-                return self::ERROR('Устройство не доступно');
+                return self::FALSE('Устройство не доступно');
 
             $device->callStop();
 
             return self::ANSWER();
         }
 
-        return self::ERROR('Домофон не найден');
+        return self::FALSE('Домофон не найден');
     }
 
     public static function index(): array|bool

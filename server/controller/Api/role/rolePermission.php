@@ -12,7 +12,7 @@ readonly class rolePermission extends Api
     {
         $id = rule()->id()->onItem('_id', $params);
 
-        return self::SUCCESS('permissions', container(PermissionRepository::class)->findByRoleId($id));
+        return self::TRUE('permissions', container(PermissionRepository::class)->findByRoleId($id));
     }
 
     public static function POST(array $params): array
