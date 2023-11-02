@@ -15,7 +15,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
 #[Controller('/internal/actions')]
-readonly class ActionRbtController extends RbtController
+readonly class ActionController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

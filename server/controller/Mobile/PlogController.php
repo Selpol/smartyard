@@ -17,7 +17,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Throwable;
 
 #[Controller('/mobile/address')]
-readonly class PlogRbtController extends RbtController
+readonly class PlogController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface

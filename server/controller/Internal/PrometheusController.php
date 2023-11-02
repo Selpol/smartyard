@@ -14,7 +14,7 @@ use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
 #[Controller('/internal/prometheus')]
-readonly class PrometheusRbtController extends RbtController
+readonly class PrometheusController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

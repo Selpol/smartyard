@@ -18,7 +18,7 @@ use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/internal/frs')]
-readonly class FrsRbtController extends RbtController
+readonly class FrsController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

@@ -16,7 +16,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/cctv')]
-readonly class CameraRbtController extends RbtController
+readonly class CameraController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

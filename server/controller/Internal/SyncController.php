@@ -20,7 +20,7 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
 #[Controller('/internal/sync')]
-readonly class SyncRbtController extends RbtController
+readonly class SyncController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

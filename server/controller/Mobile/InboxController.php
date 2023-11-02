@@ -12,7 +12,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
 
 #[Controller('/mobile/inbox')]
-readonly class InboxRbtController extends RbtController
+readonly class InboxController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface

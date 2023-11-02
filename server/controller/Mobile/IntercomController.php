@@ -17,7 +17,7 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
 #[Controller('/mobile/address')]
-readonly class IntercomRbtController extends RbtController
+readonly class IntercomController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

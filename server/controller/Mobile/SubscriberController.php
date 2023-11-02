@@ -15,7 +15,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/subscriber')]
-readonly class SubscriberRbtController extends RbtController
+readonly class SubscriberController extends RbtController
 {
     /**
      * @throws ContainerExceptionInterface

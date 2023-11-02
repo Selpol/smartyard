@@ -16,7 +16,7 @@ use Selpol\Middleware\MobileMiddleware;
 use Selpol\Task\Tasks\RecordTask;
 
 #[Controller('/mobile/cctv')]
-readonly class ArchiveRbtController extends RbtController
+readonly class ArchiveController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

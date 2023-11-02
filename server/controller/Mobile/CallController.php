@@ -12,7 +12,7 @@ use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
 #[Controller(('/mobile/call'))]
-readonly class CallRbtController extends RbtController
+readonly class CallController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

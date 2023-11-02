@@ -14,7 +14,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\MobileMiddleware;
 
 #[Controller('/mobile/address')]
-readonly class AddressRbtController extends RbtController
+readonly class AddressController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface

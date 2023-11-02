@@ -13,7 +13,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
 
 #[Controller('/mobile/user')]
-readonly class UserRbtController extends RbtController
+readonly class UserController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
