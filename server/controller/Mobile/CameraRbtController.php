@@ -186,7 +186,7 @@ readonly class CameraRbtController extends RbtController
             "url" => $camera['dvrStream'],
             "token" => container(DvrFeature::class)->getDVRTokenForCam($camera, $user['subscriberId']),
             "lon" => strval($camera['lon']),
-            "serverType" => $dvr->type,
+            "serverType" => $dvr?->type ?? 'flussonic',
             'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),
             'timezone' => $camera['timezone']
         ];

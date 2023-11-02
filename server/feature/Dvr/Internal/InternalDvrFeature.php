@@ -3,12 +3,11 @@
 namespace Selpol\Feature\Dvr\Internal;
 
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Feature\Dvr\DvrFeature;
 
 readonly class InternalDvrFeature extends DvrFeature
 {
-    public function getDVRServerByStream(string $url): DvrServer
+    public function getDVRServerByStream(string $url): ?DvrServer
     {
         $dvr_servers = $this->getDVRServers();
 
@@ -19,8 +18,6 @@ readonly class InternalDvrFeature extends DvrFeature
         if (!$port && $scheme == 'http') $port = 80;
         if (!$port && $scheme == 'https') $port = 443;
 
-        $result = ['type' => 'flussonic']; // result by default if server not found in dvr_servers settings
-
         foreach ($dvr_servers as $server) {
             $u = parse_url($server->url);
 
@@ -30,21 +27,18 @@ readonly class InternalDvrFeature extends DvrFeature
                 (!@$u['pass'] || @$u['pass'] == @$url["pass"]) &&
                 ($u['host'] == $url["host"]) &&
                 (!@$u['port'] || $u['port'] == $port)
-            ) {
-                $result = $server;
-
-                break;
-            }
+            )
+                return $server;
         }
 
-        return $result;
+        return null;
     }
 
     public function getDVRTokenForCam(array $cam, ?int $subscriberId): string
     {
         $dvrServer = $this->getDVRServerByStream($cam['dvrStream']);
 
-        return $dvrServer->token;
+        return $dvrServer?->token ?? '';
     }
 
     public function getDVRServers(): array
@@ -56,7 +50,7 @@ readonly class InternalDvrFeature extends DvrFeature
     {
         $dvr = $this->getDVRServerByStream($cam['dvrStream']);
 
-        switch ($dvr->type) {
+        switch ($dvr?->type ?? 'flussonic') {
             case 'trassir':
                 $parsed_url = parse_url($cam['dvrStream']);
 
@@ -172,7 +166,7 @@ readonly class InternalDvrFeature extends DvrFeature
 
         $dvr = container(DvrFeature::class)->getDVRServerByStream($prefix);
 
-        switch ($dvr->type) {
+        switch ($dvr?->type ?? 'flussonic') {
             case 'trassir':
                 $parsed_url = parse_url($cam['dvrStream']);
 
