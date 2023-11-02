@@ -12,21 +12,20 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Runner\Trait\ErrorTrait;
 use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
+use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
-
-    use ErrorTrait;
 
     use EmitTrait {
         emit as frontendEmit;
@@ -167,6 +166,27 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             return $this->emit(response(204));
         } else return $this->emit(rbt_response(404));
+    }
+
+    function error(Throwable $throwable): int
+    {
+        try {
+            if ($throwable instanceof KernelException)
+                $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
+            else if ($throwable instanceof ValidatorException)
+                $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);
+            else {
+                file_logger('response')->error($throwable);
+
+                $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);
+            }
+
+            return $this->emit($response);
+        } catch (Throwable $throwable) {
+            file_logger('response')->critical($throwable);
+
+            return 1;
+        }
     }
 
     protected function emit(ResponseInterface $response): int

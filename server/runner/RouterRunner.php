@@ -8,20 +8,21 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Router\Trait\HandlerTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Runner\Trait\ErrorTrait;
+use Selpol\Validator\Exception\ValidatorException;
+use Throwable;
 
 class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
 {
     use LoggerKernelTrait;
 
     use RouterTrait;
-    use ErrorTrait;
     use HandlerTrait;
 
     use EmitTrait {
@@ -52,6 +53,27 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
             return $this->emit($this->handle($request));
 
         return $this->emit(rbt_response(404));
+    }
+
+    function error(Throwable $throwable): int
+    {
+        try {
+            if ($throwable instanceof KernelException)
+                $response = rbt_response($throwable->getCode() ?: 500, $throwable->getLocalizedMessage());
+            else if ($throwable instanceof ValidatorException)
+                $response = rbt_response(400, $throwable->getValidatorMessage()->message);
+            else {
+                file_logger('response')->error($throwable);
+
+                $response = rbt_response(500);
+            }
+
+            return $this->emit($response);
+        } catch (Throwable $throwable) {
+            file_logger('response')->critical($throwable);
+
+            return 1;
+        }
     }
 
     protected function emit(ResponseInterface $response): int
