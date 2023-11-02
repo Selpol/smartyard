@@ -2,22 +2,23 @@
 
 namespace Selpol\Controller\Api\server;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Frs\FrsServer;
 
 readonly class frs extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
             'page' => rule()->int()->clamp(0),
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::TRUE('servers', FrsServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::success(FrsServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $frsServer = new FrsServer(validator($params, [
             'title' => rule()->required()->string()->max(1024)->nonNullable(),
@@ -25,12 +26,12 @@ readonly class frs extends Api
         ]));
 
         if ($frsServer->insert())
-            return self::TRUE('id', $frsServer->id);
+            return self::success($frsServer->id);
 
-        return self::FALSE('Не удалось создать');
+        return self::error('Не удалось создать Frs сервер', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $validate = validator($params, [
             '_id' => rule()->id(),
@@ -45,19 +46,19 @@ readonly class frs extends Api
         $frsServer->url = $validate['url'];
 
         if ($frsServer->update())
-            return self::TRUE('id', $frsServer->id);
+            return self::success($frsServer->id);
 
-        return self::FALSE('Не удалось обновить');
+        return self::error('Не удалось обновить Frs сервер', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $frsServer = FrsServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($frsServer?->delete())
-            return self::TRUE('id', $frsServer->id);
+            return self::success();
 
-        return self::FALSE('Не удалось удалить');
+        return self::error('Не удалось удалить Frs сервер', 400);
     }
 
     public static function index(): array

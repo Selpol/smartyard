@@ -2,22 +2,23 @@
 
 namespace Selpol\Controller\Api\server;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Sip\SipServer;
 
 readonly class sip extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
             'page' => rule()->int()->clamp(0),
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        return self::TRUE('servers', SipServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::success(SipServer::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $sipServer = new SipServer(validator($params, [
             'title' => rule()->required()->string()->max(1024)->nonNullable(),
@@ -30,12 +31,12 @@ readonly class sip extends Api
         ]));
 
         if ($sipServer->insert())
-            return self::TRUE('id', $sipServer->id);
+            return self::success($sipServer->id);
 
-        return self::FALSE('Не удалось создать');
+        return self::error('Не удалось создать Sip сервер', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $validate = validator($params, [
             '_id' => rule()->id(),
@@ -60,19 +61,19 @@ readonly class sip extends Api
         $sipServer->internal_ip = $validate['internal_ip'];
 
         if ($sipServer->update())
-            return self::TRUE('id', $sipServer->id);
+            return self::success($sipServer->id);
 
-        return self::FALSE('Не удалось обновить');
+        return self::error('Не удалось обновить Sip сервер', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $sipServer = SipServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
         if ($sipServer->delete())
-            return self::TRUE('id', $sipServer->id);
+            return self::success();
 
-        return self::FALSE('Не удалось удалить');
+        return self::error('Не удалось удалить Sip сервер', 400);
     }
 
     public static function index(): array

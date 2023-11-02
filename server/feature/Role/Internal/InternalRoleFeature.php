@@ -6,60 +6,12 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Cache\RedisCache;
 use Selpol\Entity\Model\Permission;
-use Selpol\Entity\Model\Role;
 use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Feature\Role\RoleFeature;
-use Selpol\Validator\Exception\ValidatorException;
 
 readonly class InternalRoleFeature extends RoleFeature
 {
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
-     */
-    public function createRole(string $title, string $description): Role
-    {
-        $role = new Role();
-
-        $role->title = $title;
-        $role->description = $description;
-
-        $role->insert();
-        $role->refresh();
-
-        return $role;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
-     * @throws ValidatorException
-     */
-    public function updateRole(int $roleId, string $title, string $description): Role
-    {
-        $role = Role::findById($roleId, setting: setting()->nonNullable());
-
-        $role->title = $title;
-        $role->description = $description;
-
-        $role->update();
-        $role->refresh();
-
-        return $role;
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
-     */
-    public function deleteRole(int $roleId): bool
-    {
-        $role = Role::findById($roleId, setting: setting()->nonNullable());
-
-        return $role->delete();
-    }
-
     public function addPermissionToRole(int $roleId, int $permissionId): bool
     {
         $success = $this->getDatabase()->insert('INSERT INTO role_permission(role_id, permission_id) VALUES(:role_id, :permission_id)', ['role_id' => $roleId, 'permission_id' => $permissionId]);
