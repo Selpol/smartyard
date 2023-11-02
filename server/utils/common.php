@@ -1,7 +1,9 @@
 <?php
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Framework\Entity\EntitySetting;
+use Selpol\Framework\Http\Response;
 
 $lastError = false;
 
@@ -154,5 +156,16 @@ if (!function_exists('setting')) {
     function setting(): EntitySetting
     {
         return new EntitySetting();
+    }
+}
+
+if (!function_exists('rbt_response')) {
+    function rbt_response(int $code = 200, ?string $message = null): ResponseInterface
+    {
+        return json_response($code, body: [
+            'code' => $code,
+            'name' => Response::$codes[$code]['name'],
+            'message' => $message ?: Response::$codes[$code]['message']
+        ]);
     }
 }

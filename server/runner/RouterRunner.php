@@ -11,16 +11,22 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Framework\Http\ServerRequest;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Router\Router;
 use Selpol\Router\RouterMatch;
-use Selpol\Runner\Trait\ResponseTrait;
+use Selpol\Runner\Trait\ErrorTrait;
 
 class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
 {
     use LoggerKernelTrait;
-    use ResponseTrait;
+
+    use ErrorTrait;
+
+    use EmitTrait {
+        emit as frontendEmit;
+    }
 
     /** @var string[] $middlewares */
     private array $middlewares = [];
@@ -46,7 +52,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
             return $this->emit($this->handle($request->withAttribute('route', $route)));
         }
 
-        return $this->emit($this->rbtResponse(404));
+        return $this->emit(rbt_response(404));
     }
 
     /**
@@ -60,10 +66,10 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
             $route = $request->getAttribute('route');
 
             if ($route === null)
-                return $this->rbtResponse(404);
+                return rbt_response(404);
 
             if (!class_exists($route->getClass()))
-                return $this->rbtResponse(500);
+                return rbt_response(500);
 
             $class = $route->getClass();
             $instance = new $class($route);
@@ -75,5 +81,12 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
         $middleware = kernel()->getContainer()->make(array_shift($this->middlewares));
 
         return $middleware->process($request, $this);
+    }
+
+    protected function emit(ResponseInterface $response): int
+    {
+        $this->frontendEmit($response);
+
+        return 0;
     }
 }

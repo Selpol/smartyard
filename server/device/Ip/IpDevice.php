@@ -59,7 +59,7 @@ abstract class IpDevice extends Device
 
     public function getSysInfo(): array
     {
-        throw new DeviceException($this);
+        throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
     }
 
     public function setLoginPassword(#[SensitiveParameter] string $password): static
@@ -87,7 +87,7 @@ abstract class IpDevice extends Device
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
     }
 
@@ -113,7 +113,7 @@ abstract class IpDevice extends Device
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
     }
 
@@ -139,7 +139,7 @@ abstract class IpDevice extends Device
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
     }
 
@@ -158,7 +158,7 @@ abstract class IpDevice extends Device
 
             return $this->response($response, $parse);
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
     }
 

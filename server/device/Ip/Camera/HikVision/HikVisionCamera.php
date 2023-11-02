@@ -36,7 +36,7 @@ class HikVisionCamera extends CameraDevice
                 'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
             ];
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
     }
 
@@ -45,7 +45,7 @@ class HikVisionCamera extends CameraDevice
         try {
             return $this->client->send(request('GET', $this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG'), $this->clientOption)->getBody();
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Не удалось получить скриншот', $throwable->getMessage(), previous: $throwable);
         }
     }
 }

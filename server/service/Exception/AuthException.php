@@ -2,8 +2,8 @@
 
 namespace Selpol\Service\Exception;
 
-use RuntimeException;
+use Selpol\Framework\Kernel\Exception\KernelException;
 
-class AuthException extends RuntimeException
+class AuthException extends KernelException
 {
 }

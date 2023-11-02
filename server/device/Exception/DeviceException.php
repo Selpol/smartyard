@@ -4,15 +4,16 @@ namespace Selpol\Device\Exception;
 
 use RuntimeException;
 use Selpol\Device\Device;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Throwable;
 
-class DeviceException extends RuntimeException
+class DeviceException extends KernelException
 {
     private readonly Device $device;
 
-    public function __construct(Device $device, string $message = "", int $code = 0, ?Throwable $previous = null)
+    public function __construct(Device $device, ?string $localizedMessage = null, string $message = "", int $code = 0, ?Throwable $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        parent::__construct($localizedMessage, $message, $code, $previous);
 
         $this->device = $device;
     }

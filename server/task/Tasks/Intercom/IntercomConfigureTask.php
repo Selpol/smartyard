@@ -65,7 +65,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 return false;
 
             if (!$device->ping())
-                throw new DeviceException($device, message: 'Устройство не доступно');
+                throw new DeviceException($device, 'Устройство не доступно');
 
             if ($deviceIntercom->first_time == 0) {
                 $device->prepare();

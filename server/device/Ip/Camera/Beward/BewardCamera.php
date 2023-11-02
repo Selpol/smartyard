@@ -29,7 +29,7 @@ class BewardCamera extends CameraDevice
         try {
             return $this->client->send(request('GET', $this->uri . '/cgi-bin/images_cgi?channel=0'), $this->clientOption)->getBody();
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Не удалось получить скриншот', $throwable->getMessage(), previous: $throwable);
         }
     }
 }

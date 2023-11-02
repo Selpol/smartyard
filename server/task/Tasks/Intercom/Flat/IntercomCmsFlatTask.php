@@ -50,7 +50,7 @@ class IntercomCmsFlatTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new DeviceException($device, message: 'Устройство не доступно');
+                throw new DeviceException($device, 'Устройство не доступно');
 
             $apartment = $flat['flat'];
 

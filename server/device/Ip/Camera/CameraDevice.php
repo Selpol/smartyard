@@ -21,6 +21,6 @@ abstract class CameraDevice extends IpDevice
 
     public function getScreenshot(): Stream
     {
-        throw new DeviceException($this);
+        throw new DeviceException($this, 'Не удалось получить скриншот');
     }
 }

@@ -35,7 +35,7 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             $this->setProgress(25);
 
             if (!$device->ping())
-                throw new DeviceException($device, message: 'Устройство не доступно');
+                throw new DeviceException($device, 'Устройство не доступно');
 
             $this->setProgress(50);
 

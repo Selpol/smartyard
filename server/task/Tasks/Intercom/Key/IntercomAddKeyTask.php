@@ -50,7 +50,7 @@ class IntercomAddKeyTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new DeviceException($device, message: 'Устройство не доступно');
+                throw new DeviceException($device, 'Устройство не доступно');
 
             $device->addRfid($this->key, $flat);
         } catch (Throwable $throwable) {

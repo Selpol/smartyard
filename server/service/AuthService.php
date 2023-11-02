@@ -22,7 +22,7 @@ class AuthService
     public function getTokenOrThrow(): AuthTokenInterface
     {
         if ($this->token === null)
-            throw new AuthException(message: 'Запрос не авторизирован', code: 401);
+            throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
 
         return $this->token;
     }
@@ -40,7 +40,7 @@ class AuthService
     public function getUserOrThrow(): AuthUserInterface
     {
         if ($this->user === null)
-            throw new AuthException(message: 'Запрос не авторизирован', code: 401);
+            throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
 
         return $this->user;
     }

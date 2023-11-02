@@ -22,7 +22,7 @@ trait IsTrait
                 'SoftwareVersion' => $version['opt']['name']
             ];
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
     }
 

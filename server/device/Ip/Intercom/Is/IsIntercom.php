@@ -241,7 +241,7 @@ class IsIntercom extends IntercomDevice
 
             return $this;
         } catch (Throwable $throwable) {
-            throw new DeviceException($this, message: $throwable->getMessage(), previous: $throwable);
+            throw new DeviceException($this, 'Не удалось обновить syslog', message: $throwable->getMessage(), previous: $throwable);
         }
     }
 
