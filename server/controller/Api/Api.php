@@ -11,22 +11,22 @@ readonly abstract class Api
     {
     }
 
-    public static function GET(array $params): array|Response
+    public static function GET(array $params): array|Response|ResponseInterface
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function POST(array $params): array|Response
+    public static function POST(array $params): array|Response|ResponseInterface
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function PUT(array $params): array|Response
+    public static function PUT(array $params): array|Response|ResponseInterface
     {
         return self::ANSWER(false, 'badRequest');
     }
 
-    public static function DELETE(array $params): array|Response
+    public static function DELETE(array $params): array|Response|ResponseInterface
     {
         return self::ANSWER(false, 'badRequest');
     }

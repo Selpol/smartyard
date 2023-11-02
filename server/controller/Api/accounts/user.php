@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\accounts;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Feature\Authentication\AuthenticationFeature;
@@ -9,11 +10,14 @@ use Selpol\Feature\User\UserFeature;
 
 readonly class user extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $user = container(UserFeature::class)->getUser($params["_id"]);
 
-        return Api::ANSWER($user, ($user !== false) ? "user" : "notFound");
+        if ($user)
+            return self::success($user);
+
+        return self::error('Пользователь не найден', 404);
     }
 
     public static function POST(array $params): array

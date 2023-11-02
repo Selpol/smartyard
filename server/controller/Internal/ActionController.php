@@ -21,7 +21,7 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/callFinished')]
-    public function callFinished(ServerRequestInterface $request): Response
+    public function callFinished(ServerRequestInterface $request, PlogFeature $plogFeature): Response
     {
         $body = $request->getParsedBody();
 
@@ -30,7 +30,7 @@ readonly class ActionController extends RbtController
 
         ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
 
-        container(PlogFeature::class)->addCallDoneData($date, $ip, $callId);
+        $plogFeature->addCallDoneData($date, $ip, $callId);
 
         return user_response();
     }
@@ -39,7 +39,7 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/motionDetection')]
-    public function motionDetection(ServerRequestInterface $request): Response
+    public function motionDetection(ServerRequestInterface $request, FrsService $frsService): Response
     {
         $body = $request->getParsedBody();
 
@@ -65,7 +65,7 @@ readonly class ActionController extends RbtController
 
         $payload = ["streamId" => $deviceCamera->camera_id, "start" => $motionActive ? 't' : 'f'];
 
-        container(FrsService::class)->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
+        $frsService->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
 
         return user_response();
     }
@@ -74,7 +74,7 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/openDoor')]
-    public function openDoor(ServerRequestInterface $request): Response
+    public function openDoor(ServerRequestInterface $request, PlogFeature $plogFeature, FrsService $frsService, DatabaseService $databaseService): Response
     {
         $body = $request->getParsedBody();
 
@@ -84,14 +84,12 @@ readonly class ActionController extends RbtController
 
         if (!isset($date, $ip, $event, $door, $detail)) return user_response(400, message: 'Неверный формат данных');
 
-        $plog = container(PlogFeature::class);
-
         file_logger('internal')->debug('Open door request', $body);
 
         switch ($event) {
             case PlogFeature::EVENT_OPENED_BY_KEY:
             case PlogFeature::EVENT_OPENED_BY_CODE:
-                $plog->addDoorOpenData($date, $ip, intval($event), intval($door), $detail);
+                $plogFeature->addDoorOpenData($date, $ip, intval($event), intval($door), $detail);
 
                 return user_response();
 
@@ -99,9 +97,7 @@ readonly class ActionController extends RbtController
                 return user_response();
 
             case PlogFeature::EVENT_OPENED_BY_BUTTON:
-                $db = container(DatabaseService::class);
-
-                [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $db->get(
+                [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $databaseService->get(
                     'SELECT frs, camera_id FROM cameras 
                         WHERE camera_id = (
                         SELECT camera_id FROM houses_domophones 
@@ -112,7 +108,7 @@ readonly class ActionController extends RbtController
 
                 if (isset($frsUrl)) {
                     $payload = ["streamId" => strval($streamId)];
-                    $apiResponse = container(FrsService::class)->request('POST', $frsUrl . "/api/doorIsOpen", $payload);
+                    $apiResponse = $frsService->request('POST', $frsUrl . "/api/doorIsOpen", $payload);
 
                     return user_response(201, $apiResponse);
                 }
@@ -127,7 +123,7 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/setRabbitGates')]
-    public function setRabbitGates(ServerRequestInterface $request): Response
+    public function setRabbitGates(ServerRequestInterface $request, DatabaseService $databaseService): Response
     {
         $body = $request->getParsedBody();
 
@@ -143,7 +139,7 @@ readonly class ActionController extends RbtController
         SELECT house_entrance_id FROM houses_domophones LEFT JOIN houses_entrances USING (house_domophone_id) 
         WHERE ip = :ip AND entrance_type = 'wicket'))";
 
-        $result = container(DatabaseService::class)->modify(
+        $result = $databaseService->modify(
             $query,
             ['ip' => $ip, 'flat' => $apartment_number, 'house_flat_id' => $apartment_id, 'prefix' => $prefix, 'last_opened' => $date]
         );

@@ -9,11 +9,12 @@ use Selpol\Controller\RbtController;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Middleware\PrometheusMiddleware;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
-#[Controller('/internal/prometheus')]
+#[Controller('/internal/prometheus', excludes: [PrometheusMiddleware::class])]
 readonly class PrometheusController extends RbtController
 {
     /**

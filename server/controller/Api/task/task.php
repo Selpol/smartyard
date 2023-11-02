@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\task;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -13,25 +14,28 @@ readonly class task extends Api
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public static function GET($params): array
+    public static function GET($params): array|ResponseInterface
     {
         $validate = validator($params, [
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return Api::ANSWER(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')), 'tasks');
+        return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')));
     }
 
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    public static function POST($params): array
+    public static function POST($params): ResponseInterface
     {
         $result = container(TaskFeature::class)->dispatch($params['_id']);
 
-        return Api::ANSWER($result, ($result !== false) ? "task" : false);
+        if ($result)
+            return self::success($params['_id']);
+
+        return self::error('Не удалось перезапустить задачу');
     }
 
     public static function index(): array

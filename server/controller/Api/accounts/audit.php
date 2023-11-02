@@ -2,11 +2,12 @@
 
 namespace Selpol\Controller\Api\accounts;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 
 readonly class audit extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
             'userId' => rule()->int()->clamp(0),
@@ -24,7 +25,7 @@ readonly class audit extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::TRUE('audits', \Selpol\Entity\Model\Audit::fetchPage(
+        return self::success(\Selpol\Entity\Model\Audit::fetchPage(
             $validate['page'],
             $validate['size'],
             criteria()

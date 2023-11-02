@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\monitor;
 
+use Psr\Http\Message\ResponseInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Cache\RedisCache;
 use Selpol\Controller\Api\Api;
@@ -16,13 +17,13 @@ readonly class id extends Api
      * @throws ContainerExceptionInterface
      * @throws InvalidArgumentException
      */
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, ['_id' => rule()->id()]);
 
         $monitor = container(MonitorFeature::class);
 
-        return Api::ANSWER(container(RedisCache::class)->cache('monitor:' . $validate['_id'], static fn() => ['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])]), 'status');
+        return self::success(container(RedisCache::class)->cache('monitor:' . $validate['_id'], static fn() => ['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])]));
     }
 
     /**
@@ -30,7 +31,7 @@ readonly class id extends Api
      * @throws NotFoundExceptionInterface
      * @throws InvalidArgumentException
      */
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $validate = validator($params, ['ids.*' => rule()->id()]);
 
@@ -41,7 +42,7 @@ readonly class id extends Api
         foreach ($validate['ids'] as $id)
             $result[] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)]);
 
-        return Api::ANSWER($result, 'status');
+        return self::success($result);
     }
 
     public static function index(): array
