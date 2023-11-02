@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\key;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Framework\Entity\EntityPage;
@@ -9,7 +10,7 @@ use Selpol\Service\DatabaseService;
 
 readonly class keys extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
             'rfid' => rule()->string(),
@@ -42,7 +43,7 @@ readonly class keys extends Api
             }
         }
 
-        return self::TRUE('keys', new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
+        return self::success(new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
     }
 
     public static function index(): array

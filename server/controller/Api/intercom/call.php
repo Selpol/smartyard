@@ -2,20 +2,21 @@
 
 namespace Selpol\Controller\Api\intercom;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 
 readonly class call extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $device = intercom($params['_id']);
 
         if (!$device->ping())
-            return self::FALSE('Устройство не доступно');
+            return self::error('Устройство не доступно');
 
         $device->call($params['apartment']);
 
-        return self::ANSWER();
+        return self::success();
     }
 
     public static function index(): array

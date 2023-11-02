@@ -2,25 +2,25 @@
 
 namespace Selpol\Controller\Api\intercom;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
-use Selpol\Framework\Http\Response;
 
 readonly class stop extends Api
 {
-    public static function GET(array $params): array|Response
+    public static function GET(array $params): ResponseInterface
     {
         $device = intercom(rule()->id()->onItem('_id', $params));
 
         if ($device) {
             if (!$device->ping())
-                return self::FALSE('Устройство не доступно');
+                return self::error('Устройство не доступно', 404);
 
             $device->callStop();
 
-            return self::ANSWER();
+            return self::success();
         }
 
-        return self::FALSE('Домофон не найден');
+        return self::error('Домофон не найден', 404);
     }
 
     public static function index(): array|bool

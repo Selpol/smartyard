@@ -25,7 +25,7 @@ readonly class password extends Api
 
             if ($intercom) {
                 if (!$intercom->ping())
-                    return self::FALSE('Устройство не доступно');
+                    return self::error('Устройство не доступно', 404);
 
                 $password = generate_password();
 
@@ -40,7 +40,7 @@ readonly class password extends Api
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
-                    return self::FALSE('Неудалось обновить sip аккаунт домофона');
+                    return self::error('Неудалось обновить sip аккаунт домофона');
                 }
 
                 $intercom->setLoginPassword($password);
@@ -51,7 +51,7 @@ readonly class password extends Api
                 if (!$deviceIntercom->update()) {
                     file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
 
-                    return self::FALSE('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')');
+                    return self::error('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')', 400);
                 }
 
                 if ($deviceCamera) {
@@ -65,20 +65,20 @@ readonly class password extends Api
                     if (!$deviceCamera->update()) {
                         file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
 
-                        return self::FALSE('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')');
+                        return self::error('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')', 400);
                     }
                 }
 
                 if (container(AuditFeature::class)->canAudit())
                     container(AuditFeature::class)->audit(strval($deviceIntercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
 
-                return self::ANSWER();
+                return self::success();
             }
 
-            return self::FALSE('Неудалось определить модель устройства');
+            return self::error('Неудалось определить модель устройства', 404);
         }
 
-        return self::FALSE('Домофон не найден');
+        return self::error('Домофон не найден', 404);
     }
 
     public static function index(): array|bool

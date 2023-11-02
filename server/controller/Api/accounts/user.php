@@ -20,7 +20,7 @@ readonly class user extends Api
         return self::error('Пользователь не найден', 404);
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $user = new CoreUser();
 
@@ -31,12 +31,13 @@ readonly class user extends Api
         $user->e_mail = $params['eMail'];
         $user->phone = $params['phone'];
 
-        $success = $user->insert();
+        if ($user->insert())
+            return self::success($user->uid);
 
-        return self::ANSWER($success ? $user->uid : false, $success ? 'uid' : 'notAcceptable');
+        return self::error('Не удалось создать пользователя', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
             $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
@@ -45,20 +46,24 @@ readonly class user extends Api
 
             $success = container(UserFeature::class)->modifyUserEnabled($params['_id'], $params['enabled']);
 
-            return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            if ($success)
+                return self::success($user->uid);
+
+            return self::error('Не удалось обновить пользователя', 400);
         }
 
         $success = container(UserFeature::class)->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"]);
 
-        if (@$params["password"] && (int)$params["_id"]) {
+        if (@$params["password"] && (int)$params["_id"])
             $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);
 
-            return self::ANSWER($success, ($success !== false) ? false : "notAcceptable");
-        } else return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        if ($success)
+            return self::success($params['_id']);
 
+        return self::error('Не удалось обновить пользователя', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         if (@$params["session"]) {
             container(AuthenticationFeature::class)->logout($params["session"]);
@@ -70,7 +75,10 @@ readonly class user extends Api
             $success = $user->delete();
         }
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        if ($success)
+            return self::success();
+
+        return self::error('Не удалось удалить пользователя', 400);
     }
 
     public static function index(): array
