@@ -27,7 +27,7 @@ readonly class password extends Api
                 if (!$intercom->ping())
                     return self::error('Устройство не доступно', 404);
 
-                $password = generate_password();
+                $password = array_key_exists('password', $params) ? rule()->string()->clamp(8, 8)->onItem('password', $params) : generate_password();
 
                 file_logger('intercom')->debug('Обновление пароля устройства', ['id' => $deviceIntercom->house_domophone_id, 'oldPassword' => $deviceIntercom->credentials, 'password' => $password]);
 
