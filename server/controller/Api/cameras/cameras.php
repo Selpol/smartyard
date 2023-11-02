@@ -4,9 +4,7 @@ namespace Selpol\Controller\Api\cameras;
 
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Camera\CameraModel;
-use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Camera\CameraFeature;
-use Selpol\Feature\Frs\FrsFeature;
 
 readonly class cameras extends Api
 {
@@ -14,8 +12,7 @@ readonly class cameras extends Api
     {
         $response = [
             "cameras" => container(CameraFeature::class)->getCameras(),
-            "models" => CameraModel::modelsToArray(),
-            "frsServers" => array_map(static fn(FrsServer $server) => $server->toArrayMap(['title' => 'title', 'url' => 'url']), container(FrsFeature::class)->servers()),
+            "models" => CameraModel::modelsToArray()
         ];
 
         return Api::ANSWER($response, "cameras");
