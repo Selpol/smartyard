@@ -16,7 +16,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
-#[Controller('/mobile/intercom')]
+#[Controller('/mobile/address')]
 readonly class IntercomRbtController extends RbtController
 {
     /**
