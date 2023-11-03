@@ -258,12 +258,16 @@ readonly class InternalHouseFeature extends HouseFeature
             $prefix = 0;
         }
 
-        $r1 = $this->getDatabase()->modify("update houses_houses_entrances set prefix = :prefix where house_entrance_id = $entranceId and address_house_id = $houseId", [
+        $r1 = !($cms == '0') || $this->getDatabase()->modify("delete from houses_entrances_cmses where house_entrance_id = $entranceId") !== false;
+
+        $r2 = $this->getDatabase()->modify("update houses_houses_entrances set prefix = :prefix where house_entrance_id = $entranceId and address_house_id = $houseId", [
                 ":prefix" => $prefix,
             ]) !== false;
 
         return
             $r1
+            and
+            $r2
             and
             $this->getDatabase()->modify("update houses_entrances set entrance_type = :entrance_type, entrance = :entrance, lat = :lat, lon = :lon, shared = :shared, plog = :plog, caller_id = :caller_id, house_domophone_id = :house_domophone_id, domophone_output = :domophone_output, cms = :cms, cms_type = :cms_type, camera_id = :camera_id, locks_disabled = :locks_disabled, cms_levels = :cms_levels where house_entrance_id = $entranceId", [
                 ":entrance_type" => $entranceType,

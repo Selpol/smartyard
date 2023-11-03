@@ -16,10 +16,7 @@ readonly class message extends Api
             $messages = container(InboxFeature::class)->getMessages($params["_id"], "dates", ["dateFrom" => 0, "dateTo" => time()]);
         }
 
-        if ($messages)
-            return self::success($messages);
-
-        return self::error('Сообщения не найдены', 404);
+        return self::success($messages ?: []);
     }
 
     public static function POST(array $params): ResponseInterface
