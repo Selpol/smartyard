@@ -85,6 +85,6 @@ readonly class FrsController extends RbtController
         if (!$camera)
             return response(204);
 
-        return response(headers: ['Content-Type' => 'image/jpeg'])->withBody($camera->getScreenshot());
+        return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($camera->getScreenshot());
     }
 }
