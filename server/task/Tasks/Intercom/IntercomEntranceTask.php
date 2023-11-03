@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom;
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -66,6 +67,9 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             return true;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
+
+            if ($throwable instanceof KernelException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

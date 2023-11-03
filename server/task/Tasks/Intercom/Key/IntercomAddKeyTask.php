@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -55,6 +56,9 @@ class IntercomAddKeyTask extends Task
             $device->addRfid($this->key, $flat);
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
+
+            if ($throwable instanceof KernelException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

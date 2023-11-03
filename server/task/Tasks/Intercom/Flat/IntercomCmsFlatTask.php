@@ -5,6 +5,7 @@ namespace Selpol\Task\Tasks\Intercom\Flat;
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
 use Throwable;
 
@@ -69,6 +70,9 @@ class IntercomCmsFlatTask extends Task
             $device->setApartmentCms(intval($apartment), $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),);
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
+
+            if ($throwable instanceof KernelException)
+                throw $throwable;
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
