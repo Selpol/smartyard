@@ -21,7 +21,7 @@ readonly class password extends Api
         if ($deviceIntercom) {
             $deviceCamera = DeviceCamera::fetch(criteria()->equal('url', $deviceIntercom->url));
 
-            $intercom = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceCamera->url, $deviceIntercom->credentials);
+            $intercom = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
             if ($intercom) {
                 if (!$intercom->ping())
