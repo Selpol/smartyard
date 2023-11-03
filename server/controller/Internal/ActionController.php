@@ -3,8 +3,11 @@
 namespace Selpol\Controller\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Internal\ActionCallFinishedRequest;
+use Selpol\Controller\Request\Internal\ActionMotionDetectionRequest;
+use Selpol\Controller\Request\Internal\ActionOpenDoorRequest;
+use Selpol\Controller\Request\Internal\ActionSetRabbitGatesRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Entity\EntitySetting;
@@ -21,16 +24,9 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/callFinished')]
-    public function callFinished(ServerRequestInterface $request, PlogFeature $plogFeature): Response
+    public function callFinished(ActionCallFinishedRequest $request, PlogFeature $plogFeature): Response
     {
-        $body = $request->getParsedBody();
-
-        if (!isset($body["date"], $body["ip"]))
-            return user_response(400, message: 'Неверный формат данных');
-
-        ["date" => $date, "ip" => $ip, "callId" => $callId] = $body;
-
-        $plogFeature->addCallDoneData($date, $ip, $callId);
+        $plogFeature->addCallDoneData($request->date, $request->ip, $request->callId);
 
         return user_response();
     }
@@ -39,31 +35,20 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/motionDetection')]
-    public function motionDetection(ServerRequestInterface $request, FrsService $frsService): Response
+    public function motionDetection(ActionMotionDetectionRequest $request, FrsService $frsService): Response
     {
-        $body = $request->getParsedBody();
-
-        if (!isset($body["ip"], $body["motionActive"]))
-            return user_response(400, message: 'Неверный формат данных');
-
-        file_logger('internal')->debug('Motion detection', $body);
-
-        $logger = file_logger('motion');
-
-        ["ip" => $ip, "motionActive" => $motionActive] = $body;
-
         $deviceCamera = DeviceCamera::fetch(
-            criteria()->simple('frs', '!=', '-')->equal('ip', $ip),
+            criteria()->simple('frs', '!=', '-')->equal('ip', $request->ip),
             (new EntitySetting())->columns(['camera_id', 'frs'])
         );
 
         if (!$deviceCamera) {
-            $logger->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $ip]);
+            file_logger('motion')->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $request->ip]);
 
             return user_response(400, message: 'Детектор движений не включен');
         }
 
-        $payload = ["streamId" => $deviceCamera->camera_id, "start" => $motionActive ? 't' : 'f'];
+        $payload = ["streamId" => $deviceCamera->camera_id, "start" => $request->motionActive ? 't' : 'f'];
 
         $frsService->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
 
@@ -74,22 +59,12 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/openDoor')]
-    public function openDoor(ServerRequestInterface $request, PlogFeature $plogFeature, FrsService $frsService, DatabaseService $databaseService): Response
+    public function openDoor(ActionOpenDoorRequest $request, PlogFeature $plogFeature, FrsService $frsService, DatabaseService $databaseService): Response
     {
-        $body = $request->getParsedBody();
-
-        if (!isset($body["date"], $body["ip"], $body["event"], $body["door"], $body["detail"])) return user_response(400);
-
-        ["date" => $date, "ip" => $ip, "event" => $event, "door" => $door, "detail" => $detail] = $body;
-
-        if (!isset($date, $ip, $event, $door, $detail)) return user_response(400, message: 'Неверный формат данных');
-
-        file_logger('internal')->debug('Open door request', $body);
-
-        switch ($event) {
+        switch ($request->event) {
             case PlogFeature::EVENT_OPENED_BY_KEY:
             case PlogFeature::EVENT_OPENED_BY_CODE:
-                $plogFeature->addDoorOpenData($date, $ip, intval($event), intval($door), $detail);
+                $plogFeature->addDoorOpenData($request->date, $request->ip, $request->event, $request->door, $request->detail);
 
                 return user_response();
 
@@ -103,7 +78,7 @@ readonly class ActionController extends RbtController
                         SELECT camera_id FROM houses_domophones 
                         LEFT JOIN houses_entrances USING (house_domophone_id)
                         WHERE ip = :ip AND domophone_output = :door)',
-                    ["ip" => $ip, "door" => $door]
+                    ["ip" => $request->ip, "door" => $request->door]
                 );
 
                 if (isset($frsUrl)) {
@@ -123,15 +98,8 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/setRabbitGates')]
-    public function setRabbitGates(ServerRequestInterface $request, DatabaseService $databaseService): Response
+    public function setRabbitGates(ActionSetRabbitGatesRequest $request, DatabaseService $databaseService): Response
     {
-        $body = $request->getParsedBody();
-
-        if (!isset($body["ip"], $body["prefix"], $body["apartmentNumber"], $body["apartmentId"], $body["date"]))
-            return user_response(400, message: 'Неверный формат данных');
-
-        ["ip" => $ip, "prefix" => $prefix, "apartmentNumber" => $apartment_number, "apartmentId" => $apartment_id, "date" => $date] = $body;
-
         $query = "UPDATE houses_flats SET last_opened = :last_opened
         WHERE (flat = :flat OR house_flat_id = :house_flat_id) AND white_rabbit > 0 AND address_house_id = (
         SELECT address_house_id from houses_houses_entrances 
@@ -141,7 +109,7 @@ readonly class ActionController extends RbtController
 
         $result = $databaseService->modify(
             $query,
-            ['ip' => $ip, 'flat' => $apartment_number, 'house_flat_id' => $apartment_id, 'prefix' => $prefix, 'last_opened' => $date]
+            ['ip' => $request->ip, 'flat' => $request->apartmentNumber, 'house_flat_id' => $request->apartmentId, 'prefix' => $request->prefix, 'last_opened' => $request->date]
         );
 
         return user_response(202, ['id' => $result]);
