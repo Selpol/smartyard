@@ -2,13 +2,14 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Plog\PlogFeature;
 
 readonly class event extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $flat = HouseFlat::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
@@ -22,10 +23,7 @@ readonly class event extends Api
 
         $result = container(PlogFeature::class)->getEventsByFlat($flat->house_flat_id, $validate['type'], $validate['opened'], $validate['page'], $validate['size']);
 
-        if ($result)
-            return self::TRUE('events', $result);
-
-        return self::TRUE('events', []);
+        return self::success($result ?: []);
     }
 
     public static function index(): array|bool

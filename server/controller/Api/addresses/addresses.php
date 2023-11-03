@@ -70,7 +70,7 @@ readonly class addresses extends Api
         if (count($r))
             return self::success($r);
 
-        return self::error('Не удалось получить адреса', 400);
+        return self::error('Не удалось получить адреса', 404);
     }
 
     public static function index(): bool|array

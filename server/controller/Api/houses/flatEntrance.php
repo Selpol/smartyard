@@ -2,13 +2,14 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 
 readonly class flatEntrance extends Api
 {
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $entrance = intval($params['_id']);
 
@@ -19,7 +20,7 @@ readonly class flatEntrance extends Api
 
         task(new IntercomEntranceTask($entrance))->high()->dispatch();
 
-        return self::ANSWER();
+        return self::success($params['_id']);
     }
 
     public static function index(): array

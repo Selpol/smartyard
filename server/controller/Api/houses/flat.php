@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
@@ -9,19 +10,19 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
 readonly class flat extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $flatId = @$params['_id'];
 
         if (!isset($flatId))
-            return Api::FALSE('Неверный формат данных');
+            return self::error('Идентификатор квартиры обязателен для заполнения', 400);
 
         $flat = container(HouseFeature::class)->getFlat($flatId);
 
-        return Api::ANSWER($flat, ($flat !== false) ? 'flat' : 'notAcceptable');
+        return $flat ? self::success($flat) : self::error('Квартира не найдена', 404);
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -30,10 +31,10 @@ readonly class flat extends Api
         if ($flatId)
             task(new IntercomSyncFlatTask($flatId, true))->high()->dispatch();
 
-        return Api::ANSWER($flatId, ($flatId !== false) ? "flatId" : "notAcceptable");
+        return $flatId ? self::success($flatId) : self::error('Не удалось создать квартиру', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -42,10 +43,10 @@ readonly class flat extends Api
         if ($success)
             task(new IntercomSyncFlatTask($params['_id'], false))->high()->dispatch();
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return $success ? self::success($params['_id']) : self::error('Не удалось обновить квартиру', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -69,10 +70,10 @@ readonly class flat extends Api
                 task(new IntercomDeleteFlatTask($flat['flatId'], $flatEntrances))->high()->dispatch();
             }
 
-            return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+            return $success ? self::success() : self::error('Не удалось удалить квартиру', 400);
         }
 
-        return Api::FALSE('Дом не найден');
+        return self::error('Квартиры не найдена', 404);
     }
 
     public static function index(): bool|array

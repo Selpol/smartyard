@@ -2,13 +2,14 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 
 readonly class domophone extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             'house_domophone_id' => 'domophoneId',
@@ -27,41 +28,41 @@ readonly class domophone extends Api
 
         $intercom['json'] = IntercomModel::models()[$intercom['model']]->toArray();
 
-        return self::ANSWER($intercom);
+        return self::success($intercom);
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $intercom = new DeviceIntercom();
 
         self::set($intercom, $params);
 
         if ($intercom->insert())
-            return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
+            return self::success($intercom->house_domophone_id);
 
-        return Api::FALSE('Неудалось добавить домофон');
+        return self::error('Не удалось создать домофон', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
         self::set($intercom, $params);
 
         if ($intercom->update())
-            return self::ANSWER($intercom->house_domophone_id, 'domophoneId');
+            return self::success($intercom->house_domophone_id);
 
-        return Api::FALSE('Неудалось обновить домофон');
+        return self::error('Не удалось обновить домофон', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
         if ($intercom->delete())
-            return self::ANSWER();
+            return self::success();
 
-        return Api::FALSE('Неудалось удалить домофон');
+        return self::error('Не удалось далить домофон', 400);
     }
 
     public static function index(): array

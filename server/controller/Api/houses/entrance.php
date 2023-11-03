@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\House\HouseFeature;
@@ -10,26 +11,23 @@ use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
 
 readonly class entrance extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $entranceId = $params['_id'];
 
         $entrance = container(HouseFeature::class)->getEntranceWithPrefix($entranceId);
 
-        if ($entrance)
-            return Api::ANSWER($entrance, 'entrance');
-
-        return Api::FALSE('Вход не найден');
+        return $entrance ? self::success($entrance) : self::error('Вход не найден', 404);
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
         if (@$params["entranceId"]) {
             $success = $households->addEntrance($params["houseId"], $params["entranceId"], $params["prefix"]);
 
-            return Api::ANSWER($success);
+            return $success ? self::success($params['entranceId']) : self::error('Не удалось добавить общий вход', 400);
         } else {
             $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
@@ -38,11 +36,11 @@ readonly class entrance extends Api
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
             }
 
-            return Api::ANSWER($entranceId, ($entranceId !== false) ? "entranceId" : false);
+            return $entranceId ? self::success($entranceId) : self::error('Не удалось создать вход', 400);
         }
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -57,20 +55,19 @@ readonly class entrance extends Api
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
         }
 
-        return Api::ANSWER($success);
+        return $success ? self::success($params['_id']) : self::error('Не удалось обновить вход', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
-        if (@$params["houseId"]) {
+        if (@$params["houseId"])
             $success = $households->deleteEntrance($params["_id"], $params["houseId"]);
-        } else {
+        else
             $success = $households->destroyEntrance($params["_id"]);
-        }
 
-        return Api::ANSWER($success);
+        return $success ? self::success() : self::error(@$params["houseId"] ? 'Не удалось отвязать вход от дома' : 'Не удалось удалить вход', 400);
     }
 
     public static function index(): array

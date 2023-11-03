@@ -2,22 +2,18 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\House\HouseFeature;
 
 readonly class domophones extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
-        if (!$households) return Api::FALSE();
-        else {
-            $response = ['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray()];
-
-            return Api::ANSWER($response, 'domophones');
-        }
+        return self::success(['domophones' => $households->getDomophones(), 'models' => IntercomModel::modelsToArray()]);
     }
 
     public static function index(): bool|array
