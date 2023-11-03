@@ -2,30 +2,31 @@
 
 namespace Selpol\Controller\Api\addresses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class street extends Api
 {
-    public static function PUT(array $params): array
-    {
-        $success = container(AddressFeature::class)->modifyStreet($params["_id"], $params["cityId"], $params["settlementId"], $params["streetUuid"], $params["streetWithType"], $params["streetType"], $params["streetTypeFull"], $params["street"]);
-
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
-    }
-
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $streetId = container(AddressFeature::class)->addStreet($params["cityId"], $params["settlementId"], $params["streetUuid"], $params["streetWithType"], $params["streetType"], $params["streetTypeFull"], $params["street"]);
 
-        return Api::ANSWER($streetId, ($streetId !== false) ? "streetId" : "notAcceptable");
+        return $streetId ? self::success($streetId) : self::error('Не удалось создать улицу', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function PUT(array $params): ResponseInterface
+    {
+        $success = container(AddressFeature::class)->modifyStreet($params["_id"], $params["cityId"], $params["settlementId"], $params["streetUuid"], $params["streetWithType"], $params["streetType"], $params["streetTypeFull"], $params["street"]);
+
+        return $success ? self::success($params['_id']) : self::error('Не удалось обновить улицу', 400);
+    }
+
+    public static function DELETE(array $params): ResponseInterface
     {
         $success = container(AddressFeature::class)->deleteStreet($params["_id"]);
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return $success ? self::success() : self::error('Не удалось удалить улицу', 400);
     }
 
     public static function index(): array

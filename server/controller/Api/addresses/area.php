@@ -2,30 +2,31 @@
 
 namespace Selpol\Controller\Api\addresses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class area extends Api
 {
-    public static function PUT(array $params): array
-    {
-        $success = container(AddressFeature::class)->modifyArea($params["_id"], $params["regionId"], $params["areaUuid"], $params["areaWithType"], $params["areaType"], $params["areaTypeFull"], $params["area"], $params["timezone"]);
-
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
-    }
-
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $areaId = container(AddressFeature::class)->addArea($params["regionId"], $params["areaUuid"], $params["areaWithType"], $params["areaType"], $params["areaTypeFull"], $params["area"], $params["timezone"]);
 
-        return Api::ANSWER($areaId, ($areaId !== false) ? "areaId" : "notAcceptable");
+        return $areaId ? self::success($areaId) : self::error('Не удалось создать область', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function PUT(array $params): ResponseInterface
+    {
+        $success = container(AddressFeature::class)->modifyArea($params["_id"], $params["regionId"], $params["areaUuid"], $params["areaWithType"], $params["areaType"], $params["areaTypeFull"], $params["area"], $params["timezone"]);
+
+        return $success ? self::success($params['_id']) : self::error('Не удалось обновить область', 400);
+    }
+
+    public static function DELETE(array $params): ResponseInterface
     {
         $success = container(AddressFeature::class)->deleteArea($params["_id"]);
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return $success ? self::success() : self::error('Не удалось удалить область', 400);
     }
 
     public static function index(): bool|array

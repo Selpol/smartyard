@@ -2,26 +2,20 @@
 
 namespace Selpol\Controller\Api\addresses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class house extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $house = container(AddressFeature::class)->getHouse($params["_id"]);
 
-        return Api::ANSWER($house, ($house !== false) ? "house" : "notAcceptable");
+        return $house ? self::success($house) : self::error('Дом не найден', 404);
     }
 
-    public static function PUT(array $params): array
-    {
-        $success = container(AddressFeature::class)->modifyHouse($params["_id"], $params["settlementId"], $params["streetId"], $params["houseUuid"], $params["houseType"], $params["houseTypeFull"], $params["houseFull"], $params["house"]);
-
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
-    }
-
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         if (@$params["magic"]) {
             $houseId = container(AddressFeature::class)->addHouseByMagic($params["magic"]);
@@ -29,14 +23,21 @@ readonly class house extends Api
             $houseId = container(AddressFeature::class)->addHouse($params["settlementId"], $params["streetId"], $params["houseUuid"], $params["houseType"], $params["houseTypeFull"], $params["houseFull"], $params["house"]);
         }
 
-        return Api::ANSWER($houseId, ($houseId !== false) ? "houseId" : false);
+        return $houseId ? self::success($houseId) : self::error('Не удалось создать дом', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function PUT(array $params): ResponseInterface
+    {
+        $success = container(AddressFeature::class)->modifyHouse($params["_id"], $params["settlementId"], $params["streetId"], $params["houseUuid"], $params["houseType"], $params["houseTypeFull"], $params["houseFull"], $params["house"]);
+
+        return $success ? self::success($params['_id']) : self::error('Не удалось обновить дом', 400);
+    }
+
+    public static function DELETE(array $params): ResponseInterface
     {
         $success = container(AddressFeature::class)->deleteHouse($params["_id"]);
 
-        return Api::ANSWER($success, ($success !== false) ? false : "notAcceptable");
+        return $success ? self::success() : self::error('Не удалось удалить дом', 400);
     }
 
     public static function index(): bool|array

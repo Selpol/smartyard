@@ -2,12 +2,13 @@
 
 namespace Selpol\Controller\Api\addresses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class addresses extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $addresses = container(AddressFeature::class);
 
@@ -66,7 +67,10 @@ readonly class addresses extends Api
             }
         }
 
-        return Api::ANSWER($r, ($r !== false) ? "addresses" : "badRequest");
+        if (count($r))
+            return self::success($r);
+
+        return self::error('Не удалось получить адреса', 400);
     }
 
     public static function index(): bool|array
