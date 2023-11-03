@@ -294,7 +294,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'allow_subscribe' => 'yes',
                             'dtmf_mode' => 'rfc4733',
                             'ice_support' => 'no',
-                            'set_var=sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
+                            'sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
                         ];
                 }
             }
