@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\cameras;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
@@ -9,9 +10,9 @@ use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
 readonly class camera extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
-        return self::ANSWER(DeviceCamera::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
+        return self::success(DeviceCamera::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             "camera_id" => "cameraId",
             "enabled" => "enabled",
             "model" => "model",
@@ -36,7 +37,7 @@ readonly class camera extends Api
         ]));
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $camera = new DeviceCamera();
 
@@ -46,13 +47,13 @@ readonly class camera extends Api
             if ($camera->frs && $camera->frs !== '-')
                 task(new FrsAddStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
-            return self::ANSWER($camera->camera_id, 'cameraId');
+            return self::success($camera->camera_id);
         }
 
-        return self::FALSE('Неудалось добавить камеру');
+        return self::error('Не удалось создать камеру', 400);
     }
 
-    public static function PUT(array $params): array
+    public static function PUT(array $params): ResponseInterface
     {
         $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
@@ -67,13 +68,13 @@ readonly class camera extends Api
                     task(new FrsAddStreamTask($params['frs'], $camera->camera_id))->high()->dispatch();
             }
 
-            return self::ANSWER($camera->camera_id, 'cameraId');
+            return self::success($camera->camera_id);
         }
 
-        return Api::FALSE('Неудалось обновить камеру');
+        return self::error('Не удалось обновить камеру', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
@@ -81,10 +82,10 @@ readonly class camera extends Api
             if ($camera->frs && $camera->frs !== '-')
                 task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
 
-            return self::ANSWER();
+            return self::success();
         }
 
-        return Api::FALSE('Неудалось удалить камеру');
+        return self::error('Не удалось удалить камеру', 400);
     }
 
     public static function index(): bool|array

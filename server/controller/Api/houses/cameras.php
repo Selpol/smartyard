@@ -2,27 +2,34 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\House\HouseFeature;
 
 readonly class cameras extends Api
 {
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
         $cameraId = $households->addCamera('house', $params['houseId'], $params['cameraId']);
 
-        return Api::ANSWER($cameraId, ($cameraId !== false) ? 'cameraId' : false);
+        if ($cameraId)
+            return self::success($cameraId);
+
+        return self::error('Не удалось привязать камеру к дому', 400);
     }
 
-    public static function DELETE(array $params): array
+    public static function DELETE(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
         $success = $households->unlinkCamera('house', $params['houseId'], $params['cameraId']);
 
-        return Api::ANSWER($success, ($success !== false) ? false : 'notAcceptable');
+        if ($success)
+            return self::success();
+
+        return self::error('Не удалось отвязать камеру от дома', 400);
     }
 
     public static function index(): bool|array
