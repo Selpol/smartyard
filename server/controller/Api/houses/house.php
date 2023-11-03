@@ -2,17 +2,17 @@
 
 namespace Selpol\Controller\Api\houses;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
-use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 
 readonly class house extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
 
@@ -31,10 +31,10 @@ readonly class house extends Api
 
         $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
 
-        return Api::ANSWER($house, "house");
+        return self::success($house);
     }
 
-    public static function POST(array $params): array
+    public static function POST(array $params): ResponseInterface
     {
         $houseId = $params['_id'];
         $keys = $params['keys'];
@@ -52,7 +52,7 @@ readonly class house extends Api
 
         task(new IntercomHouseKeyTask($houseId))->high()->dispatch();
 
-        return Api::ANSWER();
+        return self::success();
     }
 
     public static function index(): bool|array

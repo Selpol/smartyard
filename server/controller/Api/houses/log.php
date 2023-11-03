@@ -2,12 +2,14 @@
 
 namespace Selpol\Controller\Api\houses;
 
-use Selpol\Controller\Api\Api;;
+use Psr\Http\Message\ResponseInterface;
+use Selpol\Controller\Api\Api;
+
 use Selpol\Feature\Plog\PlogFeature;
 
 readonly class log extends Api
 {
-    public static function GET(array $params): array
+    public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
             'ip' => rule()->required()->ipV4()->nonNullable(),
@@ -23,10 +25,7 @@ readonly class log extends Api
 
         $logs = container(PlogFeature::class)->getSyslogFilter($validate['ip'], $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);
 
-        if ($logs)
-            return Api::TRUE('logs', $logs);
-
-        return Api::TRUE('logs', []);
+        return self::success($logs ?: []);
     }
 
     public static function index(): bool|array
