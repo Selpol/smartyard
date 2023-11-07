@@ -151,16 +151,12 @@ readonly class InternalUserFeature extends UserFeature
 
         try {
             $db = $this->getDatabase();
-            $redis = $this->getRedis()->getConnection();
+            $redis = $this->getRedis();
 
             $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
 
-            if (!$enabled) {
-                $_keys = $redis->keys('user:' . $uid . ':token:*');
-
-                foreach ($_keys as $_key)
-                    $redis->del($_key);
-            }
+            if (!$enabled)
+                $redis->del(...$redis->keys('user:' . $uid . ':token:*'));
 
             return $sth->execute([
                 ":real_name" => trim($realName),

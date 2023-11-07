@@ -3,7 +3,6 @@
 namespace Selpol\Feature\Address\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class InternalAddressFeature extends AddressFeature

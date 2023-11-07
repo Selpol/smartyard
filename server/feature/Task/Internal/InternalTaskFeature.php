@@ -3,7 +3,6 @@
 namespace Selpol\Feature\Task\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;

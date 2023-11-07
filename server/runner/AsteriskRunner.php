@@ -2,7 +2,6 @@
 
 namespace Selpol\Runner;
 
-use RedisException;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
@@ -26,7 +25,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private const LAN = ['Lj', 'Nj', 'Dž', 'dž', 'š', 'đ', 'č', 'ć', 'ž', 'lj', 'nj', 'Š', 'Đ', 'Č', 'Ć', 'Ž', 'C', 'c', 'a', 'b', 'v', 'g', 'd', 'e', 'io', 'zh', 'z', 'i', 'y', 'k', 'l', 'm', 'n', 'o', 'p', 'r', 's', 't', 'u', 'f', 'h', 'ts', 'ch', 'sh', 'sht', 'a', 'i', 'y', 'e', 'yu', 'ya', 'A', 'B', 'V', 'G', 'D', 'E', 'Io', 'Zh', 'Z', 'I', 'Y', 'K', 'L', 'M', 'N', 'O', 'P', 'R', 'S', 'T', 'U', 'F', 'H', 'Ts', 'Ch', 'Sh', 'Sht', 'A', 'I', 'Y', 'e', 'Yu', 'Ya'];
 
     /**
-     * @throws RedisException
      * @throws ValidatorException
      */
     function run(array $arguments): int
@@ -161,7 +159,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         break;
 
                     case 'camshot':
-                        $redis = container(RedisService::class)->getConnection();
+                        $redis = container(RedisService::class);
 
                         if ($params['domophoneId'] >= 0) {
                             $households = container(HouseFeature::class);
@@ -174,8 +172,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 if ($cameras && $cameras[0]) {
                                     $model = container(DeviceService::class)->camera($cameras[0]['model'], $cameras[0]['url'], $cameras[0]['credentials']);
 
-                                    $redis->setex('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
-                                    $redis->setex('live_' . $params["hash"], 3 * 60, json_encode([
+                                    $redis->setEx('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
+                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode([
                                         'model' => $cameras[0]["model"],
                                         'url' => $cameras[0]["url"],
                                         'credentials' => $cameras[0]["credentials"],
@@ -258,12 +256,9 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         return explode('/', $path);
     }
 
-    /**
-     * @throws RedisException
-     */
     private function getExtension(string $extension, string $section): array
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
             $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials', 'sos_number']));

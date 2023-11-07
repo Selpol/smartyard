@@ -222,12 +222,9 @@ LUA,
         }
     }
 
-    /**
-     * @throws RedisException
-     */
     public function wipe(): void
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $keys = $redis->keys(self::PREFIX . ':*');
 

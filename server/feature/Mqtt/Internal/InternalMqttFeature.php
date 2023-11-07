@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\Mqtt\Internal;
 
-use RedisException;
 use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Service\RedisService;
 use SensitiveParameter;

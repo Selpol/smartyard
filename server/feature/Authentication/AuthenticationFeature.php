@@ -3,7 +3,6 @@
 namespace Selpol\Feature\Authentication;
 
 use Exception;
-use RedisException;
 use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
 use Selpol\Feature\Feature;
 use Selpol\Feature\User\UserFeature;
@@ -16,9 +15,6 @@ readonly abstract class AuthenticationFeature extends Feature
 {
     abstract public function checkAuth(string $login, string $password): int|bool;
 
-    /**
-     * @throws RedisException
-     */
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
         $db = container(DatabaseService::class);
@@ -73,9 +69,6 @@ readonly abstract class AuthenticationFeature extends Feature
         } else return ["result" => false, "code" => 403, "error" => "forbidden"];
     }
 
-    /**
-     * @throws RedisException
-     */
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
     {
         $redis = container(RedisService::class);
@@ -124,9 +117,6 @@ readonly abstract class AuthenticationFeature extends Feature
         return false;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function logout(string $token): void
     {
         $redis = container(RedisService::class);

@@ -5,7 +5,6 @@ namespace Selpol\Controller\Internal;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
 use Selpol\Feature\Frs\FrsFeature;
@@ -22,7 +21,6 @@ readonly class FrsController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      * @throws ContainerExceptionInterface
      */
     #[Post('/callback')]
@@ -30,7 +28,7 @@ readonly class FrsController extends RbtController
     {
         $frs_key = "frs_key_" . $request->stream_id;
 
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         if ($redis->get($frs_key) != null)
             return response(204);
@@ -52,7 +50,7 @@ readonly class FrsController extends RbtController
             $model = intercom($domophone_id);
             $model->open($domophone_output);
 
-            $redis->set($frs_key, 1, config_get('feature.frs.open_door_timeout'));
+            $redis->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
 
             container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
         } catch (Exception) {

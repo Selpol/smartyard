@@ -6,7 +6,6 @@ use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
-use RedisException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Model\Permission;
@@ -418,9 +417,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $this->logger->debug('Kernel cleared');
     }
 
-    /**
-     * @throws RedisException
-     */
     private function kernelWipe(): void
     {
         container(PrometheusService::class)->wipe();

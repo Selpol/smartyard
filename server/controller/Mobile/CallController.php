@@ -3,7 +3,6 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Controller\RbtController;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -16,7 +15,6 @@ readonly class CallController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     #[Get('/camshot/{hash}')]
     public function camshot(string $hash): Response
@@ -35,7 +33,6 @@ readonly class CallController extends RbtController
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     #[Get('/live/{hash}')]
     public function live(string $hash): Response
