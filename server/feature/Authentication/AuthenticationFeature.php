@@ -127,22 +127,20 @@ readonly abstract class AuthenticationFeature extends Feature
     /**
      * @throws RedisException
      */
-    public function logout(string $token, bool $all = false): void
+    public function logout(string $token): void
     {
         $redis = container(RedisService::class)->getConnection();
 
-        if ($all) {
-            $keys = $redis->keys('user:*:token:' . $token);
+        $keys = $redis->keys('user:*:token:' . $token);
 
-            foreach ($keys as $key) {
-                $uid = @explode(':', $key)[1];
-                $_keys = $redis->keys('user:' . $uid . ':*');
+        foreach ($keys as $key) {
+            $uid = @explode(':', $key)[1];
+            $_keys = $redis->keys('user:' . $uid . ':*');
 
-                foreach ($_keys as $_key)
-                    $redis->del($_key);
+            foreach ($_keys as $_key)
+                $redis->del($_key);
 
-                break;
-            }
-        } else $redis->del('user:*:token:' . $token);
+            break;
+        }
     }
 }

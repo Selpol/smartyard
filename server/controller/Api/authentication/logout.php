@@ -29,7 +29,7 @@ readonly class logout extends Api
      */
     public static function POST(array $params): ResponseInterface
     {
-        container(AuthenticationFeature::class)->logout($params["_token"], @$params['mode'] == 'all');
+        container(AuthenticationFeature::class)->logout($params["_token"]);
 
         return self::success();
     }

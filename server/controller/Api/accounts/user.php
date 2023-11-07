@@ -5,7 +5,6 @@ namespace Selpol\Controller\Api\accounts;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
-use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\User\UserFeature;
 
 readonly class user extends Api
@@ -65,20 +64,9 @@ readonly class user extends Api
 
     public static function DELETE(array $params): ResponseInterface
     {
-        if (@$params["session"]) {
-            container(AuthenticationFeature::class)->logout($params["session"]);
+        $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
 
-            $success = true;
-        } else {
-            $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
-
-            $success = $user->delete();
-        }
-
-        if ($success)
-            return self::success();
-
-        return self::error('Не удалось удалить пользователя', 400);
+        return $user->delete() ? self::success() : self::error('Не удалось удалить пользователя', 400);
     }
 
     public static function index(): array
