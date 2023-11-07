@@ -133,14 +133,6 @@ readonly abstract class AuthenticationFeature extends Feature
 
         $keys = $redis->keys('user:*:token:' . $token);
 
-        foreach ($keys as $key) {
-            $uid = @explode(':', $key)[1];
-            $_keys = $redis->keys('user:' . $uid . ':*');
-
-            foreach ($_keys as $_key)
-                $redis->del($_key);
-
-            break;
-        }
+        $redis->del($keys);
     }
 }
