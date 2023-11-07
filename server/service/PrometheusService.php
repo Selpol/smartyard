@@ -55,18 +55,13 @@ class PrometheusService
         return $this->counters[$namespace . $name];
     }
 
-    /**
-     * @throws RedisException
-     */
     public function updateCounter(array $value): void
     {
-        $redis = container(RedisService::class)->getConnection();
-
         $metaData = $value;
 
         unset($metaData['value'], $metaData['labelValues'], $metaData['command']);
 
-        $redis->eval(
+        $this->getRedis()->eval(
             <<<LUA
 local result = redis.call(ARGV[1], KEYS[1], ARGV[3], ARGV[2])
 local added = redis.call('sAdd', KEYS[2], KEYS[1])
@@ -96,21 +91,14 @@ LUA
         return $this->gauges[$namespace . $name];
     }
 
-    /**
-     * @throws RedisException
-     */
     public function updateGauge(array $value): void
     {
-        $redis = container(RedisService::class)->getConnection();
-
         $metaData = $value;
 
         unset($metaData['value'], $metaData['labelValues'], $metaData['command']);
 
-        $redis->eval(
-            <<<LUA
+        $this->getRedis()->eval(<<<LUA
 local result = redis.call(ARGV[1], KEYS[1], ARGV[2], ARGV[3])
-
 if ARGV[1] == 'hSet' then
     if result == 1 then
         redis.call('hSet', KEYS[1], '__meta', ARGV[4])
@@ -122,8 +110,7 @@ else
         redis.call('sAdd', KEYS[2], KEYS[1])
     end
 end
-LUA
-            ,
+LUA,
             [
                 $this->toMetricKey($value),
                 implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]),
@@ -144,13 +131,8 @@ LUA
         return $this->histograms[$namespace . $name];
     }
 
-    /**
-     * @throws RedisException
-     */
     public function updateHistogram(array $value): void
     {
-        $redis = container(RedisService::class)->getConnection();
-
         $bucketToIncrease = '+Inf';
 
         foreach ($value['buckets'] as $bucket) {
@@ -165,7 +147,7 @@ LUA
 
         unset($metaData['value'], $metaData['labelValues']);
 
-        $redis->eval(<<<LUA
+        $this->getRedis()->eval(<<<LUA
 local result = redis.call('hIncrByFloat', KEYS[1], ARGV[1], ARGV[3])
 redis.call('hIncrBy', KEYS[1], ARGV[2], 1)
 if tonumber(result) >= tonumber(ARGV[3]) then
@@ -194,12 +176,9 @@ LUA,
         return $this->summaries[$namespace . $name];
     }
 
-    /**
-     * @throws RedisException
-     */
     public function updateSummary(array $value): void
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         // store meta
         $summaryKey = implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]);
@@ -393,7 +372,7 @@ LUA,
      */
     private function collectSummaries(): array
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $summaryKey = implode(':', [self::PREFIX, Summary::TYPE, self::SUFFIX]);
 
@@ -535,5 +514,10 @@ LUA,
         unset($metricsMetaData['value'], $metricsMetaData['command'], $metricsMetaData['labelValues']);
 
         return $metricsMetaData;
+    }
+
+    private function getRedis(): RedisService
+    {
+        return container(RedisService::class);
     }
 }

@@ -85,6 +85,17 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
         }
     }
 
+    public function setNx(string $key, mixed $value): bool
+    {
+        try {
+            return $this->redis->setnx($key, $value);
+        } catch (Throwable $throwable) {
+            $this->logger?->error($throwable);
+
+            return false;
+        }
+    }
+
     public function exist(string $key, array ...$keys): bool
     {
         try {
@@ -102,6 +113,17 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     {
         try {
             return $this->redis->del($key, ...$keys) > 0;
+        } catch (Throwable $throwable) {
+            $this->logger?->error($throwable);
+
+            return false;
+        }
+    }
+
+    public function eval(string $script, array $args = [], int $numKeys = 0): mixed
+    {
+        try {
+            return $this->redis->eval($script, $args, $numKeys);
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 
