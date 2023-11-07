@@ -114,7 +114,10 @@ readonly class InternalAddressFeature extends AddressFeature
 
     function getArea(int $areaId): bool|array
     {
-        return $this->getDatabase()->get("select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas where address_area_id = $areaId",
+        return $this->getDatabase()->get("select address_area_id, address_region_id, area_uuid, area_with_type, area_type, area_type_full, area, timezone from addresses_areas where address_area_id = :area_id",
+            [
+                'area_id' => $areaId
+            ],
             map: [
                 "address_area_id" => "areaId",
                 "address_region_id" => "regionId",

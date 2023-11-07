@@ -87,11 +87,11 @@ readonly class InternalUserFeature extends UserFeature
             $sth = $connection->prepare("insert into core_users (login, password, real_name, e_mail, phone, enabled) values (:login, :password, :real_name, :e_mail, :phone, 1)");
 
             if ($sth->execute([
-                ":login" => $login,
-                ":password" => password_hash($password, PASSWORD_DEFAULT),
-                ":real_name" => $realName ? trim($realName) : null,
-                ":e_mail" => $eMail ? trim($eMail) : null,
-                ":phone" => $phone ? trim($phone) : null,
+                'login' => $login,
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'real_name' => $realName ? trim($realName) : null,
+                'e_mail' => $eMail ? trim($eMail) : null,
+                'phone' => $phone ? trim($phone) : null,
             ]))
                 return $connection->lastInsertId();
             else return false;
@@ -108,9 +108,9 @@ readonly class InternalUserFeature extends UserFeature
             return false;
 
         try {
-            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set password = :password where uid = $uid");
+            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set password = :password where uid = :uid");
 
-            return $sth->execute([":password" => password_hash($password, PASSWORD_DEFAULT)]);
+            return $sth->execute(['uid' => $uid, 'password' => password_hash($password, PASSWORD_DEFAULT)]);
         } catch (Throwable $e) {
             error_log(print_r($e, true));
 
@@ -122,7 +122,7 @@ readonly class InternalUserFeature extends UserFeature
     {
         if ($uid > 0) {
             try {
-                $this->getDatabase()->getConnection()->exec("delete from core_users where uid = $uid");
+                $this->getDatabase()->getConnection()->prepare("delete from core_users where uid = :uid")->execute(['uid' => $uid]);
             } catch (Throwable $e) {
                 error_log(print_r($e, true));
 
@@ -136,9 +136,9 @@ readonly class InternalUserFeature extends UserFeature
     public function modifyUserEnabled(int $uid, bool $enabled): bool
     {
         try {
-            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set enabled = :enabled where uid = $uid");
+            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set enabled = :enabled where uid = :uid");
 
-            return $sth->execute([":enabled" => $enabled ? "1" : "0"]);
+            return $sth->execute(['uid' => $uid, 'enabled' => $enabled ? '1' : '0']);
         } catch (Throwable) {
             return false;
         }
@@ -153,19 +153,20 @@ readonly class InternalUserFeature extends UserFeature
             $db = $this->getDatabase();
             $redis = $this->getRedis();
 
-            $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = $uid");
+            $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = :uid");
 
             if (!$enabled)
                 $redis->del(...$redis->keys('user:' . $uid . ':token:*'));
 
             return $sth->execute([
-                ":real_name" => trim($realName),
-                ":e_mail" => trim($eMail),
-                ":phone" => trim($phone),
-                ":tg" => trim($tg),
-                ":notification" => trim($notification),
-                ":enabled" => $enabled ? "1" : "0",
-                ":default_route" => trim($defaultRoute),
+                'uid' => $uid,
+                'real_name' => trim($realName),
+                'e_mail' => trim($eMail),
+                'phone' => trim($phone),
+                'tg' => trim($tg),
+                'notification' => trim($notification),
+                'enabled' => $enabled ? "1" : "0",
+                'default_route' => trim($defaultRoute),
             ]);
         } catch (Throwable $e) {
             error_log(print_r($e, true));

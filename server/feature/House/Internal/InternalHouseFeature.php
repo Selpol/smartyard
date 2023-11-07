@@ -14,7 +14,7 @@ readonly class InternalHouseFeature extends HouseFeature
 {
     public function getFlatPlog(int $flatId): ?int
     {
-        $result = $this->getDatabase()->get("select plog from houses_flats where house_flat_id = $flatId");
+        $result = $this->getDatabase()->get("select plog from houses_flats where house_flat_id = :flat_id", ['flat_id' => $flatId]);
 
         if ($result && count($result) > 0)
             return $result[0]['plog'];
@@ -132,7 +132,10 @@ readonly class InternalHouseFeature extends HouseFeature
                         last_opened,
                         cms_enabled
                     from houses_flats
-                    where house_flat_id = $flatId",
+                    where house_flat_id = :flat_id",
+            [
+                'flat_id' => $flatId
+            ],
             map: [
                 "house_flat_id" => "flatId",
                 "floor" => "floor",
@@ -164,7 +167,10 @@ readonly class InternalHouseFeature extends HouseFeature
                         from 
                             houses_entrances_flats
                                 left join houses_entrances using (house_entrance_id)
-                        where house_flat_id = {$flat["flatId"]}",
+                        where house_flat_id = :flat_id",
+                [
+                    'flat_id' => $flat["flatId"]
+                ],
                 map: [
                     "house_entrance_id" => "entranceId",
                     "apartment" => "apartment",
@@ -252,7 +258,7 @@ readonly class InternalHouseFeature extends HouseFeature
             return false;
 
         if (!$shared) {
-            if ($this->getDatabase()->modify("delete from houses_houses_entrances where house_entrance_id = $entranceId and address_house_id != $houseId") === false) {
+            if ($this->getDatabase()->modify("delete from houses_houses_entrances where house_entrance_id = :entrance_id and address_house_id != :house_id", ['entrance_id' => $entranceId, 'house_id' => $houseId]) === false) {
                 return false;
             }
             $prefix = 0;
