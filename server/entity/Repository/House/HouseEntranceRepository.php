@@ -24,8 +24,12 @@ readonly class HouseEntranceRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(HouseEntrance::class);
+
+        $this->auditName = 'Дом-Вход';
     }
 }

@@ -24,9 +24,13 @@ readonly class RoleRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(Role::class);
+
+        $this->auditName = 'Роль';
     }
 
     /**

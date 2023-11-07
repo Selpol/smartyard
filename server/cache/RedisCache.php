@@ -5,7 +5,6 @@ namespace Selpol\Cache;
 use DateInterval;
 use DateTimeImmutable;
 use Psr\SimpleCache\CacheInterface;
-use RedisException;
 use Selpol\Framework\Cache\Trait\CacheTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\RedisService;

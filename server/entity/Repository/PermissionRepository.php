@@ -24,9 +24,13 @@ readonly class PermissionRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(Permission::class);
+
+        $this->auditName = 'Разрешение';
     }
 
     public function findByTitle(string $title): Permission

@@ -5,6 +5,9 @@ namespace Selpol\Entity\Trait;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Entity\Entity;
 
+/**
+ * @property string $auditName
+ */
 trait AuditTrait
 {
     public function insert(Entity $entity): bool
@@ -15,7 +18,7 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'insert', 'Добавление новой сущности');
+            $this->audit($entity, 'insert', $this->getAuditName() . ' Добавление новой сущности');
 
         return $result;
     }
@@ -28,7 +31,7 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'update', 'Обновление сущности');
+            $this->audit($entity, 'update', $this->getAuditName() . ' Обновление сущности');
 
         return $result;
     }
@@ -41,7 +44,7 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'delete', 'Удаление сущности');
+            $this->audit($entity, 'delete', $this->getAuditName() . ' Удаление сущности');
 
         return $result;
     }
@@ -54,5 +57,10 @@ trait AuditTrait
     private function audit(Entity $entity, string $eventType, string $eventMessage): void
     {
         container(AuditFeature::class)->audit($entity->{$this->meta->columnId}, $this->meta->class, $eventType, $eventMessage);
+    }
+
+    private function getAuditName(): string
+    {
+        return '[' . ($this->auditName ?? 'Сущность') . ']';
     }
 }

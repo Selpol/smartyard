@@ -13,9 +13,9 @@ readonly class entrance extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $entranceId = $params['_id'];
+        $entranceId = intval($params['_id']);
 
-        $entrance = container(HouseFeature::class)->getEntranceWithPrefix($entranceId);
+        $entrance = container(HouseFeature::class)->getEntranceWithPrefix($entranceId, array_key_exists('prefix', $params) ? $params['prefix'] : 0);
 
         return $entrance ? self::success($entrance) : self::error('Вход не найден', 404);
     }

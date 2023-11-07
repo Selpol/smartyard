@@ -989,9 +989,13 @@ readonly class InternalHouseFeature extends HouseFeature
         );
     }
 
-    public function getEntranceWithPrefix(int $entranceId): array|bool
+    public function getEntranceWithPrefix(int $entranceId, int $prefix): array|bool
     {
-        return $this->getDatabase()->get("select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, prefix, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_houses_entrances left join houses_entrances using (house_entrance_id) where house_entrance_id = $entranceId order by entrance_type, entrance",
+        return $this->getDatabase()->get("select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, prefix, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_houses_entrances left join houses_entrances using (house_entrance_id) where house_entrance_id = :entrance_id and prefix = :prefix order by entrance_type, entrance",
+            [
+                'entrance_id' => $entranceId,
+                'prefix' => $prefix
+            ],
             map: [
                 "address_house_id" => "houseId",
                 "house_entrance_id" => "entranceId",

@@ -24,8 +24,12 @@ readonly class InboxMessageRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(InboxMessage::class);
+
+        $this->auditName = 'Сообщение';
     }
 }
