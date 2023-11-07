@@ -63,10 +63,10 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
         }
     }
 
-    public function set(string $key, mixed $value): bool
+    public function set(string $key, mixed $value, mixed $options = null): bool
     {
         try {
-            return $this->redis->set($key, $value);
+            return $this->redis->set($key, $value, $options);
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 
