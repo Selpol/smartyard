@@ -5,6 +5,7 @@ namespace Selpol\Cache;
 use DateInterval;
 use DateTimeImmutable;
 use Psr\SimpleCache\CacheInterface;
+use Selpol\Framework\Cache\Exception\InvalidArgumentException;
 use Selpol\Framework\Cache\Trait\CacheTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\RedisService;
@@ -38,10 +39,17 @@ readonly class RedisCache implements CacheInterface
             $now = new DateTimeImmutable();
             $timeout = $now->add($ttl);
 
-            return $this->service->setEx('cache:' . $key, $timeout->getTimestamp() - $now->getTimestamp(), json_encode($value));
+            $ttl = $timeout->getTimestamp() - $now->getTimestamp();
         }
 
-        return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
+        if ($ttl) {
+            if ($ttl < 0)
+                throw new InvalidArgumentException('Внутренняя ошибка');
+
+            return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
+        }
+
+        return $this->service->set('cache:' . $key, $ttl, json_encode($value));
     }
 
     public function delete(string $key): bool
@@ -56,36 +64,6 @@ readonly class RedisCache implements CacheInterface
 
             if (count($keys) > 0)
                 $this->service->del(...$keys) > 0;
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    public function getMultiple(iterable $keys, mixed $default = null): iterable
-    {
-        foreach ($keys as $key)
-            yield $this->get($key, $default);
-    }
-
-    public function setMultiple(iterable $values, DateInterval|int|null $ttl = null): bool
-    {
-        try {
-            foreach ($values as $key => $value)
-                $this->set($key, $value, $ttl);
-
-            return true;
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    public function deleteMultiple(iterable $keys): bool
-    {
-        try {
-            foreach ($keys as $key)
-                $this->delete($key);
 
             return true;
         } catch (Throwable) {

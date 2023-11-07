@@ -2,7 +2,6 @@
 
 namespace Selpol\Device;
 
-use Selpol\Device\Ip\IpDevice;
 use Selpol\Framework\Client\Client;
 use Selpol\Framework\Http\Uri;
 
@@ -17,13 +16,5 @@ abstract class Device
         $this->uri = $uri;
 
         $this->client = container(Client::class);
-    }
-
-    public function asIp(): ?IpDevice
-    {
-        if ($this instanceof IpDevice)
-            return $this;
-
-        return null;
     }
 }
