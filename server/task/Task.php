@@ -26,7 +26,6 @@ abstract class Task
 
     public function onError(Throwable $throwable): void
     {
-
     }
 
     public function setProgressCallback(?callable $callback): void

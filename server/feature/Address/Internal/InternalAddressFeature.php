@@ -577,11 +577,10 @@ readonly class InternalAddressFeature extends AddressFeature
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     function addHouseByMagic(string $houseUuid): bool|int
     {
-        $house = $this->getRedis()->getConnection()->get("house_" . $houseUuid);
+        $house = $this->getRedis()->get("house_" . $houseUuid);
 
         if ($house) {
             $house = json_decode($house, true);

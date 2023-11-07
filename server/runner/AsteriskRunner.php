@@ -393,7 +393,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 'auth' => $extension,
                                 'outbound_auth' => $extension,
                                 'aors' => $extension,
-                                'callerid' => $this->transcript($user['realName']),
+                                'callerid' => $user['realName'],
                                 'context' => 'default',
                                 'disallow' => 'all',
                                 'allow' => 'alaw,ulaw,h264',
@@ -425,7 +425,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'auth' => $extension,
                             'outbound_auth' => $extension,
                             'aors' => $extension,
-                            'callerid' => $this->transcript($sipUser->title),
+                            'callerid' => $sipUser->title,
                             'context' => 'default',
                             'disallow' => 'all',
                             'allow' => 'alaw,ulaw,h264',
@@ -455,10 +455,5 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result .= urldecode($key) . '=' . urldecode($value) . '&';
 
         return $result;
-    }
-
-    public function transcript(string $value): string
-    {
-        return str_replace(self::CYR, self::LAN, $value);
     }
 }

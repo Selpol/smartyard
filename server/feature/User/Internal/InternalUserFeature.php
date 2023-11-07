@@ -37,7 +37,7 @@ readonly class InternalUserFeature extends UserFeature
                     $lk = $this->getRedis()->getConnection()->keys('user:' . $u['uid'] . ':token:*');
 
                     foreach ($lk as $k)
-                        $u['sessions'][] = json_decode($this->getRedis()->getConnection()->get($k), true);
+                        $u['sessions'][] = json_decode($this->getRedis()->get($k), true);
                 } else {
                     unset($u['lastLogin']);
                     unset($u['lastAction']);

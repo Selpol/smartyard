@@ -23,12 +23,9 @@ readonly class RedisCache implements CacheInterface
         $this->service = container(RedisService::class);
     }
 
-    /**
-     * @throws RedisException
-     */
     public function get(string $key, mixed $default = null): mixed
     {
-        $value = $this->service->getConnection()->get('cache:' . $key);
+        $value = $this->service->get('cache:' . $key);
 
         if ($value === false)
             return $default;
@@ -36,27 +33,21 @@ readonly class RedisCache implements CacheInterface
         return json_decode($value, true);
     }
 
-    /**
-     * @throws RedisException
-     */
     public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
     {
         if ($ttl instanceof DateInterval) {
             $now = new DateTimeImmutable();
             $timeout = $now->add($ttl);
 
-            return $this->service->getConnection()->set('cache:' . $key, json_encode($value), $timeout->getTimestamp() - $now->getTimestamp());
+            return $this->service->setEx('cache:' . $key, $timeout->getTimestamp() - $now->getTimestamp(), json_encode($value));
         }
 
-        return $this->service->getConnection()->set('cache:' . $key, json_encode($value), $ttl);
+        return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
     }
 
-    /**
-     * @throws RedisException
-     */
     public function delete(string $key): bool
     {
-        return $this->service->getConnection()->del('cache:' . $key) === 1;
+        return $this->service->del('cache:' . $key);
     }
 
     public function clear(): bool
@@ -65,7 +56,7 @@ readonly class RedisCache implements CacheInterface
             $keys = $this->service->getConnection()->keys('cache:*');
 
             if (count($keys) > 0)
-                $this->service->getConnection()->del($keys) > 0;
+                $this->service->del(...$keys) > 0;
 
             return true;
         } catch (Throwable) {
@@ -73,9 +64,6 @@ readonly class RedisCache implements CacheInterface
         }
     }
 
-    /**
-     * @throws RedisException
-     */
     public function getMultiple(iterable $keys, mixed $default = null): iterable
     {
         foreach ($keys as $key)
@@ -106,12 +94,9 @@ readonly class RedisCache implements CacheInterface
         }
     }
 
-    /**
-     * @throws RedisException
-     */
     public function has(string $key): bool
     {
-        $result = $this->service->getConnection()->exists($key);
+        $result = $this->service->exist($key);
 
         return $result !== false && $result > 0;
     }
