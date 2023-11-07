@@ -24,9 +24,13 @@ readonly class CoreVarRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(CoreVar::class);
+
+        $this->auditName = 'Ядро-Переменная';
     }
 
     public function findByName(string $name): ?CoreVar

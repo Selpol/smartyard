@@ -24,8 +24,12 @@ readonly class CoreUserRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(CoreUser::class);
+
+        $this->auditName = 'Ядро-Пользователь';
     }
 }

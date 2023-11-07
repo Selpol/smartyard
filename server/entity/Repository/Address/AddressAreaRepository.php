@@ -24,8 +24,12 @@ readonly class AddressAreaRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(AddressArea::class);
+
+        $this->auditName = 'Адрес-Область';
     }
 }

@@ -24,8 +24,12 @@ readonly class FrsServerRepository extends EntityRepository
 {
     use AuditTrait;
 
+    public string $auditName;
+
     public function __construct()
     {
         parent::__construct(FrsServer::class);
+
+        $this->auditName = 'Frs-Сервер';
     }
 }
