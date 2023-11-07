@@ -56,7 +56,7 @@ trait AuditTrait
 
     private function audit(Entity $entity, string $eventType, string $eventMessage): void
     {
-        container(AuditFeature::class)->audit($entity->{$this->meta->columnId}, $this->meta->class, $eventType, $eventMessage);
+        container(AuditFeature::class)->audit(strval($entity->{$this->meta->columnId}), $this->meta->class, $eventType, $eventMessage);
     }
 
     private function getAuditName(): string
