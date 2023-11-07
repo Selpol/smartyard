@@ -23,7 +23,7 @@ readonly class CallController extends RbtController
     {
         $this->getUser();
 
-        $image = container(RedisService::class)->getConnection()->get('shot_' . $hash);
+        $image = container(RedisService::class)->get('shot_' . $hash);
 
         if ($image !== false)
             return response()
@@ -42,7 +42,7 @@ readonly class CallController extends RbtController
     {
         $this->getUser();
 
-        $json_camera = container(RedisService::class)->getConnection()->get("live_" . $hash);
+        $json_camera = container(RedisService::class)->get("live_" . $hash);
         $camera_params = json_decode($json_camera, true);
 
         $model = container(DeviceService::class)->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);

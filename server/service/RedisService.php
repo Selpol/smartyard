@@ -37,6 +37,17 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
         return $this->redis;
     }
 
+    public function keys(string $pattern): array
+    {
+        try {
+            return $this->redis->keys($pattern);
+        } catch (Throwable $throwable) {
+            $this->logger?->error($throwable);
+
+            return [];
+        }
+    }
+
     /**
      * @param string $key
      * @return false|mixed
@@ -44,7 +55,7 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     public function get(string $key): mixed
     {
         try {
-            return $this->getConnection()->get($key);
+            return $this->redis->get($key);
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 
@@ -55,7 +66,7 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     public function set(string $key, mixed $value): bool
     {
         try {
-            return $this->getConnection()->set($key, $value);
+            return $this->redis->set($key, $value);
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 
@@ -66,7 +77,7 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     public function setEx(string $key, int $expire, mixed $value): bool
     {
         try {
-            return $this->getConnection()->setex($key, $expire, $value);
+            return $this->redis->setex($key, $expire, $value);
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 
@@ -77,7 +88,7 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     public function exist(string $key, array ...$keys): bool
     {
         try {
-            $exist = $this->getConnection()->exists($key, ...$keys);
+            $exist = $this->redis->exists($key, ...$keys);
 
             return $exist === true || $exist > 0;
         } catch (Throwable $throwable) {
@@ -90,7 +101,7 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
     public function del(string $key, array ...$keys): bool
     {
         try {
-            return $this->getConnection()->del($key, ...$keys) > 0;
+            return $this->redis->del($key, ...$keys) > 0;
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
 

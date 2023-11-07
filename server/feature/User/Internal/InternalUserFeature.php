@@ -34,7 +34,7 @@ readonly class InternalUserFeature extends UserFeature
                 if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin') {
                     $u['sessions'] = [];
 
-                    $lk = $this->getRedis()->getConnection()->keys('user:' . $u['uid'] . ':token:*');
+                    $lk = $this->getRedis()->keys('user:' . $u['uid'] . ':token:*');
 
                     foreach ($lk as $k)
                         $u['sessions'][] = json_decode($this->getRedis()->get($k), true);

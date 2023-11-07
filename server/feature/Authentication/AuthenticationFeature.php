@@ -22,7 +22,7 @@ readonly abstract class AuthenticationFeature extends Feature
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
         $db = container(DatabaseService::class);
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $uid = $this->checkAuth($login, $password);
 
@@ -56,7 +56,7 @@ readonly abstract class AuthenticationFeature extends Feature
                     $token = md5(guid_v4());
             }
 
-            $redis->setex('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
+            $redis->setEx('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
                 "uid" => (string)$uid,
                 "login" => $login,
                 "persistent" => $rememberMe,
@@ -78,7 +78,7 @@ readonly abstract class AuthenticationFeature extends Feature
      */
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $authorization = explode(" ", $authorization);
 
@@ -102,7 +102,7 @@ readonly abstract class AuthenticationFeature extends Feature
 
                 $auth["token"] = $token;
 
-                $redis->setex($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode($auth));
+                $redis->setEx($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode($auth));
 
                 if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) return $auth;
                 else return false;
@@ -129,7 +129,7 @@ readonly abstract class AuthenticationFeature extends Feature
      */
     public function logout(string $token): void
     {
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $keys = $redis->keys('user:*:token:' . $token);
 

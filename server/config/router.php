@@ -4,9 +4,12 @@ use Selpol\Framework\Router\RouterConfigurator;
 use Selpol\Middleware\InternalMiddleware;
 use Selpol\Middleware\JwtMiddleware;
 use Selpol\Middleware\MobileMiddleware;
+use Selpol\Middleware\PrometheusMiddleware;
 use Selpol\Middleware\RateLimitMiddleware;
 
 return static function (RouterConfigurator $configurator) {
+    $configurator->include('', PrometheusMiddleware::class);
+
     $configurator->include('/internal', InternalMiddleware::class, config_get('internal.trust', ['127.0.0.1/32']));
 
     $configurator->include('/mobile', JwtMiddleware::class);

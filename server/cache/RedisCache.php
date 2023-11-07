@@ -49,7 +49,7 @@ readonly class RedisCache implements CacheInterface
             return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
         }
 
-        return $this->service->set('cache:' . $key, $ttl, json_encode($value));
+        return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
     }
 
     public function delete(string $key): bool
@@ -60,7 +60,7 @@ readonly class RedisCache implements CacheInterface
     public function clear(): bool
     {
         try {
-            $keys = $this->service->getConnection()->keys('cache:*');
+            $keys = $this->service->keys('cache:*');
 
             if (count($keys) > 0)
                 $this->service->del(...$keys) > 0;

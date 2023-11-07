@@ -3,7 +3,6 @@
 namespace Selpol\Controller\Api\authentication;
 
 use Psr\Http\Message\ResponseInterface;
-use RedisException;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
@@ -11,9 +10,6 @@ use Selpol\Service\RedisService;
 
 readonly class whoAmI extends Api
 {
-    /**
-     * @throws RedisException
-     */
     public static function GET(array $params): ResponseInterface
     {
         $user = container(UserFeature::class)->getUser($params["_uid"]);
@@ -21,14 +17,14 @@ readonly class whoAmI extends Api
         if (!$user)
             return self::error('Пользователь не найден');
 
-        $redis = container(RedisService::class)->getConnection();
+        $redis = container(RedisService::class);
 
         $password = $redis->get('user:' . $params['_uid'] . ':ws');
 
         if (!$password)
             $password = md5(guid_v4());
 
-        $redis->setex('user:' . $params['_uid'] . ':ws', 24 * 60 * 60, $password);
+        $redis->setEx('user:' . $params['_uid'] . ':ws', 24 * 60 * 60, $password);
 
         $sipServer = container(SipFeature::class)->server('first')[0];
 

@@ -73,14 +73,11 @@ readonly class InternalTaskFeature extends TaskFeature
         }
     }
 
-    /**
-     * @throws RedisException
-     */
     public function clearUnique(): void
     {
-        $keys = $this->getRedis()->getConnection()->keys('task:unique:*');
+        $keys = $this->getRedis()->keys('task:unique:*');
 
-        if (is_array($keys))
+        if (count($keys))
             $this->getRedis()->del(...$keys);
     }
 }
