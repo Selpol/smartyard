@@ -140,6 +140,13 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
+                    case 'sos':
+                        $intercom = DeviceIntercom::findById(intval($params), setting: setting()->columns(['sos_number'])->nonNullable());
+
+                        echo json_encode(['sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')]);
+
+                        break;
+
                     case 'entrance':
                         $households = container(HouseFeature::class);
 
@@ -285,8 +292,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'direct_media' => 'no',
                             'allow_subscribe' => 'yes',
                             'dtmf_mode' => 'rfc4733',
-                            'ice_support' => 'no',
-                            'sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')
+                            'ice_support' => 'no'
                         ];
                 }
             }
