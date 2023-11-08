@@ -17,6 +17,6 @@ readonly class camshot extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[События] Получить камшот'];
+        return ['GET' => '[События] Получить скриншот'];
     }
 }
