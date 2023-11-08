@@ -1,10 +1,9 @@
 <?php
 
-namespace Selpol\Controller\Api\houses;
+namespace Selpol\Controller\Api\intercom;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
-
 use Selpol\Feature\Plog\PlogFeature;
 
 readonly class log extends Api

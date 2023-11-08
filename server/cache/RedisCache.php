@@ -62,10 +62,7 @@ readonly class RedisCache implements CacheInterface
         try {
             $keys = $this->service->keys('cache:*');
 
-            if (count($keys) > 0)
-                $this->service->del(...$keys) > 0;
-
-            return true;
+            return $this->service->del(...$keys);
         } catch (Throwable) {
             return false;
         }
