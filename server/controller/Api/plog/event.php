@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Controller\Api\houses;
+namespace Selpol\Controller\Api\plog;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
@@ -28,6 +28,6 @@ readonly class event extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Дом] Получить список событий'];
+        return ['GET' => '[События] Получить список'];
     }
 }
