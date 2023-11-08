@@ -53,6 +53,8 @@ class DatabaseService implements ContainerDisposeInterface
         } catch (PDOException $e) {
             if ($e->getCode() == 23505)
                 throw new DatabaseException(DatabaseException::UNIQUE_VIOLATION, 'Ключ уже существует', previous: $e);
+            else if ($e->getCode() == 23503)
+                throw new DatabaseException(DatabaseException::FOREIGN_VIOLATION, 'Существуют дочерние объекты', previous: $e);
 
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
