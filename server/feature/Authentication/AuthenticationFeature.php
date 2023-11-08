@@ -123,6 +123,6 @@ readonly abstract class AuthenticationFeature extends Feature
 
         $keys = $redis->keys('user:*:token:' . $token);
 
-        $redis->del($keys);
+        $redis->del(...$keys);
     }
 }
