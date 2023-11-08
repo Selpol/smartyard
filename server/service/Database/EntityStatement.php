@@ -30,10 +30,10 @@ readonly class EntityStatement implements EntityStatementInterface
         try {
             return $this->statement->execute();
         } catch (PDOException $throwable) {
-            if ($e->getCode() == 23505)
-                throw new EntityException([new EntityMessage($e->getCode(), $e->getMessage())], 'Повторяющийся идентификатор', $throwable->getMessage(), 400);
-            else if ($e->getCode() == 23503)
-                throw new EntityException([new EntityMessage($e->getCode(), $e->getMessage())], 'Существуют дочерние зависимости', $throwable->getMessage(), 400);
+            if ($throwable->getCode() == 23505)
+                throw new EntityException([new EntityMessage($throwable->getCode(), $throwable->getMessage())], 'Повторяющийся идентификатор', $throwable->getMessage(), 400);
+            else if ($throwable->getCode() == 23503)
+                throw new EntityException([new EntityMessage($throwable->getCode(), $throwable->getMessage())], 'Существуют дочерние зависимости', $throwable->getMessage(), 400);
 
             return false;
         }
