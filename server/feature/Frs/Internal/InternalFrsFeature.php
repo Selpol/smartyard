@@ -155,7 +155,7 @@ readonly class InternalFrsFeature extends FrsFeature
         if (!$event_data)
             return false;
 
-        $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_URL => config_get('api.mobile') . '/address/plogCamshot/' . $event_data['image_uuid']];
+        $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_URL => config_get('api.internal') . '/frs/face/' . $event_data['image_uuid']];
 
         if ($width > 0 && $height > 0) {
             $method_params[self::P_FACE_LEFT] = $left;

@@ -49,7 +49,7 @@ readonly class FrsController extends RbtController
         $result = [];
 
         foreach ($faces as $face)
-            $result[] = ['faceId' => $face[FrsFeature::P_FACE_ID], 'image' => config_get('api.internal') . '/frs/face/' . $face[FrsFeature::P_FACE_IMAGE]];
+            $result[] = ['faceId' => $face[FrsFeature::P_FACE_ID], 'image' => config_get('api.mobile') . '/address/plogCamshot/' . $face[FrsFeature::P_FACE_IMAGE]];
 
         return user_response(data: $result);
     }
