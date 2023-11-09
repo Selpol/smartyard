@@ -40,7 +40,7 @@ readonly class id extends Api
         $monitor = container(MonitorFeature::class);
 
         foreach ($validate['ids'] as $id)
-            $result[] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)], 60);
+            $result[$id] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)], 60);
 
         return self::success($result);
     }
