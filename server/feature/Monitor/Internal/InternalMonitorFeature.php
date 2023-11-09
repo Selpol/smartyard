@@ -13,19 +13,19 @@ readonly class InternalMonitorFeature extends MonitorFeature
             $intercom = intercom($id);
 
             if (!$intercom)
-                return ['ping' => false, 'sip' => false];
+                return [];
 
             $intercom->withTimeout(5)->withConnectionTimeout(1);
 
             if (!$intercom->ping())
-                return ['ping' => false, 'sip' => false];
+                return ['ping' => false];
 
             return ['ping' => true, 'sip' => $intercom->getSipStatus()];
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
         }
 
-        return ['ping' => false, 'sip' => false];
+        return [];
     }
 
     public function ping(int $id): bool
