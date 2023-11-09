@@ -24,7 +24,7 @@ abstract class IpDevice extends Device
 
         $this->password = $password;
 
-        $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
+        $this->clientOption = (new ClientOption())->basic($this->login, $this->password)->raw(CURLOPT_TIMEOUT, 1500);
     }
 
     public function ping(): bool

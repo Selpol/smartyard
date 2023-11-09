@@ -11,7 +11,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function ping(int $id): bool
     {
         try {
-            return container(RedisCache::class)->cache('monitor:' . $id . ':ping', static fn() => intercom($id)?->ping() ?: false, 60);
+            return intercom($id)?->ping() ?: false;
         } catch (Throwable) {
             return false;
         }
@@ -20,7 +20,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function sip(int $id): bool
     {
         try {
-            return container(RedisCache::class)->cache('monitor:' . $id . ':sip', static fn() => intercom($id)?->getSipStatus() ?: false, 60);
+            return intercom($id)?->getSipStatus() ?: false;
         } catch (Throwable) {
             return false;
         }
