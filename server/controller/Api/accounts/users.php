@@ -13,7 +13,12 @@ readonly class users extends Api
         $users = container(UserFeature::class)->getUsers();
 
         if ($users)
-            return self::success($users);
+            return self::success(array_map(static function (array $item) {
+                if ($item['phone'])
+                    $item['phone'] = mobile_mask($item['phone']);
+
+                return $item;
+            }, $users));
 
         return self::error('Пользователи не найдены', 404);
     }

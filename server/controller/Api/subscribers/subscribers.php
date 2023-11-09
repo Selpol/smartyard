@@ -13,7 +13,11 @@ readonly class subscribers extends Api
         $households = container(HouseFeature::class);
 
         $flat = [
-            'subscribers' => $households->getSubscribers(@$params['by'], @$params['query']),
+            'subscribers' => array_map(static function (array $item) {
+                $item['mobile'] = mobile_mask($item['mobile']);
+
+                return $item;
+            }, $households->getSubscribers(@$params['by'], @$params['query'])),
             'cameras' => $households->getCameras(@$params['by'], @$params['query']),
             'keys' => $households->getKeys(@$params['by'], @$params['query']),
         ];

@@ -14,8 +14,13 @@ readonly class subscriber extends Api
 
         $subscribers = $households->getSubscribers('id', $params['_id']);
 
-        if ($subscribers && count($subscribers) === 1)
-            return self::success($subscribers[0]);
+        if ($subscribers && count($subscribers) === 1) {
+            $subscriber = $subscribers[0];
+
+            $subscriber['mobile'] = mobile_mask($subscriber['mobile']);
+
+            return self::success($subscriber);
+        }
 
         return self::error('Абонент не найден', 400);
     }

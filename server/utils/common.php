@@ -197,3 +197,13 @@ if (!function_exists('user_response')) {
         return response($code);
     }
 }
+
+if (!function_exists('mobile_mask')) {
+    function mobile_mask(?string $value): string
+    {
+        if (is_null($value) || $value === '' || strlen($value) !== 11)
+            return '+7 (***) **-****';
+
+        return $value[0] . ' (***) **-' . substr($value, 7);
+    }
+}

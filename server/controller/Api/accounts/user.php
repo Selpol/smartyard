@@ -13,8 +13,12 @@ readonly class user extends Api
     {
         $user = container(UserFeature::class)->getUser($params["_id"]);
 
-        if ($user)
+        if ($user) {
+            if ($user['phone'])
+                $user['phone'] = mobile_mask($user['phone']);
+
             return self::success($user);
+        }
 
         return self::error('Пользователь не найден', 404);
     }
