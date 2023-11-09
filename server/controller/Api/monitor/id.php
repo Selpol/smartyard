@@ -33,14 +33,15 @@ readonly class id extends Api
      */
     public static function POST(array $params): ResponseInterface
     {
-        $validate = validator($params, ['ids.*' => rule()->id()]);
-
         $result = [];
 
         $monitor = container(MonitorFeature::class);
 
-        foreach ($validate['ids'] as $id)
+        foreach ($params['ids'] as $id) {
+            $id = rule()->id()->onItem('id', ['id' => $id]);
+
             $result[$id] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)], 60);
+        }
 
         return self::success($result);
     }
