@@ -38,6 +38,22 @@ class HikVisionIntercom extends IntercomDevice
         ];
     }
 
+    public function getSipStatus(): bool
+    {
+        try {
+            $response = $this->get('/ISAPI//System/Network/SIP/1?format=json');
+
+            return array_key_exists('SIPServer', $response)
+                && array_key_exists('Standard', $response['SIPServer'])
+                && array_key_exists('registerStatus', $response['SIPServer']['Standard'])
+                && $response['SIPServer']['Standard']['registerStatus'] == true;
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
+            return false;
+        }
+    }
+
     public function addRfid(string $code, int $apartment): void
     {
         $lastApartment = $this->getLastApartment();
