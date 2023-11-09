@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\Monitor\Internal;
 
-use Selpol\Cache\RedisCache;
 use Selpol\Feature\Monitor\MonitorFeature;
 use Throwable;
 
@@ -11,7 +10,10 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function ping(int $id): bool
     {
         try {
-            return intercom($id)?->ping() ?: false;
+            return intercom($id)
+                ?->withTimeout(5)
+                ?->withConnectionTimeout(1)
+                ?->ping() ?: false;
         } catch (Throwable) {
             return false;
         }
@@ -20,7 +22,10 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function sip(int $id): bool
     {
         try {
-            return intercom($id)?->getSipStatus() ?: false;
+            return intercom($id)
+                ?->withTimeout(5)
+                ?->withConnectionTimeout(1)
+                ?->getSipStatus() ?: false;
         } catch (Throwable) {
             return false;
         }
