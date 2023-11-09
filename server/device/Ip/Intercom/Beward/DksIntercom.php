@@ -28,7 +28,7 @@ class DksIntercom extends IntercomDevice
     {
         $response = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'regstatus'], parse: false));
 
-        return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] || array_key_exists('AccountReg2', $response) && $response['AccountReg2'];
+        return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] == true || array_key_exists('AccountReg2', $response) && $response['AccountReg2'] == true;
     }
 
     public function getLineDialStatus(int $apartment): int

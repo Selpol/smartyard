@@ -21,6 +21,13 @@ class DsIntercom extends IntercomDevice
         $this->clientOption->digest($this->login, $this->password);
     }
 
+    public function getSipStatus(): bool
+    {
+        $response = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'regstatus'], parse: false));
+
+        return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] == true || array_key_exists('AccountReg2', $response) && $response['AccountReg2'] == true;
+    }
+
     public function setApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): static
     {
         $params = ['action' => 'set'];
