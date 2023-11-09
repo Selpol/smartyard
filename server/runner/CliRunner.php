@@ -112,6 +112,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         return $args;
     }
 
+    /**
+     * @throws Exception
+     */
     private function dbInit(array $arguments): void
     {
         $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
