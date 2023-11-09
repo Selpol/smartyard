@@ -31,10 +31,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function ping(int $id): bool
     {
         try {
-            return intercom($id)
-                ?->withTimeout(5)
-                ?->withConnectionTimeout(1)
-                ?->ping() ?: false;
+            return intercom($id)?->pingRaw() ?: false;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
@@ -46,8 +43,8 @@ readonly class InternalMonitorFeature extends MonitorFeature
     {
         try {
             return intercom($id)
-                ?->withTimeout(5)
-                ?->withConnectionTimeout(1)
+                ?->withTimeout(30)
+                ?->withConnectionTimeout(15)
                 ?->getSipStatus() ?: false;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);

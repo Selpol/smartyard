@@ -22,7 +22,9 @@ class IsIntercom extends IntercomDevice
             $status = $this->get('/sip/settings');
 
             return $status['remote']['registerStatus'];
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
             return false;
         }
     }
