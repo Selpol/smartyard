@@ -61,8 +61,6 @@ readonly abstract class HouseFeature extends Feature
 
     abstract public function modifySubscriber(int $subscriberId, array $params = []): bool|int;
 
-    abstract public function deleteSubscriber(int $subscriberId): bool|int;
-
     abstract public function addSubscriberToFlat(int $flatId, int $subscriberId): bool;
 
     abstract public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int;

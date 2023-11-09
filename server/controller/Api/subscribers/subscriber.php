@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\subscribers;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 
 readonly class subscriber extends Api
@@ -53,7 +54,7 @@ readonly class subscriber extends Api
     public static function DELETE(array $params): ResponseInterface
     {
         if (array_key_exists('force', $params) && $params['force']) {
-            if (container(HouseFeature::class)->deleteSubscriber($params['subscriberId']))
+            if (HouseSubscriber::findById($params['subscriberId'], setting: setting()->nonNullable())->delete())
                 return self::success();
 
             return self::error('Не удалось удалить абонента', 400);

@@ -864,14 +864,6 @@ readonly class InternalHouseFeature extends HouseFeature
         return true;
     }
 
-    public function deleteSubscriber(int $subscriberId): bool|int
-    {
-        $result = $this->getDatabase()->modify("delete from houses_subscribers_mobile where house_subscriber_id = $subscriberId");
-
-        if ($result === false) return false;
-        else return $this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id not in (select house_subscriber_id from houses_subscribers_mobile)");
-    }
-
     public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
     {
         return $this->getDatabase()->insert(

@@ -134,7 +134,7 @@ readonly class SyncController extends RbtController
 
         foreach ($body as $item)
             try {
-                if ($households->deleteSubscriber($item))
+                if (HouseSubscriber::findById($item, setting: setting()->nonNullable())->delete())
                     $result[$item] = true;
             } catch (Throwable) {
             }
