@@ -7,6 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
@@ -74,5 +75,13 @@ readonly class FrsController extends RbtController
             return response(204);
 
         return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($camera->getScreenshot());
+    }
+
+    #[Get('/face/{uuid}')]
+    public function face(string $uuid, FileFeature $feature): Response
+    {
+        return response()
+            ->withHeader('Content-Type', 'image/jpeg')
+            ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($uuid))));
     }
 }
