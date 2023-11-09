@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Service\RedisService;
 
 readonly class user extends Api
 {
@@ -42,26 +43,41 @@ readonly class user extends Api
 
     public static function PUT(array $params): ResponseInterface
     {
-        if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
-            $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
+        $user = CoreUser::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
+        if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
             $user->enabled = $params['enabled'];
 
-            $success = container(UserFeature::class)->modifyUserEnabled($params['_id'], $params['enabled']);
+            if ($user->update()) {
+                if (!$user->enabled)
+                    container(RedisService::class)->del(...container(RedisService::class)->keys('user:' . $user->uid . ':token:*'));
 
-            if ($success)
                 return self::success($user->uid);
+            }
 
             return self::error('Не удалось обновить пользователя', 400);
         }
 
-        $success = container(UserFeature::class)->modifyUser($params["_id"], $params["realName"], $params["eMail"], $params["phone"], $params["tg"], $params["notification"], $params["enabled"], $params["defaultRoute"]);
+        $user->real_name = $params['realName'];
+        $user->e_mail = $params['eMail'];
 
-        if (@$params["password"] && (int)$params["_id"])
-            $success = $success && container(UserFeature::class)->setPassword($params["_id"], $params["password"]);
+        if (str_contains($params['phone'], '*'))
+            $user->phone = $params['phone'];
 
-        if ($success)
-            return self::success($params['_id']);
+        $user->tg = $params['tg'];
+        $user->notification = $params['notification'];
+        $user->enabled = $params['enabled'];
+        $user->default_route = $params['defaultRoute'];
+
+        if (array_key_exists('password', $params))
+            $user->password = password_hash($params['password'], PASSWORD_DEFAULT);
+
+        if ($user->update()) {
+            if (!$user->enabled)
+                container(RedisService::class)->del(...container(RedisService::class)->keys('user:' . $user->uid . ':token:*'));
+
+            return self::success($user->uid);
+        }
 
         return self::error('Не удалось обновить пользователя', 400);
     }

@@ -747,14 +747,18 @@ readonly class InternalHouseFeature extends HouseFeature
     {
         $db = $this->getDatabase();
 
-        if (@$params["mobile"]) {
-            if (!check_string($params["mobile"], ["minLength" => 6, "maxLength" => 32, "validChars" => ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']])) {
-                last_error("invalidParams");
-                return false;
-            }
+        if (array_key_exists('mobile', $params)) {
+            if (str_contains($params['mobile'], '*'))
+                unset($params['mobile']);
+            else {
+                if (!check_string($params["mobile"], ["minLength" => 6, "maxLength" => 32, "validChars" => ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']])) {
+                    last_error("invalidParams");
+                    return false;
+                }
 
-            if ($db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = $subscriberId", ["id" => $params["mobile"]]) === false) {
-                return false;
+                if ($db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = $subscriberId", ["id" => $params["mobile"]]) === false) {
+                    return false;
+                }
             }
         }
 

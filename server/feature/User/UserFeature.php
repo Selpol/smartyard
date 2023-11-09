@@ -19,11 +19,5 @@ readonly abstract class UserFeature extends Feature
 
     abstract public function addUser(string $login, ?string $realName = null, ?string $eMail = null, ?string $phone = null): int|bool;
 
-    abstract public function setPassword(int $uid, string $password): bool;
-
     abstract public function deleteUser(int $uid): bool;
-
-    abstract public function modifyUserEnabled(int $uid, bool $enabled): bool;
-
-    abstract public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string $defaultRoute = ''): bool;
 }

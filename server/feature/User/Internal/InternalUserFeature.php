@@ -102,22 +102,6 @@ readonly class InternalUserFeature extends UserFeature
         }
     }
 
-    public function setPassword(int $uid, string $password): bool
-    {
-        if ($uid === 0 || !trim($password))
-            return false;
-
-        try {
-            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set password = :password where uid = :uid");
-
-            return $sth->execute(['uid' => $uid, 'password' => password_hash($password, PASSWORD_DEFAULT)]);
-        } catch (Throwable $e) {
-            error_log(print_r($e, true));
-
-            return false;
-        }
-    }
-
     public function deleteUser(int $uid): bool
     {
         if ($uid > 0) {
@@ -131,48 +115,6 @@ readonly class InternalUserFeature extends UserFeature
 
             return true;
         } else return false;
-    }
-
-    public function modifyUserEnabled(int $uid, bool $enabled): bool
-    {
-        try {
-            $sth = $this->getDatabase()->getConnection()->prepare("update core_users set enabled = :enabled where uid = :uid");
-
-            return $sth->execute(['uid' => $uid, 'enabled' => $enabled ? '1' : '0']);
-        } catch (Throwable) {
-            return false;
-        }
-    }
-
-    public function modifyUser(int $uid, string $realName = '', string $eMail = '', string $phone = '', string|null $tg = '', string|null $notification = 'tgEmail', bool $enabled = true, string|null $defaultRoute = ''): bool
-    {
-        if (!in_array($notification, ["none", "tgEmail", "emailTg", "tg", "email"]))
-            return false;
-
-        try {
-            $db = $this->getDatabase();
-            $redis = $this->getRedis();
-
-            $sth = $db->getConnection()->prepare("update core_users set real_name = :real_name, e_mail = :e_mail, phone = :phone, tg = :tg, notification = :notification, enabled = :enabled, default_route = :default_route where uid = :uid");
-
-            if (!$enabled)
-                $redis->del(...$redis->keys('user:' . $uid . ':token:*'));
-
-            return $sth->execute([
-                'uid' => $uid,
-                'real_name' => trim($realName),
-                'e_mail' => trim($eMail),
-                'phone' => trim($phone),
-                'tg' => trim($tg),
-                'notification' => trim($notification),
-                'enabled' => $enabled ? "1" : "0",
-                'default_route' => trim($defaultRoute),
-            ]);
-        } catch (Throwable $e) {
-            error_log(print_r($e, true));
-
-            return false;
-        }
     }
 
     public function getUidByEMail(string $eMail): bool|int
