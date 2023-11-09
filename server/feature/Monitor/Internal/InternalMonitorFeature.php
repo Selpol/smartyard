@@ -7,6 +7,27 @@ use Throwable;
 
 readonly class InternalMonitorFeature extends MonitorFeature
 {
+    public function status(int $id): array
+    {
+        try {
+            $intercom = intercom($id);
+
+            if (!$intercom)
+                return ['ping' => false, 'sip' => false];
+
+            $intercom->withTimeout(5)->withConnectionTimeout(1);
+
+            if (!$intercom->ping())
+                return ['ping' => false, 'sip' => false];
+
+            return ['ping' => true, 'sip' => $intercom->getSipStatus()];
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+        }
+
+        return ['ping' => false, 'sip' => false];
+    }
+
     public function ping(int $id): bool
     {
         try {
@@ -14,7 +35,9 @@ readonly class InternalMonitorFeature extends MonitorFeature
                 ?->withTimeout(5)
                 ?->withConnectionTimeout(1)
                 ?->ping() ?: false;
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
             return false;
         }
     }
@@ -26,7 +49,9 @@ readonly class InternalMonitorFeature extends MonitorFeature
                 ?->withTimeout(5)
                 ?->withConnectionTimeout(1)
                 ?->getSipStatus() ?: false;
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
             return false;
         }
     }

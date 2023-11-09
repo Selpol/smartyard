@@ -23,7 +23,7 @@ readonly class id extends Api
 
         $monitor = container(MonitorFeature::class);
 
-        return self::success(container(RedisCache::class)->cache('monitor:' . $validate['_id'], static fn() => ['ping' => $monitor->ping($validate['_id']), 'sip' => $monitor->sip($validate['_id'])], 60));
+        return self::success(container(RedisCache::class)->cache('monitor:' . $validate['_id'], static fn() => $monitor->status($validate['_id']), 60));
     }
 
     /**
@@ -40,7 +40,7 @@ readonly class id extends Api
         foreach ($params['ids'] as $id) {
             $id = rule()->id()->onItem('id', ['id' => $id]);
 
-            $result[$id] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => ['ping' => $monitor->ping($id), 'sip' => $monitor->sip($id)], 60);
+            $result[$id] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => $monitor->status($id), 60);
         }
 
         return self::success($result);
