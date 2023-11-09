@@ -15,8 +15,6 @@ readonly class InternalMonitorFeature extends MonitorFeature
             if (!$intercom)
                 return [];
 
-            $intercom->withTimeout(1500)->withConnectionTimeout(1000);
-
             if (!$intercom->pingRaw())
                 return ['ping' => false];
 
@@ -42,10 +40,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function sip(int $id): bool
     {
         try {
-            return intercom($id)
-                ?->withTimeout(30)
-                ?->withConnectionTimeout(15)
-                ?->getSipStatus() ?: false;
+            return intercom($id)?->getSipStatus() ?: false;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
