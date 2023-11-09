@@ -49,7 +49,7 @@ readonly class RedisCache implements CacheInterface
             return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
         }
 
-        return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
+        return $this->service->set('cache:' . $key, json_encode($value));
     }
 
     public function delete(string $key): bool
