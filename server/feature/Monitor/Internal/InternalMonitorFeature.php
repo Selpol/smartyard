@@ -15,7 +15,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
             if (!$intercom)
                 return [];
 
-            $intercom->withTimeout(30)->withConnectionTimeout(15);
+            $intercom->withTimeout(1500)->withConnectionTimeout(1000);
 
             if (!$intercom->pingRaw())
                 return ['ping' => false];

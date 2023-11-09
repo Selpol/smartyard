@@ -29,14 +29,14 @@ abstract class IpDevice extends Device
 
     public function withTimeout(int $value): static
     {
-        $this->clientOption->raw(CURLOPT_TIMEOUT, $value);
+        $this->clientOption->raw(CURLOPT_TIMEOUT_MS, $value);
 
         return $this;
     }
 
     public function withConnectionTimeout(int $value): static
     {
-        $this->clientOption->raw(CURLOPT_CONNECTTIMEOUT, $value);
+        $this->clientOption->raw(CURLOPT_CONNECTTIMEOUT_MS, $value);
 
         return $this;
     }
