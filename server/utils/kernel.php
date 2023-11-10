@@ -18,7 +18,7 @@ if (!function_exists('config_get')) {
 if (!function_exists('parse_body')) {
     function parse_body(MessageInterface $message): mixed
     {
-        $contents = $message->getBody()->getContents();
+        $contents = trim($message->getBody()->getContents());
 
         if ($contents) {
             $contentType = $message->getHeader('Content-Type');
