@@ -20,6 +20,6 @@ readonly class intercoms extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Дом] Получить список домофонов'];
+        return ['GET' => '[Домофон] Получить список домофонов'];
     }
 }

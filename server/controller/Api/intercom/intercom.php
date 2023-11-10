@@ -67,7 +67,7 @@ readonly class intercom extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Дом] Получить домофон', 'PUT' => '[Дом] Обновить домофон', 'POST' => '[Дом] Создать домофон', 'DELETE' => '[Дом] Удалить домофон'];
+        return ['GET' => '[Домофон] Получить домофон', 'PUT' => '[Домофон] Обновить домофон', 'POST' => '[Домофон] Создать домофон', 'DELETE' => '[Домофон] Удалить домофон'];
     }
 
     private static function set(DeviceIntercom $intercom, array $params): void
