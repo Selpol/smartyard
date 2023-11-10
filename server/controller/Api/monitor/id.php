@@ -19,11 +19,9 @@ readonly class id extends Api
      */
     public static function GET(array $params): ResponseInterface
     {
-        $validate = validator($params, ['_id' => rule()->id()]);
+        $id = rule()->id()->onItem('_id', $params);
 
-        $monitor = container(MonitorFeature::class);
-
-        return self::success(container(RedisCache::class)->cache('monitor:' . $validate['_id'], static fn() => $monitor->status($validate['_id']), 60));
+        return self::success(container(RedisCache::class)->cache('monitor:' . $id, static fn() => container(MonitorFeature::class)->status($id), 60));
     }
 
     /**
