@@ -1,8 +1,11 @@
 <?php
 
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 use Selpol\Framework\Entity\EntitySetting;
+use Selpol\Framework\Http\Request;
 use Selpol\Framework\Http\Response;
 
 $lastError = false;
@@ -205,5 +208,12 @@ if (!function_exists('mobile_mask')) {
             return '7**********';
 
         return $value[0] . '******' . substr($value, 7);
+    }
+}
+
+if (!function_exists('client_request')) {
+    function client_request(string $method, string|UriInterface $uri): RequestInterface
+    {
+        return new Request($method, $uri, []);
     }
 }
