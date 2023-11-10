@@ -26,18 +26,6 @@ class HikVisionIntercom extends IntercomDevice
         $this->clientOption->anySafe($this->login . ':' . $this->password);
     }
 
-    public function getSysInfo(): array
-    {
-        $response = $this->get('/ISAPI/System/deviceInfo');
-
-        return [
-            'DeviceID' => $response['deviceID'],
-            'DeviceModel' => $response['model'],
-            'HardwareVersion' => $response['hardwareVersion'],
-            'SoftwareVersion' => $response['firmwareVersion'] . ' ' . $response['firmwareReleasedDate']
-        ];
-    }
-
     public function getSipStatus(): bool
     {
         try {

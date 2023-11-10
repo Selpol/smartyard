@@ -24,22 +24,6 @@ class HikVisionCamera extends CameraDevice
         $this->clientOption->digest($this->login, $this->password);
     }
 
-    public function getSysInfo(): array
-    {
-        try {
-            $info = $this->get('/ISAPI/System/deviceInfo');
-
-            return [
-                'DeviceID' => $info['deviceID'],
-                'DeviceModel' => $info['model'],
-                'HardwareVersion' => $info['hardwareVersion'],
-                'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
-            ];
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
-        }
-    }
-
     public function getScreenshot(): Stream
     {
         try {
