@@ -23,7 +23,7 @@ class HikVisionIntercom extends IntercomDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->clientOption->anySafe($this->login . ':' . $this->password);
+        $this->clientOption->anySafe($this->login, $this->password);
     }
 
     public function getSipStatus(): bool

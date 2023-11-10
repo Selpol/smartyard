@@ -1,12 +1,12 @@
 <?php
 
-namespace Selpol\Controller\Api\cameras;
+namespace Selpol\Controller\Api\intercom;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 
-readonly class cameras extends Api
+readonly class intercoms extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
@@ -15,11 +15,11 @@ readonly class cameras extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::success(DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
     }
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Камера] Получить список'];
+        return ['GET' => '[Дом] Получить список домофонов'];
     }
 }

@@ -1,13 +1,13 @@
 <?php
 
-namespace Selpol\Controller\Api\houses;
+namespace Selpol\Controller\Api\intercom;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 
-readonly class domophone extends Api
+readonly class intercom extends Api
 {
     public static function GET(array $params): ResponseInterface
     {

@@ -2,10 +2,10 @@
 
 namespace Selpol\Device\Ip;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Client\ClientOption;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
@@ -20,7 +20,7 @@ abstract class IpDevice extends Device
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password)
     {
-        parent::__construct($uri->withUserInfo($this->login, trim($password)));
+        parent::__construct($uri);
 
         $this->password = trim($password);
 
@@ -203,7 +203,7 @@ abstract class IpDevice extends Device
         }
     }
 
-    private function response(Response $response, bool $parse): mixed
+    private function response(ResponseInterface $response, bool $parse): mixed
     {
         if ($parse)
             return parse_body($response);
