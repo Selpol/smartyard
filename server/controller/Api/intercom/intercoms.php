@@ -15,7 +15,7 @@ readonly class intercoms extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::success(DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->asc('house_domophone_id')));
     }
 
     public static function index(): bool|array

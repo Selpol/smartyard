@@ -15,7 +15,7 @@ readonly class cameras extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->asc('id')));
+        return self::success(DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->asc('camera_id')));
     }
 
     public static function index(): bool|array
