@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\intercom;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Framework\Entity\EntityPage;
 
 readonly class intercoms extends Api
 {
@@ -15,7 +16,27 @@ readonly class intercoms extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->asc('house_domophone_id')));
+        $page = DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->asc('house_domophone_id'));
+
+        $result = [];
+
+        foreach ($page->getData() as $data)
+            $result[] = $data->toArrayMap([
+                'house_domophone_id' => 'domophoneId',
+                'enabled' => 'enabled',
+                'model' => 'model',
+                'server' => 'server',
+                'url' => 'url',
+                'credentials' => 'credentials',
+                'dtmf' => 'dtmf',
+                'first_time' => 'firstTime',
+                'nat' => 'nat',
+                'comment' => 'comment',
+                'ip' => 'ip',
+                'sos_number' => 'sosNumber'
+            ]);
+
+        return self::success(new EntityPage($result, $page->getTotal(), $page->getPage(), $page->getSize()));
     }
 
     public static function index(): bool|array

@@ -7,7 +7,6 @@
       "Selpol\\Runner\\": "./runner",
       "Selpol\\Cache\\": "./cache/",
       "Selpol\\Task\\": "./task/",
-      "Selpol\\Router\\": "./router/",
       "Selpol\\Service\\": "./service/",
       "Selpol\\Entity\\": "./entity/",
       "Selpol\\Middleware\\": "./middleware/",
