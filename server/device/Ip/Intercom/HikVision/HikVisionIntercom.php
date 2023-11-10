@@ -41,12 +41,9 @@ class HikVisionIntercom extends IntercomDevice
     public function getSipStatus(): bool
     {
         try {
-            $response = $this->get('/ISAPI/System/Network/SIP/1?format=json');
+            $response = $this->get('/ISAPI/System/Network/SIP/1');
 
-            return $response && array_key_exists('SIPServer', $response)
-                && array_key_exists('Standard', $response['SIPServer'])
-                && array_key_exists('registerStatus', $response['SIPServer']['Standard'])
-                && $response['SIPServer']['Standard']['registerStatus'] == true;
+            return collection_get($response, 'SIPServer.Standard.registerStatus', false) == true;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
