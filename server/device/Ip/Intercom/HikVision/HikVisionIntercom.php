@@ -23,14 +23,12 @@ class HikVisionIntercom extends IntercomDevice
     {
         parent::__construct($uri, $password, $model);
 
-        $this->clientOption->digest($this->login . ':' . $this->password);
+        $this->clientOption->anySafe($this->login . ':' . $this->password);
     }
 
     public function getSysInfo(): array
     {
         $response = $this->get('/ISAPI/System/deviceInfo');
-
-        file_logger('intercom')->debug('getSysInfo', [$response]);
 
         return [
             'DeviceID' => $response['deviceID'],

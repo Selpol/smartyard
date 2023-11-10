@@ -20,9 +20,9 @@ abstract class IpDevice extends Device
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password)
     {
-        parent::__construct($uri->withUserInfo($this->login, $password));
+        parent::__construct($uri->withUserInfo($this->login, trim($password)));
 
-        $this->password = $password;
+        $this->password = trim($password);
 
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
     }
