@@ -24,8 +24,10 @@ if (!function_exists('parse_body')) {
             $contentType = $message->getHeader('Content-Type');
 
             if ($contentType && in_array('application/xml', $contentType)) {
-                if (str_starts_with($contents, '<') && str_ends_with($contents, '>'))
-                    return json_decode(json_encode(simplexml_load_string($contents)), true);
+                $xml = simplexml_load_string($contents);
+
+                if ($xml)
+                    return json_decode(json_encode($xml), true);
                 else if (str_starts_with($contents, '{') && str_ends_with($contents, '}'))
                     return json_decode($contents, true);
             } else return json_decode($contents, true);

@@ -43,6 +43,9 @@ class HikVisionIntercom extends IntercomDevice
         try {
             $response = $this->get('/ISAPI/System/Network/SIP/1');
 
+            if (!$response)
+                return false;
+
             return collection_get($response, 'Standard.registerStatus', false) == true;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
