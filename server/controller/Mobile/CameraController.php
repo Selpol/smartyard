@@ -46,7 +46,6 @@ readonly class CameraController extends RbtController
 
             if (array_key_exists($houseId, $houses)) {
                 $house = &$houses[$houseId];
-
             } else {
                 $houses[$houseId] = [];
                 $house = &$houses[$houseId];

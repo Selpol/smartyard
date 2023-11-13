@@ -154,7 +154,7 @@ readonly class AddressController extends RbtController
             $patronymic = $validate['patronymic'];
 
             if (strlen($mobile) !== 11)
-                return user_response(400, false, 'Неверный формат номера телефона', 'Неверный формат номера телефона');
+                return user_response(400, false, message: 'Неверный формат номера телефона');
 
             if (!$name) return user_response(400, message: 'Имя обязательно для заполнения');
             if (!$patronymic) return user_response(400, message: 'Отчество обязательно для заполнения');
@@ -176,7 +176,7 @@ readonly class AddressController extends RbtController
 
             if ($households->addSubscriber($subscriber["mobile"], flatId: $flat_id))
                 return user_response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-            else return user_response(400, message: 'Неудалось добавиться в квартиру');
+            else return user_response(422, message: 'Неудалось добавиться в квартиру');
         } else return user_response(404, message: 'Абонент не найден');
     }
 }

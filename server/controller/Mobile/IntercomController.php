@@ -199,7 +199,7 @@ readonly class IntercomController extends RbtController
             return user_response();
         }
 
-        return user_response(404, name: 'Не найдено', message: 'Услуга недоступна (договор заблокирован либо не оплачен)');
+        return user_response(403, name: 'Не найдено', message: 'Услуга недоступна (договор заблокирован, либо не оплачен)');
     }
 
     /**
@@ -215,14 +215,11 @@ readonly class IntercomController extends RbtController
 
         $flat_id = $validate['flatId'];
 
-        if (!$flat_id)
-            return user_response(404, message: 'Квартира не найдена');
-
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return user_response(404, message: 'Квартира у абонента не найдена');
+            return user_response(403, message: 'Квартира у абонента не найдена');
 
         $households = container(HouseFeature::class);
 

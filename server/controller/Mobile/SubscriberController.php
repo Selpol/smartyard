@@ -30,7 +30,7 @@ readonly class SubscriberController extends RbtController
         $flat = $this->getFlat($user['flats'], $flatId);
 
         if ($flat === null)
-            return user_response(404, message: 'Квартира не найдена у абонента');
+            return user_response(403, message: 'Квартира не найдена у абонента');
 
         $subscribers = container(HouseFeature::class)->getSubscribers('flatId', $flat['flatId']);
 

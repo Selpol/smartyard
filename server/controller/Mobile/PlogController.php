@@ -52,7 +52,7 @@ readonly class PlogController extends RbtController
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
-            return user_response(403, message: 'Недостаточно прав');
+            return user_response(403, message: 'Недостаточно прав на просмотр событий');
 
         try {
             $date = date('Ymd', strtotime($validate['day']));
@@ -193,7 +193,7 @@ readonly class PlogController extends RbtController
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
-            return user_response(403, message: 'Недостаточно прав');
+            return user_response(403, message: 'Недостаточно прав на просмотр событий');
 
         $filter_events = false;
 
