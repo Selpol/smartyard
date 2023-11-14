@@ -12,11 +12,13 @@ readonly class cameras extends Api
     public static function GET(array $params): ResponseInterface
     {
         $validate = validator($params, [
+            'comment' => rule()->string()->clamp(0, 1000),
+
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $page = DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->asc('camera_id'));
+        $page = DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->like('comment', $validate['comment'])->asc('camera_id'));
 
         $result = [];
 
