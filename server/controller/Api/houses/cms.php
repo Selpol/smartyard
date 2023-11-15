@@ -15,7 +15,7 @@ readonly class cms extends Api
 
         $cms = $households->getCms($params['_id']);
 
-        return $cms ? self::success($cms) : self::error('КМС не найдена', 404);
+        return $cms ? self::success($cms) : self::success([]);
     }
 
     public static function PUT(array $params): ResponseInterface
