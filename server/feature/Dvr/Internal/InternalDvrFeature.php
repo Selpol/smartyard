@@ -39,15 +39,15 @@ readonly class InternalDvrFeature extends DvrFeature
         $dvrServer = $this->getDVRServerByStream($cam['dvrStream']);
 
         if ($dvrServer) {
-//            if ($dvrServer->type === 'flussonic') {
-//                $startTime = time();
-//                $endTime = $startTime + 3600;
-//
-//                $salt = bin2hex(openssl_random_pseudo_bytes(16));
-//                $hash = sha1(implode([substr(uri($cam['url'])->getPath(), 1), 'no_check_ip', $startTime, $endTime, $dvrServer->token, $salt, $subscriberId ?? 0]));
-//
-//                return implode('-', [$hash, $salt, $endTime, $startTime . $subscriberId ?? 0]);
-//            }
+            if ($dvrServer->type === 'flussonic') {
+                $startTime = time() - 300;
+                $endTime = $startTime + 3600 * 3;
+
+                $salt = bin2hex(openssl_random_pseudo_bytes(16));
+                $hash = sha1(substr(uri($cam['url'])->getPath(), 1) . 'no_check_ip' . $startTime . $endTime . $dvrServer->token . $salt);
+
+                return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
+            }
 
             return $dvrServer->token;
         }
