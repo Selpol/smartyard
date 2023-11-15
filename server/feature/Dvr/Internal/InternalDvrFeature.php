@@ -44,7 +44,7 @@ readonly class InternalDvrFeature extends DvrFeature
                 $endTime = $startTime + 3600 * 3;
 
                 $salt = bin2hex(openssl_random_pseudo_bytes(16));
-                $hash = sha1(substr(uri($cam['url'])->getPath(), 1) . 'no_check_ip' . $startTime . $endTime . $dvrServer->token . $salt);
+                $hash = sha1(substr(uri($cam['dvrStream'])->getPath(), 1) . 'no_check_ip' . $startTime . $endTime . $dvrServer->token . $salt);
 
                 return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
             }
