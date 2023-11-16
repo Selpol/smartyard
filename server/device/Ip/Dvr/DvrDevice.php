@@ -13,9 +13,9 @@ abstract class DvrDevice extends IpDevice
 
     public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model)
     {
-        parent::__construct($uri, $password);
-
         $this->login = $login;
+
+        parent::__construct($uri, $password);
 
         $this->model = $model;
     }
