@@ -35,9 +35,7 @@ class HikVisionIntercom extends IntercomDevice
                 return false;
 
             return collection_get($response, 'Standard.registerStatus', false) == true;
-        } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
-
+        } catch (Throwable) {
             return false;
         }
     }

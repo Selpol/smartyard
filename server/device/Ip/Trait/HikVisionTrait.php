@@ -20,8 +20,6 @@ trait HikVisionTrait
                 'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
             ];
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
-
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
     }

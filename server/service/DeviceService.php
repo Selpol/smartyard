@@ -4,15 +4,15 @@ namespace Selpol\Service;
 
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Device\Ip\Dvr\DvrDevice;
+use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Feature\Camera\CameraFeature;
-use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Uri;
+use SensitiveParameter;
 
 #[Singleton]
 readonly class DeviceService
@@ -25,7 +25,7 @@ readonly class DeviceService
         return null;
     }
 
-    public function camera(string $model, string $url, string $password): ?CameraDevice
+    public function camera(string $model, string $url, #[SensitiveParameter] string $password): ?CameraDevice
     {
         $models = CameraModel::models();
 
@@ -43,12 +43,20 @@ readonly class DeviceService
         return null;
     }
 
-    public function intercom(string $model, string $url, string $password): ?IntercomDevice
+    public function intercom(string $model, string $url, #[SensitiveParameter] string $password): ?IntercomDevice
     {
         $models = IntercomModel::models();
 
         if (array_key_exists($model, $models))
             return new $models[$model]->class(new Uri($url), $password, $models[$model]);
+
+        return null;
+    }
+
+    public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password): ?DvrDevice
+    {
+        if ($model = DvrModel::model($model))
+            return new $model->class(new Uri($url), $login, $password, $model);
 
         return null;
     }
