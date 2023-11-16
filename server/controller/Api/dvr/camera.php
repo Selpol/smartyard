@@ -14,16 +14,33 @@ readonly class camera extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'query' => rule()->required()->string()->nonNullable(),
-
-            'username' => rule()->required()->string()->nonNullable(),
-            'password' => rule()->required()->string()->nonNullable(),
+            'query' => rule()->required()->string()->nonNullable()
         ]);
 
         $dvr = DvrServer::findById($validate['_id'], setting: setting()->nonNullable());
 
-        if ($camera = container(DeviceService::class)->dvr($dvr->type, $dvr->url, $validate['username'], $validate['password'])?->getCameraId($validate['query']))
-            return self::success($camera);
+        if ($dvr->type === 'flussonic') {
+            $auth = validator($params, [
+                'username' => rule()->required()->string()->nonNullable(),
+                'password' => rule()->required()->string()->nonNullable(),
+            ]);
+
+            if ($camera = container(DeviceService::class)->dvr($dvr->type, $dvr->url, $auth['username'], $auth['password'])?->getCameraId($validate['query']))
+                return self::success($camera);
+        } else if ($dvr->type === 'trassir') {
+            $auth = explode('&', $dvr->token);
+
+            $auth = array_reduce($auth, static function (array $previous, string $current) {
+                $value = explode('=', $current);
+
+                $previous[$value[0]] = $value[1];
+
+                return $previous;
+            }, []);
+
+            if ($camera = container(DeviceService::class)->dvr($dvr->type, $dvr->url, $auth['username'], $auth['password'])?->getCameraId($validate['query']))
+                return self::success($camera);
+        }
 
         return self::error('Камера не найдена', 404);
     }
