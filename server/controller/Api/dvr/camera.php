@@ -9,7 +9,7 @@ use Selpol\Service\DeviceService;
 
 readonly class camera extends Api
 {
-    public static function GET(array $params): ResponseInterface
+    public static function POST(array $params): ResponseInterface
     {
         $validate = validator($params, [
             '_id' => rule()->id(),
