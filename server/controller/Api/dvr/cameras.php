@@ -11,8 +11,11 @@ readonly class cameras extends Api
     {
         $id = rule()->id()->onItem('_id', $params);
 
-        if ($cameras = dvr($id)?->getCameras())
-            return self::success(usort($cameras, self::sort(...)));
+        if ($cameras = dvr($id)?->getCameras()) {
+            usort($cameras, self::sort(...));
+
+            return self::success($cameras);
+        }
 
         return self::success([]);
     }
