@@ -59,7 +59,7 @@ readonly class dvr extends Api
 
         $dvrServer->token = $validate['token'];
 
-        if ($validate['credentials'])
+        if ($validate['credentials'] && !str_contains($validate['credentials'], '*'))
             $dvrServer->credentials = $validate['credentials'];
 
         if ($dvrServer->update())
