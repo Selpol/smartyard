@@ -176,14 +176,14 @@ readonly class CameraController extends RbtController
      */
     private function convertCamera(array $camera, array $user): array
     {
-        $dvr = container(DvrFeature::class)->getDVRServerByStream($camera['dvrStream']);
+        $dvr = container(DvrFeature::class)->getDVRServerByCamera($camera);
 
         return [
             "id" => $camera['cameraId'],
             "name" => $camera['name'],
             "lat" => strval($camera['lat']),
-            "url" => $camera['dvrStream'],
-            "token" => container(DvrFeature::class)->getDVRTokenForCam($camera, $user['subscriberId']),
+            "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
+            "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user['subscriberId']),
             "lon" => strval($camera['lon']),
             "serverType" => $dvr?->type ?? 'flussonic',
             'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),

@@ -1,6 +1,7 @@
 <?php declare(strict_types=1);
 
 use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Task;
@@ -24,5 +25,12 @@ if (!function_exists('intercom')) {
     function intercom(int $id): ?IntercomDevice
     {
         return container(DeviceService::class)->intercomById($id);
+    }
+}
+
+if (!function_exists('dvr')) {
+    function dvr(int $id): ?DvrDevice
+    {
+        return container(DeviceService::class)->dvrById($id);
     }
 }

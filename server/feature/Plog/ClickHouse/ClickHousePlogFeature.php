@@ -4,6 +4,7 @@ namespace Selpol\Feature\Plog\ClickHouse;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -89,10 +90,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
                 file_logger('plog')->debug('frs camshot', ['data' => $camshot_data]);
 
                 if (!$camshot_data) {
-                    //получение кадра с DVR-серевера, если нет кадра от FRS
-                    $prefix = $cameras[0]["dvrStream"];
-
-                    if ($prefix) {
+                    if ($cameras[0]['dvr_server_id']) {
                         $ts_event = $date - $this->back_time_shift_video_shot;
                         $filename = "/tmp/" . uniqid('camshot_') . ".jpeg";
 

@@ -292,26 +292,35 @@ readonly class InternalFrsFeature extends FrsFeature
 
         $rbt_all_data = [];
 
-        $rbt_data = $this->getDatabase()->get("select c.frs, c.camera_id from cameras c where length(c.frs) > 1 order by 1, 2");
+        /** @var FrsServer[] $frsServers */
+        $frsServers = [];
+
+        $rbt_data = $this->getDatabase()->get("select c.frs_server_id, c.camera_id from cameras c where c.frs_server_id is not null order by 1, 2");
 
         if (is_array($rbt_data))
             foreach ($rbt_data as $item) {
-                $frs_base_url = $item['frs'];
+                if (!array_key_exists($item['frs_server_id'], $frsServers))
+                    $frsServers[$item['frs_server_id']] = FrsServer::findById($item['frs_server_id'], setting: setting()->columns(['url'])->nonNullable());
+
+                $frs_base_url = $frsServers[$item['frs_server_id']]->url;
                 $stream_id = $item['camera_id'];
                 $rbt_all_data[$frs_base_url][$stream_id] = [];
             }
 
-        $rbt_data = $this->getDatabase()->get("select distinct c.frs, c.camera_id, flf.face_id, ff.face_uuid
+        $rbt_data = $this->getDatabase()->get("select distinct c.frs_server_id, c.camera_id, flf.face_id, ff.face_uuid
                     from frs_links_faces flf
                       left join frs_faces ff on flf.face_id = ff.face_id
                       inner join houses_entrances_flats hef on hef.house_flat_id = flf.flat_id
                       inner join houses_entrances he on hef.house_entrance_id = he.house_entrance_id
                       inner join cameras c on he.camera_id = c.camera_id
-                    where length(c.frs) > 1");
+                    where c.frs_server_id is not null");
 
         if (is_array($rbt_data))
             foreach ($rbt_data as $item) {
-                $frs_base_url = $item['frs'];
+                if (!array_key_exists($item['frs_server_id'], $frsServers))
+                    $frsServers[$item['frs_server_id']] = FrsServer::findById($item['frs_server_id'], setting: setting()->columns(['url'])->nonNullable());
+
+                $frs_base_url = $frsServers[$item['frs_server_id']]->url;
                 $stream_id = $item['camera_id'];
                 $face_id = $item['face_id'];
                 $face_uuid = $item['face_uuid'];

@@ -9,6 +9,7 @@ use Selpol\Controller\Request\Internal\ActionMotionDetectionRequest;
 use Selpol\Controller\Request\Internal\ActionOpenDoorRequest;
 use Selpol\Controller\Request\Internal\ActionSetRabbitGatesRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
@@ -38,19 +39,21 @@ readonly class ActionController extends RbtController
     public function motionDetection(ActionMotionDetectionRequest $request, FrsService $frsService): Response
     {
         $deviceCamera = DeviceCamera::fetch(
-            criteria()->simple('frs', '!=', '-')->equal('ip', $request->ip),
-            (new EntitySetting())->columns(['camera_id', 'frs'])
+            criteria()->equal('ip', $request->ip),
+            (new EntitySetting())->columns(['camera_id', 'frs_server_id'])
         );
 
-        if (!$deviceCamera) {
+        if (!$deviceCamera || !$deviceCamera->frs_server_id) {
             file_logger('motion')->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $request->ip]);
 
             return user_response(400, message: 'Детектор движений не включен');
         }
 
+        $frsServer = FrsServer::findById($deviceCamera->frs_server_id, setting: setting()->columns(['url'])->nonNullable());
+
         $payload = ["streamId" => $deviceCamera->camera_id, "start" => $request->motionActive ? 't' : 'f'];
 
-        $frsService->request('POST', $deviceCamera->frs . "/api/motionDetection", $payload);
+        $frsService->request('POST', $frsServer->url . "/api/motionDetection", $payload);
 
         return user_response();
     }
@@ -72,8 +75,8 @@ readonly class ActionController extends RbtController
                 return user_response();
 
             case PlogFeature::EVENT_OPENED_BY_BUTTON:
-                [0 => ["camera_id" => $streamId, "frs" => $frsUrl]] = $databaseService->get(
-                    'SELECT frs, camera_id FROM cameras 
+                [0 => ["camera_id" => $streamId, "frs_server_id" => $frsServerId]] = $databaseService->get(
+                    'SELECT frs_server_id, camera_id FROM cameras 
                         WHERE camera_id = (
                         SELECT camera_id FROM houses_domophones 
                         LEFT JOIN houses_entrances USING (house_domophone_id)
@@ -81,9 +84,11 @@ readonly class ActionController extends RbtController
                     ["ip" => $request->ip, "door" => $request->door]
                 );
 
-                if (isset($frsUrl)) {
+                if (isset($frsServerId) && $frsServerId) {
+                    $frsServer = FrsServer::findById($frsServerId, setting: setting()->columns(['url'])->nonNullable());
+
                     $payload = ["streamId" => strval($streamId)];
-                    $apiResponse = $frsService->request('POST', $frsUrl . "/api/doorIsOpen", $payload);
+                    $apiResponse = $frsService->request('POST', $frsServer->url . "/api/doorIsOpen", $payload);
 
                     return user_response(201, $apiResponse);
                 }

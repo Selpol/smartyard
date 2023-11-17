@@ -26,7 +26,8 @@ readonly class dvr extends Api
 
             'url' => rule()->required()->url()->nonNullable(),
 
-            'token' => rule()->required()->string()->max(1024)->nonNullable()
+            'token' => rule()->required()->string()->max(1024)->nonNullable(),
+            'credentials' => rule()->string()->max(1024),
         ]));
 
         if ($dvrServer->insert())
@@ -45,7 +46,8 @@ readonly class dvr extends Api
 
             'url' => rule()->required()->url()->nonNullable(),
 
-            'token' => rule()->required()->string()->max(1024)->nonNullable()
+            'token' => rule()->required()->string()->max(1024)->nonNullable(),
+            'credentials' => rule()->string()->max(1024),
         ]);
 
         $dvrServer = DvrServer::findById($validate['_id'], setting: setting()->nonNullable());
@@ -56,6 +58,9 @@ readonly class dvr extends Api
         $dvrServer->url = $validate['url'];
 
         $dvrServer->token = $validate['token'];
+
+        if ($validate['credentials'])
+            $dvrServer->credentials = $validate['credentials'];
 
         if ($dvrServer->update())
             return self::success($dvrServer->id);

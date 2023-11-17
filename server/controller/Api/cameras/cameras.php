@@ -25,6 +25,8 @@ readonly class cameras extends Api
         foreach ($page->getData() as $data)
             $result[] = $data->toArrayMap([
                 "camera_id" => "cameraId",
+                "dvr_server_id" => "dvr_server_id",
+                "frs_server_id" => "frs_server_id",
                 "enabled" => "enabled",
                 "model" => "model",
                 "url" => "url",
@@ -38,7 +40,6 @@ readonly class cameras extends Api
                 "direction" => "direction",
                 "angle" => "angle",
                 "distance" => "distance",
-                "frs" => "frs",
                 "md_left" => "mdLeft",
                 "md_top" => "mdTop",
                 "md_width" => "mdWidth",

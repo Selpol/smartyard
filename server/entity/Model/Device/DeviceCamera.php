@@ -10,6 +10,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
 /**
  * @property int $camera_id
  *
+ * @property int|null $dvr_server_id
+ * @property int|null $frs_server_id
+ *
  * @property int $enabled
  *
  * @property string $model
@@ -26,9 +29,6 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property double|null $direction
  * @property double|null $angle
  * @property double|null $distance
- *
- * @property string|null $frs
- *
  * @property int|null $md_left
  * @property int|null $md_top
  * @property int|null $md_width
@@ -56,6 +56,9 @@ class DeviceCamera extends Entity
         return [
             static::$columnId => rule()->id(),
 
+            'dvr_server_id' => rule()->int()->clamp(0),
+            'frs_server_id' => rule()->int()->clamp(0),
+
             'enabled' => rule()->required()->int()->nonNullable(),
 
             'model' => rule()->required()->in(array_keys(CameraModel::models()))->nonNullable(),
@@ -72,8 +75,6 @@ class DeviceCamera extends Entity
             'direction' => rule()->float(),
             'angle' => rule()->float(),
             'distance' => rule()->float(),
-
-            'frs' => rule()->string(),
 
             'md_left' => rule()->int(),
             'md_top' => rule()->int(),

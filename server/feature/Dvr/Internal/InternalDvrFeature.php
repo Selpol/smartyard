@@ -7,52 +7,35 @@ use Selpol\Feature\Dvr\DvrFeature;
 
 readonly class InternalDvrFeature extends DvrFeature
 {
-    public function getDVRServerByStream(string $url): ?DvrServer
+    public function getDVRServerByCamera(array $camera): ?DvrServer
     {
-        $dvr_servers = $this->getDVRServers();
-
-        $url = parse_url($url);
-        $scheme = $url["scheme"] ?: 'http';
-        $port = array_key_exists('port', $url) ? (int)($url["port"]) : null;
-
-        if (!$port && $scheme == 'http') $port = 80;
-        if (!$port && $scheme == 'https') $port = 443;
-
-        foreach ($dvr_servers as $server) {
-            $u = parse_url($server->url);
-
-            if (
-                ($u['scheme'] == $scheme) &&
-                (!@$u['user'] || @$u['user'] == @$url["user"]) &&
-                (!@$u['pass'] || @$u['pass'] == @$url["pass"]) &&
-                ($u['host'] == $url["host"]) &&
-                (!@$u['port'] || $u['port'] == $port)
-            )
-                return $server;
-        }
+        if (array_key_exists('frs_server_id', $camera) && $camera['frs_server_id'])
+            return DvrServer::findById($camera['frs_server_id']);
 
         return null;
     }
 
-    public function getDVRTokenForCam(array $cam, ?int $subscriberId): string
+    public function getUrlForCamera(DvrServer $server, array $camera): string
     {
-        $dvrServer = $this->getDVRServerByStream($cam['dvrStream']);
+        if ($server->type === 'trassir')
+            return $server->url . '/?channel=' . $camera['dvrStream'];
 
-        if ($dvrServer) {
-            if ($dvrServer->type === 'flussonic') {
-                $startTime = time() - 300;
-                $endTime = $startTime + 3600 * 3;
+        return $server->url . '/' . $camera['dvrStream'];
+    }
 
-                $salt = bin2hex(openssl_random_pseudo_bytes(16));
-                $hash = sha1(substr(uri($cam['dvrStream'])->getPath(), 1) . 'no_check_ip' . $startTime . $endTime . $dvrServer->token . $salt);
+    public function getTokenForCamera(DvrServer $server, array $camera, ?int $subscriberId): string
+    {
+        if ($server->type === 'flussonic') {
+            $startTime = time() - 300;
+            $endTime = $startTime + 3600 * 3;
 
-                return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
-            }
+            $salt = bin2hex(openssl_random_pseudo_bytes(16));
+            $hash = sha1($camera['dvrStream'] . 'no_check_ip' . $startTime . $endTime . $server->token . $salt);
 
-            return $dvrServer->token;
+            return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
         }
 
-        return '';
+        return $server->token;
     }
 
     public function getDVRServers(): array
@@ -62,11 +45,11 @@ readonly class InternalDvrFeature extends DvrFeature
 
     public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool
     {
-        $dvr = $this->getDVRServerByStream($cam['dvrStream']);
+        $dvr = $this->getDVRServerByCamera($cam);
 
         switch ($dvr?->type ?? 'flussonic') {
             case 'trassir':
-                $parsed_url = parse_url($cam['dvrStream']);
+                $parsed_url = parse_url($this->getUrlForCamera($dvr, $cam));
 
                 $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
                 $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
@@ -75,7 +58,7 @@ readonly class InternalDvrFeature extends DvrFeature
                 $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
                 $pass = ($user || $pass) ? "$pass@" : '';
 
-                $token = $this->getDVRTokenForCam($cam, $subscriberId);
+                $token = $this->getTokenForCamera($dvr, $cam, $subscriberId);
 
                 $guid = false;
                 if (isset($parsed_url['query'])) {
@@ -166,23 +149,21 @@ readonly class InternalDvrFeature extends DvrFeature
 
                 return "$scheme$user$pass$host$port/jit-export-download?sid=$sid&task_id=$task_id";
             default:
-                $flussonic_token = $this->getDVRTokenForCam($cam, $subscriberId);
+                $flussonic_token = $this->getTokenForCamera($dvr, $cam, $subscriberId);
                 $from = $start;
                 $duration = $finish - $start;
 
-                return $cam['dvrStream'] . "/archive-$from-$duration.mp4?token=$flussonic_token";
+                return $this->getUrlForCamera($dvr, $cam) . "/archive-$from-$duration.mp4?token=$flussonic_token";
         }
     }
 
     public function getUrlOfScreenshot(array $cam, int $time, string|bool $addTokenToUrl = false): bool|string
     {
-        $prefix = $cam['dvrStream'];
-
-        $dvr = container(DvrFeature::class)->getDVRServerByStream($prefix);
+        $dvr = container(DvrFeature::class)->getDVRServerByCamera($cam);
 
         switch ($dvr?->type ?? 'flussonic') {
             case 'trassir':
-                $parsed_url = parse_url($cam['dvrStream']);
+                $parsed_url = parse_url($this->getUrlForCamera($dvr, $cam));
 
                 $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
                 $host = $parsed_url['host'] ?? '';
@@ -191,7 +172,7 @@ readonly class InternalDvrFeature extends DvrFeature
                 $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
                 $pass = ($user || $pass) ? "$pass@" : '';
 
-                $token = $this->getDVRTokenForCam($cam, null);
+                $token = $this->getTokenForCamera($dvr, $cam, null);
 
                 $guid = false;
                 if (isset($parsed_url['query'])) {
@@ -212,7 +193,7 @@ readonly class InternalDvrFeature extends DvrFeature
 
                 return "$scheme$user$pass$host$port/screenshot/$guid?timestamp=$timestamp&sid=$sid";
             default:
-                return "$prefix/$time-preview.mp4" . ($addTokenToUrl ? ("?token=" . $this->getDVRTokenForCam($cam, null)) : "");
+                return $this->getUrlForCamera($dvr, $cam) . "/$time-preview.mp4" . ($addTokenToUrl ? ("?token=" . $this->getTokenForCamera($dvr, $cam, null)) : "");
         }
 
         return false;

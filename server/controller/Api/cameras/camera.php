@@ -14,6 +14,8 @@ readonly class camera extends Api
     {
         return self::success(DeviceCamera::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
             "camera_id" => "cameraId",
+            "dvr_server_id" => "dvr_server_id",
+            "frs_server_id" => "frs_server_id",
             "enabled" => "enabled",
             "model" => "model",
             "url" => "url",
@@ -27,7 +29,6 @@ readonly class camera extends Api
             "direction" => "direction",
             "angle" => "angle",
             "distance" => "distance",
-            "frs" => "frs",
             "md_left" => "mdLeft",
             "md_top" => "mdTop",
             "md_width" => "mdWidth",
@@ -44,8 +45,8 @@ readonly class camera extends Api
         self::set($camera, $params);
 
         if ($camera->insert()) {
-            if ($camera->frs && $camera->frs !== '-')
-                task(new FrsAddStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
+            if ($camera->frs_server_id)
+                task(new FrsAddStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
 
             return self::success($camera->camera_id);
         }
@@ -60,12 +61,12 @@ readonly class camera extends Api
         self::set($camera, $params);
 
         if ($camera->update()) {
-            if ($camera->frs !== $params['frs']) {
-                if ($camera->frs && $camera->frs !== '-')
-                    task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
+            if (array_key_exists('frs_server_id', $params)) {
+                if ($camera->frs_server_id !== $params['frs_server_id'])
+                    task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
 
-                if ($params['frs'] && $params['frs'] !== '-')
-                    task(new FrsAddStreamTask($params['frs'], $camera->camera_id))->high()->dispatch();
+                if ($params['frs_server_id'])
+                    task(new FrsAddStreamTask($params['frs_server_id'], $camera->camera_id))->high()->dispatch();
             }
 
             return self::success($camera->camera_id);
@@ -79,8 +80,8 @@ readonly class camera extends Api
         $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
         if ($camera->delete()) {
-            if ($camera->frs && $camera->frs !== '-')
-                task(new FrsRemoveStreamTask($camera->frs, $camera->camera_id))->high()->dispatch();
+            if ($camera->frs_server_id)
+                task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
 
             return self::success();
         }
@@ -102,6 +103,12 @@ readonly class camera extends Api
     {
         $camera->enabled = $params['enabled'];
 
+        if (array_key_exists('dvr_server_id', $params))
+            $camera->dvr_server_id = $params['dvr_server_id'];
+
+        if (array_key_exists('frs_server_id', $params))
+            $camera->frs_server_id = $params['frs_server_id'];
+
         $camera->model = $params['model'];
         $camera->url = $params['url'];
         $camera->stream = $params['stream'];
@@ -116,8 +123,6 @@ readonly class camera extends Api
         $camera->direction = $params['direction'];
         $camera->angle = $params['angle'];
         $camera->distance = $params['distance'];
-
-        $camera->frs = $params['frs'];
 
         $camera->md_left = $params['mdLeft'];
         $camera->md_top = $params['mdTop'];

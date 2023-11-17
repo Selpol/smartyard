@@ -34,6 +34,16 @@ class CoreUser extends Entity
 
     public static string $columnId = 'uid';
 
+    public function jsonSerialize(): array
+    {
+        $value = $this->getValue();
+
+        if (array_key_exists('password', $value))
+            unset($value['password']);
+
+        return $value;
+    }
+
     public static function getColumns(): array
     {
         return [
