@@ -182,12 +182,12 @@ readonly class CameraController extends RbtController
             "id" => $camera['cameraId'],
             "name" => $camera['name'],
             "lat" => strval($camera['lat']),
+            "lon" => strval($camera['lon']),
+            'timezone' => $camera['timezone'],
             "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
             "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user['subscriberId']),
-            "lon" => strval($camera['lon']),
             "serverType" => $dvr?->type ?? 'flussonic',
-            'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId']),
-            'timezone' => $camera['timezone']
+            'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId'])
         ];
     }
 }

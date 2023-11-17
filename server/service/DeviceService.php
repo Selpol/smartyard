@@ -8,9 +8,9 @@ use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
@@ -20,49 +20,59 @@ readonly class DeviceService
 {
     public function cameraById(int $id): ?CameraDevice
     {
-        if ($camera = container(CameraFeature::class)->getCamera($id))
-            return $this->camera($camera['model'], $camera['url'], $camera['credentials']);
+        if ($camera = DeviceCamera::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable()))
+            return $this->cameraByEntity($camera);
 
         return null;
     }
 
+    public function cameraByEntity(DeviceCamera $camera): ?CameraDevice
+    {
+        return $this->camera($camera->model, $camera->url, $camera->credentials);
+    }
+
     public function camera(string $model, string $url, #[SensitiveParameter] string $password): ?CameraDevice
     {
-        $models = CameraModel::models();
-
-        if (array_key_exists($model, $models))
-            return new $models[$model]->class(new Uri($url), $password, $models[$model]);
+        if ($model = CameraModel::model($model))
+            return new $model->class(new Uri($url), $password, $model);
 
         return null;
     }
 
     public function intercomById(int $id): ?IntercomDevice
     {
-        if ($deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable()))
-            return $this->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
+        if ($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable()))
+            return $this->intercomByEntity($intercom);
 
         return null;
     }
 
+    public function intercomByEntity(DeviceIntercom $intercom): ?IntercomDevice
+    {
+        return $this->intercom($intercom->model, $intercom->url, $intercom->credentials);
+    }
+
     public function intercom(string $model, string $url, #[SensitiveParameter] string $password): ?IntercomDevice
     {
-        $models = IntercomModel::models();
-
-        if (array_key_exists($model, $models))
-            return new $models[$model]->class(new Uri($url), $password, $models[$model]);
+        if ($model = IntercomModel::model($model))
+            return new $model->class(new Uri($url), $password, $model);
 
         return null;
     }
 
     public function dvrById(int $id): ?DvrDevice
     {
-        if ($dvrServer = DvrServer::findById($id, setting: setting()->nonNullable())) {
-            $credentials = $dvrServer->credentials();
-
-            return $this->dvr($dvrServer->type, $dvrServer->url, $credentials['username'], $credentials['password']);
-        }
+        if ($server = DvrServer::findById($id, setting: setting()->nonNullable()))
+            return $this->dvrByEntity($server);
 
         return null;
+    }
+
+    public function dvrByEntity(DvrServer $server): ?DvrDevice
+    {
+        $credentials = $server->credentials();
+
+        return $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password']);
     }
 
     public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password): ?DvrDevice
