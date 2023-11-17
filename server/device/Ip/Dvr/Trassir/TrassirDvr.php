@@ -20,6 +20,20 @@ class TrassirDvr extends DvrDevice
         $this->clientOption->raw(CURLOPT_SSL_VERIFYHOST, 0)->raw(CURLOPT_SSL_VERIFYPEER, 0);
     }
 
+    public function getCameras(): array
+    {
+        try {
+            $response = $this->get('/channels', ['sid' => $this->getSid()]);
+
+            if (array_key_exists('channels', $response))
+                return array_map(static fn(array $channel) => ['id' => $channel['guid'], 'title' => $channel['name']], $response['channels']);
+
+            return [];
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
     public function getCameraId(string $query): ?string
     {
         try {

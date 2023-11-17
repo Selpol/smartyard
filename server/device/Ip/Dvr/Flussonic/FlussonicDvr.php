@@ -7,6 +7,17 @@ use Throwable;
 
 class FlussonicDvr extends DvrDevice
 {
+    public function getCameras(): array
+    {
+        try {
+            $response = $this->get('/streamer/api/v3/streams', ['select' => 'name,title', 'limit' => 10000]);
+
+            return array_key_exists('streams', $response) ? array_map(static fn(array $stream) => ['id' => $stream['name'], 'title' => $stream['title'] ?? $stream['name']], $response['streams']) : [];
+        } catch (Throwable) {
+            return [];
+        }
+    }
+
     public function getCameraId(string $query): ?string
     {
         try {
