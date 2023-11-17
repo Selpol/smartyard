@@ -9,9 +9,7 @@ readonly class cameras extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $id = rule()->id()->onItem('_id', $params);
-
-        if ($cameras = dvr($id)?->getCameras()) {
+        if ($cameras = dvr(rule()->id()->onItem('_id', $params))?->getCameras()) {
             usort($cameras, self::sort(...));
 
             return self::success($cameras);
