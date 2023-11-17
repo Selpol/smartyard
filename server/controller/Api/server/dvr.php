@@ -26,11 +26,9 @@ readonly class dvr extends Api
 
             'url' => rule()->required()->url()->nonNullable(),
 
-            'token' => rule()->required()->string()->max(1024)->nonNullable()
+            'token' => rule()->required()->string()->max(1024)->nonNullable(),
+            'credentials' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
-
-        if (array_key_exists('credentials', $params))
-            $dvrServer->credentials = rule()->string()->max(1024)->onItem('credentials', $params);
 
         if ($dvrServer->insert())
             return self::success($dvrServer->id);
