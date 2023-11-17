@@ -72,7 +72,7 @@ readonly class dvr extends Api
     {
         $dvrServer = DvrServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($dvrServer?->delete())
+        if ($dvrServer->delete())
             return self::success();
 
         return self::error('Не удалось удалить Dvr сервер', 400);
