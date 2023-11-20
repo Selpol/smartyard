@@ -52,8 +52,8 @@ readonly class user extends Api
                 if (!$user->enabled) {
                     $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
 
-                    if (count($keys))
-                        container(RedisService::class)->del($keys);
+                    if (count($keys) > 0)
+                        container(RedisService::class)->del(...$keys);
                 }
 
                 return self::success($user->uid);
@@ -77,8 +77,12 @@ readonly class user extends Api
             $user->password = password_hash($params['password'], PASSWORD_DEFAULT);
 
         if ($user->update()) {
-            if (!$user->enabled)
-                container(RedisService::class)->del(...container(RedisService::class)->keys('user:' . $user->uid . ':token:*'));
+            if (!$user->enabled) {
+                $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
+
+                if (count($keys) > 0)
+                    container(RedisService::class)->del(...$keys);
+            }
 
             return self::success($user->uid);
         }
