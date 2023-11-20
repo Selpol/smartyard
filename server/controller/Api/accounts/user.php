@@ -49,8 +49,12 @@ readonly class user extends Api
             $user->enabled = $params['enabled'];
 
             if ($user->update()) {
-                if (!$user->enabled)
-                    container(RedisService::class)->del(...container(RedisService::class)->keys('user:' . $user->uid . ':token:*'));
+                if (!$user->enabled) {
+                    $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
+
+                    if (count($keys))
+                        container(RedisService::class)->del($keys);
+                }
 
                 return self::success($user->uid);
             }
