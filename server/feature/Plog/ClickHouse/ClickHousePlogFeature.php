@@ -52,6 +52,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
 
         if ($entrances && $entrances[0]) {
             $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
+
             if ($cameras && $cameras[0]) {
                 if ($event_id === false) {
                     $response = container(FrsFeature::class)->bestQualityByDate($cameras[0], $date);
@@ -90,7 +91,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
                 file_logger('plog')->debug('frs camshot', ['data' => $camshot_data]);
 
                 if (!$camshot_data) {
-                    if ($cameras[0]['dvr_server_id']) {
+                    if ($cameras[0]['dvrServerId']) {
                         $ts_event = $date - $this->back_time_shift_video_shot;
                         $filename = "/tmp/" . uniqid('camshot_') . ".jpeg";
 
