@@ -9,8 +9,8 @@ readonly class InternalDvrFeature extends DvrFeature
 {
     public function getDVRServerByCamera(array $camera): ?DvrServer
     {
-        if (array_key_exists('frs_server_id', $camera) && $camera['frs_server_id'])
-            return DvrServer::findById($camera['frs_server_id']);
+        if (array_key_exists('dvrServerId', $camera) && $camera['dvrServerId'])
+            return DvrServer::findById($camera['dvrServerId']);
 
         return null;
     }

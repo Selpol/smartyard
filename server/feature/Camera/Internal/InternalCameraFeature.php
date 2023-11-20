@@ -20,6 +20,8 @@ readonly class InternalCameraFeature extends CameraFeature
 
         return $this->getDatabase()->get($q, $p, [
             "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
             "enabled" => "enabled",
             "model" => "model",
             "url" => "url",
