@@ -46,7 +46,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         kernel()->getContainer()->set(ServerRequestInterface::class, $request);
 
         if ($request->getMethod() === 'OPTIONS')
-            return $this->emit(response(204)->withHeader('Content-Type', 'text/html;charset=ISO-8859-1'));
+            return $this->emit(response(204));
 
         $http_authorization = $request->getHeader('Authorization');
 
