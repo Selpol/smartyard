@@ -45,7 +45,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
 
         kernel()->getContainer()->set(ServerRequestInterface::class, $request);
 
-        $this->loadRouter();
+        $this->loadRouter(router: $arguments['router']);
 
         $route = $this->getRouterValue($request);
 
