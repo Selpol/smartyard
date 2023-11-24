@@ -47,7 +47,7 @@ readonly abstract class FrsFeature extends Feature
 
     //internal params names
     const CAMERA_ID = "cameraId";
-    const CAMERA_FRS = "frs";
+    const CAMERA_FRS_SERVER_ID = 'frsServerId';
 
     //other
     const PDO_SINGLIFY = "singlify";

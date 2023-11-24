@@ -135,7 +135,7 @@ readonly class InternalFrsFeature extends FrsFeature
         if ($event_uuid)
             $method_params[self::P_EVENT_UUID] = $event_uuid;
 
-        return $this->apiCall($cam[self::CAMERA_FRS], self::M_BEST_QUALITY, $method_params);
+        return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_BEST_QUALITY, $method_params);
     }
 
     public function bestQualityByEventId(array $cam, int $event_id, string $event_uuid = ''): array|bool|null
@@ -145,7 +145,7 @@ readonly class InternalFrsFeature extends FrsFeature
         if ($event_uuid)
             $method_params[self::P_EVENT_UUID] = $event_uuid;
 
-        return $this->apiCall($cam[self::CAMERA_FRS], self::M_BEST_QUALITY, $method_params);
+        return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_BEST_QUALITY, $method_params);
     }
 
     public function registerFace(array $cam, string $event_uuid, int $left = 0, int $top = 0, int $width = 0, int $height = 0): array|bool
@@ -164,7 +164,7 @@ readonly class InternalFrsFeature extends FrsFeature
             $method_params[self::P_FACE_HEIGHT] = $height;
         }
 
-        $response = $this->apiCall($cam[self::CAMERA_FRS], self::M_REGISTER_FACE, $method_params);
+        $response = $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_REGISTER_FACE, $method_params);
 
         if ($response && $response[self::P_CODE] == self::R_CODE_OK && $response[self::P_DATA])
             return [self::P_FACE_ID => $this->addFace($response[self::P_DATA], $event_uuid)];
@@ -176,14 +176,14 @@ readonly class InternalFrsFeature extends FrsFeature
     {
         $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_FACE_IDS => $faces];
 
-        return $this->apiCall($cam[self::CAMERA_FRS], self::M_REMOVE_FACES, $method_params);
+        return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_REMOVE_FACES, $method_params);
     }
 
     public function motionDetection(array $cam, bool $is_start): array|bool|null
     {
         $method_params = [self::P_STREAM_ID => $cam[self::CAMERA_ID], self::P_START => $is_start];
 
-        return $this->apiCall($cam[self::CAMERA_FRS], self::M_MOTION_DETECTION, $method_params);
+        return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_MOTION_DETECTION, $method_params);
     }
 
     public function cron($part): bool
@@ -534,5 +534,10 @@ readonly class InternalFrsFeature extends FrsFeature
             return $r["face_id"];
 
         return false;
+    }
+
+    private function getFrsServerByCamera(array $camera): FrsServer
+    {
+        return FrsServer::findById($camera[self::CAMERA_FRS_SERVER_ID], setting: setting()->nonNullable());
     }
 }

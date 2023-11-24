@@ -418,6 +418,19 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $cache->set('internal', $router->getRouter()->getRoutes());
         }
 
+        if (file_exists(path('config/frontend.php'))) {
+            $router = new class {
+                use RouterTrait;
+
+                public function __construct()
+                {
+                    $this->loadRouter(false, 'frontend');
+                }
+            };
+
+            $cache->set('frontend', $router->getRouter()->getRoutes());
+        }
+
         kernel()->setEnv($kernelEnv);
         kernel()->setConfig($kernelConfig);
 
