@@ -32,16 +32,16 @@ abstract class DvrDevice extends IpDevice
 
     public function addCamera(DeviceCamera $camera): bool
     {
-        return false;
+        return true;
     }
 
     public function updateCamera(DeviceCamera $camera): bool
     {
-        return false;
+        return true;
     }
 
     public function removeCamera(DeviceCamera $camera): bool
     {
-        return false;
+        return true;
     }
 }

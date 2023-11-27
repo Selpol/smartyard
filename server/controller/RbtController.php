@@ -7,7 +7,7 @@ use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\AuthService;
 
-readonly class RbtController extends RouteController
+readonly abstract class RbtController extends RouteController
 {
     protected function getToken(): AuthTokenInterface
     {
