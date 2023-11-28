@@ -7,7 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Feature\Push\PushFeature;
+use Selpol\Feature\External\ExternalFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
@@ -70,7 +70,7 @@ readonly class UserController extends RbtController
         if (!$validate['pushToken'])
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
         else if ($old_push && $old_push != $validate['pushToken'])
-            container(PushFeature::class)->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
+            container(ExternalFeature::class)->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
 
         if (!$validate['voipToken'])
             $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);

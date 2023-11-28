@@ -6,7 +6,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Feature\Push\PushFeature;
+use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
@@ -223,7 +223,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $this->logger->debug('Send push', ['push' => $params]);
 
-                        container(PushFeature::class)->push($params);
+                        container(ExternalFeature::class)->push($params);
 
                         break;
                     default:

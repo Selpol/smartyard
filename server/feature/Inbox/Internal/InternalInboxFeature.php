@@ -4,7 +4,7 @@ namespace Selpol\Feature\Inbox\Internal;
 
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Inbox\InboxFeature;
-use Selpol\Feature\Push\PushFeature;
+use Selpol\Feature\External\ExternalFeature;
 
 readonly class InternalInboxFeature extends InboxFeature
 {
@@ -49,7 +49,7 @@ readonly class InternalInboxFeature extends InboxFeature
                 return false;
             }
 
-            $result = container(PushFeature::class)->message([
+            $result = container(ExternalFeature::class)->message([
                 "token" => $subscriber["token"],
                 "type" => $subscriber["tokenType"],
                 "timestamp" => time(),

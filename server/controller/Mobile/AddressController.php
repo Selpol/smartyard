@@ -4,8 +4,13 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Controller\Api\inbox\message;
 use Selpol\Controller\RbtController;
+use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
+use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
@@ -139,12 +144,10 @@ readonly class AddressController extends RbtController
 
         $households = container(HouseFeature::class);
 
-        $flat = $households->getFlats("code", ["code" => $hash])[0];
+        $flat = HouseFlat::getRepository()->findByCode($hash);
 
         if (!$flat)
             return user_response(200, "QR-код не является кодом для доступа к квартире");
-
-        $flat_id = (int)$flat["flatId"];
 
         $subscribers = $households->getSubscribers('aud_jti', $audJti);
 
@@ -171,12 +174,22 @@ readonly class AddressController extends RbtController
             $subscriber = $subscribers[0];
 
             foreach ($subscriber['flats'] as $item)
-                if ((int)$item['flatId'] == $flat_id)
+                if ((int)$item['flatId'] == $flat->house_flat_id)
                     return user_response(200, "У вас уже есть доступ к данной квартире");
 
-            if ($households->addSubscriber($subscriber["mobile"], flatId: $flat_id))
-                return user_response(200, "Ваш запрос принят и будет обработан в течение одной минуты, пожалуйста подождите");
-            else return user_response(422, message: 'Неудалось добавиться в квартиру');
+            if ($households->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
+                $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
+
+                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$validate['mobile'], 1), $validate['name'] . ' ' . $validate['patronymic'], connection_ip($request));
+
+                if (is_string($result))
+                    return user_response(400, message: $result);
+
+                if ($result)
+                    return user_response(200, "Квартира успешно привязана");
+
+                return user_response(400, message: 'Не удалось полностью выполнить запрос, пользователь не привязан полностью');
+            } else return user_response(422, message: 'Неудалось добавиться в квартиру');
         } else return user_response(404, message: 'Абонент не найден');
     }
 }

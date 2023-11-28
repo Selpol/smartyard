@@ -32,4 +32,9 @@ readonly class HouseFlatRepository extends EntityRepository
 
         $this->auditName = 'Дом-Квартира';
     }
+
+    public function findByCode(string $code): ?HouseFlat
+    {
+        return $this->fetch(criteria()->equal('code', $code));
+    }
 }
