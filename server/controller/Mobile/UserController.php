@@ -52,16 +52,15 @@ readonly class UserController extends RbtController
 
         if ($validate['platform'] == 'ios') {
             $platform = 1;
-            if ($validate['voipToken']) {
-                $type = $production ? 1 : 2; // apn:apn.dev
-            } else {
-                $type = 0; // fcm (resend)
-            }
+
+            $type = $production ? 1 : 2; // apn : apn.dev
         } elseif ($validate['platform'] == 'huawei') {
             $platform = 0;
+
             $type = 3; // huawei
         } else {
             $platform = 0;
+
             $type = 0; // fcm
         }
 

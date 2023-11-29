@@ -211,6 +211,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'domophoneId' => $params['domophoneId'],
                             'flatId' => $params['flatId'],
                             'flatNumber' => $params['flatNumber'],
+                            'voipEnabled' => $params['voipEnabled'] ?? false,
                             'title' => 'Входящий вызов',
                         ];
 
