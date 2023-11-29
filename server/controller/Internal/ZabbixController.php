@@ -15,7 +15,7 @@ use Throwable;
 #[Controller('/internal/zabbix')]
 readonly class ZabbixController extends RbtController
 {
-    #[Get(includes: [RateLimitMiddleware::class => ['count' => 1, 'ttl' => 30, 'request' => true]])]
+    #[Get(includes: [RateLimitMiddleware::class => ['trust' => [], 'count' => 1, 'ttl' => 30, 'request' => true]])]
     public function index(RedisCache $cache, TaskService $task): ResponseInterface
     {
         try {
