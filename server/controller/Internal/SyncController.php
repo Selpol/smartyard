@@ -128,8 +128,6 @@ readonly class SyncController extends RbtController
     {
         $body = $request->getParsedBody();
 
-        $households = container(HouseFeature::class);
-
         $result = [];
 
         foreach ($body as $item)

@@ -18,12 +18,16 @@ readonly class RateLimitMiddleware extends RouteMiddleware
     private int $count;
     private int $ttl;
 
+    private bool $request;
+
     public function __construct(array $config)
     {
         $this->trust = $config['trust'];
 
         $this->count = $config['count'];
         $this->ttl = $config['ttl'];
+
+        $this->request = $config['request'] ?? false;
     }
 
     /**
@@ -38,9 +42,14 @@ readonly class RateLimitMiddleware extends RouteMiddleware
                 return $handler->handle($request);
 
         $redis = container(RedisService::class)->getConnection();
-        $token = container(AuthService::class)->getToken();
 
-        $key = 'rate-' . $ip . ($token ? ('-' . $token->getIdentifierName() . '-' . $token->getIdentifier()) : '');
+        $key = 'rate:' . $ip;
+
+        if ($token = container(AuthService::class)->getToken())
+            $key .= ':' . $token->getIdentifierName() . '-' . $token->getIdentifier();
+
+        if ($this->request)
+            $key .= ':' . str_replace('/', '-', $request->getRequestTarget());
 
         if (!$redis->exists($key)) {
             $redis->incr($key);

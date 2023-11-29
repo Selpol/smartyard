@@ -4,11 +4,9 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selpol\Controller\Api\inbox\message;
 use Selpol\Controller\RbtController;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseFlat;
-use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\House\HouseFeature;

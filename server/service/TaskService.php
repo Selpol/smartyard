@@ -101,18 +101,24 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
             $this->channel->wait();
     }
 
+    /**
+     * @throws Exception
+     */
     public function close(): void
     {
-        try {
-            $this->channel?->close();
-            $this->connection?->close();
-        } catch (Exception $exception) {
-            $this->logger?->critical($exception);
-        }
+        $this->channel?->close();
+        $this->connection?->close();
+
+        $this->channel = null;
+        $this->connection = null;
     }
 
     public function dispose(): void
     {
-        $this->close();
+        try {
+            $this->close();
+        } catch (Exception $exception) {
+            $this->logger?->critical($exception);
+        }
     }
 }
