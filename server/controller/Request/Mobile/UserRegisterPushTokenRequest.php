@@ -11,6 +11,8 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read bool $production
  *
  * @property-read string $platform
+ *
+ * @property-read bool $voipEnabled
  */
 readonly class UserRegisterPushTokenRequest extends RouteRequest
 {
@@ -19,8 +21,12 @@ readonly class UserRegisterPushTokenRequest extends RouteRequest
         return [
             'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
+
             'production' => [filter()->default(false), rule()->bool()],
-            'platform' => rule()->required()->in(['ios', 'android', 'huawei'])->nonNullable()
+
+            'platform' => rule()->required()->in(['ios', 'android', 'huawei'])->nonNullable(),
+
+            'voipEnabled' => [filter()->default(true), rule()->bool()]
         ];
     }
 }

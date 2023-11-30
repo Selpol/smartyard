@@ -53,7 +53,7 @@ readonly class UserController extends RbtController
             $type = 0; // fcm
         }
 
-        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "platform" => $platform]);
+        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "voipEnabled" => $request->voipEnabled, "platform" => $platform]);
 
         if (!$request->pushToken)
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
