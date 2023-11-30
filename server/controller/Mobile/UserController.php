@@ -4,7 +4,6 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\UserRegisterPushTokenRequest;
 use Selpol\Controller\Request\Mobile\UserSendNameRequest;

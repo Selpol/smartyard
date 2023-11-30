@@ -3,8 +3,8 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
@@ -22,22 +22,14 @@ readonly class ArchiveController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/recPrepare')]
-    public function prepare(ServerRequestInterface $request): Response
+    public function prepare(ArchivePrepareRequest $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($request->getParsedBody(), [
-            'id' => rule()->id(),
-            'from' => rule()->required()->nonNullable(),
-            'to' => rule()->required()->nonNullable()
-        ]);
-
-        $cameraId = $validate['id'];
-
         date_default_timezone_set('Europe/Moscow');
 
-        $from = strtotime($validate['from']);
-        $to = strtotime($validate['to']);
+        $from = strtotime($request->from);
+        $to = strtotime($request->to);
 
         if (!$from || !$to)
             return user_response(400, message: 'Неверный формат данных');
@@ -45,12 +37,12 @@ readonly class ArchiveController extends RbtController
         $archive = container(ArchiveFeature::class);
 
         // проверяем, не был ли уже запрошен данный кусок из архива.
-        $check = $archive->checkDownloadRecord($cameraId, $userId, $from, $to);
+        $check = $archive->checkDownloadRecord($request->id, $userId, $from, $to);
 
         if (@$check['id'])
             return user_response(200, $check['id']);
 
-        $result = (int)$archive->addDownloadRecord($cameraId, $userId, $from, $to);
+        $result = (int)$archive->addDownloadRecord($request->id, $userId, $from, $to);
 
         task(new RecordTask($userId, $result))->low()->dispatch();
 

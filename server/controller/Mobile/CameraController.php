@@ -5,6 +5,9 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\CameraEventsRequest;
+use Selpol\Controller\Request\Mobile\CameraIndexRequest;
+use Selpol\Controller\Request\Mobile\CameraShowRequest;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -22,19 +25,16 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(ServerRequestInterface $request): Response
+    public function index(CameraIndexRequest $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($request->getParsedBody(), ['houseId' => rule()->id()]);
-
-        $house_id = $validate['houseId'];
         $households = container(HouseFeature::class);
 
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] != $house_id)
+            if ($flat['addressHouseId'] != $request->houseId)
                 continue;
 
             $flatDetail = $households->getFlat($flat['flatId']);
@@ -100,16 +100,14 @@ readonly class CameraController extends RbtController
      * @throws ValidatorException
      */
     #[Get('/{cameraId}')]
-    public function show(ServerRequestInterface $request, int $cameraId): Response
+    public function show(CameraShowRequest $request, int $cameraId): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $houseId = rule()->id()->onItem('houseId', $request->getQueryParams());
 
         $find = false;
 
         foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] == $houseId) {
+            if ($flat['addressHouseId'] == $request->houseId) {
                 $find = true;
 
                 break;
@@ -131,20 +129,13 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/events')]
-    public function events(ServerRequestInterface $request): Response
+    public function events(CameraEventsRequest $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $body = $request->getParsedBody();
-
-        $validate = validator($body, [
-            'cameraId' => rule()->id(),
-            'date' => [filter()->default(1), rule()->int()->clamp(0, 14)->nonNullable()]
-        ]);
-
         $households = container(HouseFeature::class);
 
-        $domophoneId = $households->getDomophoneIdByEntranceCameraId($validate['cameraId']);
+        $domophoneId = $households->getDomophoneIdByEntranceCameraId($request->cameraId);
 
         if (is_null($domophoneId))
             return user_response(404, message: 'Домофон не найден');
@@ -163,7 +154,7 @@ readonly class CameraController extends RbtController
         if (count($flatsId) == 0)
             return user_response(404, message: 'Квартира у абонента не найдена');
 
-        $events = container(PlogFeature::class)->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $validate['date']);
+        $events = container(PlogFeature::class)->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
 
         if ($events)
             return user_response(200, array_map(static fn(array $item) => $item['date'], $events));
