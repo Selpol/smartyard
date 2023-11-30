@@ -70,6 +70,9 @@ readonly class DeviceService
 
     public function dvrByEntity(DvrServer $server): ?DvrDevice
     {
+        if (!$server->credentials)
+            return null;
+
         $credentials = $server->credentials();
 
         return $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password']);
