@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Camera\CameraFeature;
@@ -110,29 +111,17 @@ readonly class AddressController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerQR', excludes: [MobileMiddleware::class])]
-    public function registerQR(ServerRequestInterface $request): Response
+    public function registerQR(ServerRequestInterface $request, AddressRegisterQrRequest $qrRequest): Response
     {
         $token = $this->getToken();
 
         $audJti = $token->getOriginalValue()['scopes'][1];
 
-        $validate = validator($request->getParsedBody(), [
-            'code' => rule()->required()->nonNullable(),
-            'mobile' => rule()->clamp(11, 11),
-            'name' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
-            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
-        ]);
-
-        $code = $validate['QR'];
-
-        if (!$code)
-            return user_response(400, message: 'Неверный формат данных');
-
         $hash = '';
 
-        for ($i = strlen($code) - 1; $i >= 0; --$i) {
-            if (!in_array($code[$i], ['/', '=', "_"]))
-                $hash = $code[$i] . $hash;
+        for ($i = strlen($qrRequest->QR) - 1; $i >= 0; --$i) {
+            if (!in_array($qrRequest->QR[$i], ['/', '=', "_"]))
+                $hash = $qrRequest->QR[$i] . $hash;
             else
                 break;
         }
@@ -150,9 +139,10 @@ readonly class AddressController extends RbtController
         $subscribers = $households->getSubscribers('aud_jti', $audJti);
 
         if (!$subscribers || count($subscribers) === 0) {
-            $mobile = $validate['mobile'];
-            $name = $validate['name'];
-            $patronymic = $validate['patronymic'];
+            $mobile = $qrRequest->mobile;
+
+            $name = $qrRequest->name;
+            $patronymic = $qrRequest->patronymic;
 
             if (strlen($mobile) !== 11)
                 return user_response(400, false, message: 'Неверный формат номера телефона');
@@ -178,7 +168,7 @@ readonly class AddressController extends RbtController
             if ($households->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
                 $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
 
-                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$validate['mobile'], 1), $validate['name'] . ' ' . $validate['patronymic'], connection_ip($request));
+                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$qrRequest->mobile, 1), $qrRequest->name . ' ' . $qrRequest->patronymic, connection_ip($request));
 
                 if (is_string($result))
                     return user_response(400, message: $result);

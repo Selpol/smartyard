@@ -6,6 +6,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\UserRegisterPushTokenRequest;
+use Selpol\Controller\Request\Mobile\UserSendNameRequest;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Framework\Http\Response;
@@ -30,31 +32,19 @@ readonly class UserController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerPushToken')]
-    public function registerPushToken(ServerRequestInterface $request): Response
+    public function registerPushToken(UserRegisterPushTokenRequest $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $validate = validator($request->getParsedBody(), [
-            'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
-            'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
-            'production' => [filter()->default(false), rule()->bool()],
-            'platform' => rule()->in(['ios', 'android', 'huawei'])
-        ]);
 
         $households = container(HouseFeature::class);
 
         $old_push = $user["pushToken"];
 
-        $production = trim($validate['production']);
-
-        if (!array_key_exists('platform', $validate) || ($validate['platform'] != 'ios' && $validate['platform'] != 'android' && $validate['platform'] != 'huawei'))
-            return user_response(400, message: 'Неверный тип платформы');
-
-        if ($validate['platform'] == 'ios') {
+        if ($request->platform == 'ios') {
             $platform = 1;
 
-            $type = $production ? 1 : 2; // apn : apn.dev
-        } elseif ($validate['platform'] == 'huawei') {
+            $type = $request->production ? 1 : 2; // apn : apn.dev
+        } elseif ($request->platform == 'huawei') {
             $platform = 0;
 
             $type = 3; // huawei
@@ -64,14 +54,14 @@ readonly class UserController extends RbtController
             $type = 0; // fcm
         }
 
-        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $validate['pushToken'], "tokenType" => $type, "voipToken" => $validate['voipToken'], "platform" => $platform]);
+        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "platform" => $platform]);
 
-        if (!$validate['pushToken'])
+        if (!$request->pushToken)
             $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
-        else if ($old_push && $old_push != $validate['pushToken'])
+        else if ($old_push && $old_push != $request->pushToken)
             container(ExternalFeature::class)->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
 
-        if (!$validate['voipToken'])
+        if (!$request->voipToken)
             $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
 
         return user_response();
@@ -82,17 +72,12 @@ readonly class UserController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/sendName')]
-    public function sendName(ServerRequestInterface $request): Response
+    public function sendName(UserSendNameRequest $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator($request->getParsedBody(), [
-            'name' => [filter()->fullSpecialChars(), rule()->required()->string()->max(64)->nonNullable()],
-            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)]
-        ]);
-
-        if ($validate['patronymic']) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name'], "subscriberPatronymic" => $validate['patronymic']]);
-        else container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $validate['name']]);
+        if ($request->patronymic) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
+        else container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $request->name]);
 
         return user_response();
     }
