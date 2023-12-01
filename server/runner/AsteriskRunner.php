@@ -2,6 +2,7 @@
 
 namespace Selpol\Runner;
 
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
@@ -195,6 +196,24 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'push':
                         $server = container(SipFeature::class)->server('extension', $params['extension'])[0];
 
+                        $flat = HouseFlat::findById($params['flatId'], setting: setting()->columns(['address_house_id'])->nonNullable());
+                        $house = AddressHouse::findById($flat->address_house_id, setting: setting()->columns(['house_full'])->nonNullable());
+
+                        try {
+                            $segments = explode(', ', $house->house_full);
+
+                            if (str_starts_with($segments[0], 'г'))
+                                $address = implode(', ', array_slice($segments, 1));
+                            else if (str_ends_with($segments[0], 'обл'))
+                                $address = implode(', ', array_slice($segments, 2));
+                            else
+                                $address = $house->house_full;
+                        } catch (Throwable $throwable) {
+                            $this->logger?->error($throwable);
+
+                            $address = $house->house_full;
+                        }
+
                         $params = [
                             'token' => $params['token'],
                             'type' => $params['tokenType'],
@@ -212,7 +231,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'flatId' => $params['flatId'],
                             'flatNumber' => $params['flatNumber'],
                             'voipEnabled' => $params['voipEnabled'] ?? false,
-                            'title' => 'Входящий вызов',
+                            'title' => $address,
                         ];
 
                         $stun = container(SipFeature::class)->stun($params['extension']);
