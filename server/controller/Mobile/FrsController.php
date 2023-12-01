@@ -6,6 +6,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\FrsDeleteRequest;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -113,21 +114,17 @@ readonly class FrsController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Delete]
-    public function delete(ServerRequestInterface $request): Response
+    public function delete(FrsDeleteRequest $request): Response
     {
-        $query = $request->getQueryParams();
-
         $user = $this->getUser()->getOriginalValue();
-
-        $validate = validator(['eventId' => $query['eventId']], ['eventId' => rule()->uuid()]);
 
         $frs = container(FrsFeature::class);
 
         $face_id = null;
         $face_id2 = null;
 
-        if ($validate['eventId']) {
-            $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
+        if ($request->eventId) {
+            $eventData = container(PlogFeature::class)->getEventDetails($request->eventId);
 
             if (!$eventData)
                 return user_response(404, message: 'Событие не найдено');
@@ -139,13 +136,13 @@ readonly class FrsController extends RbtController
             if (isset($face->faceId) && $face->faceId > 0)
                 $face_id = (int)$face->faceId;
 
-            $face_id2 = $frs->getRegisteredFaceId($validate['eventId']);
+            $face_id2 = $frs->getRegisteredFaceId($request->eventId);
 
             if ($face_id2 === false)
                 $face_id2 = null;
         } else {
-            $flat_id = (int)$query['flatId'];
-            $face_id = (int)$query['faceId'];
+            $flat_id = $request->flat_id;
+            $face_id = $request->face_id;
         }
 
         if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))

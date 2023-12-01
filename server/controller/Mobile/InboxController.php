@@ -4,8 +4,8 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\InboxReadRequest;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -19,13 +19,11 @@ readonly class InboxController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/read')]
-    public function read(ServerRequestInterface $request): Response
+    public function read(InboxReadRequest $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        $validate = validator(['messageId' => $request->getQueryParams()['messageId']], ['messageId' => rule()->int()->clamp(0)]);
-
-        container(InboxFeature::class)->markMessageAsRead($userId, $validate['messageId'] ?? false);
+        container(InboxFeature::class)->markMessageAsRead($userId, $request->messageId ?? false);
 
         return user_response();
     }

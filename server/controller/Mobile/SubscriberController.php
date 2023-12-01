@@ -4,8 +4,9 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\SubscriberDeleteRequest;
+use Selpol\Controller\Request\Mobile\SubscriberStoreRequest;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -53,13 +54,9 @@ readonly class SubscriberController extends RbtController
      * @throws ValidatorException
      */
     #[Post('/{flatId}')]
-    public function store(ServerRequestInterface $request, int $flatId): Response
+    public function store(SubscriberStoreRequest $request, int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $validate = validator($request->getParsedBody() ?? [], [
-            'mobile' => rule()->required()->int()->min(70000000000)->max(79999999999)->nonNullable()
-        ]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
@@ -70,10 +67,10 @@ readonly class SubscriberController extends RbtController
 
         $households = container(HouseFeature::class);
 
-        $subscribers = $households->getSubscribers('mobile', $validate['mobile']);
+        $subscribers = $households->getSubscribers('mobile', $request->mobile);
 
         if (!$subscribers || count($subscribers) === 0) {
-            $id = $households->addSubscriber($validate['mobile'], 'Имя', 'Отчество', flatId: $flatId);
+            $id = $households->addSubscriber($request->mobile, 'Имя', 'Отчество', flatId: $flatId);
 
             if (!$id)
                 return user_response(400, message: 'Неудалось зарегестрировать жителя');
@@ -100,11 +97,9 @@ readonly class SubscriberController extends RbtController
      * @throws ValidatorException
      */
     #[Delete('/{flatId}')]
-    public function delete(ServerRequestInterface $request, int $flatId): Response
+    public function delete(SubscriberDeleteRequest $request, int $flatId): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $validate = validator(['subscriberId' => $request->getQueryParams()['subscriberId']], ['subscriberId' => rule()->id()]);
 
         $flat = $this->getFlat($user['flats'], $flatId);
 
@@ -116,7 +111,7 @@ readonly class SubscriberController extends RbtController
 
         $households = container(HouseFeature::class);
 
-        $subscribers = $households->getSubscribers('id', $validate['subscriberId']);
+        $subscribers = $households->getSubscribers('id', $request->subscriberId);
 
         if (!$subscribers || count($subscribers) === 0)
             return user_response(404, message: 'Житель не зарегестрирован');

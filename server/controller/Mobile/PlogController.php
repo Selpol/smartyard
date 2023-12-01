@@ -4,8 +4,9 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\PlogDaysRequest;
+use Selpol\Controller\Request\Mobile\PlogIndexRequest;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -24,39 +25,36 @@ readonly class PlogController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/plog')]
-    public function index(ServerRequestInterface $request): Response
+    public function index(PlogIndexRequest $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id(), 'day' => rule()->required()->nonNullable()]);
-
         $households = container(HouseFeature::class);
-        $flat_id = $validate['flatId'];
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
-        $f = in_array($flat_id, $flat_ids);
+        $f = in_array($request->flatId, $flat_ids);
         if (!$f)
             return user_response(404, message: 'У абонента нет доступа');
 
         $flat_owner = false;
 
         foreach ($user['flats'] as $flat)
-            if ($flat['flatId'] == $flat_id) {
+            if ($flat['flatId'] == $request->flatId) {
                 $flat_owner = ($flat['role'] == 0);
 
                 break;
             }
 
-        $flat_details = $households->getFlat($flat_id);
+        $flat_details = $households->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
             return user_response(403, message: 'Недостаточно прав на просмотр событий');
 
         try {
-            $date = date('Ymd', strtotime($validate['day']));
-            $result = container(PlogFeature::class)->getDetailEventsByDay($flat_id, $date);
+            $date = date('Ymd', strtotime($request->day));
+            $result = container(PlogFeature::class)->getDetailEventsByDay($request->flatId, $date);
 
             if ($result) {
                 $events_details = [];
@@ -166,30 +164,27 @@ readonly class PlogController extends RbtController
     }
 
     #[Post('/plogDays')]
-    public function days(ServerRequestInterface $request): Response
+    public function days(PlogDaysRequest $request): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id(), 'events' => rule()->string()->clamp(0, max: 64)]);
-
         $households = container(HouseFeature::class);
-        $flat_id = $validate['flatId'];
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
-        $f = in_array($flat_id, $flat_ids);
+        $f = in_array($request->flatId, $flat_ids);
 
         if (!$f)
             return user_response(404, message: 'Квартира не найдена');
 
         $flat_owner = false;
         foreach ($user['flats'] as $flat)
-            if ($flat['flatId'] == $flat_id) {
+            if ($flat['flatId'] == $request->flatId) {
                 $flat_owner = ($flat['role'] == 0);
 
                 break;
             }
 
-        $flat_details = $households->getFlat($flat_id);
+        $flat_details = $households->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
@@ -197,8 +192,8 @@ readonly class PlogController extends RbtController
 
         $filter_events = false;
 
-        if ($validate['events']) {
-            $filter_events = explode(',', $validate['events']);
+        if ($request->events) {
+            $filter_events = explode(',', $request->events);
             $t = [];
 
             foreach ($filter_events as $e)
@@ -215,7 +210,7 @@ readonly class PlogController extends RbtController
         }
 
         try {
-            $result = container(PlogFeature::class)->getEventsDays($flat_id, $filter_events);
+            $result = container(PlogFeature::class)->getEventsDays($request->flatId, $filter_events);
 
             if ($result)
                 return user_response(200, $result);
