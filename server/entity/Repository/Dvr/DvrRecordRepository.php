@@ -10,7 +10,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method DvrRecord fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method DvrRecord|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method DvrRecord[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<DvrRecord> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

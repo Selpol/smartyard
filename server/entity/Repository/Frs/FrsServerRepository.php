@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method FrsServer fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method FrsServer|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method FrsServer[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<FrsServer> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

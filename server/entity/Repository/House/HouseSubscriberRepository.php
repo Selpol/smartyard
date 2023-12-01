@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method HouseSubscriber fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method HouseSubscriber|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method HouseSubscriber[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<HouseSubscriber> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

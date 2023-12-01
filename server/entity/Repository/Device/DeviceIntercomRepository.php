@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method DeviceIntercom fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method DeviceIntercom|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method DeviceIntercom[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<DeviceIntercom> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

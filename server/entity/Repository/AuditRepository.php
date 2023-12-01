@@ -10,7 +10,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Audit fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Audit|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method Audit[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<Audit> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

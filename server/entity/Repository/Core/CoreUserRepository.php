@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method CoreUser fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method CoreUser|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method CoreUser[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<CoreUser> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *

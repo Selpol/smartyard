@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method SipUser fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method SipUser|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method SipUser[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<SipUser> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
@@ -33,7 +33,7 @@ readonly class SipUserRepository extends EntityRepository
         $this->auditName = 'Sip-Пользователь';
     }
 
-    public function findByIdAndType(int $id, int $type): SipUser
+    public function findByIdAndType(int $id, int $type): ?SipUser
     {
         return $this->fetch(criteria()->equal('id', $id)->equal('type', $type));
     }

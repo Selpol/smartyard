@@ -11,7 +11,7 @@ use Selpol\Framework\Entity\EntityRepository;
 use Selpol\Framework\Entity\EntitySetting;
 
 /**
- * @method Permission fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
+ * @method Permission|null fetch(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method Permission[] fetchAll(?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  * @method EntityPage<Permission> fetchPage(int $page, int $size, ?EntityCriteria $criteria = null, ?EntitySetting $setting = null)
  *
@@ -33,7 +33,7 @@ readonly class PermissionRepository extends EntityRepository
         $this->auditName = 'Разрешение';
     }
 
-    public function findByTitle(string $title): Permission
+    public function findByTitle(string $title): ?Permission
     {
         return $this->fetch(criteria()->equal('title', $title));
     }
