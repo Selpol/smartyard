@@ -3,7 +3,6 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
@@ -111,7 +110,7 @@ readonly class AddressController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerQR', excludes: [MobileMiddleware::class])]
-    public function registerQR(ServerRequestInterface $request, AddressRegisterQrRequest $qrRequest): Response
+    public function registerQR(AddressRegisterQrRequest $request): Response
     {
         $token = $this->getToken();
 
@@ -119,9 +118,9 @@ readonly class AddressController extends RbtController
 
         $hash = '';
 
-        for ($i = strlen($qrRequest->QR) - 1; $i >= 0; --$i) {
-            if (!in_array($qrRequest->QR[$i], ['/', '=', "_"]))
-                $hash = $qrRequest->QR[$i] . $hash;
+        for ($i = strlen($request->QR) - 1; $i >= 0; --$i) {
+            if (!in_array($request->QR[$i], ['/', '=', "_"]))
+                $hash = $request->QR[$i] . $hash;
             else
                 break;
         }
@@ -139,10 +138,10 @@ readonly class AddressController extends RbtController
         $subscribers = $households->getSubscribers('aud_jti', $audJti);
 
         if (!$subscribers || count($subscribers) === 0) {
-            $mobile = $qrRequest->mobile;
+            $mobile = $request->mobile;
 
-            $name = $qrRequest->name;
-            $patronymic = $qrRequest->patronymic;
+            $name = $request->name;
+            $patronymic = $request->patronymic;
 
             if (strlen($mobile) !== 11)
                 return user_response(400, false, message: 'Неверный формат номера телефона');
@@ -168,7 +167,7 @@ readonly class AddressController extends RbtController
             if ($households->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
                 $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
 
-                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$qrRequest->mobile, 1), $qrRequest->name . ' ' . $qrRequest->patronymic, connection_ip($request));
+                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $request->name . ' ' . $request->patronymic, connection_ip($request->getRequest()));
 
                 if (is_string($result))
                     return user_response(400, message: $result);
