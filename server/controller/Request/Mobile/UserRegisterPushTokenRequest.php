@@ -29,4 +29,18 @@ readonly class UserRegisterPushTokenRequest extends RouteRequest
             'voipEnabled' => [filter()->default(true), rule()->bool()]
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'pushToken' => 'Push Токен',
+            'voipToken' => 'VoIp Токен',
+
+            'production' => 'Среда',
+
+            'platform' => 'Платформа',
+
+            'voipEnabled' => 'VoIp Звонки'
+        ];
+    }
 }

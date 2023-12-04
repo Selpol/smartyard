@@ -21,4 +21,14 @@ readonly class FrsDeleteRequest extends RouteRequest
             'face_id' => rule()->int()->clamp(0)
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'eventId' => 'Идентификатор',
+
+            'flat_id' => 'Идентификатор',
+            'face_id' => 'Идентификатор'
+        ];
+    }
 }

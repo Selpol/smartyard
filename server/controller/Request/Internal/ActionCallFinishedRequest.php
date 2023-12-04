@@ -15,10 +15,11 @@ readonly class ActionCallFinishedRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'date' => rule()->required()->int()->nonNullable(),
             'ip' => rule()->required()->ipV4()->nonNullable(),
 
-            'callId' => [filter()->default(0), rule()->int()]
+            'callId' => [filter()->default(0), rule()->int()],
+
+            'date' => rule()->required()->timestamp()->nonNullable()
         ];
     }
 }

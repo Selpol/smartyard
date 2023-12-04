@@ -15,4 +15,11 @@ readonly class InboxReadRequest extends RouteRequest
             'messageId' => rule()->int()->clamp(0)
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'messageId' => 'Идентификатор'
+        ];
+    }
 }

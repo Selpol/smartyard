@@ -15,4 +15,11 @@ readonly class CameraShowRequest extends RouteRequest
             'houseId' => rule()->id()
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'houseId' => 'Идентификатор'
+        ];
+    }
 }

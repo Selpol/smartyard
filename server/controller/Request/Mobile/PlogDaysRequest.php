@@ -15,7 +15,17 @@ readonly class PlogDaysRequest extends RouteRequest
     {
         return [
             'flatId' => rule()->id(),
+
             'events' => rule()->string()->clamp(0, max: 64)
+        ];
+    }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'flatId' => 'Идентификатор',
+
+            'events' => 'Фильтр'
         ];
     }
 }

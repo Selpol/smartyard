@@ -17,4 +17,12 @@ readonly class UserSendNameRequest extends RouteRequest
             'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)]
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'name' => 'Имя',
+            'patronymic' => 'Отчество'
+        ];
+    }
 }

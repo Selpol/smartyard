@@ -15,4 +15,11 @@ readonly class SubscriberDeleteRequest extends RouteRequest
             'subscriberId' => rule()->id()
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'subscriberId' => 'Идентификатор'
+        ];
+    }
 }

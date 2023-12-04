@@ -18,4 +18,13 @@ readonly class CameraEventsRequest extends RouteRequest
             'date' => [filter()->default(1), rule()->int()->clamp(0, 14)->nonNullable()]
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'cameraId' => 'Идентификатор',
+
+            'date' => 'Дата'
+        ];
+    }
 }

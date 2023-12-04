@@ -16,8 +16,19 @@ readonly class ArchivePrepareRequest extends RouteRequest
     {
         return [
             'id' => rule()->id(),
-            'from' => rule()->required()->nonNullable(),
-            'to' => rule()->required()->nonNullable()
+
+            'from' => rule()->required()->date()->nonNullable(),
+            'to' => rule()->required()->date()->nonNullable()
+        ];
+    }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'id' => 'Идентификатор',
+
+            'from' => 'Дата начала',
+            'to' => 'Дата конца'
         ];
     }
 }

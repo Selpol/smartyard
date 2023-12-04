@@ -15,7 +15,17 @@ readonly class PlogIndexRequest extends RouteRequest
     {
         return [
             'flatId' => rule()->id(),
-            'day' => rule()->required()->nonNullable()
+
+            'day' => rule()->required()->date('Y-m-d')->nonNullable()
+        ];
+    }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'flatId' => 'Идентификатор',
+
+            'day' => 'Дата'
         ];
     }
 }

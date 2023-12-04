@@ -15,4 +15,11 @@ readonly class SubscriberStoreRequest extends RouteRequest
             'mobile' => rule()->required()->int()->min(70000000000)->max(79999999999)->nonNullable()
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'mobile' => 'Номер телефона'
+        ];
+    }
 }

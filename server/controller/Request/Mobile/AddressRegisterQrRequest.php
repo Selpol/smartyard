@@ -25,4 +25,16 @@ readonly class AddressRegisterQrRequest extends RouteRequest
             'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
         ];
     }
+
+    public static function getValidateTitle(): array
+    {
+        return [
+            'QR' => 'QR-Код',
+
+            'mobile' => 'Мобильный телефон',
+
+            'name' => 'Имя',
+            'patronymic' => 'Отчество'
+        ];
+    }
 }

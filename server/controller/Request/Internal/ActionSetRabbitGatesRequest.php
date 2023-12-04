@@ -21,7 +21,8 @@ readonly class ActionSetRabbitGatesRequest extends RouteRequest
             'prefix' => rule()->required()->int()->nonNullable(),
             'apartmentNumber' => rule()->required()->int()->nonNullable(),
             'apartmentId' => rule()->required()->int()->nonNullable(),
-            'date' => rule()->required()->int()->nonNullable()
+
+            'date' => rule()->required()->timestamp()->nonNullable()
         ];
     }
 }
