@@ -93,7 +93,7 @@ readonly class PlogController extends RbtController
 
                         $subscriber_id = (int)$user['subscriberId'];
 
-                        if (container(FrsFeature::class)->isLikedFlag($flat_id, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
+                        if (container(FrsFeature::class)->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_LIKED;
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_CAN_DISLIKE;
                         }
