@@ -20,15 +20,13 @@ class QrTask extends Task implements TaskUniqueInterface
     use TaskUniqueTrait;
 
     public int $houseId;
-    public ?int $flatId;
     public bool $override;
 
-    public function __construct(int $houseId, ?int $flatId, bool $override)
+    public function __construct(int $houseId, bool $override)
     {
-        parent::__construct('Qr (' . $houseId . ', ' . ($flatId ?? -1) . ')');
+        parent::__construct('Qr (' . $houseId . ')');
 
         $this->houseId = $houseId;
-        $this->flatId = $flatId;
         $this->override = $override;
     }
 
@@ -38,14 +36,12 @@ class QrTask extends Task implements TaskUniqueInterface
 
         $house = container(AddressFeature::class)->getHouse($this->houseId);
 
-        if ($this->override) {
-            $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
+        $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
 
+        if ($this->override) {
             foreach ($uuids as $uuid)
                 $file->deleteFile($uuid['id']);
         } else {
-            $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
-
             if (count($uuids) > 0)
                 return $uuids[count($uuids) - 1]['id'];
         }

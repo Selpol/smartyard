@@ -13,7 +13,7 @@ readonly class qr extends Api
     {
         $validate = validator($params, ['_id' => rule()->id(), 'override' => rule()->required()->bool()->nonNullable()]);
 
-        $uuid = task(new QrTask($validate['_id'], null, $validate['override']))->sync();
+        $uuid = task(new QrTask($validate['_id'], $validate['override']))->sync();
 
         return response()
             ->withBody(stream(container(FileFeature::class)->getFileStream($uuid)))
