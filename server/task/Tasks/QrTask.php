@@ -100,7 +100,6 @@ class QrTask extends Task implements TaskUniqueInterface
                 $files[] = $templateFile;
 
                 $zip->addFile($templateFile, $flat['flat'] . '.docx');
-                $zip->setCompressionName($flat['flat'] . '.docx', ZipArchive::CM_DEFLATE);
             }
 
             $zip->close();
