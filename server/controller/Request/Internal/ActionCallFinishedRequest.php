@@ -19,7 +19,7 @@ readonly class ActionCallFinishedRequest extends RouteRequest
 
             'callId' => [filter()->default(0), rule()->int()],
 
-            'date' => rule()->required()->timestamp()->nonNullable()
+            'date' => rule()->required()->nonNullable()
         ];
     }
 }

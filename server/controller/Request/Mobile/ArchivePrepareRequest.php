@@ -17,8 +17,8 @@ readonly class ArchivePrepareRequest extends RouteRequest
         return [
             'id' => rule()->id(),
 
-            'from' => rule()->required()->date()->nonNullable(),
-            'to' => rule()->required()->date()->nonNullable()
+            'from' => rule()->required()->nonNullable(),
+            'to' => rule()->required()->nonNullable()
         ];
     }
 

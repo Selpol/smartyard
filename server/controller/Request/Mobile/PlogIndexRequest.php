@@ -16,7 +16,7 @@ readonly class PlogIndexRequest extends RouteRequest
         return [
             'flatId' => rule()->id(),
 
-            'day' => rule()->required()->date('Y-m-d')->nonNullable()
+            'day' => rule()->required()->nonNullable()
         ];
     }
 

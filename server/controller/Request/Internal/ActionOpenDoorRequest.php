@@ -21,7 +21,7 @@ readonly class ActionOpenDoorRequest extends RouteRequest
             'door' => rule()->required()->int()->nonNullable(),
             'detail' => rule()->required()->string()->nonNullable(),
 
-            'date' => rule()->required()->timestamp()->nonNullable()
+            'date' => rule()->required()->nonNullable()
         ];
     }
 }
