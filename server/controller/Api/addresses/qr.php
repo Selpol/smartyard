@@ -11,6 +11,8 @@ readonly class qr extends Api
 {
     public static function POST(array $params): Response
     {
+        set_time_limit(480);
+
         $validate = validator($params, ['_id' => rule()->id(), 'override' => rule()->required()->bool()->nonNullable()]);
 
         $uuid = task(new QrTask($validate['_id'], $validate['override']))->sync();
