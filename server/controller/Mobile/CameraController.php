@@ -25,11 +25,9 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(CameraIndexRequest $request): Response
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $households = container(HouseFeature::class);
 
         $houses = [];
 
@@ -37,7 +35,7 @@ readonly class CameraController extends RbtController
             if ($flat['addressHouseId'] != $request->houseId)
                 continue;
 
-            $flatDetail = $households->getFlat($flat['flatId']);
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
 
             if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
                 continue;
@@ -51,18 +49,18 @@ readonly class CameraController extends RbtController
                 $house = &$houses[$houseId];
                 $house['houseId'] = strval($houseId);
 
-                $house['cameras'] = $households->getCameras("houseId", $houseId);
+                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
                 $house['doors'] = [];
             }
 
-            $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
+            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 if (array_key_exists($entrance['entranceId'], $house['doors'])) {
                     continue;
                 }
 
-                $e = $households->getEntrance($entrance['entranceId']);
+                $e = $houseFeature->getEntrance($entrance['entranceId']);
                 $door = [];
 
                 if ($e['cameraId']) {
@@ -97,7 +95,7 @@ readonly class CameraController extends RbtController
      * @throws ValidatorException
      */
     #[Get('/{cameraId}')]
-    public function show(CameraShowRequest $request, int $cameraId): Response
+    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -114,7 +112,7 @@ readonly class CameraController extends RbtController
         if (!$find)
             return user_response(404, message: 'Камера не найдена');
 
-        $camera = container(CameraFeature::class)->getCamera($cameraId);
+        $camera = $cameraFeature->getCamera($cameraId);
 
         if (!$camera)
             return user_response(404, message: 'Камера не найдена');
@@ -126,21 +124,19 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/events')]
-    public function events(CameraEventsRequest $request): Response
+    public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $households = container(HouseFeature::class);
-
-        $domophoneId = $households->getDomophoneIdByEntranceCameraId($request->cameraId);
+        $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($request->cameraId);
 
         if (is_null($domophoneId))
             return user_response(404, message: 'Домофон не найден');
 
         $flats = array_filter(
             array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
-            static function (array $flat) use ($households) {
-                $plog = $households->getFlatPlog($flat['id']);
+            static function (array $flat) use ($houseFeature) {
+                $plog = $houseFeature->getFlatPlog($flat['id']);
 
                 return is_null($plog) || $plog == PlogFeature::ACCESS_ALL || $plog == PlogFeature::ACCESS_OWNER_ONLY && $flat['owner'];
             }
@@ -151,7 +147,7 @@ readonly class CameraController extends RbtController
         if (count($flatsId) == 0)
             return user_response(404, message: 'Квартира у абонента не найдена');
 
-        $events = container(PlogFeature::class)->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
+        $events = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
 
         if ($events)
             return user_response(200, array_map(static fn(array $item) => $item['date'], $events));

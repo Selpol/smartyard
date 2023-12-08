@@ -31,11 +31,9 @@ readonly class UserController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerPushToken')]
-    public function registerPushToken(UserRegisterPushTokenRequest $request): Response
+    public function registerPushToken(UserRegisterPushTokenRequest $request, HouseFeature $houseFeature, ExternalFeature $externalFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $households = container(HouseFeature::class);
 
         $old_push = $user["pushToken"];
 
@@ -53,15 +51,15 @@ readonly class UserController extends RbtController
             $type = 0; // fcm
         }
 
-        $households->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "voipEnabled" => $request->voipEnabled, "platform" => $platform]);
+        $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "voipEnabled" => $request->voipEnabled, "platform" => $platform]);
 
         if (!$request->pushToken)
-            $households->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
+            $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
         else if ($old_push && $old_push != $request->pushToken)
-            container(ExternalFeature::class)->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
+            $externalFeature->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
 
         if (!$request->voipToken)
-            $households->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
+            $houseFeature->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
 
         return user_response();
     }
@@ -71,12 +69,12 @@ readonly class UserController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/sendName')]
-    public function sendName(UserSendNameRequest $request): Response
+    public function sendName(UserSendNameRequest $request, HouseFeature $houseFeature): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
-        if ($request->patronymic) container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
-        else container(HouseFeature::class)->modifySubscriber($userId, ["subscriberName" => $request->name]);
+        if ($request->patronymic) $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
+        else $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name]);
 
         return user_response();
     }

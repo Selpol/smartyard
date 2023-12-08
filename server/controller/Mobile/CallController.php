@@ -17,11 +17,11 @@ readonly class CallController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/camshot/{hash}')]
-    public function camshot(string $hash): Response
+    public function camshot(string $hash, RedisService $redisService): Response
     {
         $this->getUser();
 
-        $image = container(RedisService::class)->get('shot_' . $hash);
+        $image = $redisService->get('shot_' . $hash);
 
         if ($image !== false)
             return response()
@@ -35,14 +35,14 @@ readonly class CallController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/live/{hash}')]
-    public function live(string $hash): Response
+    public function live(string $hash, RedisService $redisService, DeviceService $deviceService): Response
     {
         $this->getUser();
 
-        $json_camera = container(RedisService::class)->get("live_" . $hash);
+        $json_camera = $redisService->get("live_" . $hash);
         $camera_params = json_decode($json_camera, true);
 
-        $model = container(DeviceService::class)->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
+        $model = $deviceService->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
 
         if (!$model)
             return user_response(404, message: 'Камера не найдена');

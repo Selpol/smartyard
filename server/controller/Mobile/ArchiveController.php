@@ -22,7 +22,7 @@ readonly class ArchiveController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/recPrepare')]
-    public function prepare(ArchivePrepareRequest $request): Response
+    public function prepare(ArchivePrepareRequest $request, ArchiveFeature $archiveFeature): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
@@ -34,15 +34,13 @@ readonly class ArchiveController extends RbtController
         if (!$from || !$to)
             return user_response(400, message: 'Неверный формат данных');
 
-        $archive = container(ArchiveFeature::class);
-
         // проверяем, не был ли уже запрошен данный кусок из архива.
-        $check = $archive->checkDownloadRecord($request->id, $userId, $from, $to);
+        $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
         if (@$check['id'])
             return user_response(200, $check['id']);
 
-        $result = (int)$archive->addDownloadRecord($request->id, $userId, $from, $to);
+        $result = (int)$archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
         task(new RecordTask($userId, $result))->low()->dispatch();
 
@@ -53,12 +51,10 @@ readonly class ArchiveController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/download/{uuid}', excludes: [JwtMiddleware::class, MobileMiddleware::class])]
-    public function download(string $uuid): Response
+    public function download(string $uuid, FileFeature $fileFeature): Response
     {
-        $file = container(FileFeature::class);
-
-        $stream = $file->getFileStream($uuid);
-        $info = $file->getFileInfo($uuid);
+        $stream = $fileFeature->getFileStream($uuid);
+        $info = $fileFeature->getFileInfo($uuid);
 
         return response()
             ->withHeader('Content-Type', 'video/mp4')

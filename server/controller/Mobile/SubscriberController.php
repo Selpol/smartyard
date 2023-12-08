@@ -24,7 +24,7 @@ readonly class SubscriberController extends RbtController
      * @throws ValidatorException
      */
     #[Get('/{flatId}')]
-    public function index(int $flatId): Response
+    public function index(int $flatId, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -33,7 +33,7 @@ readonly class SubscriberController extends RbtController
         if ($flat === null)
             return user_response(403, message: 'Квартира не найдена у абонента');
 
-        $subscribers = container(HouseFeature::class)->getSubscribers('flatId', $flat['flatId']);
+        $subscribers = $houseFeature->getSubscribers('flatId', $flat['flatId']);
 
         return user_response(
             data: array_map(
@@ -54,7 +54,7 @@ readonly class SubscriberController extends RbtController
      * @throws ValidatorException
      */
     #[Post('/{flatId}')]
-    public function store(SubscriberStoreRequest $request, int $flatId): Response
+    public function store(SubscriberStoreRequest $request, int $flatId, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -65,17 +65,15 @@ readonly class SubscriberController extends RbtController
         if ($flat['role'] !== 0)
             return user_response(403, message: 'Недостаточно прав для добавления нового жителя');
 
-        $households = container(HouseFeature::class);
-
-        $subscribers = $households->getSubscribers('mobile', $request->mobile);
+        $subscribers = $houseFeature->getSubscribers('mobile', $request->mobile);
 
         if (!$subscribers || count($subscribers) === 0) {
-            $id = $households->addSubscriber($request->mobile, 'Имя', 'Отчество', flatId: $flatId);
+            $id = $houseFeature->addSubscriber($request->mobile, 'Имя', 'Отчество', flatId: $flatId);
 
             if (!$id)
                 return user_response(400, message: 'Неудалось зарегестрировать жителя');
 
-            $subscribers = $households->getSubscribers('id', $id);
+            $subscribers = $houseFeature->getSubscribers('id', $id);
         }
 
         $subscriber = $subscribers[0];
@@ -85,7 +83,7 @@ readonly class SubscriberController extends RbtController
         if ($subscriberFlat)
             return user_response(400, message: 'Житель уже добавлен');
 
-        if (!$households->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId']))
+        if (!$houseFeature->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId']))
             return user_response(400, message: 'Житель не был добавлен');
 
         return user_response();
@@ -97,7 +95,7 @@ readonly class SubscriberController extends RbtController
      * @throws ValidatorException
      */
     #[Delete('/{flatId}')]
-    public function delete(SubscriberDeleteRequest $request, int $flatId): Response
+    public function delete(SubscriberDeleteRequest $request, int $flatId, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -109,9 +107,7 @@ readonly class SubscriberController extends RbtController
         if ($flat['role'] !== 0)
             return user_response(403, message: 'Недостаточно прав для удаления жителя');
 
-        $households = container(HouseFeature::class);
-
-        $subscribers = $households->getSubscribers('id', $request->subscriberId);
+        $subscribers = $houseFeature->getSubscribers('id', $request->subscriberId);
 
         if (!$subscribers || count($subscribers) === 0)
             return user_response(404, message: 'Житель не зарегестрирован');
@@ -126,7 +122,7 @@ readonly class SubscriberController extends RbtController
         if ($subscriberFlat['role'] == 0)
             return user_response(403, message: 'Житель является владельцем квартиры');
 
-        if (!$households->removeSubscriberFromFlat($flat['flatId'], $subscriber['subscriberId']))
+        if (!$houseFeature->removeSubscriberFromFlat($flat['flatId'], $subscriber['subscriberId']))
             return user_response(400, message: 'Житель не был удален');
 
         return user_response();

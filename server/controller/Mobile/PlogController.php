@@ -25,11 +25,9 @@ readonly class PlogController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/plog')]
-    public function index(PlogIndexRequest $request): Response
+    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $households = container(HouseFeature::class);
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
@@ -46,7 +44,7 @@ readonly class PlogController extends RbtController
                 break;
             }
 
-        $flat_details = $households->getFlat($request->flatId);
+        $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
@@ -54,7 +52,7 @@ readonly class PlogController extends RbtController
 
         try {
             $date = date('Ymd', strtotime($request->day));
-            $result = container(PlogFeature::class)->getDetailEventsByDay($request->flatId, $date);
+            $result = $plogFeature->getDetailEventsByDay($request->flatId, $date);
 
             if ($result) {
                 $events_details = [];
@@ -93,7 +91,7 @@ readonly class PlogController extends RbtController
 
                         $subscriber_id = (int)$user['subscriberId'];
 
-                        if (container(FrsFeature::class)->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
+                        if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_LIKED;
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_CAN_DISLIKE;
                         }
@@ -156,19 +154,17 @@ readonly class PlogController extends RbtController
     }
 
     #[Get('/plogCamshot/{uuid}')]
-    public function camshot(string $uuid, FileFeature $feature): Response
+    public function camshot(string $uuid, FileFeature $fileFeature): Response
     {
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($uuid))));
+            ->withBody(stream($fileFeature->getFileStream($fileFeature->fromGUIDv4($uuid))));
     }
 
     #[Post('/plogDays')]
-    public function days(PlogDaysRequest $request): Response
+    public function days(PlogDaysRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $households = container(HouseFeature::class);
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($request->flatId, $flat_ids);
@@ -184,7 +180,7 @@ readonly class PlogController extends RbtController
                 break;
             }
 
-        $flat_details = $households->getFlat($request->flatId);
+        $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
@@ -210,7 +206,7 @@ readonly class PlogController extends RbtController
         }
 
         try {
-            $result = container(PlogFeature::class)->getEventsDays($request->flatId, $filter_events);
+            $result = $plogFeature->getEventsDays($request->flatId, $filter_events);
 
             if ($result)
                 return user_response(200, $result);

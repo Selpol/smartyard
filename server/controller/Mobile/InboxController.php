@@ -19,11 +19,9 @@ readonly class InboxController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/read')]
-    public function read(InboxReadRequest $request): Response
+    public function read(InboxReadRequest $request, InboxFeature $inboxFeature): Response
     {
-        $userId = $this->getUser()->getIdentifier();
-
-        container(InboxFeature::class)->markMessageAsRead($userId, $request->messageId ?? false);
+        $inboxFeature->markMessageAsRead($this->getUser()->getIdentifier(), $request->messageId ?? false);
 
         return user_response();
     }
@@ -32,10 +30,8 @@ readonly class InboxController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/unread')]
-    public function unread(): Response
+    public function unread(InboxFeature $inboxFeature): Response
     {
-        $userId = $this->getUser()->getIdentifier();
-
-        return user_response(data: ['count' => container(InboxFeature::class)->unRead($userId), 'chat' => 0]);
+        return user_response(data: ['count' => $inboxFeature->unRead($this->getUser()->getIdentifier()), 'chat' => 0]);
     }
 }

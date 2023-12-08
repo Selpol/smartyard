@@ -7,7 +7,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Feature\Camera\CameraFeature;
-use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
@@ -24,7 +23,7 @@ readonly class IntercomController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/intercom')]
-    public function intercom(ServerRequestInterface $request): Response
+    public function intercom(ServerRequestInterface $request, HouseFeature $houseFeature, CameraFeature $cameraFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -50,8 +49,6 @@ readonly class IntercomController extends RbtController
                 break;
             }
 
-        $households = container(HouseFeature::class);
-
         if (@$body['settings']) {
             $params = [];
             $settings = $body['settings'];
@@ -73,7 +70,7 @@ readonly class IntercomController extends RbtController
                 $params['whiteRabbit'] = $wr;
             }
 
-            $flat_plog = $households->getFlat($flat_id)['plog'];
+            $flat_plog = $houseFeature->getFlat($flat_id)['plog'];
 
             $disable_plog = null;
 
@@ -92,19 +89,19 @@ readonly class IntercomController extends RbtController
             } else if ($hidden_plog !== null && $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY)
                 $params['plog'] = $hidden_plog ? PlogFeature::ACCESS_OWNER_ONLY : PlogFeature::ACCESS_ALL;
 
-            $households->modifyFlat($flat_id, $params);
+            $houseFeature->modifyFlat($flat_id, $params);
 
             if (@$settings['VoIP']) {
                 $params = [];
                 $params['voipEnabled'] = $settings['VoIP'] ? 1 : 0;
-                $households->modifySubscriber($user['subscriberId'], $params);
+                $houseFeature->modifySubscriber($user['subscriberId'], $params);
             }
 
             task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
         }
 
-        $subscriber = $households->getSubscribers('id', $user['subscriberId'])[0];
-        $flat = $households->getFlat($flat_id);
+        $subscriber = $houseFeature->getSubscribers('id', $user['subscriberId'])[0];
+        $flat = $houseFeature->getFlat($flat_id);
 
         $result = [];
 
@@ -120,26 +117,22 @@ readonly class IntercomController extends RbtController
             $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
         }
 
-        $frs = container(FrsFeature::class);
+        $frsDisabled = null;
 
-        if ($frs) {
-            $frsDisabled = null;
+        foreach ($flat['entrances'] as $entrance) {
+            $e = $houseFeature->getEntrance($entrance['entranceId']);
 
-            foreach ($flat['entrances'] as $entrance) {
-                $e = $households->getEntrance($entrance['entranceId']);
+            $vstream = $cameraFeature->getCamera($e['cameraId']);
 
-                $vstream = container(CameraFeature::class)->getCamera($e['cameraId']);
+            if (strlen($vstream["frs"]) > 1) {
+                $frsDisabled = false;
 
-                if (strlen($vstream["frs"]) > 1) {
-                    $frsDisabled = false;
-
-                    break;
-                }
+                break;
             }
-
-            if ($frsDisabled != null)
-                $result['FRSDisabled'] = $frsDisabled;
         }
+
+        if ($frsDisabled != null)
+            $result['FRSDisabled'] = $frsDisabled;
 
         if ($result)
             return user_response(200, $result);
@@ -152,24 +145,22 @@ readonly class IntercomController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/openDoor')]
-    public function openDoor(ServerRequestInterface $request): Response
+    public function openDoor(ServerRequestInterface $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
         $validate = validator($request->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
 
-        $households = container(HouseFeature::class);
-
         $blocked = true;
 
         foreach ($user['flats'] as $flat) {
-            $flatDetail = $households->getFlat($flat['flatId']);
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
             if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'])
                 continue;
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 $domophoneId = intval($entrance['domophoneId']);
-                $e = $households->getEntrance($entrance['entranceId']);
+                $e = $houseFeature->getEntrance($entrance['entranceId']);
                 $doorId = intval($e['domophoneOutput']);
 
                 if ($validate['domophoneId'] == $domophoneId && $validate['doorId'] == $doorId && !$flatDetail['manualBlock']) {
@@ -189,7 +180,7 @@ readonly class IntercomController extends RbtController
 
                 $model->open($validate['doorId'] ?: 0);
 
-                container(PlogFeature::class)->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
+                $plogFeature->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Throwable $throwable) {
                 file_logger('intercom')->error($throwable);
 
@@ -207,7 +198,7 @@ readonly class IntercomController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/resetCode')]
-    public function resetCode(ServerRequestInterface $request): Response
+    public function resetCode(ServerRequestInterface $request, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -221,12 +212,12 @@ readonly class IntercomController extends RbtController
         if (!$f)
             return user_response(403, message: 'Квартира у абонента не найдена');
 
-        $households = container(HouseFeature::class);
-
         $params = [];
         $params['openCode'] = '!';
-        $households->modifyFlat($flat_id, $params);
-        $flat = $households->getFlat($flat_id);
+
+        $houseFeature->modifyFlat($flat_id, $params);
+
+        $flat = $houseFeature->getFlat($flat_id);
 
         task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
 

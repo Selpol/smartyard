@@ -23,18 +23,16 @@ readonly class AddressController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/getAddressList')]
-    public function getAddressList(): Response
+    public function getAddressList(HouseFeature $houseFeature, CameraFeature $cameraFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
-
-        $households = container(HouseFeature::class);
 
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
             $houseId = $flat['addressHouseId'];
 
-            $flatDetail = $households->getFlat($flat["flatId"]);
+            $flatDetail = $houseFeature->getFlat($flat["flatId"]);
             $block = $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'];
 
             if (array_key_exists($houseId, $houses)) $house = &$houses[$houseId];
@@ -52,7 +50,7 @@ readonly class AddressController extends RbtController
                 if ($flatDetail['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                     $house['hasPlog'] = $has_plog;
 
-                $house['cameras'] = $households->getCameras("houseId", $houseId);
+                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
                 $house['doors'] = [];
             }
 
@@ -61,14 +59,14 @@ readonly class AddressController extends RbtController
 
             $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
 
-            $house['cameras'] = array_merge($house['cameras'], $households->getCameras("flatId", $flat['flatId']));
+            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
             $house['cctv'] = count($house['cameras']);
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 if (array_key_exists($entrance['entranceId'], $house['doors']))
                     continue;
 
-                $e = $households->getEntrance($entrance['entranceId']);
+                $e = $houseFeature->getEntrance($entrance['entranceId']);
 
                 $door = [];
 
@@ -80,7 +78,7 @@ readonly class AddressController extends RbtController
                 $door['name'] = $e['entrance'];
 
                 if ($e['cameraId']) {
-                    $cam = container(CameraFeature::class)->getCamera($e["cameraId"]);
+                    $cam = $cameraFeature->getCamera($e["cameraId"]);
 
                     $house['cameras'][] = $cam;
                     $house['cctv']++;
@@ -110,7 +108,7 @@ readonly class AddressController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerQR', excludes: [MobileMiddleware::class])]
-    public function registerQR(AddressRegisterQrRequest $request): Response
+    public function registerQR(AddressRegisterQrRequest $request, HouseFeature $houseFeature, ExternalFeature $externalFeature): Response
     {
         $token = $this->getToken();
 
@@ -128,14 +126,12 @@ readonly class AddressController extends RbtController
         if ($hash == '')
             return user_response(200, "QR-код не является кодом для доступа к квартире");
 
-        $households = container(HouseFeature::class);
-
         $flat = HouseFlat::getRepository()->findByCode($hash);
 
         if (!$flat)
             return user_response(200, "QR-код не является кодом для доступа к квартире");
 
-        $subscribers = $households->getSubscribers('aud_jti', $audJti);
+        $subscribers = $houseFeature->getSubscribers('aud_jti', $audJti);
 
         if (!$subscribers || count($subscribers) === 0) {
             $mobile = $request->mobile;
@@ -149,11 +145,11 @@ readonly class AddressController extends RbtController
             if (!$name) return user_response(400, message: 'Имя обязательно для заполнения');
             if (!$patronymic) return user_response(400, message: 'Отчество обязательно для заполнения');
 
-            if ($households->addSubscriber($mobile, $name, $patronymic)) {
-                $subscribers = $households->getSubscribers('mobile', $mobile);
+            if ($houseFeature->addSubscriber($mobile, $name, $patronymic)) {
+                $subscribers = $houseFeature->getSubscribers('mobile', $mobile);
 
                 if (count($subscribers) > 0)
-                    $households->modifySubscriber($subscribers[0]['subscriberId'], ['audJti' => $audJti]);
+                    $houseFeature->modifySubscriber($subscribers[0]['subscriberId'], ['audJti' => $audJti]);
             } else return user_response(422, 'Не удалось зарегестрироваться');
         }
 
@@ -164,10 +160,10 @@ readonly class AddressController extends RbtController
                 if ((int)$item['flatId'] == $flat->house_flat_id)
                     return user_response(200, "У вас уже есть доступ к данной квартире");
 
-            if ($households->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
+            if ($houseFeature->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
                 $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
 
-                $result = container(ExternalFeature::class)->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $request->name . ' ' . $request->patronymic, connection_ip($request->getRequest()));
+                $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $request->name . ' ' . $request->patronymic, connection_ip($request->getRequest()));
 
                 if (is_string($result))
                     return user_response(400, message: $result);
