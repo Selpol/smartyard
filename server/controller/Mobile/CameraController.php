@@ -89,10 +89,7 @@ readonly class CameraController extends RbtController
             }
         }
 
-        if (count($result))
-            return user_response(200, $result);
-
-        return user_response(404, message: 'Камеры не найдены');
+        return user_response(200, $result);
     }
 
     /**

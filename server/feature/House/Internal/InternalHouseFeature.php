@@ -310,7 +310,6 @@ readonly class InternalHouseFeature extends HouseFeature
         if (trim($flat)) {
 
             if ($openCode == "!") {
-                // TODO add unique check !!!
                 $openCode = 11000 + rand(0, 88999);
             }
 
@@ -378,7 +377,6 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         if (@$params["openCode"] == "!") {
-            // TODO add unique check !!!
             $params["openCode"] = 11000 + rand(0, 88999);
         }
 
