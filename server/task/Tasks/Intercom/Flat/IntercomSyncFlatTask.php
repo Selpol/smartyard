@@ -51,7 +51,7 @@ class IntercomSyncFlatTask extends Task
             $device = intercom($id);
 
             if (!$device->ping())
-                throw new DeviceException($device, 'Устройство не доступно');
+                return;
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));

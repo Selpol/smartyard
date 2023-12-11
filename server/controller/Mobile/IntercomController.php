@@ -53,10 +53,10 @@ readonly class IntercomController extends RbtController
             $params = [];
             $settings = $body['settings'];
 
-            if (@$settings['CMS'])
+            if (array_key_exists('CMS', $settings))
                 $params["cmsEnabled"] = $settings['CMS'] ? 1 : 0;
 
-            if (@$settings['autoOpen']) {
+            if (array_key_exists('autoOpen', $settings)) {
                 $d = date('Y-m-d H:i:s', strtotime($settings['autoOpen']));
                 $params['autoOpen'] = $d;
             }
@@ -88,6 +88,9 @@ readonly class IntercomController extends RbtController
                 else $params['plog'] = PlogFeature::ACCESS_OWNER_ONLY;
             } else if ($hidden_plog !== null && $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY)
                 $params['plog'] = $hidden_plog ? PlogFeature::ACCESS_OWNER_ONLY : PlogFeature::ACCESS_ALL;
+
+            if ($this->getUser()->getIdentifier() == 130)
+                file_logger('intercom')->debug('', ['param' => $params, 'settings' => $settings]);
 
             $houseFeature->modifyFlat($flat_id, $params);
 

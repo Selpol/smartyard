@@ -22,7 +22,7 @@ readonly class UserRegisterPushTokenRequest extends RouteRequest
             'pushToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
             'voipToken' => [filter()->fullSpecialChars(), rule()->clamp(16)],
 
-            'production' => [filter()->default(false), rule()->bool()],
+            'production' => [filter()->default(true), rule()->bool()],
 
             'platform' => rule()->required()->in(['ios', 'android', 'huawei'])->nonNullable(),
 
