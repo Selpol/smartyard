@@ -148,7 +148,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             try {
                 $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower($params['_request_method']));
 
-                return $this->emit(rbt_response(403, 'Недостаточно прав для данного действия (' . $permission->description . ')'));
+                return $this->emit(rbt_response(403, 'Недостаточно прав для данного действия (' . ($permission?->description ?? 'Неизвестное правило') . ')'));
             } catch (Throwable) {
                 return $this->emit(rbt_response(403, 'Недостаточно прав для данного действия'));
             }
