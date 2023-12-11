@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Middleware;
+namespace Selpol\Middleware\Mobile;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -11,7 +11,7 @@ use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
 
-readonly class JwtMiddleware extends RouteMiddleware
+readonly class AuthMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Middleware;
+namespace Selpol\Middleware\Mobile;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -10,7 +10,7 @@ use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\Auth\User\SubscriberAuthUser;
 use Selpol\Service\AuthService;
 
-readonly class MobileMiddleware extends RouteMiddleware
+readonly class SubscriberMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

@@ -14,7 +14,7 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
-use Selpol\Middleware\MobileMiddleware;
+use Selpol\Middleware\Mobile\SubscriberMiddleware;
 
 #[Controller('/mobile/address')]
 readonly class AddressController extends RbtController
@@ -107,7 +107,7 @@ readonly class AddressController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/registerQR', excludes: [MobileMiddleware::class])]
+    #[Post('/registerQR', excludes: [SubscriberMiddleware::class])]
     public function registerQR(AddressRegisterQrRequest $request, HouseFeature $houseFeature, ExternalFeature $externalFeature): Response
     {
         $token = $this->getToken();

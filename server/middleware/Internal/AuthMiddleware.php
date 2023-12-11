@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Middleware;
+namespace Selpol\Middleware\Internal;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -8,7 +8,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 
-readonly class InternalMiddleware extends RouteMiddleware
+readonly class AuthMiddleware extends RouteMiddleware
 {
     private array $trust;
 

@@ -11,8 +11,8 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
-use Selpol\Middleware\JwtMiddleware;
-use Selpol\Middleware\MobileMiddleware;
+use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Task\Tasks\RecordTask;
 
 #[Controller('/mobile/cctv')]
@@ -50,7 +50,7 @@ readonly class ArchiveController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Get('/download/{uuid}', excludes: [JwtMiddleware::class, MobileMiddleware::class])]
+    #[Get('/download/{uuid}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
         $stream = $fileFeature->getFileStream($uuid);

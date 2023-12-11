@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Middleware;
+namespace Selpol\Middleware\Frontend;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -12,7 +12,7 @@ use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
 
-readonly class TokenMiddleware extends RouteMiddleware
+readonly class AuthMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Middleware;
+namespace Selpol\Middleware\Frontend;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
