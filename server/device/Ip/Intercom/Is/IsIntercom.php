@@ -108,10 +108,8 @@ class IsIntercom extends IntercomDevice
             'typeSound' => 3,
         ];
 
-        if (count($levels) === 2) $payload['resistances'] = ['answer' => $levels[0], 'quiescent' => $levels[1]];
-        else $payload['resistances'] = ['answer' => 255, 'quiescent' => 255];
-
         $this->post('/panelCode', $payload);
+        $this->setApartmentLevels($apartment, count($levels) > 0 ? $levels[0] : 255, count($levels) > 1 ? $levels[1] : 255);
 
         $this->removeCode($apartment);
 

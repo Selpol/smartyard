@@ -52,7 +52,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
         $feature = container(TaskFeature::class);
 
         if ($feature->hasUnique($task))
-            throw new KernelException('Задача уже существует');
+            throw new KernelException('Задача уже существует', code: 400);
 
         $feature->setUnique($task);
 

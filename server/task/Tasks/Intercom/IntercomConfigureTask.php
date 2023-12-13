@@ -171,7 +171,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $domophoneId);
 
                 foreach ($flat_entrances as $flat_entrance) {
-                    if (isset($flat_entrance['apartmentLevels'])) {
+                    if (isset($flat_entrance['apartmentLevels']) && $flat_entrance['apartmentLevels']) {
                         $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
                     }
 
