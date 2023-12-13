@@ -51,18 +51,13 @@ if (!function_exists('last_error')) {
 }
 
 if (!function_exists('guid_v4')) {
-    function guid_v4(bool $trim = true): string
+    function guid_v4(): string
     {
-        // copyright (c) by Dave Pearson (dave at pds-uk dot com)
-        // https://www.php.net/manual/ru/function.com-create-guid.php#119168
-
-        if (function_exists('com_create_guid') === true) {
-            if ($trim === true) return trim(com_create_guid(), '{}');
-            else return com_create_guid();
-        } else if (function_exists('openssl_random_pseudo_bytes') === true) {
+        if (function_exists('openssl_random_pseudo_bytes')) {
             $data = openssl_random_pseudo_bytes(16);
-            $data[6] = chr(ord($data[6]) & 0x0f | 0x40);    // set version to 0100
-            $data[8] = chr(ord($data[8]) & 0x3f | 0x80);    // set bits 6-7 to 10
+
+            $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+            $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
 
             return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
         }
@@ -71,18 +66,13 @@ if (!function_exists('guid_v4')) {
 
         $char = strtolower(md5(uniqid(rand(), true)));
 
-        $hyphen = chr(45);                  // "-"
+        $hyphen = chr(45);
 
-        $lbrace = $trim ? "" : chr(123);    // "{"
-        $rbrace = $trim ? "" : chr(125);    // "}"
-
-        return $lbrace .
-            substr($char, 0, 8) . $hyphen .
+        return substr($char, 0, 8) . $hyphen .
             substr($char, 8, 4) . $hyphen .
             substr($char, 12, 4) . $hyphen .
             substr($char, 16, 4) . $hyphen .
-            substr($char, 20, 12) .
-            $rbrace;
+            substr($char, 20, 12);
     }
 }
 
