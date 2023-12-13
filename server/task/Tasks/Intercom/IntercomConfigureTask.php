@@ -165,19 +165,23 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             foreach ($flats as $flat) {
                 $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
 
-                $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $domophoneId);
+                $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
+                    return $entrance['domophoneId'] == $domophoneId;
+                });
 
-                $flat_entrance = $flat_entrances && count($flat_entrances) > 0 ? $flat_entrances[0] : null;
-
-                if ($flat_entrance) {
+                if ($flat_entrances) {
                     $apartment = $flat['flat'];
                     $apartment_levels = $cms_levels;
 
-                    if (isset($flat_entrance['apartmentLevels']))
-                        $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
+                    foreach ($flat_entrances as $flat_entrance) {
+                        if (isset($flat_entrance['apartmentLevels'])) {
+                            $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
+                        }
 
-                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
-                        $apartment = $flat_entrance['apartment'];
+                        if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
+                            $apartment = $flat_entrance['apartment'];
+                        }
+                    }
 
                     $device->addApartmentDeffer(
                         $apartment + $offset,
