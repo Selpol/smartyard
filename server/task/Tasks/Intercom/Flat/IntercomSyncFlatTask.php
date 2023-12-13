@@ -53,12 +53,12 @@ class IntercomSyncFlatTask extends Task
             if (!$device->ping())
                 return;
 
+            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
+
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
 
-            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
-                return $entrance['domophoneId'] == $id;
-            });
+            $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
                 if (isset($flat_entrance['apartmentLevels'])) {
@@ -69,8 +69,6 @@ class IntercomSyncFlatTask extends Task
                     $apartment = $flat_entrance['apartment'];
                 }
             }
-
-            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
 
             if ($this->add)
                 $device->addApartment(

@@ -165,37 +165,33 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             foreach ($flats as $flat) {
                 $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
 
-                $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
-                    return $entrance['domophoneId'] == $domophoneId;
-                });
+                $apartment = $flat['flat'];
+                $apartment_levels = $cms_levels;
 
-                if ($flat_entrances) {
-                    $apartment = $flat['flat'];
-                    $apartment_levels = $cms_levels;
+                $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $domophoneId);
 
-                    foreach ($flat_entrances as $flat_entrance) {
-                        if (isset($flat_entrance['apartmentLevels'])) {
-                            $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
-                        }
-
-                        if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
-                            $apartment = $flat_entrance['apartment'];
-                        }
+                foreach ($flat_entrances as $flat_entrance) {
+                    if (isset($flat_entrance['apartmentLevels'])) {
+                        $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
                     }
 
-                    $device->addApartmentDeffer(
-                        $apartment + $offset,
-                        $is_shared ? false : ($block ? false : $flat['cmsEnabled']),
-                        $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
-                        $apartment_levels,
-                        intval($flat['openCode']) ?? 0
-                    );
-
-                    $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
-
-                    foreach ($keys as $key)
-                        $device->addRfidDeffer($key['rfId'], $apartment);
+                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
+                        $apartment = $flat_entrance['apartment'];
+                    }
                 }
+
+                $device->addApartmentDeffer(
+                    $apartment + $offset,
+                    $is_shared ? false : ($block ? false : $flat['cmsEnabled']),
+                    $is_shared ? [] : [sprintf('1%09d', $flat['flatId'])],
+                    $apartment_levels,
+                    intval($flat['openCode']) ?? 0
+                );
+
+                $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
+
+                foreach ($keys as $key)
+                    $device->addRfidDeffer($key['rfId'], $apartment);
 
                 if ($flat['flat'] == $end)
                     $offset += $flat['flat'];
