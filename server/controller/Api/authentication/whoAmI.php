@@ -15,7 +15,7 @@ readonly class whoAmI extends Api
         $user = container(UserFeature::class)->getUser($params["_uid"]);
 
         if (!$user)
-            return self::error('Пользователь не найден');
+            return self::error('Пользователь не найден', 404);
 
         $redis = container(RedisService::class);
 

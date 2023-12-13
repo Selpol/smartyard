@@ -25,7 +25,7 @@ readonly class subscribers extends Api
         if ($flat)
             return self::success($flat);
 
-        return self::error('Не удалось получить квартиру');
+        return self::error('Не удалось получить квартиру', 400);
     }
 
     public static function index(): bool|array

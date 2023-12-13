@@ -40,7 +40,7 @@ readonly class password extends Api
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
-                    return self::error('Неудалось обновить sip аккаунт домофона');
+                    return self::error('Неудалось обновить sip аккаунт домофона', 500);
                 }
 
                 $intercom->setLoginPassword($password);

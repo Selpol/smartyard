@@ -10,8 +10,6 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
 {
     use TaskUniqueTrait;
 
-    public $taskUniqueTtl = 60;
-
     public bool $lock;
 
     public function __construct(int $id, bool $lock)

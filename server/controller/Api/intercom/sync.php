@@ -26,7 +26,7 @@ readonly class sync extends Api
             return self::success();
         }
 
-        return self::error('Домофон не найден');
+        return self::error('Домофон не найден', 404);
     }
 
     public static function index(): array|bool

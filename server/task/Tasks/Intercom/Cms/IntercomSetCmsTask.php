@@ -11,8 +11,6 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
 {
     use TaskUniqueTrait;
 
-    public $taskUniqueTtl = 600;
-
     public string $cms;
 
     public function __construct(int $id, string $cms)

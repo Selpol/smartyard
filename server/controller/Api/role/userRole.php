@@ -20,7 +20,7 @@ readonly class userRole extends Api
         if (container(RoleFeature::class)->addRoleToUser($validate['_id'], $validate['roleId']))
             return self::success($validate['_id']);
 
-        return self::error('Не удалось привязать группу к пользователю');
+        return self::error('Не удалось привязать группу к пользователю', 400);
     }
 
     public static function DELETE(array $params): ResponseInterface

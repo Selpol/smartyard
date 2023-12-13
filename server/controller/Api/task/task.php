@@ -35,7 +35,7 @@ readonly class task extends Api
         if ($result)
             return self::success($params['_id']);
 
-        return self::error('Не удалось перезапустить задачу');
+        return self::error('Не удалось перезапустить задачу', 400);
     }
 
     public static function index(): array

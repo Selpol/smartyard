@@ -27,6 +27,6 @@ trait TaskUniqueTrait
             if (!$property->isStatic() && !in_array($property->getName(), $exclude))
                 $value[] = $property->getValue($this);
 
-        return [implode('/', $value), $this->taskUniqueTtl ?? 3600];
+        return [implode('/', $value), $this->taskUniqueTtl ?? 60];
     }
 }
