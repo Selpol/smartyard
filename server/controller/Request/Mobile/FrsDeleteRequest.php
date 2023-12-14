@@ -9,6 +9,10 @@ use Selpol\Framework\Router\Route\RouteRequest;
  *
  * @property-read int|null $flat_id
  * @property-read int|null $face_id
+ *
+ * @property-read int|null $flatId
+ * @property-read int|null $faceId
+ *
  */
 readonly class FrsDeleteRequest extends RouteRequest
 {
@@ -18,7 +22,10 @@ readonly class FrsDeleteRequest extends RouteRequest
             'eventId' => rule()->uuid(),
 
             'flat_id' => rule()->int()->clamp(0),
-            'face_id' => rule()->int()->clamp(0)
+            'face_id' => rule()->int()->clamp(0),
+
+            'flatId' => rule()->int()->clamp(0),
+            'faceId' => rule()->int()->clamp(0)
         ];
     }
 
@@ -28,7 +35,10 @@ readonly class FrsDeleteRequest extends RouteRequest
             'eventId' => 'Идентификатор',
 
             'flat_id' => 'Идентификатор',
-            'face_id' => 'Идентификатор'
+            'face_id' => 'Идентификатор',
+
+            'flatId' => 'Идентификатор',
+            'faceId' => 'Идентификатор'
         ];
     }
 }

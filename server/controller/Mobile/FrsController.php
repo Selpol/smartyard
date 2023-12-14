@@ -136,8 +136,8 @@ readonly class FrsController extends RbtController
             if ($face_id2 === false)
                 $face_id2 = null;
         } else {
-            $flat_id = $request->flat_id;
-            $face_id = $request->face_id;
+            $flat_id = $request->flat_id ?? $request->flatId;
+            $face_id = $request->face_id ?? $request->faceId;
         }
 
         if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))
