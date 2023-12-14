@@ -67,7 +67,7 @@ class TaskContainer
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 
             if (container(AuditFeature::class)->canAudit())
-                container(AuditFeature::class)->audit('-1', $this->task::class, 'task', 'Запуск новой задачи');
+                container(AuditFeature::class)->audit('-1', $this->task::class, 'task', $this->task->title);
 
             return true;
         } catch (Throwable $throwable) {
