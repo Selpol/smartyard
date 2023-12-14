@@ -141,13 +141,13 @@ readonly class FrsController extends RbtController
         }
 
         if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))
-            return user_response(404);
+            return user_response(404, message: 'Лицо не указано');
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
         if (!$f)
-            return user_response(404);
+            return user_response(404, message: 'Квартира не найдена');
 
         $flat_owner = false;
 
