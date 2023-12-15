@@ -77,7 +77,7 @@ class DsIntercom extends IntercomDevice
     public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
     {
         $tz = match ($timezone) {
-            'GMT+03:00' => 21,
+            'Europe/Moscow' => 21,
             default => 14,
         };
 
