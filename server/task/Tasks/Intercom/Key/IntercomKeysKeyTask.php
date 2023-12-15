@@ -18,7 +18,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
 
     public function __construct(int $id, array $keys)
     {
-        parent::__construct($id, 'Массовая синхронизация ключей на дому (' . $id . ')');
+        parent::__construct($id, 'Массовая синхронизация ключей на дому (' . $id . ',' . count($keys) . ')');
 
         $this->keys = $keys;
     }
@@ -47,9 +47,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
      */
     private function entrance(array $entrance): void
     {
-        $domophoneId = $entrance['domophoneId'];
-
-        $device = intercom($domophoneId);
+        $device = intercom($entrance['domophoneId']);
 
         if (!$device)
             return;
