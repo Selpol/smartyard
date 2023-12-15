@@ -8,7 +8,7 @@ use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
-use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
+use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
 
 readonly class house extends Api
 {
@@ -50,7 +50,7 @@ readonly class house extends Api
             $houseKey->insert();
         }
 
-        task(new IntercomHouseKeyTask($houseId))->high()->dispatch();
+        task(new IntercomKeysKeyTask($houseId, $keys))->high()->dispatch();
 
         return self::success();
     }

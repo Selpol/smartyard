@@ -308,7 +308,6 @@ readonly class InternalHouseFeature extends HouseFeature
         $autoOpen = (int)strtotime($autoOpen);
 
         if (trim($flat)) {
-
             if ($openCode == "!") {
                 $openCode = 11000 + rand(0, 88999);
             }
@@ -399,9 +398,11 @@ readonly class InternalHouseFeature extends HouseFeature
         if ($mod !== false && array_key_exists("flat", $params) && array_key_exists("entrances", $params) && array_key_exists("apartmentsAndLevels", $params) && is_array($params["entrances"]) && is_array($params["apartmentsAndLevels"])) {
             $entrances = $params["entrances"];
             $apartmentsAndLevels = $params["apartmentsAndLevels"];
+
             if ($this->getDatabase()->modify("delete from houses_entrances_flats where house_flat_id = $flatId") === false) {
                 return false;
             }
+
             for ($i = 0; $i < count($entrances); $i++) {
                 $ap = $params["flat"];
                 $lv = "";
