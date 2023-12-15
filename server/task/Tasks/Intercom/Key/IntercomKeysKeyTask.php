@@ -53,7 +53,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
             return;
 
         if (!$device->ping())
-            throw new DeviceException($device, 'Устройство не доступно');
+            return;
 
         foreach ($this->keys as $key)
             $device->addRfidDeffer($key['rfId'], $key['accessTo']);
