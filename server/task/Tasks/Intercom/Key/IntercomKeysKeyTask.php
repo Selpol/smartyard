@@ -62,7 +62,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
             if (!array_key_exists($key['accessTo'], $flats))
                 $flats[$key['accessTo']] = HouseFlat::findById($key['accessTo'], setting: setting()->columns(['flat'])->nonNullable())->flat;
 
-            $device->addRfidDeffer($key['rfId'], $key['accessTo']);
+            $device->addRfidDeffer($key['rfId'], $flats[$key['accessTo']]);
         }
 
         $device->deffer();
