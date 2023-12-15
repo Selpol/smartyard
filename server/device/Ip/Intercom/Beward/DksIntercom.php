@@ -424,7 +424,7 @@ class DksIntercom extends IntercomDevice
 
     public function unlock(bool $value): void
     {
-        $this->get('/webs/btnSettingEx', ['flat' => 4600, 'paramchannel' => 0, 'paramcmd' => 0, 'paramctrl' => (int)$value, 'paramstep' => 0, 'paramreserved' => 0]);
+        $this->get('/webs/btnSettingEx', ['flag' => 4601, 'paramchannel' => 0, 'paramcmd' => 0, 'paramctrl' => (int)$value, 'paramstep' => 0, 'paramreserved' => 0]);
         $this->setIntercomHelp('DoorOpenMode', $value ? 'on' : 'off');
     }
 
