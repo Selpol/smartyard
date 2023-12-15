@@ -88,6 +88,8 @@ readonly class AddressController extends RbtController
 
                 $house['doors'][$entrance['entranceId']] = $door;
             }
+
+            usort($house['doors'], static fn(array $a, array $b) => strcmp($a['name'], $b['name']));
         }
 
         foreach ($houses as $house_key => $h) {
@@ -98,8 +100,11 @@ readonly class AddressController extends RbtController
 
         $result = array_values($houses);
 
-        if (count($result))
+        if (count($result)) {
+            usort($result, static fn(array $a, array $b) => strcmp($a['address'], $b['address']));
+
             return user_response(data: $result);
+        }
 
         return user_response();
     }
