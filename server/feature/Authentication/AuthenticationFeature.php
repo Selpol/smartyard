@@ -52,7 +52,7 @@ readonly abstract class AuthenticationFeature extends Feature
                     $token = md5(guid_v4());
             }
 
-            $redis->setEx('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode([
+            $redis->setEx('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : 24 * 60 * 60, json_encode([
                 "uid" => (string)$uid,
                 "login" => $login,
                 "persistent" => $rememberMe,
@@ -95,7 +95,7 @@ readonly abstract class AuthenticationFeature extends Feature
 
                 $auth["token"] = $token;
 
-                $redis->setEx($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : config_get('redis.token_idle_ttl'), json_encode($auth));
+                $redis->setEx($key, $auth["persistent"] ? (7 * 24 * 60 * 60) : 24 * 60 * 60, json_encode($auth));
 
                 if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) return $auth;
                 else return false;
