@@ -52,9 +52,8 @@ readonly class PlogController extends RbtController
 
         try {
             $date = date('Ymd', strtotime($request->day));
-            $result = $plogFeature->getDetailEventsByDay($request->flatId, $date);
 
-            if ($result) {
+            if ($result = $plogFeature->getDetailEventsByDay($request->flatId, $date)) {
                 $events_details = [];
 
                 foreach ($result as $row) {
@@ -65,6 +64,7 @@ readonly class PlogController extends RbtController
                     $e_details['previewType'] = $row[PlogFeature::COLUMN_PREVIEW];
 
                     $domophone = json_decode($row[PlogFeature::COLUMN_DOMOPHONE]);
+
                     if (isset($domophone->domophone_id) && isset($domophone->domophone_output)) {
                         $e_details['objectId'] = strval($domophone->domophone_id);
                         $e_details['objectType'] = "0";
@@ -96,9 +96,9 @@ readonly class PlogController extends RbtController
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_CAN_DISLIKE;
                         }
                     }
-                    if (isset($face->faceId) && $face->faceId > 0) {
+
+                    if (isset($face->faceId) && $face->faceId > 0)
                         $e_details['detailX']['faceId'] = strval($face->faceId);
-                    }
 
                     $phones = json_decode($row[PlogFeature::COLUMN_PHONES]);
 
@@ -106,16 +106,18 @@ readonly class PlogController extends RbtController
                         case PlogFeature::EVENT_UNANSWERED_CALL:
                         case PlogFeature::EVENT_ANSWERED_CALL:
                             $e_details['detailX']['opened'] = ($row[PlogFeature::COLUMN_OPENED] == 1) ? 't' : 'f';
+
                             break;
 
                         case PlogFeature::EVENT_OPENED_BY_KEY:
                             $e_details['detailX']['key'] = strval($row[PlogFeature::COLUMN_RFID]);
+
                             break;
 
                         case PlogFeature::EVENT_OPENED_BY_APP:
-                            if ($phones->user_phone) {
+                            if ($phones->user_phone)
                                 $e_details['detailX']['phone'] = strval($phones->user_phone);
-                            }
+
                             break;
 
                         case PlogFeature::EVENT_OPENED_BY_FACE:
@@ -123,17 +125,19 @@ readonly class PlogController extends RbtController
 
                         case PlogFeature::EVENT_OPENED_BY_CODE:
                             $e_details['detailX']['code'] = strval($row[PlogFeature::COLUMN_CODE]);
+
                             break;
 
                         case PlogFeature::EVENT_OPENED_GATES_BY_CALL:
-                            if ($phones->user_phone) {
+                            if ($phones->user_phone)
                                 $e_details['detailX']['phoneFrom'] = strval($phones->user_phone);
-                            }
-                            if ($phones->gate_phone) {
+
+                            if ($phones->gate_phone)
                                 $e_details['detailX']['phoneTo'] = strval($phones->gate_phone);
-                            }
+
                             break;
                     }
+
                     if ((int)$row[PlogFeature::COLUMN_PREVIEW]) {
                         $img_uuid = $row[PlogFeature::COLUMN_IMAGE_UUID];
                         $url = config_get('api.mobile') . "/address/plogCamshot/$img_uuid";
@@ -142,9 +146,10 @@ readonly class PlogController extends RbtController
 
                     $events_details[] = $e_details;
                 }
+
                 return user_response(data: $events_details);
             } else {
-                return user_response(404, message: 'События не найдены');
+                return user_response(data: []);
             }
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
@@ -208,10 +213,7 @@ readonly class PlogController extends RbtController
         try {
             $result = $plogFeature->getEventsDays($request->flatId, $filter_events);
 
-            if ($result)
-                return user_response(200, $result);
-
-            return user_response(404, message: 'События не найдены');
+            return user_response(200, $result);
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
 
