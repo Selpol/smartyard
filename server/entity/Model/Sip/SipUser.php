@@ -9,7 +9,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
 /**
  * @property int $id
  *
- * @property int $type
+ * @property int<1, 9> $type
  *
  * @property string $title
  *

@@ -60,7 +60,7 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
                 return $entrance['domophoneId'] == $domophoneId;
             });
 
-            if ($flat_entrances) {
+            if ($flat_entrances && count($flat_entrances) > 0) {
                 $apartment = $flat['flat'];
 
                 foreach ($flat_entrances as $flat_entrance)

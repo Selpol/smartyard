@@ -12,7 +12,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $login
  * @property string $password
  *
- * @property int $enabled
+ * @property int<0, 1> $enabled
  *
  * @property string|null $real_name
  * @property string|null $e_mail

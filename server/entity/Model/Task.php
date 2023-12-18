@@ -14,7 +14,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $title
  * @property string $message
  *
- * @property int $status
+ * @property int<0, 1> $status
  *
  * @property string $created_at
  * @property string $updated_at

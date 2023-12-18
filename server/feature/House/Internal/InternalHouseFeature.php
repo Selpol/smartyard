@@ -755,7 +755,7 @@ readonly class InternalHouseFeature extends HouseFeature
                     return false;
                 }
 
-                if ($db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = $subscriberId", ["id" => $params["mobile"]]) === false) {
+                if ($db->modify("update houses_subscribers_mobile set id = :id where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "id" => $params["mobile"]]) === false) {
                     return false;
                 }
             }
@@ -777,7 +777,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 return false;
             }
 
-            if ($db->modify("update houses_subscribers_mobile set aud_jti = :aud_jti where house_subscriber_id = $subscriberId", ["aud_jti" => $audJti]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set aud_jti = :aud_jti where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "aud_jti" => $audJti]) === false) {
                 return false;
             }
         }
@@ -788,7 +788,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 return false;
             }
 
-            if ($db->modify("update houses_subscribers_mobile set subscriber_name = :subscriber_name where house_subscriber_id = $subscriberId", ["subscriber_name" => $params["subscriberName"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set subscriber_name = :subscriber_name where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "subscriber_name" => $params["subscriberName"]]) === false) {
                 return false;
             }
         }
@@ -799,7 +799,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 return false;
             }
 
-            if ($db->modify("update houses_subscribers_mobile set subscriber_patronymic = :subscriber_patronymic where house_subscriber_id = $subscriberId", ["subscriber_patronymic" => $params["subscriberPatronymic"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set subscriber_patronymic = :subscriber_patronymic where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "subscriber_patronymic" => $params["subscriberPatronymic"]]) === false) {
                 return false;
             }
         }
@@ -810,13 +810,13 @@ readonly class InternalHouseFeature extends HouseFeature
                 return false;
             }
 
-            if ($db->modify("update houses_subscribers_mobile set auth_token = :auth_token where house_subscriber_id = $subscriberId", ["auth_token" => $params["authToken"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set auth_token = :auth_token where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "auth_token" => $params["authToken"]]) === false) {
                 return false;
             }
         }
 
         if (array_key_exists("platform", $params)) {
-            if ($db->modify("update houses_subscribers_mobile set platform = :platform where house_subscriber_id = $subscriberId", ["platform" => $params["platform"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set platform = :platform where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "platform" => $params["platform"]]) === false) {
                 return false;
             }
         }
@@ -827,36 +827,36 @@ readonly class InternalHouseFeature extends HouseFeature
                 return false;
             }
 
-            if ($db->modify("update houses_subscribers_mobile set push_token = :push_token where house_subscriber_id = $subscriberId", ["push_token" => $params["pushToken"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set push_token = :push_token where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "push_token" => $params["pushToken"]]) === false) {
                 return false;
             }
         }
 
         if (array_key_exists("tokenType", $params)) {
-            if ($db->modify("update houses_subscribers_mobile set push_token_type = :push_token_type where house_subscriber_id = $subscriberId", ["push_token_type" => $params["tokenType"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set push_token_type = :push_token_type where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "push_token_type" => $params["tokenType"]]) === false) {
                 return false;
             }
         }
 
         if (@$params["voipToken"]) {
-            if ($db->modify("update houses_subscribers_mobile set voip_token = :voip_token where house_subscriber_id = $subscriberId", ["voip_token" => $params["voipToken"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set voip_token = :voip_token where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "voip_token" => $params["voipToken"]]) === false) {
                 return false;
             }
         }
 
         if (array_key_exists("voipEnabled", $params)) {
-            if ($db->modify("update houses_subscribers_mobile set voip_enabled = :voip_enabled where house_subscriber_id = $subscriberId", ["voip_enabled" => $params["voipEnabled"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set voip_enabled = :voip_enabled where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "voip_enabled" => $params["voipEnabled"]]) === false) {
                 return false;
             }
         }
 
         if (array_key_exists('descriptionBlock', $params)) {
-            if ($db->modify("update houses_subscribers_mobile set description_block = :description_block where house_subscriber_id = $subscriberId", ["description_block" => $params["descriptionBlock"]]) === false) {
+            if ($db->modify("update houses_subscribers_mobile set description_block = :description_block where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "description_block" => $params["descriptionBlock"]]) === false) {
                 return false;
             }
         }
 
-        if ($db->modify("update houses_subscribers_mobile set last_seen = :last_seen where house_subscriber_id = $subscriberId", ["last_seen" => time()]) === false) {
+        if ($db->modify("update houses_subscribers_mobile set last_seen = :last_seen where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "last_seen" => time()]) === false) {
             return false;
         }
 
@@ -885,7 +885,7 @@ readonly class InternalHouseFeature extends HouseFeature
 
     public function setSubscriberFlats(int $subscriberId, array $flats): bool
     {
-        if (!$this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id = $subscriberId")) {
+        if (!$this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId,])) {
             return false;
         }
 
@@ -958,17 +958,20 @@ readonly class InternalHouseFeature extends HouseFeature
 
     public function modifyKey(int $keyId, string $comments): bool|int
     {
-        return $this->getDatabase()->modify("update houses_rfids set comments = :comments where house_rfid_id = $keyId", ["comments" => $comments]);
+        return $this->getDatabase()->modify("update houses_rfids set comments = :comments where house_rfid_id = :rfid_id", ['rfid_id' => $keyId, "comments" => $comments]);
     }
 
     function doorOpened(int $flatId): bool|int
     {
-        return $this->getDatabase()->modify("update houses_flats set last_opened = :now where house_flat_id = $flatId", ["now" => time()]);
+        return $this->getDatabase()->modify("update houses_flats set last_opened = :now where house_flat_id = :flat_id", ['flat_id' => $flatId, "now" => time()]);
     }
 
     function getEntrance(int $entranceId): array|bool
     {
-        return $this->getDatabase()->get("select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = $entranceId order by entrance_type, entrance",
+        return $this->getDatabase()->get("select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = :entrance_id order by entrance_type, entrance",
+            [
+                'entrance_id' => $entranceId
+            ],
             map: [
                 "house_entrance_id" => "entranceId",
                 "entrance_type" => "entranceType",

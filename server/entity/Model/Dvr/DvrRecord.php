@@ -18,7 +18,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int $expire
  *
- * @property int $state
+ * @property int<0, 3> $state
  */
 class DvrRecord extends Entity
 {
