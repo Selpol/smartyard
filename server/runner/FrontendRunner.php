@@ -6,7 +6,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use RedisException;
 use Selpol\Controller\Api\Api;
@@ -16,8 +15,6 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
-use Selpol\Framework\Router\Trait\HandlerTrait;
-use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\Auth\Token\RedisAuthToken;
@@ -26,12 +23,9 @@ use Selpol\Service\AuthService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
-class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
+class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
-
-    use RouterTrait;
-    use HandlerTrait;
 
     use EmitTrait {
         emit as frontendEmit;
@@ -171,16 +165,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
 
             return $this->emit(response(204));
-        } else {
-            $this->loadRouter(router: 'frontend');
-
-            $route = $this->getRouterValue($request);
-
-            if ($route !== null)
-                return $this->emit($this->handle($request));
-
-            return $this->emit(rbt_response(404));
         }
+
+        return $this->emit(rbt_response(404));
     }
 
     function error(Throwable $throwable): int

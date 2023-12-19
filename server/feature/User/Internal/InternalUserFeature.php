@@ -5,6 +5,7 @@ namespace Selpol\Feature\User\Internal;
 use PDO;
 use Selpol\Feature\User\UserFeature;
 use Selpol\Service\AuthService;
+use Selpol\Service\RedisService;
 use Throwable;
 
 readonly class InternalUserFeature extends UserFeature
@@ -30,19 +31,13 @@ readonly class InternalUserFeature extends UserFeature
                 ];
             }
 
-            foreach ($_users as &$u) {
-                if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin') {
-                    $u['sessions'] = [];
+            foreach ($_users as &$u)
+                if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin')
+                    $u['sessions'] = $this->getRedis()->use(1, function (RedisService $service) use ($u) {
+                        $keys = $service->keys('user:' . $u['uid'] . ':token:*');
 
-                    $lk = $this->getRedis()->keys('user:' . $u['uid'] . ':token:*');
-
-                    foreach ($lk as $k)
-                        $u['sessions'][] = json_decode($this->getRedis()->get($k), true);
-                } else {
-                    unset($u['lastLogin']);
-                    unset($u['lastAction']);
-                }
-            }
+                        return array_map(static fn(string $key) => json_decode($service->get($key), true), $keys);
+                    });
 
             return $_users;
         } catch (Throwable $e) {

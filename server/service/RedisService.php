@@ -37,6 +37,39 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
         return $this->redis;
     }
 
+    public function database(int $index): bool
+    {
+        try {
+            return $this->redis->select($index);
+        } catch (Throwable) {
+            return false;
+        }
+    }
+
+    public function use(int $index, callable $callback): mixed
+    {
+        try {
+            $database = $this->redis->getDbNum();
+
+            if ($database === false)
+                $database = 0;
+        } catch (Throwable) {
+            $database = 0;
+        }
+
+        if ($database == $index)
+            return call_user_func($callback, $this);
+        else if ($this->database($index)) {
+            try {
+                return call_user_func($callback, $this);
+            } finally {
+                $this->database($database);
+            }
+        }
+
+        return false;
+    }
+
     public function keys(string $pattern): array
     {
         try {
