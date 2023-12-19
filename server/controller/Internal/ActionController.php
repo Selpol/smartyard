@@ -10,6 +10,7 @@ use Selpol\Controller\Request\Internal\ActionOpenDoorRequest;
 use Selpol\Controller\Request\Internal\ActionSetRabbitGatesRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Frs\FrsServer;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
@@ -62,12 +63,25 @@ readonly class ActionController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/openDoor')]
-    public function openDoor(ActionOpenDoorRequest $request, PlogFeature $plogFeature, FrsService $frsService, DatabaseService $databaseService): Response
+    public function openDoor(ActionOpenDoorRequest $request, PlogFeature $plogFeature, HouseFeature $houseFeature, FrsService $frsService, DatabaseService $databaseService): Response
     {
         switch ($request->event) {
             case PlogFeature::EVENT_OPENED_BY_KEY:
+                $plogFeature->addDoorOpenData($request->date, $request->ip, $request->event, $request->door, $request->detail);
+
+                $flats = $houseFeature->getFlats('rfId', ['rfId' => $request->detail]);
+
+                foreach ($flats as $flat)
+                    $houseFeature->doorOpened($flat['flatId']);
+
+                return user_response();
             case PlogFeature::EVENT_OPENED_BY_CODE:
                 $plogFeature->addDoorOpenData($request->date, $request->ip, $request->event, $request->door, $request->detail);
+
+                $flats = $houseFeature->getFlats('openCode', ['openCode' => $request->detail]);
+
+                foreach ($flats as $flat)
+                    $houseFeature->doorOpened($flat['flatId']);
 
                 return user_response();
 

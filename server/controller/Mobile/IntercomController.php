@@ -183,6 +183,9 @@ readonly class IntercomController extends RbtController
 
                 $model->open($validate['doorId'] ?: 0);
 
+                foreach ($user['flats'] as $flat)
+                    $houseFeature->doorOpened($flat['flatId']);
+
                 $plogFeature->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Throwable $throwable) {
                 file_logger('intercom')->error($throwable);
