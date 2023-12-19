@@ -125,12 +125,14 @@ readonly class IntercomController extends RbtController
         foreach ($flat['entrances'] as $entrance) {
             $e = $houseFeature->getEntrance($entrance['entranceId']);
 
-            $vstream = $cameraFeature->getCamera($e['cameraId']);
+            if ($e['cameraId']) {
+                $vstream = $cameraFeature->getCamera($e['cameraId']);
 
-            if (strlen($vstream["frs"]) > 1) {
-                $frsDisabled = false;
+                if (strlen($vstream["frs"]) > 1) {
+                    $frsDisabled = false;
 
-                break;
+                    break;
+                }
             }
         }
 
