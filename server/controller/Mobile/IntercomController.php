@@ -155,9 +155,11 @@ readonly class IntercomController extends RbtController
         $validate = validator($request->getParsedBody(), ['domophoneId' => rule()->id(), 'doorId' => rule()->int()->clamp(0)]);
 
         $blocked = true;
+        $flatsId = [];
 
         foreach ($user['flats'] as $flat) {
             $flatDetail = $houseFeature->getFlat($flat['flatId']);
+
             if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'])
                 continue;
 
@@ -168,6 +170,9 @@ readonly class IntercomController extends RbtController
 
                 if ($validate['domophoneId'] == $domophoneId && $validate['doorId'] == $doorId && !$flatDetail['manualBlock']) {
                     $blocked = false;
+
+                    if ($e['entranceType'] === 'wicket')
+                        $flatsId[] = $flat['flatId'];
 
                     break;
                 }
@@ -183,8 +188,8 @@ readonly class IntercomController extends RbtController
 
                 $model->open($validate['doorId'] ?: 0);
 
-                foreach ($user['flats'] as $flat)
-                    $houseFeature->doorOpened($flat['flatId']);
+                foreach (array_unique($flatsId) as $flatId)
+                    $houseFeature->doorOpened($flatId);
 
                 $plogFeature->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);
             } catch (Throwable $throwable) {
