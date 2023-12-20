@@ -83,13 +83,11 @@ readonly abstract class AuthenticationFeature extends Feature
                 if (count($keys) === 1) {
                     $auth = json_decode($service->get($keys[0]), true);
 
-                    if ($ua) {
+                    if ($ua)
                         $auth["ua"] = $ua;
-                    }
 
-                    if ($ip) {
+                    if ($ip)
                         $auth["ip"] = $ip;
-                    }
 
                     $auth["updated"] = time();
 

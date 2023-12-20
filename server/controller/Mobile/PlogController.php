@@ -213,7 +213,10 @@ readonly class PlogController extends RbtController
         try {
             $result = $plogFeature->getEventsDays($request->flatId, $filter_events);
 
-            return user_response(200, $result);
+            if ($result)
+                return user_response(data: $result);
+
+            return user_response(data: []);
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
 
