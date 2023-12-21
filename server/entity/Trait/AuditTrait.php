@@ -6,10 +6,16 @@ use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Entity\Entity;
 
 /**
+ * @template T of Entity
+ *
  * @property string $auditName
  */
 trait AuditTrait
 {
+    /**
+     * @psalm-param T $entity
+     * @psalm-return bool
+     */
     public function insert(Entity $entity): bool
     {
         $result = parent::insert($entity);
@@ -18,11 +24,15 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'insert', $this->getAuditName() . ' Добавление новой сущности');
+            $this->audit($entity, 'insert', $this->getAuditMessageInsert($entity));
 
         return $result;
     }
 
+    /**
+     * @psalm-param T $entity
+     * @psalm-return bool
+     */
     public function update(Entity $entity): bool
     {
         $result = parent::update($entity);
@@ -31,11 +41,15 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'update', $this->getAuditName() . ' Обновление сущности');
+            $this->audit($entity, 'update', $this->getAuditMessageUpdate($entity));
 
         return $result;
     }
 
+    /**
+     * @psalm-param T $entity
+     * @psalm-return bool
+     */
     public function delete(Entity $entity): bool
     {
         $result = parent::delete($entity);
@@ -44,7 +58,7 @@ trait AuditTrait
             return $result;
 
         if ($result)
-            $this->audit($entity, 'delete', $this->getAuditName() . ' Удаление сущности');
+            $this->audit($entity, 'delete', $this->getAuditMessageDelete($entity));
 
         return $result;
     }
@@ -59,8 +73,35 @@ trait AuditTrait
         container(AuditFeature::class)->audit(strval($entity->{$this->meta->columnId}), $this->meta->class, $eventType, $eventMessage);
     }
 
-    private function getAuditName(): string
+    protected function getAuditName(): string
     {
         return '[' . ($this->auditName ?? 'Сущность') . ']';
+    }
+
+    /**
+     * @psalm-param T $entity
+     * @psalm-return string
+     */
+    protected function getAuditMessageInsert(Entity $entity): string
+    {
+        return $this->getAuditName() . ' Добавление новой сущности';
+    }
+
+    /**
+     * @psalm-param T $entity
+     * @psalm-return string
+     */
+    protected function getAuditMessageUpdate(Entity $entity): string
+    {
+        return $this->getAuditName() . ' Обновление сущности';
+    }
+
+    /**
+     * @psalm-param T $entity
+     * @psalm-return string
+     */
+    protected function getAuditMessageDelete(Entity $entity): string
+    {
+        return $this->getAuditName() . ' Удаление сущности';
     }
 }
