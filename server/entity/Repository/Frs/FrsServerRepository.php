@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class FrsServerRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<FrsServer>
+     */
     use AuditTrait;
 
     public string $auditName;

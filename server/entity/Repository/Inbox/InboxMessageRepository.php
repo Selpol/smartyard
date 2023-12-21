@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class InboxMessageRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<InboxMessage>
+     */
     use AuditTrait;
 
     public string $auditName;

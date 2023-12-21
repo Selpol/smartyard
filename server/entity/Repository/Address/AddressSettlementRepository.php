@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class AddressSettlementRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<AddressSettlement>
+     */
     use AuditTrait;
 
     public string $auditName;

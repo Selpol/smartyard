@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class DeviceIntercomRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<DeviceIntercom>
+     */
     use AuditTrait;
 
     public string $auditName;

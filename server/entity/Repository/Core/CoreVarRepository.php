@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class CoreVarRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<CoreVar>
+     */
     use AuditTrait;
 
     public string $auditName;

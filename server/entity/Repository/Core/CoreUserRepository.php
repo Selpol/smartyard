@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class CoreUserRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<CoreUser>
+     */
     use AuditTrait;
 
     public string $auditName;

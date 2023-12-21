@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class PermissionRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<Permission>
+     */
     use AuditTrait;
 
     public string $auditName;

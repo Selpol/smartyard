@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class SipServerRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<SipServer>
+     */
     use AuditTrait;
 
     public string $auditName;

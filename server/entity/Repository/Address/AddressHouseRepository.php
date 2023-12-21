@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class AddressHouseRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<AddressHouse>
+     */
     use AuditTrait;
 
     public string $auditName;

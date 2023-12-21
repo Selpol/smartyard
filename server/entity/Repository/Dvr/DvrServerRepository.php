@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class DvrServerRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<DvrServer>
+     */
     use AuditTrait;
 
     public string $auditName;

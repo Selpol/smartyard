@@ -22,6 +22,9 @@ use Selpol\Framework\Entity\EntitySetting;
 #[Singleton]
 readonly class DeviceCameraRepository extends EntityRepository
 {
+    /**
+     * @use AuditTrait<DeviceCamera>
+     */
     use AuditTrait;
 
     public string $auditName;
