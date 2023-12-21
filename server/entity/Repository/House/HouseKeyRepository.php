@@ -40,21 +40,21 @@ readonly class HouseKeyRepository extends EntityRepository
 
     protected function getAuditMessageInsert(Entity $entity): string
     {
-        return $this->getAuditName() . ' Добавление ключа ' . $entity->rfid . ' в квартиру' . $this->getFlatApartment($entity->access_to);
+        return $this->getAuditName() . ' Добавление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to);
     }
 
     protected function getAuditMessageUpdate(Entity $entity): string
     {
-        return $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в квартире' . $this->getFlatApartment($entity->access_to) . ' -' . $entity->comments;
+        return $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to) . ' -' . $entity->comments;
     }
 
     protected function getAuditMessageDelete(Entity $entity): string
     {
-        return $this->getAuditName() . ' Удаление ключа ' . $entity->rfid . ' из квартиры' . $this->getFlatApartment($entity->access_to);
+        return $this->getAuditName() . ' Удаление ключа ' . $entity->rfid . ' из ' . $this->getFlatApartment($entity->access_to);
     }
 
     private function getFlatApartment(int $value): string
     {
-        return '(' . $value . ', кв. ' . (HouseFlat::findById($value, setting: setting()->columns(['flat']))?->flat ?? 0) . ')';
+        return 'кв. ' . (HouseFlat::findById($value, setting: setting()->columns(['flat']))?->flat ?? 0) . ' (' . $value . ')';
     }
 }
