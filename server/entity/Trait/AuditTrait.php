@@ -7,11 +7,11 @@ use Selpol\Framework\Entity\Entity;
 
 /**
  * @template T of Entity
- *
- * @property string $auditName
  */
 trait AuditTrait
 {
+    protected readonly string $auditName;
+
     /**
      * @psalm-param T $entity
      * @psalm-return bool

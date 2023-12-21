@@ -27,8 +27,6 @@ readonly class DeviceCameraRepository extends EntityRepository
      */
     use AuditTrait;
 
-    public string $auditName;
-
     public function __construct()
     {
         parent::__construct(DeviceCamera::class);
