@@ -45,7 +45,7 @@ readonly class HouseKeyRepository extends EntityRepository
 
     protected function getAuditMessageUpdate(Entity $entity): string
     {
-        return $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в квартире' . $this->getFlatApartment($entity->access_to) . ' (' . $entity->comments . ')';
+        return $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в квартире' . $this->getFlatApartment($entity->access_to) . ' -' . $entity->comments;
     }
 
     protected function getAuditMessageDelete(Entity $entity): string
