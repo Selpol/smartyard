@@ -183,9 +183,9 @@ class IntercomModel
                     DksIntercom::class
                 ),
                 'dks20210' => new IntercomModel(
-                    'BEWARD DKS15374',
+                    'BEWARD DKS20210',
                     'BEWARD',
-                    'DKS15374',
+                    'DKS20210',
                     'beward',
                     'beward',
                     1,
