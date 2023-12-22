@@ -4,13 +4,15 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
-#[Controller(('/mobile/call'))]
+#[Controller('/mobile/call', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]])]
 readonly class CallController extends RbtController
 {
     /**

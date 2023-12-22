@@ -65,9 +65,7 @@ class IntercomCmsFlatTask extends Task
                 }
             }
 
-            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
-
-            $device->setApartmentCms(intval($apartment), $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),);
+            $device->setApartmentCms(intval($apartment), $entrance['shared'] ? false : ($this->block ? false : $flat['cmsEnabled']),);
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 

@@ -6,16 +6,18 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
-#[Controller('/mobile/address')]
+#[Controller('/mobile/address', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
 readonly class IntercomController extends RbtController
 {
     /**
@@ -149,8 +151,8 @@ readonly class IntercomController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    #[Post('/openDoor')]
-    public function openDoor(ServerRequestInterface $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
+    #[Post('/openDoor', includes: [BlockMiddleware::class => [BlockFeature::SUB_SERVICE_OPEN]])]
+    public function openDoor(ServerRequestInterface $request, HouseFeature $houseFeature, PlogFeature $plogFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -160,17 +162,17 @@ readonly class IntercomController extends RbtController
         $flatsId = [];
 
         foreach ($user['flats'] as $flat) {
-            $flatDetail = $houseFeature->getFlat($flat['flatId']);
-
-            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'])
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_OPEN]) != null)
                 continue;
+
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
 
             foreach ($flatDetail['entrances'] as $entrance) {
                 $domophoneId = intval($entrance['domophoneId']);
                 $e = $houseFeature->getEntrance($entrance['entranceId']);
                 $doorId = intval($e['domophoneOutput']);
 
-                if ($validate['domophoneId'] == $domophoneId && $validate['doorId'] == $doorId && !$flatDetail['manualBlock']) {
+                if ($validate['domophoneId'] == $domophoneId && $validate['doorId'] == $doorId) {
                     $blocked = false;
 
                     if ($e['entranceType'] === 'wicket')

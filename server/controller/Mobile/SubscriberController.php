@@ -7,15 +7,17 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\SubscriberDeleteRequest;
 use Selpol\Controller\Request\Mobile\SubscriberStoreRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
-#[Controller('/mobile/subscriber')]
+#[Controller('/mobile/subscriber', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
 readonly class SubscriberController extends RbtController
 {
     /**

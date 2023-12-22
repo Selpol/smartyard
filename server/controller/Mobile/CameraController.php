@@ -3,11 +3,11 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\CameraEventsRequest;
 use Selpol\Controller\Request\Mobile\CameraIndexRequest;
 use Selpol\Controller\Request\Mobile\CameraShowRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -16,16 +16,17 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
-#[Controller('/mobile/cctv')]
+#[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
 readonly class CameraController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature): Response
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -35,10 +36,10 @@ readonly class CameraController extends RbtController
             if ($flat['addressHouseId'] != $request->houseId)
                 continue;
 
-            $flatDetail = $houseFeature->getFlat($flat['flatId']);
-
-            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null)
                 continue;
+
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
 
             $houseId = $flat['addressHouseId'];
 

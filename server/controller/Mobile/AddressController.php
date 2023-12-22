@@ -7,6 +7,7 @@ use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -23,9 +24,11 @@ readonly class AddressController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/getAddressList')]
-    public function getAddressList(HouseFeature $houseFeature, CameraFeature $cameraFeature): Response
+    public function getAddressList(HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
+
+        $subscriberBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]);
 
         $houses = [];
 
@@ -33,7 +36,10 @@ readonly class AddressController extends RbtController
             $houseId = $flat['addressHouseId'];
 
             $flatDetail = $houseFeature->getFlat($flat["flatId"]);
-            $block = $flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'];
+
+            if ($subscriberBlock != null) $block = true;
+            else if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM]) != null) $block = true;
+            else $block = false;
 
             if (array_key_exists($houseId, $houses)) $house = &$houses[$houseId];
             else {

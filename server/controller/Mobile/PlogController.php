@@ -7,6 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\PlogDaysRequest;
 use Selpol\Controller\Request\Mobile\PlogIndexRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -15,9 +16,10 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Throwable;
 
-#[Controller('/mobile/address')]
+#[Controller('/mobile/address', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]])]
 readonly class PlogController extends RbtController
 {
     /**
@@ -25,8 +27,11 @@ readonly class PlogController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/plog')]
-    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature): Response
+    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature, BlockFeature $blockFeature): Response
     {
+        if ($block = $blockFeature->getFirstBlockForFlat($request->flatId, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]))
+            return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+
         $user = $this->getUser()->getOriginalValue();
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);

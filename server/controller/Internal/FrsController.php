@@ -7,6 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -25,23 +26,22 @@ readonly class FrsController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/callback')]
-    public function callback(FrsCallbackRequest $request): Response
+    public function callback(FrsCallbackRequest $request, FrsFeature $frsFeature, BlockFeature $blockFeature, PlogFeature $plogFeature, RedisService $redisService): Response
     {
         $frs_key = "frs_key_" . $request->stream_id;
 
-        $redis = container(RedisService::class);
-
-        if ($redis->get($frs_key) != null)
+        if ($redisService->get($frs_key) != null)
             return response(204);
 
-        $entrance = container(FrsFeature::class)->getEntranceByCameraId($request->stream_id);
+        $entrance = $frsFeature->getEntranceByCameraId($request->stream_id);
 
         if (!$entrance)
             return response(204);
 
-        $flats = container(FrsFeature::class)->getFlatsByFaceId($request->faceId, $entrance["entranceId"]);
+        $flats = $frsFeature->getFlatsByFaceId($request->faceId, $entrance["entranceId"]);
+        $flats = array_filter($flats, static fn(int $id) => $blockFeature->getFirstBlockForFlat($id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) == null);
 
-        if (!$flats)
+        if (count($flats) == 0)
             return response(204);
 
         $domophone_id = $entrance["domophoneId"];
@@ -51,9 +51,9 @@ readonly class FrsController extends RbtController
             $model = intercom($domophone_id);
             $model->open($domophone_output);
 
-            $redis->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
+            $redisService->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
 
-            container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
+            $plogFeature->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
         } catch (Exception) {
             return user_response(404);
         }

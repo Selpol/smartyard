@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -53,8 +54,6 @@ class IntercomSyncFlatTask extends Task
             if (!$device->ping())
                 return;
 
-            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
-
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
 
@@ -69,6 +68,8 @@ class IntercomSyncFlatTask extends Task
                     $apartment = $flat_entrance['apartment'];
                 }
             }
+
+            $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
 
             if ($this->add)
                 $device->addApartment(
