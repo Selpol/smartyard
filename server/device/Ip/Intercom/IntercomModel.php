@@ -182,6 +182,30 @@ class IntercomModel
                     true,
                     DksIntercom::class
                 ),
+                'dks20210' => new IntercomModel(
+                    'BEWARD DKS15374',
+                    'BEWARD',
+                    'DKS15374',
+                    'beward',
+                    'beward',
+                    1,
+                    ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
+                    ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
+                    true,
+                    DksIntercom::class
+                ),
+                'dks977957' => new IntercomModel(
+                    'BEWARD DKS977957',
+                    'BEWARD',
+                    'DKS977957',
+                    'beward',
+                    'beward',
+                    1,
+                    ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
+                    ['KKM-100S2' => 0, 'KKM-105' => 1, 'KKM-108' => 2, 'KAD2501' => 3, 'KAD2502' => 4],
+                    true,
+                    DksIntercom::class
+                ),
                 'kv6113' => new IntercomModel(
                     'HikVision DS-KV6113',
                     'HIKVISION',
