@@ -109,7 +109,7 @@ class IsIntercom extends IntercomDevice
         ];
 
         $this->post('/panelCode', $payload);
-        $this->setApartmentLevels($apartment, count($levels) > 0 ? $levels[0] : 255, count($levels) > 1 ? $levels[1] : 255);
+        $this->setApartmentLevels($apartment, count($levels) > 0 ? ($levels[0] > 0 ? $levels[0] : 255) : 255, count($levels) > 1 ? ($levels[1] > 0 ? $levels[0] : 255) : 255);
 
         $this->removeCode($apartment);
 
