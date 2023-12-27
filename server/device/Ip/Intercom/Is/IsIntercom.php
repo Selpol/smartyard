@@ -162,7 +162,7 @@ class IsIntercom extends IntercomDevice
 
     public function setApartmentLevels(int $apartment, int $answer, int $quiescent): static
     {
-        $this->put('/panelCode/' . $apartment, ['resistances' => ['answer' => $answer, 'quiescent' => $quiescent]]);
+        $this->put('/panelCode/' . $apartment, ['resistances' => ['answer' => $answer ?: 255, 'quiescent' => $quiescent ?: 255]]);
 
         return $this;
     }
