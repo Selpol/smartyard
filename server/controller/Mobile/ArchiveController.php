@@ -42,7 +42,7 @@ readonly class ArchiveController extends RbtController
 
         $result = (int)$archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
-        task(new RecordTask($userId, $result))->low()->dispatch();
+        task(new RecordTask($userId, $result))->queue('record')->dispatch();
 
         return user_response(200, $result);
     }
