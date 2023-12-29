@@ -7,8 +7,8 @@ class ExtrfidDksIntercom extends DksIntercom
     public function addRfid(string $code, int $apartment): void
     {
         if ($this->model->mifare) {
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'CipherIndex' => 1]);
-            $this->get('/cgi-bin/extrfid_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'CipherIndex' => 1]);
+            $this->get('/cgi-bin/mifare_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'Type' => 1]);
+            $this->get('/cgi-bin/extrfid_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'Type' => 1]);
         }
     }
 
