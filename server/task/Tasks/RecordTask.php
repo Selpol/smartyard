@@ -28,12 +28,13 @@ class RecordTask extends Task implements TaskUniqueInterface
 
     public function onTask(): bool
     {
-        container(ArchiveFeature::class)->runDownloadRecordTask($this->recordId);
+        $uuid = container(ArchiveFeature::class)->runDownloadRecordTask($this->recordId);
 
         container(InboxFeature::class)->sendMessage(
             $this->subscriberId,
             'Видео готово к загрузке',
-            'Внимание! Файлы на сервере будут доступны в течение 3 суток'
+            'Внимание! Файлы на сервере будут доступны в течение 3 суток',
+            config_get('api.mobile') . '/cctv/download/' . $uuid
         );
 
         return true;
