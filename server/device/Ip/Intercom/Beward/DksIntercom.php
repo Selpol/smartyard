@@ -184,9 +184,9 @@ class DksIntercom extends IntercomDevice
     public function setVideoEncodingDefault(): static
     {
         $this->get('/webs/videoEncodingCfgEx', [
-            'vlevel' => '0',
+            'vlevel' => '2',
             'encoder' => '0',
-            'sys_cif' => '1',
+            'sys_cif' => '0',
             'advanced' => '1',
             'ratectrl' => '0',
             'quality' => '1',
