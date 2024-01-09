@@ -4,7 +4,7 @@ namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\Intercom\Beward\DksIntercom;
 use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
-use Selpol\Device\Ip\Intercom\Beward\ExtrfidDksIntercom;
+use Selpol\Device\Ip\Intercom\Beward\MifareDksIntercom;
 use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
 use Selpol\Device\Ip\Intercom\Is\IsIntercom;
 
@@ -205,7 +205,7 @@ class IntercomModel
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KKM-108' => 2, 'KAD2501' => 3, 'KAD2502' => 4],
                     true,
-                    ExtrfidDksIntercom::class
+                    MifareDksIntercom::class
                 ),
                 'kv6113' => new IntercomModel(
                     'HikVision DS-KV6113',
