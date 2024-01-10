@@ -3,19 +3,21 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\CameraEventsRequest;
 use Selpol\Controller\Request\Mobile\CameraIndexRequest;
 use Selpol\Controller\Request\Mobile\CameraShowRequest;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/cctv')]
@@ -25,7 +27,7 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature): Response
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -92,10 +94,45 @@ readonly class CameraController extends RbtController
 
     /**
      * @throws NotFoundExceptionInterface
+     */
+    #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    public function common(): ResponseInterface
+    {
+        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
+
+        return user_response(data: array_map(fn(DeviceCamera $camera) => $this->convertCamera($camera->toArrayMap([
+            "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "direction" => "direction",
+            "angle" => "angle",
+            "distance" => "distance",
+            "frs" => "frs",
+            "md_left" => "mdLeft",
+            "md_top" => "mdTop",
+            "md_width" => "mdWidth",
+            "md_height" => "mdHeight",
+            "common" => "common",
+            "comment" => "comment"
+        ]), null), $cameras));
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
     #[Get('/{cameraId}')]
-    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature): Response
+    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -124,7 +161,7 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/events')]
-    public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
+    public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -158,7 +195,7 @@ readonly class CameraController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    private function convertCamera(array $camera, array $user): array
+    private function convertCamera(array $camera, ?array $user): array
     {
         $dvr = container(DvrFeature::class)->getDVRServerByCamera($camera);
 
@@ -169,7 +206,7 @@ readonly class CameraController extends RbtController
             "lon" => strval($camera['lon']),
             'timezone' => $camera['timezone'],
             "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
-            "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user['subscriberId']),
+            "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user ? $user['subscriberId'] : null),
             "serverType" => $dvr?->type ?? 'flussonic',
             'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId'])
         ];
