@@ -56,8 +56,7 @@ class IntercomDeleteKeyTask extends Task
             $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
             $device->removeRfid($this->key, $flat['flat']);
-        } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+        } catch (Throwable) {
         }
     }
 }

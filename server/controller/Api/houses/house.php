@@ -50,7 +50,7 @@ readonly class house extends Api
             $houseKey->insert();
         }
 
-        task(new IntercomKeysKeyTask($houseId, $keys))->high()->dispatch();
+        task(new IntercomKeysKeyTask($houseId, $keys))->sync();
 
         return self::success();
     }

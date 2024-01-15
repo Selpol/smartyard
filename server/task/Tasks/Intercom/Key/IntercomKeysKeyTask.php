@@ -38,8 +38,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
         foreach ($entrances as $entrance) {
             try {
                 $this->entrance($entrance);
-            } catch (Throwable $throwable) {
-                file_logger('intercom')->error($throwable);
+            } catch (Throwable) {
             }
         }
 
