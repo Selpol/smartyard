@@ -124,7 +124,10 @@ readonly class CameraController extends RbtController
             "md_height" => "mdHeight",
             "common" => "common",
             "comment" => "comment"
-        ]), null), $cameras));
+        ]), null), $cameras))
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', '*')
+            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
     }
 
     /**

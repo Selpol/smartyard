@@ -9,6 +9,7 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
+use Throwable;
 
 class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
 {
@@ -35,7 +36,11 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
             return false;
 
         foreach ($entrances as $entrance) {
-            $this->entrance($entrance);
+            try {
+                $this->entrance($entrance);
+            } catch (Throwable $throwable) {
+                file_logger('intercom')->error($throwable);
+            }
         }
 
         return true;
