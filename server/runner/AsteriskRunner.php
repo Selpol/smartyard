@@ -86,16 +86,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $flat = $households->getFlat(intval($params));
 
-                        if ($flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0) {
-                            try {
-                                for ($i = 0; $i < count($flat['entrances']); $i++)
-                                    $flat['entrances'][$i]['domophoneIp'] = DeviceIntercom::findById($flat['entrances'][$i]['domophoneId'], setting: setting()->columns(['ip']))?->ip ?? null;
-                            } catch (Throwable $throwable) {
-                                $this->logger->debug($throwable);
-                            }
-
+                        if ($flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0)
                             echo json_encode($flat);
-                        }
 
                         $this->logger->debug('Get flat', ['flat' => $flat, 'params' => $params]);
 
