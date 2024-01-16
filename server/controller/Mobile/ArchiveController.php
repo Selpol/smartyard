@@ -14,6 +14,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Task\Tasks\RecordTask;
+use Throwable;
 
 #[Controller('/mobile/cctv')]
 readonly class ArchiveController extends RbtController
@@ -53,12 +54,18 @@ readonly class ArchiveController extends RbtController
     #[Get('/download/{uuid}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
-        $stream = $fileFeature->getFileStream($uuid);
-        $info = $fileFeature->getFileInfo($uuid);
+        try {
+            $stream = $fileFeature->getFileStream($uuid);
+            $info = $fileFeature->getFileInfo($uuid);
 
-        return response()
-            ->withHeader('Content-Type', 'video/mp4')
-            ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-            ->withBody(stream($stream));
+            return response()
+                ->withHeader('Content-Type', 'video/mp4')
+                ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
+                ->withBody(stream($stream));
+        } catch (Throwable) {
+            return response()
+                ->withHeader('Content-Type', 'charset=utf-8')
+                ->withBody(stream('Не удалось получить доступ к отрезку архива'));
+        }
     }
 }
