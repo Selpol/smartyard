@@ -450,21 +450,6 @@ class DksIntercom extends IntercomDevice
         }
     }
 
-    public function call(int $apartment): void
-    {
-        $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
-    }
-
-    public function reboot(): void
-    {
-        $this->get('/webs/btnHitEx', ['flag' => 21]);
-    }
-
-    public function reset(): void
-    {
-        $this->get('/cgi-bin/factorydefault_cgi');
-    }
-
     public function clearApartment(): void
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => 1, 'LastNumber' => 9999]);

@@ -183,7 +183,17 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setDDns(bool $value, array $options = []): static
+    {
+        return $this;
+    }
+
     public function setEcho(bool $value): static
+    {
+        return $this;
+    }
+
+    public function setUPnP(bool $value): static
     {
         return $this;
     }
@@ -267,6 +277,9 @@ abstract class IntercomDevice extends IpDevice
 
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
 
+        $this->setDDns(false);
+
+        $this->setUPnP(false);
         $this->setEcho(false);
 
         $this->clearRfid();

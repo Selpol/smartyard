@@ -285,7 +285,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $redis = container(RedisService::class);
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials', 'sos_number']));
+            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials']));
 
             if ($intercom && $intercom->credentials) {
                 switch ($section) {

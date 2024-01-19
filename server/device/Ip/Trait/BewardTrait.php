@@ -26,6 +26,41 @@ trait BewardTrait
         return $this;
     }
 
+    public function setDDns(bool $value, array $options = []): static
+    {
+        if (!$value)
+            $this->get('/webs/netDDNSCfgEx', ['provider' => 0]);
+
+        return $this;
+    }
+
+    public function setUPnP(bool $value): static
+    {
+        $this->get('/webs/netUPNPCfgEx', ['cksearch' => $value ? 1 : 0]);
+
+        return $this;
+    }
+
+    public function call(int $apartment): void
+    {
+        $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
+    }
+
+    public function callStop(): void
+    {
+        $this->get('/cgi-bin/diag_cgi', ['action' => 'cancel']);
+    }
+
+    public function reboot(): void
+    {
+        $this->get('/webs/btnHitEx', ['flag' => 21]);
+    }
+
+    public function reset(): void
+    {
+        $this->get('/cgi-bin/factorydefault_cgi');
+    }
+
     protected function parseParamValueHelp(string $response): array
     {
         $return = [];
