@@ -19,28 +19,28 @@ readonly class StatusController extends RbtController
     {
         try {
             if (!CoreVar::getRepository()->findByName('database.version'))
-                return user_response(500, message: 'Версия миграций базы данных не определена');
+                return response(500)->withBody(stream('Версия миграций базы данных не определена'));
         } catch (Throwable) {
-            return user_response(500, message: 'База данных не доступна');
+            return response(500)->withBody(stream('База данных не доступна'));
         }
 
         try {
             if (!$cache->set('status', 1, 5))
-                return user_response(500, message: 'Не удалось закэшировать значение');
+                return response(500)->withBody(stream('Не удалось закэшировать значение'));
 
             if ($cache->get('status') != 1)
-                return user_response(500, message: 'Не удалось получить закэшированное значение');
+                return response(500)->withBody(stream('Не удалось получить закэшированное значение'));
         } catch (Throwable) {
-            return user_response(500, message: 'Redis сервер не доступен');
+            return response(500)->withBody(stream('Redis сервер не доступен'));
         }
 
         try {
             $task->connect();
             $task->close();
         } catch (Throwable) {
-            return user_response(500, message: 'Amqp сервер не доступен');
+            return response(500)->withBody(stream('Amqp сервер не доступен'));
         }
 
-        return user_response();
+        return response()->withBody(stream('Хорошо'));
     }
 }
