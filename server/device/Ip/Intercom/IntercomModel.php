@@ -183,6 +183,18 @@ class IntercomModel
                     true,
                     DksIntercom::class
                 ),
+                'dks15374_is10' => new IntercomModel(
+                    'BEWARD DKS15374 IS10',
+                    'BEWARD',
+                    'DKS15374 IS10',
+                    'beward',
+                    'beward',
+                    2,
+                    ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
+                    ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
+                    true,
+                    DksIntercom::class
+                ),
                 'dks20210' => new IntercomModel(
                     'BEWARD DKS20210',
                     'BEWARD',
