@@ -20,6 +20,7 @@ use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\Auth\Token\RedisAuthToken;
 use Selpol\Service\Auth\User\RedisAuthUser;
 use Selpol\Service\AuthService;
+use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -177,7 +178,13 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
             else if ($throwable instanceof ValidatorException)
                 $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);
-            else {
+            else if ($throwable instanceof DatabaseException) {
+                if ($throwable->isUniqueViolation())
+                    $response = json_response(400, body: ['success' => false, 'message' => 'Дубликат объекта']);
+                else if ($throwable->isForeignViolation())
+                    $response = json_response(400, body: ['success' => false, 'Объект имеет дочерние зависимости']);
+                else $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);
+            } else {
                 file_logger('response')->error($throwable);
 
                 $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);
