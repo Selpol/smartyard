@@ -15,6 +15,7 @@ use Selpol\Framework\Router\Trait\HandlerTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -64,6 +65,12 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
                 $response = rbt_response(400, $throwable->getValidatorMessage()->message);
 
                 file_logger('response_400')->error($throwable);
+            } else if ($throwable instanceof DatabaseException) {
+                if ($throwable->isUniqueViolation())
+                    $response = rbt_response(400, 'Дубликат объекта');
+                else if ($throwable->isForeignViolation())
+                    $response = rbt_response(400, 'Объект имеет дочерние зависимости');
+                else $response = rbt_response(500);
             } else {
                 file_logger('response')->error($throwable);
 
