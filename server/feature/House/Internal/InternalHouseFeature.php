@@ -578,6 +578,16 @@ readonly class InternalHouseFeature extends HouseFeature
         return null;
     }
 
+    public function getIntercomOpenDataByEntranceCameraId(int $camera_id): ?array
+    {
+        $entrance = $this->getDatabase()->get("select entrance_type, house_domophone_id, domophone_output from houses_entrances where camera_id = $camera_id limit 1");
+
+        if ($entrance && count($entrance) > 0 && $entrance[0]['entrance_type'] != 'gate') // TODO: Временно не показываем кнопку у ворот
+            return ['domophoneId' => $entrance[0]['house_domophone_id'], 'doorId' => $entrance[0]['domophone_output']];
+
+        return null;
+    }
+
     public function deleteDomophone(int $domophoneId): bool
     {
         return

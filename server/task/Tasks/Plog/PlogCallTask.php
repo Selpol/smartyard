@@ -93,7 +93,7 @@ class PlogCallTask extends PlogTask
                 return false;
         }
 
-        $image_data = $plog->getCamshot($this->id, $event_data[PlogFeature::COLUMN_DATE]);
+        $image_data = $plog->getCamshot($this->id, 0, $event_data[PlogFeature::COLUMN_DATE]);
 
         if ($image_data) {
             if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID]))

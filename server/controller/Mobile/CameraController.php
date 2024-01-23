@@ -202,7 +202,7 @@ readonly class CameraController extends RbtController
     {
         $dvr = container(DvrFeature::class)->getDVRServerByCamera($camera);
 
-        return [
+        $result = [
             "id" => $camera['cameraId'],
             "name" => $camera['name'],
             "lat" => strval($camera['lat']),
@@ -210,8 +210,14 @@ readonly class CameraController extends RbtController
             'timezone' => $camera['timezone'],
             "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
             "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user ? $user['subscriberId'] : null),
-            "serverType" => $dvr?->type ?? 'flussonic',
-            'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId'])
+            "serverType" => $dvr?->type ?? 'flussonic'
         ];
+
+        if ($openData = container(HouseFeature::class)->getIntercomOpenDataByEntranceCameraId($camera['cameraId'])) {
+            $result['domophoneId'] = $openData['domophoneId'];
+            $result['doorId'] = $openData['doorId'];
+        }
+
+        return $result;
     }
 }

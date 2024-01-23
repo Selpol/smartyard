@@ -51,6 +51,8 @@ readonly abstract class HouseFeature extends Feature
 
     abstract public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int;
 
+    abstract public function getIntercomOpenDataByEntranceCameraId(int $camera_id): ?array;
+
     abstract public function deleteDomophone(int $domophoneId): bool;
 
     abstract public function getDomophone(int $domophoneId): bool|array;
