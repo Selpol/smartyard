@@ -582,7 +582,7 @@ readonly class InternalHouseFeature extends HouseFeature
     {
         $entrance = $this->getDatabase()->get("select entrance_type, house_domophone_id, domophone_output from houses_entrances where camera_id = $camera_id limit 1");
 
-        if ($entrance && count($entrance) > 0 && $entrance[0]['entrance_type'] != 'gate') // TODO: Временно не показываем кнопку у ворот
+        if ($entrance && count($entrance) > 0)
             return ['domophoneId' => $entrance[0]['house_domophone_id'], 'doorId' => $entrance[0]['domophone_output']];
 
         return null;
