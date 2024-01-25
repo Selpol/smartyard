@@ -7,7 +7,9 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Model\Core\CoreVar;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -19,8 +21,11 @@ use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\AuthService;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
+use Selpol\Service\RedisService;
+use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Validator\Exception\ValidatorException;
@@ -87,6 +92,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($command === 'init') $this->roleInit();
             else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
+        } else if ($group === 'device') {
+            if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            else echo $this->help('device');
         } else echo $this->help();
 
         return 0;
@@ -528,6 +536,19 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         Permission::getRepository()->deleteSql();
     }
 
+    private function deviceSync(int $id): void
+    {
+        try {
+            $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
+
+            if ($deviceIntercom)
+                task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
+            else echo 'Домофон не найден' . PHP_EOL;
+        } catch (Throwable $throwable) {
+            echo 'Ошибка синхронизации. ' . $throwable . PHP_EOL;
+        }
+    }
+
     private function help(?string $group = null): string
     {
         $result = [];
@@ -579,6 +600,12 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 '',
                 'role:init                        - Инициализация групп',
                 'role:clear                       - Удалить группы'
+            ]);
+
+        if ($group === null || $group === 'device')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'device:sync=<id>                 - Синхронизация домофона'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;
