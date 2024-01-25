@@ -99,6 +99,18 @@ class IntercomModel
                     true,
                     IsIntercom::class
                 ),
+                'iscomx5' => new IntercomModel(
+                    'IS ISCOM X5',
+                    'IS',
+                    'ISCOM X5',
+                    'is',
+                    'is',
+                    1,
+                    ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
+                    ['BK-100M' => 'VISIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL 8x8' => 'FACTORIAL'],
+                    true,
+                    IsIntercom::class
+                ),
                 'dks15102' => new IntercomModel(
                     'BEWARD DKS15102',
                     'BEWARD',

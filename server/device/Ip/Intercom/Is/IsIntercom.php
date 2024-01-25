@@ -346,7 +346,7 @@ class IsIntercom extends IntercomDevice
 
     public function setDtmf(string $code1, string $code2, string $code3, string $codeOut): static
     {
-        $this->put('/sip/options', ['dtmf' => ['1' => $code1, '2' => $code2, '3' => $code3]]);
+        $this->put('/sip/options', ['dtmf' => ['1' => $code1, '2' => $code2]]);
 
         return $this;
     }
