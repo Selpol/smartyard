@@ -94,6 +94,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else echo $this->help('role');
         } else if ($group === 'device') {
             if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
+            else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
+            else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
             else echo $this->help('device');
         } else echo $this->help();
 
@@ -549,6 +552,24 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
     }
 
+    private function deviceReboot(int $id): void
+    {
+        if ($device = intercom($id)) $device->reboot();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceReset(int $id): void
+    {
+        if ($device = intercom($id)) $device->reset();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceCall(int $id): void
+    {
+        if ($device = intercom($id)) $device->callStop();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
     private function help(?string $group = null): string
     {
         $result = [];
@@ -605,7 +626,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === null || $group === 'device')
             $result[] = implode(PHP_EOL, [
                 '',
-                'device:sync=<id>                 - Синхронизация домофона'
+                'device:sync=<id>                 - Синхронизация домофона',
+                'device:call=<id>                 - Остановить звонки на домофоне',
+                'device:reboot=<id>               - Перезапуск домофона',
+                'device:reset=<id>                - Сбросить домофон'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;
