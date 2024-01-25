@@ -33,7 +33,7 @@ readonly class InternalDvrFeature extends DvrFeature
             $hash = sha1($camera['dvrStream'] . 'no_check_ip' . $startTime . $endTime . $server->token . $salt);
 
             return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
-        } else if ($server->type === 'trassir' && !str_contains('username=', $server->token)) {
+        } else if ($server->type === 'trassir' && !str_contains($server->token, 'username=')) {
             // Не влияет на диапазон доступного архива
             // Диапазон доступности команд для потока
             $startTime = time() - 300; // Начало доступа к потоку
