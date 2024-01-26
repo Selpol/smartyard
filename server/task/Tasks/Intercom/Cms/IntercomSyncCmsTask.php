@@ -43,6 +43,8 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
+            $device->setCmsModel($entrance['cms']);
+
             $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)

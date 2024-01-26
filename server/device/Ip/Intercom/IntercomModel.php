@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\Beward\DksIntercom;
 use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
 use Selpol\Device\Ip\Intercom\Beward\MifareDksIntercom;
 use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
+use Selpol\Device\Ip\Intercom\Is\Is5Intercom;
 use Selpol\Device\Ip\Intercom\Is\IsIntercom;
 
 class IntercomModel
@@ -109,7 +110,7 @@ class IntercomModel
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'],
                     true,
-                    IsIntercom::class
+                    Is5Intercom::class
                 ),
                 'dks15102' => new IntercomModel(
                     'BEWARD DKS15102',

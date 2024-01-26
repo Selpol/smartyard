@@ -311,10 +311,11 @@ class IsIntercom extends IntercomDevice
 
     public function setCmsModel(string $value): static
     {
-        if (array_key_exists(strtoupper($value), $this->model->cmsesMap))
+        if (array_key_exists(strtoupper($value), $this->model->cmsesMap)) {
             $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($value)], 'usingCom3' => true]);
 
-        $this->clearCms($value);
+            $this->clearCms($value);
+        }
 
         return $this;
     }
