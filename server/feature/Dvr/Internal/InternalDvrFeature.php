@@ -35,9 +35,10 @@ readonly class InternalDvrFeature extends DvrFeature
             return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
         } else if ($server->type === 'trassir' && !str_contains($server->token, 'username=')) {
             // Не влияет на диапазон доступного архива
-            // Диапазон доступности команд для потока
-            $startTime = time() - 300; // Начало доступа к потоку
-            $endTime = $startTime + 3600 * 3; // Конец доступа к потоку
+            // Время жизни токена доступа
+
+            $startTime = time() - 300; // Начало доступа к камере
+            $endTime = $startTime + 3600 * 3; // Конец доступа к камере
 
             $salt = bin2hex(openssl_random_pseudo_bytes(16));
             $hash = sha1($camera['dvrStream'] . $startTime . $endTime . $server->token . $salt);
@@ -46,11 +47,6 @@ readonly class InternalDvrFeature extends DvrFeature
         }
 
         return $server->token;
-    }
-
-    public function getDVRServers(): array
-    {
-        return DvrServer::fetchAll();
     }
 
     public function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool
@@ -62,96 +58,94 @@ readonly class InternalDvrFeature extends DvrFeature
                 $parsed_url = parse_url($this->getUrlForCamera($dvr, $cam));
 
                 $scheme = isset($parsed_url['scheme']) ? $parsed_url['scheme'] . '://' : '';
-                $host = isset($parsed_url['host']) ? $parsed_url['host'] : '';
+                $host = $parsed_url['host'] ?? '';
                 $port = isset($parsed_url['port']) ? ':' . $parsed_url['port'] : '';
-                $user = isset($parsed_url['user']) ? $parsed_url['user'] : '';
+                $user = $parsed_url['user'] ?? '';
                 $pass = isset($parsed_url['pass']) ? ':' . $parsed_url['pass'] : '';
                 $pass = ($user || $pass) ? "$pass@" : '';
 
                 $token = $this->getTokenForCamera($dvr, $cam, $subscriberId);
 
                 $guid = false;
+
                 if (isset($parsed_url['query'])) {
                     parse_str($parsed_url['query'], $parsed_query);
-                    $guid = isset($parsed_query['channel']) ? $parsed_query['channel'] : '';
+
+                    $guid = $parsed_query['channel'] ?? '';
                 }
+
                 date_default_timezone_set('UTC');
 
                 $request_url = "$scheme$user$pass$host$port/login?$token";
-                $arrContextOptions = array(
-                    "ssl" => array(
-                        "verify_peer" => false,
-                        "verify_peer_name" => false,
-                    ),
-                );
+                $arrContextOptions = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false));
+
                 $sid_response = json_decode(file_get_contents($request_url, false, stream_context_create($arrContextOptions)), true);
-                var_dump($sid_response);
+
                 $sid = @$sid_response["sid"] ?: false;
                 if (!$sid || !$guid) return false;
 
                 $url = "$scheme$user$pass$host$port/jit-export-create-task?sid=$sid";
-                $payload = [
-                    "resource_guid" => $guid, // GUID Канала
-                    "start_ts" => $start * 1000000,
-                    "end_ts" => $finish * 1000000,
-                    "is_hardware" => 0,
-                    "prefer_substream" => 0
-                ];
+
+                $payload = ["resource_guid" => $guid, "start_ts" => $start * 1000000, "end_ts" => $finish * 1000000, "is_hardware" => 0, "prefer_substream" => 0];
+
                 $curl = curl_init();
+
                 curl_setopt($curl, CURLOPT_POST, 1);
+
                 if ($payload) {
-                    curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                        'Content-Type: appplication/json'
-                    ));
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: appplication/json'));
 
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
                 }
+
                 curl_setopt($curl, CURLOPT_URL, $url);
                 curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
                 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-                var_dump($url);
-                var_dump($payload);
+
                 $task_id_response = json_decode(curl_exec($curl), true);
-                var_dump($task_id_response);
+
                 curl_close($curl);
+
                 $success = @$task_id_response["success"] ?: false;
                 $task_id = @$task_id_response["task_id"] ?: false;
+
                 if ($success != 1 || !$task_id) return false;
 
                 $url = "$scheme$user$pass$host$port/jit-export-task-status?sid=$sid";
 
-                $payload = [
-                    "task_id" => $task_id
-                ];
+                $payload = ["task_id" => $task_id];
 
                 $active = false;
                 $attempts_count = 30;
 
                 while (!$active && $attempts_count > 0) {
                     $curl = curl_init();
+
                     curl_setopt($curl, CURLOPT_POST, 1);
+
                     if ($payload) {
-                        curl_setopt($curl, CURLOPT_HTTPHEADER, array(
-                            'Content-Type: appplication/json'
-                        ));
+                        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: appplication/json'));
 
                         curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
                     }
+
                     curl_setopt($curl, CURLOPT_URL, $url);
                     curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
                     curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
                     curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
 
-                    var_dump($url);
-                    var_dump($payload);
                     $task_id_response = json_decode(curl_exec($curl), true);
-                    var_dump($task_id_response);
+
                     curl_close($curl);
+
                     $success = @$task_id_response["success"] ?: false;
                     $active = @$task_id_response["active"] ?: false;
+
                     if ($success == 1 || $active) break;
+
                     sleep(2);
+
                     $attempts_count = $attempts_count - 1;
                 }
 
@@ -185,8 +179,10 @@ readonly class InternalDvrFeature extends DvrFeature
                 $token = $this->getTokenForCamera($dvr, $cam, null);
 
                 $guid = false;
+
                 if (isset($parsed_url['query'])) {
                     parse_str($parsed_url['query'], $parsed_query);
+
                     $guid = $parsed_query['channel'] ?? '';
                 }
 

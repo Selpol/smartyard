@@ -12,6 +12,8 @@ class IntercomCms
     public readonly string $title;
     public readonly string $model;
 
+    public readonly int $capacity;
+
     public readonly int $dozenStart;
 
     /**
@@ -19,10 +21,12 @@ class IntercomCms
      */
     public readonly array $cms;
 
-    public function __construct(string $title, string $model, int $dozenStart, array $cms)
+    public function __construct(string $title, string $model, int $capacity, int $dozenStart, array $cms)
     {
         $this->title = $title;
         $this->model = $model;
+
+        $this->capacity = $capacity;
 
         $this->dozenStart = $dozenStart;
 
@@ -54,6 +58,7 @@ class IntercomCms
                 'bk-100' => new IntercomCms(
                     'VIZIT BK-100',
                     'BK-100',
+                    100,
                     0,
                     [
                         'BK-100' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10]
@@ -62,6 +67,7 @@ class IntercomCms
                 'com-25u' => new IntercomCms(
                     'METAKOM COM-25U',
                     'COM-25U',
+                    25,
                     1,
                     [
                         'COM-25U.1/0' => ['1' => 5, '2' => 5, '3' => 5, '4' => 5, '5' => 5],
@@ -76,6 +82,7 @@ class IntercomCms
                 'com-100u' => new IntercomCms(
                     'METAKOM COM-100U',
                     'COM-100U',
+                    100,
                     0,
                     [
                         'COM-100U.1/0' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
@@ -89,6 +96,7 @@ class IntercomCms
                 'com-220u' => new IntercomCms(
                     'METAKOM COM-220U',
                     'COM-220U',
+                    220,
                     0,
                     [
                         'COM-220U.1/0' => ['1' => 22, '2' => 22, '3' => 22, '4' => 22, '5' => 22, '6' => 22, '7' => 22, '8' => 22, '9' => 22, '10' => 22],
@@ -99,18 +107,21 @@ class IntercomCms
                 'kad-2501' => new IntercomCms(
                     'BEWARD KAD2501',
                     'KAD2501',
+                    255,
                     0,
                     ['KAD2501' => ['1' => 26, '2' => 26, '3' => 26, '4' => 26, '5' => 26, '6' => 25, '7' => 25, '8' => 25, '9' => 25, '10' => 25]]
                 ),
                 'kad-2502' => new IntercomCms(
                     'BEWARD KAD2502',
                     'KAD2502',
+                    255,
                     0,
                     ['KAD2501' => ['1' => 26, '2' => 26, '3' => 26, '4' => 26, '5' => 26, '6' => 25, '7' => 25, '8' => 25, '9' => 25, '10' => 25]]
                 ),
                 'factorial_8x8' => new IntercomCms(
                     'FACTORIAL 8x8',
                     'FACTORIAL 8x8',
+                    64,
                     0,
                     [
                         'FACTORIAL 8x8.1' => ['1' => 8, '2' => 8, '3' => 8, '4' => 8, '5' => 8, '6' => 8, '7' => 8, '8' => 8],
@@ -120,6 +131,7 @@ class IntercomCms
                 'kkm-100s2' => new IntercomCms(
                     'BEWARD KKM-100S2',
                     'KKM-100S2',
+                    100,
                     0,
                     [
                         'ККМ-100S2.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
@@ -129,6 +141,7 @@ class IntercomCms
                 'kkm-105' => new IntercomCms(
                     'BEWARD KKM-105',
                     'KKM-105',
+                    100,
                     0,
                     [
                         'ККМ-105.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
@@ -142,6 +155,7 @@ class IntercomCms
                 'kkm-108' => new IntercomCms(
                     'BEWARD KKM-108',
                     'KKM-108',
+                    100,
                     0,
                     [
                         'ККМ-105.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
@@ -157,6 +171,7 @@ class IntercomCms
                 'km100-7.1' => new IntercomCms(
                     'ELTIS KM100-7.1',
                     'KM100-7.1',
+                    100,
                     0,
                     [
                         'KM100-7.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10]
@@ -165,6 +180,7 @@ class IntercomCms
                 'km100-7.5' => new IntercomCms(
                     'ELTIS KM100-7.5',
                     'KM100-7.5',
+                    100,
                     0,
                     [
                         'KM100-7.5.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
@@ -177,6 +193,7 @@ class IntercomCms
                 'kmg-100' => new IntercomCms(
                     'CYFRAL KMG-100',
                     'KMG-100',
+                    100,
                     0,
                     [
                         'KMG-100.1' => ['0' => 10, '1' => 10, '2' => 10, '3' => 10, '4' => 10, '5' => 10, '6' => 10, '7' => 10, '8' => 10, '9' => 10],
