@@ -65,8 +65,15 @@ class IsIntercom extends IntercomDevice
         if ($this->cmses === null)
             $this->cmses = [];
 
-        if (!array_key_exists($index, $this->cmses))
-            $this->cmses[$index] = $this->get('/switch/matrix/' . $index);
+        if (!array_key_exists($index, $this->cmses)) {
+            $matrix = $this->get('/switch/matrix/' . $index);
+
+            for ($j = 0; $j < count($matrix['matrix']); $j++)
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
+                    $matrix['matrix'][$j][$k] = 0;
+
+            $this->cmses[$index] = $matrix;
+        }
 
         $this->cmses[$index]['matrix'][$dozen][$unit] = $apartment;
     }

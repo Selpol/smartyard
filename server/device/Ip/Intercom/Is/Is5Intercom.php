@@ -6,24 +6,6 @@ use Selpol\Device\Ip\Intercom\IntercomCms;
 
 class Is5Intercom extends IsIntercom
 {
-    public function addCmsDeffer(int $index, int $dozen, int $unit, int $apartment): void
-    {
-        if ($this->cmses === null)
-            $this->cmses = [];
-
-        if (!array_key_exists($index, $this->cmses)) {
-            $matrix = $this->get('/switch/matrix/' . $index);
-
-            for ($j = 0; $j < count($matrix['matrix']); $j++)
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
-                    $matrix['matrix'][$j][$k] = 0;
-
-            $this->cmses[$index] = $matrix;
-        }
-
-        $this->cmses[$index]['matrix'][$dozen][$unit] = $apartment;
-    }
-
     public function setSyslog(string $server, int $port): static
     {
         $this->put('/v1/network/syslog', ['addr' => $server, 'port' => $port]);
