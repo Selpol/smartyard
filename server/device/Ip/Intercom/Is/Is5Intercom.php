@@ -41,7 +41,7 @@ class Is5Intercom extends IsIntercom
 
             for ($j = 0; $j < count($matrix['matrix']); $j++)
                 for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
-                    $matrix['matrix'][$j][$k] = 0;
+                    $matrix['matrix'][$j][$k] = null;
 
             $this->put('/switch/matrix/' . $i, $matrix);
         }
