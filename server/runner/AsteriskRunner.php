@@ -22,6 +22,11 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('asterisk'));
+    }
+
     /**
      * @throws ValidatorException
      */

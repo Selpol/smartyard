@@ -33,6 +33,11 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
     /** @var string[] $middlewares */
     private array $middlewares = [];
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('router'));
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface

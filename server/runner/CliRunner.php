@@ -7,7 +7,6 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
-use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Permission;
@@ -21,10 +20,8 @@ use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Service\AuthService;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
-use Selpol\Service\RedisService;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
@@ -34,6 +31,11 @@ use Throwable;
 class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
+
+    public function __construct()
+    {
+        $this->setLogger(stack_logger([echo_logger(), file_logger('cli')]));
+    }
 
     /**
      * @throws ContainerExceptionInterface

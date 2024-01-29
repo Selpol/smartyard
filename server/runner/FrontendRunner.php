@@ -32,6 +32,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         emit as frontendEmit;
     }
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('frontend'));
+    }
+
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
