@@ -61,7 +61,7 @@ class IntercomSyncFlatTask extends Task
             $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
 
             if ($this->userId >= 0)
-                container(AuditFeature::class)->audit($this->userId, HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ', ' . ($block ? 'true' : 'false') . ')');
+                container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ', ' . ($block ? 'true' : 'false') . ')');
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
