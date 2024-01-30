@@ -43,7 +43,7 @@ trait BewardTrait
 
     public function call(int $apartment): void
     {
-        $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
+        $this->get('/cgi-bin/diag_cgi', ['action' => 'call', 'Apartment' => $apartment]);
     }
 
     public function callStop(): void
