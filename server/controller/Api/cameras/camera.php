@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\cameras;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Service\AuthService;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 
@@ -12,7 +13,12 @@ readonly class camera extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        return self::success(DeviceCamera::findById($params['_id'], setting: setting()->nonNullable())->toArrayMap([
+        $criteria = criteria();
+
+        if (!container(AuthService::class)->checkScope('camera-hidden'))
+            $criteria->equal('hidden', false);
+
+        return self::success(DeviceCamera::findById($params['_id'], $criteria, setting()->nonNullable())->toArrayMap([
             "camera_id" => "cameraId",
             "dvr_server_id" => "dvr_server_id",
             "frs_server_id" => "frs_server_id",
@@ -34,7 +40,8 @@ readonly class camera extends Api
             "md_width" => "mdWidth",
             "md_height" => "mdHeight",
             "common" => "common",
-            "comment" => "comment"
+            "comment" => "comment",
+            "hidden" => "hidden"
         ]));
     }
 
@@ -132,6 +139,9 @@ readonly class camera extends Api
         $camera->common = $params['common'];
 
         $camera->comment = $params['comment'];
+
+        if (array_key_exists('hidden', $params))
+            $camera->hidden = $params['hidden'];
 
         $ip = gethostbyname(parse_url($camera->url, PHP_URL_HOST));
 

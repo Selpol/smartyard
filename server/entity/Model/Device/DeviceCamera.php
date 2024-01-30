@@ -39,6 +39,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $ip
  *
  * @property string|null $comment
+ *
+ * @property bool $hidden
  */
 class DeviceCamera extends Entity
 {
@@ -85,7 +87,9 @@ class DeviceCamera extends Entity
 
             'ip' => rule()->ipV4(),
 
-            'comment' => rule()->string()
+            'comment' => rule()->string(),
+
+            'hidden' => rule()->bool()
         ];
     }
 }

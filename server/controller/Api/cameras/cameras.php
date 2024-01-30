@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Entity\EntityPage;
+use Selpol\Service\AuthService;
 
 readonly class cameras extends Api
 {
@@ -18,7 +19,12 @@ readonly class cameras extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $page = DeviceCamera::fetchPage($validate['page'], $validate['size'], criteria()->like('comment', $validate['comment'])->asc('camera_id'));
+        $criteria = criteria()->like('comment', $validate['comment'])->asc('camera_id');
+
+        if (!container(AuthService::class)->checkScope('camera-hidden'))
+            $criteria->equal('hidden', false);
+
+        $page = DeviceCamera::fetchPage($validate['page'], $validate['size'], $criteria);
 
         $result = [];
 
@@ -45,7 +51,8 @@ readonly class cameras extends Api
                 "md_width" => "mdWidth",
                 "md_height" => "mdHeight",
                 "common" => "common",
-                "comment" => "comment"
+                "comment" => "comment",
+                "hidden" => "hidden"
             ]);
 
         return self::success(new EntityPage($result, $page->getTotal(), $page->getPage(), $page->getSize()));

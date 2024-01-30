@@ -517,6 +517,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                         $permission->description = $description;
 
                                         $permission->insert();
+                                    } else if ($titlePermissions[$title]->description != $description) {
+                                        $titlePermissions[$title]->description = $description;
+                                        $titlePermissions[$title]->update();
                                     }
 
                                     unset($titlePermissions[$title]);
@@ -526,6 +529,27 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     }
                 }
             }
+        }
+
+        $requirePermissions = [
+            'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
+            'camera-hidden' => '[Камера] Доступ к скрытым устройствам'
+        ];
+
+        foreach ($requirePermissions as $title => $description) {
+            if (!array_key_exists($title, $titlePermissions)) {
+                $permission = new Permission();
+
+                $permission->title = $title;
+                $permission->description = $description;
+
+                $permission->insert();
+            } else if ($titlePermissions[$title]->description != $description) {
+                $titlePermissions[$title]->description = $description;
+                $titlePermissions[$title]->update();
+            }
+
+            unset($titlePermissions[$title]);
         }
 
         foreach ($titlePermissions as $permission)

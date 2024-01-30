@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Framework\Entity\EntityPage;
+use Selpol\Service\AuthService;
 
 readonly class intercoms extends Api
 {
@@ -18,7 +19,12 @@ readonly class intercoms extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $page = DeviceIntercom::fetchPage($validate['page'], $validate['size'], criteria()->like('comment', $validate['comment'])->asc('house_domophone_id'));
+        $criteria = criteria()->like('comment', $validate['comment'])->asc('house_domophone_id');
+
+        if (!container(AuthService::class)->checkScope('intercom-hidden'))
+            $criteria->equal('hidden', false);
+
+        $page = DeviceIntercom::fetchPage($validate['page'], $validate['size'], $criteria);
 
         $result = [];
 
@@ -35,7 +41,8 @@ readonly class intercoms extends Api
                 'nat' => 'nat',
                 'comment' => 'comment',
                 'ip' => 'ip',
-                'sos_number' => 'sosNumber'
+                'sos_number' => 'sosNumber',
+                'hidden' => 'hidden'
             ]);
 
         return self::success(new EntityPage($result, $page->getTotal(), $page->getPage(), $page->getSize()));

@@ -27,6 +27,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $comment
  *
  * @property string|null $sos_number
+ *
+ * @property bool $hidden
  */
 class DeviceIntercom extends Entity
 {
@@ -60,7 +62,9 @@ class DeviceIntercom extends Entity
 
             'comment' => rule()->string(),
 
-            'sos_number' => rule()->string()
+            'sos_number' => rule()->string(),
+
+            'hidden' => rule()->bool()
         ];
     }
 }
