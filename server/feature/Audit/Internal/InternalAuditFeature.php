@@ -24,9 +24,14 @@ readonly class InternalAuditFeature extends AuditFeature
     {
         $user = container(AuthService::class)->getUserOrThrow();
 
+        $this->auditForUserId(intval($user->getIdentifier()), $auditableId, $auditableType, $eventType, $eventMessage);
+    }
+
+    public function auditForUserId(int $userId, string $auditableId, string $auditableType, string $eventType, string $eventMessage): void
+    {
         $audit = new Audit();
 
-        $audit->user_id = intval($user->getIdentifier());
+        $audit->user_id = $userId;
 
         $audit->auditable_id = $auditableId;
         $audit->auditable_type = $auditableType;

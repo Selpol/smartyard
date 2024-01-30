@@ -3,7 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
-use Selpol\Device\Exception\DeviceException;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -11,12 +12,16 @@ use Throwable;
 
 class IntercomSyncFlatTask extends Task
 {
+    public int $userId;
+
     public int $flatId;
     public bool $add;
 
-    public function __construct(int $flatId, bool $add)
+    public function __construct(int $userId, int $flatId, bool $add)
     {
         parent::__construct('Синхронизация квартиры (' . $flatId . ')');
+
+        $this->userId = $userId;
 
         $this->flatId = $flatId;
         $this->add = $add;
@@ -54,6 +59,9 @@ class IntercomSyncFlatTask extends Task
                 return;
 
             $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
+
+            if ($this->userId >= 0)
+                container(AuditFeature::class)->audit($this->userId, HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ', ' . ($block ? 'true' : 'false') . ')');
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));

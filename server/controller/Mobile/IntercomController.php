@@ -100,7 +100,7 @@ readonly class IntercomController extends RbtController
                 $houseFeature->modifySubscriber($user['subscriberId'], $params);
             }
 
-            task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
+            task(new IntercomSyncFlatTask(-1, $validate['flatId'], false))->high()->dispatch();
         }
 
         $subscriber = $houseFeature->getSubscribers('id', $user['subscriberId'])[0];
@@ -232,7 +232,7 @@ readonly class IntercomController extends RbtController
 
         $flat = $houseFeature->getFlat($flat_id);
 
-        task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
+        task(new IntercomSyncFlatTask(-1, $validate['flatId'], false))->high()->dispatch();
 
         return user_response(200, ["code" => intval($flat['openCode'])]);
     }
