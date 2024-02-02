@@ -45,38 +45,38 @@ readonly class InternalTaskFeature extends TaskFeature
 
     public function setUnique(Task $task): void
     {
-        if ($task instanceof TaskUniqueInterface) {
-            $unique = $task->unique();
-
-            $this->getRedis()->setEx('task:unique:' . $unique[0], $unique[1], $unique[0]);
-        }
+//        if ($task instanceof TaskUniqueInterface) {
+//            $unique = $task->unique();
+//
+//            $this->getRedis()->setEx('task:unique:' . $unique[0], $unique[1], $unique[0]);
+//        }
     }
 
     public function hasUnique(Task $task): bool
     {
-        if ($task instanceof TaskUniqueInterface) {
-            $unique = $task->unique();
-
-            return $this->getRedis()->exist('task:unique:' . $unique[0]);
-        }
+//        if ($task instanceof TaskUniqueInterface) {
+//            $unique = $task->unique();
+//
+//            return $this->getRedis()->exist('task:unique:' . $unique[0]);
+//        }
 
         return false;
     }
 
     public function releaseUnique(Task $task): void
     {
-        if ($task instanceof TaskUniqueInterface) {
-            $unique = $task->unique();
-
-            $this->getRedis()->del('task:unique:' . $unique[0]);
-        }
+//        if ($task instanceof TaskUniqueInterface) {
+//            $unique = $task->unique();
+//
+//            $this->getRedis()->del('task:unique:' . $unique[0]);
+//        }
     }
 
     public function clearUnique(): void
     {
-        $keys = $this->getRedis()->keys('task:unique:*');
-
-        if (count($keys))
-            $this->getRedis()->del(...$keys);
+//        $keys = $this->getRedis()->keys('task:unique:*');
+//
+//        if (count($keys))
+//            $this->getRedis()->del(...$keys);
     }
 }
