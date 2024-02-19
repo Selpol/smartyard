@@ -422,6 +422,13 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setAutoCollectRfid(bool $value): static
+    {
+        $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
+
+        return $this;
+    }
+
     public function unlock(bool $value): void
     {
         $this->get('/webs/btnSettingEx', ['flag' => 4601, 'paramchannel' => 0, 'paramcmd' => 0, 'paramctrl' => (int)$value, 'paramstep' => 0, 'paramreserved' => 0]);

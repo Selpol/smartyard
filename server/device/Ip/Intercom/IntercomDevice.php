@@ -213,6 +213,11 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setAutoCollectRfid(bool $value): static
+    {
+        return $this;
+    }
+
     public function unlock(bool $value): void
     {
     }
@@ -281,6 +286,7 @@ abstract class IntercomDevice extends IpDevice
 
         $this->setUPnP(false);
         $this->setEcho(false);
+        $this->setAutoCollectRfid(false);
 
         $this->clearRfid();
         $this->clearApartment();
