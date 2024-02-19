@@ -157,6 +157,8 @@ readonly class SyncController extends RbtController
                 $validate = validator($item, ['id' => rule()->id(), 'autoBlock' => rule()->required()->bool()->nonNullable()]);
 
                 if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'] ? 1 : 0, 'flat_id' => $validate['id']])) {
+                    file_logger('sync')->debug('Обновление статуса квартиры', ['id' => $validate['id'], 'block' => boolval($validate['autoBlock'])]);
+
                     $result[$validate['id']] = true;
 
                     task(new IntercomCmsFlatTask($validate['id'], boolval($validate['autoBlock'])))->default()->dispatch();
