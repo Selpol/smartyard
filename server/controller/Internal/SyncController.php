@@ -159,8 +159,8 @@ readonly class SyncController extends RbtController
                 if ($db->modify('UPDATE houses_flats SET auto_block = :auto_block WHERE house_flat_id = :flat_id', ['auto_block' => $validate['autoBlock'] ? 1 : 0, 'flat_id' => $validate['id']])) {
                     $result[$validate['id']] = true;
 
-                    task(new IntercomCmsFlatTask($validate['id'], boolval($validate['autoBlock'])))->low()->dispatch();
-                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $validate['autoBlock'] ? 'Ваша квартиры была заблокирована' : 'Ваша квартиры была разблокирована', 'inbox'))->low()->dispatch();
+                    task(new IntercomCmsFlatTask($validate['id'], boolval($validate['autoBlock'])))->default()->dispatch();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $validate['autoBlock'] ? 'Ваша квартиры была заблокирована' : 'Ваша квартиры была разблокирована', 'inbox'))->default()->dispatch();
                 }
             } catch (Throwable $throwable) {
                 file_logger('sync')->error($throwable);
