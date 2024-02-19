@@ -303,15 +303,14 @@ class IsIntercom extends IntercomDevice
 
     public function setCmsLevels(array $levels): static
     {
-        if (count($levels) === 4)
-            $this->put('/levels', [
-                'resistances' => [
-                    'error' => $levels[0],
-                    'break' => $levels[1],
-                    'quiescent' => $levels[2],
-                    'answer' => $levels[3],
-                ],
-            ]);
+        $this->put('/levels', [
+            'resistances' => [
+                'error' => $levels[0],
+                'break' => $levels[1],
+                'quiescent' => array_key_exists(2, $levels) ? $levels[2] : 255,
+                'answer' => array_key_exists(3, $levels) ? $levels[3] : 255,
+            ],
+        ]);
 
         return $this;
     }
