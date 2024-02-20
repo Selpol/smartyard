@@ -51,6 +51,8 @@ readonly class FrsController extends RbtController
 
                     if ($flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'])
                         return response(204);
+
+                    break;
                 }
             }
         }
