@@ -89,6 +89,8 @@ readonly abstract class FrsFeature extends Feature
 
     abstract public function getFlatsByFaceId(int $face_id, int $entrance_id): array;
 
+    abstract public function getFlatsDetailByFaceId(int $face_id, int $entrance_id): array;
+
     abstract public function isLikedFlag(int $flat_id, int $subscriber_id, int $face_id, string $event_uuid, bool $is_owner): bool;
 
     abstract public function listFaces(int $flat_id, int $subscriber_id, bool $is_owner = false): array;

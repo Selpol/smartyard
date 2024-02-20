@@ -25,23 +25,37 @@ readonly class FrsController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/callback')]
-    public function callback(FrsCallbackRequest $request): Response
+    public function callback(FrsCallbackRequest $request, FrsFeature $frsFeature, RedisService $redisService): Response
     {
         $frs_key = "frs_key_" . $request->stream_id;
 
-        $redis = container(RedisService::class);
-
-        if ($redis->get($frs_key) != null)
+        if ($redisService->get($frs_key) != null)
             return response(204);
 
-        $entrance = container(FrsFeature::class)->getEntranceByCameraId($request->stream_id);
+        $entrance = $frsFeature->getEntranceByCameraId($request->stream_id);
 
         if (!$entrance)
             return response(204);
 
-        $flats = container(FrsFeature::class)->getFlatsByFaceId($request->faceId, $entrance["entranceId"]);
+        $flats = $frsFeature->getFlatsDetailByFaceId($request->faceId, $entrance["entranceId"]);
 
         if (!$flats)
+            return response(204);
+
+        $find = false;
+
+        foreach ($flats as $flat) {
+            foreach ($flat['entrances'] as $flatEntrance) {
+                if ($flatEntrance['entranceId'] === $entrance['entranceId']) {
+                    $find = true;
+
+                    if ($flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'])
+                        return response(204);
+                }
+            }
+        }
+
+        if (!$find)
             return response(204);
 
         $domophone_id = $entrance["domophoneId"];
@@ -51,7 +65,7 @@ readonly class FrsController extends RbtController
             $model = intercom($domophone_id);
             $model->open($domophone_output);
 
-            $redis->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
+            $redisService->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
 
             container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
         } catch (Exception) {
