@@ -54,6 +54,10 @@ return [
         'max_allowed_tokens' => 15
     ],
 
+    'mongo' => [
+        'uri' => env('MONGO_URI')
+    ],
+
     'amqp' => [
         'host' => env('AMQP_HOST', '127.0.0.1'),
         'port' => intval(env('AMQP_PORT', '5672')),
@@ -87,8 +91,7 @@ return [
         ],
 
         'file' => [
-            'db' => env('FEATURE_FILES_DB', 'rbt'),
-            'uri' => env('FEATURE_FILES_URI')
+            'db' => env('FEATURE_FILES_DB', 'rbt')
         ],
 
         'archive' => [
