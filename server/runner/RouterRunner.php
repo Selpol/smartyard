@@ -95,7 +95,12 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
 
     protected function emit(ResponseInterface $response): int
     {
-        $this->frontendEmit($response);
+        $this->frontendEmit(
+            $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', '*')
+                ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+        );
 
         return 0;
     }
