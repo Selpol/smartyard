@@ -12,8 +12,8 @@ readonly class group extends Api
     {
         $validate = validator($params, [
             'name' => rule()->required()->string()->nonNullable(),
-            'type' => rule()->required()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
-            'for' => rule()->required()->string()->in(['contractor'])->nonNullable(),
+            'type' => rule()->required()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
+            'for' => rule()->required()->in(['contractor'])->nonNullable(),
             'id' => rule()->required()->nonNullable()
         ]);
 
@@ -29,8 +29,8 @@ readonly class group extends Api
     {
         $validate = validator($params, [
             'name' => rule()->required()->string()->nonNullable(),
-            'type' => rule()->required()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
-            'for' => rule()->required()->string()->in(['contractor'])->nonNullable(),
+            'type' => rule()->required()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
+            'for' => rule()->required()->in(['contractor'])->nonNullable(),
             'id' => rule()->required()->nonNullable(),
 
             'value' => rule()->required()->nonNullable()
@@ -45,8 +45,8 @@ readonly class group extends Api
     {
         $validate = validator($params, [
             'name' => rule()->required()->string()->nonNullable(),
-            'type' => rule()->required()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
-            'for' => rule()->required()->string()->in(['contractor'])->nonNullable(),
+            'type' => rule()->required()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
+            'for' => rule()->required()->in(['contractor'])->nonNullable(),
             'id' => rule()->required()->nonNullable(),
 
             'value' => rule()->required()->nonNullable()
@@ -61,8 +61,8 @@ readonly class group extends Api
     {
         $validate = validator($params, [
             'name' => rule()->required()->string()->nonNullable(),
-            'type' => rule()->required()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
-            'for' => rule()->required()->string()->in(['contractor'])->nonNullable(),
+            'type' => rule()->required()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
+            'for' => rule()->required()->in(['contractor'])->nonNullable(),
             'id' => rule()->required()->nonNullable()
         ]);
 

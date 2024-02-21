@@ -13,8 +13,8 @@ readonly class groups extends Api
     {
         $validate = validator($params, [
             'name' => rule()->string(),
-            'type' => rule()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address']),
-            'for' => rule()->string()->in(['subscriber', 'contractor']),
+            'type' => rule()->in(['subscriber', 'camera', 'intercom', 'key', 'address']),
+            'for' => rule()->in(['subscriber', 'contractor']),
 
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
