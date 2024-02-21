@@ -4,6 +4,7 @@ namespace Selpol\Feature\Dvr\Internal;
 
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Dvr\DvrFeature;
+use Selpol\Feature\House\HouseFeature;
 
 readonly class InternalDvrFeature extends DvrFeature
 {
@@ -203,5 +204,28 @@ readonly class InternalDvrFeature extends DvrFeature
         }
 
         return false;
+    }
+
+    public function convertCameraForSubscriber(array $camera, ?array $user): array
+    {
+        $dvr = $this->getDVRServerByCamera($camera);
+
+        $result = [
+            "id" => $camera['cameraId'],
+            "name" => $camera['name'],
+            "lat" => strval($camera['lat']),
+            "lon" => strval($camera['lon']),
+            'timezone' => $camera['timezone'],
+            "url" => $this->getUrlForCamera($dvr, $camera),
+            "token" => $this->getTokenForCamera($dvr, $camera, $user ? $user['subscriberId'] : null),
+            "serverType" => $dvr?->type ?? 'flussonic'
+        ];
+
+        if ($openData = container(HouseFeature::class)->getIntercomOpenDataByEntranceCameraId($camera['cameraId'])) {
+            $result['domophoneId'] = $openData['domophoneId'];
+            $result['doorId'] = $openData['doorId'];
+        }
+
+        return $result;
     }
 }

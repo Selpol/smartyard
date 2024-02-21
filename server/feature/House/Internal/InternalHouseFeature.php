@@ -3,6 +3,7 @@
 namespace Selpol\Feature\House\Internal;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -189,6 +190,16 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         return false;
+    }
+
+    public function getFlatBlock(int $flatId): bool
+    {
+        $flat = HouseFlat::findById($flatId, setting: setting()->columns(['manual_block', 'auto_block', 'admin_block']));
+
+        if ($flat)
+            return $flat->manual_block || $flat->auto_block || $flat->admin_block;
+
+        return true;
     }
 
     function createEntrance(int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool|int

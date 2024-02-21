@@ -13,8 +13,8 @@ readonly class groups extends Api
     {
         $validate = validator($params, [
             'name' => rule()->string(),
-            'type' => rule()->string()->in(['camera', 'intercom', 'key', 'address']),
-            'for' => rule()->string()->in(['subscriber']),
+            'type' => rule()->string()->in(['subscriber', 'camera', 'intercom', 'key', 'address']),
+            'for' => rule()->string()->in(['subscriber', 'contractor']),
 
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
@@ -24,6 +24,7 @@ readonly class groups extends Api
             $validate['name'],
             $validate['type'] ? GroupFeature::TYPE_MAP[$validate['type']] : null,
             $validate['for'] ? GroupFeature::FOR_MAP[$validate['for']] : null,
+            null,
             $validate['page'],
             $validate['size']
         );

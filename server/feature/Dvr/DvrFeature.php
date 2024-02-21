@@ -19,4 +19,6 @@ readonly abstract class DvrFeature extends Feature
     public abstract function getUrlOfRecord(array $cam, int $subscriberId, int $start, int $finish): string|bool;
 
     public abstract function getUrlOfScreenshot(array $cam, int $time, string|bool $addTokenToUrl = false): string|bool;
+
+    public abstract function convertCameraForSubscriber(array $camera, ?array $user): array;
 }

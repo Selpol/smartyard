@@ -27,6 +27,8 @@ readonly abstract class HouseFeature extends Feature
 
     abstract function getFlat(int $flatId): bool|array;
 
+    abstract function getFlatBlock(int $flatId): bool;
+
     abstract function getFlatPlog(int $flatId): ?int;
 
     abstract function getFlats(string $by, mixed $params): bool|array;

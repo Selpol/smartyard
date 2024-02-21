@@ -17,14 +17,23 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    public function find(?string $name, ?string $type, ?string $for, int $page, int $limit): GroupPage|bool
+    public function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool
     {
         $filter = [];
 
         if ($name !== null) $filter['name'] = $name;
-        if ($this !== null) $filter['type'] = $type;
+        if ($type !== null) $filter['type'] = $type;
+        if ($for !== null) $filter['for'] = $for;
+        if ($id !== null) $filter['id'] = $id;
 
-        $cursor = $this->getCollection()->find($filter, ['skip' => $page * $limit, 'limit' => $limit]);
+        $options = [];
+
+        if ($page != null && $limit != null) {
+            $options['skip'] = $page * $limit;
+            $options['limit'] = $limit;
+        }
+
+        $cursor = $this->getCollection()->find($filter, $options);
         $result = [];
 
         foreach ($cursor as $document)
@@ -33,7 +42,14 @@ readonly class InternalGroupFeature extends GroupFeature
         return new GroupPage($result, $page, $limit);
     }
 
-    public function findOne(string $name, string $type, string $for, mixed $id): array|bool
+    public function insert(string $name, string $type, string $for, mixed $id, array $value): bool
+    {
+        $result = $this->getCollection()->insertOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
+
+        return $result->getInsertedCount() === 1;
+    }
+
+    public function get(string $name, string $type, string $for, mixed $id): array|bool
     {
         $result = $this->getCollection()->findOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id]);
 
@@ -46,13 +62,6 @@ readonly class InternalGroupFeature extends GroupFeature
         }
 
         return false;
-    }
-
-    public function insert(string $name, string $type, string $for, mixed $id, array $value): bool
-    {
-        $result = $this->getCollection()->insertOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
-
-        return $result->getInsertedCount() === 1;
     }
 
     public function update(string $name, string $type, string $for, mixed $id, array $value): bool

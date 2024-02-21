@@ -27,7 +27,7 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature): ResponseInterface
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -66,7 +66,7 @@ readonly class CameraController extends RbtController
                 $door = [];
 
                 if ($e['cameraId']) {
-                    $cam = container(CameraFeature::class)->getCamera($e["cameraId"]);
+                    $cam = $cameraFeature->getCamera($e["cameraId"]);
                     $house['cameras'][] = $cam;
                 }
 
@@ -85,7 +85,7 @@ readonly class CameraController extends RbtController
                 if ($camera['cameraId'] === null)
                     continue;
 
-                $result[] = $this->convertCamera($camera, $user);
+                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
             }
         }
 
@@ -96,11 +96,11 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function common(): ResponseInterface
+    public function common(DvrFeature $dvrFeature): ResponseInterface
     {
         $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
 
-        return user_response(data: array_map(fn(DeviceCamera $camera) => $this->convertCamera($camera->toArrayMap([
+        return user_response(data: array_map(fn(DeviceCamera $camera) => $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
             "camera_id" => "cameraId",
             "dvr_server_id" => "dvrServerId",
             "frs_server_id" => "frsServerId",
@@ -135,7 +135,7 @@ readonly class CameraController extends RbtController
      * @throws ValidatorException
      */
     #[Get('/{cameraId}')]
-    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature): ResponseInterface
+    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -157,7 +157,7 @@ readonly class CameraController extends RbtController
         if (!$camera)
             return user_response(404, message: 'Камера не найдена');
 
-        return user_response(data: $this->convertCamera($camera, $user));
+        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera, $user));
     }
 
     /**
@@ -193,31 +193,5 @@ readonly class CameraController extends RbtController
             return user_response(200, array_map(static fn(array $item) => $item['date'], $events));
 
         return user_response(404, message: 'События не найдены');
-    }
-
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    private function convertCamera(array $camera, ?array $user): array
-    {
-        $dvr = container(DvrFeature::class)->getDVRServerByCamera($camera);
-
-        $result = [
-            "id" => $camera['cameraId'],
-            "name" => $camera['name'],
-            "lat" => strval($camera['lat']),
-            "lon" => strval($camera['lon']),
-            'timezone' => $camera['timezone'],
-            "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
-            "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user ? $user['subscriberId'] : null),
-            "serverType" => $dvr?->type ?? 'flussonic'
-        ];
-
-        if ($openData = container(HouseFeature::class)->getIntercomOpenDataByEntranceCameraId($camera['cameraId'])) {
-            $result['domophoneId'] = $openData['domophoneId'];
-            $result['doorId'] = $openData['doorId'];
-        }
-
-        return $result;
     }
 }
