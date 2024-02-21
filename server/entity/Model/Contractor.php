@@ -13,6 +13,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int $flat Сервисная квартира подрядчика
  *
+ * @property string|null $code Код сервисной квартиры
+ *
  * @property string $created_at
  * @property string $updated_at
  */
@@ -36,6 +38,7 @@ class Contractor extends Entity
             'title' => rule()->required()->string()->max(1000)->nonNullable(),
 
             'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable(),
+            'code' => rule()->string(),
 
             'created_at' => rule()->string(),
             'updated_at' => rule()->string()

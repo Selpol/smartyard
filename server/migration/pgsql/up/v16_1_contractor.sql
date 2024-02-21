@@ -1,0 +1,2 @@
+ALTER TABLE contractor
+    ADD COLUMN code VARCHAR;

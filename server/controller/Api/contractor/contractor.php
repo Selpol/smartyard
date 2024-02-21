@@ -21,7 +21,8 @@ readonly class contractor extends Api
     {
         $contractor = new \Selpol\Entity\Model\Contractor(validator($params, [
             'title' => rule()->required()->string()->clamp(0, 1000)->nonNullable(),
-            'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable()
+            'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable(),
+            'code' => rule()->string()
         ]));
 
         if ($contractor->insert())
@@ -36,13 +37,15 @@ readonly class contractor extends Api
             '_id' => rule()->id(),
 
             'title' => rule()->required()->string()->clamp(0, 1000)->nonNullable(),
-            'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable()
+            'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable(),
+            'code' => rule()->string()
         ]);
 
         $contractor = \Selpol\Entity\Model\Contractor::findById($validate['_id'], setting: setting()->nonNullable());
 
         $contractor->title = $validate['title'];
         $contractor->flat = $validate['flat'];
+        $contractor->code = $validate['code'];
 
         if ($contractor->update())
             return self::success($contractor->id);
