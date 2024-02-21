@@ -9,15 +9,12 @@ readonly class contractor extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $validate = validator($params, [
-            'title' => rule()->string()->clamp(0, 1000),
-            'flat' => rule()->int()->clamp(0, 10000),
+        $contractor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-            'page' => rule()->int()->clamp(0),
-            'size' => rule()->int()->clamp(0, 512),
-        ]);
+        if ($contractor)
+            return self::success($contractor);
 
-        return self::success(\Selpol\Entity\Model\Contractor::fetchPage($validate['page'], $validate['size'], criteria()->like('title', $validate['title'])->equal('flat', $validate['flat'])->asc('id')));
+        return self::error('Не удалось найти подрядчика');
     }
 
     public static function POST(array $params): ResponseInterface
