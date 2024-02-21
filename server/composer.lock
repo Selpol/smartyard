@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.40",
+            "version": "1.0.41",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "10f5dc92a00ead9b172129946c03793f1bc594d5"
+                "reference": "fcc0f8331d55cf99f2c673bddd2f30f6b35271a9"
             },
             "require": {
                 "ext-curl": "*",
@@ -1282,15 +1282,15 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2023-12-04T10:25:34+00:00"
+            "time": "2024-02-21T12:56:32+00:00"
         },
         {
             "name": "selpol/validator",
-            "version": "1.0.11",
+            "version": "1.0.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/validator.git",
-                "reference": "bf2397b6fbfe0f062c8d232b4a60a53e13f68352"
+                "reference": "11f51b32a50bb56245f079659426ee041bcb0799"
             },
             "require": {
                 "php": ">=8.2"
@@ -1311,7 +1311,7 @@
                 }
             ],
             "description": "Selpol validator library",
-            "time": "2023-12-04T10:15:29+00:00"
+            "time": "2024-02-21T12:53:36+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
