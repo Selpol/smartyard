@@ -20,7 +20,7 @@ readonly class groups extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $result = container(GroupFeature::class)->find(
+        $result = container(GroupFeature::class)->fetchPage(
             $validate['name'],
             $validate['type'] ? GroupFeature::TYPE_MAP[$validate['type']] : null,
             $validate['for'] ? GroupFeature::FOR_MAP[$validate['for']] : null,

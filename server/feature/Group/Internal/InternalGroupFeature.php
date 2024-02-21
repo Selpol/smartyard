@@ -17,7 +17,7 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    public function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool
+    public function fetchPage(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool
     {
         $filter = [];
 
@@ -40,6 +40,18 @@ readonly class InternalGroupFeature extends GroupFeature
             $result[] = json_decode(json_encode($document), true);
 
         return new GroupPage($result, $page, $limit);
+    }
+
+    public function findByAddress(int $id): array
+    {
+        $cursor = $this->getCollection()->find(['type' => self::TYPE_ADDRESS, 'value' => ['$in' => [$id]]]);
+
+        $result = [];
+
+        foreach ($cursor as $document)
+            $result[] = json_decode(json_encode($document), true);
+
+        return $result;
     }
 
     public function insert(string $name, string $type, string $for, mixed $id, array $value): bool

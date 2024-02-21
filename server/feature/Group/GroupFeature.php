@@ -37,7 +37,9 @@ readonly abstract class GroupFeature extends Feature
         'address' => self::TYPE_ADDRESS
     ];
 
-    public abstract function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool;
+    public abstract function fetchPage(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool;
+
+    public abstract function findByAddress(int $id): array;
 
     public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): bool;
 
