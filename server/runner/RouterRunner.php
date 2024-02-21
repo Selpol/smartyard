@@ -45,6 +45,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      */
     function run(array $arguments): int
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+            return $this->emit(response(204));
+
         $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
         $request->withParsedBody(parse_body($request));
