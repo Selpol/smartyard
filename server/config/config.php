@@ -91,7 +91,7 @@ return [
         ],
 
         'file' => [
-            'db' => env('FEATURE_FILES_DB', 'rbt')
+            'database' => env('FEATURE_FILES_DB', 'rbt')
         ],
 
         'archive' => [
@@ -116,6 +116,10 @@ return [
             'audience' => env('FEATURE_OAUTH_AUDIENCE'),
             'web_api' => env('FEATURE_OAUTH_WEB_API'),
             'secret' => env('FEATURE_OAUTH_SECRET')
+        ],
+
+        'group' => [
+            'database' => env('FEATURE_GROUP_DB', 'rbt')
         ]
     ],
 

@@ -10,6 +10,8 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(MongoFileFeature::class)]
 readonly abstract class FileFeature extends Feature
 {
+    const DEFAULT_DATABASE = 'rbt';
+
     /**
      * @param string $realFileName
      * @param resource $stream
