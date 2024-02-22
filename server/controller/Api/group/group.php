@@ -33,7 +33,7 @@ readonly class group extends Api
 
         $result = container(GroupFeature::class)->insert($validate['name'], GroupFeature::TYPE_MAP[$validate['type']], GroupFeature::FOR_MAP[$validate['for']], $validate['id'], $validate['value']);
 
-        return $result ? self::success() : self::error('Не удалось создать группу');
+        return $result ? self::success($result) : self::error('Не удалось создать группу');
     }
 
     public static function PUT(array $params): array|ResponseInterface

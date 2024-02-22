@@ -85,7 +85,7 @@ readonly class InternalGroupFeature extends GroupFeature
             $insertedId = $result->getInsertedId();
 
             if ($insertedId instanceof ObjectId)
-                return $insertedId->jsonSerialize()['_id'];
+                return $insertedId->__toString();
 
             return $insertedId;
         } else return false;
