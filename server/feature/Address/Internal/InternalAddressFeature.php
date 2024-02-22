@@ -691,8 +691,8 @@ readonly class InternalAddressFeature extends AddressFeature
 
             if ($house["data"]["house_fias_id"]) {
                 $houseId = $this->getDatabase()->get(
-                    "select address_house_id from addresses_houses where house_uuid = :house_uuid or (address_settlement_id = :address_settlement_id and house = :house) or (address_street_id = :address_street_id and house = :house)",
-                    ["house_uuid" => $house["data"]["house_fias_id"], "address_settlement_id" => $settlementId, "address_street_id" => $streetId, "house" => $house["data"]["house"]],
+                    "select address_house_id from addresses_houses where house_uuid = :house_uuid",
+                    ["house_uuid" => $house["data"]["house_fias_id"]],
                     options: ['fieldlify']
                 );
 
