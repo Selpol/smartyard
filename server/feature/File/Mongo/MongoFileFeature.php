@@ -19,7 +19,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function addFile(string $realFileName, $stream, array $metadata = []): string
     {
-        $bucket = container(MongoService::class)->getClient()->{$this->database}->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
 
         $id = $bucket->uploadFromStream($realFileName, $stream);
 
@@ -31,7 +31,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function getFile(string $uuid): array
     {
-        $bucket = container(MongoService::class)->getClient()->{$this->database}->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
 
         $fileId = new ObjectId($uuid);
 
@@ -42,7 +42,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function getFileBytes(string $uuid): string
     {
-        $bucket = container(MongoService::class)->getClient()->{$this->database}->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
 
         return stream_get_contents($bucket->openDownloadStream(new ObjectId($uuid)));
     }
@@ -59,7 +59,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function setFileMetadata(string $uuid, array $metadata): UpdateResult
     {
-        return container(MongoService::class)->getClient()->{$this->database}->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
+        return container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
     }
 
     public function getFileMetadata(string $uuid): array
@@ -69,7 +69,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function searchFiles(array $query): array
     {
-        $cursor = container(MongoService::class)->getClient()->{$this->database}->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
+        $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
 
         $files = [];
 
@@ -87,7 +87,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function deleteFile(string $uuid): bool
     {
-        $bucket = container(MongoService::class)->getClient()->{$this->database}->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
 
         if ($bucket) {
             try {

@@ -49,12 +49,13 @@ readonly abstract class GroupFeature extends Feature
     public abstract function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array;
 
     /**
+     * @param string $type
      * @param string $for
      * @param int $id
-     * @param int $address
+     * @param mixed $value
      * @return array[]
      */
-    public abstract function findByForAndAddress(string $for, mixed $id, int $address): array;
+    public abstract function findIn(string $type, string $for, mixed $id, mixed $value): array;
 
     public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool;
 

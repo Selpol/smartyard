@@ -17,15 +17,6 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    /**
-     * @param string|null $name
-     * @param string|null $type
-     * @param string|null $for
-     * @param mixed $id
-     * @param int|null $page
-     * @param int|null $limit
-     * @return array[]
-     */
     public function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array
     {
         $filter = [];
@@ -46,32 +37,22 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument)
-                $result[] = $document->getArrayCopy();
-            else if ($document)
-                $result[] = $document;
+            if ($document instanceof BSONDocument) $result[] = $document->getArrayCopy();
+            else if ($document) $result[] = $document;
         }
 
         return $result;
     }
 
-    /**
-     * @param string $for
-     * @param int $id
-     * @param int $address
-     * @return array[]
-     */
-    public function findByForAndAddress(string $for, mixed $id, int $address): array
+    public function findIn(string $type, string $for, mixed $id, mixed $value): array
     {
-        $cursor = $this->getCollection()->find(['type' => self::TYPE_ADDRESS, 'for' => $for, 'id' => $id, 'value' => ['$in' => [$id]]]);
+        $cursor = $this->getCollection()->find(['type' => $type, 'for' => $for, 'id' => $id, 'value' => ['$in' => [$value]]]);
 
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument)
-                $result[] = $document->getArrayCopy();
-            else if ($document)
-                $result[] = $document;
+            if ($document instanceof BSONDocument) $result[] = $document->getArrayCopy();
+            else if ($document) $result[] = $document;
         }
 
         return $result;
@@ -122,6 +103,6 @@ readonly class InternalGroupFeature extends GroupFeature
 
     private function getCollection(): Collection
     {
-        return container(MongoService::class)->getClient()->{$this->database}->selectCollection('group');
+        return container(MongoService::class)->getDatabase($this->database)->selectCollection('group');
     }
 }

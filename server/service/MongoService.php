@@ -3,6 +3,7 @@
 namespace Selpol\Service;
 
 use MongoDB\Client;
+use MongoDB\Database;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton]
@@ -18,5 +19,10 @@ readonly class MongoService
     public function getClient(): Client
     {
         return $this->client;
+    }
+
+    public function getDatabase(string $database): Database
+    {
+        return $this->getClient()->{$database};
     }
 }
