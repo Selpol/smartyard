@@ -56,11 +56,11 @@ readonly abstract class GroupFeature extends Feature
      */
     public abstract function findByForAndAddress(string $for, mixed $id, int $address): array;
 
-    public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): bool;
+    public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool;
 
-    public abstract function get(string $name, string $type, string $for, mixed $id): array|bool;
+    public abstract function get(string $oid): array|bool;
 
-    public abstract function update(string $name, string $type, string $for, mixed $id, array $value): bool;
+    public abstract function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool;
 
-    public abstract function delete(string $name, string $type, string $for, mixed $id): bool;
+    public abstract function delete(string $oid): bool;
 }

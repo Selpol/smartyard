@@ -600,7 +600,7 @@ readonly class InternalAddressFeature extends AddressFeature
             }
 
             if (!$regionId) {
-                error_log($house["data"]["house_fias_id"] . " no region");
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no region');
 
                 return false;
             }
@@ -638,7 +638,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $areaId = null;
 
             if (!$areaId && !$cityId) {
-                error_log($house["data"]["house_fias_id"] . " no area or city");
+                file_logger('address')->error($house["data"]["house_fias_id"] . ' no area or city');
 
                 return false;
             }
@@ -660,7 +660,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $cityId = null;
 
             if (!$cityId && !$settlementId) {
-                error_log($house["data"]["house_fias_id"] . " no city or settlement");
+                file_logger('address')->error($house["data"]["house_fias_id"] . ' no city or settlement');
 
                 return false;
             }
@@ -682,7 +682,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $settlementId = null;
 
             if (!$settlementId && !$streetId) {
-                error_log($house['data']['house_fias_id'] . ' no setllement or street');
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no setllement or street');
 
                 return false;
             }
@@ -702,7 +702,7 @@ readonly class InternalAddressFeature extends AddressFeature
 
             if ($houseId) return $houseId;
             else {
-                error_log($house['data']['house_fias_id'] . ' no house');
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no house');
 
                 return false;
             }

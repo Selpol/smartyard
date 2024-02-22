@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\Group\Internal;
 
+use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
 use Selpol\Feature\Group\GroupFeature;
@@ -76,16 +77,23 @@ readonly class InternalGroupFeature extends GroupFeature
         return $result;
     }
 
-    public function insert(string $name, string $type, string $for, mixed $id, array $value): bool
+    public function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool
     {
         $result = $this->getCollection()->insertOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
 
-        return $result->getInsertedCount() === 1;
+        if ($result->getInsertedCount() === 1) {
+            $insertedId = $result->getInsertedId();
+
+            if ($insertedId instanceof ObjectId)
+                return $insertedId->jsonSerialize()['_id'];
+
+            return $insertedId;
+        } else return false;
     }
 
-    public function get(string $name, string $type, string $for, mixed $id): array|bool
+    public function get(string $oid): array|bool
     {
-        $result = $this->getCollection()->findOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id]);
+        $result = $this->getCollection()->findOne(['_id' => new ObjectId($oid)]);
 
         if ($result) {
             if ($result instanceof BSONDocument)
@@ -98,16 +106,16 @@ readonly class InternalGroupFeature extends GroupFeature
         return false;
     }
 
-    public function update(string $name, string $type, string $for, mixed $id, array $value): bool
+    public function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool
     {
-        $result = $this->getCollection()->updateOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id], ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
+        $result = $this->getCollection()->updateOne(['_id' => new ObjectId($oid)], ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
 
         return $result->getModifiedCount() === 1;
     }
 
-    public function delete(string $name, string $type, string $for, mixed $id): bool
+    public function delete(string $oid): bool
     {
-        $result = $this->getCollection()->deleteOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id]);
+        $result = $this->getCollection()->deleteOne(['_id' => new ObjectId($oid)]);
 
         return $result->getDeletedCount() === 1;
     }
