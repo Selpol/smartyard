@@ -16,7 +16,16 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    public function fetchPage(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array|bool
+    /**
+     * @param string|null $name
+     * @param string|null $type
+     * @param string|null $for
+     * @param mixed $id
+     * @param int|null $page
+     * @param int|null $limit
+     * @return array[]
+     */
+    public function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array
     {
         $filter = [];
 
@@ -35,20 +44,34 @@ readonly class InternalGroupFeature extends GroupFeature
         $cursor = $this->getCollection()->find($filter, $options);
         $result = [];
 
-        foreach ($cursor as $document)
-            $result[] = json_decode(json_encode($document), true);
+        foreach ($cursor as $document) {
+            if ($document instanceof BSONDocument)
+                $result[] = $document->getArrayCopy();
+            else if ($document)
+                $result[] = $document;
+        }
 
         return $result;
     }
 
-    public function findByAddress(int $id): array
+    /**
+     * @param string $for
+     * @param int $id
+     * @param int $address
+     * @return array[]
+     */
+    public function findByForAndAddress(string $for, mixed $id, int $address): array
     {
-        $cursor = $this->getCollection()->find(['type' => self::TYPE_ADDRESS, 'value' => ['$in' => [$id]]]);
+        $cursor = $this->getCollection()->find(['type' => self::TYPE_ADDRESS, 'for' => $for, 'id' => $id, 'value' => ['$in' => [$id]]]);
 
         $result = [];
 
-        foreach ($cursor as $document)
-            $result[] = json_decode(json_encode($document), true);
+        foreach ($cursor as $document) {
+            if ($document instanceof BSONDocument)
+                $result[] = $document->getArrayCopy();
+            else if ($document)
+                $result[] = $document;
+        }
 
         return $result;
     }
@@ -66,7 +89,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
         if ($result) {
             if ($result instanceof BSONDocument)
-                $result = json_decode(json_encode($result), true);
+                $result = $result->getArrayCopy();
 
             if (is_array($result))
                 return $result;
