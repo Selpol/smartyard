@@ -108,7 +108,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool
     {
-        $result = $this->getCollection()->updateOne(['_id' => new ObjectId($oid)], ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
+        $result = $this->getCollection()->updateOne(['_id' => new ObjectId($oid)], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
 
         return $result->getModifiedCount() === 1;
     }
