@@ -17,7 +17,7 @@ readonly class group extends Api
         if ($group)
             return self::success($group);
 
-        return self::error('Не удалось найти группу');
+        return self::error('Не удалось найти группу', 404);
     }
 
     public static function POST(array $params): array|ResponseInterface
@@ -33,7 +33,7 @@ readonly class group extends Api
 
         $result = container(GroupFeature::class)->insert($validate['name'], GroupFeature::TYPE_MAP[$validate['type']], GroupFeature::FOR_MAP[$validate['for']], $validate['id'], $validate['value']);
 
-        return $result ? self::success($result) : self::error('Не удалось создать группу');
+        return $result ? self::success($result) : self::error('Не удалось создать группу', 400);
     }
 
     public static function PUT(array $params): array|ResponseInterface
@@ -51,7 +51,7 @@ readonly class group extends Api
 
         $result = container(GroupFeature::class)->update($validate['_id'], $validate['name'], GroupFeature::TYPE_MAP[$validate['type']], GroupFeature::FOR_MAP[$validate['for']], $validate['id'], $validate['value']);
 
-        return $result ? self::success() : self::error('Не удалось обновить группу');
+        return $result ? self::success() : self::error('Не удалось обновить группу', 400);
     }
 
     public static function DELETE(array $params): array|ResponseInterface
@@ -61,7 +61,7 @@ readonly class group extends Api
         if (container(GroupFeature::class)->delete($validate['_id']))
             return self::success();
 
-        return self::error('Не удалось удалить группуп');
+        return self::error('Не удалось удалить группуп', 404);
     }
 
     public static function index(): array
