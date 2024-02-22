@@ -580,7 +580,7 @@ readonly class InternalAddressFeature extends AddressFeature
     /**
      * @throws NotFoundExceptionInterface
      */
-    function addHouseByMagic(string $houseUuid): bool|int
+    function addHouseByMagic(string $houseUuid): false|int
     {
         $house = $this->getRedis()->get("house_" . $houseUuid);
 
