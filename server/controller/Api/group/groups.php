@@ -5,7 +5,6 @@ namespace Selpol\Controller\Api\group;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Group\GroupFeature;
-use Selpol\Feature\Group\GroupPage;
 
 readonly class groups extends Api
 {
@@ -32,7 +31,7 @@ readonly class groups extends Api
         if ($result)
             return self::success($result);
 
-        return self::success(new GroupPage([], $validate['page'], $validate['size']));
+        return self::success([]);
     }
 
     public static function index(): bool|array

@@ -5,7 +5,6 @@ namespace Selpol\Feature\Group\Internal;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
 use Selpol\Feature\Group\GroupFeature;
-use Selpol\Feature\Group\GroupPage;
 use Selpol\Service\MongoService;
 
 readonly class InternalGroupFeature extends GroupFeature
@@ -17,7 +16,7 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    public function fetchPage(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): GroupPage|bool
+    public function fetchPage(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array|bool
     {
         $filter = [];
 
@@ -39,7 +38,7 @@ readonly class InternalGroupFeature extends GroupFeature
         foreach ($cursor as $document)
             $result[] = json_decode(json_encode($document), true);
 
-        return new GroupPage($result, $page, $limit);
+        return $result;
     }
 
     public function findByAddress(int $id): array
