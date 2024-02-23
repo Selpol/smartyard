@@ -2,6 +2,8 @@ CREATE TABLE core_auth
 (
     id             SERIAL PRIMARY KEY,
 
+    token          VARCHAR   NOT NULL,
+
     user_id        INT       NOT NULL,
 
     user_agent     VARCHAR   NOT NULL,

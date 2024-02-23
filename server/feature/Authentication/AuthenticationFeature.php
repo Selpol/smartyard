@@ -32,7 +32,6 @@ readonly abstract class AuthenticationFeature extends Feature
                 'token' => md5($uid . ":" . guid_v4() . ":" . $did),
 
                 'user_id' => $uid,
-
                 'user_agent' => $ua,
                 'user_ip' => $ip,
 
