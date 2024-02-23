@@ -36,7 +36,7 @@ readonly abstract class AuthenticationFeature extends Feature
                 'user_agent' => $ua,
                 'user_ip' => $ip,
 
-                'remember_me' => $rememberMe,
+                'remember_me' => $rememberMe ? 1 : 0,
 
                 'status' => 1
             ]);
@@ -44,7 +44,7 @@ readonly abstract class AuthenticationFeature extends Feature
             if ($auth->insert()) {
                 container(DatabaseService::class)->modify("update core_users set last_login = " . time() . " where uid = " . $uid, false, ["silent"]);
 
-                return ["result" => true, "token" => $auth->token, "login" => $login, "ua" => $ua, "uid" => $uid];
+                return ["result" => true, "token" => $auth->token];
             }
         }
 
