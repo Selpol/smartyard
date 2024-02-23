@@ -2,117 +2,96 @@
 
 namespace Selpol\Feature\Authentication;
 
-use Exception;
+use Selpol\Entity\Model\Core\CoreAuth;
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
 use Selpol\Feature\Feature;
-use Selpol\Feature\User\UserFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\DatabaseService;
-use Selpol\Service\RedisService;
 
 #[Singleton(InternalAuthenticationFeature::class)]
 readonly abstract class AuthenticationFeature extends Feature
 {
-    abstract public function checkAuth(string $login, string $password): int|bool;
+    public abstract function checkAuth(string $login, string $password): int|bool;
 
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
-        return $this->getRedis()->use(1, function (RedisService $service) use ($login, $password, $rememberMe, $ua, $did, $ip) {
-            $db = container(DatabaseService::class);
+        $uid = $this->checkAuth($login, $password);
 
-            $uid = $this->checkAuth($login, $password);
+        if ($uid !== false) {
+            $auths = CoreAuth::fetchAll(criteria()->equal('user_id', $uid)->equal('status', 1));
 
-            if ($uid !== false) {
-                $keys = $service->keys('user:' . $uid . ':token:*');
-
-                $first_key = "";
-                $first_key_time = time();
-
-                if (count($keys) > config_get('redis.max_allowed_tokens')) {
-                    foreach ($keys as $key) {
-                        try {
-                            $auth = json_decode($service->get($key), true);
-
-                            if (@(int)$auth["updated"] < $first_key_time)
-                                $first_key = $key;
-                        } catch (Exception) {
-                            $service->del($key);
-                        }
-                    }
-
-                    $service->del($first_key);
+            if (count($auths) > 5) {
+                foreach ($auths as $auth) {
+                    $auth->status = false;
+                    $auth->update();
                 }
+            }
 
-                if ($rememberMe) {
-                    $token = md5($uid . ":" . $login . ":" . $password . ":" . $did);
-                } else {
-                    if ($did === "Base64")
-                        $token = md5($uid . ":" . $login . ":" . $password);
-                    else
-                        $token = md5(guid_v4());
-                }
+            $auth = new CoreAuth([
+                'token' => md5($uid . ":" . guid_v4() . ":" . $did),
 
-                $service->setEx('user:' . $uid . ':token:' . $token, $rememberMe ? (7 * 24 * 60 * 60) : 24 * 60 * 60, json_encode([
-                    "uid" => (string)$uid,
-                    "login" => $login,
-                    "persistent" => $rememberMe,
-                    "ua" => $ua,
-                    "did" => $did,
-                    "ip" => $ip,
-                    "started" => time(),
-                    "updated" => time(),
-                ]));
+                'user_id' => $uid,
 
-                $db->modify("update core_users set last_login = " . time() . " where uid = " . $uid, false, ["silent"]);
+                'user_agent' => $ua,
+                'user_ip' => $ip,
 
-                return ["result" => true, "token" => $token, "login" => $login, "ua" => $ua, "uid" => $uid];
-            } else return ["result" => false, "code" => 403, "error" => "forbidden"];
-        });
+                'remember_me' => $rememberMe,
+
+                'status' => 1
+            ]);
+
+            if ($auth->insert()) {
+                container(DatabaseService::class)->modify("update core_users set last_login = " . time() . " where uid = " . $uid, false, ["silent"]);
+
+                return ["result" => true, "token" => $auth->token, "login" => $login, "ua" => $ua, "uid" => $uid];
+            }
+        }
+
+        return ["result" => false, "code" => 403, "error" => "forbidden"];
     }
 
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
     {
-        $authorization = explode(" ", $authorization);
+        $authorization = explode(' ', $authorization);
 
-        if ($authorization[0] === "Bearer") {
+        if ($authorization[0] === 'Bearer') {
             $token = $authorization[1];
 
-            return $this->getRedis()->use(1, function (RedisService $service) use ($token, $ua, $ip) {
-                $keys = $service->keys('user:*:token:' . $token);
+            $auth = CoreAuth::fetch(criteria()->equal('token', $token)->equal('status', 1));
 
-                if (count($keys) === 1) {
-                    $auth = json_decode($service->get($keys[0]), true);
+            if ($auth) {
+                if ($auth->remember_me && $auth->user_agent != $ua && $auth->user_id != $ip) {
+                    $auth->status = 0;
+                    $auth->update();
 
-                    if ($ua)
-                        $auth["ua"] = $ua;
-
-                    if ($ip)
-                        $auth["ip"] = $ip;
-
-                    $auth["updated"] = time();
-
-                    $auth["token"] = $token;
-
-                    $service->setEx($keys[0], $auth["persistent"] ? (7 * 24 * 60 * 60) : 24 * 60 * 60, json_encode($auth));
-
-                    if (container(UserFeature::class)->getUidByLogin($auth["login"]) == $auth["uid"]) return $auth;
-                    else return false;
+                    return false;
                 }
 
-                return false;
-            });
+                $user = CoreUser::findById($auth->user_id);
+
+                if ($user) {
+                    $auth->last_access_to = date('Y-m-d H:i:s');
+
+                    if ($auth->update())
+                        return ['token' => $token, 'user' => $user->jsonSerialize()];
+                }
+            }
         }
 
         return false;
     }
 
-    public function logout(string $token): void
+    public function logout(string $token): bool
     {
-        $this->getRedis()->use(1, function (RedisService $service) use ($token) {
-            $keys = $service->keys('user:*:token:' . $token);
+        $auth = CoreAuth::fetch(criteria()->equal('token', $token)->equal('status', 1));
 
-            if (count($keys) === 1)
-                $service->del($keys[0]);
-        });
+        if ($auth) {
+            $auth->status = 0;
+
+            return $auth->update();
+        }
+
+        return false;
     }
 }

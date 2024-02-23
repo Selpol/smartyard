@@ -17,8 +17,8 @@ use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Service\Auth\Token\RedisAuthToken;
-use Selpol\Service\Auth\User\RedisAuthUser;
+use Selpol\Service\Auth\Token\CoreAuthToken;
+use Selpol\Service\Auth\User\CoreAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
@@ -129,8 +129,8 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (!$auth)
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
 
-            container(AuthService::class)->setToken(new RedisAuthToken($auth['token']));
-            container(AuthService::class)->setUser(new RedisAuthUser($auth));
+            container(AuthService::class)->setToken(new CoreAuthToken($auth['token']));
+            container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
         } else return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
