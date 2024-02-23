@@ -60,7 +60,7 @@ readonly abstract class AuthenticationFeature extends Feature
             $auth = CoreAuth::fetch(criteria()->equal('token', $token)->equal('status', 1));
 
             if ($auth) {
-                if ($auth->remember_me && $auth->user_agent != $ua && $auth->user_id != $ip) {
+                if ($auth->remember_me && $auth->user_agent != $ua && $auth->user_ip != $ip) {
                     $auth->status = 0;
                     $auth->update();
 

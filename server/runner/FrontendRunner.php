@@ -122,9 +122,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (!@$params['login'] || !@$params['password'])
                 return $this->emit(rbt_response(400, 'Логин или пароль не указан'));
         } else if ($http_authorization) {
-            $userAgent = $request->getHeader('User-Agent');
+            $userAgent = $request->getHeaderLine('User-Agent');
 
-            $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
+            $auth = container(AuthenticationFeature::class)->auth($http_authorization, $userAgent, $ip);
 
             if (!$auth)
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
