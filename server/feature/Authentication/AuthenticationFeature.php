@@ -72,9 +72,9 @@ readonly abstract class AuthenticationFeature extends Feature
 
                 if ($user) {
                     $auth->last_access_to = date('Y-m-d H:i:s');
+                    $auth->update();
 
-                    if ($auth->update())
-                        return ['token' => $token, 'user' => $user->jsonSerialize()];
+                    return ['token' => $token, 'user' => $user->jsonSerialize()];
                 }
             }
         }

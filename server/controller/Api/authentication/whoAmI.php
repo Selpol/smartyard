@@ -6,13 +6,14 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Service\AuthService;
 use Selpol\Service\RedisService;
 
 readonly class whoAmI extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $user = container(UserFeature::class)->getUser($params["_uid"]);
+        $user = container(UserFeature::class)->getUser(container(AuthService::class)->getUserOrThrow()->getIdentifier());
 
         if (!$user)
             return self::error('Пользователь не найден', 404);
