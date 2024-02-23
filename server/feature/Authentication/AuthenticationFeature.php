@@ -23,7 +23,8 @@ readonly abstract class AuthenticationFeature extends Feature
 
             if (count($auths) > 5) {
                 foreach ($auths as $auth) {
-                    $auth->status = false;
+                    $auth->status = 0;
+
                     $auth->update();
                 }
             }
