@@ -13,26 +13,27 @@ readonly class whoAmI extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $user = container(UserFeature::class)->getUser(container(AuthService::class)->getUserOrThrow()->getIdentifier());
+        $userId = container(AuthService::class)->getUserOrThrow()->getIdentifier();
+        $user = container(UserFeature::class)->getUser($userId);
 
         if (!$user)
             return self::error('Пользователь не найден', 404);
 
         $redis = container(RedisService::class);
 
-        $password = $redis->get('user:' . $params['_uid'] . ':ws');
+        $password = $redis->get('user:' . $userId . ':ws');
 
         if (!$password)
             $password = md5(guid_v4());
 
-        $redis->setEx('user:' . $params['_uid'] . ':ws', 24 * 60 * 60, $password);
+        $redis->setEx('user:' . $userId . ':ws', 24 * 60 * 60, $password);
 
         $sipServer = container(SipFeature::class)->server('first')[0];
 
         $user['wsTitle'] = $sipServer->title;
         $user['wsDomain'] = $sipServer->external_ip;
 
-        $user["wsUsername"] = sprintf("7%09d", (int)$params["_uid"]);
+        $user["wsUsername"] = sprintf("7%09d", (int)$userId);
         $user["wsPassword"] = $password;
 
         return self::success($user);
