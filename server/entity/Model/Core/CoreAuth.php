@@ -36,6 +36,16 @@ class CoreAuth extends Entity
     public static ?string $columnCreateAt = 'created_at';
     public static ?string $columnUpdateAt = 'updated_at';
 
+    public function jsonSerialize(): array
+    {
+        $value = $this->getValue();
+
+        if (array_key_exists('token', $value))
+            unset($value['token']);
+
+        return $value;
+    }
+
     public static function getColumns(): array
     {
         return [

@@ -39,6 +39,6 @@ readonly class session extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Пользователь] Получить список сессий', 'PUT' => '[Пользователь] отключить сессию'];
+        return ['GET' => '[Пользователь] Получить список сессий', 'PUT' => '[Пользователь] Отключить сессию'];
     }
 }
