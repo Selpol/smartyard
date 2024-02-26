@@ -9,5 +9,5 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(DaDataGeoFeature::class)]
 readonly abstract class GeoFeature extends Feature
 {
-    public abstract function suggestions(string $search): bool|array;
+    public abstract function suggestions(string $search, ?string $bound = null): bool|array;
 }

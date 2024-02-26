@@ -10,7 +10,7 @@ readonly class suggestions extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $suggestions = container(GeoFeature::class)->suggestions($params["search"]);
+        $suggestions = container(GeoFeature::class)->suggestions($params["search"], array_key_exists('bound', $params) ? $params['bound'] : null);
 
         if ($suggestions)
             return self::success($suggestions);

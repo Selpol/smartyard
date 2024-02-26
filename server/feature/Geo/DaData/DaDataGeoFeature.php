@@ -6,7 +6,7 @@ use Selpol\Feature\Geo\GeoFeature;
 
 readonly class DaDataGeoFeature extends GeoFeature
 {
-    public function suggestions(string $search): bool|array
+    public function suggestions(string $search, ?string $bound = null): bool|array
     {
         $geo = config_get('feature.geo');
 
@@ -20,10 +20,15 @@ readonly class DaDataGeoFeature extends GeoFeature
 
         curl_setopt($curl, CURLOPT_POST, 1);
 
+        $query = ["query" => $search];
+
+        if ($bound)
+            $query['to_bound'] = ['value' => $bound];
+
         if (array_key_exists('locations', $geo) && $geo['locations'])
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search, "locations" => $geo["locations"]]));
-        else
-            curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search]));
+            $query['locations'] = $geo['locations'];
+
+        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($query));
 
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
