@@ -19,6 +19,12 @@ readonly class suggestions extends Api
 
                     'latitude' => array_key_exists('geo_lat', $suggestion['data']) ? $suggestion['data']['geo_lat'] : null,
                     'longitude' => array_key_exists('geo_lon', $suggestion['data']) ? $suggestion['data']['geo_lon'] : null,
+
+                    'data' => [
+                        'house_fias_id' => $suggestion['data']['house_fias_id'],
+
+                        'fias_level' => $suggestion['data']['fias_level']
+                    ]
                 ];
             }, $suggestions));
 
