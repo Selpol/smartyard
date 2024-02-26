@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks;
 
+use MongoDB\Model\BSONArray;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
@@ -38,13 +39,13 @@ class ContractTask extends Task
                 return true;
 
             /** @var int[] $addresses */
-            $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
+            $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, BSONArray $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
 
             /** @var int[][] $subscribers */
-            $subscribers = array_values(array_unique(array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
+            $subscribers = array_values(array_unique(array_reduce($subscribersGroup, static fn(array $previous, BSONArray $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
 
             /** @var string[] $keys */
-            $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), [])));
+            $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, BSONArray $current) => array_merge($previous, $current['value']), [])));
 
             foreach ($addresses as $address)
                 $this->address($contractor, $address, $subscribers, $keys);
