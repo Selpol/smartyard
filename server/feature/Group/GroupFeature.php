@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\Group;
 
-use MongoDB\Model\BSONArray;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\Device\DeviceCamera;
@@ -45,7 +44,7 @@ readonly abstract class GroupFeature extends Feature
      * @param mixed $id
      * @param int|null $page
      * @param int|null $limit
-     * @return BSONArray[]
+     * @return array[]
      */
     public abstract function find(?string $name = null, ?string $type = null, ?string $for = null, mixed $id = null, ?int $page = null, ?int $limit = null): array;
 
@@ -54,13 +53,13 @@ readonly abstract class GroupFeature extends Feature
      * @param string $for
      * @param int $id
      * @param mixed $value
-     * @return BSONArray[]
+     * @return array[]
      */
     public abstract function findIn(string $type, string $for, mixed $id, mixed $value): array;
 
     public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool;
 
-    public abstract function get(string $oid): BSONArray|bool;
+    public abstract function get(string $oid): array|bool;
 
     public abstract function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool;
 
