@@ -182,7 +182,7 @@ class ContractTask extends Task
                 0,
                 '',
                 1,
-                '2024-01-01T00:00:00.000Z',
+                time(),
                 0,
                 0,
                 ''
