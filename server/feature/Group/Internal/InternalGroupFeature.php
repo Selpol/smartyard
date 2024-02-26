@@ -4,6 +4,7 @@ namespace Selpol\Feature\Group\Internal;
 
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
+use MongoDB\Model\BSONArray;
 use MongoDB\Model\BSONDocument;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Service\MongoService;
@@ -72,7 +73,7 @@ readonly class InternalGroupFeature extends GroupFeature
         } else return false;
     }
 
-    public function get(string $oid): array|bool
+    public function get(string $oid): BSONArray|bool
     {
         $result = $this->getCollection()->findOne(['_id' => new ObjectId($oid)]);
 
@@ -80,8 +81,7 @@ readonly class InternalGroupFeature extends GroupFeature
             if ($result instanceof BSONDocument)
                 $result = $result->getArrayCopy();
 
-            if (is_array($result))
-                return $result;
+            return $result;
         }
 
         return false;
