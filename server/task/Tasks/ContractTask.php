@@ -23,32 +23,38 @@ class ContractTask extends Task
 
     public function onTask(): bool
     {
-        $contractor = Contractor::findById($this->id, setting: setting()->nonNullable());
+        try {
+            $contractor = Contractor::findById($this->id, setting: setting()->nonNullable());
 
-        $addressesGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_ADDRESS, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
+            $addressesGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_ADDRESS, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
 
-        if (count($addressesGroup) === 0)
+            if (count($addressesGroup) === 0)
+                return true;
+
+            $subscribersGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_SUBSCRIBER, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
+            $keysGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_KEY, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
+
+            if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
+                return true;
+
+            /** @var int[] $addresses */
+            $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
+
+            /** @var int[][] $subscribers */
+            $subscribers = array_values(array_unique(array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
+
+            /** @var string[] $keys */
+            $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), [])));
+
+            foreach ($addresses as $address)
+                $this->address($contractor, $address, $subscribers, $keys);
+
             return true;
+        } catch (Throwable $throwable) {
+            file_logger('contract')->error($throwable);
 
-        $subscribersGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_SUBSCRIBER, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
-        $keysGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_KEY, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
-
-        if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
-            return true;
-
-        /** @var int[] $addresses */
-        $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
-
-        /** @var int[][] $subscribers */
-        $subscribers = array_values(array_unique(array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), []), SORT_NUMERIC));
-
-        /** @var string[] $keys */
-        $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, array $current) => array_merge($previous, $current['value']), [])));
-
-        foreach ($addresses as $address)
-            $this->address($contractor, $address, $subscribers, $keys);
-
-        return false;
+            return false;
+        }
     }
 
     /**
