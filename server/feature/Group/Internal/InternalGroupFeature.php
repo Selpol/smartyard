@@ -17,7 +17,7 @@ readonly class InternalGroupFeature extends GroupFeature
         $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
     }
 
-    public function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array
+    public function find(?string $name = null, ?string $type = null, ?string $for = null, mixed $id = null, ?int $page = null, ?int $limit = null): array
     {
         $filter = [];
 

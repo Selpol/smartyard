@@ -884,16 +884,26 @@ readonly class InternalHouseFeature extends HouseFeature
         return true;
     }
 
-    public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
+    public function getSubscribersInFlat(int $flatId): array
+    {
+        return $this->getDatabase()->get('SELECT house_subscriber_id, role FROM houses_flats_subscribers WHERE house_flat_id = :flat_id', ['flat_id' => $flatId]);
+    }
+
+    public function addSubscriberToFlat(int $flatId, int $subscriberId, int $role): bool
     {
         return $this->getDatabase()->insert(
             "insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, :role)",
             [
                 "house_subscriber_id" => $subscriberId,
                 "house_flat_id" => $flatId,
-                "role" => 1,
+                "role" => $role,
             ]
         );
+    }
+
+    public function updateSubscriberRoleInFlat(int $flatId, int $subscriberId, int $role): bool
+    {
+        return $this->getDatabase()->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['role' => $role, 'subscriber_id' => $subscriberId, 'flat_id' => $flatId]);
     }
 
     public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int

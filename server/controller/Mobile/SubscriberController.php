@@ -83,7 +83,7 @@ readonly class SubscriberController extends RbtController
         if ($subscriberFlat)
             return user_response(400, message: 'Житель уже добавлен');
 
-        if (!$houseFeature->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId']))
+        if (!$houseFeature->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId'], 1))
             return user_response(400, message: 'Житель не был добавлен');
 
         return user_response();

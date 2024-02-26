@@ -46,7 +46,7 @@ readonly abstract class GroupFeature extends Feature
      * @param int|null $limit
      * @return array[]
      */
-    public abstract function find(?string $name, ?string $type, ?string $for, mixed $id, ?int $page, ?int $limit): array;
+    public abstract function find(?string $name = null, ?string $type = null, ?string $for = null, mixed $id = null, ?int $page = null, ?int $limit = null): array;
 
     /**
      * @param string $type
