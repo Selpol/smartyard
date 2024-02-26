@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
@@ -113,7 +114,10 @@ class ContractTask extends Task
     {
         $houseFeature = container(HouseFeature::class);
 
-        $devices = array_map(static fn(array $entrance) => intercom($entrance['domophoneId']), $houseFeature->getEntrances('houseId', $address));
+        $devices = array_filter(
+            array_map(static fn(array $entrance) => intercom($entrance['domophoneId']), $houseFeature->getEntrances('houseId', $address)),
+            static fn(IntercomDevice $device) => $device->ping()
+        );
 
         /** @var array<string, int> $keysInFlat */
         $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $flat->house_flat_id), static function (array $previous, array $current) {
@@ -135,11 +139,7 @@ class ContractTask extends Task
                 ]))->insert();
 
                 foreach ($devices as $device)
-                    try {
-                        $device->addRfidDeffer($key, intval($flat->flat));
-                    } catch (Throwable $throwable) {
-                        file_logger('contract')->error($throwable);
-                    }
+                    $device->addRfidDeffer($key, intval($flat->flat));
             }
         }
 
@@ -147,11 +147,7 @@ class ContractTask extends Task
             $houseFeature->deleteKey($value);
 
             foreach ($devices as $device)
-                try {
-                    $device->removeRfid($key, $flat->flat);
-                } catch (Throwable $throwable) {
-                    file_logger('contract')->error($throwable);
-                }
+                $device->removeRfidDeffer($key, $flat->flat);
         }
 
         foreach ($devices as $device)

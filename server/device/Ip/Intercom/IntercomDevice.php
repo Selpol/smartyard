@@ -69,6 +69,11 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
+    public function removeRfidDeffer(string $code, int $apartment): void
+    {
+        $this->removeRfid($code, $apartment);
+    }
+
     public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         $this->setApartment($apartment, $handset, $sipNumbers, $levels, $code);
