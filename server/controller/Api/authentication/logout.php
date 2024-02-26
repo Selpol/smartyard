@@ -20,15 +20,8 @@ readonly class logout extends Api
         return self::success();
     }
 
-    public static function POST(array $params): ResponseInterface
-    {
-        container(AuthenticationFeature::class)->logout($params['session']);
-
-        return self::success();
-    }
-
     public static function index(): bool|array
     {
-        return ['GET' => '[Авторизация] Выйти', 'POST' => '[Авторизация] Разлогинить пользователя'];
+        return ['GET' => '[Авторизация] Выйти'];
     }
 }
