@@ -95,7 +95,9 @@ class ContractTask extends Task
                     $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]);
 
                 unset($subscribersInFlat[$subscriber[1]]);
-            } else if (!$houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]))
+            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]))
+                file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[1], 'role' => $subscriber[0]]);
+            else
                 file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[1], 'role' => $subscriber[0]]);
         }
 
@@ -114,6 +116,7 @@ class ContractTask extends Task
     {
         $houseFeature = container(HouseFeature::class);
 
+        /** @var IntercomDevice[] $devices */
         $devices = array_filter(
             array_map(static fn(array $entrance) => intercom($entrance['domophoneId']), $houseFeature->getEntrances('houseId', $address)),
             static fn(IntercomDevice $device) => $device->ping()
