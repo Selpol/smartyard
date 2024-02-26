@@ -13,7 +13,14 @@ readonly class suggestions extends Api
         $suggestions = container(GeoFeature::class)->suggestions($params["search"], array_key_exists('bound', $params) ? $params['bound'] : null);
 
         if ($suggestions)
-            return self::success($suggestions);
+            return self::success(array_map(static function (array $suggestion) {
+                return [
+                    'value' => $suggestion['value'],
+
+                    'latitude' => array_key_exists('geo_lat', $suggestion['data']) ? $suggestion['data']['geo_lat'] : null,
+                    'longitude' => array_key_exists('geo_lon', $suggestion['data']) ? $suggestion['data']['geo_lon'] : null,
+                ];
+            }, $suggestions));
 
         return self::error('Адрес не найден', 404);
     }
