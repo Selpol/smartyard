@@ -42,7 +42,7 @@ class ContractTask extends Task
             $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
 
             /** @var int[][] $subscribers */
-            $subscribers = array_values(array_unique(array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
+            $subscribers = array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []);
 
             /** @var string[] $keys */
             $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
