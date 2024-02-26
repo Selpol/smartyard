@@ -2,7 +2,6 @@
 
 namespace Selpol\Task\Tasks;
 
-use MongoDB\Model\BSONArray;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
@@ -95,7 +94,8 @@ class ContractTask extends Task
                     $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]);
 
                 unset($subscribersInFlat[$subscriber[1]]);
-            } else $houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]);
+            } else if (!$houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]))
+                file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[1], 'role' => $subscriber[0]]);
         }
 
         foreach ($subscribersInFlat as $key => $_)
@@ -136,7 +136,7 @@ class ContractTask extends Task
 
                 foreach ($devices as $device)
                     try {
-                        $device->addRfid($key, intval($flat->flat));
+                        $device->addRfidDeffer($key, intval($flat->flat));
                     } catch (Throwable $throwable) {
                         file_logger('contract')->error($throwable);
                     }
@@ -153,6 +153,9 @@ class ContractTask extends Task
                     file_logger('contract')->error($throwable);
                 }
         }
+
+        foreach ($devices as $device)
+            $device->defferRfids();
     }
 
     private function getFlat(Contractor $contractor, int $address): HouseFlat
