@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\contractor;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Feature\Group\GroupFeature;
 
 readonly class contractor extends Api
 {
@@ -55,9 +56,9 @@ readonly class contractor extends Api
 
     public static function DELETE(array $params): ResponseInterface
     {
-        $contractor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
+        $contractor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->columns(['id'])->nonNullable());
 
-        if ($contractor->delete())
+        if (container(GroupFeature::class)->deleteFor(GroupFeature::FOR_CONTRACTOR, $contractor->id) && $contractor->delete())
             return self::success();
 
         return self::error('Не удалось удалить подрядчика', 400);

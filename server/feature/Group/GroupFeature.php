@@ -64,4 +64,6 @@ readonly abstract class GroupFeature extends Feature
     public abstract function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool;
 
     public abstract function delete(string $oid): bool;
+
+    public abstract function deleteFor(string $for, mixed $id): bool;
 }

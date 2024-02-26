@@ -101,6 +101,13 @@ readonly class InternalGroupFeature extends GroupFeature
         return $result->getDeletedCount() === 1;
     }
 
+    public function deleteFor(string $for, mixed $id): bool
+    {
+        $result = $this->getCollection()->deleteMany(['for' => $for, 'id' => $id]);
+
+        return $result->getDeletedCount() > 0;
+    }
+
     private function getCollection(): Collection
     {
         return container(MongoService::class)->getDatabase($this->database)->selectCollection('group');
