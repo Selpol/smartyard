@@ -136,7 +136,7 @@ class ContractTask extends Task
 
                 foreach ($devices as $device)
                     try {
-                        $device->addRfid($key, $flat->flat);
+                        $device->addRfid($key, intval($flat->flat));
                     } catch (Throwable $throwable) {
                         file_logger('contract')->error($throwable);
                     }
