@@ -20,7 +20,7 @@ readonly class DaDataGeoFeature extends GeoFeature
 
         curl_setopt($curl, CURLOPT_POST, 1);
 
-        if (@$geo["locations"])
+        if (array_key_exists('locations', $geo) && $geo['locations'])
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search, "locations" => $geo["locations"]]));
         else
             curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode(["query" => $search]));

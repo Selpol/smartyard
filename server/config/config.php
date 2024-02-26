@@ -99,7 +99,9 @@ return [
         ],
 
         'geo' => [
-            'token' => env('FEATURE_GEOCODER_DADATA')
+            'token' => env('FEATURE_GEOCODER_DADATA'),
+
+            'locations' => json_decode(env('FEATURE_GEOCODER_LOCATIONS', 'null'), true)
         ],
 
         'push' => [
