@@ -191,6 +191,7 @@ readonly class CameraController extends RbtController
 
     private function convertCameras(array $houses, DvrFeature $dvrFeature, array $user): array
     {
+        $ids = [];
         $result = [];
 
         foreach ($houses as $house_key => $h) {
@@ -201,6 +202,11 @@ readonly class CameraController extends RbtController
             foreach ($h['cameras'] as $camera) {
                 if ($camera['cameraId'] === null)
                     continue;
+
+                if (array_key_exists($camera['cameraId'], $ids))
+                    continue;
+
+                $ids[$camera['cameraId']] = true;
 
                 $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
             }
