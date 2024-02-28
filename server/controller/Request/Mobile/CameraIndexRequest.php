@@ -12,7 +12,7 @@ readonly class CameraIndexRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'houseId' => rule()->id()
+            'houseId' => rule()->int()
         ];
     }
 

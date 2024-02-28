@@ -23,16 +23,6 @@ use Selpol\Validator\Exception\ValidatorException;
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
 {
-    #[Get]
-    public function cctv(HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
-    {
-        $user = $this->getUser()->getOriginalValue();
-
-        $houses = $this->getHousesWithCameras($user, null, $houseFeature, $cameraFeature);
-
-        return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
-    }
-
     /**
      * @throws NotFoundExceptionInterface
      */
@@ -149,12 +139,12 @@ readonly class CameraController extends RbtController
         return user_response(404, message: 'События не найдены');
     }
 
-    private function getHousesWithCameras(array $user, ?int $houseId, HouseFeature $houseFeature, CameraFeature $cameraFeature): array
+    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, CameraFeature $cameraFeature): array
     {
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
-            if ($houseId != null && $flat['addressHouseId'] != $houseId)
+            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId)
                 continue;
 
             $flatDetail = $houseFeature->getFlat($flat['flatId']);
