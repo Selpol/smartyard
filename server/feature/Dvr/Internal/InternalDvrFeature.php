@@ -226,6 +226,9 @@ readonly class InternalDvrFeature extends DvrFeature
             $result['doorId'] = $openData['doorId'];
         }
 
+        if (array_key_exists('houseId', $camera))
+            $result['houseId'] = $camera['houseId'];
+
         return $result;
     }
 }
