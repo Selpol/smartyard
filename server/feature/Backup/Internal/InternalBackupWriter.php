@@ -4,13 +4,18 @@ namespace Selpol\Feature\Backup\Internal;
 
 readonly class InternalBackupWriter
 {
-    private const SECTION = '---- ---- ---- ----';
+    public const SECTION = '---- ---- ---- ----';
 
     private string $path;
 
     public function __construct(string $path)
     {
         $this->path = $path;
+    }
+
+    public function section(): void
+    {
+        $this->write(self::SECTION);
     }
 
     /**
@@ -20,7 +25,7 @@ readonly class InternalBackupWriter
      */
     public function table(string $name, array $columns): void
     {
-        $this->write(self::SECTION);
+        $this->section();
         $this->write('TABLE - ' . $name . ' - ' . implode(', ', $columns));
     }
 
@@ -31,7 +36,7 @@ readonly class InternalBackupWriter
 
     public function sequence(string $name, int $value): void
     {
-        $this->write(self::SECTION);
+        $this->section();
         $this->write('SEQUENCE - ' . $name . ' - ' . $value);
     }
 
