@@ -31,7 +31,7 @@ readonly class InternalBackupWriter
 
     public function row(array $values): void
     {
-        $this->write(json_encode($values));
+        $this->write(json_encode($values, JSON_UNESCAPED_UNICODE));
     }
 
     public function sequence(string $name, int $value): void
