@@ -11,6 +11,7 @@ use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Group\Internal\InternalGroupFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
+use Selpol\Framework\Entity\Entity;
 
 #[Singleton(InternalGroupFeature::class)]
 readonly abstract class GroupFeature extends Feature
@@ -38,28 +39,44 @@ readonly abstract class GroupFeature extends Feature
     ];
 
     /**
+     * @template V of Entity
+     * @template F of Entity
+     * @template T
+     *
      * @param string|null $name
-     * @param string|null $type
-     * @param string|null $for
-     * @param mixed $id
+     * @param class-string<V>|null $type
+     * @param class-string<F>|null $for
+     * @param T $id
      * @param int|null $page
      * @param int|null $limit
-     * @return array[]
+     * @return Group<V, F, T>[]
      */
     public abstract function find(?string $name = null, ?string $type = null, ?string $for = null, mixed $id = null, ?int $page = null, ?int $limit = null): array;
 
     /**
-     * @param string $type
-     * @param string $for
-     * @param int $id
-     * @param mixed $value
-     * @return array[]
+     * @template V of Entity
+     * @template F of Entity
+     * @template T
+     *
+     * @param class-string<V> $type
+     * @param class-string<F> $for
+     * @param T $id
+     * @param V $value
+     * @return Group<V, F, T>[]
      */
     public abstract function findIn(string $type, string $for, mixed $id, mixed $value): array;
 
     public abstract function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool;
 
-    public abstract function get(string $oid): array|bool;
+    /**
+     * @template V of Entity
+     * @template F of Entity
+     * @template T
+     *
+     * @param string $oid
+     * @return Group<V, F, T>|bool
+     */
+    public abstract function get(string $oid): Group|bool;
 
     public abstract function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool;
 

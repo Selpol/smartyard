@@ -3,9 +3,12 @@
 namespace Selpol\Task\Tasks;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
+use Selpol\Entity\Model\House\HouseSubscriber;
+use Selpol\Feature\Group\Group;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
@@ -27,25 +30,29 @@ class ContractTask extends Task
         try {
             $contractor = Contractor::findById($this->id, setting: setting()->nonNullable());
 
+            /** @var Group<AddressHouse, Contractor, int>[] $addressesGroup */
             $addressesGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_ADDRESS, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
 
             if (count($addressesGroup) === 0)
                 return true;
 
+            /** @var Group<HouseSubscriber, Contractor, int>[] $subscribersGroup */
             $subscribersGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_SUBSCRIBER, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
+
+            /** @var Group<HouseKey, Contractor, int>[] $keysGroup */
             $keysGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_KEY, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
 
             if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
                 return true;
 
             /** @var int[] $addresses */
-            $addresses = array_values(array_unique(array_reduce($addressesGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
+            $addresses = array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $addressesGroup), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
 
             /** @var int[][] $subscribers */
-            $subscribers = array_reduce($subscribersGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []);
+            $subscribers = array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $subscribersGroup), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []);
 
             /** @var string[] $keys */
-            $keys = array_values(array_unique(array_reduce($keysGroup, static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
+            $keys = array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $keysGroup), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
 
             foreach ($addresses as $address)
                 $this->address($contractor, $address, $subscribers, $keys);

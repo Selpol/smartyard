@@ -5,6 +5,7 @@ namespace Selpol\Feature\Group\Internal;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
+use Selpol\Feature\Group\Group;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Service\MongoService;
 
@@ -37,8 +38,8 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument) $result[] = $document->getArrayCopy();
-            else if ($document) $result[] = $document;
+            if ($document instanceof BSONDocument) $result[] = new Group($document->getArrayCopy());
+            else if ($document) $result[] = new Group($document);
         }
 
         return $result;
@@ -51,8 +52,8 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument) $result[] = $document->getArrayCopy();
-            else if ($document) $result[] = $document;
+            if ($document instanceof BSONDocument) $result[] = new Group($document->getArrayCopy());
+            else if ($document) $result[] = new Group($document);
         }
 
         return $result;
@@ -72,7 +73,7 @@ readonly class InternalGroupFeature extends GroupFeature
         } else return false;
     }
 
-    public function get(string $oid): array|bool
+    public function get(string $oid): Group|bool
     {
         $result = $this->getCollection()->findOne(['_id' => new ObjectId($oid)]);
 
@@ -81,7 +82,7 @@ readonly class InternalGroupFeature extends GroupFeature
                 $result = $result->getArrayCopy();
 
             if (is_array($result))
-                return $result;
+                return new Group($result);
         }
 
         return false;

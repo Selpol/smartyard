@@ -97,8 +97,8 @@ readonly class PlogController extends RbtController
                         }
                     }
 
-                    if (isset($face->faceId) && $face->faceId > 0)
-                        $e_details['detailX']['faceId'] = strval($face->faceId);
+                    if (isset($face->faceId) && $face->faceId > 0) $e_details['detailX']['faceId'] = strval($face->faceId);
+                    else $e_details['detailX']['faceId'] = '';
 
                     $phones = json_decode($row[PlogFeature::COLUMN_PHONES]);
 
