@@ -161,7 +161,7 @@ class ContractTask extends Task
             $houseFeature->deleteKey($value);
 
             foreach ($devices as $device)
-                $device->removeRfidDeffer($key, $flat->flat);
+                $device->removeRfidDeffer($key, intval($flat->flat));
         }
 
         foreach ($devices as $device)
