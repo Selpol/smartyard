@@ -53,7 +53,7 @@ class Group implements ArrayAccess, JsonSerializable
     public function getValueEntities(): iterable
     {
         foreach ($this->value as $value)
-            yield $this->type::findById($value);
+            yield $this->type::findById(is_array($value) ? $value[0] : $value);
     }
 
     public function jsonSerialize(): array

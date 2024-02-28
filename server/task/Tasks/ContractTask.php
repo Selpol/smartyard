@@ -36,7 +36,7 @@ class ContractTask extends Task
             if (count($addressesGroup) === 0)
                 return true;
 
-            /** @var Group<HouseSubscriber, Contractor, int>[] $subscribersGroup */
+            /** @var Group<(HouseSubscriber | int)[], Contractor, int>[] $subscribersGroup */
             $subscribersGroup = container(GroupFeature::class)->find(type: GroupFeature::TYPE_SUBSCRIBER, for: GroupFeature::FOR_CONTRACTOR, id: $this->id);
 
             /** @var Group<HouseKey, Contractor, int>[] $keysGroup */
@@ -97,15 +97,15 @@ class ContractTask extends Task
         }, []);
 
         foreach ($subscribers as $subscriber) {
-            if (array_key_exists($subscriber[1], $subscribersInFlat)) {
-                if ($subscribersInFlat[$subscriber[1]] !== $subscriber[0])
-                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]);
+            if (array_key_exists($subscriber[0], $subscribersInFlat)) {
+                if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
+                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
 
-                unset($subscribersInFlat[$subscriber[1]]);
-            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[1], $subscriber[0]))
-                file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[1], 'role' => $subscriber[0]]);
+                unset($subscribersInFlat[$subscriber[0]]);
+            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]))
+                file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
             else
-                file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[1], 'role' => $subscriber[0]]);
+                file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
         }
 
         foreach ($subscribersInFlat as $key => $_)
