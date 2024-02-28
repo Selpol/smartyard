@@ -23,6 +23,16 @@ use Selpol\Validator\Exception\ValidatorException;
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
 {
+    #[Get]
+    public function cctv(HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
+    {
+        $user = $this->getUser()->getOriginalValue();
+
+        $houses = $this->getHousesWithCameras($user, null, $houseFeature, $cameraFeature);
+
+        return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      */
@@ -31,65 +41,9 @@ readonly class CameraController extends RbtController
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $houses = [];
+        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature);
 
-        foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] != $request->houseId)
-                continue;
-
-            $flatDetail = $houseFeature->getFlat($flat['flatId']);
-
-            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
-                continue;
-
-            $houseId = $flat['addressHouseId'];
-
-            if (array_key_exists($houseId, $houses)) {
-                $house = &$houses[$houseId];
-            } else {
-                $houses[$houseId] = [];
-                $house = &$houses[$houseId];
-                $house['houseId'] = strval($houseId);
-
-                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
-                $house['doors'] = [];
-            }
-
-            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
-
-            foreach ($flatDetail['entrances'] as $entrance) {
-                if (array_key_exists($entrance['entranceId'], $house['doors'])) {
-                    continue;
-                }
-
-                $e = $houseFeature->getEntrance($entrance['entranceId']);
-                $door = [];
-
-                if ($e['cameraId']) {
-                    $cam = $cameraFeature->getCamera($e["cameraId"]);
-                    $house['cameras'][] = $cam;
-                }
-
-                $house['doors'][$entrance['entranceId']] = $door;
-            }
-        }
-
-        $result = [];
-
-        foreach ($houses as $house_key => $h) {
-            $houses[$house_key]['doors'] = array_values($h['doors']);
-
-            unset($houses[$house_key]['cameras']);
-
-            foreach ($h['cameras'] as $camera) {
-                if ($camera['cameraId'] === null)
-                    continue;
-
-                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
-            }
-        }
-
-        return user_response(200, $result);
+        return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
     }
 
     /**
@@ -193,5 +147,73 @@ readonly class CameraController extends RbtController
             return user_response(200, array_map(static fn(array $item) => $item['date'], $events));
 
         return user_response(404, message: 'События не найдены');
+    }
+
+    private function getHousesWithCameras(array $user, ?int $houseId, HouseFeature $houseFeature, CameraFeature $cameraFeature): array
+    {
+        $houses = [];
+
+        foreach ($user['flats'] as $flat) {
+            if ($houseId != null && $flat['addressHouseId'] != $houseId)
+                continue;
+
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
+
+            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
+                continue;
+
+            $houseId = $flat['addressHouseId'];
+
+            if (array_key_exists($houseId, $houses)) {
+                $house = &$houses[$houseId];
+            } else {
+                $houses[$houseId] = [];
+                $house = &$houses[$houseId];
+                $house['houseId'] = strval($houseId);
+
+                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
+                $house['doors'] = [];
+            }
+
+            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
+
+            foreach ($flatDetail['entrances'] as $entrance) {
+                if (array_key_exists($entrance['entranceId'], $house['doors'])) {
+                    continue;
+                }
+
+                $e = $houseFeature->getEntrance($entrance['entranceId']);
+                $door = [];
+
+                if ($e['cameraId']) {
+                    $cam = $cameraFeature->getCamera($e["cameraId"]);
+                    $house['cameras'][] = $cam;
+                }
+
+                $house['doors'][$entrance['entranceId']] = $door;
+            }
+        }
+
+        return $houses;
+    }
+
+    private function convertCameras(array $houses, DvrFeature $dvrFeature, array $user): array
+    {
+        $result = [];
+
+        foreach ($houses as $house_key => $h) {
+            $houses[$house_key]['doors'] = array_values($h['doors']);
+
+            unset($houses[$house_key]['cameras']);
+
+            foreach ($h['cameras'] as $camera) {
+                if ($camera['cameraId'] === null)
+                    continue;
+
+                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
+            }
+        }
+
+        return $result;
     }
 }

@@ -19,6 +19,7 @@ readonly abstract class GroupFeature extends Feature
     protected const DEFAULT_DATABASE = 'rbt';
 
     public const FOR_CONTRACTOR = Contractor::class;
+    public const FOR_ADDRESS = AddressHouse::class;
 
     public const FOR_MAP = [
         'contractor' => self::FOR_CONTRACTOR
