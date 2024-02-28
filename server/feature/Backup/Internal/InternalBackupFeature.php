@@ -34,6 +34,7 @@ readonly class InternalBackupFeature extends BackupFeature
         return false;
     }
 
+    // TODO: Доделать восстановление базы данных
     public function restore(string $path): bool
     {
         if (!file_exists($path))
@@ -46,13 +47,13 @@ readonly class InternalBackupFeature extends BackupFeature
             while ($section = $reader->section()) {
                 if ($section[0] === 'TABLE')
                     try {
-                        $this->restoreTable($database, $reader, $section[1], $section[2]);
+//                        $this->restoreTable($database, $reader, $section[1], $section[2]);
                     } catch (Throwable $throwable) {
                         file_logger('backup')->error($throwable, ['section' => $section, 'path' => $path]);
                     }
                 else if ($section[0] === 'SEQUENCE')
                     try {
-                        $this->restoreSequence($database, $section[1], $section[2]);
+//                        $this->restoreSequence($database, $section[1], $section[2]);
                     } catch (Throwable $throwable) {
                         file_logger('backup')->error($throwable, ['section' => $section, 'path' => $path]);
                     }
@@ -88,31 +89,31 @@ readonly class InternalBackupFeature extends BackupFeature
         $writer->section();
     }
 
-    /**
-     * @param DatabaseService $database
-     * @param InternalBackupReader $reader
-     * @param string $table
-     * @param string[] $columns
-     * @return void
-     */
-    private function restoreTable(DatabaseService $database, InternalBackupReader $reader, string $table, array $columns): void
-    {
-        $database->modify('TRUNCATE ' . $table . ' CASCADE');
-
-        $query = 'INSERT INTO ' . $table . '(' . implode(', ', $columns) . ') VALUES (';
-
-        $query .= implode(', ', array_map(static fn(string $column) => ':' . $column, $columns));
-
-        $query .= ')';
-
-        echo $query . PHP_EOL;
-
-        while ($row = $reader->row())
-            $database->insert($query, $row);
-    }
-
-    private function restoreSequence(DatabaseService $database, string $sequence, int $value): void
-    {
-        var_dump($database->modify('SELECT SETVAL(:sequence, :value)', ['sequence' => $sequence, 'value' => $value]));
-    }
+//    /**
+//     * @param DatabaseService $database
+//     * @param InternalBackupReader $reader
+//     * @param string $table
+//     * @param string[] $columns
+//     * @return void
+//     */
+//    private function restoreTable(DatabaseService $database, InternalBackupReader $reader, string $table, array $columns): void
+//    {
+//        $database->modify('TRUNCATE ' . $table . ' CASCADE');
+//
+//        $query = 'INSERT INTO ' . $table . '(' . implode(', ', $columns) . ') VALUES (';
+//
+//        $query .= implode(', ', array_map(static fn(string $column) => ':' . $column, $columns));
+//
+//        $query .= ')';
+//
+//        echo $query . PHP_EOL;
+//
+//        while ($row = $reader->row())
+//            $database->insert($query, $row);
+//    }
+//
+//    private function restoreSequence(DatabaseService $database, string $sequence, int $value): void
+//    {
+//        var_dump($database->modify('SELECT SETVAL(:sequence, :value)', ['sequence' => $sequence, 'value' => $value]));
+//    }
 }
