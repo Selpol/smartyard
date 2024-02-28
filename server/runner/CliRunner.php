@@ -11,6 +11,7 @@ use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Backup\BackupFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
@@ -69,6 +70,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === 'db') {
             if ($command === 'init') $this->dbInit($arguments);
             else if ($command === 'check') return $this->dbCheck();
+            else if ($command === 'backup') return $this->dbBackup($arguments['db:backup']);
+            else if ($command === 'restore') return $this->dbRestore($arguments['db:restore']);
             else echo $this->help('db');
         } else if ($group === 'amqp') {
             if ($command === 'check') return $this->amqpCheck();
@@ -136,7 +139,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         try {
             $coreVar = CoreVar::getRepository()->findByName('database.version');
 
-            $version = intval($coreVar->var_value) ?? 0;
+            $version = intval($coreVar?->var_value ?? '') ?? 0;
         } catch (Throwable) {
             $version = 0;
         }
@@ -185,6 +188,28 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             return 1;
         }
+    }
+
+    private function dbBackup(string $path): int
+    {
+        if (file_exists($path)) {
+            $this->logger?->debug('Не возможно сделать бэкап в уже существующий файл');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->backup($path) ? 0 : 1;
+    }
+
+    private function dbRestore(string $path): int
+    {
+        if (!file_exists($path)) {
+            $this->logger?->debug('Файла бэкапа не существует');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->restore($path) ? 0 : 1;
     }
 
     private function amqpCheck(): int

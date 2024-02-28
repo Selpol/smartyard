@@ -8,6 +8,7 @@ use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Service\Exception\DatabaseException;
+use Throwable;
 
 #[Singleton]
 class DatabaseService implements ContainerDisposeInterface
@@ -30,6 +31,29 @@ class DatabaseService implements ContainerDisposeInterface
     public function __call(string $name, array $arguments)
     {
         return call_user_func([$this->connection, $name], $arguments);
+    }
+
+    /**
+     * @param string $query
+     * @param array $params
+     * @param array $options
+     * @return iterable<array>
+     */
+    public function fetch(string $query, array $params = [], array $options = []): iterable
+    {
+        try {
+            $statement = $this->connection->prepare($query);
+
+            $mode = array_key_exists('mode', $options) ? $options['mode'] : PDO::FETCH_NUM;
+
+            if ($statement->execute($params)) {
+                $count = $statement->rowCount();
+
+                for ($i = 0; $i < $count; $i++)
+                    yield $statement->fetch($mode, cursorOffset: $i);
+            }
+        } catch (PDOException) {
+        }
     }
 
     public function insert(string $query, array|bool $params = [], array|bool $options = []): bool|int|string
