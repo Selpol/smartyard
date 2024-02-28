@@ -55,7 +55,11 @@ class ContractTask extends Task
             $keys = array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $keysGroup), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
 
             foreach ($addresses as $address)
-                $this->address($contractor, $address, $subscribers, $keys);
+                try {
+                    $this->address($contractor, $address, $subscribers, $keys);
+                } catch (Throwable $throwable) {
+                    file_logger('contract')->error($throwable);
+                }
 
             return true;
         } catch (Throwable $throwable) {
