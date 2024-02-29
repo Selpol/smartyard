@@ -12,7 +12,6 @@ abstract readonly class BackupFeature extends Feature
     public const TABLES = [
         'core_vars',
         'core_users',
-        'core_auth',
 
         'addresses_regions',
         'addresses_areas',
@@ -62,7 +61,6 @@ abstract readonly class BackupFeature extends Feature
     public const SEQUENCES = [
         'core_vars_var_id_seq',
         'core_users_uid_seq',
-        'core_auth_id_seq',
 
         'addresses_areas_address_area_id_seq',
         'addresses_cities_address_city_id_seq',
