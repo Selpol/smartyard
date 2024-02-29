@@ -22,7 +22,8 @@ readonly abstract class GroupFeature extends Feature
     public const FOR_ADDRESS = AddressHouse::class;
 
     public const FOR_MAP = [
-        'contractor' => self::FOR_CONTRACTOR
+        'contractor' => self::FOR_CONTRACTOR,
+        'address' => self::FOR_ADDRESS
     ];
 
     public const TYPE_SUBSCRIBER = HouseSubscriber::class;

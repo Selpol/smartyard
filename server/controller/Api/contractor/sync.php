@@ -5,7 +5,7 @@ namespace Selpol\Controller\Api\contractor;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Framework\Http\Response;
-use Selpol\Task\Tasks\ContractTask;
+use Selpol\Task\Tasks\Contractor\ContractorSyncTask;
 
 readonly class sync extends Api
 {
@@ -14,7 +14,7 @@ readonly class sync extends Api
         $contactor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->columns(['id']));
 
         if ($contactor) {
-            task(new ContractTask($contactor->id))->high()->dispatch();
+            task(new ContractorSyncTask($contactor->id))->high()->dispatch();
 
             return self::success();
         }
