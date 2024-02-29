@@ -22,8 +22,11 @@ readonly class InternalBackupReader
 
             if ($segments[0] === 'TABLE')
                 return ['TABLE', $segments[1], explode(', ', $segments[2])];
-            else if ($segments[0] === 'SEQUENCE')
+            else if ($segments[0] === 'SEQUENCE') {
+                $this->readLine();
+
                 return ['SEQUENCE', $segments[1], intval($segments[2])];
+            }
         }
 
         return false;
