@@ -12,10 +12,10 @@ readonly class cameras extends Api
     {
         $households = container(HouseFeature::class);
 
-        $cameraId = $households->addCamera('house', $params['houseId'], $params['cameraId']);
+        $success = $households->addCamera('house', $params['houseId'], $params['cameraId']);
 
-        if ($cameraId)
-            return self::success($cameraId);
+        if ($success !== false)
+            return self::success();
 
         return self::error('Не удалось привязать камеру к дому', 400);
     }
