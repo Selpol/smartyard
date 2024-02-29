@@ -5,9 +5,17 @@ namespace Selpol\Controller\Api\addresses;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Framework\Http\Response;
 
 readonly class region extends Api
 {
+    public static function GET(array $params): array|Response|ResponseInterface
+    {
+        $region = container(AddressFeature::class)->getRegion(rule()->onItem('_id', $params));
+
+        return $region ? self::success($region) : self::error('Не удалось найти регион', 404);
+    }
+
     public static function POST(array $params): ResponseInterface
     {
         $regionId = container(AddressFeature::class)->addRegion($params["regionUuid"], $params["regionIsoCode"], $params["regionWithType"], $params["regionType"], $params["regionTypeFull"], $params["region"], $params["timezone"]);
@@ -32,6 +40,7 @@ readonly class region extends Api
     public static function index(): array
     {
         return [
+            'GET' => '[Регион] Получить регион',
             "PUT" => "[Регион] Обновить регион",
             "POST" => "[Регион] Создать регион",
             "DELETE" => "[Регион] Удалить регион",

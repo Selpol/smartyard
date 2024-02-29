@@ -5,9 +5,17 @@ namespace Selpol\Controller\Api\addresses;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Framework\Http\Response;
 
 readonly class city extends Api
 {
+    public static function GET(array $params): array|Response|ResponseInterface
+    {
+        $city = container(AddressFeature::class)->getCity(rule()->onItem('_id', $params));
+
+        return $city ? self::success($city) : self::error('Не удалось найти город', 404);
+    }
+
     public static function POST(array $params): ResponseInterface
     {
         $cityId = container(AddressFeature::class)->addCity($params["regionId"], $params["areaId"], $params["cityUuid"], $params["cityWithType"], $params["cityType"], $params["cityTypeFull"], $params["city"], $params["timezone"]);
@@ -31,6 +39,6 @@ readonly class city extends Api
 
     public static function index(): bool|array
     {
-        return ['PUT' => '[Город] Обновить город', 'POST' => '[Город] Создать город', 'DELETE' => '[Город] Удалить город'];
+        return ['GET' => '[Город] Получить город', 'PUT' => '[Город] Обновить город', 'POST' => '[Город] Создать город', 'DELETE' => '[Город] Удалить город'];
     }
 }
