@@ -5,10 +5,14 @@ namespace Selpol\Task\Tasks\Plog;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Task\TaskRetryInterface;
+use Selpol\Task\Trait\TaskRetryTrait;
 use Throwable;
 
-class PlogOpenTask extends PlogTask
+class PlogOpenTask extends PlogTask implements TaskRetryInterface
 {
+    use TaskRetryTrait;
+
     /** @var int Тип события */
     public int $type;
 
@@ -21,7 +25,7 @@ class PlogOpenTask extends PlogTask
     /** @var string Информация о событие */
     public string $detail;
 
-    public int $retry = 3;
+    public int $initialRetry = 3;
 
     public function __construct(int $id, int $type, int $door, int $date, string $detail)
     {
@@ -128,6 +132,6 @@ class PlogOpenTask extends PlogTask
     {
         file_logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
 
-        $this->retryLow(300);
+        $this->retry(300);
     }
 }

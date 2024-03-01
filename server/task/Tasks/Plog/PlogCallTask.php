@@ -3,10 +3,14 @@
 namespace Selpol\Task\Tasks\Plog;
 
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Task\TaskRetryInterface;
+use Selpol\Task\Trait\TaskRetryTrait;
 use Throwable;
 
-class PlogCallTask extends PlogTask
+class PlogCallTask extends PlogTask implements TaskRetryInterface
 {
+    use TaskRetryTrait;
+
     /** @var string IP-адресс устройства */
     public string $ip;
 
@@ -16,7 +20,7 @@ class PlogCallTask extends PlogTask
     /** @var int|null Идентификатор звонка */
     public ?int $call;
 
-    public int $retry = 3;
+    public int $initialRetry = 3;
 
     public function __construct(int $id, string $ip, int $date, ?int $call)
     {
@@ -111,7 +115,7 @@ class PlogCallTask extends PlogTask
     {
         file_logger('task')->debug('PlogCallTask error' . PHP_EOL . $throwable);
 
-        $this->retryLow(300);
+        $this->retry(300);
     }
 
     private function beward(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)
