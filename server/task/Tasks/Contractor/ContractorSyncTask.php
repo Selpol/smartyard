@@ -4,7 +4,6 @@ namespace Selpol\Task\Tasks\Contractor;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Model\Contractor;
-use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
@@ -74,7 +73,7 @@ class ContractorSyncTask extends ContractorTask
      */
     private function address(Contractor $contractor, int $address, array $subscribers, array &$devices, array &$flats): void
     {
-        $flat = $this->getFlat($contractor, $address);
+        $flat = $this->getOrCreateFlat($contractor, $address);
 
         $flats[$flat->house_flat_id] = intval($flat->flat);
 
@@ -169,44 +168,5 @@ class ContractorSyncTask extends ContractorTask
 
         foreach ($intercoms as $intercom)
             $intercom->defferRfids();
-    }
-
-    private function getFlat(Contractor $contractor, int $address): HouseFlat
-    {
-        $flat = HouseFlat::fetch(criteria()->equal('address_house_id', $address)->equal('flat', $contractor->flat), setting: setting()->columns(['house_flat_id', 'flat']));
-
-        if (!$flat) {
-            $houseFeature = container(HouseFeature::class);
-
-            $entrances = array_map(static fn(array $entrance) => $entrance['entranceId'], $houseFeature->getEntrances('houseId', $address));
-
-            $flatId = $houseFeature->addFlat(
-                $address,
-                0,
-                (string)$contractor->flat,
-                '',
-                $entrances,
-                array_reduce($entrances, static function (array $previous, int $current) use ($contractor) {
-                    $previous[$current] = [
-                        'apartment' => (string)$contractor->flat,
-                        'apartmentLevels' => ''
-                    ];
-
-                    return $previous;
-                }, []),
-                0,
-                0,
-                '',
-                1,
-                time(),
-                0,
-                0,
-                ''
-            );
-
-            $flat = HouseFlat::findById($flatId, setting: setting()->nonNullable()->columns(['house_flat_id', 'flat']));
-        }
-
-        return $flat;
     }
 }
