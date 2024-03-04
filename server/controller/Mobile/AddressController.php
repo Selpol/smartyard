@@ -169,7 +169,12 @@ readonly class AddressController extends RbtController
             if ($houseFeature->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
                 $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
 
-                $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $request->name . ' ' . $request->patronymic, connection_ip($request->getRequest()));
+                $fio = $request->name;
+
+                if (trim($request->patronymic) !== 'Отчество')
+                    $fio .= ' ' . $request->patronymic;
+
+                $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $fio, connection_ip($request->getRequest()));
 
                 if (is_string($result))
                     return user_response(400, message: $result);
