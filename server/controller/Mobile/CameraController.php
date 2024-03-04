@@ -212,6 +212,8 @@ readonly class CameraController extends RbtController
             }
         }
 
+        usort($result, static fn(array $a, array $b) => strcmp($a['name'], $b['name']));
+
         return $result;
     }
 }
