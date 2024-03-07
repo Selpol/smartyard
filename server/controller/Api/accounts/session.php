@@ -19,7 +19,7 @@ readonly class session extends Api
             'size' => rule()->int()->clamp(0, 512),
         ]);
 
-        $auths = CoreAuth::fetchPage($validate['page'], $validate['size'], criteria()->equal('user_id', $validate['_id'])->equal('status', $validate['status']));
+        $auths = CoreAuth::fetchPage($validate['page'], $validate['size'], criteria()->equal('user_id', $validate['_id'])->equal('status', $validate['status'])->desc('status')->desc('last_access_to'));
 
         return self::success($auths);
     }
