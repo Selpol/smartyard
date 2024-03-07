@@ -100,6 +100,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
                 ->withHeader('Access-Control-Allow-Origin', '*')
                 ->withHeader('Access-Control-Allow-Headers', '*')
                 ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+                ->withHeader('X-Content-Type-Options', 'nosniff')
         );
 
         return 0;
