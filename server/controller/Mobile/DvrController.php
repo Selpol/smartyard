@@ -45,7 +45,7 @@ readonly class DvrController extends RbtController
             return user_response(404, message: 'Идентификатор не найден');
 
         try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getOriginalValue()], 360);
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getIdentifier()], 360);
 
             return user_response(data: $identifier);
         } catch (Throwable $throwable) {
