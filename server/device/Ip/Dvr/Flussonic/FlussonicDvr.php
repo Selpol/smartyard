@@ -59,19 +59,18 @@ class FlussonicDvr extends DvrDevice
                 return $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value;
         } else if ($stream === DvrStream::ARCHIVE) {
             if ($container == DvrContainer::HLS) {
-                $url = $this->getUrl($camera);
-
                 /** @var array<string, array<string, int>> $timeline */
-                $timeline = $this->get($url . '/recording_status.json?token=' . $identifier->value);
+                $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
 
-                if (!array_key_exists($camera->dvr_stream, $timeline))
+                if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
                     return null;
 
                 $from = $timeline[$camera->dvr_stream]['from'];
                 $to = $timeline[$camera->dvr_stream]['to'];
+
                 $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
 
-                return new DvrArchive($url . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value, $from, $to, $seek);
+                return new DvrArchive($camera->dvr_stream . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value, $from, $to, $seek);
             }
         }
 
