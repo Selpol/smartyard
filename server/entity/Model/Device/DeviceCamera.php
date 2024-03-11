@@ -58,10 +58,12 @@ class DeviceCamera extends Entity
 
     public function checkAccessForSubscriber(array $subscriber, ?int $houseId, ?int $flatId): bool
     {
+        $params = [];
+
         if (!is_null($houseId)) {
             $findFlatId = null;
 
-            foreach ($subscriber['flat'] as $flat) {
+            foreach ($subscriber['flats'] as $flat) {
                 if ($flat['addressHouseId'] == $houseId) {
                     $findFlatId = $flat['flatId'];
 
@@ -72,16 +74,20 @@ class DeviceCamera extends Entity
             if (is_null($findFlatId) || $this->checkFlatBlock($findFlatId))
                 return false;
 
-            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_houses WHERE camera_id = :camera_id AND address_house_id = :address_house_id', ['camera_id' => $this->camera_id, 'address_house_id' => $houseId]);
+            $params = ['camera_id' => $this->camera_id, 'address_house_id' => $houseId];
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_houses WHERE camera_id = :camera_id AND address_house_id = :address_house_id');
         } else if (!is_null($flatId)) {
             if ($this->checkFlatBlock($flatId))
                 return false;
 
-            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_flats WHERE camera_id = :camera_id AND house_flat_id = :house_flat_id', ['camera_id' => $this->camera_id, 'house_flat_id' => $flatId]);
-        } else
-            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_subscribers WHERE camera_id = :camera_id AND house_subscriber_id = :house_subscriber_id', ['camera_id' => $this->camera_id, 'house_subscriber_id' => $subscriber['subscriberId']]);
+            $params = ['camera_id' => $this->camera_id, 'house_flat_id' => $flatId];
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_flats WHERE camera_id = :camera_id AND house_flat_id = :house_flat_id');
+        } else {
+            $params = ['camera_id' => $this->camera_id, 'house_subscriber_id' => $subscriber['subscriberId']];
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_subscribers WHERE camera_id = :camera_id AND house_subscriber_id = :house_subscriber_id');
+        }
 
-        return $statement && $statement->execute() && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1;
+        return $statement && $statement->execute($params) && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1;
     }
 
     public static function getColumns(): array

@@ -37,7 +37,7 @@ readonly class DvrController extends RbtController
         $dvr = dvr($camera->dvr_server_id);
 
         if (!$dvr)
-            return user_response(404, message: 'Устройство не найден');
+            return user_response(404, message: 'Устройство не найдено');
 
         $identifier = $dvr->identifier($camera, $request->time ?? time(), $this->getUser()->getIdentifier());
 
