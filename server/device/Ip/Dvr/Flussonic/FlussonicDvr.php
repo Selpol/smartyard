@@ -2,7 +2,12 @@
 
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
+use Selpol\Device\Ip\Dvr\Common\DvrArchive;
+use Selpol\Device\Ip\Dvr\Common\DvrContainer;
+use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
+use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Throwable;
 
 class FlussonicDvr extends DvrDevice
@@ -27,5 +32,47 @@ class FlussonicDvr extends DvrDevice
         } catch (Throwable) {
             return null;
         }
+    }
+
+    public function identifier(DeviceCamera $camera, int $time): ?DvrIdentifier
+    {
+        $start = $time - 3600 * 192;
+        $end = $time + 3600 * 3;
+
+        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end);
+    }
+
+    public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
+    {
+        if ($arguments['time'])
+            return $camera->url . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+
+        return $camera->url . '/preview.jpg?token=' . $identifier->value;
+    }
+
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
+    {
+        if ($stream === DvrStream::ONLINE) {
+            if ($container === DvrContainer::RTSP)
+                return uri($camera->url)->withScheme('rtsp')->withQuery('token=' . $identifier->value);
+            else if ($container === DvrContainer::HLS)
+                return $camera->url . '/index.m3u8?token=' . $identifier->value;
+        } else if ($stream === DvrStream::ARCHIVE) {
+            if ($container === DvrContainer::HLS) {
+                $time = $arguments['time'] ?? $identifier->end - 1800;
+
+                return $camera->url . '/archive-' . $time . '-' . ($identifier->end - $time) . '.m3u8?token=' . $identifier->value;
+            }
+        }
+
+        return null;
+    }
+
+    private function getToken(DeviceCamera $camera, int $start, int $end): string
+    {
+        $salt = bin2hex(openssl_random_pseudo_bytes(16));
+        $hash = sha1($camera->dvr_stream . 'no_check_ip' . $start . $end . $this->server->token . $salt);
+
+        return $hash . '-' . $salt . '-' . $end . '-' . $start;
     }
 }

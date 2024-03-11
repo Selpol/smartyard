@@ -2,10 +2,13 @@
 
 namespace Selpol\Entity\Model\Device;
 
+use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
+use Selpol\Service\DatabaseService;
 
 /**
  * @property int $camera_id
@@ -53,6 +56,34 @@ class DeviceCamera extends Entity
 
     public static string $columnId = 'camera_id';
 
+    public function checkAccessForSubscriber(array $subscriber, ?int $houseId, ?int $flatId): bool
+    {
+        if (!is_null($houseId)) {
+            $findFlatId = null;
+
+            foreach ($subscriber['flat'] as $flat) {
+                if ($flat['addressHouseId'] == $houseId) {
+                    $findFlatId = $flat['flatId'];
+
+                    break;
+                }
+            }
+
+            if (is_null($findFlatId) || $this->checkFlatBlock($findFlatId))
+                return false;
+
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_houses WHERE camera_id = :camera_id AND address_house_id = :address_house_id', ['camera_id' => $this->camera_id, 'address_house_id' => $houseId]);
+        } else if (!is_null($flatId)) {
+            if ($this->checkFlatBlock($flatId))
+                return false;
+
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_flats WHERE camera_id = :camera_id AND house_flat_id = :house_flat_id', ['camera_id' => $this->camera_id, 'house_flat_id' => $flatId]);
+        } else
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_subscribers WHERE camera_id = :camera_id AND house_subscriber_id = :house_subscriber_id', ['camera_id' => $this->camera_id, 'house_subscriber_id' => $subscriber['subscriberId']]);
+
+        return $statement && $statement->execute() && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1;
+    }
+
     public static function getColumns(): array
     {
         return [
@@ -91,5 +122,12 @@ class DeviceCamera extends Entity
 
             'hidden' => rule()->bool()
         ];
+    }
+
+    private function checkFlatBlock(int $flatId): bool
+    {
+        $flat = HouseFlat::findById($flatId, setting: setting()->columns(['auto_block', 'admin_block', 'manual_block']));
+
+        return !$flat || $flat->auto_block | $flat->admin_block || $flat->manual_block;
     }
 }

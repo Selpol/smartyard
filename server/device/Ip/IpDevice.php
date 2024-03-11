@@ -118,8 +118,11 @@ abstract class IpDevice extends Device
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
+        if (!str_starts_with($endpoint, 'http'))
+            $endpoint = $this->uri . $endpoint;
+
         try {
-            $request = client_request('GET', $this->uri . $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
+            $request = client_request('GET', $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
@@ -137,8 +140,11 @@ abstract class IpDevice extends Device
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
+        if (!str_starts_with($endpoint, 'http'))
+            $endpoint = $this->uri . $endpoint;
+
         try {
-            $request = client_request('POST', $this->uri . $endpoint);
+            $request = client_request('POST', $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
@@ -163,8 +169,11 @@ abstract class IpDevice extends Device
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
+        if (!str_starts_with($endpoint, 'http'))
+            $endpoint = $this->uri . $endpoint;
+
         try {
-            $request = client_request('PUT', $this->uri . $endpoint);
+            $request = client_request('PUT', $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);
@@ -189,8 +198,11 @@ abstract class IpDevice extends Device
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
+        if (!str_starts_with($endpoint, 'http'))
+            $endpoint = $this->uri . $endpoint;
+
         try {
-            $request = client_request('DELETE', $this->uri . $endpoint);
+            $request = client_request('DELETE', $endpoint);
 
             foreach ($headers as $header => $value)
                 $request->withHeader($header, $value);

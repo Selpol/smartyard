@@ -5,6 +5,7 @@ namespace Selpol\Device\Ip\Dvr\Trassir;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
+use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
@@ -13,9 +14,9 @@ class TrassirDvr extends DvrDevice
 {
     private ?string $sid = null;
 
-    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model)
+    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server)
     {
-        parent::__construct($uri, $login, $password, $model);
+        parent::__construct($uri, $login, $password, $model, $server);
 
         $this->clientOption->raw(CURLOPT_SSL_VERIFYHOST, 0)->raw(CURLOPT_SSL_VERIFYPEER, 0);
     }

@@ -27,22 +27,11 @@ readonly class InternalDvrFeature extends DvrFeature
     public function getTokenForCamera(DvrServer $server, array $camera, ?int $subscriberId): string
     {
         if ($server->type === 'flussonic') {
-            $startTime = time() - 300;
-            $endTime = $startTime + 3600 * 3;
+            $startTime = time() - 3600 * 192;
+            $endTime = time() + 3600 * 3;
 
             $salt = bin2hex(openssl_random_pseudo_bytes(16));
             $hash = sha1($camera['dvrStream'] . 'no_check_ip' . $startTime . $endTime . $server->token . $salt);
-
-            return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
-        } else if ($server->type === 'trassir' && !str_contains($server->token, 'username=')) {
-            // Не влияет на диапазон доступного архива
-            // Время жизни токена доступа
-
-            $startTime = time() - 300; // Начало доступа к камере
-            $endTime = $startTime + 3600 * 3; // Конец доступа к камере
-
-            $salt = bin2hex(openssl_random_pseudo_bytes(16));
-            $hash = sha1($camera['dvrStream'] . $startTime . $endTime . $server->token . $salt);
 
             return $hash . '-' . $salt . '-' . $endTime . '-' . $startTime;
         }
