@@ -4,10 +4,12 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Selpol\Cache\RedisCache;
 use Selpol\Controller\RbtController;
-use Selpol\Controller\Request\Mobile\CameraEventsRequest;
-use Selpol\Controller\Request\Mobile\CameraIndexRequest;
-use Selpol\Controller\Request\Mobile\CameraShowRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraCommonDvrRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraEventsRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraIndexRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraShowRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
@@ -19,6 +21,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
+use Throwable;
 
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
@@ -72,6 +75,35 @@ readonly class CameraController extends RbtController
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+    }
+
+    #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
+    {
+        $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
+
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
+
+        $dvr = dvr($camera->dvr_server_id);
+
+        if (!$dvr)
+            return user_response(404, message: 'Устройство не найден');
+
+        $identifier = $dvr->identifier($camera, $request->time ?? time());
+
+        if (!$identifier)
+            return user_response(404, message: 'Идентификатор не найден');
+
+        try {
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null]);
+
+            return user_response(data: $identifier);
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
+        }
+
+        return user_response(500, message: 'Ошибка состояния камеры');
     }
 
     /**

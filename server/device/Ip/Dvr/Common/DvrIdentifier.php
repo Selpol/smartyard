@@ -11,12 +11,16 @@ readonly class DvrIdentifier implements JsonSerializable
     public int $start;
     public int $end;
 
-    public function __construct(string $value, int $start, int $end)
+    public ?int $subscriber;
+
+    public function __construct(string $value, int $start, int $end, ?int $subscriber)
     {
         $this->value = $value;
 
         $this->start = $start;
         $this->end = $end;
+
+        $this->subscriber = $subscriber;
     }
 
     public function isNotExpired(): bool

@@ -57,12 +57,6 @@ class FlussonicDvr extends DvrDevice
                 return uri($camera->url)->withScheme('rtsp')->withQuery('token=' . $identifier->value);
             else if ($container === DvrContainer::HLS)
                 return $camera->url . '/index.m3u8?token=' . $identifier->value;
-        } else if ($stream === DvrStream::ARCHIVE) {
-            if ($container === DvrContainer::HLS) {
-                $time = $arguments['time'] ?? $identifier->end - 1800;
-
-                return $camera->url . '/archive-' . $time . '-' . ($identifier->end - $time) . '.m3u8?token=' . $identifier->value;
-            }
         }
 
         return null;

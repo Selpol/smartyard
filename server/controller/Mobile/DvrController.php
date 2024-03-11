@@ -15,12 +15,14 @@ use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Throwable;
 
-#[Controller("/mobile/dvr")]
+#[Controller('/mobile/dvr')]
 readonly class DvrController extends RbtController
 {
-    #[Get("/{id}")]
+    #[Get('/{id}')]
     public function identifier(DvrIdentifierRequest $request, RedisCache $cache): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id);
@@ -42,7 +44,7 @@ readonly class DvrController extends RbtController
             return user_response(404, message: 'Идентификатор не найден');
 
         try {
-            $cache->set('dvr:' . $this->getUser()->getIdentifier() . ':' . $identifier->value, [$identifier->start, $identifier->end, $request->id]);
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getOriginalValue()]);
 
             return user_response(data: $identifier);
         } catch (Throwable $throwable) {
@@ -52,7 +54,7 @@ readonly class DvrController extends RbtController
         return user_response(500, message: 'Ошибка состояния камеры');
     }
 
-    #[Get("/preview/{id}")]
+    #[Get('/preview/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function preview(DvrPreviewRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -70,6 +72,9 @@ readonly class DvrController extends RbtController
         if (!$identifier->isNotExpired())
             return user_response(400, message: 'Токен доступа устарел');
 
+        if (!is_null($request->time) && is_null($identifier->subscriber))
+            return user_response(403, message: 'Доступ к предпросмотру архива запрещен');
+
         $preview = $dvr->preview($identifier, $camera, ['time' => $request->time]);
 
         if (!$preview)
@@ -78,7 +83,7 @@ readonly class DvrController extends RbtController
         return user_response(data: $preview);
     }
 
-    #[Get("/video/{id}")]
+    #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function video(DvrVideoRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -95,6 +100,9 @@ readonly class DvrController extends RbtController
 
         if (!$identifier->isNotExpired())
             return user_response(400, message: 'Токен доступа устарел');
+
+        if ($request->stream == 'archive' && is_null($identifier->subscriber))
+            return user_response(403, message: 'Доступ к архиву запрещен');
 
         $video = $dvr->video($identifier, $camera, DvrContainer::from($request->container), DvrStream::from($request->stream), ['time' => $request->time]);
 
@@ -122,7 +130,7 @@ readonly class DvrController extends RbtController
             if (!$dvr)
                 return user_response(404, message: 'Устройство не найден');
 
-            return [new DvrIdentifier($id, $value[0], $value[1]), $camera, $dvr];
+            return [new DvrIdentifier($id, $value[0], $value[1], $value[3]), $camera, $dvr];
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }
