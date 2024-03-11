@@ -11,12 +11,16 @@ readonly class DvrArchive implements JsonSerializable
     public int $start;
     public int $end;
 
-    public function __construct(string $src, int $start, int $end)
+    public int $seek;
+
+    public function __construct(string $src, int $start, int $end, int $seek)
     {
         $this->src = $src;
 
         $this->start = $start;
         $this->end = $end;
+
+        $this->seek = $seek;
     }
 
     public function jsonSerialize(): array
