@@ -96,7 +96,7 @@ readonly class CameraController extends RbtController
             return user_response(404, message: 'Идентификатор не найден');
 
         try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null]);
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
 
             return user_response(data: $identifier);
         } catch (Throwable $throwable) {

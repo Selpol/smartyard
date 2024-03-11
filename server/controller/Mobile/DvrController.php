@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrPreviewRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrVideoRequest;
@@ -44,9 +45,24 @@ readonly class DvrController extends RbtController
             return user_response(404, message: 'Идентификатор не найден');
 
         try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getOriginalValue()]);
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getOriginalValue()], 360);
 
             return user_response(data: $identifier);
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
+        }
+
+        return user_response(500, message: 'Ошибка состояния камеры');
+    }
+
+    #[Get('/acquire/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    public function acquire(DvrAcquireRequest $request, RedisCache $cache): ResponseInterface
+    {
+        try {
+            if ($cache->expire('dvr:' . $request->id, 360))
+                return user_response();
+
+            return user_response(404, message: 'Идентификатор устарел');
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }
