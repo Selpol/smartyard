@@ -31,7 +31,7 @@ readonly class DvrController extends RbtController
         if (!$camera)
             return user_response(404, message: 'Камера не найдена');
 
-        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id))
+        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
             return user_response(403, message: 'Доступа к камере нет');
 
         $dvr = dvr($camera->dvr_server_id);

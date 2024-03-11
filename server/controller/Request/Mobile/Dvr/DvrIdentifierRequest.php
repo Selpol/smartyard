@@ -9,6 +9,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  *
  * @property-read int|null $house_id
  * @property-read int|null $flat_id
+ * @property-read int|null $entrance_id
  *
  * @property-read int|null $time
  */
@@ -21,6 +22,7 @@ readonly class DvrIdentifierRequest extends RouteRequest
 
             'house_id' => rule()->int(),
             'flat_id' => rule()->int(),
+            'entrance_id' => rule()->int(),
 
             'time' => rule()->int()->clamp(0)
         ];
@@ -33,6 +35,7 @@ readonly class DvrIdentifierRequest extends RouteRequest
 
             'house_id' => 'Дом',
             'flat_id' => 'Квартира',
+            'entrance_id' => 'Вход',
 
             'time' => 'Время'
         ];

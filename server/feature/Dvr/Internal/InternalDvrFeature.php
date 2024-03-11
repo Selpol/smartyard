@@ -221,6 +221,9 @@ readonly class InternalDvrFeature extends DvrFeature
         if (array_key_exists('flatId', $camera))
             $result['flatId'] = $camera['flatId'];
 
+        if (array_key_exists('entranceId', $camera))
+            $result['entranceId'] = $camera['entranceId'];
+
         return $result;
     }
 }

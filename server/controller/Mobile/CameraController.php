@@ -206,9 +206,8 @@ readonly class CameraController extends RbtController
             }, $flatCameras));
 
             foreach ($flatDetail['entrances'] as $entrance) {
-                if (array_key_exists($entrance['entranceId'], $house['doors'])) {
+                if (array_key_exists($entrance['entranceId'], $house['doors']))
                     continue;
-                }
 
                 $e = $houseFeature->getEntrance($entrance['entranceId']);
                 $door = [];
@@ -216,7 +215,9 @@ readonly class CameraController extends RbtController
                 if ($e['cameraId']) {
                     $cam = $cameraFeature->getCamera($e["cameraId"]);
 
+                    $cam['entranceId'] = $entrance['entranceId'];
                     $cam['houseId'] = $houseId;
+                    $cam['flatId'] = $flat['flatId'];
 
                     $house['cameras'][] = $cam;
                 }
