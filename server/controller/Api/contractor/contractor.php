@@ -58,7 +58,9 @@ readonly class contractor extends Api
     {
         $contractor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->columns(['id'])->nonNullable());
 
-        if (container(GroupFeature::class)->deleteFor(GroupFeature::FOR_CONTRACTOR, $contractor->id) && $contractor->delete())
+        container(GroupFeature::class)->deleteFor(GroupFeature::FOR_CONTRACTOR, $contractor->id);
+
+        if ($contractor->delete())
             return self::success();
 
         return self::error('Не удалось удалить подрядчика', 400);
