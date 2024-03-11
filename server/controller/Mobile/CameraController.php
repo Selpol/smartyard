@@ -209,7 +209,9 @@ readonly class CameraController extends RbtController
 
                 if ($e['cameraId']) {
                     $cam = $cameraFeature->getCamera($e["cameraId"]);
+
                     $cam['houseId'] = $houseId;
+                    $cam['flatId'] = $flat['flatId'];
 
                     $house['cameras'][] = $cam;
                 }
