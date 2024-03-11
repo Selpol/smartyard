@@ -58,8 +58,6 @@ class DeviceCamera extends Entity
 
     public function checkAccessForSubscriber(array $subscriber, ?int $houseId, ?int $flatId): bool
     {
-        $params = [];
-
         if (!is_null($houseId)) {
             $findFlatId = null;
 
