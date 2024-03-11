@@ -45,18 +45,18 @@ class FlussonicDvr extends DvrDevice
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
         if ($arguments['time'])
-            return $camera->url . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+            return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
 
-        return $camera->url . '/preview.jpg?token=' . $identifier->value;
+        return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
     }
 
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP)
-                return uri($camera->url)->withScheme('rtsp')->withQuery('token=' . $identifier->value);
+                return uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value);
             else if ($container === DvrContainer::HLS)
-                return $camera->url . '/index.m3u8?token=' . $identifier->value;
+                return $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value;
         }
 
         return null;
@@ -68,5 +68,10 @@ class FlussonicDvr extends DvrDevice
         $hash = sha1($camera->dvr_stream . 'no_check_ip' . $start . $end . $this->server->token . $salt);
 
         return $hash . '-' . $salt . '-' . $end . '-' . $start;
+    }
+
+    private function getUrl(DeviceCamera $camera): string
+    {
+        return $this->server->url . '/' . $camera->dvr_stream;
     }
 }
