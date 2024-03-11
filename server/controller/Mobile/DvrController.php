@@ -115,7 +115,7 @@ readonly class DvrController extends RbtController
     private function process(RedisCache $cache, string $id): ResponseInterface|array
     {
         try {
-            $value = $cache->get('dvr:' . $this->getUser()->getIdentifier() . ':' . $id);
+            $value = $cache->get('dvr:' . $id);
 
             if (!$value)
                 return user_response(404, message: 'Идентификатор не найден');
