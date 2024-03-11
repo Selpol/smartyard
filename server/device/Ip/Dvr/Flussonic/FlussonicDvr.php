@@ -34,12 +34,12 @@ class FlussonicDvr extends DvrDevice
         }
     }
 
-    public function identifier(DeviceCamera $camera, int $time): ?DvrIdentifier
+    public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
     {
         $start = $time - 3600 * 192;
         $end = $time + 3600 * 3;
 
-        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end);
+        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end, $subscriberId);
     }
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string

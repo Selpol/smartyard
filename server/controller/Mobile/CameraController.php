@@ -90,7 +90,7 @@ readonly class CameraController extends RbtController
         if (!$dvr)
             return user_response(404, message: 'Устройство не найден');
 
-        $identifier = $dvr->identifier($camera, $request->time ?? time());
+        $identifier = $dvr->identifier($camera, $request->time ?? time(), null);
 
         if (!$identifier)
             return user_response(404, message: 'Идентификатор не найден');

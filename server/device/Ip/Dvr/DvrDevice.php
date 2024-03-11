@@ -38,7 +38,7 @@ abstract class DvrDevice extends IpDevice
         return null;
     }
 
-    public function identifier(DeviceCamera $camera, int $time): ?DvrIdentifier
+    public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
     {
         return null;
     }
