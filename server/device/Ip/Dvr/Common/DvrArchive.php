@@ -25,6 +25,6 @@ readonly class DvrArchive implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end];
+        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end, 'seek' => $this->seek];
     }
 }
