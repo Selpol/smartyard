@@ -5,6 +5,7 @@ namespace Selpol\Feature\Group\Internal;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Group\Group;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Service\MongoService;
@@ -67,9 +68,13 @@ readonly class InternalGroupFeature extends GroupFeature
             $insertedId = $result->getInsertedId();
 
             if ($insertedId instanceof ObjectId)
-                return $insertedId->__toString();
+                $id = $insertedId->__toString();
+            else $id = $insertedId;
 
-            return $insertedId;
+            if (container(AuditFeature::class)->canAudit())
+                container(AuditFeature::class)->audit($id, Group::class, 'insert', 'Создание группы');
+
+            return $id;
         } else return false;
     }
 
@@ -91,22 +96,46 @@ readonly class InternalGroupFeature extends GroupFeature
     public function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool
     {
         $result = $this->getCollection()->updateOne(['_id' => new ObjectId($oid)], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
+        $status = $result->getModifiedCount() === 1;
 
-        return $result->getModifiedCount() === 1;
+        if ($status) {
+            if (container(AuditFeature::class)->canAudit())
+                container(AuditFeature::class)->audit($oid, Group::class, 'update', 'Обновление группы');
+
+            return true;
+        }
+
+        return false;
     }
 
     public function delete(string $oid): bool
     {
         $result = $this->getCollection()->deleteOne(['_id' => new ObjectId($oid)]);
+        $status = $result->getDeletedCount() == 1;
 
-        return $result->getDeletedCount() === 1;
+        if ($status) {
+            if (container(AuditFeature::class)->canAudit())
+                container(AuditFeature::class)->audit($oid, Group::class, 'delete', 'Удаление группы');
+
+            return true;
+        }
+
+        return false;
     }
 
     public function deleteFor(string $for, mixed $id): bool
     {
         $result = $this->getCollection()->deleteMany(['for' => $for, 'id' => $id]);
+        $status = $result->getDeletedCount() > 0;
 
-        return $result->getDeletedCount() > 0;
+        if ($status) {
+            if (container(AuditFeature::class)->canAudit())
+                container(AuditFeature::class)->audit(strval($id), Group::class, 'delete', 'Удаление группы для типа ' . $for);
+
+            return true;
+        }
+
+        return false;
     }
 
     private function getCollection(): Collection

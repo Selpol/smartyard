@@ -26,6 +26,11 @@ readonly abstract class GroupFeature extends Feature
         'address' => self::FOR_ADDRESS
     ];
 
+    public const REVERSE_FOR_MAP = [
+        self::FOR_CONTRACTOR => 'contractor',
+        self::FOR_ADDRESS => 'address'
+    ];
+
     public const TYPE_SUBSCRIBER = HouseSubscriber::class;
     public const TYPE_CAMERA = DeviceCamera::class;
     public const TYPE_INTERCOM = DeviceIntercom::class;
@@ -38,6 +43,14 @@ readonly abstract class GroupFeature extends Feature
         'intercom' => self::TYPE_INTERCOM,
         'key' => self::TYPE_KEY,
         'address' => self::TYPE_ADDRESS
+    ];
+
+    public const REVERSE_TYPE_MAP = [
+        self::TYPE_SUBSCRIBER => 'subscriber',
+        self::TYPE_CAMERA => 'camera',
+        self::TYPE_INTERCOM => 'intercom',
+        self::TYPE_KEY => 'key',
+        self::TYPE_ADDRESS => 'address'
     ];
 
     /**

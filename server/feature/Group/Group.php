@@ -58,7 +58,12 @@ class Group implements ArrayAccess, JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return $this->value;
+        $value = $this->value;
+
+        $value['type'] = GroupFeature::REVERSE_TYPE_MAP[$this->value['type']];
+        $value['for'] = GroupFeature::REVERSE_FOR_MAP[$this->value['for']];
+
+        return $value;
     }
 
     public function offsetExists(mixed $offset): bool
