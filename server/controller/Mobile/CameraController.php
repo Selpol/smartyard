@@ -98,7 +98,20 @@ readonly class CameraController extends RbtController
         try {
             $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
 
-            return user_response(data: $identifier);
+            return user_response(data: [
+                'identifier' => $identifier,
+
+                'acquire' => $dvr->acquire(),
+                'capabilities' => [
+                    'poster' => true,
+                    'preview' => false,
+
+                    'online' => true,
+                    'archive' => false,
+
+                    'speed' => []
+                ]
+            ]);
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }

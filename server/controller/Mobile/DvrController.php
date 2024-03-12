@@ -50,7 +50,12 @@ readonly class DvrController extends RbtController
         try {
             $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getIdentifier()], 360);
 
-            return user_response(data: $identifier);
+            return user_response(data: [
+                'identifier' => $identifier,
+
+                'acquire' => $dvr->acquire(),
+                'capabilities' => $dvr->capabilities()
+            ]);
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }
