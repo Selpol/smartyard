@@ -85,13 +85,9 @@ class FlussonicDvr extends DvrDevice
         else if ($command === DvrCommand::PAUSE)
             return true;
         else if ($command === DvrCommand::SEEK && $arguments['seek']) {
-            return [
-                'archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']]),
-
-                'seek' => $arguments['seek']
-            ];
+            return ['archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']])];
         } else if ($command === DvrCommand::SPEED && $arguments['speed'])
-            return ['speed' => $arguments['speed']];
+            return true;
 
         return null;
     }
