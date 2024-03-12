@@ -74,16 +74,4 @@ readonly class RedisCache implements CacheInterface
 
         return $result !== false && $result > 0;
     }
-
-    public function expire(string $key, DateInterval|int $ttl): bool
-    {
-        if ($ttl instanceof DateInterval) {
-            $now = new DateTimeImmutable();
-            $timeout = $now->add($ttl);
-
-            $ttl = $timeout->getTimestamp() - $now->getTimestamp();
-        }
-
-        return $this->service->expire($key, $ttl);
-    }
 }

@@ -179,9 +179,6 @@ readonly class DvrController extends RbtController
             if (!$value)
                 return user_response(404, message: 'Идентификатор не найден');
 
-            if (!$cache->expire('dvr:' . $id, 360))
-                return user_response(404, message: 'Не удалось обновить идентификатор');
-
             $camera = DeviceCamera::findById($value[2]);
 
             if (!$camera)
@@ -191,6 +188,9 @@ readonly class DvrController extends RbtController
 
             if (!$dvr)
                 return user_response(404, message: 'Устройство не найден');
+
+            if (!$cache->set('dvr:' . $id, $value, 360))
+                return user_response(404, message: 'Не удалось обновить идентификатор');
 
             return [new DvrIdentifier($id, $value[0], $value[1], $value[3]), $camera, $dvr];
         } catch (Throwable $throwable) {

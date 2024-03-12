@@ -129,17 +129,6 @@ class RedisService implements ContainerDisposeInterface, LoggerAwareInterface
         }
     }
 
-    public function expire(string $key, int $ttl): bool
-    {
-        try {
-            return $this->redis->expire($key, $ttl);
-        } catch (Throwable $throwable) {
-            $this->logger?->error($throwable);
-
-            return false;
-        }
-    }
-
     public function exist(string $key, array ...$keys): bool
     {
         try {
