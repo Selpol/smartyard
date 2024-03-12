@@ -30,7 +30,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
         $options = [];
 
-        if ($page != null && $limit != null) {
+        if (!is_null($page) && !is_null($limit)) {
             $options['skip'] = $page * $limit;
             $options['limit'] = $limit;
         }
