@@ -62,10 +62,12 @@ readonly class DvrController extends RbtController
     public function acquire(DvrAcquireRequest $request, RedisCache $cache): ResponseInterface
     {
         try {
-            if ($cache->expire('dvr:' . $request->id, 360))
-                return user_response();
+            $result = $this->process($cache, $request->id);
 
-            return user_response(404, message: 'Идентификатор устарел');
+            if ($result instanceof ResponseInterface)
+                return $result;
+
+            return user_response();
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }
@@ -176,6 +178,9 @@ readonly class DvrController extends RbtController
 
             if (!$value)
                 return user_response(404, message: 'Идентификатор не найден');
+
+            if (!$cache->expire('dvr:' . $id, 360))
+                return user_response(404, message: 'Не удалось обновить идентификатор');
 
             $camera = DeviceCamera::findById($value[2]);
 

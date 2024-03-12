@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Mobile\Dvr;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read string $id
  */
 readonly class DvrAcquireRequest extends RouteRequest
 {
