@@ -20,6 +20,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
+use Selpol\Middleware\RateLimitMiddleware;
 use Throwable;
 
 #[Controller('/mobile/dvr')]
@@ -72,7 +73,7 @@ readonly class DvrController extends RbtController
         return user_response(500, message: 'Ошибка состояния камеры');
     }
 
-    #[Get('/preview/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    #[Get('/preview/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
     public function preview(DvrPreviewRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -101,7 +102,7 @@ readonly class DvrController extends RbtController
         return user_response(data: $preview);
     }
 
-    #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
     public function video(DvrVideoRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -130,7 +131,7 @@ readonly class DvrController extends RbtController
         return user_response(data: $video);
     }
 
-    #[Get('/command/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    #[Get('/command/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
     public function command(DvrCommandRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
