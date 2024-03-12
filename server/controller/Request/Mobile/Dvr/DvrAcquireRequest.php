@@ -12,7 +12,7 @@ readonly class DvrAcquireRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'id' => rule()->id()
+            'id' => rule()->required()->string()->nonNullable()
         ];
     }
 
