@@ -6,9 +6,11 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
+use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrPreviewRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrVideoRequest;
+use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
@@ -126,6 +128,44 @@ readonly class DvrController extends RbtController
             return user_response(404, message: 'Видео не доступно');
 
         return user_response(data: $video);
+    }
+
+    #[Get('/command/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    public function command(DvrCommandRequest $request, RedisCache $cache): ResponseInterface
+    {
+        $result = $this->process($cache, $request->id);
+
+        if ($result instanceof ResponseInterface)
+            return $result;
+
+        /**
+         * @var DvrIdentifier $identifier
+         * @var DeviceCamera $camera
+         * @var DvrDevice $dvr
+         */
+        list($identifier, $camera, $dvr) = $result;
+
+        if (!$identifier->isNotExpired())
+            return user_response(400, message: 'Токен доступа устарел');
+
+        $command = $dvr->command(
+            $identifier,
+            $camera,
+            DvrContainer::from($request->container),
+            DvrStream::from($request->stream),
+            DvrCommand::from($request->command),
+            [
+                'seek' => $request->seek,
+                'speed' => $request->speed
+            ]
+        );
+
+        if (!$command)
+            return user_response(404, message: 'Команда не доступна');
+        else if ($command === true)
+            return user_response();
+
+        return user_response(data: $command);
     }
 
     private function process(RedisCache $cache, string $id): ResponseInterface|array

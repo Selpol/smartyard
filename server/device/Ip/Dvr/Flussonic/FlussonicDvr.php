@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
+use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
@@ -73,6 +74,24 @@ class FlussonicDvr extends DvrDevice
                 return new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value, $from, $to, $seek);
             }
         }
+
+        return null;
+    }
+
+    public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
+    {
+        if ($command === DvrCommand::PLAY)
+            return true;
+        else if ($command === DvrCommand::PAUSE)
+            return true;
+        else if ($command === DvrCommand::SEEK && $arguments['seek']) {
+            return [
+                'archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']]),
+
+                'seek' => $arguments['seek']
+            ];
+        } else if ($command === DvrCommand::SPEED && $arguments['speed'])
+            return ['speed' => $arguments['speed']];
 
         return null;
     }
