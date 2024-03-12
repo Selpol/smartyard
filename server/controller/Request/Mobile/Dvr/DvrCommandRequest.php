@@ -27,7 +27,7 @@ readonly class DvrCommandRequest extends RouteRequest
 
             'command' => rule()->required()->in(['play', 'pause', 'seek', 'speed'])->nonNullable(),
 
-            'seek' => rule()->int()->clamp(0),
+            'seek' => rule()->int(),
             'speed' => rule()->int()->clamp(1, 4)
         ];
     }
