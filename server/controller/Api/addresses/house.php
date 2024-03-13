@@ -18,13 +18,13 @@ readonly class house extends Api
         }
 
         $validate = validator($params, [
-            'house' => rule()->string()->clamp(0, 1000),
+            'house_full' => rule()->string()->clamp(0, 1000),
 
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('house', $validate['house'])->asc('address_house_id');
+        $criteria = criteria()->like('house_full', $validate['house_full'])->asc('address_house_id');
 
         return self::success(AddressHouse::fetchPage($validate['page'], $validate['size'], $criteria));
     }
