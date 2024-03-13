@@ -4,15 +4,29 @@ namespace Selpol\Controller\Api\addresses;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Feature\Address\AddressFeature;
 
 readonly class house extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $house = container(AddressFeature::class)->getHouse($params["_id"]);
+        if (array_key_exists('_id', $params)) {
+            $house = container(AddressFeature::class)->getHouse($params["_id"]);
 
-        return $house ? self::success($house) : self::error('Дом не найден', 404);
+            return $house ? self::success($house) : self::error('Дом не найден', 404);
+        }
+
+        $validate = validator($params, [
+            'house' => rule()->string()->clamp(0, 1000),
+
+            'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
+            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
+        ]);
+
+        $criteria = criteria()->like('house', $validate['house'])->asc('address_house_id');
+
+        return self::success(AddressHouse::fetchPage($validate['page'], $validate['size'], $criteria));
     }
 
     public static function POST(array $params): ResponseInterface
