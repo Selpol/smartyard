@@ -115,6 +115,14 @@ class TrassirDvr extends DvrDevice
         return $this->client->send($request, $this->clientOption)->getBody();
     }
 
+    public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
+    {
+        if ($arguments['time'])
+            return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value . '?time=' . $arguments['time'];
+
+        return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
+    }
+
     private function getToken(DeviceCamera $camera, int $start, int $end): string
     {
         $salt = bin2hex(openssl_random_pseudo_bytes(16));
