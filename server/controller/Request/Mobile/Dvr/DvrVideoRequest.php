@@ -11,6 +11,9 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $stream
  *
  * @property-read int|null $time
+ *
+ * @property-read bool|null $sub
+ * @property-read bool|null $hw
  */
 readonly class DvrVideoRequest extends RouteRequest
 {
@@ -22,7 +25,10 @@ readonly class DvrVideoRequest extends RouteRequest
             'container' => rule()->required()->in(['rtsp', 'hls'])->nonNullable(),
             'stream' => rule()->required()->in(['online', 'archive'])->nonNullable(),
 
-            'time' => rule()->int()
+            'time' => rule()->int(),
+
+            'sub' => rule()->bool(),
+            'hw' => rule()->bool()
         ];
     }
 
@@ -34,7 +40,10 @@ readonly class DvrVideoRequest extends RouteRequest
             'container' => 'Тип контейнера',
             'stream' => 'Тип потока',
 
-            'time' => 'Время'
+            'time' => 'Время',
+
+            'sub' => 'Дополнительный поток',
+            'hw' => 'Архив с устройства'
         ];
     }
 }

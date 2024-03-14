@@ -167,7 +167,13 @@ readonly class DvrController extends RbtController
         if ($request->stream == 'archive' && is_null($identifier->subscriber))
             return user_response(403, message: 'Доступ к архиву запрещен');
 
-        $video = $dvr->video($identifier, $camera, DvrContainer::from($request->container), DvrStream::from($request->stream), ['time' => $request->time]);
+        $video = $dvr->video(
+            $identifier,
+            $camera,
+            DvrContainer::from($request->container),
+            DvrStream::from($request->stream),
+            ['time' => $request->time, 'sub' => $request->sub, 'hw' => $request->hw]
+        );
 
         if (!$video)
             return user_response(404, message: 'Видео не доступно');
