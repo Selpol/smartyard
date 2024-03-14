@@ -14,6 +14,11 @@ use Selpol\Framework\Router\Route\RouteRequest;
  *
  * @property-read int|null $seek
  * @property-read int|null $speed
+ *
+ * @property-read string|null $token
+ *
+ * @property-read int|null $from
+ * @property-read int|null $to
  */
 readonly class DvrCommandRequest extends RouteRequest
 {
@@ -28,7 +33,12 @@ readonly class DvrCommandRequest extends RouteRequest
             'command' => rule()->required()->in(['play', 'pause', 'seek', 'speed'])->nonNullable(),
 
             'seek' => rule()->int(),
-            'speed' => rule()->int()
+            'speed' => rule()->int(),
+
+            'token' => rule()->string(),
+
+            'from' => rule()->int(),
+            'to' => rule()->int()
         ];
     }
 
@@ -43,7 +53,12 @@ readonly class DvrCommandRequest extends RouteRequest
             'command' => 'Команда',
 
             'seek' => 'Время',
-            'speed' => 'Скорость'
+            'speed' => 'Скорость',
+
+            'token' => 'Токен',
+
+            'from' => 'Начало действия архива',
+            'to' => 'Конец действия архива'
         ];
     }
 }

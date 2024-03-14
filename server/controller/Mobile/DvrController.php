@@ -207,7 +207,12 @@ readonly class DvrController extends RbtController
             DvrCommand::from($request->command),
             [
                 'seek' => $request->seek,
-                'speed' => $request->speed
+                'speed' => $request->speed,
+
+                'token' => $request->token,
+
+                'from' => $request->from,
+                'to' => $request->to
             ]
         );
 
