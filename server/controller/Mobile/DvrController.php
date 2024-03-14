@@ -27,7 +27,7 @@ use Throwable;
 #[Controller('/mobile/dvr')]
 readonly class DvrController extends RbtController
 {
-    #[Get('/{id}')]
+    #[Get('/{id}', excludes: [RateLimitMiddleware::class])]
     public function identifier(DvrIdentifierRequest $request, RedisCache $cache): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id);
