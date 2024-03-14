@@ -132,7 +132,7 @@ class TrassirDvr extends DvrDevice
             if ($container === DvrContainer::RTSP)
                 return null; // TODO: Добавить поддержку RTSP, с кэшированием опций /s/archive/timeline?channel=?&sip=?
             else if ($container === DvrContainer::HLS) {
-                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $stream->value . ($arguments['sub'] ? '_sub' : ''), 'sid' => $this->getSid()]);
+                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success'])
                     return $this->server->url . '/hls/' . $response['token'] . '/master.m3u8';
