@@ -2,9 +2,14 @@
 
 namespace Selpol\Device\Ip\Dvr\Trassir;
 
+use Psr\Http\Message\StreamInterface;
+use Psr\SimpleCache\InvalidArgumentException;
+use Selpol\Cache\RedisCache;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
@@ -12,8 +17,6 @@ use Throwable;
 
 class TrassirDvr extends DvrDevice
 {
-    private ?string $sid = null;
-
     public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server)
     {
         parent::__construct($uri, $login, $password, $model, $server);
@@ -55,14 +58,68 @@ class TrassirDvr extends DvrDevice
 
     private function getSid(): string
     {
-        if (is_null($this->sid)) {
-            $response = $this->get('/login', ['username' => $this->login, 'password' => $this->password]);
+        $cache = container(RedisCache::class);
 
-            if (array_key_exists('sid', $response))
-                $this->sid = $response['sid'];
-            else throw new DeviceException($this, 'Не удалось авторизироваться');
+        try {
+            $sid = $cache->get('dvr:' . $this->uri . '-' . $this->login);
+        } catch (InvalidArgumentException) {
+            throw new DeviceException($this, 'Не удалось авторизироваться');
         }
 
-        return $this->sid;
+        if (is_null($sid)) {
+            $response = $this->get('/login', ['username' => $this->login, 'password' => $this->password]);
+
+            if (array_key_exists('sid', $response)) {
+                $sid = $response['sid'];
+
+                try {
+                    $cache->set('dvr:' . $this->uri . '-' . $this->login, $sid, 900);
+                } catch (InvalidArgumentException) {
+                }
+            } else throw new DeviceException($this, 'Не удалось авторизироваться');
+        }
+
+        return $sid;
+    }
+
+    public function capabilities(): array
+    {
+        return [
+            'poster' => true,
+            'preview' => true,
+
+            'online' => true,
+            'archive' => true,
+
+            'speed' => [1, 2, 4]
+        ];
+    }
+
+    public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
+    {
+        $start = $time - 3600 * 192;
+        $end = $time + 3600 * 3;
+
+        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end, $subscriberId);
+    }
+
+    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
+    {
+        return 180;
+    }
+
+    public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
+    {
+        $request = client_request('GET', $this->uri . '/screenshot/' . $camera->dvr_stream . '?sid=' . $this->getSid() . ($time ? ('&timestamp=' . ($time * 1000)) : ''));
+
+        return $this->client->send($request, $this->clientOption)->getBody();
+    }
+
+    private function getToken(DeviceCamera $camera, int $start, int $end): string
+    {
+        $salt = bin2hex(openssl_random_pseudo_bytes(16));
+        $hash = sha1($camera->dvr_stream . $start . $end . $this->server->token . $salt);
+
+        return $hash . '-' . $salt;
     }
 }

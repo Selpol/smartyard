@@ -9,6 +9,7 @@ use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrPreviewRequest;
+use Selpol\Controller\Request\Mobile\Dvr\DvrScreenshotRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrVideoRequest;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -53,7 +54,7 @@ readonly class DvrController extends RbtController
             return user_response(data: [
                 'identifier' => $identifier,
 
-                'acquire' => $dvr->acquire(),
+                'acquire' => $dvr->acquire(null, null),
                 'capabilities' => $dvr->capabilities()
             ]);
         } catch (Throwable $throwable) {
@@ -72,7 +73,43 @@ readonly class DvrController extends RbtController
             if ($result instanceof ResponseInterface)
                 return $result;
 
-            return user_response();
+            /**
+             * @var DvrIdentifier $identifier
+             * @var DeviceCamera $camera
+             * @var DvrDevice $dvr
+             */
+            list($identifier, $camera, $dvr) = $result;
+
+            return user_response(data: $dvr->acquire($identifier, $camera));
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
+        }
+
+        return user_response(500, message: 'Ошибка состояния камеры');
+    }
+
+    #[Get('/screenshot/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    public function screenshot(DvrScreenshotRequest $request, RedisCache $cache): ResponseInterface
+    {
+        try {
+            $result = $this->process($cache, $request->id);
+
+            if ($result instanceof ResponseInterface)
+                return $result;
+
+            /**
+             * @var DvrIdentifier $identifier
+             * @var DeviceCamera $camera
+             * @var DvrDevice $dvr
+             */
+            list($identifier, $camera, $dvr) = $result;
+
+            $screenshot = $dvr->screenshot($identifier, $camera, $request->time);
+
+            if ($screenshot)
+                return response()->withHeader('Content-Type', 'image/jpeg')->withBody($screenshot);
+
+            return response(204);
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }

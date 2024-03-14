@@ -101,7 +101,7 @@ readonly class CameraController extends RbtController
             return user_response(data: [
                 'identifier' => $identifier,
 
-                'acquire' => $dvr->acquire(),
+                'acquire' => $dvr->acquire(null, null),
                 'capabilities' => [
                     'poster' => true,
                     'preview' => false,

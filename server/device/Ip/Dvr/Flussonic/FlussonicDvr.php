@@ -35,11 +35,6 @@ class FlussonicDvr extends DvrDevice
         }
     }
 
-    public function acquire(): int
-    {
-        return 180;
-    }
-
     public function capabilities(): array
     {
         return [
@@ -59,6 +54,11 @@ class FlussonicDvr extends DvrDevice
         $end = $time + 3600 * 3;
 
         return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end, $subscriberId);
+    }
+
+    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
+    {
+        return 180;
     }
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string

@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Dvr;
 
+use Psr\Http\Message\StreamInterface;
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -38,7 +39,7 @@ abstract class DvrDevice extends IpDevice
         return null;
     }
 
-    public function acquire(): int
+    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
     {
         return 0;
     }
@@ -57,6 +58,11 @@ abstract class DvrDevice extends IpDevice
     }
 
     public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
+    {
+        return null;
+    }
+
+    public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
         return null;
     }
