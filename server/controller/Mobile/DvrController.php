@@ -88,7 +88,7 @@ readonly class DvrController extends RbtController
         return user_response(500, message: 'Ошибка состояния камеры');
     }
 
-    #[Get('/screenshot/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    #[Get('/screenshot/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
     public function screenshot(DvrScreenshotRequest $request, RedisCache $cache): ResponseInterface
     {
         try {
