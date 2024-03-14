@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Framework\Entity\EntityPage;
 
 readonly class house extends Api
 {
@@ -26,7 +27,23 @@ readonly class house extends Api
 
         $criteria = criteria()->like('house_full', $validate['house_full'])->asc('address_house_id');
 
-        return self::success(AddressHouse::fetchPage($validate['page'], $validate['size'], $criteria));
+        $page = AddressHouse::fetchPage($validate['page'], $validate['size'], $criteria);
+
+        $result = [];
+
+        foreach ($page->getData() as $item)
+            $result[] = $item->toArrayMap([
+                "address_house_id" => "houseId",
+                "address_settlement_id" => "settlementId",
+                "address_street_id" => "streetId",
+                "house_uuid" => "houseUuid",
+                "house_type" => "houseType",
+                "house_type_full" => "houseTypeFull",
+                "house_full" => "houseFull",
+                "house" => "house"
+            ]);
+
+        return self::success(new EntityPage($result, $page->getTotal(), $page->getPage(), $page->getSize()));
     }
 
     public static function POST(array $params): ResponseInterface
