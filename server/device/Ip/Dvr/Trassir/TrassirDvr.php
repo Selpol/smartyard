@@ -7,6 +7,7 @@ use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Cache\RedisCache;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
+use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
@@ -126,19 +127,68 @@ class TrassirDvr extends DvrDevice
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
+    // TODO: Добавить поддержку RTSP
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
     {
         if ($stream === DvrStream::ONLINE) {
-            if ($container === DvrContainer::RTSP)
-                return null; // TODO: Добавить поддержку RTSP, с кэшированием опций /s/archive/timeline?channel=?&sip=?
-            else if ($container === DvrContainer::HLS) {
+            if ($container === DvrContainer::HLS) {
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success'])
                     return $this->server->url . '/hls/' . $response['token'] . '/master.m3u8';
-
-                return null;
             }
+        } else if ($stream === DvrStream::ARCHIVE) {
+            $depth = $this->get('/s/archive/timeline', ['channel' => $camera->dvr_stream, 'sid' => $this->getSid()]);
+
+            if (!array_key_exists('success', $depth) || !$depth['success'])
+                return null;
+
+            $from = time() - floor($depth * 24 * 60 * 60);
+            $to = time();
+
+            $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
+
+            if ($container === DvrContainer::HLS) {
+                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'archive_sub' : 'archive', 'hw' => $arguments['hw'] ?? false, 'sid' => $this->getSid()]);
+
+                if (array_key_exists('success', $response) && $response['success']) {
+                    $this->get('/hls/' . $response['token'] . '/master.m3u8');
+
+                    if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::SEEK, ['seek' => $seek, 'token' => $response['token']]))
+                        return null;
+
+                    if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, ['token' => $response['token']]))
+                        return null;
+
+                    return new DvrArchive($this->server->url . '/hls/' . $response['token'] . '/master.m3u8', $from, $to, 0, $response['token']);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
+    {
+        if (!array_key_exists('token', $arguments))
+            return null;
+
+        if ($command === DvrCommand::PLAY) {
+            $response = $this->get('/archive_command', ['command' => 'play', 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+
+            return array_key_exists('success', $response) && $response['success'] == 1;
+        } else if ($command === DvrCommand::PAUSE) {
+            $response = $this->get('/archive_command', ['command' => 'pause', 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+
+            return array_key_exists('success', $response) && $response['success'] == 1;
+        } else if ($command === DvrCommand::SEEK && $arguments['seek']) {
+            $response = $this->get('/archive_command', ['command' => 'seek', 'timestamp' => $arguments['seek'] * 1000, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+
+            return array_key_exists('success', $response) && $response['success'] == 1;
+        } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
+            $response = $this->get('/archive_command', ['speed' => $arguments['speed'], 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+
+            return array_key_exists('success', $response) && $response['success'] == 1;
         }
 
         return null;

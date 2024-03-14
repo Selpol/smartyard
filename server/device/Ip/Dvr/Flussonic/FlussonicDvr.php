@@ -89,7 +89,7 @@ class FlussonicDvr extends DvrDevice
 
                 $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
 
-                return new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value, $from, $to, $seek);
+                return new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value, $from, $to, $seek, null);
             }
         }
 

@@ -13,7 +13,9 @@ readonly class DvrArchive implements JsonSerializable
 
     public int $seek;
 
-    public function __construct(string $src, int $start, int $end, int $seek)
+    public ?string $token;
+
+    public function __construct(string $src, int $start, int $end, int $seek, ?string $token)
     {
         $this->src = $src;
 
@@ -21,6 +23,8 @@ readonly class DvrArchive implements JsonSerializable
         $this->end = $end;
 
         $this->seek = $seek;
+
+        $this->token = $token;
     }
 
     public function jsonSerialize(): array
