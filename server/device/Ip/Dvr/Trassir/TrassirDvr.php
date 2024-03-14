@@ -152,7 +152,7 @@ class TrassirDvr extends DvrDevice
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'archive_sub' : 'archive', 'hw' => $arguments['hw'] ?? false, 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success']) {
-                    $this->get('/hls/' . $response['token'] . '/master.m3u8');
+                    $this->client->send(client_request('GET', $this->uri . '/hls/' . $response['token'] . '/master.m3u8'), $this->clientOption);
 
                     if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::SEEK, ['seek' => $seek, 'token' => $response['token']]))
                         return null;
