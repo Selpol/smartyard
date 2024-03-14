@@ -206,7 +206,11 @@ readonly class CameraController extends RbtController
                 $house = &$houses[$houseId];
                 $house['houseId'] = strval($houseId);
 
-                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
+                $house['cameras'] = array_map(static function (array $camera) use ($houseId) {
+                    $camera['houseId'] = $houseId;
+
+                    return $camera;
+                }, $houseFeature->getCameras("houseId", $houseId));
                 $house['doors'] = [];
             }
 
