@@ -114,7 +114,7 @@ class TrassirDvr extends DvrDevice
 
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
-        $request = client_request('GET', $this->uri . '/screenshot/' . $camera->dvr_stream . '?sid=' . $this->getSid() . ($time ? ('&timestamp=' . ($time * 1000)) : ''));
+        $request = client_request('GET', $this->uri . '/screenshot/' . $camera->dvr_stream . '?sid=' . $this->getSid() . ($time ? ('&timestamp=' . $time) : ''));
 
         return $this->client->send($request, $this->clientOption)->getBody();
     }
