@@ -90,7 +90,7 @@ class TrassirDvr extends DvrDevice
     {
         return [
             'poster' => true,
-            'preview' => true,
+            'preview' => false,
 
             'online' => true,
             'archive' => true,
@@ -121,9 +121,6 @@ class TrassirDvr extends DvrDevice
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
-        if ($arguments['time'])
-            return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value . '?time=' . $arguments['time'];
-
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
