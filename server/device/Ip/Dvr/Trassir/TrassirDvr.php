@@ -95,6 +95,7 @@ class TrassirDvr extends DvrDevice
             'online' => true,
             'archive' => true,
 
+            'command' => ['play', 'pause', 'seek', 'speed'],
             'speed' => [1, 2, 4]
         ];
     }

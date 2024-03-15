@@ -44,7 +44,8 @@ class FlussonicDvr extends DvrDevice
             'online' => true,
             'archive' => true,
 
-            'speed' => []
+            'command' => [],
+            'speed' => [1, 2, 4, 8, 16]
         ];
     }
 

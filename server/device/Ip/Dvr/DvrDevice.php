@@ -53,6 +53,7 @@ abstract class DvrDevice extends IpDevice
             'online' => false,
             'archive' => false,
 
+            'command' => [],
             'speed' => []
         ];
     }
