@@ -143,7 +143,7 @@ class TrassirDvr extends DvrDevice
             if (!array_key_exists('success', $depth) || !$depth['success'])
                 return null;
 
-            $from = time() - floor($depth['data']['depth'] * 24 * 60 * 60);
+            $from = intval(time() - floor($depth['data']['depth'] * 24 * 60 * 60));
             $to = time();
 
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
