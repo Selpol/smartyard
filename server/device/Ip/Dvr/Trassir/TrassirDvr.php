@@ -160,7 +160,7 @@ class TrassirDvr extends DvrDevice
                     if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, ['seek' => $seek, 'from' => $from, 'to' => $to, 'token' => $response['token']]))
                         return null;
 
-                    return new DvrArchive($this->server->url . '/hls/' . $response['token'] . '/master.m3u8', $from, $to, 0, $response['token']);
+                    return new DvrArchive($this->server->url . '/hls/' . $response['token'] . '/master.m3u8', $from, $to, $seek, $response['token']);
                 }
             }
         }
