@@ -34,7 +34,7 @@ readonly class SubscriberController extends RbtController
             BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
-    public function index(int $flatId, HouseFeature $houseFeature, BlockFeature $blockFeature): Response
+    public function index(int $flatId, HouseFeature $houseFeature): Response
     {
         $subscribers = $houseFeature->getSubscribers('flatId', $flatId);
 
@@ -63,7 +63,7 @@ readonly class SubscriberController extends RbtController
             BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
-    public function store(SubscriberStoreRequest $request, int $flatId, HouseFeature $houseFeature, BlockFeature $blockFeature): Response
+    public function store(SubscriberStoreRequest $request, int $flatId, HouseFeature $houseFeature): Response
     {
         $subscribers = $houseFeature->getSubscribers('mobile', $request->mobile);
 
