@@ -8,8 +8,10 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Backup\BackupFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
@@ -21,6 +23,7 @@ use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
+use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Validator\Exception\ValidatorException;
@@ -29,6 +32,11 @@ use Throwable;
 class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
+
+    public function __construct()
+    {
+        $this->setLogger(stack_logger([echo_logger(), file_logger('cli')]));
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -62,6 +70,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === 'db') {
             if ($command === 'init') $this->dbInit($arguments);
             else if ($command === 'check') return $this->dbCheck();
+            else if ($command === 'backup') return $this->dbBackup($arguments['db:backup']);
+            else if ($command === 'restore') return $this->dbRestore($arguments['db:restore']);
             else echo $this->help('db');
         } else if ($group === 'amqp') {
             if ($command === 'check') return $this->amqpCheck();
@@ -87,6 +97,12 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($command === 'init') $this->roleInit();
             else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
+        } else if ($group === 'device') {
+            if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
+            else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
+            else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
+            else echo $this->help('device');
         } else echo $this->help();
 
         return 0;
@@ -123,7 +139,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         try {
             $coreVar = CoreVar::getRepository()->findByName('database.version');
 
-            $version = intval($coreVar->var_value) ?? 0;
+            $version = intval($coreVar?->var_value ?? '') ?? 0;
         } catch (Throwable) {
             $version = 0;
         }
@@ -172,6 +188,28 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             return 1;
         }
+    }
+
+    private function dbBackup(string $path): int
+    {
+        if (file_exists($path)) {
+            $this->logger?->debug('Не возможно сделать бэкап в уже существующий файл');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->backup($path) ? 0 : 1;
+    }
+
+    private function dbRestore(string $path): int
+    {
+        if (!file_exists($path)) {
+            $this->logger?->debug('Файла бэкапа не существует');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->restore($path) ? 0 : 1;
     }
 
     private function amqpCheck(): int
@@ -504,6 +542,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                         $permission->description = $description;
 
                                         $permission->insert();
+                                    } else if ($titlePermissions[$title]->description != $description) {
+                                        $titlePermissions[$title]->description = $description;
+                                        $titlePermissions[$title]->update();
                                     }
 
                                     unset($titlePermissions[$title]);
@@ -513,6 +554,27 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     }
                 }
             }
+        }
+
+        $requirePermissions = [
+            'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
+            'camera-hidden' => '[Камера] Доступ к скрытым устройствам'
+        ];
+
+        foreach ($requirePermissions as $title => $description) {
+            if (!array_key_exists($title, $titlePermissions)) {
+                $permission = new Permission();
+
+                $permission->title = $title;
+                $permission->description = $description;
+
+                $permission->insert();
+            } else if ($titlePermissions[$title]->description != $description) {
+                $titlePermissions[$title]->description = $description;
+                $titlePermissions[$title]->update();
+            }
+
+            unset($titlePermissions[$title]);
         }
 
         foreach ($titlePermissions as $permission)
@@ -526,6 +588,37 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private function roleClear(): void
     {
         Permission::getRepository()->deleteSql();
+    }
+
+    private function deviceSync(int $id): void
+    {
+        try {
+            $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
+
+            if ($deviceIntercom)
+                task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
+            else echo 'Домофон не найден' . PHP_EOL;
+        } catch (Throwable $throwable) {
+            echo 'Ошибка синхронизации. ' . $throwable . PHP_EOL;
+        }
+    }
+
+    private function deviceReboot(int $id): void
+    {
+        if ($device = intercom($id)) $device->reboot();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceReset(int $id): void
+    {
+        if ($device = intercom($id)) $device->reset();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceCall(int $id): void
+    {
+        if ($device = intercom($id)) $device->callStop();
+        else echo 'Домофон не найден' . PHP_EOL;
     }
 
     private function help(?string $group = null): string
@@ -579,6 +672,15 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 '',
                 'role:init                        - Инициализация групп',
                 'role:clear                       - Удалить группы'
+            ]);
+
+        if ($group === null || $group === 'device')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'device:sync=<id>                 - Синхронизация домофона',
+                'device:call=<id>                 - Остановить звонки на домофоне',
+                'device:reboot=<id>               - Перезапуск домофона',
+                'device:reset=<id>                - Сбросить домофон'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;

@@ -7,6 +7,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 
 readonly class flat extends Api
@@ -21,8 +22,8 @@ readonly class flat extends Api
         $flatBlock = new FlatBlock(validator($params, [
             'flat_id' => rule()->id(),
 
-            'service' => rule()->required()->in([0, 1, 2, 3, 4, 5, 6, 7])->nonNullable(),
-            'status' => rule()->required()->in([1, 2, 3])->nonNullable(),
+            'service' => rule()->required()->in(block::SERVICES_FLAT)->nonNullable(),
+            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),
             'comment' => rule()->string(),
@@ -31,6 +32,9 @@ readonly class flat extends Api
         if ($flatBlock->insert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
                 task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->low()->dispatch();
+
+            if (array_key_exists('notify', $params) && $params['notify'])
+                self::notify($flatBlock, true);
 
             return self::success($flatBlock->id);
         }
@@ -43,8 +47,8 @@ readonly class flat extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'service' => rule()->required()->in([0, 1, 2, 3, 4, 5, 6, 7])->nonNullable(),
-            'status' => rule()->required()->in([1, 2, 3])->nonNullable(),
+            'service' => rule()->required()->in(block::SERVICES_FLAT)->nonNullable(),
+            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),
             'comment' => rule()->string(),
@@ -62,6 +66,9 @@ readonly class flat extends Api
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
                 task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->low()->dispatch();
 
+            if (array_key_exists('notify', $params) && $params['notify'])
+                self::notify($flatBlock, true);
+
             return self::success($flatBlock->id);
         }
 
@@ -75,6 +82,9 @@ readonly class flat extends Api
         if ($flatBlock->delete()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
                 task(new IntercomCmsFlatTask($flatBlock->flat_id, false))->low()->dispatch();
+
+            if (array_key_exists('notify', $params) && $params['notify'])
+                self::notify($flatBlock, false);
 
             return self::success();
         }
@@ -90,5 +100,17 @@ readonly class flat extends Api
             'PUT' => '[Блокировка-Квартира] Обновить блокировку',
             'DELETE' => '[Блокировка-Квартира] Удалить блокировку'
         ];
+    }
+
+    private static function notify(FlatBlock $block, bool $status): void
+    {
+        task(new InboxFlatTask(
+            $block->flat_id,
+            'Обновление статуса квартиры',
+            $status
+                ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
+                : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
+            'inbox'
+        ))->low()->dispatch();
     }
 }

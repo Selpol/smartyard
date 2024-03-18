@@ -16,7 +16,9 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Throwable;
 
 #[Controller('/mobile/address', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]])]
@@ -26,19 +28,16 @@ readonly class PlogController extends RbtController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/plog')]
-    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature, BlockFeature $blockFeature): Response
+    #[Post(
+        '/plog',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId'],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
+        ]
+    )]
+    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature): Response
     {
-        if ($block = $blockFeature->getFirstBlockForFlat($request->flatId, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]))
-            return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
-
         $user = $this->getUser()->getOriginalValue();
-
-        $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
-
-        $f = in_array($request->flatId, $flat_ids);
-        if (!$f)
-            return user_response(404, message: 'У абонента нет доступа');
 
         $flat_owner = false;
 
@@ -102,8 +101,8 @@ readonly class PlogController extends RbtController
                         }
                     }
 
-                    if (isset($face->faceId) && $face->faceId > 0)
-                        $e_details['detailX']['faceId'] = strval($face->faceId);
+                    if (isset($face->faceId) && $face->faceId > 0) $e_details['detailX']['faceId'] = strval($face->faceId);
+                    else $e_details['detailX']['faceId'] = '';
 
                     $phones = json_decode($row[PlogFeature::COLUMN_PHONES]);
 
@@ -171,30 +170,31 @@ readonly class PlogController extends RbtController
             ->withBody(stream($fileFeature->getFileStream($fileFeature->fromGUIDv4($uuid))));
     }
 
-    #[Post('/plogDays')]
+    #[Post(
+        '/plogDays',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId'],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
+        ]
+    )]
     public function days(PlogDaysRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
-        $f = in_array($request->flatId, $flat_ids);
-
-        if (!$f)
-            return user_response(404, message: 'Квартира не найдена');
-
-        $flat_owner = false;
-        foreach ($user['flats'] as $flat)
-            if ($flat['flatId'] == $request->flatId) {
-                $flat_owner = ($flat['role'] == 0);
-
-                break;
-            }
-
         $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
-        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
+        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
             return user_response(403, message: 'Недостаточно прав на просмотр событий');
+
+        if ($plog_access == PlogFeature::ACCESS_OWNER_ONLY)
+            foreach ($user['flats'] as $flat)
+                if ($flat['flatId'] == $request->flatId) {
+                    if ($flat['role'] !== 0)
+                        return user_response(403, message: 'Недостаточно прав на просмотр событий');
+
+                    break;
+                }
 
         $filter_events = false;
 

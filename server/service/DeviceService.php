@@ -75,13 +75,13 @@ readonly class DeviceService
 
         $credentials = $server->credentials();
 
-        return $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password']);
+        return $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password'], $server);
     }
 
-    public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password): ?DvrDevice
+    public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password, DvrServer $server): ?DvrDevice
     {
         if ($model = DvrModel::model($model))
-            return new $model->class(new Uri($url), $login, $password, $model);
+            return new $model->class(new Uri($url), $login, $password, $model, $server);
 
         return null;
     }

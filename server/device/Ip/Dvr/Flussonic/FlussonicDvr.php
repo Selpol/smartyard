@@ -2,6 +2,11 @@
 
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
+use Selpol\Device\Ip\Dvr\Common\DvrArchive;
+use Selpol\Device\Ip\Dvr\Common\DvrCommand;
+use Selpol\Device\Ip\Dvr\Common\DvrContainer;
+use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
+use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Throwable;
@@ -30,27 +35,92 @@ class FlussonicDvr extends DvrDevice
         }
     }
 
-    public function updateCamera(DeviceCamera $camera): bool
+    public function capabilities(): array
     {
-        try {
-            $stream = $this->get('/streamer/api/v3/streams/' . $camera->dvr_stream);
+        return [
+            'poster' => true,
+            'preview' => true,
 
-            if (!array_key_exists('inputs', $stream) || count($stream['inputs']) == 0)
-                return false;
+            'online' => true,
+            'archive' => true,
 
-            $inputs = array_map(static function (array $input) use ($camera) {
-                $url = uri($input['url']);
+            'command' => [],
+            'speed' => [1, 2, 4]
+        ];
+    }
 
-                $url->withUserInfo(explode(':', $url->getUserInfo())[0], $camera->credentials);
+    public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
+    {
+        $start = $time - 3600 * 192;
+        $end = $time + 3600 * 3;
 
-                return ['url' => (string)$url];
-            }, $stream['inputs']);
+        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end, $subscriberId);
+    }
 
-            $response = $this->put('/streamer/api/v3/streams/' . $camera->dvr_stream, ['inputs' => $inputs]);
+    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
+    {
+        return 180;
+    }
 
-            return !array_key_exists('errors', $response);
-        } catch (Throwable) {
-            return false;
+    public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
+    {
+        if ($arguments['time'])
+            return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+
+        return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
+    }
+
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
+    {
+        if ($stream === DvrStream::ONLINE) {
+            if ($container === DvrContainer::RTSP)
+                return uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value);
+            else if ($container === DvrContainer::HLS)
+                return $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value;
+        } else if ($stream === DvrStream::ARCHIVE) {
+            if ($container == DvrContainer::HLS) {
+                /** @var array<string, array<string, int>> $timeline */
+                $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
+
+                if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+                    return null;
+
+                $from = $timeline[$camera->dvr_stream]['from'];
+                $to = $timeline[$camera->dvr_stream]['to'];
+
+                $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
+
+                return new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, null);
+            }
         }
+
+        return null;
+    }
+
+    public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
+    {
+        if ($command === DvrCommand::PLAY)
+            return true;
+        else if ($command === DvrCommand::PAUSE)
+            return true;
+        else if ($command === DvrCommand::SEEK && $arguments['seek']) {
+            return ['archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']])];
+        } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed']))
+            return true;
+
+        return null;
+    }
+
+    private function getToken(DeviceCamera $camera, int $start, int $end): string
+    {
+        $salt = bin2hex(openssl_random_pseudo_bytes(16));
+        $hash = sha1($camera->dvr_stream . 'no_check_ip' . $start . $end . $this->server->token . $salt);
+
+        return $hash . '-' . $salt . '-' . $end . '-' . $start;
+    }
+
+    private function getUrl(DeviceCamera $camera): string
+    {
+        return $this->server->url . '/' . $camera->dvr_stream;
     }
 }

@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
@@ -16,6 +17,7 @@ use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Task\Tasks\RecordTask;
+use Throwable;
 
 #[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV, BlockFeature::SUB_SERVICE_ARCHIVE]])]
 readonly class ArchiveController extends RbtController
@@ -36,6 +38,11 @@ readonly class ArchiveController extends RbtController
         if (!$from || !$to)
             return user_response(400, message: 'Неверный формат данных');
 
+        $camera = DeviceCamera::findById($request->id);
+
+        if (!$camera || !$camera->checkAllAccessForSubscriber($this->getUser()->getOriginalValue()))
+            return user_response(404, message: 'Камера не найдена');
+
         // проверяем, не был ли уже запрошен данный кусок из архива.
         $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
@@ -44,7 +51,7 @@ readonly class ArchiveController extends RbtController
 
         $result = (int)$archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
-        task(new RecordTask($userId, $result))->low()->dispatch();
+        task(new RecordTask($userId, $result))->queue('record')->dispatch();
 
         return user_response(200, $result);
     }
@@ -55,12 +62,18 @@ readonly class ArchiveController extends RbtController
     #[Get('/download/{uuid}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
-        $stream = $fileFeature->getFileStream($uuid);
-        $info = $fileFeature->getFileInfo($uuid);
+        try {
+            $stream = $fileFeature->getFileStream($uuid);
+            $info = $fileFeature->getFileInfo($uuid);
 
-        return response()
-            ->withHeader('Content-Type', 'video/mp4')
-            ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-            ->withBody(stream($stream));
+            return response()
+                ->withHeader('Content-Type', 'video/mp4')
+                ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
+                ->withBody(stream($stream));
+        } catch (Throwable) {
+            return response()
+                ->withHeader('Content-Type', 'charset=utf-8')
+                ->withBody(stream('Не удалось получить доступ к отрезку архива'));
+        }
     }
 }

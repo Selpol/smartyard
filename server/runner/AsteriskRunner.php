@@ -23,6 +23,11 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('asterisk'));
+    }
+
     /**
      * @throws ValidatorException
      */
@@ -51,8 +56,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $path = $this->getPath();
 
-        $this->logger->debug('Request', ['path' => $path, 'ip' => $ip]);
-
         switch ($path[0]) {
             case 'aors':
             case 'auths':
@@ -78,8 +81,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         echo json_encode($result);
 
-                        $this->logger->debug('Get auto open', ['result' => $result, 'params' => $params]);
-
                         break;
 
                     case 'flat':
@@ -91,8 +92,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         if ($block == null)
                             echo json_encode($flat);
 
-                        $this->logger->debug('Get flat', ['flat' => $flat, 'params' => $params, 'block' => $block?->cause . ' - ' . $block?->comment]);
-
                         break;
 
                     case 'flatIdByPrefix':
@@ -102,8 +101,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         if (count($apartments) > 0)
                             echo json_encode($apartments);
-
-                        $this->logger->debug('Get apartments', ['apartments' => $apartments, 'params' => $params]);
 
                         break;
 
@@ -116,8 +113,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         if (count($filterApartments) > 0)
                             echo json_encode($filterApartments);
 
-                        $this->logger->debug('Get apartment', ['apartments' => count($apartments), 'filterApartment' => count($filterApartments), 'params' => $params]);
-
                         break;
 
                     case 'subscribers':
@@ -128,8 +123,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         if (count($subscribers) > 0)
                             echo json_encode($subscribers);
 
-                        $this->logger->debug('Get flat', ['flat' => $subscribers, 'params' => $params]);
-
                         break;
 
                     case 'domophone':
@@ -138,8 +131,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $domophone = $households->getDomophone(intval($params));
 
                         echo json_encode($domophone);
-
-                        $this->logger->debug('Get domophone', ['domophone' => $domophone, 'params' => $params]);
 
                         break;
 
@@ -160,8 +151,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         } else {
                             echo json_encode(false);
                         }
-
-                        $this->logger->debug('Get entrance', ['entrances' => $entrances, 'params' => $params]);
 
                         break;
 
@@ -187,8 +176,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     ]));
 
                                     echo $params['hash'];
-
-                                    $this->logger->debug('camshot()', ['shot' => "shot_" . $params['hash']]);
                                 }
                             }
                         }
@@ -211,8 +198,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             else
                                 $address = $house->house_full;
                         } catch (Throwable $throwable) {
-                            $this->logger?->error($throwable);
-
                             $address = $house->house_full;
                         }
 
@@ -242,8 +227,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             $params['stun'] = $stun;
                             $params['stunTransport'] = 'udp';
                         }
-
-                        $this->logger->debug('Send push', ['push' => $params]);
 
                         container(ExternalFeature::class)->push($params);
 
@@ -287,7 +270,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $redis = container(RedisService::class);
 
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials', 'sos_number']));
+            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials']));
 
             if ($intercom && $intercom->credentials) {
                 switch ($section) {

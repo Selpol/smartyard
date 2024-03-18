@@ -468,6 +468,25 @@ readonly class InternalFrsFeature extends FrsFeature
         return $result;
     }
 
+    public function getFlatsDetailByFaceId(int $face_id, int $entrance_id): array
+    {
+        $rows = $this->getDatabase()->get("
+                    select flf.flat_id
+                    from houses_entrances_flats hef inner join frs_links_faces flf on hef.house_flat_id = flf.flat_id
+                    where hef.house_entrance_id = :entrance_id and flf.face_id = :face_id
+                ", [":entrance_id" => $entrance_id, ":face_id" => $face_id,], ["flat_id" => "flatId"]);
+
+        if (!$rows)
+            return [];
+
+        $result = [];
+
+        foreach ($rows as $row)
+            $result[] = container(HouseFeature::class)->getFlat($row['flatId']);
+
+        return $result;
+    }
+
     public function isLikedFlag(int $flat_id, int $subscriber_id, ?int $face_id, ?string $event_uuid, bool $is_owner): bool
     {
         $is_liked1 = false;

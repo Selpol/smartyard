@@ -148,13 +148,16 @@ readonly class SyncController extends RbtController
 
         foreach ($body as $item) {
             try {
-                $validate = validator($item, ['id' => rule()->id(), 'intercom' => rule()->bool(), 'cctv' => rule()->bool()]);
+                $validate = validator($item, ['id' => rule()->id(), 'intercom' => rule()->bool(), 'cctv' => rule()->bool(), 'autoBlock' => rule()->bool()]);
 
-                if ($validate['intercom'] !== null) {
+                $intercom = $validate['autoBlock'] !== null ? $validate['autoBlock'] : $validate['intercom'];
+                $cctv = $validate['autoBlock'] !== null ? $validate['autoBlock'] : $validate['cctv'];
+
+                if ($intercom !== null) {
                     $block = $blockFeature->getFirstBlockForFlat($validate['id'], [BlockFeature::SERVICE_INTERCOM]);
 
                     if ($block != null) {
-                        if ($validate['intercom']) {
+                        if ($intercom) {
                             if ($block->status == BlockFeature::STATUS_BILLING)
                                 $block->delete();
                             else {
@@ -181,15 +184,15 @@ readonly class SyncController extends RbtController
                         $block->insert();
                     }
 
-                    task(new IntercomCmsFlatTask($validate['id'], boolval($validate['intercom'])))->low()->dispatch();
-                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $validate['autoBlock'] ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->dispatch();
+                    task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->low()->dispatch();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $intercom ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->dispatch();
                 }
 
-                if ($validate['cctv'] !== null) {
+                if ($cctv !== null) {
                     $block = $blockFeature->getFirstBlockForFlat($validate['id'], [BlockFeature::SERVICE_CCTV]);
 
                     if ($block != null) {
-                        if ($validate['cctv']) {
+                        if ($cctv) {
                             if ($block->status == BlockFeature::STATUS_BILLING)
                                 $block->delete();
                             else {
@@ -216,11 +219,12 @@ readonly class SyncController extends RbtController
                         $block->insert();
                     }
 
-                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $validate['cctv'] ? ('Услуга видеонаблюдения заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга видеонаблюдение разблокирована', 'inbox'))->low()->dispatch();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $cctv ? ('Услуга видеонаблюдения заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга видеонаблюдение разблокирована', 'inbox'))->low()->dispatch();
                 }
 
                 $result[$validate['id']] = true;
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                file_logger('sync')->error($throwable);
             }
         }
 

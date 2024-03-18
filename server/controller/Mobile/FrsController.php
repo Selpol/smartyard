@@ -15,7 +15,9 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/frs', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]])]
@@ -26,28 +28,16 @@ readonly class FrsController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Get('/{flatId}')]
+    #[Get(
+        '/{flatId}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId', 'role' => 0],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]]
+        ]
+    )]
     public function index(int $flatId, FrsFeature $frsFeature): Response
     {
-        $user = $this->getUser()->getOriginalValue();
-
-        $flatIds = array_map(static fn($item) => $item['flatId'], $user['flats']);
-
-        $f = in_array($flatId, $flatIds);
-
-        if (!$f)
-            user_response(404, message: 'Квартира не найдена');
-
-        $flatOwner = false;
-
-        foreach ($user['flats'] as $flat)
-            if ($flat['flatId'] == $flatId) {
-                $flatOwner = ($flat['role'] == 0);
-
-                break;
-            }
-
-        $faces = $frsFeature->listFaces($flatId, $this->getUser()->getIdentifier(), $flatOwner);
+        $faces = $frsFeature->listFaces($flatId, $this->getUser()->getIdentifier(), true);
         $result = [];
 
         foreach ($faces as $face)
@@ -61,7 +51,7 @@ readonly class FrsController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/{eventId}')]
-    public function store(string $eventId, FrsFeature $frsFeature): Response
+    public function store(string $eventId, FrsFeature $frsFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -82,6 +72,9 @@ readonly class FrsController extends RbtController
 
         if (!$f)
             return user_response(404, message: 'Квартира не найдена');
+
+        if (($block = $blockFeature->getFirstBlockForFlat($flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS])) !== null)
+            return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
 
         $households = container(HouseFeature::class);
         $domophone = json_decode($eventData[PlogFeature::COLUMN_DOMOPHONE], false);

@@ -17,9 +17,10 @@ use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
-use Selpol\Service\Auth\Token\RedisAuthToken;
-use Selpol\Service\Auth\User\RedisAuthUser;
+use Selpol\Service\Auth\Token\CoreAuthToken;
+use Selpol\Service\Auth\User\CoreAuthUser;
 use Selpol\Service\AuthService;
+use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -29,6 +30,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     use EmitTrait {
         emit as frontendEmit;
+    }
+
+    public function __construct()
+    {
+        $this->setLogger(file_logger('frontend'));
     }
 
     /**
@@ -116,15 +122,15 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (!@$params['login'] || !@$params['password'])
                 return $this->emit(rbt_response(400, 'Логин или пароль не указан'));
         } else if ($http_authorization) {
-            $userAgent = $request->getHeader('User-Agent');
+            $userAgent = $request->getHeaderLine('User-Agent');
 
-            $auth = container(AuthenticationFeature::class)->auth($http_authorization, count($userAgent) > 0 ? $userAgent[0] : '', $ip);
+            $auth = container(AuthenticationFeature::class)->auth($http_authorization, $userAgent, $ip);
 
             if (!$auth)
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
 
-            container(AuthService::class)->setToken(new RedisAuthToken($auth['token']));
-            container(AuthService::class)->setUser(new RedisAuthUser($auth));
+            container(AuthService::class)->setToken(new CoreAuthToken($auth['token']));
+            container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
         } else return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
 
         if ($http_authorization && $auth) {
@@ -177,7 +183,13 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
             else if ($throwable instanceof ValidatorException)
                 $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);
-            else {
+            else if ($throwable instanceof DatabaseException) {
+                if ($throwable->isUniqueViolation())
+                    $response = json_response(400, body: ['success' => false, 'message' => 'Дубликат объекта']);
+                else if ($throwable->isForeignViolation())
+                    $response = json_response(400, body: ['success' => false, 'Объект имеет дочерние зависимости']);
+                else $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);
+            } else {
                 file_logger('response')->error($throwable);
 
                 $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);

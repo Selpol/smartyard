@@ -4,16 +4,12 @@ namespace Selpol\Feature\User\Internal;
 
 use PDO;
 use Selpol\Feature\User\UserFeature;
-use Selpol\Service\AuthService;
-use Selpol\Service\RedisService;
 use Throwable;
 
 readonly class InternalUserFeature extends UserFeature
 {
     public function getUsers(): bool|array
     {
-        $user = container(AuthService::class)->getUserOrThrow();
-
         try {
             $users = $this->getDatabase()->getConnection()->query("select uid, login, real_name, e_mail, phone, tg, enabled, last_login from core_users order by uid", PDO::FETCH_ASSOC)->fetchAll();
             $_users = [];
@@ -30,14 +26,6 @@ readonly class InternalUserFeature extends UserFeature
                     "lastLogin" => $u["last_login"]
                 ];
             }
-
-            foreach ($_users as &$u)
-                if ($u['uid'] == $user->getIdentifier() || $user->getUsername() === 'admin')
-                    $u['sessions'] = $this->getRedis()->use(1, function (RedisService $service) use ($u) {
-                        $keys = $service->keys('user:' . $u['uid'] . ':token:*');
-
-                        return array_map(static fn(string $key) => json_decode($service->get($key), true), $keys);
-                    });
 
             return $_users;
         } catch (Throwable $e) {

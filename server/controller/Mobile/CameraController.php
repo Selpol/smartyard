@@ -4,20 +4,28 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
-use Selpol\Controller\Request\Mobile\CameraEventsRequest;
-use Selpol\Controller\Request\Mobile\CameraIndexRequest;
-use Selpol\Controller\Request\Mobile\CameraShowRequest;
 use Selpol\Feature\Block\BlockFeature;
+use Psr\Http\Message\ResponseInterface;
+use Selpol\Cache\RedisCache;
+use Selpol\Controller\Request\Mobile\Camera\CameraCommonDvrRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraEventsRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraIndexRequest;
+use Selpol\Controller\Request\Mobile\Camera\CameraShowRequest;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
+use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
+use Throwable;
 
 #[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
 readonly class CameraController extends RbtController
@@ -26,106 +34,147 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all')]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, BlockFeature $blockFeature): Response
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $houses = [];
+        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature, $blockFeature);
 
-        foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] != $request->houseId)
-                continue;
+        return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
+    }
 
-            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null)
-                continue;
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
+    public function common(DvrFeature $dvrFeature): ResponseInterface
+    {
+        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
 
-            $flatDetail = $houseFeature->getFlat($flat['flatId']);
+        return user_response(data: array_map(fn(DeviceCamera $camera) => $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
+            "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "direction" => "direction",
+            "angle" => "angle",
+            "distance" => "distance",
+            "frs" => "frs",
+            "md_left" => "mdLeft",
+            "md_top" => "mdTop",
+            "md_width" => "mdWidth",
+            "md_height" => "mdHeight",
+            "common" => "common",
+            "comment" => "comment"
+        ]), null), $cameras))
+            ->withHeader('Access-Control-Allow-Origin', '*')
+            ->withHeader('Access-Control-Allow-Headers', '*')
+            ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
+    }
 
-            $houseId = $flat['addressHouseId'];
+    #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
+    public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
+    {
+        $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
 
-            if (array_key_exists($houseId, $houses)) {
-                $house = &$houses[$houseId];
-            } else {
-                $houses[$houseId] = [];
-                $house = &$houses[$houseId];
-                $house['houseId'] = strval($houseId);
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
 
-                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
-                $house['doors'] = [];
-            }
+        $dvr = dvr($camera->dvr_server_id);
 
-            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
+        if (!$dvr)
+            return user_response(404, message: 'Устройство не найден');
 
-            foreach ($flatDetail['entrances'] as $entrance) {
-                if (array_key_exists($entrance['entranceId'], $house['doors'])) {
-                    continue;
-                }
+        $identifier = $dvr->identifier($camera, $request->time ?? time(), null);
 
-                $e = $houseFeature->getEntrance($entrance['entranceId']);
-                $door = [];
+        if (!$identifier)
+            return user_response(404, message: 'Идентификатор не найден');
 
-                if ($e['cameraId']) {
-                    $cam = container(CameraFeature::class)->getCamera($e["cameraId"]);
-                    $house['cameras'][] = $cam;
-                }
+        try {
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
 
-                $house['doors'][$entrance['entranceId']] = $door;
-            }
+            return user_response(data: [
+                'identifier' => $identifier,
+
+                'acquire' => $dvr->acquire(null, null),
+                'capabilities' => [
+                    'poster' => true,
+                    'preview' => false,
+
+                    'online' => true,
+                    'archive' => false,
+
+                    'speed' => []
+                ]
+            ]);
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
         }
 
-        $result = [];
-
-        foreach ($houses as $house_key => $h) {
-            $houses[$house_key]['doors'] = array_values($h['doors']);
-
-            unset($houses[$house_key]['cameras']);
-
-            foreach ($h['cameras'] as $camera) {
-                if ($camera['cameraId'] === null)
-                    continue;
-
-                $result[] = $this->convertCamera($camera, $user);
-            }
-        }
-
-        return user_response(200, $result);
+        return user_response(500, message: 'Ошибка состояния камеры');
     }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Get('/{cameraId}')]
-    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature): Response
+    #[Get(
+        '/{cameraId}',
+        includes: [
+            FlatMiddleware::class => ['house' => 'houseId'],
+            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_CCTV]]
+        ]
+    )]
+    public function show(CameraShowRequest $request, int $cameraId, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $find = false;
+        $camera = DeviceCamera::findById($cameraId);
 
-        foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] == $request->houseId) {
-                $find = true;
-
-                break;
-            }
-        }
-
-        if (!$find)
+        if (!$camera || !$camera->checkAccessForSubscriber($user, $request->houseId, null, null))
             return user_response(404, message: 'Камера не найдена');
 
-        $camera = $cameraFeature->getCamera($cameraId);
-
-        if (!$camera)
-            return user_response(404, message: 'Камера не найдена');
-
-        return user_response(data: $this->convertCamera($camera, $user));
+        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
+            "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "direction" => "direction",
+            "angle" => "angle",
+            "distance" => "distance",
+            "frs" => "frs",
+            "md_left" => "mdLeft",
+            "md_top" => "mdTop",
+            "md_width" => "mdWidth",
+            "md_height" => "mdHeight",
+            "common" => "common",
+            "comment" => "comment"
+        ]), $user));
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
     #[Post('/events')]
-    public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
+    public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -156,23 +205,93 @@ readonly class CameraController extends RbtController
         return user_response(404, message: 'События не найдены');
     }
 
-    /**
-     * @throws NotFoundExceptionInterface
-     */
-    private function convertCamera(array $camera, array $user): array
+    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): array
     {
-        $dvr = container(DvrFeature::class)->getDVRServerByCamera($camera);
+        $houses = [];
 
-        return [
-            "id" => $camera['cameraId'],
-            "name" => $camera['name'],
-            "lat" => strval($camera['lat']),
-            "lon" => strval($camera['lon']),
-            'timezone' => $camera['timezone'],
-            "url" => container(DvrFeature::class)->getUrlForCamera($dvr, $camera),
-            "token" => container(DvrFeature::class)->getTokenForCamera($dvr, $camera, $user['subscriberId']),
-            "serverType" => $dvr?->type ?? 'flussonic',
-            'domophoneId' => container(HouseFeature::class)->getDomophoneIdByEntranceCameraId($camera['cameraId'])
-        ];
+        foreach ($user['flats'] as $flat) {
+            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId)
+                continue;
+
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null)
+                continue;
+
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
+
+            $houseId = $flat['addressHouseId'];
+
+            if (array_key_exists($houseId, $houses)) {
+                $house = &$houses[$houseId];
+            } else {
+                $houses[$houseId] = [];
+                $house = &$houses[$houseId];
+                $house['houseId'] = strval($houseId);
+
+                $house['cameras'] = array_map(static function (array $camera) use ($houseId) {
+                    $camera['houseId'] = $houseId;
+
+                    return $camera;
+                }, $houseFeature->getCameras("houseId", $houseId));
+                $house['doors'] = [];
+            }
+
+            $flatCameras = $houseFeature->getCameras("flatId", $flat['flatId']);
+
+            $house['cameras'] = array_merge($house['cameras'], array_map(static function (array $camera) use ($flat) {
+                $camera['flatId'] = $flat['flatId'];
+
+                return $camera;
+            }, $flatCameras));
+
+            foreach ($flatDetail['entrances'] as $entrance) {
+                if (array_key_exists($entrance['entranceId'], $house['doors']))
+                    continue;
+
+                $e = $houseFeature->getEntrance($entrance['entranceId']);
+                $door = [];
+
+                if ($e['cameraId']) {
+                    $cam = $cameraFeature->getCamera($e["cameraId"]);
+
+                    $cam['entranceId'] = $entrance['entranceId'];
+                    $cam['houseId'] = $houseId;
+                    $cam['flatId'] = $flat['flatId'];
+
+                    $house['cameras'][] = $cam;
+                }
+
+                $house['doors'][$entrance['entranceId']] = $door;
+            }
+        }
+
+        return $houses;
+    }
+
+    private function convertCameras(array $houses, DvrFeature $dvrFeature, array $user): array
+    {
+        $ids = [];
+        $result = [];
+
+        foreach ($houses as $house_key => $h) {
+            $houses[$house_key]['doors'] = array_values($h['doors']);
+
+            unset($houses[$house_key]['cameras']);
+
+            foreach ($h['cameras'] as $camera) {
+                if ($camera['cameraId'] === null)
+                    continue;
+
+                if (array_key_exists($camera['cameraId'], $ids))
+                    continue;
+
+                $ids[$camera['cameraId']] = true;
+
+                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
+            }
+        }
+
+        usort($result, static fn(array $a, array $b) => strcmp($a['name'], $b['name']));
+
+        return $result;
     }
 }

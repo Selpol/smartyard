@@ -13,7 +13,9 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
@@ -24,7 +26,13 @@ readonly class IntercomController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    #[Post('/intercom')]
+    #[Post(
+        '/intercom',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId', 'role' => 0],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
     public function intercom(ServerRequestInterface $request, HouseFeature $houseFeature, CameraFeature $cameraFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
@@ -32,24 +40,6 @@ readonly class IntercomController extends RbtController
         $body = $request->getParsedBody();
 
         $validate = validator($body, ['flatId' => rule()->id()]);
-
-        $flat_id = $validate['flatId'];
-
-        $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
-
-        $f = in_array($flat_id, $flat_ids);
-
-        if (!$f)
-            return user_response(403, message: 'Квартира не находится в списках абонента');
-
-        $flat_owner = false;
-
-        foreach ($user['flats'] as $flat)
-            if ($flat['flatId'] == $flat_id) {
-                $flat_owner = ($flat['role'] == 0);
-
-                break;
-            }
 
         if (@$body['settings']) {
             $params = [];
@@ -72,16 +62,16 @@ readonly class IntercomController extends RbtController
                 $params['whiteRabbit'] = $wr;
             }
 
-            $flat_plog = $houseFeature->getFlat($flat_id)['plog'];
+            $flat_plog = $houseFeature->getFlat($validate['flatId'])['plog'];
 
             $disable_plog = null;
 
-            if (@$settings['disablePlog'] && $flat_owner && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['disablePlog'] && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                 $disable_plog = ($settings['disablePlog'] == true);
 
             $hidden_plog = null;
 
-            if (@$settings['hiddenPlog'] && $flat_owner && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['hiddenPlog'] && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
                 $hidden_plog = ($settings['hiddenPlog'] == true);
 
             if ($disable_plog === true) $params['plog'] = PlogFeature::ACCESS_DENIED;
@@ -94,7 +84,7 @@ readonly class IntercomController extends RbtController
             if ($this->getUser()->getIdentifier() == 130)
                 file_logger('intercom')->debug('', ['param' => $params, 'settings' => $settings]);
 
-            $houseFeature->modifyFlat($flat_id, $params);
+            $houseFeature->modifyFlat($validate['flatId'], $params);
 
             if (@$settings['VoIP']) {
                 $params = [];
@@ -102,11 +92,11 @@ readonly class IntercomController extends RbtController
                 $houseFeature->modifySubscriber($user['subscriberId'], $params);
             }
 
-            task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
+            task(new IntercomSyncFlatTask(-1, $validate['flatId'], false))->high()->dispatch();
         }
 
         $subscriber = $houseFeature->getSubscribers('id', $user['subscriberId'])[0];
-        $flat = $houseFeature->getFlat($flat_id);
+        $flat = $houseFeature->getFlat($validate['flatId']);
 
         $result = [];
 
@@ -117,7 +107,7 @@ readonly class IntercomController extends RbtController
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
 
-        if ($flat_owner && $flat['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN) {
+        if ($flat['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN) {
             $result['disablePlog'] = $flat['plog'] == PlogFeature::ACCESS_DENIED;
             $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
         }
@@ -212,29 +202,25 @@ readonly class IntercomController extends RbtController
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/resetCode')]
+    #[Post(
+        '/resetCode',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId'],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
     public function resetCode(ServerRequestInterface $request, HouseFeature $houseFeature): Response
     {
-        $user = $this->getUser()->getOriginalValue();
-
         $validate = validator($request->getParsedBody(), ['flatId' => rule()->id()]);
-
-        $flat_id = $validate['flatId'];
-
-        $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
-        $f = in_array($flat_id, $flat_ids);
-
-        if (!$f)
-            return user_response(403, message: 'Квартира у абонента не найдена');
 
         $params = [];
         $params['openCode'] = '!';
 
-        $houseFeature->modifyFlat($flat_id, $params);
+        $houseFeature->modifyFlat($validate['flatId'], $params);
 
-        $flat = $houseFeature->getFlat($flat_id);
+        $flat = $houseFeature->getFlat($validate['flatId']);
 
-        task(new IntercomSyncFlatTask($validate['flatId'], false))->high()->dispatch();
+        task(new IntercomSyncFlatTask(-1, $validate['flatId'], false))->high()->dispatch();
 
         return user_response(200, ["code" => intval($flat['openCode'])]);
     }

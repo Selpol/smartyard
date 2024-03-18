@@ -3,6 +3,7 @@
 namespace Selpol\Feature\House\Internal;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -181,6 +182,16 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         return false;
+    }
+
+    public function getFlatBlock(int $flatId): bool
+    {
+        $flat = HouseFlat::findById($flatId, setting: setting()->columns(['manual_block', 'auto_block', 'admin_block']));
+
+        if ($flat)
+            return $flat->manual_block || $flat->auto_block || $flat->admin_block;
+
+        return true;
     }
 
     function createEntrance(int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool|int
@@ -565,6 +576,16 @@ readonly class InternalHouseFeature extends HouseFeature
         return null;
     }
 
+    public function getIntercomOpenDataByEntranceCameraId(int $camera_id): ?array
+    {
+        $entrance = $this->getDatabase()->get("select entrance_type, house_domophone_id, domophone_output from houses_entrances where camera_id = $camera_id limit 1");
+
+        if ($entrance && count($entrance) > 0)
+            return ['domophoneId' => $entrance[0]['house_domophone_id'], 'doorId' => $entrance[0]['domophone_output']];
+
+        return null;
+    }
+
     public function deleteDomophone(int $domophoneId): bool
     {
         return
@@ -841,16 +862,26 @@ readonly class InternalHouseFeature extends HouseFeature
         return true;
     }
 
-    public function addSubscriberToFlat(int $flatId, int $subscriberId): bool
+    public function getSubscribersInFlat(int $flatId): array
+    {
+        return $this->getDatabase()->get('SELECT house_subscriber_id, role FROM houses_flats_subscribers WHERE house_flat_id = :flat_id', ['flat_id' => $flatId]);
+    }
+
+    public function addSubscriberToFlat(int $flatId, int $subscriberId, int $role): bool
     {
         return $this->getDatabase()->insert(
             "insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, :role)",
             [
                 "house_subscriber_id" => $subscriberId,
                 "house_flat_id" => $flatId,
-                "role" => 1,
+                "role" => $role,
             ]
         );
+    }
+
+    public function updateSubscriberRoleInFlat(int $flatId, int $subscriberId, int $role): bool
+    {
+        return $this->getDatabase()->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['role' => $role, 'subscriber_id' => $subscriberId, 'flat_id' => $flatId]);
     }
 
     public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int

@@ -7,7 +7,7 @@ use Selpol\Service\Auth\AuthTokenInterface;
 /**
  * @implements AuthTokenInterface<string>
  */
-readonly class RedisAuthToken implements AuthTokenInterface
+readonly class CoreAuthToken implements AuthTokenInterface
 {
     private string $value;
 

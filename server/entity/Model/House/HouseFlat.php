@@ -12,7 +12,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int|null $floor
  *
- * @property int $flat
+ * @property string|int $flat
  *
  * @property string|null $code
  *

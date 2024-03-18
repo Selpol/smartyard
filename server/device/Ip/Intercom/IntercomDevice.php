@@ -69,6 +69,11 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
+    public function removeRfidDeffer(string $code, int $apartment): void
+    {
+        $this->removeRfid($code, $apartment);
+    }
+
     public function addApartment(int $apartment, bool $handset, array $sipNumbers, array $levels, int $code): void
     {
         $this->setApartment($apartment, $handset, $sipNumbers, $levels, $code);
@@ -183,7 +188,17 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setDDns(bool $value, array $options = []): static
+    {
+        return $this;
+    }
+
     public function setEcho(bool $value): static
+    {
+        return $this;
+    }
+
+    public function setUPnP(bool $value): static
     {
         return $this;
     }
@@ -199,6 +214,11 @@ abstract class IntercomDevice extends IpDevice
     }
 
     public function setVideoOverlay(string $title): static
+    {
+        return $this;
+    }
+
+    public function setAutoCollectRfid(bool $value): static
     {
         return $this;
     }
@@ -267,7 +287,11 @@ abstract class IntercomDevice extends IpDevice
 
         $this->setDtmf($main_door_dtmf, '2', '3', '1');
 
+        $this->setDDns(false);
+
+        $this->setUPnP(false);
         $this->setEcho(false);
+        $this->setAutoCollectRfid(false);
 
         $this->clearRfid();
         $this->clearApartment();

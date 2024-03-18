@@ -38,10 +38,27 @@ readonly class FrsController extends RbtController
         if (!$entrance)
             return response(204);
 
-        $flats = $frsFeature->getFlatsByFaceId($request->faceId, $entrance["entranceId"]);
-        $flats = array_filter($flats, static fn(int $id) => $blockFeature->getFirstBlockForFlat($id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) == null);
+        $flats = $frsFeature->getFlatsDetailByFaceId($request->faceId, $entrance["entranceId"]);
 
         if (count($flats) == 0)
+            return response(204);
+
+        $find = false;
+
+        foreach ($flats as $flat) {
+            foreach ($flat['entrances'] as $flatEntrance) {
+                if ($flatEntrance['entranceId'] === $entrance['entranceId']) {
+                    $find = true;
+
+                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) == null)
+                        return response(204);
+
+                    break;
+                }
+            }
+        }
+
+        if (!$find)
             return response(204);
 
         $domophone_id = $entrance["domophoneId"];

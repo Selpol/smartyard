@@ -5,9 +5,17 @@ namespace Selpol\Controller\Api\addresses;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Framework\Http\Response;
 
 readonly class area extends Api
 {
+    public static function GET(array $params): array|Response|ResponseInterface
+    {
+        $area = container(AddressFeature::class)->getArea(rule()->onItem('_id', $params));
+
+        return $area ? self::success($area) : self::error('Не удалось найти область', 404);
+    }
+
     public static function POST(array $params): ResponseInterface
     {
         $areaId = container(AddressFeature::class)->addArea($params["regionId"], $params["areaUuid"], $params["areaWithType"], $params["areaType"], $params["areaTypeFull"], $params["area"], $params["timezone"]);
@@ -31,6 +39,6 @@ readonly class area extends Api
 
     public static function index(): bool|array
     {
-        return ['PUT' => '[Адрес] Обновить область', 'POST' => '[Адрес] Создать область', 'DELETE' => '[Адрес] Удалить область'];
+        return ['GET' => '[Адрес] Получить область', 'PUT' => '[Адрес] Обновить область', 'POST' => '[Адрес] Создать область', 'DELETE' => '[Адрес] Удалить область'];
     }
 }

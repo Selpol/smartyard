@@ -87,7 +87,7 @@ readonly abstract class PlogFeature extends Feature
      * @param false|int $event_id идентификатор события FRS
      * @return array
      */
-    abstract public function getCamshot(int $domophone_id, string|bool|null $date, int|bool|null $event_id = false): array;
+    abstract public function getCamshot(int $domophone_id, int $door_id, string|bool|null $date, int|bool|null $event_id = false): array;
 
     /**
      * Добавить данные открытия двери для последующего формирования события

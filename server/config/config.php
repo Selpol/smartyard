@@ -54,6 +54,10 @@ return [
         'max_allowed_tokens' => 15
     ],
 
+    'mongo' => [
+        'uri' => env('MONGO_URI')
+    ],
+
     'amqp' => [
         'host' => env('AMQP_HOST', '127.0.0.1'),
         'port' => intval(env('AMQP_PORT', '5672')),
@@ -87,8 +91,7 @@ return [
         ],
 
         'file' => [
-            'db' => env('FEATURE_FILES_DB', 'rbt'),
-            'uri' => env('FEATURE_FILES_URI')
+            'database' => env('FEATURE_FILES_DB', 'rbt')
         ],
 
         'archive' => [
@@ -96,7 +99,9 @@ return [
         ],
 
         'geo' => [
-            'token' => env('FEATURE_GEOCODER_DADATA')
+            'token' => env('FEATURE_GEOCODER_DADATA'),
+
+            'locations' => json_decode(env('FEATURE_GEOCODER_LOCATIONS', 'null'), true)
         ],
 
         'push' => [
@@ -113,6 +118,10 @@ return [
             'audience' => env('FEATURE_OAUTH_AUDIENCE'),
             'web_api' => env('FEATURE_OAUTH_WEB_API'),
             'secret' => env('FEATURE_OAUTH_SECRET')
+        ],
+
+        'group' => [
+            'database' => env('FEATURE_GROUP_DB', 'rbt')
         ]
     ],
 

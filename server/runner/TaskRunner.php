@@ -17,6 +17,11 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('task'));
+    }
+
     /**
      * @throws Exception
      */

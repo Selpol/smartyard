@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Mobile;
+namespace Selpol\Controller\Request\Mobile\Camera;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 

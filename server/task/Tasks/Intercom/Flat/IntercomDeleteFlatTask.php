@@ -12,9 +12,9 @@ class IntercomDeleteFlatTask extends Task
 {
     public array $entrances;
 
-    public function __construct(int $flatId, array $entrances)
+    public function __construct(int $subscriberId, array $entrances)
     {
-        parent::__construct('Удаления квартиры (' . $flatId . ')');
+        parent::__construct('Удаления квартиры (' . $subscriberId . ')');
 
         $this->entrances = $entrances;
     }

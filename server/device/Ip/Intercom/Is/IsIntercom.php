@@ -65,8 +65,15 @@ class IsIntercom extends IntercomDevice
         if ($this->cmses === null)
             $this->cmses = [];
 
-        if (!array_key_exists($index, $this->cmses))
-            $this->cmses[$index] = $this->get('/switch/matrix/' . $index);
+        if (!array_key_exists($index, $this->cmses)) {
+            $matrix = $this->get('/switch/matrix/' . $index);
+
+            for ($j = 0; $j < count($matrix['matrix']); $j++)
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
+                    $matrix['matrix'][$j][$k] = 0;
+
+            $this->cmses[$index] = $matrix;
+        }
 
         $this->cmses[$index]['matrix'][$dozen][$unit] = $apartment;
     }
@@ -109,7 +116,7 @@ class IsIntercom extends IntercomDevice
         ];
 
         $this->post('/panelCode', $payload);
-        $this->setApartmentLevels($apartment, count($levels) > 0 ? $levels[0] : 255, count($levels) > 1 ? $levels[1] : 255);
+        $this->setApartmentLevels($apartment, count($levels) > 0 ? ($levels[0] > 0 ? $levels[0] : 255) : 255, count($levels) > 1 ? ($levels[1] > 0 ? $levels[0] : 255) : 255);
 
         $this->removeCode($apartment);
 
@@ -162,7 +169,7 @@ class IsIntercom extends IntercomDevice
 
     public function setApartmentLevels(int $apartment, int $answer, int $quiescent): static
     {
-        $this->put('/panelCode/' . $apartment, ['resistances' => ['answer' => $answer, 'quiescent' => $quiescent]]);
+        $this->put('/panelCode/' . $apartment, ['resistances' => ['answer' => $answer ?: 255, 'quiescent' => $quiescent ?: 255]]);
 
         return $this;
     }
@@ -296,25 +303,25 @@ class IsIntercom extends IntercomDevice
 
     public function setCmsLevels(array $levels): static
     {
-        if (count($levels) === 4)
-            $this->put('/levels', [
-                'resistances' => [
-                    'error' => $levels[0],
-                    'break' => $levels[1],
-                    'quiescent' => $levels[2],
-                    'answer' => $levels[3],
-                ],
-            ]);
+        $this->put('/levels', [
+            'resistances' => [
+                'error' => $levels[0],
+                'break' => $levels[1],
+                'quiescent' => array_key_exists(2, $levels) ? $levels[2] : 255,
+                'answer' => array_key_exists(3, $levels) ? $levels[3] : 255,
+            ],
+        ]);
 
         return $this;
     }
 
     public function setCmsModel(string $value): static
     {
-        if (array_key_exists(strtoupper($value), $this->model->cmsesMap))
-            $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($value)]]);
+        if (array_key_exists(strtoupper($value), $this->model->cmsesMap)) {
+            $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($value)], 'usingCom3' => true]);
 
-        $this->clearCms($value);
+            $this->clearCms($value);
+        }
 
         return $this;
     }
@@ -346,7 +353,7 @@ class IsIntercom extends IntercomDevice
 
     public function setDtmf(string $code1, string $code2, string $code3, string $codeOut): static
     {
-        $this->put('/sip/options', ['dtmf' => ['1' => $code1, '2' => $code2, '3' => $code3]]);
+        $this->put('/sip/options', ['dtmf' => ['1' => $code1, '2' => $code2]]);
 
         return $this;
     }

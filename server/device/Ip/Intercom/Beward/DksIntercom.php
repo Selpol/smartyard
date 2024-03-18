@@ -184,17 +184,17 @@ class DksIntercom extends IntercomDevice
     public function setVideoEncodingDefault(): static
     {
         $this->get('/webs/videoEncodingCfgEx', [
-            'vlevel' => '0',
+            'vlevel' => '2',
             'encoder' => '0',
-            'sys_cif' => '1',
+            'sys_cif' => '0',
             'advanced' => '1',
             'ratectrl' => '0',
             'quality' => '1',
             'iq' => '1',
             'rc' => '1',
-            'bitrate' => '1024',
-            'frmrate' => '15',
-            'frmintr' => '15',
+            'bitrate' => '2048',
+            'frmrate' => '25',
+            'frmintr' => '25',
             'first' => '0',
             'framingpos' => '0',
             'vlevel2' => '0',
@@ -207,7 +207,7 @@ class DksIntercom extends IntercomDevice
             'rc2' => '1',
             'bitrate2' => '348',
             'frmrate2' => '25',
-            'frmintr2' => '50',
+            'frmintr2' => '25',
             'first2' => '0',
             'maxfrmintr' => '200',
             'maxfrmrate' => '25',
@@ -422,6 +422,13 @@ class DksIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setAutoCollectRfid(bool $value): static
+    {
+        $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
+
+        return $this;
+    }
+
     public function unlock(bool $value): void
     {
         $this->get('/webs/btnSettingEx', ['flag' => 4601, 'paramchannel' => 0, 'paramcmd' => 0, 'paramctrl' => (int)$value, 'paramstep' => 0, 'paramreserved' => 0]);
@@ -448,21 +455,6 @@ class DksIntercom extends IntercomDevice
 
                 break;
         }
-    }
-
-    public function call(int $apartment): void
-    {
-        $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
-    }
-
-    public function reboot(): void
-    {
-        $this->get('/webs/btnHitEx', ['flag' => 21]);
-    }
-
-    public function reset(): void
-    {
-        $this->get('/cgi-bin/factorydefault_cgi');
     }
 
     public function clearApartment(): void

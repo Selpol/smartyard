@@ -3,8 +3,9 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Feature\Block\BlockFeature;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -12,12 +13,16 @@ use Throwable;
 
 class IntercomSyncFlatTask extends Task
 {
+    public int $userId;
+
     public int $flatId;
     public bool $add;
 
-    public function __construct(int $flatId, bool $add)
+    public function __construct(int $userId, int $flatId, bool $add)
     {
         parent::__construct('Синхронизация квартиры (' . $flatId . ')');
+
+        $this->userId = $userId;
 
         $this->flatId = $flatId;
         $this->add = $add;
@@ -54,19 +59,20 @@ class IntercomSyncFlatTask extends Task
             if (!$device->ping())
                 return;
 
+            if ($this->userId >= 0)
+                container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ')');
+
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
 
             $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
-                if (isset($flat_entrance['apartmentLevels'])) {
+                if (isset($flat_entrance['apartmentLevels']))
                     $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
-                }
 
-                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
+                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
                     $apartment = $flat_entrance['apartment'];
-                }
             }
 
             $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);

@@ -8,6 +8,7 @@ use Selpol\Controller\RbtController;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 
 #[Controller('/mobile/block')]
 readonly class BlockController extends RbtController
@@ -23,7 +24,7 @@ readonly class BlockController extends RbtController
         return user_response(data: $blockFeature->getBlocksForSubscriber($this->getUser()->getIdentifier(), null));
     }
 
-    #[Get('/{id}')]
+    #[Get('/{id}', includes: [FlatMiddleware::class => ['flat' => 'id']])]
     public function show(int $id, ServerRequestInterface $request, BlockFeature $blockFeature): ResponseInterface
     {
         $query = $request->getQueryParams();

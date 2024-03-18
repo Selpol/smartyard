@@ -15,6 +15,7 @@ use Selpol\Framework\Router\Trait\HandlerTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -32,6 +33,11 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
     /** @var string[] $middlewares */
     private array $middlewares = [];
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('router'));
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
@@ -39,6 +45,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      */
     function run(array $arguments): int
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+            return $this->emit(response(204));
+
         $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
         $request->withParsedBody(parse_body($request));
@@ -64,6 +73,12 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
                 $response = rbt_response(400, $throwable->getValidatorMessage()->message);
 
                 file_logger('response_400')->error($throwable);
+            } else if ($throwable instanceof DatabaseException) {
+                if ($throwable->isUniqueViolation())
+                    $response = rbt_response(400, 'Дубликат объекта');
+                else if ($throwable->isForeignViolation())
+                    $response = rbt_response(400, 'Объект имеет дочерние зависимости');
+                else $response = rbt_response(500);
             } else {
                 file_logger('response')->error($throwable);
 
@@ -80,7 +95,13 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
 
     protected function emit(ResponseInterface $response): int
     {
-        $this->frontendEmit($response);
+        $this->frontendEmit(
+            $response
+                ->withHeader('Access-Control-Allow-Origin', '*')
+                ->withHeader('Access-Control-Allow-Headers', '*')
+                ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'])
+                ->withHeader('X-Content-Type-Options', 'nosniff')
+        );
 
         return 0;
     }
