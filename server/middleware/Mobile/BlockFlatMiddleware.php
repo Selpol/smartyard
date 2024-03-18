@@ -29,7 +29,7 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
         if ($this->house) {
             if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
             else $this->flat = null;
-        } else if (count($config) === 1) $this->flat = $config[0];
+        } else if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
         else $this->flat = 'flat_id';
 
         $this->services = $config['services'];

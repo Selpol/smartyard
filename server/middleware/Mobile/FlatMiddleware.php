@@ -26,7 +26,7 @@ readonly class FlatMiddleware extends RouteMiddleware
         if ($this->house) {
             if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
             else $this->flat = null;
-        } else if (count($config) === 1) $this->flat = $config[0];
+        } else if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
         else $this->flat = 'flat_id';
     }
 
@@ -45,6 +45,8 @@ readonly class FlatMiddleware extends RouteMiddleware
         }, []);
 
         $value = $route->toArray();
+
+        file_logger('middleware')->debug('value', $value);
 
         if ($this->flat && array_key_exists($this->flat, $value) && !is_null($value[$this->flat])) {
             $flatId = rule()->id()->onItem($this->flat, $value);
