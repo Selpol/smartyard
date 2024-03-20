@@ -18,7 +18,7 @@ readonly class subscriber extends Api
     public static function POST(array $params): array|Response|ResponseInterface
     {
         $subscriberBlock = new SubscriberBlock(validator($params, [
-            'flat_id' => rule()->id(),
+            'subscriber_id' => rule()->id(),
 
             'service' => rule()->required()->in(block::SERVICES_SUBSCRIBER)->nonNullable(),
             'status' => rule()->required()->in(block::STATUS)->nonNullable(),
