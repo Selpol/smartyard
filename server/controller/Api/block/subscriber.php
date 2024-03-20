@@ -12,7 +12,7 @@ readonly class subscriber extends Api
 {
     public static function GET(array $params): array|Response|ResponseInterface
     {
-        return self::success(SubscriberBlock::getRepository()->findBySubscriberId($params['_id']));
+        return self::success(SubscriberBlock::getRepository()->findBySubscriberId(rule()->id()->onItem('_id', $params)));
     }
 
     public static function POST(array $params): array|Response|ResponseInterface

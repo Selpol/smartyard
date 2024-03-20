@@ -14,7 +14,7 @@ readonly class flat extends Api
 {
     public static function GET(array $params): array|Response|ResponseInterface
     {
-        return self::success(FlatBlock::getRepository()->findByFlatId($params['_id']));
+        return self::success(FlatBlock::getRepository()->findByFlatId(rule()->id()->onItem('_id', $params)));
     }
 
     public static function POST(array $params): array|Response|ResponseInterface
