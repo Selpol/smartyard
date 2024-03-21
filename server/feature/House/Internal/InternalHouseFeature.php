@@ -3,6 +3,7 @@
 namespace Selpol\Feature\House\Internal;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
@@ -23,7 +24,7 @@ readonly class InternalHouseFeature extends HouseFeature
         return null;
     }
 
-    function getFlats(string $by, mixed $params): bool|array
+    function getFlats(string $by, mixed $params, bool $withBlock = false): bool|array
     {
         $q = "";
         $p = [];
@@ -104,7 +105,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $_flats = [];
 
             foreach ($flats as $flat)
-                $_flats[] = $this->getFlat($flat["house_flat_id"]);
+                $_flats[] = $this->getFlat($flat["house_flat_id"], $withBlock);
 
             return $_flats;
         } else {
@@ -112,7 +113,7 @@ readonly class InternalHouseFeature extends HouseFeature
         }
     }
 
-    function getFlat(int $flatId): bool|array
+    function getFlat(int $flatId, bool $withBlock = false): bool|array
     {
         $flat = $this->getDatabase()->get(
             "select
@@ -177,6 +178,9 @@ readonly class InternalHouseFeature extends HouseFeature
 
             foreach ($entrances as $e)
                 $flat["entrances"][] = $e;
+
+            if ($withBlock)
+                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['service', 'status']));
 
             return $flat;
         }

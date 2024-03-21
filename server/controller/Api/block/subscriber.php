@@ -42,7 +42,6 @@ readonly class subscriber extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'service' => rule()->required()->in(block::SERVICES_SUBSCRIBER)->nonNullable(),
             'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),

@@ -47,7 +47,6 @@ readonly class flat extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'service' => rule()->required()->in(block::SERVICES_FLAT)->nonNullable(),
             'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),

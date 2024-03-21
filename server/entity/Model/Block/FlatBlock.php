@@ -29,6 +29,9 @@ class FlatBlock extends Entity
 
     public static string $table = 'flat_block';
 
+    public static ?string $columnCreateAt = 'created_at';
+    public static ?string $columnUpdateAt = 'updated_at';
+
     public static function getColumns(): array
     {
         return [
