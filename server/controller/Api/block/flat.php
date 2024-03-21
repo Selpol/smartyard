@@ -55,7 +55,6 @@ readonly class flat extends Api
 
         $flatBlock = FlatBlock::findById($validate['_id'], setting: setting()->nonNullable());
 
-        $flatBlock->service = $validate['service'];
         $flatBlock->status = $validate['status'];
 
         $flatBlock->cause = $validate['cause'];

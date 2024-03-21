@@ -50,7 +50,6 @@ readonly class subscriber extends Api
 
         $subscriberBlock = SubscriberBlock::findById($validate['_id'], setting: setting()->nonNullable());
 
-        $subscriberBlock->service = $validate['service'];
         $subscriberBlock->status = $validate['status'];
 
         $subscriberBlock->cause = $validate['cause'];
