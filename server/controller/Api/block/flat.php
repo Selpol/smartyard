@@ -23,11 +23,12 @@ readonly class flat extends Api
             'flat_id' => rule()->id(),
 
             'service' => rule()->required()->in(block::SERVICES_FLAT)->nonNullable(),
-            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),
             'comment' => rule()->string(),
         ]));
+
+        $flatBlock->status = BlockFeature::STATUS_ADMIN;
 
         if ($flatBlock->insert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
@@ -47,15 +48,11 @@ readonly class flat extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
-
             'cause' => rule()->string(),
             'comment' => rule()->string(),
         ]);
 
         $flatBlock = FlatBlock::findById($validate['_id'], setting: setting()->nonNullable());
-
-        $flatBlock->status = $validate['status'];
 
         $flatBlock->cause = $validate['cause'];
         $flatBlock->comment = $validate['comment'];

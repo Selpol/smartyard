@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\block;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\SubscriberBlock;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
 
@@ -21,11 +22,12 @@ readonly class subscriber extends Api
             'subscriber_id' => rule()->id(),
 
             'service' => rule()->required()->in(block::SERVICES_SUBSCRIBER)->nonNullable(),
-            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
 
             'cause' => rule()->string(),
             'comment' => rule()->string(),
         ]));
+
+        $subscriberBlock->status = BlockFeature::STATUS_ADMIN;
 
         if ($subscriberBlock->insert()) {
             if (array_key_exists('notify', $params) && $params['notify'])
@@ -42,15 +44,11 @@ readonly class subscriber extends Api
         $validate = validator($params, [
             '_id' => rule()->id(),
 
-            'status' => rule()->required()->in(block::STATUS)->nonNullable(),
-
             'cause' => rule()->string(),
             'comment' => rule()->string(),
         ]);
 
         $subscriberBlock = SubscriberBlock::findById($validate['_id'], setting: setting()->nonNullable());
-
-        $subscriberBlock->status = $validate['status'];
 
         $subscriberBlock->cause = $validate['cause'];
         $subscriberBlock->comment = $validate['comment'];

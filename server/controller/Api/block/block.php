@@ -31,8 +31,6 @@ readonly class block extends Api
         BlockFeature::SUB_SERVICE_INBOX
     ];
 
-    public const STATUS = [BlockFeature::STATUS_ADMIN, BlockFeature::STATUS_BILLING, BlockFeature::STATUS_ADMIN | BlockFeature::STATUS_BILLING];
-
     public static function GET(array $params): ResponseInterface
     {
         return self::success([
@@ -54,7 +52,8 @@ readonly class block extends Api
 
             'status' => [
                 BlockFeature::STATUS_ADMIN => 'Администратор',
-                BlockFeature::STATUS_BILLING => 'Биллинг'
+                BlockFeature::STATUS_BILLING => 'Биллинг',
+                BlockFeature::STATUS_ADMIN | BlockFeature::STATUS_BILLING => 'Администратор | Биллинг'
             ]
         ]);
     }
