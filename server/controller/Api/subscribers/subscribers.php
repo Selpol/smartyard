@@ -22,6 +22,18 @@ readonly class subscribers extends Api
             $criteria = criteria()->like('subscriber_name', $validate['name'])->orLike('subscriber_patronymic', $validate['name'])->asc('house_subscriber_id');
 
             return self::success(HouseSubscriber::fetchPage($validate['page'], $validate['size'], $criteria, setting()->columns(['house_subscriber_id', 'subscriber_name', 'subscriber_patronymic'])));
+        } else if ($params['by'] = 'ids') {
+            $validate = validator($params, [
+                'ids' => rule()->required()->array()->nonNullable(),
+                'ids.*' => rule()->id(),
+
+                'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
+                'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
+            ]);
+
+            $criteria = criteria()->in('house_subscriber_id', $validate['ids'])->asc('house_subscriber_id');
+
+            return self::success(HouseSubscriber::fetchPage($validate['page'], $validate['size'], $criteria, setting()->columns(['house_subscriber_id', 'subscriber_name', 'subscriber_patronymic'])));
         }
 
         $households = container(HouseFeature::class);
