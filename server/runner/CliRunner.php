@@ -562,6 +562,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         $requirePermissions = [
+            'addresses-location-get' => '[Адрес] Локации',
+
             'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
             'camera-hidden' => '[Камера] Доступ к скрытым устройствам'
         ];
