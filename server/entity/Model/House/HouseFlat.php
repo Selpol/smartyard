@@ -18,11 +18,6 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int|null $plog
  *
- * @property int|null $manual_block
- * @property int|null $auto_block
- * @property int|null $admin_block
- * @property string|null $description_block
- *
  * @property string|null $open_code
  *
  * @property int|null $auto_open
@@ -60,11 +55,6 @@ class HouseFlat extends Entity
             'code' => rule()->string()->clamp(5, 5),
 
             'plog' => rule()->int(),
-
-            'manual_block' => rule()->int(),
-            'auto_block' => rule()->int(),
-            'admin_block' => rule()->int(),
-            'description_block' => rule()->string(),
 
             'open_code' => rule()->string(),
 

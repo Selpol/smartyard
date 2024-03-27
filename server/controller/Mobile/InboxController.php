@@ -6,12 +6,14 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\InboxReadRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 
-#[Controller('/mobile/inbox')]
+#[Controller('/mobile/inbox', includes: [BlockMiddleware::class => [BlockFeature::SUB_SERVICE_INBOX]])]
 readonly class InboxController extends RbtController
 {
     /**

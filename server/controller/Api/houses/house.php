@@ -16,7 +16,7 @@ readonly class house extends Api
     {
         $households = container(HouseFeature::class);
 
-        $flats = $households->getFlats("houseId", $params["_id"]);
+        $flats = $households->getFlats("houseId", $params["_id"], true);
 
         if ($flats)
             usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);

@@ -5,18 +5,21 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Task\Tasks\RecordTask;
 use Throwable;
 
-#[Controller('/mobile/cctv')]
+#[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV, BlockFeature::SUB_SERVICE_ARCHIVE]])]
 readonly class ArchiveController extends RbtController
 {
     /**
@@ -35,6 +38,11 @@ readonly class ArchiveController extends RbtController
         if (!$from || !$to)
             return user_response(400, message: 'Неверный формат данных');
 
+        $camera = DeviceCamera::findById($request->id);
+
+        if (!$camera || !$camera->checkAllAccessForSubscriber($this->getUser()->getOriginalValue()))
+            return user_response(404, message: 'Камера не найдена');
+
         // проверяем, не был ли уже запрошен данный кусок из архива.
         $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
@@ -51,7 +59,7 @@ readonly class ArchiveController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Get('/download/{uuid}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
+    #[Get('/download/{uuid}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
         try {

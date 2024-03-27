@@ -7,6 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -25,7 +26,7 @@ readonly class FrsController extends RbtController
      * @throws ContainerExceptionInterface
      */
     #[Post('/callback')]
-    public function callback(FrsCallbackRequest $request, FrsFeature $frsFeature, RedisService $redisService): Response
+    public function callback(FrsCallbackRequest $request, FrsFeature $frsFeature, BlockFeature $blockFeature, PlogFeature $plogFeature, RedisService $redisService): Response
     {
         $frs_key = "frs_key_" . $request->stream_id;
 
@@ -39,7 +40,7 @@ readonly class FrsController extends RbtController
 
         $flats = $frsFeature->getFlatsDetailByFaceId($request->faceId, $entrance["entranceId"]);
 
-        if (!$flats)
+        if (count($flats) == 0)
             return response(204);
 
         $find = false;
@@ -49,7 +50,7 @@ readonly class FrsController extends RbtController
                 if ($flatEntrance['entranceId'] === $entrance['entranceId']) {
                     $find = true;
 
-                    if ($flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'])
+                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) != null)
                         return response(204);
 
                     break;
@@ -69,7 +70,7 @@ readonly class FrsController extends RbtController
 
             $redisService->setEx($frs_key, config_get('feature.frs.open_door_timeout'), 1);
 
-            container(PlogFeature::class)->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
+            $plogFeature->addDoorOpenDataById(time(), $domophone_id, PlogFeature::EVENT_OPENED_BY_FACE, $domophone_output, $request->faceId . "|" . $request->eventId);
         } catch (Exception) {
             return user_response(404);
         }

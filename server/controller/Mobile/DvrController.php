@@ -17,9 +17,13 @@ use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
+use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Middleware\RateLimitMiddleware;
 use Throwable;
@@ -27,8 +31,16 @@ use Throwable;
 #[Controller('/mobile/dvr')]
 readonly class DvrController extends RbtController
 {
-    #[Get('/{id}', excludes: [RateLimitMiddleware::class])]
-    public function identifier(DvrIdentifierRequest $request, RedisCache $cache): ResponseInterface
+    #[Get(
+        '/{id}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id'],
+            BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
+            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'services' => [BlockFeature::SERVICE_CCTV]]
+        ],
+        excludes: [RateLimitMiddleware::class]
+    )]
+    public function identifier(DvrIdentifierRequest $request, BlockFeature $blockFeature, RedisCache $cache): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id);
 
@@ -37,6 +49,27 @@ readonly class DvrController extends RbtController
 
         if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
             return user_response(403, message: 'Доступа к камере нет');
+
+        if (!is_null($request->house_id)) {
+            $findFlatId = null;
+
+            foreach ($this->getUser()->getOriginalValue()['flats'] as $flat) {
+                if ($flat['addressHouseId'] == $request->house_id) {
+                    $findFlatId = $flat['flatId'];
+
+                    break;
+                }
+            }
+
+            if (is_null($findFlatId))
+                return user_response(404, message: 'Квартира не найдена');
+
+            if (($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
+                return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+        } else if (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
+            return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+        else if (($block = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV])) !== null)
+            return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
 
         $dvr = dvr($camera->dvr_server_id);
 

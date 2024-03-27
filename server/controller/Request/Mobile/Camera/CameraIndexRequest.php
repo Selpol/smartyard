@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Mobile\Camera;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $houseId
+ * @property-read int|null $houseId
  */
 readonly class CameraIndexRequest extends RouteRequest
 {

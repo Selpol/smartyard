@@ -3,6 +3,7 @@
 namespace Selpol\Feature\House\Internal;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Address\AddressFeature;
 use Selpol\Feature\Camera\CameraFeature;
@@ -23,7 +24,7 @@ readonly class InternalHouseFeature extends HouseFeature
         return null;
     }
 
-    function getFlats(string $by, mixed $params): bool|array
+    function getFlats(string $by, mixed $params, bool $withBlock = false): bool|array
     {
         $q = "";
         $p = [];
@@ -104,7 +105,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $_flats = [];
 
             foreach ($flats as $flat)
-                $_flats[] = $this->getFlat($flat["house_flat_id"]);
+                $_flats[] = $this->getFlat($flat["house_flat_id"], $withBlock);
 
             return $_flats;
         } else {
@@ -112,7 +113,7 @@ readonly class InternalHouseFeature extends HouseFeature
         }
     }
 
-    function getFlat(int $flatId): bool|array
+    function getFlat(int $flatId, bool $withBlock = false): bool|array
     {
         $flat = $this->getDatabase()->get(
             "select
@@ -121,10 +122,6 @@ readonly class InternalHouseFeature extends HouseFeature
                         flat,
                         code,
                         plog,
-                        coalesce(manual_block, 0) manual_block, 
-                        coalesce(admin_block, 0) admin_block,
-                        coalesce(auto_block, 0) auto_block,
-                        description_block,
                         open_code, 
                         auto_open, 
                         white_rabbit, 
@@ -143,10 +140,6 @@ readonly class InternalHouseFeature extends HouseFeature
                 "flat" => "flat",
                 "code" => "code",
                 "plog" => "plog",
-                "manual_block" => "manualBlock",
-                "admin_block" => "adminBlock",
-                "auto_block" => "autoBlock",
-                "description_block" => "descriptionBlock",
                 "open_code" => "openCode",
                 "auto_open" => "autoOpen",
                 "white_rabbit" => "whiteRabbit",
@@ -185,6 +178,9 @@ readonly class InternalHouseFeature extends HouseFeature
 
             foreach ($entrances as $e)
                 $flat["entrances"][] = $e;
+
+            if ($withBlock)
+                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['service', 'status']));
 
             return $flat;
         }
@@ -314,7 +310,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, int $manualBlock, int $adminBlock, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string
+    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string
     {
         $autoOpen = (int)strtotime($autoOpen);
 
@@ -323,14 +319,12 @@ readonly class InternalHouseFeature extends HouseFeature
                 $openCode = 11000 + rand(0, 88999);
             }
 
-            $flatId = $this->getDatabase()->insert("insert into houses_flats (address_house_id, floor, flat, code, manual_block, admin_block, open_code, plog, auto_open, white_rabbit, sip_enabled, sip_password, cms_enabled) values (:address_house_id, :floor, :flat, :code, :manual_block, :admin_block, :open_code, :plog, :auto_open, :white_rabbit, :sip_enabled, :sip_password, 1)", [
+            $flatId = $this->getDatabase()->insert("insert into houses_flats (address_house_id, floor, flat, code, open_code, plog, auto_open, white_rabbit, sip_enabled, sip_password, cms_enabled) values (:address_house_id, :floor, :flat, :code, :open_code, :plog, :auto_open, :white_rabbit, :sip_enabled, :sip_password, 1)", [
                 ":address_house_id" => $houseId,
                 ":floor" => $floor,
                 ":flat" => $flat,
                 ":code" => $code,
                 ":plog" => $plog,
-                ":manual_block" => $manualBlock,
-                ":admin_block" => $adminBlock,
                 ":open_code" => $openCode,
                 ":auto_open" => $autoOpen,
                 ":white_rabbit" => $whiteRabbit,
@@ -395,9 +389,6 @@ readonly class InternalHouseFeature extends HouseFeature
             "flat" => "flat",
             "code" => "code",
             "plog" => "plog",
-            "manual_block" => "manualBlock",
-            "admin_block" => "adminBlock",
-            "auto_block" => "autoBlock",
             "open_code" => "openCode",
             "auto_open" => "autoOpen",
             "white_rabbit" => "whiteRabbit",
@@ -683,10 +674,7 @@ readonly class InternalHouseFeature extends HouseFeature
             "last_seen" => "lastSeen",
             "subscriber_name" => "subscriberName",
             "subscriber_patronymic" => "subscriberPatronymic",
-            "voip_enabled" => "voipEnabled",
-            "manual_block" => "manualBlock",
-            "admin_block" => "adminBlock",
-            "description_block" => "descriptionBlock"
+            "voip_enabled" => "voipEnabled"
         ]);
 
         $addresses = container(AddressFeature::class);
@@ -867,12 +855,6 @@ readonly class InternalHouseFeature extends HouseFeature
 
         if (array_key_exists("voipEnabled", $params)) {
             if ($db->modify("update houses_subscribers_mobile set voip_enabled = :voip_enabled where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "voip_enabled" => $params["voipEnabled"]]) === false) {
-                return false;
-            }
-        }
-
-        if (array_key_exists('descriptionBlock', $params)) {
-            if ($db->modify("update houses_subscribers_mobile set description_block = :description_block where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId, "description_block" => $params["descriptionBlock"]]) === false) {
                 return false;
             }
         }

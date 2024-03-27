@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
@@ -163,8 +164,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             ];
 
             foreach ($flats as $flat) {
-                $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
-
                 $apartment = $flat['flat'];
                 $apartment_levels = $cms_levels;
 
@@ -180,6 +179,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                             $apartment = $flat_entrance['apartment'];
                         }
                     }
+
+                    $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
 
                     $device->addApartmentDeffer(
                         $apartment + $offset,

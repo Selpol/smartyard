@@ -4,8 +4,8 @@ namespace Selpol\Entity\Model\Device;
 
 use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
-use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Repository\Device\DeviceCameraRepository;
+use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 use Selpol\Service\DatabaseService;
@@ -56,12 +56,40 @@ class DeviceCamera extends Entity
 
     public static string $columnId = 'camera_id';
 
+    public function checkAllAccessForSubscriber(array $subscriber): bool
+    {
+        $params = ['camera_id' => $this->camera_id, 'house_subscriber_id' => $subscriber['subscriberId']];
+        $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_subscribers WHERE camera_id = :camera_id AND house_subscriber_id = :house_subscriber_id');
+
+        if ($statement && $statement->execute($params) && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1)
+            return true;
+
+        foreach ($subscriber['flats'] as $flat) {
+            $params = ['camera_id' => $this->camera_id, 'house_flat_id' => $flat['flatId']];
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_flats WHERE camera_id = :camera_id AND house_flat_id = :house_flat_id');
+
+            if ($statement && $statement->execute($params) && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1)
+                return true;
+
+            $params = ['camera_id' => $this->camera_id, 'address_house_id' => $flat['addressHouseId']];
+            $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_houses WHERE camera_id = :camera_id AND address_house_id = :address_house_id');
+
+            if ($statement && $statement->execute($params) && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1)
+                return true;
+
+            $entrances = container(HouseFeature::class)->getEntrances('flatId', $flat['flatId']);
+
+            foreach ($entrances as $entrance)
+                if ($entrance['cameraId'] == $this->camera_id)
+                    return true;
+        }
+
+        return false;
+    }
+
     public function checkAccessForSubscriber(array $subscriber, ?int $houseId, ?int $flatId, ?int $entranceId): bool
     {
         if (!is_null($flatId)) {
-            if ($this->checkFlatBlock($flatId))
-                return false;
-
             if (is_null($entranceId)) {
                 $params = ['camera_id' => $this->camera_id, 'house_flat_id' => $flatId];
                 $statement = container(DatabaseService::class)->getConnection()->prepare('SELECT 1 FROM houses_cameras_flats WHERE camera_id = :camera_id AND house_flat_id = :house_flat_id');
@@ -88,7 +116,7 @@ class DeviceCamera extends Entity
                 }
             }
 
-            if (is_null($findFlatId) || $this->checkFlatBlock($findFlatId))
+            if (is_null($findFlatId))
                 return false;
 
             $params = ['camera_id' => $this->camera_id, 'address_house_id' => $houseId];
@@ -139,12 +167,5 @@ class DeviceCamera extends Entity
 
             'hidden' => rule()->bool()
         ];
-    }
-
-    private function checkFlatBlock(int $flatId): bool
-    {
-        $flat = HouseFlat::findById($flatId, setting: setting()->columns(['auto_block', 'admin_block', 'manual_block']));
-
-        return !$flat || $flat->auto_block | $flat->admin_block || $flat->manual_block;
     }
 }

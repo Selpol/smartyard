@@ -2,10 +2,12 @@
 
 namespace Selpol\Controller\Mobile;
 
+use PDO;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Controller\RbtController;
+use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
-use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\Camera\CameraCommonDvrRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraEventsRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraIndexRequest;
@@ -18,8 +20,12 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
+use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\AuthMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
+use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
@@ -29,12 +35,12 @@ readonly class CameraController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/all')]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
+    #[Post('/all', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature);
+        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature, $blockFeature);
 
         return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
     }
@@ -123,36 +129,85 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Get('/{cameraId}')]
-    public function show(CameraShowRequest $request, int $cameraId, CameraFeature $cameraFeature, DvrFeature $dvrFeature): ResponseInterface
+    #[Get(
+        '/{cameraId}',
+        includes: [
+            FlatMiddleware::class => ['house' => 'houseId'],
+            BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM],
+            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
+    public function show(CameraShowRequest $request, int $cameraId, DatabaseService $databaseService, HouseFeature $houseFeature, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $find = false;
+        $camera = DeviceCamera::findById($cameraId);
 
-        foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] == $request->houseId) {
-                $find = true;
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
+
+        $entrances = $houseFeature->getEntrances('houseId', $request->houseId);
+
+        $findEntrance = null;
+
+        foreach ($entrances as $entrance) {
+            if ($entrance['cameraId'] == $cameraId) {
+                $findEntrance = $entrance;
 
                 break;
             }
         }
 
-        if (!$find)
+        if (!$findEntrance)
             return user_response(404, message: 'Камера не найдена');
 
-        $camera = $cameraFeature->getCamera($cameraId);
+        $flats = [];
 
-        if (!$camera)
+        foreach ($user['flats'] as $flat) {
+            if ($flat['addressHouseId'] == $request->houseId) {
+                $flats[] = $flat['flatId'];
+            }
+        }
+
+        if (!$flats)
             return user_response(404, message: 'Камера не найдена');
 
-        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera, $user));
+        $statement = $databaseService->getConnection()->prepare('SELECT 1 FROM houses_entrances_flats WHERE house_flat_id IN (' . implode(', ', $flats) . ') AND house_entrance_id = :entrance_id');
+
+        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
+            return user_response(404, message: 'Камера не найдена');
+
+        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
+            "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "direction" => "direction",
+            "angle" => "angle",
+            "distance" => "distance",
+            "frs" => "frs",
+            "md_left" => "mdLeft",
+            "md_top" => "mdTop",
+            "md_width" => "mdWidth",
+            "md_height" => "mdHeight",
+            "common" => "common",
+            "comment" => "comment"
+        ]), $user));
     }
 
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/events')]
+    #[Post('/events', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],])]
     public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
@@ -184,7 +239,7 @@ readonly class CameraController extends RbtController
         return user_response(404, message: 'События не найдены');
     }
 
-    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, CameraFeature $cameraFeature): array
+    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): array
     {
         $houses = [];
 
@@ -192,10 +247,10 @@ readonly class CameraController extends RbtController
             if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId)
                 continue;
 
-            $flatDetail = $houseFeature->getFlat($flat['flatId']);
-
-            if ($flatDetail['autoBlock'] || $flatDetail['adminBlock'] || $flatDetail['manualBlock'])
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null)
                 continue;
+
+            $flatDetail = $houseFeature->getFlat($flat['flatId']);
 
             $houseId = $flat['addressHouseId'];
 

@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -58,10 +59,8 @@ class IntercomSyncFlatTask extends Task
             if (!$device->ping())
                 return;
 
-            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
-
             if ($this->userId >= 0)
-                container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ', ' . ($block ? 'true' : 'false') . ')');
+                container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ')');
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
@@ -69,14 +68,14 @@ class IntercomSyncFlatTask extends Task
             $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
-                if (isset($flat_entrance['apartmentLevels'])) {
+                if (isset($flat_entrance['apartmentLevels']))
                     $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
-                }
 
-                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
+                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
                     $apartment = $flat_entrance['apartment'];
-                }
             }
+
+            $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
 
             if ($this->add)
                 $device->addApartment(

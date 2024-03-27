@@ -6,6 +6,7 @@ use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -86,8 +87,9 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat(intval($params));
+                        $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
 
-                        if ($flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0)
+                        if ($block == null)
                             echo json_encode($flat);
 
                         break;
@@ -95,7 +97,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'flatIdByPrefix':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => $flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0);
+                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
                         if (count($apartments) > 0)
                             echo json_encode($apartments);
@@ -106,7 +108,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $households = container(HouseFeature::class);
 
                         $apartments = $households->getFlats('apartment', $params);
-                        $filterApartments = array_filter($apartments, static fn(array $flat) => $flat['autoBlock'] == 0 && $flat['adminBlock'] == 0 && $flat['manualBlock'] == 0);
+                        $filterApartments = array_filter($apartments, static fn(array $flat) => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
                         if (count($filterApartments) > 0)
                             echo json_encode($filterApartments);
@@ -116,7 +118,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => $subscriber['adminBlock'] == 0 && $subscriber['manualBlock'] == 0);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
                         if (count($subscribers) > 0)
                             echo json_encode($subscribers);
