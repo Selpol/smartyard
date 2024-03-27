@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\block;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\FlatBlock;
@@ -97,6 +98,9 @@ readonly class flat extends Api
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     private static function notify(FlatBlock $block, bool $status): void
     {
         task(new InboxFlatTask(
@@ -106,6 +110,6 @@ readonly class flat extends Api
                 ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
                 : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
             'inbox'
-        ))->low()->dispatch();
+        ))->sync();
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\block;
 
+use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\SubscriberBlock;
@@ -87,6 +88,9 @@ readonly class subscriber extends Api
         ];
     }
 
+    /**
+     * @throws Exception
+     */
     private static function notify(SubscriberBlock $block, bool $status): void
     {
         task(new InboxSubscriberTask(
@@ -96,6 +100,6 @@ readonly class subscriber extends Api
                 ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
                 : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
             'inbox'
-        ))->low()->dispatch();
+        ))->sync();
     }
 }
