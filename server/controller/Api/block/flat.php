@@ -9,7 +9,7 @@ use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
-use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
 readonly class flat extends Api
 {
@@ -33,7 +33,7 @@ readonly class flat extends Api
 
         if ($flatBlock->insert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, true);
@@ -60,7 +60,7 @@ readonly class flat extends Api
 
         if ($flatBlock->update()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, true);
@@ -77,7 +77,7 @@ readonly class flat extends Api
 
         if ($flatBlock->delete()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, false))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, false);
