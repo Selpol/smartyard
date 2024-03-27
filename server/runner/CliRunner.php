@@ -8,8 +8,11 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
+use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Backup\BackupFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
@@ -21,6 +24,8 @@ use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\PrometheusService;
+use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
+use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
 use Selpol\Validator\Exception\ValidatorException;
@@ -29,6 +34,11 @@ use Throwable;
 class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
+
+    public function __construct()
+    {
+        $this->setLogger(stack_logger([echo_logger(), file_logger('cli')]));
+    }
 
     /**
      * @throws ContainerExceptionInterface
@@ -62,6 +72,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === 'db') {
             if ($command === 'init') $this->dbInit($arguments);
             else if ($command === 'check') return $this->dbCheck();
+            else if ($command === 'backup') return $this->dbBackup($arguments['db:backup']);
+            else if ($command === 'restore') return $this->dbRestore($arguments['db:restore']);
             else echo $this->help('db');
         } else if ($group === 'amqp') {
             if ($command === 'check') return $this->amqpCheck();
@@ -87,6 +99,15 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($command === 'init') $this->roleInit();
             else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
+        } else if ($group === 'device') {
+            if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
+            else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
+            else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
+            else echo $this->help('device');
+        } else if ($group === 'inbox') {
+            if ($command === 'server') $this->inboxServer($arguments['inbox:server'], intval($arguments['--subscriber']));
+            else echo $this->help('inbox');
         } else echo $this->help();
 
         return 0;
@@ -123,7 +144,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         try {
             $coreVar = CoreVar::getRepository()->findByName('database.version');
 
-            $version = intval($coreVar->var_value) ?? 0;
+            $version = intval($coreVar?->var_value ?? '') ?? 0;
         } catch (Throwable) {
             $version = 0;
         }
@@ -172,6 +193,28 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             return 1;
         }
+    }
+
+    private function dbBackup(string $path): int
+    {
+        if (file_exists($path)) {
+            $this->logger?->debug('Не возможно сделать бэкап в уже существующий файл');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->backup($path) ? 0 : 1;
+    }
+
+    private function dbRestore(string $path): int
+    {
+        if (!file_exists($path)) {
+            $this->logger?->debug('Файла бэкапа не существует');
+
+            return 1;
+        }
+
+        return container(BackupFeature::class)->restore($path) ? 0 : 1;
     }
 
     private function amqpCheck(): int
@@ -504,6 +547,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                         $permission->description = $description;
 
                                         $permission->insert();
+                                    } else if ($titlePermissions[$title]->description != $description) {
+                                        $titlePermissions[$title]->description = $description;
+                                        $titlePermissions[$title]->update();
                                     }
 
                                     unset($titlePermissions[$title]);
@@ -513,6 +559,32 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     }
                 }
             }
+        }
+
+        $requirePermissions = [
+            'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
+            'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
+
+            'addresses-location-get' => '[Адрес] Локации',
+
+            'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
+            'camera-hidden' => '[Камера] Доступ к скрытым устройствам'
+        ];
+
+        foreach ($requirePermissions as $title => $description) {
+            if (!array_key_exists($title, $titlePermissions)) {
+                $permission = new Permission();
+
+                $permission->title = $title;
+                $permission->description = $description;
+
+                $permission->insert();
+            } else if ($titlePermissions[$title]->description != $description) {
+                $titlePermissions[$title]->description = $description;
+                $titlePermissions[$title]->update();
+            }
+
+            unset($titlePermissions[$title]);
         }
 
         foreach ($titlePermissions as $permission)
@@ -528,6 +600,45 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         Permission::getRepository()->deleteSql();
     }
 
+    private function deviceSync(int $id): void
+    {
+        try {
+            $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
+
+            if ($deviceIntercom)
+                task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
+            else echo 'Домофон не найден' . PHP_EOL;
+        } catch (Throwable $throwable) {
+            echo 'Ошибка синхронизации. ' . $throwable . PHP_EOL;
+        }
+    }
+
+    private function deviceReboot(int $id): void
+    {
+        if ($device = intercom($id)) $device->reboot();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceReset(int $id): void
+    {
+        if ($device = intercom($id)) $device->reset();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    private function deviceCall(int $id): void
+    {
+        if ($device = intercom($id)) $device->callStop();
+        else echo 'Домофон не найден' . PHP_EOL;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function inboxServer(string $value, int $subscriber): void
+    {
+        task(new InboxSubscriberTask($subscriber, 'Обновление сервера', $value, 'server'))->sync();
+    }
+
     private function help(?string $group = null): string
     {
         $result = [];
@@ -535,50 +646,65 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === null || $group === 'db')
             $result[] = implode(PHP_EOL, [
                 '',
-                'db:init [--version=<version>]    - Инициализация базы данных',
-                'db:check                         - Проверка доступности базы данных'
+                'db:init [--version=<version>]                  - Инициализация базы данных',
+                'db:check                                       - Проверка доступности базы данных'
             ]);
 
         if ($group === null || $group === 'amqp')
             $result[] = implode(PHP_EOL, [
                 '',
-                'amqp:check                       - Проверка доступности AMQP'
+                'amqp:check                                     - Проверка доступности AMQP'
             ]);
 
         if ($group === null || $group === 'admin')
             $result[] = implode(PHP_EOL, [
                 '',
-                'admin:password=<password>        - Обновить пароль администратора'
+                'admin:password=<password>                      - Обновить пароль администратора'
             ]);
 
         if ($group === null || $group === 'cron')
             $result[] = implode(PHP_EOL, [
                 '',
-                'cron:run=<type>                  - Выполнить задачи по времени',
-                'cron:install                     - Установить задачи по времени',
-                'cron:uninstall                   - Удалить задачи по времени'
+                'cron:run=<type>                                - Выполнить задачи по времени',
+                'cron:install                                   - Установить задачи по времени',
+                'cron:uninstall                                 - Удалить задачи по времени'
             ]);
 
         if ($group === null || $group === 'kernel')
             $result[] = implode(PHP_EOL, [
                 '',
-                'kernel:container                 - Показать зависимости приложения',
-                'kernel:optimize                  - Оптимизировать приложение',
-                'kernel:clear                     - Очистить приложение',
-                'kernel:wipe                      - Очистить метрики приложения'
+                'kernel:container                               - Показать зависимости приложения',
+                'kernel:optimize                                - Оптимизировать приложение',
+                'kernel:clear                                   - Очистить приложение',
+                'kernel:wipe                                    - Очистить метрики приложения'
             ]);
 
         if ($group === null || $group === 'audit')
             $result[] = implode(PHP_EOL, [
                 '',
-                'audit:clear                      - Очистить данные аудита'
+                'audit:clear                                    - Очистить данные аудита'
             ]);
 
         if ($group === null || $group === 'role')
             $result[] = implode(PHP_EOL, [
                 '',
-                'role:init                        - Инициализация групп',
-                'role:clear                       - Удалить группы'
+                'role:init                                      - Инициализация групп',
+                'role:clear                                     - Удалить группы'
+            ]);
+
+        if ($group === null || $group === 'device')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'device:sync=<id>                               - Синхронизация домофона',
+                'device:call=<id>                               - Остановить звонки на домофоне',
+                'device:reboot=<id>                             - Перезапуск домофона',
+                'device:reset=<id>                              - Сбросить домофон'
+            ]);
+
+        if ($group === null || $group === 'inbox')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'inbox:server=<value> --subscriber=<subscriber> - Обновить сервер абоненту'
             ]);
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;

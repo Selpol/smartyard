@@ -38,7 +38,6 @@ readonly abstract class PlogFeature extends Feature
     const ACCESS_DENIED = 0;
     const ACCESS_ALL = 1;
     const ACCESS_OWNER_ONLY = 2;
-    const ACCESS_RESTRICTED_BY_ADMIN = 3;
 
     //источник картинки
     const PREVIEW_NONE = 0;
@@ -87,7 +86,7 @@ readonly abstract class PlogFeature extends Feature
      * @param false|int $event_id идентификатор события FRS
      * @return array
      */
-    abstract public function getCamshot(int $domophone_id, string|bool|null $date, int|bool|null $event_id = false): array;
+    abstract public function getCamshot(int $domophone_id, int $door_id, string|bool|null $date, int|bool|null $event_id = false): array;
 
     /**
      * Добавить данные открытия двери для последующего формирования события

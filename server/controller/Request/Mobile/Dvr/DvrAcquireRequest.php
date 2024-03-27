@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Mobile;
+namespace Selpol\Controller\Request\Mobile\Dvr;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $houseId
+ * @property-read string $id
  */
-readonly class CameraShowRequest extends RouteRequest
+readonly class DvrAcquireRequest extends RouteRequest
 {
     public static function getValidate(): array
     {
         return [
-            'houseId' => rule()->id()
+            'id' => rule()->required()->string()->nonNullable()
         ];
     }
 
     public static function getValidateTitle(): array
     {
         return [
-            'houseId' => 'Идентификатор'
+            'id' => 'Идентификатор'
         ];
     }
 }

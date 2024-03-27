@@ -7,15 +7,19 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\SubscriberDeleteRequest;
 use Selpol\Controller\Request\Mobile\SubscriberStoreRequest;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Middleware\Mobile\BlockFlatMiddleware;
+use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
-#[Controller('/mobile/subscriber')]
+#[Controller('/mobile/subscriber', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
 readonly class SubscriberController extends RbtController
 {
     /**
@@ -23,17 +27,16 @@ readonly class SubscriberController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Get('/{flatId}')]
+    #[Get(
+        '/{flatId}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId'],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
     public function index(int $flatId, HouseFeature $houseFeature): Response
     {
-        $user = $this->getUser()->getOriginalValue();
-
-        $flat = $this->getFlat($user['flats'], $flatId);
-
-        if ($flat === null)
-            return user_response(403, message: 'Квартира не найдена у абонента');
-
-        $subscribers = $houseFeature->getSubscribers('flatId', $flat['flatId']);
+        $subscribers = $houseFeature->getSubscribers('flatId', $flatId);
 
         return user_response(
             data: array_map(
@@ -41,7 +44,7 @@ readonly class SubscriberController extends RbtController
                     'subscriberId' => $subscriber['subscriberId'],
                     'name' => $subscriber['subscriberName'] . ' ' . $subscriber['subscriberPatronymic'],
                     'mobile' => substr($subscriber['mobile'], -4),
-                    'role' => @($this->getFlat($subscriber['flats'], $flat['flatId'])['role'])
+                    'role' => @($this->getFlat($subscriber['flats'], $flatId)['role'])
                 ],
                 $subscribers
             )
@@ -53,18 +56,15 @@ readonly class SubscriberController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Post('/{flatId}')]
+    #[Post(
+        '/{flatId}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId', 'role' => 0],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
     public function store(SubscriberStoreRequest $request, int $flatId, HouseFeature $houseFeature): Response
     {
-        $user = $this->getUser()->getOriginalValue();
-
-        $flat = $this->getFlat($user['flats'], $flatId);
-
-        if ($flat === null)
-            return user_response(404, message: 'Квартира не найдена у абонента');
-        if ($flat['role'] !== 0)
-            return user_response(403, message: 'Недостаточно прав для добавления нового жителя');
-
         $subscribers = $houseFeature->getSubscribers('mobile', $request->mobile);
 
         if (!$subscribers || count($subscribers) === 0) {
@@ -78,12 +78,12 @@ readonly class SubscriberController extends RbtController
 
         $subscriber = $subscribers[0];
 
-        $subscriberFlat = $this->getFlat($subscriber['flats'], $flat['flatId']);
+        $subscriberFlat = $this->getFlat($subscriber['flats'], $flatId);
 
         if ($subscriberFlat)
             return user_response(400, message: 'Житель уже добавлен');
 
-        if (!$houseFeature->addSubscriberToFlat($flat['flatId'], $subscriber['subscriberId']))
+        if (!$houseFeature->addSubscriberToFlat($flatId, $subscriber['subscriberId'], 1))
             return user_response(400, message: 'Житель не был добавлен');
 
         return user_response();
@@ -94,19 +94,15 @@ readonly class SubscriberController extends RbtController
      * @throws NotFoundExceptionInterface
      * @throws ValidatorException
      */
-    #[Delete('/{flatId}')]
+    #[Delete(
+        '/{flatId}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flatId', 'role' => 0],
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+        ]
+    )]
     public function delete(SubscriberDeleteRequest $request, int $flatId, HouseFeature $houseFeature): Response
     {
-        $user = $this->getUser()->getOriginalValue();
-
-        $flat = $this->getFlat($user['flats'], $flatId);
-
-        if ($flat === null)
-            return user_response(404, message: 'Квартира не найдена');
-
-        if ($flat['role'] !== 0)
-            return user_response(403, message: 'Недостаточно прав для удаления жителя');
-
         $subscribers = $houseFeature->getSubscribers('id', $request->subscriberId);
 
         if (!$subscribers || count($subscribers) === 0)
@@ -114,7 +110,7 @@ readonly class SubscriberController extends RbtController
 
         $subscriber = $subscribers[0];
 
-        $subscriberFlat = $this->getFlat($subscriber['flats'], $flat['flatId']);
+        $subscriberFlat = $this->getFlat($subscriber['flats'], $flatId);
 
         if (!$subscriberFlat)
             return user_response(400, message: 'Житель не заселен в данной квартире');
@@ -122,7 +118,7 @@ readonly class SubscriberController extends RbtController
         if ($subscriberFlat['role'] == 0)
             return user_response(403, message: 'Житель является владельцем квартиры');
 
-        if (!$houseFeature->removeSubscriberFromFlat($flat['flatId'], $subscriber['subscriberId']))
+        if (!$houseFeature->removeSubscriberFromFlat($flatId, $subscriber['subscriberId']))
             return user_response(400, message: 'Житель не был удален');
 
         return user_response();

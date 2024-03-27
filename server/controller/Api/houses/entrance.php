@@ -7,6 +7,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSetCmsTask;
+use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
 use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
 
 readonly class entrance extends Api
@@ -53,6 +54,9 @@ readonly class entrance extends Api
 
             if ($entrance->cms !== $params['cms'])
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
+
+            if ($entrance->cms_levels !== $params['cmsLevels'])
+                task(new IntercomLevelTask($entrance->house_domophone_id))->high()->dispatch();
         }
 
         return $success ? self::success($params['_id']) : self::error('Не удалось обновить вход', 400);

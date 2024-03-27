@@ -9,8 +9,6 @@ abstract class Task
 {
     public string $title;
 
-    public int $retry = 0;
-
     private mixed $progressCallback = null;
 
     public function __construct(string $title)
@@ -33,17 +31,6 @@ abstract class Task
         if ($callback)
             $this->progressCallback = $callback;
         else unset($this->progressCallback);
-    }
-
-    protected function retryLow(?int $delay = null): bool
-    {
-        if ($this->retry > 0) {
-            $this->retry--;
-
-            return task($this)->delay($delay)->low()->dispatch();
-        }
-
-        return false;
     }
 
     protected function setProgress(int|float $progress): void

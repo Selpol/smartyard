@@ -25,13 +25,15 @@ readonly abstract class HouseFeature extends Feature
 
     abstract function destroyEntrance(int $entranceId): bool;
 
-    abstract function getFlat(int $flatId): bool|array;
+    abstract function getFlat(int $flatId, bool $withBlock = false): bool|array;
+
+    abstract function getFlatBlock(int $flatId): bool;
 
     abstract function getFlatPlog(int $flatId): ?int;
 
-    abstract function getFlats(string $by, mixed $params): bool|array;
+    abstract function getFlats(string $by, mixed $params, bool $withBlock = false): bool|array;
 
-    abstract function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, int $manualBlock, int $adminBlock, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string;
+    abstract function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string;
 
     abstract function modifyFlat(int $flatId, array $params): bool;
 
@@ -51,6 +53,8 @@ readonly abstract class HouseFeature extends Feature
 
     abstract public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int;
 
+    abstract public function getIntercomOpenDataByEntranceCameraId(int $camera_id): ?array;
+
     abstract public function deleteDomophone(int $domophoneId): bool;
 
     abstract public function getDomophone(int $domophoneId): bool|array;
@@ -61,7 +65,11 @@ readonly abstract class HouseFeature extends Feature
 
     abstract public function modifySubscriber(int $subscriberId, array $params = []): bool|int;
 
-    abstract public function addSubscriberToFlat(int $flatId, int $subscriberId): bool;
+    abstract public function getSubscribersInFlat(int $flatId): array;
+
+    abstract public function addSubscriberToFlat(int $flatId, int $subscriberId, int $role): bool;
+
+    abstract public function updateSubscriberRoleInFlat(int $flatId, int $subscriberId, int $role): bool;
 
     abstract public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int;
 

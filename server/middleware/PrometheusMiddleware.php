@@ -17,18 +17,14 @@ readonly class PrometheusMiddleware extends RouteMiddleware
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $response = $handler->handle($request);
-
-        $this->processResponse($request, $response);
-
-        return $response;
+        return $this->handle($request, $handler->handle($request));
     }
 
     /**
      * @throws NotFoundExceptionInterface
      * @throws RedisException
      */
-    private function processResponse(ServerRequestInterface $request, ResponseInterface $response): void
+    private function handle(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $prometheus = container(PrometheusService::class);
 
@@ -59,5 +55,7 @@ readonly class PrometheusMiddleware extends RouteMiddleware
 
         $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['url', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
         $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$target, $method, $code]);
+
+        return $response;
     }
 }

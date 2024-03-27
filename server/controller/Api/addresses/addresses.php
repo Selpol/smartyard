@@ -24,7 +24,11 @@ readonly class addresses extends Api
         $r = [];
 
         if (str_contains($include, "regions")) {
-            $r["regions"] = $addresses->getRegions();
+            if ($regionId) {
+                $r["regions"] = [$addresses->getRegion($regionId)];
+            } else {
+                $r["regions"] = $addresses->getRegions();
+            }
         }
 
         if (str_contains($include, "areas")) {

@@ -40,7 +40,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
      * @throws NotFoundExceptionInterface
      * @throws ContainerExceptionInterface
      */
-    public function getCamshot(int $domophone_id, string|bool|null $date, int|bool|null $event_id = false): array
+    public function getCamshot(int $domophone_id, int $door_id, string|bool|null $date, int|bool|null $event_id = false): array
     {
         $file = container(FileFeature::class);
 
@@ -48,7 +48,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
 
         $households = container(HouseFeature::class);
 
-        $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $domophone_id, "output" => "0"]);
+        $entrances = $households->getEntrances("domophoneId", ["domophoneId" => $domophone_id, "output" => $door_id]);
 
         if ($entrances && $entrances[0]) {
             $cameras = $households->getCameras("id", $entrances[0]["cameraId"]);
@@ -410,9 +410,6 @@ readonly class ClickHousePlogFeature extends PlogFeature
     private function getPlogHidden($flat_id): int
     {
         $flat = container(HouseFeature::class)->getFlat($flat_id);
-
-        if ($flat['plog'] == self::ACCESS_RESTRICTED_BY_ADMIN)
-            return -1;
 
         $hidden = 0;
 

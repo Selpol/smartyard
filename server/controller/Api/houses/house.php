@@ -16,7 +16,7 @@ readonly class house extends Api
     {
         $households = container(HouseFeature::class);
 
-        $flats = $households->getFlats("houseId", $params["_id"]);
+        $flats = $households->getFlats("houseId", $params["_id"], true);
 
         if ($flats)
             usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);
@@ -50,7 +50,10 @@ readonly class house extends Api
             $houseKey->insert();
         }
 
-        task(new IntercomKeysKeyTask($houseId, $keys))->high()->dispatch();
+        $task = task(new IntercomKeysKeyTask($houseId, $keys));
+
+        if (count($keys) < 25) $task->sync();
+        else $task->high()->dispatch();
 
         return self::success();
     }

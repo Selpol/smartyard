@@ -580,7 +580,7 @@ readonly class InternalAddressFeature extends AddressFeature
     /**
      * @throws NotFoundExceptionInterface
      */
-    function addHouseByMagic(string $houseUuid): bool|int
+    function addHouseByMagic(string $houseUuid): false|int
     {
         $house = $this->getRedis()->get("house_" . $houseUuid);
 
@@ -600,7 +600,7 @@ readonly class InternalAddressFeature extends AddressFeature
             }
 
             if (!$regionId) {
-                error_log($house["data"]["house_fias_id"] . " no region");
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no region');
 
                 return false;
             }
@@ -638,7 +638,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $areaId = null;
 
             if (!$areaId && !$cityId) {
-                error_log($house["data"]["house_fias_id"] . " no area or city");
+                file_logger('address')->error($house["data"]["house_fias_id"] . ' no area or city');
 
                 return false;
             }
@@ -660,7 +660,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $cityId = null;
 
             if (!$cityId && !$settlementId) {
-                error_log($house["data"]["house_fias_id"] . " no city or settlement");
+                file_logger('address')->error($house["data"]["house_fias_id"] . ' no city or settlement');
 
                 return false;
             }
@@ -682,7 +682,7 @@ readonly class InternalAddressFeature extends AddressFeature
                 $settlementId = null;
 
             if (!$settlementId && !$streetId) {
-                error_log($house['data']['house_fias_id'] . ' no setllement or street');
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no setllement or street');
 
                 return false;
             }
@@ -691,8 +691,8 @@ readonly class InternalAddressFeature extends AddressFeature
 
             if ($house["data"]["house_fias_id"]) {
                 $houseId = $this->getDatabase()->get(
-                    "select address_house_id from addresses_houses where house_uuid = :house_uuid or (address_settlement_id = :address_settlement_id and house = :house) or (address_street_id = :address_street_id and house = :house)",
-                    ["house_uuid" => $house["data"]["house_fias_id"], "address_settlement_id" => $settlementId, "address_street_id" => $streetId, "house" => $house["data"]["house"]],
+                    "select address_house_id from addresses_houses where house_uuid = :house_uuid",
+                    ["house_uuid" => $house["data"]["house_fias_id"]],
                     options: ['fieldlify']
                 );
 
@@ -702,7 +702,7 @@ readonly class InternalAddressFeature extends AddressFeature
 
             if ($houseId) return $houseId;
             else {
-                error_log($house['data']['house_fias_id'] . ' no house');
+                file_logger('address')->error($house['data']['house_fias_id'] . ' no house');
 
                 return false;
             }

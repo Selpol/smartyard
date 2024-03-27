@@ -5,8 +5,4 @@ use Selpol\Runner\CliRunner;
 
 require_once dirname(__FILE__) . '/vendor/autoload.php';
 
-$kernel = new Kernel(new CliRunner());
-
-$kernel->getRunner()->setLogger(stack_logger([echo_logger(), file_logger('cli')]));
-
-exit($kernel->bootstrap()->run($argv));
+exit((new Kernel(new CliRunner()))->bootstrap()->run($argv));

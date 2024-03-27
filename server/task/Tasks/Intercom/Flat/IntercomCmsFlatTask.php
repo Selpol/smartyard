@@ -14,11 +14,11 @@ class IntercomCmsFlatTask extends Task
     public int $flatId;
     public bool $block;
 
-    public function __construct(int $flatId, bool $block)
+    public function __construct(int $subscriberId, bool $block)
     {
-        parent::__construct('Синхронизация КМС Трубки (' . $flatId . ', ' . $block . ')');
+        parent::__construct('Синхронизация КМС Трубки (' . $subscriberId . ', ' . $block . ')');
 
-        $this->flatId = $flatId;
+        $this->flatId = $subscriberId;
         $this->block = $block;
     }
 
@@ -65,9 +65,7 @@ class IntercomCmsFlatTask extends Task
                 }
             }
 
-            $block = $flat['autoBlock'] || $flat['adminBlock'] || $flat['manualBlock'];
-
-            $device->setApartmentCms(intval($apartment), $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),);
+            $device->setApartmentCms(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 

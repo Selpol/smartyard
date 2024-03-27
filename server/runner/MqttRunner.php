@@ -13,6 +13,11 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
     use LoggerKernelTrait;
 
+    public function __construct()
+    {
+        $this->setLogger(file_logger('mqtt'));
+    }
+
     public function run(array $arguments): int
     {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST')
