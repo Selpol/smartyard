@@ -28,7 +28,6 @@ use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
-use const FETCH_NUM;
 
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
@@ -36,7 +35,7 @@ readonly class CameraController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/all')]
+    #[Post('/all', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
     public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();

@@ -33,7 +33,7 @@ readonly class flat extends Api
 
         if ($flatBlock->insert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->low()->dispatch();
+                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, true);
@@ -60,7 +60,7 @@ readonly class flat extends Api
 
         if ($flatBlock->update()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->low()->dispatch();
+                task(new IntercomCmsFlatTask($flatBlock->flat_id, true))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, true);
@@ -77,7 +77,7 @@ readonly class flat extends Api
 
         if ($flatBlock->delete()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
-                task(new IntercomCmsFlatTask($flatBlock->flat_id, false))->low()->dispatch();
+                task(new IntercomCmsFlatTask($flatBlock->flat_id, false))->high()->dispatch();
 
             if (array_key_exists('notify', $params) && $params['notify'])
                 self::notify($flatBlock, false);
