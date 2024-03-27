@@ -8,6 +8,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\SubscriberBlock;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
+use Selpol\Service\AuthService;
 use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
 
 readonly class subscriber extends Api
@@ -67,6 +68,9 @@ readonly class subscriber extends Api
     public static function DELETE(array $params): array|Response|ResponseInterface
     {
         $subscriberBlock = SubscriberBlock::findById($params['_id'], setting: setting()->nonNullable());
+
+        if ($subscriberBlock->status == BlockFeature::STATUS_BILLING && !container(AuthService::class)->checkScope('block-subscriber-billing-delete'))
+            return self::error('Не удалось удалить блокировку абонента', 400);
 
         if ($subscriberBlock->delete()) {
             if (array_key_exists('notify', $params) && $params['notify'])

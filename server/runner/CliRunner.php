@@ -562,6 +562,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         $requirePermissions = [
+            'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
+            'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
+
             'addresses-location-get' => '[Адрес] Локации',
 
             'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
