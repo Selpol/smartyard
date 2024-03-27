@@ -21,7 +21,7 @@ use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 use Throwable;
 
-#[Controller('/mobile/address', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]])]
+#[Controller('/mobile/address', includes: [BlockMiddleware::class => ['code' => 200, 'body' => ['code' => 200, 'name' => 'OK', 'data' => []], 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]])]
 readonly class PlogController extends RbtController
 {
     /**
@@ -32,12 +32,15 @@ readonly class PlogController extends RbtController
         '/plog',
         includes: [
             FlatMiddleware::class => ['flat' => 'flatId'],
-            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
+            BlockFlatMiddleware::class => ['code' => 200, 'body' => ['code' => 200, 'name' => 'OK', 'data' => []], 'flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
         ]
     )]
-    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature): Response
+    public function index(PlogIndexRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, FrsFeature $frsFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
+
+        if ($blockFeature->getFirstBlockForFlat($request->flatId, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]) != null)
+            return user_response();
 
         $flat_owner = false;
 
@@ -52,7 +55,7 @@ readonly class PlogController extends RbtController
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
-            return user_response(403, message: 'Недостаточно прав на просмотр событий');
+            return user_response(data: []);
 
         try {
             $date = date('Ymd', strtotime($request->day));
@@ -174,7 +177,7 @@ readonly class PlogController extends RbtController
         '/plogDays',
         includes: [
             FlatMiddleware::class => ['flat' => 'flatId'],
-            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
+            BlockFlatMiddleware::class => ['code' => 200, 'body' => ['code' => 200, 'name' => 'OK', 'data' => []], 'flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]
         ]
     )]
     public function days(PlogDaysRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): Response
@@ -185,13 +188,13 @@ readonly class PlogController extends RbtController
         $plog_access = $flat_details['plog'];
 
         if ($plog_access == PlogFeature::ACCESS_DENIED)
-            return user_response(403, message: 'Недостаточно прав на просмотр событий');
+            return user_response(data: []);
 
         if ($plog_access == PlogFeature::ACCESS_OWNER_ONLY)
             foreach ($user['flats'] as $flat)
                 if ($flat['flatId'] == $request->flatId) {
                     if ($flat['role'] !== 0)
-                        return user_response(403, message: 'Недостаточно прав на просмотр событий');
+                        return user_response(data: []);
 
                     break;
                 }

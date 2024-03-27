@@ -17,6 +17,9 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
     private ?string $house;
     private ?string $flat;
 
+    private int $code;
+    private ?array $body;
+
     /**
      * @var int[]
      */
@@ -33,6 +36,9 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
         else $this->flat = 'flat_id';
 
         $this->services = $config['services'];
+
+        $this->code = array_key_exists('code', $config) ? $config['code'] : 403;
+        $this->body = array_key_exists('body', $config) ? $config['body'] : null;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
@@ -49,7 +55,7 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
             $flatId = rule()->id()->onItem($this->flat, $value);
 
             if ($block = container(BlockFeature::class)->getFirstBlockForFlat($flatId, $this->services))
-                return json_response(403, body: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
+                return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
         } else if ($this->house && array_key_exists($this->house, $value) && !is_null($value[$this->house])) {
             $houseId = rule()->id()->onItem($this->house, $value);
 
@@ -59,8 +65,8 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
             $blockFlats = array_filter($flats, static fn(?FlatBlock $block) => $block != null);
 
             if (count($flats) == count($blockFlats))
-                return json_response(403, body: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($blockFlats[0]->cause ? (' ' . $blockFlats[0]->cause) : '')]);
-        } else return json_response(403, body: ['code' => 403, 'message' => 'Не удалось определить квартиру']);
+                return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($blockFlats[0]->cause ? (' ' . $blockFlats[0]->cause) : '')]);
+        } else return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Не удалось определить квартиру']);
 
         return $handler->handle($request);
     }
