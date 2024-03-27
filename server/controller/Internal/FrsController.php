@@ -50,7 +50,7 @@ readonly class FrsController extends RbtController
                 if ($flatEntrance['entranceId'] === $entrance['entranceId']) {
                     $find = true;
 
-                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) == null)
+                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) != null)
                         return response(204);
 
                     break;
