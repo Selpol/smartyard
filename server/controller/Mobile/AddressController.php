@@ -53,7 +53,7 @@ readonly class AddressController extends RbtController
                 $house = &$houses[$houseId];
 
                 if (!$house['hasPlog'])
-                    $house['hasPlog'] = !$eventBlock || $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
+                    $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
             } else {
                 $houses[$houseId] = [];
                 $house = &$houses[$houseId];
@@ -61,7 +61,7 @@ readonly class AddressController extends RbtController
                 $house['houseId'] = strval($houseId);
                 $house['address'] = $flat['house']['houseFull'];
 
-                $house['hasPlog'] = !$eventBlock || $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
+                $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
 
                 $house['cameras'] = $cctvBlock ? [] : $houseFeature->getCameras("houseId", $houseId);
 
