@@ -51,7 +51,7 @@ readonly class PlogController extends RbtController
         $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
-        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
+        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
             return user_response(403, message: 'Недостаточно прав на просмотр событий');
 
         try {
@@ -184,7 +184,7 @@ readonly class PlogController extends RbtController
         $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
-        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+        if ($plog_access == PlogFeature::ACCESS_DENIED)
             return user_response(403, message: 'Недостаточно прав на просмотр событий');
 
         if ($plog_access == PlogFeature::ACCESS_OWNER_ONLY)

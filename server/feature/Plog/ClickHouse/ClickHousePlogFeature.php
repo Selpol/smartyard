@@ -411,9 +411,6 @@ readonly class ClickHousePlogFeature extends PlogFeature
     {
         $flat = container(HouseFeature::class)->getFlat($flat_id);
 
-        if ($flat['plog'] == self::ACCESS_RESTRICTED_BY_ADMIN)
-            return -1;
-
         $hidden = 0;
 
         if ($flat['plog'] == self::ACCESS_DENIED)

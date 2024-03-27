@@ -28,7 +28,11 @@ readonly class AddressController extends RbtController
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $subscriberBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]);
+        $subscriberIntercomBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]) != null;
+        $subscriberCctvBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV]) != null;
+        $subscriberBlock = $subscriberIntercomBlock && $subscriberCctvBlock;
+
+        $subscriberEventBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SUB_SERVICE_EVENT]) != null;
 
         $houses = [];
 
@@ -37,63 +41,68 @@ readonly class AddressController extends RbtController
 
             $flatDetail = $houseFeature->getFlat($flat["flatId"]);
 
-            if ($subscriberBlock != null) $block = true;
-            else if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM]) != null) $block = true;
-            else $block = false;
+            $intercomBlock = $subscriberIntercomBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM]) != null;
+            $cctvBlock = $subscriberCctvBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null;
+            $block = $subscriberBlock || $intercomBlock && $cctvBlock;
 
-            if (array_key_exists($houseId, $houses)) $house = &$houses[$houseId];
-            else {
+            $eventBlock = $subscriberEventBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_EVENT]) != null;
+
+            $is_owner = ((int)$flat['role'] == 0);
+
+            if (array_key_exists($houseId, $houses)) {
+                $house = &$houses[$houseId];
+
+                if (!$house['hasPlog'])
+                    $house['hasPlog'] = !$eventBlock || $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
+            } else {
                 $houses[$houseId] = [];
                 $house = &$houses[$houseId];
 
                 $house['houseId'] = strval($houseId);
                 $house['address'] = $flat['house']['houseFull'];
 
-                $is_owner = ((int)$flat['role'] == 0);
+                $house['hasPlog'] = !$eventBlock || $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
 
-                $has_plog = $flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner;
+                $house['cameras'] = $cctvBlock ? [] : $houseFeature->getCameras("houseId", $houseId);
 
-                if ($flatDetail['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
-                    $house['hasPlog'] = $has_plog;
-
-                $house['cameras'] = $houseFeature->getCameras("houseId", $houseId);
+                $house['flats'] = [];
                 $house['doors'] = [];
             }
 
-            if (!array_key_exists('flats', $house))
-                $house['flats'] = [];
-
             $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
 
-            $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
+            if (!$cctvBlock)
+                $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
+
             $house['cctv'] = count($house['cameras']);
 
-            foreach ($flatDetail['entrances'] as $entrance) {
-                if (array_key_exists($entrance['entranceId'], $house['doors']))
-                    continue;
+            if (!$intercomBlock)
+                foreach ($flatDetail['entrances'] as $entrance) {
+                    if (array_key_exists($entrance['entranceId'], $house['doors']))
+                        continue;
 
-                $e = $houseFeature->getEntrance($entrance['entranceId']);
+                    $e = $houseFeature->getEntrance($entrance['entranceId']);
 
-                $door = [];
+                    $door = [];
 
-                $door['domophoneId'] = strval($e['domophoneId']);
-                $door['doorId'] = intval($e['domophoneOutput']);
-                $door['cameraId'] = intval($e['cameraId']);
+                    $door['domophoneId'] = strval($e['domophoneId']);
+                    $door['doorId'] = intval($e['domophoneOutput']);
+                    $door['cameraId'] = intval($e['cameraId']);
 
-                $door['icon'] = $e['entranceType'];
-                $door['name'] = $e['entrance'];
+                    $door['icon'] = $e['entranceType'];
+                    $door['name'] = $e['entrance'];
 
-                if ($e['cameraId']) {
-                    $cam = $cameraFeature->getCamera($e["cameraId"]);
+                    if ($e['cameraId']) {
+                        $cam = $cameraFeature->getCamera($e["cameraId"]);
 
-                    $house['cameras'][] = $cam;
-                    $house['cctv']++;
+                        $house['cameras'][] = $cam;
+                        $house['cctv']++;
+                    }
+
+                    $door['block'] = $block;
+
+                    $house['doors'][$entrance['entranceId']] = $door;
                 }
-
-                $door['block'] = $block;
-
-                $house['doors'][$entrance['entranceId']] = $door;
-            }
         }
 
         foreach ($houses as $house_key => $h) {

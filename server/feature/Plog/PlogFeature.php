@@ -38,7 +38,6 @@ readonly abstract class PlogFeature extends Feature
     const ACCESS_DENIED = 0;
     const ACCESS_ALL = 1;
     const ACCESS_OWNER_ONLY = 2;
-    const ACCESS_RESTRICTED_BY_ADMIN = 3;
 
     //источник картинки
     const PREVIEW_NONE = 0;

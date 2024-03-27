@@ -66,12 +66,12 @@ readonly class IntercomController extends RbtController
 
             $disable_plog = null;
 
-            if (@$settings['disablePlog'] && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['disablePlog'])
                 $disable_plog = ($settings['disablePlog'] == true);
 
             $hidden_plog = null;
 
-            if (@$settings['hiddenPlog'] && $flat_plog != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN)
+            if (@$settings['hiddenPlog'])
                 $hidden_plog = ($settings['hiddenPlog'] == true);
 
             if ($disable_plog === true) $params['plog'] = PlogFeature::ACCESS_DENIED;
@@ -106,11 +106,8 @@ readonly class IntercomController extends RbtController
         $result['VoIP'] = (bool)(@$subscriber['voipEnabled']);
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
-
-        if ($flat['plog'] != PlogFeature::ACCESS_RESTRICTED_BY_ADMIN) {
-            $result['disablePlog'] = $flat['plog'] == PlogFeature::ACCESS_DENIED;
-            $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
-        }
+        $result['disablePlog'] = $flat['plog'] == PlogFeature::ACCESS_DENIED;
+        $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
 
         $frsDisabled = null;
 
