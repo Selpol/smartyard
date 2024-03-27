@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Feature\Block\BlockFeature;
@@ -24,10 +25,12 @@ use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
+use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
+use const FETCH_NUM;
 
-#[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
+#[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
 {
     /**
@@ -46,7 +49,7 @@ readonly class CameraController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
+    #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function common(DvrFeature $dvrFeature): ResponseInterface
     {
         $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
@@ -81,7 +84,7 @@ readonly class CameraController extends RbtController
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
     }
 
-    #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, BlockMiddleware::class])]
+    #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
     public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
@@ -131,16 +134,48 @@ readonly class CameraController extends RbtController
         '/{cameraId}',
         includes: [
             FlatMiddleware::class => ['house' => 'houseId'],
-            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_CCTV]]
+            BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM],
+            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
-    public function show(CameraShowRequest $request, int $cameraId, DvrFeature $dvrFeature): ResponseInterface
+    public function show(CameraShowRequest $request, int $cameraId, DatabaseService $databaseService, HouseFeature $houseFeature, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
         $camera = DeviceCamera::findById($cameraId);
 
-        if (!$camera || !$camera->checkAccessForSubscriber($user, $request->houseId, null, null))
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
+
+        $entrances = $houseFeature->getEntrances('houseId', $request->houseId);
+
+        $findEntrance = null;
+
+        foreach ($entrances as $entrance) {
+            if ($entrance['cameraId'] == $cameraId) {
+                $findEntrance = $entrance;
+
+                break;
+            }
+        }
+
+        if (!$findEntrance)
+            return user_response(404, message: 'Камера не найдена');
+
+        $flats = [];
+
+        foreach ($user['flats'] as $flat) {
+            if ($flat['addressHouseId'] == $request->houseId) {
+                $flats[] = $flat['flatId'];
+            }
+        }
+
+        if (!$flats)
+            return user_response(404, message: 'Камера не найдена');
+
+        $statement = $databaseService->getConnection()->prepare('SELECT 1 FROM houses_entrances_flats WHERE house_flat_id IN (' . implode(', ', $flats) . ') AND house_entrance_id = :entrance_id');
+
+        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() != 1 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
             return user_response(404, message: 'Камера не найдена');
 
         return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
@@ -173,7 +208,7 @@ readonly class CameraController extends RbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/events')]
+    #[Post('/events', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],])]
     public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
