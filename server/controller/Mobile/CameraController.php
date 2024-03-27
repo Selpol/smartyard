@@ -175,7 +175,7 @@ readonly class CameraController extends RbtController
 
         $statement = $databaseService->getConnection()->prepare('SELECT 1 FROM houses_entrances_flats WHERE house_flat_id IN (' . implode(', ', $flats) . ') AND house_entrance_id = :entrance_id');
 
-        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() != 1 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
+        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
             return user_response(404, message: 'Камера не найдена');
 
         return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
