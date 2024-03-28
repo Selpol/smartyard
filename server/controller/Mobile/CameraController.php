@@ -92,7 +92,7 @@ readonly class CameraController extends RbtController
 
         $streamerFeature->stream($stream);
 
-        return user_response(data: $stream->getToken());
+        return user_response(data: ['server' => $stream->getServer()->url, 'token' => $stream->getToken()]);
     }
 
     /**
