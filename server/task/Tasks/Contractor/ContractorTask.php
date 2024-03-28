@@ -104,12 +104,11 @@ abstract class ContractorTask extends Task
                 }, []),
                 0,
                 0,
-                '',
-                1,
                 time(),
                 0,
                 0,
-                ''
+                null,
+                null
             );
 
             $flat = HouseFlat::findById($flatId, setting: setting()->nonNullable()->columns(['house_flat_id', 'flat']));

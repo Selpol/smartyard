@@ -128,7 +128,8 @@ readonly class InternalHouseFeature extends HouseFeature
                         sip_enabled, 
                         sip_password,
                         last_opened,
-                        cms_enabled
+                        cms_enabled,
+                        comment
                     from houses_flats
                     where house_flat_id = :flat_id",
             [
@@ -147,6 +148,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 "sip_password" => "sipPassword",
                 "last_opened" => "lastOpened",
                 "cms_enabled" => "cmsEnabled",
+                "comment" => "comment"
             ],
             options: ["singlify"]);
 
@@ -310,7 +312,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword): bool|int|string
+    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
     {
         $autoOpen = (int)strtotime($autoOpen);
 
@@ -319,7 +321,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 $openCode = 11000 + rand(0, 88999);
             }
 
-            $flatId = $this->getDatabase()->insert("insert into houses_flats (address_house_id, floor, flat, code, open_code, plog, auto_open, white_rabbit, sip_enabled, sip_password, cms_enabled) values (:address_house_id, :floor, :flat, :code, :open_code, :plog, :auto_open, :white_rabbit, :sip_enabled, :sip_password, 1)", [
+            $flatId = $this->getDatabase()->insert("insert into houses_flats (address_house_id, floor, flat, code, open_code, plog, auto_open, white_rabbit, sip_enabled, sip_password, cms_enabled, comment) values (:address_house_id, :floor, :flat, :code, :open_code, :plog, :auto_open, :white_rabbit, :sip_enabled, :sip_password, 1, :comment)", [
                 ":address_house_id" => $houseId,
                 ":floor" => $floor,
                 ":flat" => $flat,
@@ -330,6 +332,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 ":white_rabbit" => $whiteRabbit,
                 ":sip_enabled" => $sipEnabled,
                 ":sip_password" => $sipPassword,
+                ":comment" => $comment
             ]);
 
             if ($flatId) {
@@ -394,7 +397,8 @@ readonly class InternalHouseFeature extends HouseFeature
             "white_rabbit" => "whiteRabbit",
             "sip_enabled" => "sipEnabled",
             "sip_password" => "sipPassword",
-            "cms_enabled" => "cmsEnabled"
+            "cms_enabled" => "cmsEnabled",
+            "comment" => "comment"
         ], $params);
 
         if ($mod !== false && array_key_exists("flat", $params) && array_key_exists("entrances", $params) && array_key_exists("apartmentsAndLevels", $params) && is_array($params["entrances"]) && is_array($params["apartmentsAndLevels"])) {
