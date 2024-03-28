@@ -5,6 +5,8 @@ namespace Selpol\Controller\Mobile;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Device\Ip\Dvr\Common\DvrContainer;
+use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
@@ -17,6 +19,10 @@ use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Feature\Streamer\StreamInput;
+use Selpol\Feature\Streamer\StreamOutput;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
@@ -49,42 +55,18 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function common(DvrFeature $dvrFeature): ResponseInterface
+    public function common(): ResponseInterface
     {
-        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
+        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1), setting()->columns(['camera_id', 'name', 'lat', 'lon']));
 
-        return user_response(data: array_map(fn(DeviceCamera $camera) => $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
-            "camera_id" => "cameraId",
-            "dvr_server_id" => "dvrServerId",
-            "frs_server_id" => "frsServerId",
-            "enabled" => "enabled",
-            "model" => "model",
-            "url" => "url",
-            "stream" => "stream",
-            "credentials" => "credentials",
-            "name" => "name",
-            "dvr_stream" => "dvrStream",
-            "timezone" => "timezone",
-            "lat" => "lat",
-            "lon" => "lon",
-            "direction" => "direction",
-            "angle" => "angle",
-            "distance" => "distance",
-            "frs" => "frs",
-            "md_left" => "mdLeft",
-            "md_top" => "mdTop",
-            "md_width" => "mdWidth",
-            "md_height" => "mdHeight",
-            "common" => "common",
-            "comment" => "comment"
-        ]), null), $cameras))
+        return user_response(data: $cameras)
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
     }
 
     #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
+    public function commonStream(CameraCommonDvrRequest $request, StreamerFeature $streamerFeature): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
 
@@ -96,33 +78,21 @@ readonly class CameraController extends RbtController
         if (!$dvr)
             return user_response(404, message: 'Устройство не найден');
 
-        $identifier = $dvr->identifier($camera, $request->time ?? time(), null);
+        $identifier = $dvr->identifier($camera, time(), null);
 
         if (!$identifier)
-            return user_response(404, message: 'Идентификатор не найден');
+            return user_response(404, message: 'Не удалось получить идентификатор');
 
-        try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
+        $stream = new Stream($streamerFeature->random());
 
-            return user_response(data: [
-                'identifier' => $identifier,
+        $stream
+            ->source($dvr->video($identifier, $camera, DvrContainer::RTSP, DvrStream::ONLINE, []))
+            ->input(StreamInput::RTSP)
+            ->output(StreamOutput::RTC);
 
-                'acquire' => $dvr->acquire(null, null),
-                'capabilities' => [
-                    'poster' => true,
-                    'preview' => false,
+        $streamerFeature->stream($stream);
 
-                    'online' => true,
-                    'archive' => false,
-
-                    'speed' => []
-                ]
-            ]);
-        } catch (Throwable $throwable) {
-            file_logger('dvr')->error($throwable);
-        }
-
-        return user_response(500, message: 'Ошибка состояния камеры');
+        return user_response(data: $stream->getToken());
     }
 
     /**

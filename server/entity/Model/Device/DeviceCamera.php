@@ -32,6 +32,7 @@ use Selpol\Service\DatabaseService;
  * @property double|null $direction
  * @property double|null $angle
  * @property double|null $distance
+ *
  * @property int|null $md_left
  * @property int|null $md_top
  * @property int|null $md_width
