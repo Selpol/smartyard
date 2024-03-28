@@ -66,7 +66,7 @@ readonly class CameraController extends RbtController
     }
 
     #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function commonStream(CameraCommonDvrRequest $request, StreamerFeature $streamerFeature): ResponseInterface
+    public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
 
@@ -78,21 +78,33 @@ readonly class CameraController extends RbtController
         if (!$dvr)
             return user_response(404, message: 'Устройство не найден');
 
-        $identifier = $dvr->identifier($camera, time(), null);
+        $identifier = $dvr->identifier($camera, $request->time ?? time(), null);
 
         if (!$identifier)
-            return user_response(404, message: 'Не удалось получить идентификатор');
+            return user_response(404, message: 'Идентификатор не найден');
 
-        $stream = new Stream($streamerFeature->random());
+        try {
+            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
 
-        $stream
-            ->source($dvr->video($identifier, $camera, DvrContainer::RTSP, DvrStream::ONLINE, []))
-            ->input(StreamInput::RTSP)
-            ->output(StreamOutput::RTC);
+            return user_response(data: [
+                'identifier' => $identifier,
 
-        $streamerFeature->stream($stream);
+                'acquire' => $dvr->acquire(null, null),
+                'capabilities' => [
+                    'poster' => true,
+                    'preview' => false,
 
-        return user_response(data: ['server' => $stream->getServer()->url, 'token' => $stream->getToken()]);
+                    'online' => true,
+                    'archive' => false,
+
+                    'speed' => []
+                ]
+            ]);
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
+        }
+
+        return user_response(500, message: 'Ошибка состояния камеры');
     }
 
     /**

@@ -31,6 +31,11 @@ class Stream implements JsonSerializable
         return $this->token;
     }
 
+    public function getOutput(): StreamOutput
+    {
+        return $this->output;
+    }
+
     /**
      * Ссылка на видеопоток для рестримера
      * @param string $value

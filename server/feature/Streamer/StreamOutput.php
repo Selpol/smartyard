@@ -2,8 +2,7 @@
 
 namespace Selpol\Feature\Streamer;
 
-enum StreamOutput
+enum StreamOutput: string
 {
-    case HLS;
-    case RTC;
+    case RTC = 'rtc';
 }

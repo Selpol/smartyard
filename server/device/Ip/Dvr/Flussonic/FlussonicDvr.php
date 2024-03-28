@@ -6,9 +6,14 @@ use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
+use Selpol\Device\Ip\Dvr\Common\DvrOnline;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Feature\Streamer\StreamInput;
+use Selpol\Feature\Streamer\StreamOutput;
 use Throwable;
 
 class FlussonicDvr extends DvrDevice
@@ -70,13 +75,25 @@ class FlussonicDvr extends DvrDevice
         return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
     }
 
-    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP)
                 return uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value);
             else if ($container === DvrContainer::HLS)
                 return $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value;
+            else if ($container === DvrContainer::RTC) {
+                $stream = new Stream(container(StreamerFeature::class)->random());
+
+                $stream
+                    ->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value))
+                    ->input(StreamInput::RTSP)
+                    ->output(StreamOutput::RTC);
+
+                container(StreamerFeature::class)->stream($stream);
+
+                return new DvrOnline($stream->getServer()->url, $stream->getToken(), $stream->getOutput());
+            }
         } else if ($stream === DvrStream::ARCHIVE) {
             if ($container == DvrContainer::HLS) {
                 /** @var array<string, array<string, int>> $timeline */

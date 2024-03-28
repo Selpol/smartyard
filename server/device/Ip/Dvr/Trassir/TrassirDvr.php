@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
+use Selpol\Device\Ip\Dvr\Common\DvrOnline;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
@@ -125,8 +126,7 @@ class TrassirDvr extends DvrDevice
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
-    // TODO: Добавить поддержку RTSP
-    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::HLS) {
@@ -134,6 +134,10 @@ class TrassirDvr extends DvrDevice
 
                 if (array_key_exists('success', $response) && $response['success'])
                     return $this->server->url . '/hls/' . $response['token'] . '/master.m3u8';
+            } else if ($container === DvrContainer::RTC) {
+                // TODO: Добавить поддержку RTC
+
+                return null;
             }
         } else if ($stream === DvrStream::ARCHIVE) {
             $depth = $this->get('/s/archive/timeline', ['channel' => $camera->dvr_stream, 'sid' => $this->getSid()]);

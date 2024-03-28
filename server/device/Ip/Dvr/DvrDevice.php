@@ -7,6 +7,7 @@ use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
+use Selpol\Device\Ip\Dvr\Common\DvrOnline;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
@@ -93,9 +94,9 @@ abstract class DvrDevice extends IpDevice
      * @param DvrContainer $container
      * @param DvrStream $stream
      * @param array $arguments
-     * @return DvrArchive|string|null
+     * @return DvrArchive|DvrOnline|string|null
      */
-    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|string|null
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
     {
         return null;
     }
