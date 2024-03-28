@@ -10,7 +10,10 @@ readonly class RedisStreamerFeature extends StreamerFeature
 {
     public function random(): StreamerServer
     {
+        $streamers = array_map(static fn(StreamerServer $server) => $server->id, StreamerServer::fetchAll(setting: setting()->columns(['id'])));
+        $index = rand(0, count($streamers) - 1);
 
+        return StreamerServer::findById($streamers[$index], setting: setting()->nonNullable());
     }
 
     public function stream(Stream $value): void
