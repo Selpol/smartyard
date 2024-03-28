@@ -92,7 +92,7 @@ class FlussonicDvr extends DvrDevice
 
                 container(StreamerFeature::class)->stream($stream);
 
-                return new DvrOnline($stream->getServer()->url, $stream->getToken(), $stream->getOutput());
+                return new DvrOnline($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput());
             }
         } else if ($stream === DvrStream::ARCHIVE) {
             if ($container == DvrContainer::HLS) {
