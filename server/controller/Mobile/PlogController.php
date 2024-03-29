@@ -97,16 +97,13 @@ readonly class PlogController extends RbtController
 
                         $subscriber_id = (int)$user['subscriberId'];
 
-                        if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
-                            $e_details['detailX']['flags'][] = FrsFeature::FLAG_LIKED;
-                            $e_details['detailX']['flags'][] = FrsFeature::FLAG_CAN_DISLIKE;
-                        } else {
-                            $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
-                        }
+                        if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner))
+                            $e_details['detailX']['flags'] = [FrsFeature::FLAG_LIKED, FrsFeature::FLAG_CAN_DISLIKE];
+                        else $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
                     }
 
                     if (isset($face->faceId) && $face->faceId > 0) $e_details['detailX']['faceId'] = strval($face->faceId);
-                    else $e_details['detailX']['faceId'] = '';
+                    else $e_details['detailX']['faceId'] = null;
 
                     $phones = json_decode($row[PlogFeature::COLUMN_PHONES]);
 
