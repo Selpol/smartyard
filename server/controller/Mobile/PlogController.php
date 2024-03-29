@@ -90,7 +90,6 @@ readonly class PlogController extends RbtController
                     if (isset($face->width) && $face->width > 0 && isset($face->height) && $face->height > 0) {
                         $e_details['detailX']['face'] = ['left' => $face->left, 'top' => $face->top, 'width' => $face->width, 'height' => $face->height];
 
-                        $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
                         $face_id = null;
 
                         if (isset($face->faceId) && $face->faceId > 0)
@@ -101,6 +100,8 @@ readonly class PlogController extends RbtController
                         if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_LIKED;
                             $e_details['detailX']['flags'][] = FrsFeature::FLAG_CAN_DISLIKE;
+                        } else {
+                            $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
                         }
                     }
 
