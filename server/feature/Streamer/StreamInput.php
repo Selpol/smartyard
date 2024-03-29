@@ -2,8 +2,8 @@
 
 namespace Selpol\Feature\Streamer;
 
-enum StreamInput
+enum StreamInput: string
 {
-    case RTSP;
-    case HLS;
+    case RTSP = 'rtsp';
+    case HLS = 'hls';
 }

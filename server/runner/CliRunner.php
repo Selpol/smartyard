@@ -9,7 +9,6 @@ use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Model\Device\DeviceIntercom;
-use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Backup\BackupFeature;

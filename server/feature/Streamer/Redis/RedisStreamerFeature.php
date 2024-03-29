@@ -19,6 +19,6 @@ readonly class RedisStreamerFeature extends StreamerFeature
     public function stream(Stream $value): void
     {
         // 30 Секунд время, за которое нужно запросить стрим, иначе он будет утерен и его требуется запросить заново.
-        $this->getRedis()->setEx('streamer:' . $value->getServer()->id . ':' . $value->getToken(), 30, json_encode($value->jsonSerialize()));
+        $this->getRedis()->setEx($value->getKey(), 30, json_encode($value));
     }
 }
