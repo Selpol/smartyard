@@ -16,6 +16,10 @@ use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Feature\Streamer\StreamInput;
+use Selpol\Feature\Streamer\StreamOutput;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
@@ -129,13 +133,35 @@ class TrassirDvr extends DvrDevice
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
     {
         if ($stream === DvrStream::ONLINE) {
+            if ($container === DvrContainer::RTSP) {
+                return null;
+            }
             if ($container === DvrContainer::HLS) {
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success'])
                     return $this->server->url . '/hls/' . $response['token'] . '/master.m3u8';
             } else if ($container === DvrContainer::RTC) {
-                // TODO: Добавить поддержку RTC
+                $setting = $this->get('/s/archive/setting', ['sid' => $this->getSid()]);
+
+                if (!array_key_exists('success', $setting) && !$setting['success'])
+                    return null;
+
+                $rtsp = array_key_exists('rtsp', $setting['data']) ? $setting['data']['rtsp'] : 554;
+                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
+
+                if (array_key_exists('success', $response) && $response['success']) {
+                    $stream = new Stream(container(StreamerFeature::class)->random());
+
+                    $stream
+                        ->source((string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token'] . '/'))
+                        ->input(StreamInput::RTSP)
+                        ->output(StreamOutput::RTC);
+
+                    container(StreamerFeature::class)->stream($stream);
+
+                    return new DvrOnline($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput());
+                }
 
                 return null;
             }
