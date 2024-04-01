@@ -6,7 +6,8 @@ use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
-use Selpol\Device\Ip\Dvr\Common\DvrOnline;
+use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
+use Selpol\Device\Ip\Dvr\Common\DvrOutput;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
@@ -75,40 +76,41 @@ class FlussonicDvr extends DvrDevice
         return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
     }
 
-    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP)
-                return uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value);
+                return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value));
             else if ($container === DvrContainer::HLS)
-                return $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value;
+                return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
             else if ($container === DvrContainer::RTC) {
                 $stream = new Stream(container(StreamerFeature::class)->random());
 
-                $stream
-                    ->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value))
-                    ->input(StreamInput::RTSP)
-                    ->output(StreamOutput::RTC);
+                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value))->input(StreamInput::RTSP)->output(StreamOutput::RTC);
 
                 container(StreamerFeature::class)->stream($stream);
 
-                return new DvrOnline($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput());
+                return new DvrOutput(
+                    $container,
+                    new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                );
             }
         } else if ($stream === DvrStream::ARCHIVE) {
-            if ($container == DvrContainer::HLS) {
-                /** @var array<string, array<string, int>> $timeline */
-                $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
+            /** @var array<string, array<string, int>> $timeline */
+            $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
 
-                if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
-                    return null;
+            if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+                return null;
 
-                $from = $timeline[$camera->dvr_stream]['from'];
-                $to = $timeline[$camera->dvr_stream]['to'];
+            $from = $timeline[$camera->dvr_stream]['from'];
+            $to = $timeline[$camera->dvr_stream]['to'];
 
-                $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
+            $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
 
-                return new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, null);
-            }
+            return new DvrOutput(
+                DvrContainer::HLS,
+                new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, null)
+            );
         }
 
         return null;

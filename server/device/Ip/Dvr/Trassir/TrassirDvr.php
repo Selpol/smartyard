@@ -10,7 +10,8 @@ use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
-use Selpol\Device\Ip\Dvr\Common\DvrOnline;
+use Selpol\Device\Ip\Dvr\Common\DvrOutput;
+use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
@@ -130,30 +131,34 @@ class TrassirDvr extends DvrDevice
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
-    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): DvrArchive|DvrOnline|string|null
+    public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
     {
         if ($stream === DvrStream::ONLINE) {
-            if ($container === DvrContainer::RTSP)
-                return $this->getRtspOnline($camera, $arguments);
+            if ($container === DvrContainer::RTSP) {
+                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
+
+                if ($rtsp != null)
+                    return new DvrOutput($container, $rtsp[0]);
+            }
             if ($container === DvrContainer::HLS) {
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success'])
-                    return $this->server->url . '/hls/' . $response['token'] . '/master.m3u8';
+                    return new DvrOutput($container, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
             } else if ($container === DvrContainer::RTC) {
-                $rtsp = $this->getRtspOnline($camera, $arguments);
+                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
 
                 if ($rtsp != null) {
                     $stream = new Stream(container(StreamerFeature::class)->random());
 
-                    $stream
-                        ->source($rtsp)
-                        ->input(StreamInput::RTSP)
-                        ->output(StreamOutput::RTC);
+                    $stream->source($rtsp[0])->input(StreamInput::RTSP)->output(StreamOutput::RTC);
 
                     container(StreamerFeature::class)->stream($stream);
 
-                    return new DvrOnline($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput());
+                    return new DvrOutput(
+                        $container,
+                        new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                    );
                 }
 
                 return null;
@@ -169,20 +174,33 @@ class TrassirDvr extends DvrDevice
 
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
 
-            if ($container === DvrContainer::HLS) {
-                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'archive_sub' : 'archive', 'hw' => $arguments['hw'] ?? false, 'sid' => $this->getSid()]);
+            $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
 
-                if (array_key_exists('success', $response) && $response['success']) {
-                    $this->client->send(client_request('GET', $this->uri . '/hls/' . $response['token'] . '/master.m3u8'), $this->clientOption);
+            if ($rtsp != null) {
+                $this->client->send(client_request('GET', $rtsp[0]), $this->clientOption);
 
-                    if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::SEEK, ['seek' => $seek, 'token' => $response['token']]))
-                        return null;
+                if (!$this->command($identifier, $camera, DvrContainer::RTSP, $stream, DvrCommand::SEEK, ['seek' => $seek, 'token' => $rtsp[1]]))
+                    return null;
 
-                    if (!$this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, ['seek' => $seek, 'from' => $from, 'to' => $to, 'token' => $response['token']]))
-                        return null;
+                if (!$this->command($identifier, $camera, DvrContainer::RTSP, $stream, DvrCommand::PLAY, ['seek' => $seek, 'from' => $from, 'to' => $to, 'token' => $rtsp[1]]))
+                    return null;
 
-                    return new DvrArchive($this->server->url . '/hls/' . $response['token'] . '/master.m3u8', $from, $to, $seek, $response['token']);
-                }
+                $stream = new Stream(container(StreamerFeature::class)->random());
+
+                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output(StreamOutput::RTC);
+
+                container(StreamerFeature::class)->stream($stream);
+
+                return new DvrOutput(
+                    DvrContainer::RTC,
+                    new DvrArchive(
+                        new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput()),
+                        $from,
+                        $to,
+                        $seek,
+                        $rtsp[1]
+                    )
+                );
             }
         }
 
@@ -223,7 +241,7 @@ class TrassirDvr extends DvrDevice
         return $hash . '-' . $salt;
     }
 
-    private function getRtspOnline(DeviceCamera $camera, array $arguments): ?string
+    private function getRtspStream(DeviceCamera $camera, string $stream): ?array
     {
         $setting = $this->get('/s/archive/setting', ['sid' => $this->getSid()]);
 
@@ -231,10 +249,10 @@ class TrassirDvr extends DvrDevice
             return null;
 
         $rtsp = array_key_exists('rtsp', $setting['data']) ? $setting['data']['rtsp'] : 554;
-        $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
+        $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $stream, 'sid' => $this->getSid()]);
 
         if (array_key_exists('success', $response) && $response['success'])
-            return (string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token'] . '/');
+            return [(string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token'] . '/'), $response['token']];
 
         return null;
     }

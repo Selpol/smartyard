@@ -5,7 +5,7 @@ namespace Selpol\Device\Ip\Dvr\Common;
 use JsonSerializable;
 use Selpol\Feature\Streamer\StreamOutput;
 
-readonly class DvrOnline implements JsonSerializable
+readonly class DvrStreamer implements JsonSerializable
 {
     public string $server;
     public string $token;
