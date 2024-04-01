@@ -64,7 +64,7 @@ readonly class DvrController extends RbtController
             if (is_null($findFlatId))
                 return user_response(404, message: 'Квартира не найдена');
 
-            if (($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
+            if (($block = $blockFeature->getFirstBlockForFlat($findFlatId, [BlockFeature::SERVICE_CCTV])) !== null)
                 return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
         } else if (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
