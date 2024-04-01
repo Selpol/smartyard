@@ -36,7 +36,7 @@ readonly class DvrController extends RbtController
         includes: [
             FlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id'],
             BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
-            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'services' => [BlockFeature::SERVICE_CCTV]]
+            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id', 'services' => [BlockFeature::SERVICE_CCTV]]
         ],
         excludes: [RateLimitMiddleware::class]
     )]
