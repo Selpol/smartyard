@@ -109,7 +109,7 @@ class FlussonicDvr extends DvrDevice
 
             return new DvrOutput(
                 DvrContainer::HLS,
-                new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, null)
+                new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, $camera->timezone, null)
             );
         }
 

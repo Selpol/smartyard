@@ -198,7 +198,8 @@ class TrassirDvr extends DvrDevice
                         $from,
                         $to,
                         $seek,
-                        $rtsp[1]
+                        $camera->timezone,
+                        $rtsp[1],
                     )
                 );
             }
