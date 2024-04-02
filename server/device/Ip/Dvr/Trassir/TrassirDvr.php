@@ -177,7 +177,17 @@ class TrassirDvr extends DvrDevice
             $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
 
             if ($rtsp != null) {
-                $this->client->send(client_request('GET', $rtsp[0]), $this->clientOption);
+                $curl = curl_init();
+
+                curl_setopt($curl, CURLOPT_VERBOSE, true);
+                curl_setopt($curl, CURLOPT_HEADER, true);
+                curl_setopt($curl, CURLOPT_URL, $rtsp[0]);
+                curl_setopt($curl, CURLOPT_RTSP_STREAM_URI, $rtsp[0]);
+                curl_setopt($curl, CURLOPT_RTSP_REQUEST, CURL_RTSPREQ_DESCRIBE;
+
+                $response = curl_exec($curl);
+
+                file_logger('dvr')->debug('DVR response', [$response]);
 
                 if (!$this->command($identifier, $camera, DvrContainer::RTSP, $stream, DvrCommand::SEEK, ['seek' => $seek, 'token' => $rtsp[1]]))
                     return null;
