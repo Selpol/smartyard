@@ -184,6 +184,7 @@ class TrassirDvr extends DvrDevice
                 curl_setopt($curl, CURLOPT_URL, $rtsp[0]);
                 curl_setopt($curl, CURLOPT_RTSP_STREAM_URI, $rtsp[0]);
                 curl_setopt($curl, CURLOPT_RTSP_REQUEST, CURL_RTSPREQ_DESCRIBE);
+                curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 
                 $response = curl_exec($curl);
 
