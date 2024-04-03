@@ -77,11 +77,17 @@ class FlussonicDvr extends DvrDevice
         if (!$camera)
             return null;
 
+        if ($camera->model->vendor === 'FAKE')
+            return null;
+
         return $camera->getScreenshot();
     }
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
+        if ($arguments['time'])
+            return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
