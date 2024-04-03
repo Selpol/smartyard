@@ -223,7 +223,10 @@ class TrassirDvr extends DvrDevice
 
             $response = $this->get('/archive_command', $query);
 
-            return array_key_exists('success', $response) && $response['success'] == 1;
+            if (array_key_exists('success', $response) && $response['success'] == 1)
+                return ['seek' => strtotime($response['first_frame_ts'])];
+
+            return false;
         } else if ($command === DvrCommand::PAUSE) {
             $response = $this->get('/archive_command', ['command' => 'pause', 'token' => $arguments['token'], 'sid' => $this->getSid()]);
 
