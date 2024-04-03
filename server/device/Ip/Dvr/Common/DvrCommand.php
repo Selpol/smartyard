@@ -10,4 +10,5 @@ enum DvrCommand: string
     case SEEK = "seek";
 
     case SPEED = "speed";
+    case PING = "ping";
 }

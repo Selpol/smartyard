@@ -50,7 +50,7 @@ class FlussonicDvr extends DvrDevice
             'online' => true,
             'archive' => true,
 
-            'command' => [],
+            'command' => [DvrCommand::SEEK->value],
             'speed' => [1, 2, 4]
         ];
     }
@@ -73,7 +73,7 @@ class FlussonicDvr extends DvrDevice
         if ($arguments['time'])
             return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
 
-        return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
+        return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
     }
 
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
@@ -125,6 +125,8 @@ class FlussonicDvr extends DvrDevice
         else if ($command === DvrCommand::SEEK && $arguments['seek']) {
             return ['archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']])];
         } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed']))
+            return true;
+        else if ($command === DvrCommand::PING)
             return true;
 
         return null;
