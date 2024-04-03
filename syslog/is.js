@@ -8,7 +8,18 @@ const gateRabbits = [];
 
 syslog.on("message", async ({date, host, message}) => {
     const now = getTimestamp(date);
-    const isMsg = message.split("- -")[1].trim();
+
+    /** @var {array} messages **/
+    let messages = message.split("- -");
+
+    if (message.length < 2 || !messages[1]) {
+        messages = message.split(": EVENT:");
+
+        if (message.length < 2 || !messages[1])
+            return;
+    }
+
+    const isMsg = messages[1].trim();
 
     // Spam messages filter
     const substrings = ["STM32.DEBUG", "Вызов метода", "Тело запроса", "libre", "ddns", "DDNS", "Загружена конфигурация", "Interval", "[Server]", "Proguard start", "UART"];
