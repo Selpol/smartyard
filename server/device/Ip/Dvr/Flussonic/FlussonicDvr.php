@@ -73,7 +73,7 @@ class FlussonicDvr extends DvrDevice
         if ($arguments['time'])
             return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
 
-        return $this->getUrl($camera) . '/preview.jpg?token=' . $identifier->value;
+        return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
     }
 
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
