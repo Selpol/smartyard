@@ -212,7 +212,7 @@ class TrassirDvr extends DvrDevice
                 'sid' => $this->getSid()
             ];
 
-            if (array_key_exists('seek', $arguments) && !is_null($arguments['seek']) || array_key_exists('from', $arguments) && !is_null('from', $arguments['from']))
+            if (array_key_exists('seek', $arguments) && !is_null($arguments['seek']) || array_key_exists('from', $arguments) && !is_null($arguments['from']))
                 $query['start'] = $arguments['seek'] ?: $arguments['from'];
 
             if (array_key_exists('to', $arguments) && !is_null($arguments['to']))
