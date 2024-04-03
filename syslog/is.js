@@ -9,9 +9,10 @@ const gateRabbits = [];
 syslog.on("message", async ({date, host, message}) => {
     const now = getTimestamp(date);
 
+    /** @var {array} messages **/
     const messages = message.split("- -");
 
-    if (message.length < 2)
+    if (message.length < 2 || !messages[1])
         return;
 
     const isMsg = messages[1].trim();
