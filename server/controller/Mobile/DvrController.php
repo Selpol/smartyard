@@ -87,6 +87,8 @@ readonly class DvrController extends RbtController
             return user_response(data: [
                 'identifier' => $identifier,
 
+                'type' => $dvr->server->type,
+
                 'acquire' => $dvr->acquire(null, null),
                 'capabilities' => $dvr->capabilities()
             ]);

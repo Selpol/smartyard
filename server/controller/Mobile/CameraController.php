@@ -7,6 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
+use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
@@ -89,6 +90,8 @@ readonly class CameraController extends RbtController
             return user_response(data: [
                 'identifier' => $identifier,
 
+                'type' => $dvr->server->type,
+
                 'acquire' => $dvr->acquire(null, null),
                 'capabilities' => [
                     'poster' => true,
@@ -159,7 +162,12 @@ readonly class CameraController extends RbtController
         if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
             return user_response(404, message: 'Камера не найдена');
 
-        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
+        $dvr = $camera->getDvrServer();
+
+        if (!$dvr)
+            return user_response(404, message: 'Камера не найдена');
+
+        return user_response(data: $dvrFeature->convertCameraForSubscriber($dvr, $camera->toArrayMap([
             "camera_id" => "cameraId",
             "dvr_server_id" => "dvrServerId",
             "frs_server_id" => "frsServerId",
@@ -288,6 +296,9 @@ readonly class CameraController extends RbtController
         $ids = [];
         $result = [];
 
+        /** @var array<int, DvrServer> $dvrs */
+        $dvrs = [];
+
         foreach ($houses as $house_key => $h) {
             $houses[$house_key]['doors'] = array_values($h['doors']);
 
@@ -302,7 +313,10 @@ readonly class CameraController extends RbtController
 
                 $ids[$camera['cameraId']] = true;
 
-                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
+                if (!array_key_exists($camera['dvrServerId'], $dvrs))
+                    $dvrs[$camera['dvrServerId']] = DvrServer::findById($camera['dvrServerId'], setting: setting()->nonNullable());
+
+                $result[] = $dvrFeature->convertCameraForSubscriber($dvrs[$camera['dvrServerId']], $camera, $user);
             }
         }
 

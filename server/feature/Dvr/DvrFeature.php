@@ -20,5 +20,5 @@ readonly abstract class DvrFeature extends Feature
 
     public abstract function getUrlOfScreenshot(array $cam, int $time, string|bool $addTokenToUrl = false): string|bool;
 
-    public abstract function convertCameraForSubscriber(array $camera, ?array $user): array;
+    public abstract function convertCameraForSubscriber(DvrServer $dvr, array $camera, ?array $user): array;
 }
