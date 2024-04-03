@@ -236,9 +236,7 @@ class TrassirDvr extends DvrDevice
 
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
-            $response = $this->get('/archive_command', ['speed' => $arguments['speed'], 'token' => $arguments['token'], 'sid' => $this->getSid()]);
-
-            return array_key_exists('success', $response) && $response['success'] == 1;
+            return $this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, $arguments);
         }
 
         return null;
