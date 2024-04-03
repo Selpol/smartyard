@@ -206,7 +206,7 @@ class TrassirDvr extends DvrDevice
             return null;
 
         if ($command === DvrCommand::PLAY && array_key_exists('seek', $arguments) && array_key_exists('from', $arguments) && array_key_exists('to', $arguments) && !is_null($arguments['to'])) {
-            $response = $this->get('/archive_command', ['command' => 'play', 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+            $response = $this->get('/archive_command', ['command' => 'play', 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => array_key_exists('speed', $arguments) ? $arguments['speed'] : 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
 
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::PAUSE) {
@@ -245,7 +245,7 @@ class TrassirDvr extends DvrDevice
         $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $stream, 'sid' => $this->getSid()]);
 
         if (array_key_exists('success', $response) && $response['success'])
-            return [(string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token'] . '/'), $response['token']];
+            return [(string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token']), $response['token']];
 
         return null;
     }
