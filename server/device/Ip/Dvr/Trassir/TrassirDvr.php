@@ -96,7 +96,7 @@ class TrassirDvr extends DvrDevice
     {
         return [
             'poster' => true,
-            'preview' => false,
+            'preview' => true,
 
             'online' => true,
             'archive' => true,
