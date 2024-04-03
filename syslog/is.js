@@ -10,10 +10,14 @@ syslog.on("message", async ({date, host, message}) => {
     const now = getTimestamp(date);
 
     /** @var {array} messages **/
-    const messages = message.split("- -");
+    let messages = message.split("- -");
 
-    if (message.length < 2 || !messages[1])
-        return;
+    if (message.length < 2 || !messages[1]) {
+        messages = message.split(": EVENT:");
+
+        if (message.length < 2 || !messages[1])
+            return;
+    }
 
     const isMsg = messages[1].trim();
 
