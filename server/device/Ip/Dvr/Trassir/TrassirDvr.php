@@ -92,6 +92,32 @@ class TrassirDvr extends DvrDevice
         return $sid;
     }
 
+    private function getSetting(): ?array
+    {
+        $cache = container(RedisCache::class);
+
+        try {
+            $setting = $cache->get('dvr:' . $this->uri . ':setting');
+        } catch (Throwable) {
+            $setting = null;
+        }
+
+        if (is_null($setting)) {
+            $response = $this->get('/s/archive/setting', ['sid' => $this->getSid()]);
+
+            if (array_key_exists('success', $response) && $response['success']) {
+                $setting = $response['data'];
+
+                try {
+                    $cache->set('dvr:' . $this->uri . ':setting', $setting, 900);
+                } catch (Throwable) {
+                }
+            }
+        }
+
+        return $setting;
+    }
+
     public function capabilities(): array
     {
         return [
@@ -101,7 +127,7 @@ class TrassirDvr extends DvrDevice
             'online' => true,
             'archive' => true,
 
-            'command' => ['play', 'pause', 'seek', 'speed'],
+            'command' => [DvrCommand::PLAY->value, DvrCommand::PAUSE->value, DvrCommand::SEEK->value, DvrCommand::SPEED->value, DvrCommand::PING->value],
             'speed' => []
         ];
     }
@@ -219,6 +245,17 @@ class TrassirDvr extends DvrDevice
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
             return $this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, $arguments);
+        } else if ($command === DvrCommand::PING) {
+            $setting = $this->getSetting();
+
+            if (!$setting)
+                return null;
+
+            $rtsp = array_key_exists('rtsp', $setting) ? $setting['rtsp'] : 554;
+
+            $request = client_request('GET', uri($this->server->url)->withScheme('https')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
+
+            return $this->client->send($request, $this->clientOption)->getStatusCode() === 200;
         }
 
         return null;
@@ -234,12 +271,12 @@ class TrassirDvr extends DvrDevice
 
     private function getRtspStream(DeviceCamera $camera, string $stream): ?array
     {
-        $setting = $this->get('/s/archive/setting', ['sid' => $this->getSid()]);
+        $setting = $this->getSetting();
 
-        if (!array_key_exists('success', $setting) && !$setting['success'])
+        if (!$setting)
             return null;
 
-        $rtsp = array_key_exists('rtsp', $setting['data']) ? $setting['data']['rtsp'] : 554;
+        $rtsp = array_key_exists('rtsp', $setting) ? $setting['rtsp'] : 554;
         $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $stream, 'sid' => $this->getSid()]);
 
         if (array_key_exists('success', $response) && $response['success'])
