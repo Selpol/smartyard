@@ -72,37 +72,21 @@ class FlussonicDvr extends DvrDevice
 
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
-        $camera = container(DeviceService::class)->cameraByEntity($camera);
+        $device = container(DeviceService::class)->cameraByEntity($camera);
 
-        if (!$camera)
+        if (!$device || $device->model->vendor === 'FAKE')
             return null;
 
-        if ($camera->model->vendor === 'FAKE') {
-            $filename = "/tmp/" . uniqid('camshot_') . ".jpeg";
-            $url = $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
-
-            shell_exec("ffmpeg -y -i " . $url . " -vframes 1 $filename 1>/dev/null 2>/dev/null");
-
-            try {
-                $contents = file_get_contents($filename);
-
-                unlink($filename);
-
-                return stream($contents);
-            } catch (Throwable) {
-                unlink($filename);
-
-                return null;
-            }
-        }
-
-        return $camera->getScreenshot();
+        return $device->getScreenshot();
     }
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
         if ($arguments['time'])
             return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+
+        if ($camera->model === 'fake')
+            return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
 
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
