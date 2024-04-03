@@ -13,13 +13,11 @@ readonly class DvrArchive implements JsonSerializable
 
     public int $seek;
 
-    public string $type;
-
     public ?string $timezone;
 
     public ?string $token;
 
-    public function __construct(DvrStreamer|string $src, int $start, int $end, int $seek, string $type, ?string $timezone, ?string $token)
+    public function __construct(DvrStreamer|string $src, int $start, int $end, int $seek, ?string $timezone, ?string $token)
     {
         $this->src = $src;
 
@@ -28,8 +26,6 @@ readonly class DvrArchive implements JsonSerializable
 
         $this->seek = $seek;
 
-        $this->type = $type;
-
         $this->timezone = $timezone;
 
         $this->token = $token;
@@ -37,6 +33,6 @@ readonly class DvrArchive implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end, 'seek' => $this->seek, 'type' => $this->type, 'timezone' => $this->timezone, 'token' => $this->token];
+        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end, 'seek' => $this->seek, 'timezone' => $this->timezone, 'token' => $this->token];
     }
 }

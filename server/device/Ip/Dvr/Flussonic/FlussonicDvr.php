@@ -9,6 +9,7 @@ use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Device\Ip\Dvr\Common\DvrOutput;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
+use Selpol\Device\Ip\Dvr\Common\DvrType;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Streamer\Stream;
@@ -80,9 +81,9 @@ class FlussonicDvr extends DvrDevice
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP)
-                return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value));
+                return new DvrOutput($container, DvrType::FLUSSONIC, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value));
             else if ($container === DvrContainer::HLS)
-                return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
+                return new DvrOutput($container, DvrType::FLUSSONIC, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
             else if ($container === DvrContainer::RTC) {
                 $stream = new Stream(container(StreamerFeature::class)->random());
 
@@ -92,6 +93,7 @@ class FlussonicDvr extends DvrDevice
 
                 return new DvrOutput(
                     $container,
+                    DvrType::FLUSSONIC,
                     new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
                 );
             }
@@ -109,6 +111,7 @@ class FlussonicDvr extends DvrDevice
 
             return new DvrOutput(
                 DvrContainer::HLS,
+                DvrType::FLUSSONIC,
                 new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, 'flussonic', $camera->timezone, null)
             );
         }

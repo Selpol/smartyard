@@ -13,6 +13,7 @@ use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrOutput;
 use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
+use Selpol\Device\Ip\Dvr\Common\DvrType;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
@@ -138,13 +139,13 @@ class TrassirDvr extends DvrDevice
                 $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
 
                 if ($rtsp != null)
-                    return new DvrOutput($container, $rtsp[0]);
+                    return new DvrOutput($container, DvrType::FLUSSONIC, $rtsp[0]);
             }
             if ($container === DvrContainer::HLS) {
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success'])
-                    return new DvrOutput($container, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
+                    return new DvrOutput($container, DvrType::FLUSSONIC, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
             } else if ($container === DvrContainer::RTC) {
                 $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
 
@@ -157,6 +158,7 @@ class TrassirDvr extends DvrDevice
 
                     return new DvrOutput(
                         $container,
+                        DvrType::FLUSSONIC,
                         new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
                     );
                 }
@@ -185,6 +187,7 @@ class TrassirDvr extends DvrDevice
 
                 return new DvrOutput(
                     DvrContainer::RTC,
+                    DvrType::FLUSSONIC,
                     new DvrArchive(
                         new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput()),
                         $from,
