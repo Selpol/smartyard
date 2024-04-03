@@ -102,7 +102,7 @@ class TrassirDvr extends DvrDevice
             'archive' => true,
 
             'command' => ['play', 'pause', 'seek', 'speed'],
-            'speed' => [1, 2, 4]
+            'speed' => []
         ];
     }
 
@@ -213,7 +213,7 @@ class TrassirDvr extends DvrDevice
             ];
 
             if (array_key_exists('seek', $arguments) && !is_null($arguments['seek']) || array_key_exists('from', $arguments) && !is_null($arguments['from']))
-                $query['start'] = $arguments['seek'] ?: $arguments['from'];
+                $query['start'] = $arguments['seek'] ?? $arguments['from'];
 
             if (array_key_exists('to', $arguments) && !is_null($arguments['to']))
                 $query['stop'] = $arguments['to'];
