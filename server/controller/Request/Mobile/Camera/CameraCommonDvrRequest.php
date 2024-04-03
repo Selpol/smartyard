@@ -6,29 +6,20 @@ use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
  * @property-read int $id
- *
- * @property-read int|null $house_id
- * @property-read int|null $flat_id
- *
- * @property-read int|null $time
  */
 readonly class CameraCommonDvrRequest extends RouteRequest
 {
     public static function getValidate(): array
     {
         return [
-            'id' => rule()->id(),
-
-            'time' => rule()->int()->clamp(0)
+            'id' => rule()->id()
         ];
     }
 
     public static function getValidateTitle(): array
     {
         return [
-            'id' => 'Камера',
-
-            'time' => 'Время'
+            'id' => 'Камера'
         ];
     }
 }

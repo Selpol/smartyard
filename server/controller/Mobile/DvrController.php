@@ -36,7 +36,7 @@ readonly class DvrController extends RbtController
         includes: [
             FlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id'],
             BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
-            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'services' => [BlockFeature::SERVICE_CCTV]]
+            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id', 'services' => [BlockFeature::SERVICE_CCTV]]
         ],
         excludes: [RateLimitMiddleware::class]
     )]
@@ -64,7 +64,7 @@ readonly class DvrController extends RbtController
             if (is_null($findFlatId))
                 return user_response(404, message: 'Квартира не найдена');
 
-            if (($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
+            if (($block = $blockFeature->getFirstBlockForFlat($findFlatId, [BlockFeature::SERVICE_CCTV])) !== null)
                 return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
         } else if (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
@@ -86,6 +86,8 @@ readonly class DvrController extends RbtController
 
             return user_response(data: [
                 'identifier' => $identifier,
+
+                'type' => $dvr->server->type,
 
                 'acquire' => $dvr->acquire(null, null),
                 'capabilities' => $dvr->capabilities()

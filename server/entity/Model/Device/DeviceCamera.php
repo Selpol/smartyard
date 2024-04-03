@@ -4,6 +4,7 @@ namespace Selpol\Entity\Model\Device;
 
 use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Entity\Entity;
@@ -32,6 +33,7 @@ use Selpol\Service\DatabaseService;
  * @property double|null $direction
  * @property double|null $angle
  * @property double|null $distance
+ *
  * @property int|null $md_left
  * @property int|null $md_top
  * @property int|null $md_width
@@ -55,6 +57,14 @@ class DeviceCamera extends Entity
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';
+
+    public function getDvrServer(): ?DvrServer
+    {
+        if ($this->dvr_server_id)
+            return DvrServer::findById($this->dvr_server_id);
+
+        return null;
+    }
 
     public function checkAllAccessForSubscriber(array $subscriber): bool
     {

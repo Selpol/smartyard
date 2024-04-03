@@ -6,16 +6,18 @@ use JsonSerializable;
 
 readonly class DvrArchive implements JsonSerializable
 {
-    public string $src;
+    public DvrStreamer|string $src;
 
     public int $start;
     public int $end;
 
     public int $seek;
 
+    public ?string $timezone;
+
     public ?string $token;
 
-    public function __construct(string $src, int $start, int $end, int $seek, ?string $token)
+    public function __construct(DvrStreamer|string $src, int $start, int $end, int $seek, ?string $timezone, ?string $token)
     {
         $this->src = $src;
 
@@ -24,11 +26,13 @@ readonly class DvrArchive implements JsonSerializable
 
         $this->seek = $seek;
 
+        $this->timezone = $timezone;
+
         $this->token = $token;
     }
 
     public function jsonSerialize(): array
     {
-        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end, 'seek' => $this->seek, 'token' => $this->token];
+        return ['src' => $this->src, 'start' => $this->start, 'end' => $this->end, 'seek' => $this->seek, 'timezone' => $this->timezone, 'token' => $this->token];
     }
 }

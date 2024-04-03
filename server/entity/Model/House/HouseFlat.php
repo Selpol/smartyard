@@ -29,6 +29,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int|null $last_opened
  * @property int|null $cms_enabled
+ *
+ * @property string|null $comment
  */
 class HouseFlat extends Entity
 {
@@ -66,7 +68,9 @@ class HouseFlat extends Entity
             'sip_password' => rule()->string(),
 
             'last_opened' => rule()->int(),
-            'cms_enabled' => rule()->int()
+            'cms_enabled' => rule()->int(),
+
+            'comment' => rule()->string()
         ];
     }
 }

@@ -195,10 +195,8 @@ readonly class InternalDvrFeature extends DvrFeature
         return false;
     }
 
-    public function convertCameraForSubscriber(array $camera, ?array $user): array
+    public function convertCameraForSubscriber(DvrServer $dvr, array $camera, ?array $user): array
     {
-        $dvr = $this->getDVRServerByCamera($camera);
-
         $result = [
             "id" => $camera['cameraId'],
             "name" => $camera['name'],

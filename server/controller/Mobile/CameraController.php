@@ -5,6 +5,9 @@ namespace Selpol\Controller\Mobile;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Device\Ip\Dvr\Common\DvrContainer;
+use Selpol\Device\Ip\Dvr\Common\DvrStream;
+use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
@@ -17,6 +20,10 @@ use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Feature\Streamer\StreamInput;
+use Selpol\Feature\Streamer\StreamOutput;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
@@ -49,35 +56,11 @@ readonly class CameraController extends RbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/common', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function common(DvrFeature $dvrFeature): ResponseInterface
+    public function common(): ResponseInterface
     {
-        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1));
+        $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1), setting()->columns(['camera_id', 'name', 'lat', 'lon']));
 
-        return user_response(data: array_map(fn(DeviceCamera $camera) => $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
-            "camera_id" => "cameraId",
-            "dvr_server_id" => "dvrServerId",
-            "frs_server_id" => "frsServerId",
-            "enabled" => "enabled",
-            "model" => "model",
-            "url" => "url",
-            "stream" => "stream",
-            "credentials" => "credentials",
-            "name" => "name",
-            "dvr_stream" => "dvrStream",
-            "timezone" => "timezone",
-            "lat" => "lat",
-            "lon" => "lon",
-            "direction" => "direction",
-            "angle" => "angle",
-            "distance" => "distance",
-            "frs" => "frs",
-            "md_left" => "mdLeft",
-            "md_top" => "mdTop",
-            "md_width" => "mdWidth",
-            "md_height" => "mdHeight",
-            "common" => "common",
-            "comment" => "comment"
-        ]), null), $cameras))
+        return user_response(data: $cameras)
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
@@ -106,6 +89,8 @@ readonly class CameraController extends RbtController
 
             return user_response(data: [
                 'identifier' => $identifier,
+
+                'type' => $dvr->server->type,
 
                 'acquire' => $dvr->acquire(null, null),
                 'capabilities' => [
@@ -177,7 +162,12 @@ readonly class CameraController extends RbtController
         if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
             return user_response(404, message: 'Камера не найдена');
 
-        return user_response(data: $dvrFeature->convertCameraForSubscriber($camera->toArrayMap([
+        $dvr = $camera->getDvrServer();
+
+        if (!$dvr)
+            return user_response(404, message: 'Камера не найдена');
+
+        return user_response(data: $dvrFeature->convertCameraForSubscriber($dvr, $camera->toArrayMap([
             "camera_id" => "cameraId",
             "dvr_server_id" => "dvrServerId",
             "frs_server_id" => "frsServerId",
@@ -306,6 +296,9 @@ readonly class CameraController extends RbtController
         $ids = [];
         $result = [];
 
+        /** @var array<int, DvrServer> $dvrs */
+        $dvrs = [];
+
         foreach ($houses as $house_key => $h) {
             $houses[$house_key]['doors'] = array_values($h['doors']);
 
@@ -320,7 +313,10 @@ readonly class CameraController extends RbtController
 
                 $ids[$camera['cameraId']] = true;
 
-                $result[] = $dvrFeature->convertCameraForSubscriber($camera, $user);
+                if (!array_key_exists($camera['dvrServerId'], $dvrs))
+                    $dvrs[$camera['dvrServerId']] = DvrServer::findById($camera['dvrServerId'], setting: setting()->nonNullable());
+
+                $result[] = $dvrFeature->convertCameraForSubscriber($dvrs[$camera['dvrServerId']], $camera, $user);
             }
         }
 

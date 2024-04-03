@@ -27,7 +27,7 @@ readonly class DvrCommandRequest extends RouteRequest
         return [
             'id' => rule()->required()->string()->nonNullable(),
 
-            'container' => rule()->required()->in(['rtsp', 'hls'])->nonNullable(),
+            'container' => rule()->required()->in(['rtsp', 'hls', 'rtc'])->nonNullable(),
             'stream' => rule()->required()->in(['online', 'archive'])->nonNullable(),
 
             'command' => rule()->required()->in(['play', 'pause', 'seek', 'speed'])->nonNullable(),
