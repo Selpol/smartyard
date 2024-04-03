@@ -77,8 +77,24 @@ class FlussonicDvr extends DvrDevice
         if (!$camera)
             return null;
 
-        if ($camera->model->vendor === 'FAKE')
-            return null;
+        if ($camera->model->vendor === 'FAKE') {
+            $filename = "/tmp/" . uniqid('camshot_') . ".jpeg";
+            $url = $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
+
+            shell_exec("ffmpeg -y -i " . $url . " -vframes 1 $filename 1>/dev/null 2>/dev/null");
+
+            try {
+                $contents = file_get_contents($filename);
+
+                unlink($filename);
+
+                return stream($contents);
+            } catch (Throwable) {
+                unlink($filename);
+
+                return null;
+            }
+        }
 
         return $camera->getScreenshot();
     }
