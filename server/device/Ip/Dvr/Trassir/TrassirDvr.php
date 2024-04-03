@@ -190,7 +190,6 @@ class TrassirDvr extends DvrDevice
                         $from,
                         $to,
                         $seek,
-                        'trassir',
                         $camera->timezone,
                         $rtsp[1],
                     )
