@@ -4,11 +4,12 @@ namespace Selpol\Device\Ip\Dvr\Common;
 
 enum DvrCommand: string
 {
-    case PLAY = "play";
-    case PAUSE = "pause";
+    case PLAY = 'play';
+    case PAUSE = 'pause';
 
-    case SEEK = "seek";
+    case SEEK = 'seek';
 
-    case SPEED = "speed";
-    case PING = "ping";
+    case SPEED = 'speed';
+    case PING = 'ping';
+    case STATUS = 'status';
 }
