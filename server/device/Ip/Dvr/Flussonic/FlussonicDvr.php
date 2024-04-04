@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
+use Psr\Http\Message\StreamInterface;
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -15,6 +16,7 @@ use Selpol\Feature\Streamer\Stream;
 use Selpol\Feature\Streamer\StreamerFeature;
 use Selpol\Feature\Streamer\StreamInput;
 use Selpol\Feature\Streamer\StreamOutput;
+use Selpol\Service\DeviceService;
 use Throwable;
 
 class FlussonicDvr extends DvrDevice
@@ -68,12 +70,25 @@ class FlussonicDvr extends DvrDevice
         return 180;
     }
 
+    public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
+    {
+        $device = container(DeviceService::class)->cameraByEntity($camera);
+
+        if (!$device || $device->model->vendor === 'FAKE')
+            return null;
+
+        return $device->getScreenshot();
+    }
+
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
         if ($arguments['time'])
             return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
 
-        return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
+        if ($camera->model === 'fake')
+            return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
+
+        return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
 
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
