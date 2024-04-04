@@ -128,7 +128,7 @@ class TrassirDvr extends DvrDevice
             'archive' => true,
 
             'command' => [DvrCommand::PLAY->value, DvrCommand::PAUSE->value, DvrCommand::SEEK->value, DvrCommand::SPEED->value, DvrCommand::PING->value],
-            'speed' => []
+            'speed' => [1, 2, 4]
         ];
     }
 
@@ -232,7 +232,7 @@ class TrassirDvr extends DvrDevice
             return null;
 
         if ($command === DvrCommand::PLAY && array_key_exists('seek', $arguments) && array_key_exists('from', $arguments) && array_key_exists('to', $arguments) && !is_null($arguments['to'])) {
-            $response = $this->get('/archive_command', ['command' => 'play', 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+            $response = $this->get('/archive_command', ['command' => 'play', 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
 
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::PAUSE) {
