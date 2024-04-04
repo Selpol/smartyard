@@ -188,6 +188,42 @@ class IsIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setVideoEncodingDefault(): static
+    {
+        $this->put('/camera/codec', [
+            'Channels' => [
+                [
+                    "Channel" => 0,
+                    "Type" => "H264",
+                    "Profile" => 1,
+                    "ByFrame" => true,
+                    "Width" => 1280,
+                    "Height" => 720,
+                    "GopMode" => "NormalP",
+                    "IPQpDelta" => 2,
+                    "RcMode" => "AVBR",
+                    "IFrameInterval" => 30,
+                    "MaxBitrate" => 1024
+                ],
+                [
+                    "Channel" => 0,
+                    "Type" => "H264",
+                    "Profile" => 1,
+                    "ByFrame" => true,
+                    "Width" => 640,
+                    "Height" => 480,
+                    "GopMode" => "NormalP",
+                    "IPQpDelta" => 2,
+                    "RcMode" => "AVBR",
+                    "IFrameInterval" => 30,
+                    "MaxBitrate" => 512
+                ]
+            ]
+        ]);
+
+        return $this;
+    }
+
     public function setMotionDetection(int $sensitivity, int $left, int $top, int $width, int $height): static
     {
         $this->put('/camera/md', [
