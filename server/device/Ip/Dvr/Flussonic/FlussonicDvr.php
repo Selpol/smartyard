@@ -114,7 +114,7 @@ class FlussonicDvr extends DvrDevice
                 );
             }
         } else if ($stream === DvrStream::ARCHIVE) {
-            $timeline = $this->timeline($identifier, $camera);
+            $timeline = $this->timeline($identifier, $camera, []);
 
             if (!$timeline)
                 return null;
