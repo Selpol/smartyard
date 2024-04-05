@@ -19,29 +19,30 @@ readonly class camera extends Api
             $criteria->equal('hidden', false);
 
         return self::success(DeviceCamera::findById($params['_id'], $criteria, setting()->nonNullable())->toArrayMap([
-            "camera_id" => "cameraId",
-            "dvr_server_id" => "dvr_server_id",
-            "frs_server_id" => "frs_server_id",
-            "enabled" => "enabled",
-            "model" => "model",
-            "url" => "url",
-            "stream" => "stream",
-            "credentials" => "credentials",
-            "name" => "name",
-            "dvr_stream" => "dvrStream",
-            "timezone" => "timezone",
-            "lat" => "lat",
-            "lon" => "lon",
-            "direction" => "direction",
-            "angle" => "angle",
-            "distance" => "distance",
-            "md_left" => "mdLeft",
-            "md_top" => "mdTop",
-            "md_width" => "mdWidth",
-            "md_height" => "mdHeight",
-            "common" => "common",
-            "comment" => "comment",
-            "hidden" => "hidden"
+            'camera_id' => 'cameraId',
+            'dvr_server_id' => 'dvr_server_id',
+            'frs_server_id' => 'frs_server_id',
+            'enabled' => 'enabled',
+            'model' => 'model',
+            'url' => 'url',
+            'stream' => 'stream',
+            'credentials' => 'credentials',
+            'name' => 'name',
+            'dvr_stream' => 'dvrStream',
+            'timezone' => 'timezone',
+            'screenshot' => 'screenshot',
+            'lat' => 'lat',
+            'lon' => 'lon',
+            'direction' => 'direction',
+            'angle' => 'angle',
+            'distance' => 'distance',
+            'md_left' => 'mdLeft',
+            'md_top' => 'mdTop',
+            'md_width' => 'mdWidth',
+            'md_height' => 'mdHeight',
+            'common' => 'common',
+            'comment' => 'comment',
+            'hidden' => 'hidden'
         ]));
     }
 
@@ -123,6 +124,9 @@ readonly class camera extends Api
         $camera->name = $params['name'];
         $camera->dvr_stream = $params['dvrStream'];
         $camera->timezone = $params['timezone'];
+
+        if (array_key_exists('screenshot', $params))
+            $camera->screenshot = $params['screenshot'];
 
         $camera->lat = $params['lat'];
         $camera->lon = $params['lon'];

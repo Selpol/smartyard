@@ -74,8 +74,11 @@ class FlussonicDvr extends DvrDevice
     {
         $device = container(DeviceService::class)->cameraByEntity($camera);
 
-        if (!$device || $device->model->vendor === 'FAKE')
+        if (!$device)
             return null;
+
+        if ($device->model->vendor === 'FAKE' && $camera->screenshot)
+            return $this->client->send(client_request('GET', $camera->screenshot))->getBody();
 
         return $device->getScreenshot();
     }

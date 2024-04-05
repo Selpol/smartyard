@@ -27,6 +27,8 @@ use Selpol\Service\DatabaseService;
  * @property string|null $dvr_stream
  * @property string|null $timezone
  *
+ * @property string|null $screenshot
+ *
  * @property double|null $lat
  * @property double|null $lon
  *
@@ -156,6 +158,8 @@ class DeviceCamera extends Entity
             'name' => rule()->string(),
             'dvr_stream' => rule()->string(),
             'timezone' => rule()->string(),
+
+            'screenshot' => rule()->url(),
 
             'lat' => rule()->float(),
             'lon' => rule()->float(),
