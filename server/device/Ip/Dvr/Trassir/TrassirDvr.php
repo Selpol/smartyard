@@ -226,6 +226,32 @@ class TrassirDvr extends DvrDevice
         return null;
     }
 
+    public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
+    {
+        if (!array_key_exists('token', $arguments) || is_null($arguments['token']))
+            return null;
+
+        $response = $this->get('/archive_status', ['type' => 'timeline', 'sid' => $this->getSid()]);
+
+        if (!is_array($response))
+            return null;
+
+        foreach ($response as $value) {
+            if (array_key_exists('token', $value) && $value['token'] == $arguments['token']) {
+                $start = strtotime($value['day_start']);
+
+                $result = [];
+
+                foreach ($value['timeline'] as $timeline)
+                    $result[] = [$start + $timeline['begin'], $start + $timeline['end']];
+
+                return $result;
+            }
+        }
+
+        return null;
+    }
+
     public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
     {
         if (!array_key_exists('token', $arguments) || is_null($arguments['token']))

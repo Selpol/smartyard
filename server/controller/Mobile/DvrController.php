@@ -4,12 +4,14 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
+use Selpol\Controller\Api\inbox\message;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrPreviewRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrScreenshotRequest;
+use Selpol\Controller\Request\Mobile\Dvr\DvrTimelineRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrVideoRequest;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -214,6 +216,29 @@ readonly class DvrController extends RbtController
             return user_response(404, message: 'Видео не доступно');
 
         return user_response(data: $video);
+    }
+
+    #[Get('/timeline/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
+    public function timeline(DvrTimelineRequest $request, RedisCache $cache): ResponseInterface
+    {
+        $result = $this->process($cache, $request->id);
+
+        if ($result instanceof ResponseInterface)
+            return $result;
+
+        /**
+         * @var DvrIdentifier $identifier
+         * @var DeviceCamera $camera
+         * @var DvrDevice $dvr
+         */
+        list($identifier, $camera, $dvr) = $result;
+
+        $timeline = $dvr->timeline($identifier, $camera, ['token' => $request->token]);
+
+        if (!$timeline)
+            return user_response(404, message: 'Таймлайн не найден');
+
+        return user_response(data: $timeline);
     }
 
     #[Get('/command/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]

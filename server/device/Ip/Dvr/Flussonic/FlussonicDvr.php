@@ -114,14 +114,13 @@ class FlussonicDvr extends DvrDevice
                 );
             }
         } else if ($stream === DvrStream::ARCHIVE) {
-            /** @var array<string, array<string, int>> $timeline */
-            $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
+            $timeline = $this->timeline($identifier, $camera);
 
-            if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+            if (!$timeline)
                 return null;
 
-            $from = $timeline[$camera->dvr_stream]['from'];
-            $to = $timeline[$camera->dvr_stream]['to'];
+            $from = $timeline[0][0];
+            $to = $timeline[0][1];
 
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
 
@@ -132,6 +131,17 @@ class FlussonicDvr extends DvrDevice
         }
 
         return null;
+    }
+
+    public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
+    {
+        /** @var array<string, array<string, int>> $timeline */
+        $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
+
+        if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+            return null;
+
+        return [[$timeline[$camera->dvr_stream]['from'], $timeline[$camera->dvr_stream]['to']]];
     }
 
     public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
