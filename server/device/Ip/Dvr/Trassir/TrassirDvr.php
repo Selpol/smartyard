@@ -127,7 +127,7 @@ class TrassirDvr extends DvrDevice
             'online' => true,
             'archive' => true,
 
-            'command' => [DvrCommand::PLAY->value, DvrCommand::PAUSE->value, DvrCommand::SEEK->value, DvrCommand::SPEED->value, DvrCommand::PING->value],
+            'command' => [DvrCommand::PLAY->value, DvrCommand::PAUSE->value, DvrCommand::SEEK->value, DvrCommand::SPEED->value, DvrCommand::PING->value, DvrCommand::STATUS->value],
             'speed' => [1, 2, 4]
         ];
     }
@@ -263,6 +263,19 @@ class TrassirDvr extends DvrDevice
             $request = client_request('GET', uri($this->server->url)->withScheme('https')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
 
             return $this->client->send($request, $this->clientOption)->getStatusCode() === 200;
+        } else if ($command === DvrCommand::STATUS) {
+            $response = $this->get('/archive_command', ['type' => 'state', 'sid' => $this->getSid()]);
+
+            if (!is_array($response))
+                return null;
+
+            foreach ($response as $value) {
+                if (array_key_exists('token', $value) && $value['token'] === $arguments['token'])
+                    return [
+                        'seek' => strtotime($value['time']),
+                        'speed' => (int)round($value['speed'])
+                    ];
+            }
         }
 
         return null;
