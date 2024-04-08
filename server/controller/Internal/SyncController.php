@@ -158,20 +158,20 @@ readonly class SyncController extends RbtController
 
                     if ($block != null) {
                         if ($intercom) {
+                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
+
+                            $block->cause = 'Заблокировано за неуплату';
+
+                            $block->update();
+                        } else {
                             if ($block->status == BlockFeature::STATUS_BILLING)
                                 $block->delete();
                             else {
                                 $block->status = BlockFeature::STATUS_ADMIN;
                                 $block->update();
                             }
-                        } else {
-                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
-
-                            $block->cause = 'Заблокировано за неуплату';
-
-                            $block->update();
                         }
-                    } else if (!$validate['intercom']) {
+                    } else if ($intercom) {
                         $block = new FlatBlock();
 
                         $block->flat_id = $validate['id'];
@@ -193,20 +193,20 @@ readonly class SyncController extends RbtController
 
                     if ($block != null) {
                         if ($cctv) {
+                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
+
+                            $block->cause = 'Заблокировано за неуплату';
+
+                            $block->update();
+                        } else {
                             if ($block->status == BlockFeature::STATUS_BILLING)
                                 $block->delete();
                             else {
                                 $block->status = BlockFeature::STATUS_ADMIN;
                                 $block->update();
                             }
-                        } else {
-                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
-
-                            $block->cause = 'Заблокировано за неуплату';
-
-                            $block->update();
                         }
-                    } else if (!$validate['cctv']) {
+                    } else if ($cctv) {
                         $block = new FlatBlock();
 
                         $block->flat_id = $validate['id'];
