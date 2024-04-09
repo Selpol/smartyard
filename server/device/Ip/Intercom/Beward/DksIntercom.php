@@ -192,7 +192,7 @@ class DksIntercom extends IntercomDevice
             'quality' => '1',
             'iq' => '1',
             'rc' => '1',
-            'bitrate' => '2048',
+            'bitrate' => '1024',
             'frmrate' => '25',
             'frmintr' => '25',
             'first' => '0',
