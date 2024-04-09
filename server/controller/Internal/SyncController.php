@@ -184,7 +184,7 @@ readonly class SyncController extends RbtController
                         $block->insert();
                     }
 
-                    task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->low()->dispatch();
+                    task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->high()->dispatch();
                     task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $intercom ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->dispatch();
                 }
 
