@@ -286,15 +286,10 @@ class TrassirDvr extends DvrDevice
 
             $rtsp = array_key_exists('rtsp', $setting) ? $setting['rtsp'] : 554;
 
-            $socket = stream_socket_client((string)uri($this->server->url)->withScheme('https')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'), timeout: 1);
+            $request = client_request('GET', (string)uri($this->server->url)->withScheme('http')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
+            $response = $this->client->send($request, $this->clientOption);
 
-            if ($socket) {
-                fclose($socket);
-
-                return true;
-            }
-
-            return false;
+            return $response->getStatusCode() === 200;
         } else if ($command === DvrCommand::STATUS) {
             $response = $this->get('/archive_command', ['type' => 'state', 'sid' => $this->getSid()]);
 
