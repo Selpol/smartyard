@@ -8,6 +8,7 @@ use Selpol\Controller\Api\inbox\message;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
+use Selpol\Controller\Request\Mobile\Dvr\DvrEventRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrPreviewRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrScreenshotRequest;
@@ -20,6 +21,8 @@ use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Block\BlockFeature;
+use Selpol\Feature\House\HouseFeature;
+use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\AuthMiddleware;
@@ -169,9 +172,6 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
-        if (!$identifier->isNotExpired())
-            return user_response(400, message: 'Токен доступа устарел');
-
         if (!is_null($request->time) && is_null($identifier->subscriber))
             return user_response(403, message: 'Доступ к предпросмотру архива запрещен');
 
@@ -198,9 +198,6 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
-        if (!$identifier->isNotExpired())
-            return user_response(400, message: 'Токен доступа устарел');
-
         if ($request->stream == 'archive' && is_null($identifier->subscriber))
             return user_response(403, message: 'Доступ к архиву запрещен');
 
@@ -218,7 +215,7 @@ readonly class DvrController extends RbtController
         return user_response(data: $video);
     }
 
-    #[Get('/timeline/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
+    #[Get('/timeline/{id}')]
     public function timeline(DvrTimelineRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -241,7 +238,47 @@ readonly class DvrController extends RbtController
         return user_response(data: $timeline);
     }
 
-    #[Get('/command/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
+    #[Get('/event/{id}')]
+    public function event(DvrEventRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, RedisCache $cache): ResponseInterface
+    {
+        $result = $this->process($cache, $request->id);
+
+        if ($result instanceof ResponseInterface)
+            return $result;
+
+        /**
+         * @var DeviceCamera $camera
+         */
+        list(, $camera,) = $result;
+
+        $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($camera->camera_id);
+
+        if (is_null($domophoneId))
+            return user_response(data: []);
+
+        $flats = array_filter(
+            array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $this->getUser()->getOriginalValue()['flats']),
+            static function (array $flat) use ($houseFeature) {
+                $plog = $houseFeature->getFlatPlog($flat['id']);
+
+                return is_null($plog) || $plog == PlogFeature::ACCESS_ALL || $plog == PlogFeature::ACCESS_OWNER_ONLY && $flat['owner'];
+            }
+        );
+
+        $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
+
+        if (count($flatsId) == 0)
+            return user_response(data: []);
+
+        $events = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
+
+        if ($events)
+            return user_response(data: array_map(static fn(array $item) => [$item['date'], $item['date'] + 5], $events));
+
+        return user_response(data: []);
+    }
+
+    #[Get('/command/{id}', excludes: [RateLimitMiddleware::class])]
     public function command(DvrCommandRequest $request, RedisCache $cache): ResponseInterface
     {
         $result = $this->process($cache, $request->id);
@@ -255,9 +292,6 @@ readonly class DvrController extends RbtController
          * @var DvrDevice $dvr
          */
         list($identifier, $camera, $dvr) = $result;
-
-        if (!$identifier->isNotExpired())
-            return user_response(400, message: 'Токен доступа устарел');
 
         $command = $dvr->command(
             $identifier,
@@ -305,7 +339,12 @@ readonly class DvrController extends RbtController
             if (!$cache->set('dvr:' . $id, $value, 360))
                 return user_response(404, message: 'Не удалось обновить идентификатор');
 
-            return [new DvrIdentifier($id, $value[0], $value[1], $value[3]), $camera, $dvr];
+            $identifier = new DvrIdentifier($id, $value[0], $value[1], $value[3]);
+
+            if (!$identifier->isNotExpired())
+                return user_response(400, message: 'Токен доступа устарел');
+
+            return [$identifier, $camera, $dvr];
         } catch (Throwable $throwable) {
             file_logger('dvr')->error($throwable);
         }
