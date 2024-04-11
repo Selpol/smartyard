@@ -135,13 +135,27 @@ class FlussonicDvr extends DvrDevice
 
     public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
     {
-        /** @var array<string, array<string, int>> $timeline */
-        $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
+        $response = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value . '&request=ranges');
 
-        if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+        if (!$response || !is_array($response))
             return null;
 
-        return [[$timeline[$camera->dvr_stream]['from'], $timeline[$camera->dvr_stream]['to']]];
+        /** @var array|null $ranges */
+        $ranges = null;
+
+        foreach ($response as $value) {
+            if ($value['stream'] == $camera->dvr_stream) {
+                if (array_key_exists('ranges', $value))
+                    $ranges = $value['ranges'];
+
+                break;
+            }
+        }
+
+        if (!$ranges)
+            return null;
+
+        return array_map(static fn(array $value) => [$value['from'], $value['from'] + $value['duration']], $ranges);
     }
 
     public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
