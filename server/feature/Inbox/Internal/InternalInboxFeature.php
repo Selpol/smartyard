@@ -118,18 +118,6 @@ readonly class InternalInboxFeature extends InboxFeature
         ]);
     }
 
-    public function msgMonths(int $subscriberId): array
-    {
-        $months = $this->getDatabase()->get("select month from (select substr(date, 1, 7) as month from inbox where house_subscriber_id = :house_subscriber_id) group by month order by month", ["house_subscriber_id" => $subscriberId]);
-
-        $r = [];
-
-        foreach ($months as $month)
-            $r[] = $month["month"];
-
-        return $r;
-    }
-
     public function markMessageAsRead(int $subscriberId, int|bool $msgId = false): bool|int
     {
         if ($msgId) {
