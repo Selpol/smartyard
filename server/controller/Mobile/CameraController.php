@@ -30,6 +30,7 @@ use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
+use function PHPUnit\Framework\isNull;
 
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
@@ -57,7 +58,7 @@ readonly class CameraController extends RbtController
     )]
     public function get(CameraGetRequest $request, int $id): ResponseInterface
     {
-        $camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'name', 'lat', 'lon']));
+        $camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'name']));
 
         if (!$camera)
             return user_response(404, message: 'Камера не найдена');
@@ -65,7 +66,21 @@ readonly class CameraController extends RbtController
         if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
             return user_response(404, message: 'Доступа к камере нет');
 
-        return user_response(data: $camera);
+        $response = $camera->toArrayMap([
+            'camera_id' => 'camera_id',
+            'name' => 'name',
+        ]);
+
+        if (!isNull($request->house_id))
+            $response['houseId'] = $request->house_id;
+
+        if (!isNull($request->flat_id))
+            $response['flatId'] = $request->flat_id;
+
+        if (!isNull($request->entrance_id))
+            $response['entranceId'] = $request->entrance_id;
+
+        return user_response(data: $response);
     }
 
     /**
