@@ -30,7 +30,6 @@ use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Service\DatabaseService;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
-use function PHPUnit\Framework\isNull;
 
 #[Controller('/mobile/cctv')]
 readonly class CameraController extends RbtController
@@ -71,13 +70,13 @@ readonly class CameraController extends RbtController
             'name' => 'name',
         ]);
 
-        if (!isNull($request->house_id))
+        if (!is_null($request->house_id))
             $response['houseId'] = $request->house_id;
 
-        if (!isNull($request->flat_id))
+        if (!is_null($request->flat_id))
             $response['flatId'] = $request->flat_id;
 
-        if (!isNull($request->entrance_id))
+        if (!is_null($request->entrance_id))
             $response['entranceId'] = $request->entrance_id;
 
         return user_response(data: $response);
