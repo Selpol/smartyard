@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
@@ -44,6 +45,27 @@ readonly class CameraController extends RbtController
         $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature, $blockFeature);
 
         return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
+    }
+
+    #[Get(
+        '/show/{id}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id'],
+            BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
+            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id', 'services' => [BlockFeature::SERVICE_CCTV]]
+        ]
+    )]
+    public function get(CameraGetRequest $request, int $id): ResponseInterface
+    {
+        $camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'name', 'lat', 'lon']));
+
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
+
+        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
+            return user_response(404, message: 'Доступа к камере нет');
+
+        return user_response(data: $camera);
     }
 
     /**

@@ -4,7 +4,6 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
-use Selpol\Controller\Api\inbox\message;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
