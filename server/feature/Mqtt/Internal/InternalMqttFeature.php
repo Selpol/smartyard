@@ -8,6 +8,11 @@ use SensitiveParameter;
 
 readonly class InternalMqttFeature extends MqttFeature
 {
+    private const TOPICS = [
+        'task' => self::ACL_READ | self::ACL_SUBSCRIBE,
+        'user' => self::ACL_READ | self::ACL_WRITE | self::ACL_SUBSCRIBE
+    ];
+
     public function checkUser(string $username, #[SensitiveParameter] string $password, string $clientId): bool
     {
         if ($username === config_get('mqtt.username'))
@@ -23,6 +28,12 @@ readonly class InternalMqttFeature extends MqttFeature
 
     public function checkAcl(string $username, string $clientId, string $topic, int $acc): bool
     {
-        return true;
+        if ($username === config_get('mqtt.username'))
+            return true;
+
+        if (array_key_exists($topic, self::TOPICS))
+            return (self::TOPICS[$topic] & $acc) === $acc;
+
+        return false;
     }
 }
