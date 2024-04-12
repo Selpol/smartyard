@@ -252,10 +252,12 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
+        $dvrEvents = $dvr->event($identifier, $camera, ['token' => $request->token]);
+
         $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($camera->camera_id);
 
         if (is_null($domophoneId))
-            return user_response(data: []);
+            return user_response(data: $dvrEvents);
 
         $flats = array_filter(
             array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $this->getUser()->getOriginalValue()['flats']),
@@ -269,9 +271,8 @@ readonly class DvrController extends RbtController
         $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
 
         if (count($flatsId) == 0)
-            return user_response(data: []);
+            return user_response(data: $dvrEvents);
 
-        $dvrEvents = $dvr->event($identifier, $camera, ['token' => $request->token]);
         $intercomEvents = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
 
         if ($intercomEvents) {

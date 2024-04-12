@@ -257,7 +257,7 @@ class TrassirDvr extends DvrDevice
         if (!array_key_exists('token', $arguments) || is_null($arguments['token']))
             return [];
 
-        $response = $this->get('/archive_events', ['type' => 'timeline', 'sid' => $this->getSid()]);
+        $response = $this->get('/archive_events', ['token' => $arguments['token'], 'sid' => $this->getSid()]);
 
         if (!is_array($response))
             return [];
@@ -265,7 +265,7 @@ class TrassirDvr extends DvrDevice
         $timelineEvent = null;
 
         foreach ($response as $value) {
-            if ($response['event_name'] === 'ActivityLevelEvent') {
+            if ($value['event_name'] === 'ActivityLevelEvent') {
                 $timelineEvent = $value;
 
                 break;
@@ -277,16 +277,16 @@ class TrassirDvr extends DvrDevice
 
         $time = strtotime($timelineEvent['day_start']);
 
-        /** @var string $timeline */
-        $timeline = $timelineEvent['timeline'];
-        $count = strlen($timeline);
+        /** @var string $activities */
+        $activities = $timelineEvent['activities'];
+        $count = strlen($activities);
 
         $first = false;
         $result = [];
         $length = 0;
 
         for ($i = 0; $i < $count; $i++) {
-            if ($timeline[$i] !== '0') {
+            if ($activities[$i] !== '0') {
                 $stamp = $time + $i;
 
                 if (!$first) {
