@@ -265,7 +265,7 @@ class TrassirDvr extends DvrDevice
         $timelineEvent = null;
 
         foreach ($response as $value) {
-            if ($response['event_name'] === 'TimelineEvent') {
+            if ($response['event_name'] === 'ActivityLevelEvent') {
                 $timelineEvent = $value;
 
                 break;
