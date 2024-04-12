@@ -23,7 +23,14 @@ readonly class InboxController extends RbtController
     #[Get]
     public function index(InboxIndexRequest $request): ResponseInterface
     {
-        $page = InboxMessage::fetchPage($request->page, $request->size, criteria()->equal('house_subscriber_id', $this->getUser()->getIdentifier())->desc('date'));
+        $page = InboxMessage::fetchPage(
+            $request->page,
+            $request->size,
+            criteria()
+                ->equal('house_subscriber_id', $this->getUser()->getIdentifier())
+                ->simple('date', '>=', $request->date)
+                ->desc('date')
+        );
 
         $result = [];
 
