@@ -13,6 +13,7 @@ use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Backup\BackupFeature;
 use Selpol\Feature\Frs\FrsFeature;
+use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
 use Selpol\Framework\Kernel\Trait\ConfigTrait;
@@ -104,6 +105,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
             else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
             else echo $this->help('device');
+        } else if ($group === 'task') {
+            if ($command === 'unique') $this->taskUnique();
         } else if ($group === 'inbox') {
             if ($command === 'server') $this->inboxServer($arguments['inbox:server'], intval($arguments['--subscriber']));
             else echo $this->help('inbox');
@@ -630,6 +633,11 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         else echo 'Домофон не найден' . PHP_EOL;
     }
 
+    public function taskUnique(): void
+    {
+        container(TaskFeature::class)->clearUnique();
+    }
+
     /**
      * @throws Exception
      */
@@ -698,6 +706,12 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 'device:call=<id>                               - Остановить звонки на домофоне',
                 'device:reboot=<id>                             - Перезапуск домофона',
                 'device:reset=<id>                              - Сбросить домофон'
+            ]);
+
+        if ($group === null || $group === 'task')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'task:unique                                    - Очистить данные об уникальности задач'
             ]);
 
         if ($group === null || $group === 'inbox')
