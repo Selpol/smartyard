@@ -227,7 +227,7 @@ class IsIntercom extends IntercomDevice
     public function setMotionDetection(int $sensitivity, int $left, int $top, int $width, int $height): static
     {
         $this->put('/camera/md', [
-            'md_enable' => true,
+            'md_enable' => $sensitivity > 0,
             'md_frame_shift' => 1,
             'md_area_thr' => 100000,
             'md_rect_color' => '0xFF0000',
