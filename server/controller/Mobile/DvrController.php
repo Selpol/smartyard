@@ -246,9 +246,11 @@ readonly class DvrController extends RbtController
             return $result;
 
         /**
+         * @var DvrIdentifier $identifier
          * @var DeviceCamera $camera
+         * @var DvrDevice $dvr
          */
-        list(, $camera,) = $result;
+        list($identifier, $camera, $dvr) = $result;
 
         $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($camera->camera_id);
 
@@ -269,12 +271,24 @@ readonly class DvrController extends RbtController
         if (count($flatsId) == 0)
             return user_response(data: []);
 
-        $events = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
+        $dvrEvents = $dvr->event($identifier, $camera, ['token' => $request->token]);
+        $intercomEvents = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
 
-        if ($events)
-            return user_response(data: array_map(static fn(array $item) => [$item['date'], $item['date'] + 5], $events));
+        if ($intercomEvents) {
+            $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5], $intercomEvents);
+            $events = array_merge($dvrEvents, $intercomEvents);
 
-        return user_response(data: []);
+            usort($events, static function (array $a, array $b) {
+                if ($a[0] == $b[0])
+                    return 0;
+
+                return $a[0] > $b[1] ? 1 : -1;
+            });
+
+            return user_response(data: $events);
+        }
+
+        return user_response(data: $dvrEvents);
     }
 
     #[Get('/command/{id}', excludes: [RateLimitMiddleware::class])]

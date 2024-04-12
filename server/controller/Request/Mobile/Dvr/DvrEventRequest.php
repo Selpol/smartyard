@@ -8,6 +8,8 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $id
  *
  * @property-read int $date
+ *
+ * @property-read string|null $token
  */
 readonly class DvrEventRequest extends RouteRequest
 {
@@ -17,6 +19,8 @@ readonly class DvrEventRequest extends RouteRequest
             'id' => rule()->required()->string()->nonNullable(),
 
             'date' => rule()->required()->int()->clamp(0, 60),
+
+            'token' => rule()->string()
         ];
     }
 
@@ -25,7 +29,9 @@ readonly class DvrEventRequest extends RouteRequest
         return [
             'id' => 'Идентификатор',
 
-            'date' => 'Глубина событий'
+            'date' => 'Глубина событий',
+
+            'token' => 'Токен'
         ];
     }
 }
