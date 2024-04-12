@@ -11,7 +11,21 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int $house_subscriber_id
  *
+ * @property string $id
+ *
  * @property int $date
+ *
+ * @property string $title
+ * @property string $msg
+ *
+ * @property string|null $action
+ *
+ * @property int $expire
+ *
+ * @property int $delivered
+ * @property int $readed
+ *
+ * @property int $code
  */
 class InboxMessage extends Entity
 {

@@ -54,7 +54,7 @@ abstract class IpDevice extends Device
         } else $url .= ':' . $this->uri->getPort();
 
         try {
-            $fp = stream_socket_client($url, timeout: 1);
+            $fp = stream_socket_client($url, $code, $message, timeout: 1);
 
             if ($fp) {
                 fclose($fp);
@@ -81,7 +81,7 @@ abstract class IpDevice extends Device
         } else $url .= ':' . $this->uri->getPort();
 
         try {
-            $fp = stream_socket_client($url, timeout: 1);
+            $fp = stream_socket_client($url, $code, $message, timeout: 1);
 
             if ($fp) {
                 fclose($fp);
@@ -115,6 +115,9 @@ abstract class IpDevice extends Device
 
     public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!$this->pingRaw())
+            throw new DeviceException($this, 'Устройство не доступно');
+
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
@@ -137,6 +140,9 @@ abstract class IpDevice extends Device
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!$this->pingRaw())
+            throw new DeviceException($this, 'Устройство не доступно');
+
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
@@ -166,6 +172,9 @@ abstract class IpDevice extends Device
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!$this->pingRaw())
+            throw new DeviceException($this, 'Устройство не доступно');
+
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 
@@ -195,6 +204,9 @@ abstract class IpDevice extends Device
 
     public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        if (!$this->pingRaw())
+            throw new DeviceException($this, 'Устройство не доступно');
+
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
 

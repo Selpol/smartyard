@@ -108,6 +108,13 @@ class HikVisionIntercom extends IntercomDevice
         return $this;
     }
 
+    public function setVideoEncodingDefault(): static
+    {
+        $this->put('/ISAPI/Streaming/channels/101', '<StreamingChannel><id>101</id><channelName>Camera 01</channelName><enabled>true</enabled><Transport><ControlProtocolList><ControlProtocol><streamingTransport>RTSP</streamingTransport></ControlProtocol><ControlProtocol><streamingTransport>HTTP</streamingTransport></ControlProtocol></ControlProtocolList><Security><enabled>true</enabled></Security></Transport><Video><enabled>true</enabled><videoInputChannelID>1</videoInputChannelID><videoCodecType>H.264</videoCodecType><videoScanType>progressive</videoScanType><videoResolutionWidth>1920</videoResolutionWidth><videoResolutionHeight>1080</videoResolutionHeight><videoQualityControlType>CBR</videoQualityControlType><constantBitRate>1024</constantBitRate><fixedQuality>60</fixedQuality><maxFrameRate>2500</maxFrameRate><keyFrameInterval>2000</keyFrameInterval><snapShotImageType>JPEG</snapShotImageType><GovLength>50</GovLength></Video><Audio><enabled>true</enabled><audioInputChannelID>1</audioInputChannelID><audioCompressionType>G.711ulaw</audioCompressionType></Audio></StreamingChannel>', ['Content-Type' => 'application/xml']);
+
+        return $this;
+    }
+
     public function setAudioLevels(array $levels): static
     {
         $levels[0] = array_key_exists(0, $levels) ? $levels[0] : 7;

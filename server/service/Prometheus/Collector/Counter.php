@@ -3,7 +3,6 @@
 namespace Selpol\Service\Prometheus\Collector;
 
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\PrometheusService;
 
@@ -17,7 +16,7 @@ readonly class Counter extends Collector
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws NotFoundExceptionInterface
      */
     public function incBy(int|float $value, array $labels = []): void
     {

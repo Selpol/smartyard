@@ -17,11 +17,13 @@ readonly class task extends Api
     public static function GET($params): array|ResponseInterface
     {
         $validate = validator($params, [
+            'title' => rule()->string(),
+
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->desc('created_at')));
+        return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->like('title', $validate['title'])->desc('created_at')));
     }
 
     /**

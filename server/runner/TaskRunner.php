@@ -4,6 +4,7 @@ namespace Selpol\Runner;
 
 use Exception;
 use Selpol\Feature\Task\TaskFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
@@ -112,6 +113,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
+
+                $service->task($uuid, $task->title, 'done', 'OK');
             } catch (Throwable $throwable) {
                 $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
 
@@ -123,10 +126,11 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
+
+                if ($throwable instanceof KernelException) $service->task($uuid, $task->title, 'done', $throwable->getLocalizedMessage());
+                else $service->task($uuid, $task->title, 'done', 'ERROR');
             } finally {
                 $feature->releaseUnique($task);
-
-                $service->task($uuid, $task->title, 'done', 100);
             }
         });
     }

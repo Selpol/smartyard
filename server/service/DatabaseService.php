@@ -8,7 +8,6 @@ use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Service\Exception\DatabaseException;
-use Throwable;
 
 #[Singleton]
 class DatabaseService implements ContainerDisposeInterface
