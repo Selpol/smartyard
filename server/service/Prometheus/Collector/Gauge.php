@@ -3,7 +3,6 @@
 namespace Selpol\Service\Prometheus\Collector;
 
 use Psr\Container\NotFoundExceptionInterface;
-use RedisException;
 use Selpol\Service\Prometheus\Collector;
 use Selpol\Service\PrometheusService;
 
@@ -18,7 +17,6 @@ readonly class Gauge extends Collector
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     public function set(int|float $value, array $labels = []): void
     {
@@ -37,7 +35,7 @@ readonly class Gauge extends Collector
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws NotFoundExceptionInterface
      */
     public function incBy(int|float $value, array $labels = []): void
     {
@@ -56,7 +54,7 @@ readonly class Gauge extends Collector
     }
 
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws NotFoundExceptionInterface
      */
     public function decBy(int|float $value, array $labels = []): void
     {
