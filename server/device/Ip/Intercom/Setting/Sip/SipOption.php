@@ -7,11 +7,11 @@ class SipOption
     public int $callTimeout;
     public int $talkTimeout;
 
-    public string $dtmf;
+    public array $dtmf;
 
     public bool $echo;
 
-    public function __construct(int $callTimeout, int $talkTimeout, string $dtmf, bool $echo)
+    public function __construct(int $callTimeout, int $talkTimeout, array $dtmf, bool $echo)
     {
         $this->callTimeout = $callTimeout;
         $this->talkTimeout = $talkTimeout;

@@ -4,10 +4,10 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Room
 {
-    public int $concierge;
-    public int $sos;
+    public string $concierge;
+    public string $sos;
 
-    public function __construct(int $concierge, int $sos)
+    public function __construct(string $concierge, string $sos)
     {
         $this->concierge = $concierge;
         $this->sos = $sos;

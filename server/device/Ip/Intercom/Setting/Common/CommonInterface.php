@@ -14,6 +14,19 @@ interface CommonInterface
 
     public function getRoom(): Room;
 
+    public function getRelay(): Relay;
+
+    public function getDDns(): DDns;
+
+    /**
+     * @return Gate[]
+     */
+    public function getGates(): array;
+
+    public function getUPnP(): bool;
+
+    public function getAutoCollectKey(): bool;
+
     public function setNtp(Ntp $ntp): void;
 
     public function setStun(Stun $stun): void;
@@ -23,4 +36,18 @@ interface CommonInterface
     public function setMifare(Mifare $mifare): void;
 
     public function setRoom(Room $room): void;
+
+    public function setRelay(Relay $relay): void;
+
+    public function setDDns(DDns $dDns): void;
+
+    public function setUPnP(bool $value): void;
+
+    public function setAutoCollectKey(bool $value): void;
+
+    /**
+     * @param Gate[] $value
+     * @return void
+     */
+    public function setGates(array $value): void;
 }

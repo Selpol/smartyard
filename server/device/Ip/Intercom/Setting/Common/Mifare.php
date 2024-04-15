@@ -4,17 +4,21 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Mifare
 {
+    public bool $enable;
+
     public string $key;
     public int $sector;
 
-    public function __construct(string $key, int $sector)
+    public function __construct(bool $enable, string $key, int $sector)
     {
+        $this->enable = $enable;
+
         $this->key = $key;
         $this->sector = $sector;
     }
 
     public function equal(Mifare $other): bool
     {
-        return $this->key === $other->key && $this->sector === $other->sector;
+        return $this->enable === $other->enable && $this->key === $other->key && $this->sector === $other->sector;
     }
 }

@@ -4,7 +4,9 @@ namespace Selpol\Device\Ip\Intercom\Setting\Audio;
 
 interface AudioInterface
 {
-    public function getAudio(): Audio;
+    public function getDefaultAudioLevels(): AudioLevels;
 
-    public function setAudio(Audio $audio): void;
+    public function getAudioLevels(): AudioLevels;
+
+    public function setAudioLevels(AudioLevels $audio): void;
 }

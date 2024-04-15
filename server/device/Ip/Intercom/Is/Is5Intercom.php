@@ -3,35 +3,39 @@
 namespace Selpol\Device\Ip\Intercom\Is;
 
 use Selpol\Device\Ip\Intercom\IntercomCms;
+use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
+use Selpol\Device\Ip\Intercom\Setting\Video\VideoDisplay;
 
 class Is5Intercom extends IsIntercom
 {
-    public function setSyslog(string $server, int $port): static
+    public function getVideoDisplay(): VideoDisplay
     {
-        $this->put('/v1/network/syslog', ['addr' => $server, 'port' => $port]);
+        $response = $this->get('/panelDisplay/settings');
 
-        return $this;
+        return new VideoDisplay($response['imgStr']);
     }
 
-    public function setDDns(bool $value, array $options = []): static
+    public function setVideoDisplay(VideoDisplay $videoDisplay): void
     {
-        if (!$value)
-            $this->put('/v1/ddns', ['enabled' => false]);
-
-        return $this;
+        if ($videoDisplay->title === "") $this->put('/panelDisplay/settings', ['strDisplay' => false]);
+        else $this->put('/panelDisplay/settings', ['strDisplay' => true, 'speed' => 500, 'imgStr' => $videoDisplay->title]);
     }
 
-    public function setDisplayText(string $title): static
+    public function getSyslog(): Syslog
     {
-        if ($title === "") $this->put('/panelDisplay/settings', ['strDisplay' => false]);
-        else $this->put('/panelDisplay/settings', ['strDisplay' => true, 'speed' => 500, 'imgStr' => $title]);
+        $response = $this->get('/v1/network/syslog');
 
-        return $this;
+        return new Syslog($response['addr'], $response['port']);
     }
 
-    public function clearCms(string $model): void
+    public function setSyslog(Syslog $syslog): void
     {
-        $cms = IntercomCms::model($model);
+        $this->put('/v1/network/syslog', ['addr' => $syslog->server, 'port' => $syslog->port]);
+    }
+
+    public function clearCms(string $cms): void
+    {
+        $cms = IntercomCms::model($cms);
 
         if (!$cms)
             return;

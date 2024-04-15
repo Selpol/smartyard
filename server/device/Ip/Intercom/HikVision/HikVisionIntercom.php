@@ -4,16 +4,20 @@ namespace Selpol\Device\Ip\Intercom\HikVision;
 
 use DateInterval;
 use DateTime;
+use Selpol\Device\Ip\Intercom\HikVision\Trait\AudioTrait;
+use Selpol\Device\Ip\Intercom\HikVision\Trait\VideoTrait;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
+use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
-class HikVisionIntercom extends IntercomDevice
+class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface
 {
-    use HikVisionTrait;
+    use HikVisionTrait, AudioTrait, VideoTrait;
 
     public string $login = 'admin';
 
@@ -108,25 +112,6 @@ class HikVisionIntercom extends IntercomDevice
         return $this;
     }
 
-    public function setVideoEncodingDefault(): static
-    {
-        $this->put('/ISAPI/Streaming/channels/101', '<StreamingChannel><id>101</id><channelName>Camera 01</channelName><enabled>true</enabled><Transport><ControlProtocolList><ControlProtocol><streamingTransport>RTSP</streamingTransport></ControlProtocol><ControlProtocol><streamingTransport>HTTP</streamingTransport></ControlProtocol></ControlProtocolList><Security><enabled>true</enabled></Security></Transport><Video><enabled>true</enabled><videoInputChannelID>1</videoInputChannelID><videoCodecType>H.264</videoCodecType><videoScanType>progressive</videoScanType><videoResolutionWidth>1920</videoResolutionWidth><videoResolutionHeight>1080</videoResolutionHeight><videoQualityControlType>CBR</videoQualityControlType><constantBitRate>1024</constantBitRate><fixedQuality>60</fixedQuality><maxFrameRate>2500</maxFrameRate><keyFrameInterval>2000</keyFrameInterval><snapShotImageType>JPEG</snapShotImageType><GovLength>50</GovLength></Video><Audio><enabled>true</enabled><audioInputChannelID>1</audioInputChannelID><audioCompressionType>G.711ulaw</audioCompressionType></Audio></StreamingChannel>', ['Content-Type' => 'application/xml']);
-
-        return $this;
-    }
-
-    public function setAudioLevels(array $levels): static
-    {
-        $levels[0] = array_key_exists(0, $levels) ? $levels[0] : 7;
-        $levels[1] = array_key_exists(1, $levels) ? $levels[1] : 7;
-        $levels[2] = array_key_exists(2, $levels) ? $levels[1] : 7;
-
-        $this->put('/ISAPI/System/Audio/AudioIn/channels/1', "<AudioIn><id>1</id><AudioInVolumelist><AudioInVlome><type>audioInput</type><volume>$levels[0]</volume></AudioInVlome></AudioInVolumelist></AudioIn>", ['Content-Type' => 'application/xml']);
-        $this->put('/ISAPI/System/Audio/AudioOut/channels/1', "<AudioOut><id>1</id><AudioOutVolumelist><AudioOutVlome><type>audioOutput</type><volume>$levels[1]</volume><talkVolume>$levels[2]</talkVolume></AudioOutVlome></AudioOutVolumelist></AudioOut>", ['Content-Type' => 'application/xml']);
-
-        return $this;
-    }
-
     public function setCallTimeout(int $value): static
     {
         $this->put('/ISAPI/VideoIntercom/operationTime', '<OperationTime><maxRingTime>$timeout</maxRingTime></OperationTime>', ['Content-Type' => 'application/xml']);
@@ -144,14 +129,6 @@ class HikVisionIntercom extends IntercomDevice
     public function setUnlockTime(int $time): static
     {
         $this->put('/ISAPI/AccessControl/Door/param/1', "<DoorParam><doorName>Door1</doorName><openDuration>$time</openDuration></DoorParam>", ['Content-Type' => 'application/xml']);
-
-        return $this;
-    }
-
-    public function setVideoOverlay(string $title): static
-    {
-        $this->put('/ISAPI/System/Video/inputs/channels/1', "<VideoInputChannel><id>1</id><inputPort>1</inputPort><name>$title</name></VideoInputChannel>", ['Content-Type' => 'application/xml']);
-        $this->put('/ISAPI/System/Video/inputs/channels/1/overlays', '<VideoOverlay><DateTimeOverlay><enabled>true</enabled><positionY>540</positionY><positionX>0</positionX><dateStyle>MM-DD-YYYY</dateStyle><timeStyle>24hour</timeStyle><displayWeek>true</displayWeek></DateTimeOverlay><channelNameOverlay><enabled>true</enabled><positionY>700</positionY><positionX>0</positionX></channelNameOverlay></VideoOverlay>', ['Content-Type' => 'application/xml']);
 
         return $this;
     }

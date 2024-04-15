@@ -108,11 +108,6 @@ abstract class IpDevice extends Device
         return $this;
     }
 
-    public function setNtp(string $server, int $port, string $timezone = 'Europe/Moscow'): static
-    {
-        return $this;
-    }
-
     public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
         if (!$this->pingRaw())

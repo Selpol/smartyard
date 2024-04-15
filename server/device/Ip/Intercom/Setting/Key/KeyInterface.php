@@ -5,13 +5,15 @@ namespace Selpol\Device\Ip\Intercom\Setting\Key;
 interface KeyInterface
 {
     /**
-     * @return Key[]
-     */
-    public function getKeys(): array;
-
-    /**
      * @param int $apartment
      * @return Key[]
+     * @return Key[]
      */
-    public function getKeysByApartment(int $apartment): array;
+    public function getKeys(int $apartment): array;
+
+    public function addKey(Key $key): void;
+
+    public function removeKey(Key|string $key): void;
+
+    public function clearKey(): void;
 }

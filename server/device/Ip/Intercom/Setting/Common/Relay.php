@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Device\Ip\Intercom\Setting\Relay;
+namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Relay
 {
