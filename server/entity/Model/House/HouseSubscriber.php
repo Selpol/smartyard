@@ -3,9 +3,11 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Model\Block\SubscriberBlock;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Inbox\InboxMessage;
 use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
@@ -56,6 +58,22 @@ class HouseSubscriber extends Entity
     public function getInboxMessages(): OneToManyRelationship
     {
         return $this->oneToMany(InboxMessage::class, 'house_subscriber_id', 'house_subscriber_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseFlat>
+     */
+    public function getFlats(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseFlat::class, 'houses_flats_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'house_flat_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<DeviceCamera>
+     */
+    public function getCameras(): ManyToManyRelationship
+    {
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'camera_id');
     }
 
     public static function getColumns(): array

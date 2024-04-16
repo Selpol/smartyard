@@ -3,8 +3,10 @@
 namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
@@ -52,6 +54,30 @@ class HouseFlat extends Entity
     public function getHouse(): OneToOneRelationship
     {
         return $this->oneToOne(AddressHouse::class, 'address_house_id', 'address_house_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseEntrance>
+     */
+    public function getEntrances(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseEntrance::class, 'houses_entrances_flats', 'house_flat_id', 'house_flat_id', 'house_entrance_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<DeviceCamera>
+     */
+    public function getCameras(): ManyToManyRelationship
+    {
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_flats', 'house_flat_id', 'house_flat_id', 'camera_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseSubscriber>
+     */
+    public function getSubscribers(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseSubscriber::class, 'houses_flats_subscribers', 'house_flat_id', 'house_flat_id', 'house_subscriber_id');
     }
 
     public static function getColumns(): array

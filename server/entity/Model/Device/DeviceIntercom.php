@@ -3,8 +3,11 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -35,11 +38,19 @@ class DeviceIntercom extends Entity
     /**
      * @use RepositoryTrait<DeviceIntercomRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'houses_domophones';
 
     public static string $columnId = 'house_domophone_id';
+
+    /**
+     * @return OneToOneRelationship<HouseEntrance>
+     */
+    public function getEntrance(): OneToOneRelationship
+    {
+        return $this->oneToOne(HouseEntrance::class, 'house_domophone_id', 'house_domophone_id');
+    }
 
     public static function getColumns(): array
     {

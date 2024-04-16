@@ -2,8 +2,13 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\House\HouseEntranceRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -37,11 +42,35 @@ class HouseEntrance extends Entity
     /**
      * @use RepositoryTrait<HouseEntranceRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'houses_entrances';
 
     public static string $columnId = 'house_entrance_id';
+
+    /**
+     * @return OneToOneRelationship<DeviceIntercom>
+     */
+    public function getIntercom(): OneToOneRelationship
+    {
+        return $this->oneToOne(DeviceIntercom::class, 'house_domophone_id', 'house_domophone_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<AddressHouse>
+     */
+    public function getHouses(): ManyToManyRelationship
+    {
+        return $this->manyToMany(AddressHouse::class, 'houses_houses_entrances', 'house_entrance_id', 'house_entrance_id', 'address_house_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseFlat>
+     */
+    public function getFlats(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseFlat::class, 'houses_entrances_flats', 'house_entrance_id', 'house_entrance_id', 'house_flat_id');
+    }
 
     public static function getColumns(): array
     {

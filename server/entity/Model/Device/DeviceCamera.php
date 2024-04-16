@@ -4,10 +4,15 @@ namespace Selpol\Entity\Model\Device;
 
 use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Repository\Device\DeviceCameraRepository;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 use Selpol\Service\DatabaseService;
 
@@ -54,11 +59,35 @@ class DeviceCamera extends Entity
     /**
      * @use RepositoryTrait<DeviceCameraRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';
+
+    /**
+     * @return ManyToManyRelationship<AddressHouse>
+     */
+    public function getHouses(): ManyToManyRelationship
+    {
+        return $this->manyToMany(AddressHouse::class, 'houses_cameras_houses', 'camera_id', 'camera_id', 'address_house_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseFlat>
+     */
+    public function getFlats(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseFlat::class, 'houses_cameras_flats', 'camera_id', 'camera_id', 'house_flat_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseSubscriber>
+     */
+    public function getSubscribers(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseSubscriber::class, 'houses_cameras_subscribers', 'camera_id', 'camera_id', 'house_subscriber_id');
+    }
 
     public function getDvrServer(): ?DvrServer
     {
