@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   nginx:
@@ -15,6 +15,7 @@ services:
     depends_on:
       - php
     networks:
+      backend:
       frontend:
   database:
     image: postgres:15-alpine
@@ -85,7 +86,6 @@ services:
       - mqtt
     networks:
       backend:
-      frontend:
 
 networks:
   frontend:
