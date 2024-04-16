@@ -78,14 +78,16 @@ trait CommonTrait
 
         $count = intval($gate['EntranceCount']);
 
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 1; $i < -$count; $i++) {
             $result[] = new Gate(
-                $gate['Address' . ($i + 1)],
-                intval($gate['Prefix' . ($i + 1)]),
-                intval($gate['BegNumber' . ($i + 1)]),
-                intval($gate['EndNumber' . ($i + 1)])
+                $gate['Address' . $i],
+                intval($gate['Prefix' . $i]),
+                intval($gate['BegNumber' . $i]),
+                intval($gate['EndNumber' . $i])
             );
         }
+
+        usort($result, static fn(Gate $a, Gate $b) => $a->prefix > $b->prefix ? 1 : -1);
 
         return $result;
     }

@@ -5,6 +5,8 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
@@ -57,6 +59,9 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
         if (!$device->ping())
             throw new DeviceException($device, 'Устройство не доступно');
 
+        if (!($device instanceof KeyInterface))
+            throw new DeviceException($device, 'Устройство не поддерживает ключи');
+
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 
         foreach ($flats as $flat) {
@@ -74,10 +79,8 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
                 $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
 
                 foreach ($keys as $key)
-                    $device->addRfidDeffer($key['rfId'], $apartment);
+                    $device->addKey(new Key($key['rfId'], $apartment));
             }
         }
-
-        $device->deffer();
     }
 }

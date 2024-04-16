@@ -2,6 +2,8 @@
 
 namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
+use SensitiveParameter;
+
 class Mifare
 {
     public bool $enable;
@@ -9,7 +11,7 @@ class Mifare
     public string $key;
     public int $sector;
 
-    public function __construct(bool $enable, string $key, int $sector)
+    public function __construct(bool $enable, #[SensitiveParameter] string $key, int $sector)
     {
         $this->enable = $enable;
 

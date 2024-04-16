@@ -115,6 +115,8 @@ trait CommonTrait
             }
         }
 
+        usort($result, static fn(Gate $a, Gate $b) => $a->prefix > $b->prefix ? 1 : -1);
+
         return $result;
     }
 

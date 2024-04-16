@@ -4,9 +4,9 @@ namespace Selpol\Device\Ip\Intercom\Setting\Video;
 
 class VideoDisplay
 {
-    public string $title;
+    public ?string $title;
 
-    public function __construct(string $title)
+    public function __construct(?string $title)
     {
         $this->title = $title;
     }

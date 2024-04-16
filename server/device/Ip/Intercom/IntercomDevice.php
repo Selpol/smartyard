@@ -39,7 +39,7 @@ abstract class IntercomDevice extends IpDevice
     {
     }
 
-    private function getIntercomClean(): array
+    public function getIntercomClean(): array
     {
         $coreVar = container(CoreVarRepository::class)->findByName('intercom.clean');
 
@@ -55,11 +55,11 @@ abstract class IntercomDevice extends IpDevice
             'talkTimeout' => $value['talkTimeout'] ?? 90,
 
             'sos' => $value['sos'] ?? 'SOS',
-            'concierge' => $value['concierge'] ?? 9999
+            'concierge' => $value['concierge'] ?? '9999'
         ];
     }
 
-    private function getIntercomNtp(): array
+    public function getIntercomNtp(): array
     {
         $coreVar = CoreVar::getRepository()->findByName('intercom.ntp');
         $servers = json_decode($coreVar->var_value, true);

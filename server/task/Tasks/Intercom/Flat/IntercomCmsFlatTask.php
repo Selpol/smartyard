@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -53,6 +54,9 @@ class IntercomCmsFlatTask extends Task
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
+            if (!($device instanceof ApartmentInterface))
+                throw new DeviceException($device, 'Устройство не поддерживает квартиры');
+
             $apartment = $flat['flat'];
 
             $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
@@ -65,7 +69,13 @@ class IntercomCmsFlatTask extends Task
                 }
             }
 
-            $device->setApartmentCms(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
+            $currentApartment = $device->getApartment(intval($apartment));
+            $newApartment = clone $currentApartment;
+
+            $newApartment->handset = !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1));
+
+            if (!$newApartment->equal($currentApartment))
+                $device->setApartment($newApartment);
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 

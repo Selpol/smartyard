@@ -86,10 +86,10 @@ trait VideoTrait
             'ckalarmrecdev' => '0',
         ];
 
-        if ($videoDetection->left) $params['nLeft1'] = $videoDetection->left;
-        if ($videoDetection->top) $params['nTop1'] = $videoDetection->top;
-        if ($videoDetection->width) $params['nWidth1'] = $videoDetection->width;
-        if ($videoDetection->height) $params['nHeight1'] = $videoDetection->height;
+        $params['nLeft1'] = $videoDetection->left ?: 0;
+        $params['nTop1'] = $videoDetection->top ?: 0;
+        $params['nWidth1'] = $videoDetection->width ?: 704;
+        $params['nHeight1'] = $videoDetection->height ?: 576;
 
         $this->get('webs/motionCfgEx', $params);
     }

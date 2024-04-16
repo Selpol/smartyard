@@ -4,6 +4,9 @@ namespace Selpol\Task\Tasks\Intercom\Key;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
@@ -59,6 +62,9 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
         if (!$device->ping())
             return;
 
+        if (!($device instanceof KeyInterface))
+            throw new DeviceException($device, 'Устройство не поддерживает ключи');
+
         /** @var array<int, int> $flats */
         $flats = [];
 
@@ -66,9 +72,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
             if (!array_key_exists($key['accessTo'], $flats))
                 $flats[$key['accessTo']] = HouseFlat::findById($key['accessTo'], setting: setting()->columns(['flat'])->nonNullable())->flat;
 
-            $device->addRfidDeffer($key['rfId'], $flats[$key['accessTo']]);
+            $device->addKey(new Key($key['rfId'], $flats[$key['accessTo']]));
         }
-
-        $device->deffer();
     }
 }
