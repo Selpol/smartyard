@@ -4,6 +4,8 @@ namespace Selpol\Task\Tasks\Intercom\Cms;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
@@ -43,14 +45,20 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
-            $device->setCmsModel($entrance['cms']);
+            if (!($device instanceof CmsInterface))
+                throw new DeviceException($device, 'Устройство не поддерживает КМС');
+
+            if ($device->getCmsModel() !== $entrance['cms']) {
+                $device->setCmsModel($entrance['cms']);
+                $device->clearCms($entrance['cms']);
+            }
 
             $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 
             foreach ($cms_allocation as $item)
-                $device->addCmsDeffer($item['cms'] + 1, intval($item['dozen']), intval($item['unit']), intval($item['apartment']));
+                $device->setCmsApartmentDeffer(new CmsApartment($item['cms'] + 1, intval($item['dozen']), intval($item['unit']), intval($item['apartment'])));
 
-            $device->deffer();
+            $device->defferCms();
         } catch (Throwable $throwable) {
             if ($throwable instanceof DeviceException)
                 throw $throwable;

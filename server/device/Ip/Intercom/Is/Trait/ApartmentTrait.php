@@ -16,8 +16,25 @@ trait ApartmentTrait
             $value['callsEnabled']['sip'],
             $value['resistances']['answer'],
             $value['resistances']['quiescent'],
-            []
+            $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
         ), $response);
+    }
+
+    public function getApartment(int $apartment): ?Apartment
+    {
+        $response = $this->get('/panelCode/' . $apartment);
+
+        if (!array_key_exists('panelCode', $response))
+            return null;
+
+        return new Apartment(
+            $response['panelCode'],
+            $response['callsEnabled']['handset'],
+            $response['callsEnabled']['sip'],
+            $response['resistances']['answer'],
+            $response['resistances']['quiescent'],
+            $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
+        );
     }
 
     public function addApartment(Apartment $apartment): void

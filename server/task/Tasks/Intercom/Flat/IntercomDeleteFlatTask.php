@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
 use Throwable;
@@ -34,6 +35,9 @@ class IntercomDeleteFlatTask extends Task
 
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
+
+            if (!($device instanceof ApartmentInterface))
+                throw new DeviceException($device, 'Устройство не поддерживает квартиры');
 
             $device->removeApartment($apartment);
         } catch (Throwable $throwable) {

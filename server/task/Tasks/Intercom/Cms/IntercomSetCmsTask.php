@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom\Cms;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -27,7 +28,13 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
         if ($device?->ping() !== true)
             throw new DeviceException($device, 'Устройство не доступно');
 
-        $device->setCmsModel($this->cms);
+        if (!($device instanceof CmsInterface))
+            throw new DeviceException($device, 'Устройство не поддерживает КМС');
+
+        if ($device->getCmsModel() !== $this->cms) {
+            $device->setCmsModel($this->cms);
+            $device->clearCms($this->cms);
+        }
 
         return true;
     }

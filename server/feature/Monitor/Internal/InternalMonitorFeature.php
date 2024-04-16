@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\Monitor\Internal;
 
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Feature\Monitor\MonitorFeature;
 use Throwable;
 
@@ -18,7 +19,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
             if (!$intercom->pingRaw())
                 return ['ping' => false];
 
-            return ['ping' => true, 'sip' => $intercom->getSipStatus()];
+            return ['ping' => true, 'sip' => $intercom instanceof SipInterface ? $intercom->getSipStatus() : false];
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
         }
@@ -40,7 +41,12 @@ readonly class InternalMonitorFeature extends MonitorFeature
     public function sip(int $id): bool
     {
         try {
-            return intercom($id)?->getSipStatus() ?: false;
+            $intercom = intercom($id);
+
+            if ($intercom instanceof SipInterface)
+                return $intercom->getSipStatus();
+
+            return false;
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 

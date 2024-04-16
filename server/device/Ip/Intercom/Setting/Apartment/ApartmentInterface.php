@@ -9,6 +9,8 @@ interface ApartmentInterface
      */
     public function getApartments(): array;
 
+    public function getApartment(int $apartment): ?Apartment;
+
     public function addApartment(Apartment $apartment): void;
 
     public function setApartment(Apartment $apartment): void;

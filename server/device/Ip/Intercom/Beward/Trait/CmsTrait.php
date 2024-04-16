@@ -93,39 +93,7 @@ trait CmsTrait
                 return;
             }
 
-            $content = $model . PHP_EOL . PHP_EOL;
-
-            foreach ($cmses as $cms) {
-                foreach ($cms as $cm)
-                    $content .= implode(',', $cm) . PHP_EOL;
-
-                $content .= PHP_EOL;
-            }
-
-            $filename = tempnam(sys_get_temp_dir(), 'dks-matrik');
-
-            $stream = fopen($filename, 'w');
-            fwrite($stream, $content);
-            fclose($stream);
-
-            try {
-                $ch = curl_init();
-
-                curl_setopt_array($ch, [
-                    CURLOPT_URL => $this->uri . '/cgi-bin/intercomdu_cgi?action=import',
-                    CURLOPT_POST => 1,
-                    CURLOPT_HTTPAUTH => CURLAUTH_DIGEST,
-                    CURLOPT_USERPWD => $this->login . ':' . $this->password,
-                    CURLOPT_HTTPHEADER => ['Content-Type:multipart/form-data'],
-                    CURLOPT_POSTFIELDS => ['data-binary' => new CURLFile($filename, posted_filename: 'matrix.csv'), 'text/csv'],
-                    CURLOPT_INFILESIZE => strlen($content)
-                ]);
-
-                curl_exec($ch);
-                curl_close($ch);
-            } finally {
-                unlink($filename);
-            }
+            $this->cmsImport($model, $cmses);
 
             $this->cmses = null;
         }
@@ -133,6 +101,17 @@ trait CmsTrait
 
     public function clearCms(string $cms): void
     {
+        ['model' => $model, 'cmses' => $cmses] = $this->cmsExport();
+
+        for ($index = 0; $index < count($cmses); $index++) {
+            for ($unit = 0; $unit < count($cmses[$index]); $unit++) {
+                for ($dozen = 0; $dozen < count($cmses[$index][$unit]); $dozen++) {
+                    $cmses[$index][$unit][$dozen] = 0;
+                }
+            }
+        }
+
+        $this->cmsImport($model, $cmses);
     }
 
     private function cmsExport(): array
@@ -155,5 +134,42 @@ trait CmsTrait
         }
 
         return ['model' => $model, 'cmses' => array_filter($cmses, static fn(array $cms) => count($cms) > 0)];
+    }
+
+    private function cmsImport(int $model, array $cmses): void
+    {
+        $content = $model . PHP_EOL . PHP_EOL;
+
+        foreach ($cmses as $cms) {
+            foreach ($cms as $cm)
+                $content .= implode(',', $cm) . PHP_EOL;
+
+            $content .= PHP_EOL;
+        }
+
+        $filename = tempnam(sys_get_temp_dir(), 'dks-matrik');
+
+        $stream = fopen($filename, 'w');
+        fwrite($stream, $content);
+        fclose($stream);
+
+        try {
+            $ch = curl_init();
+
+            curl_setopt_array($ch, [
+                CURLOPT_URL => $this->uri . '/cgi-bin/intercomdu_cgi?action=import',
+                CURLOPT_POST => 1,
+                CURLOPT_HTTPAUTH => CURLAUTH_DIGEST,
+                CURLOPT_USERPWD => $this->login . ':' . $this->password,
+                CURLOPT_HTTPHEADER => ['Content-Type:multipart/form-data'],
+                CURLOPT_POSTFIELDS => ['data-binary' => new CURLFile($filename, posted_filename: 'matrix.csv'), 'text/csv'],
+                CURLOPT_INFILESIZE => strlen($content)
+            ]);
+
+            curl_exec($ch);
+            curl_close($ch);
+        } finally {
+            unlink($filename);
+        }
     }
 }

@@ -24,25 +24,31 @@ trait ApartmentTrait
 
             $number = $response['Number' . $i];
 
-            if (!$number)
-                continue;
-
-            $numbers = array_map(
-                static fn(string $value) => $response[$value],
-                ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']
-            );
-
             $result[] = new Apartment(
                 intval($number),
                 $response['BlockCMS' . $i] === 'off',
                 $response['PhonesActive' . $i] === 'on',
                 intval($response['HandsetUpLevel' . $i]),
                 intval($response['DoorOpenLevel' . $i]),
-                array_filter($numbers, static fn(string $value) => $value !== '' && $value !== $number)
+                $response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value) => $value !== '') : []
             );
         }
 
         return $result;
+    }
+
+    public function getApartment(int $apartment): ?Apartment
+    {
+        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
+
+        return new Apartment(
+            intval($response['Number']),
+            $response['BlockCMS'] === 'off',
+            $response['PhonesActive'] === 'on',
+            intval($response['HandsetUpLevel']),
+            intval($response['DoorOpenLevel']),
+            $response['PhonesActive'] ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone1', 'Phone2', 'Phone3', 'Phone4', 'Phone5']), static fn(string $value) => $value !== '') : []
+        );
     }
 
     public function addApartment(Apartment $apartment): void
