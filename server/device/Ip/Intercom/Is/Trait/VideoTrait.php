@@ -20,7 +20,7 @@ trait VideoTrait
     {
         $response = $this->get('/camera/md');
 
-        return new VideoDetection($response['md_enable']);
+        return new VideoDetection($response['md_enable'], null, null, null, null);
     }
 
     public function getVideoDisplay(): VideoDisplay

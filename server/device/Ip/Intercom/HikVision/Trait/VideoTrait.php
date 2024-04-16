@@ -18,7 +18,7 @@ trait VideoTrait
 
     public function getVideoDetection(): VideoDetection
     {
-        return new VideoDetection(false);
+        return new VideoDetection(false, null, null, null, null);
     }
 
     public function getVideoDisplay(): VideoDisplay

@@ -26,13 +26,6 @@ trait BewardTrait
         return $this;
     }
 
-    public function setUPnP(bool $value): static
-    {
-        $this->get('/webs/netUPNPCfgEx', ['cksearch' => $value ? 1 : 0]);
-
-        return $this;
-    }
-
     public function call(int $apartment): void
     {
         $this->get('/cgi-bin/diag_cgi', ['action' => 'call', 'Apartment' => $apartment]);

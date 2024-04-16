@@ -2,26 +2,29 @@
 
 namespace Selpol\Device\Ip\Intercom\Beward;
 
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+
 class MifareDksIntercom extends DksIntercom
 {
-    public function addRfid(string $code, int $apartment): void
+    public function addKey(Key $key): void
     {
         if ($this->model->mifare)
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'add', 'Key' => $code, 'Apartment' => $apartment, 'Type' => 1, 'ProtectedMode' => 'on', 'CipherIndex' => 1, 'Sector' => 3]);
+            $this->get('/cgi-bin/mifare_cgi', ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'Type' => 1, 'ProtectedMode' => 'on', 'CipherIndex' => 1, 'Sector' => 3]);
     }
 
-    public function removeRfid(string $code, int $apartment): void
+    public function removeKey(Key|string $key): void
     {
-        if ($this->model->mifare)
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Key' => $code, 'Apartment' => $apartment]);
+        if ($this->model->mifare) {
+            if ($key instanceof Key)
+                $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
+            else
+                $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Key' => $key]);
+        }
     }
 
-    public function clearRfid(): void
+    public function clearKey(): void
     {
         if ($this->model->mifare)
             $this->get('/cgi-bin/mifare_cgi', ['action' => 'clear']);
-
-        foreach ($this->getRfids() as $rfid)
-            $this->removeRfid($rfid, 0);
     }
 }

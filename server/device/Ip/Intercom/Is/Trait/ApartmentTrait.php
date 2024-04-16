@@ -15,7 +15,8 @@ trait ApartmentTrait
             $value['callsEnabled']['handset'],
             $value['callsEnabled']['sip'],
             $value['resistances']['answer'],
-            $value['resistances']['quiescent']
+            $value['resistances']['quiescent'],
+            []
         ), $response);
     }
 

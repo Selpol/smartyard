@@ -1,0 +1,29 @@
+<?php declare(strict_types=1);
+
+namespace Selpol\Device\Ip\Intercom\HikVision\Trait;
+
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+
+trait KeyTrait
+{
+    /**
+     * @param int $apartment
+     * @return Key[]
+     * @return Key[]
+     */
+    public function getKeys(int $apartment): array
+    {
+    }
+
+    public function addKey(Key $key): void
+    {
+    }
+
+    public function removeKey(Key|string $key): void
+    {
+    }
+
+    public function clearKey(): void
+    {
+    }
+}

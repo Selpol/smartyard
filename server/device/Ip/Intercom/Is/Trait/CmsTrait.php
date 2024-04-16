@@ -90,6 +90,7 @@ trait CmsTrait
             foreach ($this->cmses as $index => $value)
                 $this->put('/switch/matrix/' . $index, ['capacity' => $value['capacity'], 'matrix' => $value['matrix']]);
 
+            $this->tempCmses = null;
             $this->cmses = null;
         }
     }
