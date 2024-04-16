@@ -13,7 +13,7 @@ readonly class InternalMqttFeature extends MqttFeature
         if ($username === config_get('mqtt.username'))
             return $password === config_get('mqtt.password');
 
-        return $password === container(RedisService::class)->get('user:' . $username . ':ws');
+        return $password === container(RedisService::class)->get('user:' . $clientId . ':ws');
     }
 
     public function checkAdmin(string $username): bool
@@ -28,6 +28,9 @@ readonly class InternalMqttFeature extends MqttFeature
 
         if (array_key_exists($topic, self::TOPICS))
             return (self::TOPICS[$topic] & $acc) === $acc;
+
+        if ($topic === 'task:' . $clientId)
+            return (self::TOPICS['task'] & $acc) === $acc;
 
         return false;
     }
