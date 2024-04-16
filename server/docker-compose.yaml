@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   nginx:
@@ -15,7 +15,10 @@ services:
     depends_on:
       - php
     networks:
+      backend:
+        ipv4_address: 172.16.1.253
       frontend:
+        ipv4_address: 172.16.2.253
   database:
     image: postgres:15-alpine
     container_name: database
@@ -31,6 +34,7 @@ services:
       - PGTZ=Europe/Moscow
     networks:
       backend:
+        ipv4_address: 172.16.1.11
   redis:
     image: redis:7-alpine
     container_name: redis
@@ -41,6 +45,7 @@ services:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     networks:
       backend:
+        ipv4_address: 172.16.1.12
   amqp:
     image: heidiks/rabbitmq-delayed-message-exchange:3.10.2-management
     container_name: amqp
@@ -49,6 +54,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
     networks:
       backend:
+        ipv4_address: 172.16.1.13
   mqtt:
     image: iegomez/mosquitto-go-auth:2.0.0-mosquitto_2.0.14
     container_name: mqtt
@@ -57,7 +63,7 @@ services:
       - ./docker/mosquitto/conf.d:/mosquitto/conf.d
     networks:
       backend:
-      frontend:
+        ipv4_address: 172.16.1.14
   php:
     build:
       context: .
@@ -70,13 +76,13 @@ services:
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
       - ./docker/data/log:/srv/app/var/log
     environment:
-      - DB_HOST=database
+      - DB_HOST=172.16.1.11
       - DB_PORT=5432
-      - REDIS_HOST=redis
+      - REDIS_HOST=172.16.1.12
       - REDIS_PORT=6379
-      - AMQP_HOST=amqp
+      - AMQP_HOST=172.16.1.13
       - AMQP_PORT=5672
-      - MQTT_HOST=mqtt
+      - MQTT_HOST=172.16.1.14
       - MQTT_PORT=1883
     depends_on:
       - database
@@ -85,8 +91,17 @@ services:
       - mqtt
     networks:
       backend:
-      frontend:
+        ipv4_address: 172.16.1.10
 
 networks:
   frontend:
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.2.0/24
   backend:
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.1.0/24
