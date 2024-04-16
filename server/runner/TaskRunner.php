@@ -96,9 +96,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $time = microtime(true) * 1000;
 
             try {
-                $service->task($uuid, $task->title, 'start', 0);
+                $service->task($uuid, $task->title, 'start', $task->uid, 0);
 
-                $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $progress));
+                $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
 
                 $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
                 $time = microtime(true);
@@ -114,7 +114,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
 
-                $service->task($uuid, $task->title, 'done', 'OK');
+                $service->task($uuid, $task->title, 'done', $task->uid, 'OK');
             } catch (Throwable $throwable) {
                 $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
 
@@ -127,8 +127,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
 
-                if ($throwable instanceof KernelException) $service->task($uuid, $task->title, 'done', $throwable->getLocalizedMessage());
-                else $service->task($uuid, $task->title, 'done', 'ERROR');
+                if ($throwable instanceof KernelException) $service->task($uuid, $task->title, 'done', $task->uid, $throwable->getLocalizedMessage());
+                else $service->task($uuid, $task->title, 'done', $task->uid, 'ERROR');
             } finally {
                 $feature->releaseUnique($task);
             }

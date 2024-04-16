@@ -9,6 +9,8 @@ abstract class Task
 {
     public string $title;
 
+    public ?int $uid = null;
+
     private mixed $progressCallback = null;
 
     public function __construct(string $title)

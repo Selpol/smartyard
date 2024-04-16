@@ -5,6 +5,7 @@ namespace Selpol\Task;
 use Exception;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
+use Selpol\Service\AuthService;
 use Selpol\Service\TaskService;
 use Throwable;
 
@@ -64,9 +65,14 @@ class TaskContainer
         $queue = $this->queue ?? TaskService::QUEUE_DEFAULT;
 
         try {
+            $canAudit = container(AuditFeature::class)->canAudit();
+
+            if ($canAudit && $this->task->uid === null)
+                $this->task->uid = container(AuthService::class)->getUserOrThrow()->getIdentifier();
+
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 
-            if (container(AuditFeature::class)->canAudit())
+            if ($canAudit)
                 container(AuditFeature::class)->audit('-1', $this->task::class, 'task', $this->task->title);
 
             return true;
