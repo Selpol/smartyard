@@ -2,8 +2,12 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Model\Block\SubscriberBlock;
+use Selpol\Entity\Model\Inbox\InboxMessage;
 use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -32,11 +36,27 @@ class HouseSubscriber extends Entity
     /**
      * @use RepositoryTrait<HouseSubscriberRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'houses_subscribers_mobile';
 
     public static string $columnId = 'house_subscriber_id';
+
+    /**
+     * @return OneToManyRelationship<SubscriberBlock>
+     */
+    public function getSubscriberBlocks(): OneToManyRelationship
+    {
+        return $this->oneToMany(SubscriberBlock::class, 'subscriber_id', 'house_subscriber_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<InboxMessage>
+     */
+    public function getInboxMessages(): OneToManyRelationship
+    {
+        return $this->oneToMany(InboxMessage::class, 'house_subscriber_id', 'house_subscriber_id');
+    }
 
     public static function getColumns(): array
     {

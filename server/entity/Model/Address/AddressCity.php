@@ -4,6 +4,8 @@ namespace Selpol\Entity\Model\Address;
 
 use Selpol\Entity\Repository\Address\AddressCityRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -25,11 +27,27 @@ class AddressCity extends Entity
     /**
      * @use RepositoryTrait<AddressCityRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'addresses_cities';
 
     public static string $columnId = 'address_city_id';
+
+    /**
+     * @return OneToManyRelationship<AddressSettlement>
+     */
+    public function getSettlements(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressSettlement::class, 'address_city_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<AddressStreet>
+     */
+    public function getStreets(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressStreet::class, 'address_city_id');
+    }
 
     public static function getColumns(): array
     {

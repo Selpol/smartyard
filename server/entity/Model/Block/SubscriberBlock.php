@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Block;
 
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Repository\Block\SubscriberBlockRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -25,12 +28,20 @@ class SubscriberBlock extends Entity
     /**
      * @use RepositoryTrait<SubscriberBlockRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'subscriber_block';
 
     public static ?string $columnCreateAt = 'created_at';
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToOneRelationship<HouseSubscriber>
+     */
+    public function getSubscriber(): OneToOneRelationship
+    {
+        return $this->oneToOne(HouseSubscriber::class, 'house_subscriber_id', 'subscriber_id');
+    }
 
     public static function getColumns(): array
     {

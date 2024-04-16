@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Address;
 
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Repository\Address\AddressHouseRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -25,11 +28,19 @@ class AddressHouse extends Entity
     /**
      * @use RepositoryTrait<AddressHouseRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'addresses_houses';
 
     public static string $columnId = 'address_house_id';
+
+    /**
+     * @return OneToManyRelationship<HouseFlat>
+     */
+    public function getFlats(): OneToManyRelationship
+    {
+        return $this->oneToMany(HouseFlat::class, 'address_house_id', 'address_house_id');
+    }
 
     public static function getColumns(): array
     {

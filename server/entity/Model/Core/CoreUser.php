@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Core;
 
+use Selpol\Entity\Model\Audit;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -28,7 +31,7 @@ class CoreUser extends Entity
     /**
      * @use RepositoryTrait<CoreUserRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'core_users';
 
@@ -42,6 +45,22 @@ class CoreUser extends Entity
             unset($value['password']);
 
         return $value;
+    }
+
+    /**
+     * @return OneToManyRelationship<CoreAuth>
+     */
+    public function getAuths(): OneToManyRelationship
+    {
+        return $this->oneToMany(CoreAuth::class, 'user_id', 'uid');
+    }
+
+    /**
+     * @return OneToManyRelationship<Audit>
+     */
+    public function getAudits(): OneToManyRelationship
+    {
+        return $this->oneToMany(Audit::class, 'user_id', 'uid');
     }
 
     public static function getColumns(): array

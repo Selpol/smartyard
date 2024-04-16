@@ -4,6 +4,8 @@ namespace Selpol\Entity\Model\Core;
 
 use Selpol\Entity\Repository\Core\CoreAuthRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -29,7 +31,7 @@ class CoreAuth extends Entity
     /**
      * @use RepositoryTrait<CoreAuthRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'core_auth';
 
@@ -44,6 +46,14 @@ class CoreAuth extends Entity
             unset($value['token']);
 
         return $value;
+    }
+
+    /**
+     * @return OneToOneRelationship<CoreUser>
+     */
+    public function getUser(): OneToOneRelationship
+    {
+        return $this->oneToOne(CoreUser::class, 'uid', 'user_id');
     }
 
     public static function getColumns(): array
