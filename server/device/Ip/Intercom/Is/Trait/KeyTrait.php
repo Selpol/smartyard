@@ -9,8 +9,11 @@ trait KeyTrait
     public function getKeys(int $apartment): array
     {
         $response = $this->get('/key/store', ['panelCode' => $apartment]);
+        $result = array_map(static fn(array $key) => new Key($key['uuid'], $key['panelCode']), $response);
 
-        return array_map(static fn(array $key) => new Key($key['uuid'], $key['panelCode']), $response);
+        usort($result, static fn(Key $a, Key $b) => strcmp($a->key, $b->key));
+
+        return $result;
     }
 
     public function addKey(Key $key): void

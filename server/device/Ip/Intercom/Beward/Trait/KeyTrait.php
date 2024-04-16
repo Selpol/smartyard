@@ -35,6 +35,8 @@ trait KeyTrait
             $result[] = new Key($key, intval($result['Apartment' . $i]));
         }
 
+        usort($result, static fn(Key $a, Key $b) => strcmp($a->key, $b->key));
+
         return $result;
     }
 
