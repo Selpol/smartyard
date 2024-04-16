@@ -7,6 +7,7 @@ use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
@@ -70,6 +71,14 @@ class HouseFlat extends Entity
     public function getCameras(): ManyToManyRelationship
     {
         return $this->manyToMany(DeviceCamera::class, 'houses_cameras_flats', 'house_flat_id', 'house_flat_id', 'camera_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<HouseKey>
+     */
+    public function getKeys(): OneToManyRelationship
+    {
+        return $this->oneToMany(HouseKey::class, 'access_to', 'house_flat_id', criteria()->equal('access_type', 2));
     }
 
     /**

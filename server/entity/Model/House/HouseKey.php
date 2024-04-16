@@ -4,7 +4,10 @@ namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Repository\House\HouseKeyRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
+use Selpol\Framework\Kernel\Exception\KernelException;
 
 /**
  * @property int $house_rfid_id
@@ -23,11 +26,22 @@ class HouseKey extends Entity
     /**
      * @use RepositoryTrait<HouseKeyRepository>
      */
-    use RepositoryTrait;
+    use RepositoryTrait, RelationshipTrait;
 
     public static string $table = 'houses_rfids';
 
     public static string $columnId = 'house_rfid_id';
+
+    /**
+     * @return OneToOneRelationship<HouseFlat>
+     */
+    public function getFlat(): OneToOneRelationship
+    {
+        if ($this->access_type !== 2)
+            throw new KernelException('Не верный тип ключа для квартиры');
+
+        return $this->oneToOne(HouseFlat::class, 'house_flat_id', 'access_to');
+    }
 
     public static function getColumns(): array
     {

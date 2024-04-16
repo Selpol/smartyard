@@ -51,7 +51,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(1);
 
-        $entrances = HouseEntrance::fetchAll(criteria()->equal('house_domophone_id', $this->id)->equal('domophone_output', 0));
+        $entrances = $deviceIntercom->getEntrances()->getValue(criteria()->equal('domophone_output', 0));
 
         if (count($entrances) === 0)
             throw new KernelException('Устройство не привязанно к какому-то либо входу');
@@ -310,10 +310,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $processed = [];
 
         foreach ($entrances as $entrance) {
-            $ids = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id', ['entrance_id' => $entrance->house_entrance_id]);
-            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', $ids));
+            $houseFlats = $entrance->getFlats()->getValue();
 
-            if (!$houseFlats)
+            if (count($houseFlats) === 0)
                 continue;
 
             $entranceLevels = array_filter(
@@ -383,7 +382,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 throw new DeviceException($device, 'Квартиры не существует');
 
             $flat = $flats[$apartment->apartment];
-            $flatKeys = HouseKey::fetchAll(criteria()->equal('access_type', 2)->equal('access_to', $flat->house_flat_id)->asc('rfid'));
+            $flatKeys = $flat->getKeys()->getValue(criteria()->asc('rfid'));
 
             /** @var array<string, Key> $keys */
             $keys = array_reduce($device->getKeys($apartment->apartment), static function (array $previous, Key $current) {
