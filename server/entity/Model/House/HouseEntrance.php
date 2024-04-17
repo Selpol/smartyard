@@ -36,6 +36,11 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $cms_levels
  *
  * @property int $locks_disabled
+ *
+ * @property-read DeviceIntercom $intercom
+ *
+ * @property-read AddressHouse[] $houses
+ * @property-read HouseFlat[] $flats
  */
 class HouseEntrance extends Entity
 {
@@ -51,7 +56,7 @@ class HouseEntrance extends Entity
     /**
      * @return OneToOneRelationship<DeviceIntercom>
      */
-    public function getIntercom(): OneToOneRelationship
+    public function intercom(): OneToOneRelationship
     {
         return $this->oneToOne(DeviceIntercom::class, 'house_domophone_id', 'house_domophone_id');
     }
@@ -59,17 +64,17 @@ class HouseEntrance extends Entity
     /**
      * @return ManyToManyRelationship<AddressHouse>
      */
-    public function getHouses(): ManyToManyRelationship
+    public function houses(): ManyToManyRelationship
     {
-        return $this->manyToMany(AddressHouse::class, 'houses_houses_entrances', 'house_entrance_id', 'house_entrance_id', 'address_house_id');
+        return $this->manyToMany(AddressHouse::class, 'houses_houses_entrances', 'house_entrance_id', 'house_entrance_id', 'address_house_id', 'address_house_id');
     }
 
     /**
      * @return ManyToManyRelationship<HouseFlat>
      */
-    public function getFlats(): ManyToManyRelationship
+    public function flats(): ManyToManyRelationship
     {
-        return $this->manyToMany(HouseFlat::class, 'houses_entrances_flats', 'house_entrance_id', 'house_entrance_id', 'house_flat_id');
+        return $this->manyToMany(HouseFlat::class, 'houses_entrances_flats', 'house_entrance_id', 'house_entrance_id', 'house_flat_id', 'house_flat_id');
     }
 
     public static function getColumns(): array

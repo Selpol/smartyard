@@ -5,6 +5,7 @@ namespace Selpol\Entity\Model\Address;
 use Selpol\Entity\Repository\Address\AddressAreaRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -20,6 +21,11 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $area
  *
  * @property string|null $timezone
+ *
+ * @property-read AddressRegion $region
+ *
+ * @property-read AddressCity[] $cities
+ * @property-read AddressSettlement[] $settlements
  */
 class AddressArea extends Entity
 {
@@ -33,9 +39,17 @@ class AddressArea extends Entity
     public static string $columnId = 'address_area_id';
 
     /**
+     * @return OneToOneRelationship<AddressRegion>
+     */
+    public function region(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressRegion::class, 'address_region_id', 'address_region_id');
+    }
+
+    /**
      * @return OneToManyRelationship<AddressCity>
      */
-    public function getCities(): OneToManyRelationship
+    public function cities(): OneToManyRelationship
     {
         return $this->oneToMany(AddressCity::class, 'address_area_id');
     }
@@ -43,7 +57,7 @@ class AddressArea extends Entity
     /**
      * @return OneToManyRelationship<AddressSettlement>
      */
-    public function getSettlements(): OneToManyRelationship
+    public function settlements(): OneToManyRelationship
     {
         return $this->oneToMany(AddressSettlement::class, 'address_area_id');
     }

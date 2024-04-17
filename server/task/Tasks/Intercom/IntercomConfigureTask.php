@@ -51,7 +51,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(1);
 
-        $entrances = $deviceIntercom->getEntrances()->getValue(criteria()->equal('domophone_output', 0));
+        $entrances = $deviceIntercom->entrances()->getValue(criteria()->equal('domophone_output', 0));
 
         if (count($entrances) === 0)
             throw new KernelException('Устройство не привязанно к какому-то либо входу');
@@ -310,7 +310,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $processed = [];
 
         foreach ($entrances as $entrance) {
-            $houseFlats = $entrance->getFlats()->getValue();
+            $houseFlats = $entrance->flats;
 
             if (count($houseFlats) === 0)
                 continue;
@@ -382,7 +382,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 throw new DeviceException($device, 'Квартиры не существует');
 
             $flat = $flats[$apartment->apartment];
-            $flatKeys = $flat->getKeys()->getValue(criteria()->asc('rfid'));
+            $flatKeys = $flat->keys()->getValue(criteria()->asc('rfid'));
 
             /** @var array<string, Key> $keys */
             $keys = array_reduce($device->getKeys($apartment->apartment), static function (array $previous, Key $current) {

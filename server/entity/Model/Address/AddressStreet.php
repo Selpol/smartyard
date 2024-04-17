@@ -5,6 +5,7 @@ namespace Selpol\Entity\Model\Address;
 use Selpol\Entity\Repository\Address\AddressStreetRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -21,6 +22,11 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $street
  *
  * @property string|null $timezone
+ *
+ * @property-read AddressCity|null $city
+ * @property-read AddressSettlement|null $settlement
+ *
+ * @property-read AddressHouse[] $houses
  */
 class AddressStreet extends Entity
 {
@@ -34,9 +40,25 @@ class AddressStreet extends Entity
     public static string $columnId = 'address_street_id';
 
     /**
+     * @return OneToOneRelationship<AddressCity>
+     */
+    public function city(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressCity::class, 'address_city_id', 'address_city_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<AddressSettlement>
+     */
+    public function settlement(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressSettlement::class, 'address_settlement_id', 'address_settlement_id');
+    }
+
+    /**
      * @return OneToManyRelationship<AddressHouse>
      */
-    public function getHouses(): OneToManyRelationship
+    public function houses(): OneToManyRelationship
     {
         return $this->oneToMany(AddressHouse::class, 'address_street_id');
     }

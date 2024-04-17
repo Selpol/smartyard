@@ -53,6 +53,10 @@ use Selpol\Service\DatabaseService;
  * @property string|null $comment
  *
  * @property bool $hidden
+ *
+ * @property-read AddressHouse[] $houses
+ * @property-read HouseFlat[] $flats
+ * @property-read HouseSubscriber[] $subscribers
  */
 class DeviceCamera extends Entity
 {
@@ -68,25 +72,25 @@ class DeviceCamera extends Entity
     /**
      * @return ManyToManyRelationship<AddressHouse>
      */
-    public function getHouses(): ManyToManyRelationship
+    public function houses(): ManyToManyRelationship
     {
-        return $this->manyToMany(AddressHouse::class, 'houses_cameras_houses', 'camera_id', 'camera_id', 'address_house_id');
+        return $this->manyToMany(AddressHouse::class, 'houses_cameras_houses', 'camera_id', 'camera_id', 'address_house_id', 'address_house_id');
     }
 
     /**
      * @return ManyToManyRelationship<HouseFlat>
      */
-    public function getFlats(): ManyToManyRelationship
+    public function flats(): ManyToManyRelationship
     {
-        return $this->manyToMany(HouseFlat::class, 'houses_cameras_flats', 'camera_id', 'camera_id', 'house_flat_id');
+        return $this->manyToMany(HouseFlat::class, 'houses_cameras_flats', 'camera_id', 'camera_id', 'house_flat_id', 'house_flat_id');
     }
 
     /**
      * @return ManyToManyRelationship<HouseSubscriber>
      */
-    public function getSubscribers(): ManyToManyRelationship
+    public function subscribers(): ManyToManyRelationship
     {
-        return $this->manyToMany(HouseSubscriber::class, 'houses_cameras_subscribers', 'camera_id', 'camera_id', 'house_subscriber_id');
+        return $this->manyToMany(HouseSubscriber::class, 'houses_cameras_subscribers', 'camera_id', 'camera_id', 'house_subscriber_id', 'house_subscriber_id');
     }
 
     public function getDvrServer(): ?DvrServer

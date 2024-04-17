@@ -32,6 +32,11 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string|null $subscriber_name
  * @property string|null $subscriber_patronymic
+ *
+ * @property-read SubscriberBlock[] $subscriberBlocks
+ * @property-read InboxMessage[] $inboxMessages
+ * @property-read HouseFlat[] $flats
+ * @property-read DeviceCamera[] $cameras
  */
 class HouseSubscriber extends Entity
 {
@@ -47,33 +52,33 @@ class HouseSubscriber extends Entity
     /**
      * @return OneToManyRelationship<SubscriberBlock>
      */
-    public function getSubscriberBlocks(): OneToManyRelationship
+    public function subscriberBlocks(): OneToManyRelationship
     {
-        return $this->oneToMany(SubscriberBlock::class, 'subscriber_id', 'house_subscriber_id');
+        return $this->oneToMany(SubscriberBlock::class, 'subscriber_id');
     }
 
     /**
      * @return OneToManyRelationship<InboxMessage>
      */
-    public function getInboxMessages(): OneToManyRelationship
+    public function inboxMessages(): OneToManyRelationship
     {
-        return $this->oneToMany(InboxMessage::class, 'house_subscriber_id', 'house_subscriber_id');
+        return $this->oneToMany(InboxMessage::class, 'house_subscriber_id');
     }
 
     /**
      * @return ManyToManyRelationship<HouseFlat>
      */
-    public function getFlats(): ManyToManyRelationship
+    public function flats(): ManyToManyRelationship
     {
-        return $this->manyToMany(HouseFlat::class, 'houses_flats_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'house_flat_id');
+        return $this->manyToMany(HouseFlat::class, 'houses_flats_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'house_flat_id', 'house_flat_id');
     }
 
     /**
      * @return ManyToManyRelationship<DeviceCamera>
      */
-    public function getCameras(): ManyToManyRelationship
+    public function cameras(): ManyToManyRelationship
     {
-        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'camera_id');
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_subscribers', 'house_subscriber_id', 'house_subscriber_id', 'camera_id', 'camera_id');
     }
 
     public static function getColumns(): array

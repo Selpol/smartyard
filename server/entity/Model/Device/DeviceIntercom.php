@@ -32,6 +32,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $sos_number
  *
  * @property bool $hidden
+ *
+ * @property-read HouseEntrance[] $entrances
  */
 class DeviceIntercom extends Entity
 {
@@ -47,9 +49,9 @@ class DeviceIntercom extends Entity
     /**
      * @return OneToManyRelationship<HouseEntrance>
      */
-    public function getEntrances(): OneToManyRelationship
+    public function entrances(): OneToManyRelationship
     {
-        return $this->oneToMany(HouseEntrance::class, 'house_domophone_id', 'house_domophone_id');
+        return $this->oneToMany(HouseEntrance::class, 'house_domophone_id');
     }
 
     public static function getColumns(): array

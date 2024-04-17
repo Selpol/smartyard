@@ -25,6 +25,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property-read CoreUser $user
  */
 class CoreAuth extends Entity
 {
@@ -51,7 +53,7 @@ class CoreAuth extends Entity
     /**
      * @return OneToOneRelationship<CoreUser>
      */
-    public function getUser(): OneToOneRelationship
+    public function user(): OneToOneRelationship
     {
         return $this->oneToOne(CoreUser::class, 'uid', 'user_id');
     }

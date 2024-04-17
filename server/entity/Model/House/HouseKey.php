@@ -20,6 +20,8 @@ use Selpol\Framework\Kernel\Exception\KernelException;
  * @property int|null $last_seen
  *
  * @property string|null $comments
+ *
+ * @property-read HouseFlat $flat
  */
 class HouseKey extends Entity
 {
@@ -35,7 +37,7 @@ class HouseKey extends Entity
     /**
      * @return OneToOneRelationship<HouseFlat>
      */
-    public function getFlat(): OneToOneRelationship
+    public function flat(): OneToOneRelationship
     {
         if ($this->access_type !== 2)
             throw new KernelException('Не верный тип ключа для квартиры');

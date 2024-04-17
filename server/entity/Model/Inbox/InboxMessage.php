@@ -29,6 +29,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property int $readed
  *
  * @property int $code
+ *
+ * @property-read HouseSubscriber $subscriber
  */
 class InboxMessage extends Entity
 {
@@ -44,7 +46,7 @@ class InboxMessage extends Entity
     /**
      * @return OneToOneRelationship<HouseSubscriber>
      */
-    public function getSubscriber(): OneToOneRelationship
+    public function subscriber(): OneToOneRelationship
     {
         return $this->oneToOne(HouseSubscriber::class, 'house_subscriber_id', 'house_subscriber_id');
     }

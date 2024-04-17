@@ -22,6 +22,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property-read HouseFlat $flat
  */
 class FlatBlock extends Entity
 {
@@ -38,7 +40,7 @@ class FlatBlock extends Entity
     /**
      * @return OneToOneRelationship<HouseFlat>
      */
-    public function getFlat(): OneToOneRelationship
+    public function flat(): OneToOneRelationship
     {
         return $this->oneToOne(HouseFlat::class, 'house_flat_id', 'flat_id');
     }

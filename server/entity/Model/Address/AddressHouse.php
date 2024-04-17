@@ -9,6 +9,7 @@ use Selpol\Entity\Repository\Address\AddressHouseRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -25,6 +26,13 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $house
  *
  * @property string|null $timezone
+ *
+ * @property-read AddressSettlement|null $settlement
+ * @property-read AddressStreet|null $street
+ *
+ * @property-read HouseFlat[] $flats
+ * @property-read HouseEntrance[] $entrances
+ * @property-read DeviceCamera[] $cameras
  */
 class AddressHouse extends Entity
 {
@@ -38,9 +46,25 @@ class AddressHouse extends Entity
     public static string $columnId = 'address_house_id';
 
     /**
+     * @return OneToOneRelationship<AddressSettlement>
+     */
+    public function settlement(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressSettlement::class, 'address_settlement_id', 'address_settlement_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<AddressStreet>
+     */
+    public function street(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressStreet::class, 'address_street_id', 'address_street_id');
+    }
+
+    /**
      * @return OneToManyRelationship<HouseFlat>
      */
-    public function getFlats(): OneToManyRelationship
+    public function flats(): OneToManyRelationship
     {
         return $this->oneToMany(HouseFlat::class, 'address_house_id', 'address_house_id');
     }
@@ -48,17 +72,17 @@ class AddressHouse extends Entity
     /**
      * @return ManyToManyRelationship<HouseEntrance>
      */
-    public function getEntrances(): ManyToManyRelationship
+    public function entrances(): ManyToManyRelationship
     {
-        return $this->manyToMany(HouseEntrance::class, 'houses_houses_entrances', 'address_house_id', 'address_house_id', 'house_entrance_id');
+        return $this->manyToMany(HouseEntrance::class, 'houses_houses_entrances', 'address_house_id', 'address_house_id', 'house_entrance_id', 'house_entrance_id');
     }
 
     /**
      * @return ManyToManyRelationship<DeviceCamera>
      */
-    public function getCameras(): ManyToManyRelationship
+    public function cameras(): ManyToManyRelationship
     {
-        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_houses', 'address_house_id', 'address_house_id', 'camera_id');
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_houses', 'address_house_id', 'address_house_id', 'camera_id', 'camera_id');
     }
 
     public static function getColumns(): array

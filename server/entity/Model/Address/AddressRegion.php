@@ -19,6 +19,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $region
  *
  * @property string|null $timezone
+ *
+ * @property-read AddressArea[] $areas
+ * @property-read AddressCity[] $cities
  */
 class AddressRegion extends Entity
 {
@@ -34,7 +37,7 @@ class AddressRegion extends Entity
     /**
      * @return OneToManyRelationship<AddressArea>
      */
-    public function getAreas(): OneToManyRelationship
+    public function areas(): OneToManyRelationship
     {
         return $this->oneToMany(AddressArea::class, 'address_region_id');
     }
@@ -42,7 +45,7 @@ class AddressRegion extends Entity
     /**
      * @return OneToManyRelationship<AddressCity>
      */
-    public function getCities(): OneToManyRelationship
+    public function cities(): OneToManyRelationship
     {
         return $this->oneToMany(AddressCity::class, 'address_region_id');
     }
