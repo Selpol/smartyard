@@ -6,7 +6,6 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RedisException;
 use Selpol\Framework\Router\Route\Route;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\PrometheusService;
@@ -14,7 +13,7 @@ use Selpol\Service\PrometheusService;
 readonly class PrometheusMiddleware extends RouteMiddleware
 {
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws NotFoundExceptionInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {

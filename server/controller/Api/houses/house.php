@@ -9,6 +9,7 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
+use Throwable;
 
 readonly class house extends Api
 {
@@ -40,14 +41,18 @@ readonly class house extends Api
         $keys = $params['keys'];
 
         foreach ($keys as $key) {
-            $houseKey = new HouseKey();
+            try {
+                $houseKey = new HouseKey();
 
-            $houseKey->rfid = $key['rfId'];
-            $houseKey->access_type = 2;
-            $houseKey->access_to = $key['accessTo'];
-            $houseKey->comments = array_key_exists('comment', $key) ? $key['comment'] : '';
+                $houseKey->rfid = $key['rfId'];
+                $houseKey->access_type = 2;
+                $houseKey->access_to = $key['accessTo'];
+                $houseKey->comments = array_key_exists('comment', $key) ? $key['comment'] : '';
 
-            $houseKey->insert();
+                $houseKey->insert();
+            } catch (Throwable) {
+
+            }
         }
 
         $task = task(new IntercomKeysKeyTask($houseId, $keys));
