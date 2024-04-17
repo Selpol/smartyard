@@ -15,6 +15,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 {
     use TaskUniqueTrait;
 
+    public $taskUniqueTtl = 600;
+
     public function __construct(int $id)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
@@ -157,12 +159,12 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                             'comments' => 'Ключ (' . $contractor->title . ')'
                         ]))->insert();
-                    } catch (Throwable) {
 
+                        foreach ($intercoms as $intercom)
+                            $intercom->addRfidDeffer($key, $flat);
+                    } catch (Throwable $throwable) {
+                        file_logger('contractor')->error($throwable);
                     }
-
-                    foreach ($intercoms as $intercom)
-                        $intercom->addRfidDeffer($key, $flat);
                 }
             }
 
