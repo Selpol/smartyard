@@ -68,14 +68,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $this->setProgress(50);
 
-        $progress = 50;
-        $delta = (100 - 50) / count($addresses);
-
         try {
             $this->keys($contractor, $devices, $flats, $keys);
-
-            $progress += $delta;
-            $this->setProgress($progress);
         } catch (Throwable $throwable) {
             file_logger('contract')->error($throwable);
         }
@@ -153,6 +147,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         /** @var IntercomDevice[] $intercoms */
         $intercoms = array_filter(array_map(static fn(int $id) => intercom($id), array_keys($devices)), static fn(IntercomDevice $device) => $device->ping());
 
+        $progress = 50;
+        $delta = (100 - 50) / count($flats);
+
         foreach ($flats as $id => $flat) {
             /** @var array<string, int> $keysInFlat */
             $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
@@ -188,6 +185,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 foreach ($intercoms as $intercom)
                     $intercom->removeRfidDeffer($key, $flat);
             }
+
+            $progress += $delta;
+            $this->setProgress($progress);
         }
 
         foreach ($intercoms as $intercom)
