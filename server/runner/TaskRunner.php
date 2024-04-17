@@ -89,7 +89,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $prometheus = container(PrometheusService::class);
 
             $counter = $prometheus->getCounter('task', 'count', 'Task count', ['class', 'status']);
-            $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [1, 2, 5, 10, 15, 25, 50, 100, 250, 500]);
+            $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [100, 200, 500, 1000, 1500, 2500, 5000, 10000, 25000, 50000]);
 
             $uuid = guid_v4();
 

@@ -22,7 +22,6 @@ readonly class PrometheusMiddleware extends RouteMiddleware
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     private function handle(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
