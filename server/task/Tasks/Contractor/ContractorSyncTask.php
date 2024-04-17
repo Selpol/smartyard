@@ -7,10 +7,14 @@ use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 
-class ContractorSyncTask extends ContractorTask
+class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 {
+    use TaskUniqueTrait;
+
     public function __construct(int $id)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
@@ -153,7 +157,7 @@ class ContractorSyncTask extends ContractorTask
 
                             'comments' => 'Ключ (' . $contractor->title . ')'
                         ]))->insert();
-                    } catch(Throwable) {
+                    } catch (Throwable) {
 
                     }
 
