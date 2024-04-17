@@ -151,43 +151,52 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $delta = (100 - 50) / count($flats);
 
         foreach ($flats as $id => $flat) {
-            /** @var array<string, int> $keysInFlat */
-            $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
-                $previous[$current['rfId']] = $current['keyId'];
+            try {
+                /** @var array<string, int> $keysInFlat */
+                $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
+                    $previous[$current['rfId']] = $current['keyId'];
 
-                return $previous;
-            }, []);
+                    return $previous;
+                }, []);
 
-            foreach ($keys as $key) {
-                if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
-                else {
-                    try {
-                        (new HouseKey([
-                            'rfid' => $key,
+                $addKeys = [];
 
-                            'access_type' => 2,
-                            'access_to' => $id,
+                foreach ($keys as $key) {
+                    if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
+                    else {
+                        try {
+                            (new HouseKey([
+                                'rfid' => $key,
 
-                            'comments' => 'Ключ (' . $contractor->title . ')'
-                        ]))->insert();
+                                'access_type' => 2,
+                                'access_to' => $id,
 
-                        foreach ($intercoms as $intercom)
-                            $intercom->addRfidDeffer($key, $flat);
-                    } catch (Throwable $throwable) {
-                        file_logger('contractor')->error($throwable);
+                                'comments' => 'Ключ (' . $contractor->title . ')'
+                            ]))->insert();
+
+                            $addKeys[] = $key;
+                        } catch (Throwable $throwable) {
+                            file_logger('contractor')->error($throwable);
+                        }
                     }
                 }
+
+                foreach ($addKeys as $key)
+                    foreach ($intercoms as $intercom)
+                        $intercom->addRfidDeffer($key, $flat);
+
+                foreach ($keysInFlat as $key => $value) {
+                    $houseFeature->deleteKey($value);
+
+                    foreach ($intercoms as $intercom)
+                        $intercom->removeRfidDeffer($key, $flat);
+                }
+            } catch (Throwable $throwable) {
+                file_logger('contractor')->error($throwable);
+            } finally {
+                $progress += $delta;
+                $this->setProgress($progress);
             }
-
-            foreach ($keysInFlat as $key => $value) {
-                $houseFeature->deleteKey($value);
-
-                foreach ($intercoms as $intercom)
-                    $intercom->removeRfidDeffer($key, $flat);
-            }
-
-            $progress += $delta;
-            $this->setProgress($progress);
         }
 
         foreach ($intercoms as $intercom)
