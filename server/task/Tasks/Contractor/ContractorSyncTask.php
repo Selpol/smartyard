@@ -24,49 +24,63 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
     public function onTask(): bool
     {
-        try {
-            $contractor = $this->getContractor();
+        $contractor = $this->getContractor();
 
-            $addressesGroup = $this->getAddressesList();
+        $addressesGroup = $this->getAddressesList();
 
-            if (count($addressesGroup) === 0)
-                return true;
+        if (count($addressesGroup) === 0)
+            return true;
 
-            $subscribersGroup = $this->getSubscribersList();
-            $keysGroup = $this->getKeysList();
+        $this->setProgress(5);
 
-            if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
-                return true;
+        $subscribersGroup = $this->getSubscribersList();
+        $keysGroup = $this->getKeysList();
 
-            $addresses = $this->getUniqueAddressesIds($addressesGroup);
-            $subscribers = $this->getUniqueSubscribersIdsAndRoles($subscribersGroup);
-            $keys = $this->getUniqueKeys($keysGroup);
+        if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
+            return true;
 
-            /** @var array<int, bool> $devices */
-            $devices = [];
+        $this->setProgress(10);
 
-            /** @var array<int, int> $flats */
-            $flats = [];
+        $addresses = $this->getUniqueAddressesIds($addressesGroup);
+        $subscribers = $this->getUniqueSubscribersIdsAndRoles($subscribersGroup);
+        $keys = $this->getUniqueKeys($keysGroup);
 
-            foreach ($addresses as $address)
-                try {
-                    $this->address($contractor, $address, $subscribers, $devices, $flats);
-                } catch (Throwable $throwable) {
-                    file_logger('contract')->error($throwable);
-                }
+        $this->setProgress(15);
 
+        /** @var array<int, bool> $devices */
+        $devices = [];
+
+        /** @var array<int, int> $flats */
+        $flats = [];
+
+        $progress = 15;
+        $delta = (50 - 15) / count($addresses);
+
+        foreach ($addresses as $address)
             try {
-                $this->keys($contractor, $devices, $flats, $keys);
+                $this->address($contractor, $address, $subscribers, $devices, $flats);
+
+                $progress += $delta;
+                $this->setProgress($progress);
             } catch (Throwable $throwable) {
                 file_logger('contract')->error($throwable);
             }
 
-            return true;
+        $this->setProgress(50);
+
+        $progress = 50;
+        $delta = (100 - 50) / count($addresses);
+
+        try {
+            $this->keys($contractor, $devices, $flats, $keys);
+
+            $progress += $delta;
+            $this->setProgress($progress);
         } catch (Throwable $throwable) {
             file_logger('contract')->error($throwable);
-
-            return false;
         }
+
+        return true;
     }
 
     /**
