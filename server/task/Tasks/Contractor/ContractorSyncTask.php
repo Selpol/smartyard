@@ -144,14 +144,18 @@ class ContractorSyncTask extends ContractorTask
             foreach ($keys as $key) {
                 if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
                 else {
-                    (new HouseKey([
-                        'rfid' => $key,
+                    try {
+                        (new HouseKey([
+                            'rfid' => $key,
 
-                        'access_type' => 2,
-                        'access_to' => $id,
+                            'access_type' => 2,
+                            'access_to' => $id,
 
-                        'comments' => 'Ключ (' . $contractor->title . ')'
-                    ]))->insert();
+                            'comments' => 'Ключ (' . $contractor->title . ')'
+                        ]))->insert();
+                    } catch(Throwable) {
+
+                    }
 
                     foreach ($intercoms as $intercom)
                         $intercom->addRfidDeffer($key, $flat);
