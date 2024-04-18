@@ -30,19 +30,17 @@ readonly class PrometheusMiddleware extends RouteMiddleware
         /** @var Route|null $route */
         $route = $request->getAttribute('route');
 
-        $target = $request->getRequestTarget();
-
         if ($route && array_key_exists('class', $route->route)) $class = $route->route['class'][0] . '@' . $route->route['class'][1];
         else $class = '_@_';
 
         $method = $request->getMethod();
 
-        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['url', 'class', 'method', 'code']);
-        $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte', ['url', 'class', 'method', 'code']);
+        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['class', 'method', 'code']);
+        $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte', ['class', 'method', 'code']);
 
         $code = $response->getStatusCode();
 
-        $requestCount->incBy(1, [$target, $class, $method, $code]);
+        $requestCount->incBy(1, [$class, $method, $code]);
 
         $size = $request->getBody()->getSize();
 
@@ -52,15 +50,15 @@ readonly class PrometheusMiddleware extends RouteMiddleware
             $size = strlen($request->getBody()->getContents());
         }
 
-        $requestBodySizeByte->incBy($size, [$target, $class, $method, $code]);
+        $requestBodySizeByte->incBy($size, [$class, $method, $code]);
 
         if ($response->getStatusCode() !== 204) {
-            $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['url', 'class', 'method', 'code']);
-            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$target, $class, $method, $code]);
+            $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['class', 'method', 'code']);
+            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$class, $method, $code]);
         }
 
-        $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['url', 'class', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
-        $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$target, $class, $method, $code]);
+        $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['class', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
+        $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$class, $method, $code]);
 
         return $response;
     }
