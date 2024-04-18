@@ -13,6 +13,7 @@ use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
 use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
+use Selpol\Device\Ip\Intercom\Setting\Common\Gate;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
@@ -20,7 +21,6 @@ use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Entity\Model\House\HouseFlat;
-use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -51,6 +51,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(1);
 
+        /** @var HouseEntrance[] $entrances */
         $entrances = $deviceIntercom->entrances()->getValue(criteria()->equal('domophone_output', 0));
 
         if (count($entrances) === 0)
@@ -107,27 +108,28 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             /** @var array<int, HouseFlat> $flats */
             $flats = [];
 
-            $apartments = $this->apartment($device, $entrances, $flats);
+            $this->apartment($device, $entrances, $flats);
 
             $this->setProgress(80);
 
             if ($device instanceof KeyInterface)
-                $this->key($device, $apartments, $flats);
+                $this->key($device, $flats);
 
             $this->setProgress(90);
 
             if ($device instanceof CodeInterface)
-                $this->code($device, $apartments, $flats);
+                $this->code($device, $flats);
+
+            $this->setProgress(95);
+
+            if ($device instanceof CommonInterface) {
+                if ($entrances[0]->shared)
+                    $this->commonGates($device, $entrances[0], $flats);
+            }
         }
 
-        $this->setProgress(95);
-
-        if ($device instanceof CommonInterface) {
-            if ($entrances[0]->shared)
-                $this->commonGates($device);
-
-            $this->commonSyslog($device, $ntp);
-        }
+        if ($device instanceof CommonInterface)
+            $this->commonSyslog($device, $deviceModel);
 
         return true;
     }
@@ -295,10 +297,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      * @param ApartmentInterface&IntercomDevice $device
      * @param HouseEntrance[] $entrances
      * @param array<int, HouseFlat> $flats
-     * @return array<int, Apartment>
+     * @return void
      */
-    public function apartment(IntercomDevice & ApartmentInterface $device, array $entrances, array &$flats): array
-    { //51 - 79
+    public function apartment(IntercomDevice & ApartmentInterface $device, array $entrances, array &$flats): void
+    {
+        $progress = 50;
+        $delta = (80 - 50) / count($entrances);
+
         /** @var array<int, Apartment> $apartments */
         $apartments = array_reduce($device->getApartments(), static function (array $previous, Apartment $current) {
             $previous[$current->apartment] = $current;
@@ -356,6 +361,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 $processed[$flat->flat] = true;
             }
+
+            $progress += $delta;
+            $this->setProgress($progress);
         }
 
         $removed = array_filter(array_keys($apartments), static fn(int $value) => !array_key_exists($value, $processed));
@@ -365,27 +373,23 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             unset($apartments[$value]);
         }
-
-        return $apartments;
     }
 
     /**
      * @param KeyInterface&IntercomDevice $device
-     * @param Apartment[] $apartments
      * @param array<int, HouseFlat> $flats
      * @return void
      */
-    public function key(IntercomDevice & KeyInterface $device, array $apartments, array $flats): void
+    public function key(IntercomDevice & KeyInterface $device, array $flats): void
     {
-        foreach ($apartments as $apartment) {
-            if (!array_key_exists($apartment->apartment, $flats))
-                throw new DeviceException($device, 'Квартиры не существует');
+        $progress = 80;
+        $delta = (90 - 80) / count($flats);
 
-            $flat = $flats[$apartment->apartment];
+        foreach ($flats as $apartment => $flat) {
             $flatKeys = $flat->keys()->getValue(criteria()->asc('rfid'));
 
             /** @var array<string, Key> $keys */
-            $keys = array_reduce($device->getKeys($apartment->apartment), static function (array $previous, Key $current) {
+            $keys = array_reduce($device->getKeys($apartment), static function (array $previous, Key $current) {
                 $previous[$current->key] = $current;
 
                 return $previous;
@@ -399,73 +403,141 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     continue;
                 }
 
-                $device->addKey(new Key($flatKey->rfid, $apartment->apartment));
+                $device->addKey(new Key($flatKey->rfid, $apartment));
             }
 
             foreach ($keys as $key)
                 $device->removeKey($key);
+
+            $progress += $delta;
+            $this->setProgress($progress);
         }
     }
 
     /**
      * @param CodeInterface&IntercomDevice $device
-     * @param Apartment[] $apartments
      * @param array<int, HouseFlat> $flats
      * @return void
      */
-    public function code(IntercomDevice & CodeInterface $device, array $apartments, array $flats): void
+    public function code(IntercomDevice & CodeInterface $device, array $flats): void
     {
-        foreach ($apartments as $apartment) {
-            if (!array_key_exists($apartment->apartment, $flats))
-                throw new DeviceException($device, 'Квартиры не существует');
+        $progress = 90;
+        $delta = (95 - 90) / count($flats);
 
-            $flat = $flats[$apartment->apartment];
+        foreach ($flats as $apartment => $flat) {
             $code = intval($flat->open_code) ?: 0;
-            $codes = $device->getCodes($apartment->apartment);
+            $codes = $device->getCodes($apartment);
 
             if ($code) {
                 if (count($codes) === 0)
-                    $device->addCode(new Code($code, $apartment->apartment));
+                    $device->addCode(new Code($code, $apartment));
                 else if (count($codes) === 1) {
                     if (!$codes[0]->code != $code) {
                         $device->removeCode($codes[0]);
-                        $device->addCode(new Code($code, $apartment->apartment));
+                        $device->addCode(new Code($code, $apartment));
                     }
                 } else {
                     foreach ($codes as $code)
                         $device->removeCode($code);
 
-                    $device->addCode(new Code($code, $apartment->apartment));
+                    $device->addCode(new Code($code, $apartment));
                 }
             } else {
                 foreach ($codes as $code)
                     $device->removeCode($code);
             }
+
+            $progress += $delta;
+            $this->setProgress($progress);
         }
     }
 
     /**
      * @param CommonInterface&IntercomDevice $device
+     * @param HouseEntrance $entrance
+     * @param array<int, HouseFlat> $flats
      * @return void
      */
-    public function commonGates(IntercomDevice & CommonInterface $device): void
+    public function commonGates(IntercomDevice & CommonInterface $device, HouseEntrance $entrance, array $flats): void
     {
-//        $gates = [];
-//        $currentGates = $device->getGates();
-//
-//        $update = false;
-//
-//        if (count($currentGates) !== count($gates))
-//            $update = true;
-//        else for ($i = 0; $i < count($gates); $i++) {
-//            if (!$gates[$i]->equal($currentGates[$i])) {
-//                $update = true;
-//                break;
-//            }
-//        }
-//
-//        if ($update)
-//            $device->setGates($gates);
+        usort($flats, static fn(HouseFlat $a, HouseFlat $b) => $a->flat <=> $b->flat);
+
+        /**
+         * address_house_id > prefix
+         * @var array<int, int> $prefixes
+         */
+        $prefixes = [];
+
+        /**
+         * house_entrance_id -> HouseEntrance
+         * @var array<int, HouseEntrance> $entrances
+         */
+        $entrances = [];
+
+        /**
+         * house_domophone_id -> DeviceIntercom
+         * @var array<int, DeviceIntercom> $intercoms
+         */
+        $intercoms = [];
+
+        /** @var Gate[] $gates */
+        $gates = [];
+
+        $pivotCriteria = criteria()->in('house_flat_id', array_map(static fn(HouseFlat $flat) => $flat->house_flat_id, $flats));
+        $pivot = container(DatabaseService::class)->get('SELECT house_entrance_id, house_flat_id FROM houses_entrances_flats' . $pivotCriteria->getSqlString(), $pivotCriteria->getSqlParams());
+
+        $pivot = array_reduce($pivot, static function (array $previous, array $current) {
+            if (!array_key_exists($current['house_flat_id'], $previous))
+                $previous[$current['house_flat_id']] = [];
+
+            $previous[$current['house_flat_id']][] = $current['house_entrance_id'];
+
+            return $previous;
+        }, []);
+
+        foreach ($flats as $flat) {
+            if (!array_key_exists($flat->house_flat_id, $pivot))
+                continue;
+
+            if (!array_key_exists($flat->address_house_id, $prefixes))
+                $prefixes[$flat->address_house_id] = container(DatabaseService::class)->get('SELECT prefix FROM houses_houses_entrances WHERE address_house_id = :house_id AND house_entrance_id = :entrance_id', ['house_id' => $flat->address_house_id, 'entrance_id' => $entrance->house_entrance_id], options: ['singlify'])['prefix'];
+
+            /** @var HouseEntrance|null $flatEntrance */
+            $flatEntrance = null;
+
+            foreach ($pivot[$flat->house_flat_id] as $entranceId) {
+                if (array_key_exists($entranceId, $entrances)) {
+                    $flatEntrance = $entrances[$entranceId];
+                    break;
+                }
+
+                $temp = HouseEntrance::findById($entranceId, criteria()->equal('shared', 0));
+
+                if (!$temp)
+                    continue;
+
+                $entrances[$entranceId] = $temp;
+                $flatEntrance = $temp;
+
+                break;
+            }
+
+            if (!$flatEntrance)
+                continue;
+
+            if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms))
+                $intercoms[$entrance->house_domophone_id] = $entrance->intercom;
+
+            if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $flat->flat)
+                $gates[count($gates) - 1]->end++;
+            else $gates[] = new Gate(
+                $intercoms[$flatEntrance->house_domophone_id]->ip,
+                $prefixes[$flat->address_house_id],
+                $flat->flat,
+                $flat->flat
+            );
+
+        }
     }
 
     public function commonSyslog(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void

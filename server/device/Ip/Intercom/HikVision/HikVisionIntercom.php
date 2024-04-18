@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Intercom\HikVision;
 
+use Selpol\Device\Ip\Intercom\HikVision\Trait\ApartmentTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\AudioTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\CommonTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\KeyTrait;
@@ -9,6 +10,7 @@ use Selpol\Device\Ip\Intercom\HikVision\Trait\SipTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\VideoTrait;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
@@ -18,9 +20,9 @@ use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
-class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, KeyInterface
+class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, ApartmentInterface, KeyInterface
 {
-    use HikVisionTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, KeyTrait;
+    use HikVisionTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, ApartmentTrait, KeyTrait;
 
     public string $login = 'admin';
 

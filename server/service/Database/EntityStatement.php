@@ -11,6 +11,8 @@ use Selpol\Framework\Entity\Exception\EntityException;
 
 readonly class EntityStatement implements EntityStatementInterface
 {
+    private const FETCH = [self::FETCH_ASSOC => PDO::FETCH_ASSOC, self::FETCH_NUMBER => PDO::FETCH_NUM];
+
     private PDOStatement $statement;
 
     public function __construct(PDOStatement $statement)
@@ -39,9 +41,9 @@ readonly class EntityStatement implements EntityStatementInterface
         }
     }
 
-    public function fetch(): ?array
+    public function fetch(int $flags = self::FETCH_ASSOC): ?array
     {
-        $result = $this->statement->fetch(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetch(self::FETCH[$flags]);
 
         return $result === false ? null : $result;
     }
@@ -51,9 +53,9 @@ readonly class EntityStatement implements EntityStatementInterface
         return $this->statement->fetchColumn($index);
     }
 
-    public function fetchAll(): array
+    public function fetchAll(int $flags = self::FETCH_ASSOC): array
     {
-        $result = $this->statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetchAll(self::FETCH[$flags]);
 
         return $result === false ? [] : $result;
     }
