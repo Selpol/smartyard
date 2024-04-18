@@ -30,7 +30,7 @@ readonly class flat extends Api
         $flatId = $households->addFlat((int)$params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], $params["openCode"], (int)$params["plog"], (int)$params["autoOpen"], (int)$params["whiteRabbit"], (int)$params["sipEnabled"], $params["sipPassword"], $params['comment']);
 
         if ($flatId)
-            task(new IntercomSyncFlatTask(intval(container(AuthService::class)->getUser()->getIdentifier()), $flatId, true))->high()->dispatch();
+            task(new IntercomSyncFlatTask(intval(container(AuthService::class)->getCoreAuthUser()->getIdentifier()), $flatId, true))->high()->dispatch();
 
         return $flatId ? self::success($flatId) : self::error('Не удалось создать квартиру', 400);
     }
@@ -42,7 +42,7 @@ readonly class flat extends Api
         $success = $households->modifyFlat($params["_id"], $params);
 
         if ($success)
-            task(new IntercomSyncFlatTask(intval(container(AuthService::class)->getUser()->getIdentifier()), $params['_id'], false))->high()->dispatch();
+            task(new IntercomSyncFlatTask(intval(container(AuthService::class)->getCoreAuthUser()->getIdentifier()), $params['_id'], false))->high()->dispatch();
 
         return $success ? self::success($params['_id']) : self::error('Не удалось обновить квартиру', 400);
     }

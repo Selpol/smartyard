@@ -8,6 +8,7 @@ use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\AuthService;
 use Selpol\Service\MqttService;
 use Selpol\Service\PrometheusService;
 use Selpol\Service\TaskService;
@@ -96,6 +97,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $time = microtime(true) * 1000;
 
             try {
+                if ($task->uid !== null)
+                    container(AuthService::class)->asCoreUser($task->uid);
+
                 $service->task($uuid, $task->title, 'start', $task->uid, 0);
 
                 $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
@@ -131,6 +135,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 else $service->task($uuid, $task->title, 'done', $task->uid, 'ERROR');
             } finally {
                 $feature->releaseUnique($task);
+
+                container(AuthService::class)->setUser(null);
             }
         });
     }

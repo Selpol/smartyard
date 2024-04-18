@@ -2,10 +2,13 @@
 
 namespace Selpol\Service;
 
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
+use Selpol\Service\Auth\User\CoreAuthUser;
+use Selpol\Service\Auth\User\SubscriberAuthUser;
 use Selpol\Service\Exception\AuthException;
 
 #[Singleton]
@@ -45,9 +48,30 @@ class AuthService
         return $this->user;
     }
 
+    public function getCoreAuthUser(): CoreAuthUser
+    {
+        if (!($this->user instanceof CoreAuthUser))
+            throw new AuthException(localizedMessage: 'Не верная авторизация запроса', code: 401);
+
+        return $this->user;
+    }
+
+    public function getSubscriberAuthUser(): SubscriberAuthUser
+    {
+        if (!($this->user instanceof SubscriberAuthUser))
+            throw new AuthException(localizedMessage: 'Не верная авторизация запроса', code: 401);
+
+        return $this->user;
+    }
+
     public function setUser(?AuthUserInterface $user): void
     {
         $this->user = $user;
+    }
+
+    public function asCoreUser(int $uid): void
+    {
+        $this->setUser(new CoreAuthUser(CoreUser::findById($uid, setting: setting()->nonNullable())));
     }
 
     public function getPermissions(): array

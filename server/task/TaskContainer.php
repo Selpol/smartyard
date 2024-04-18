@@ -68,7 +68,7 @@ class TaskContainer
             $canAudit = container(AuditFeature::class)->canAudit();
 
             if ($canAudit && $this->task->uid === null)
-                $this->task->uid = container(AuthService::class)->getUserOrThrow()->getIdentifier();
+                $this->task->uid = container(AuthService::class)->getCoreAuthUser()->getIdentifier();
 
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 

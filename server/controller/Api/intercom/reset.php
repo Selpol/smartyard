@@ -15,7 +15,7 @@ readonly class reset extends Api
         $intercom = intercom(intval(rule()->id()->onItem('_id', $params)));
 
         if ($intercom) {
-            file_logger('intercom')->debug('Сброс домофона', ['id' => $params['_id'], 'user' => container(AuthService::class)->getUserOrThrow()->getIdentifier()]);
+            file_logger('intercom')->debug('Сброс домофона', ['id' => $params['_id'], 'user' => container(AuthService::class)->getCoreAuthUser()->getIdentifier()]);
 
             if (!$intercom->ping())
                 return self::error('Устройство не доступно', 404);
