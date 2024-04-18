@@ -18,7 +18,7 @@ trait TaskUniqueTrait
 
         $value = [$class->getName()];
 
-        $exclude = ['title', 'retry', 'taskUniqueIgnore', 'taskUniqueTtl'];
+        $exclude = ['title', 'uid', 'retry', 'taskUniqueIgnore', 'taskUniqueTtl'];
 
         if (isset($this->taskUniqueIgnore))
             $exclude = array_merge($this->taskUniqueIgnore, $exclude);

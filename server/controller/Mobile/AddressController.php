@@ -59,7 +59,13 @@ readonly class AddressController extends RbtController
                 $house = &$houses[$houseId];
 
                 $house['houseId'] = strval($houseId);
-                $house['address'] = $flat['house']['houseFull'];
+
+                $segments = explode(', ', $flat['house']['houseFull']);
+
+                if (str_starts_with($segments[0], 'г ') || str_ends_with($segments[0], ' обл'))
+                    unset($segments[0]);
+
+                $house['address'] = implode(', ', $segments);
 
                 $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
 
