@@ -120,8 +120,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
-                        if (count($subscribers) > 0)
-                            echo json_encode($subscribers);
+                        echo json_encode($subscribers);
 
                         break;
 
