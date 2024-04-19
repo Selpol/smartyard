@@ -68,13 +68,11 @@ readonly abstract class AuthenticationFeature extends Feature
                     return false;
                 }
 
-                $user = CoreUser::findById($auth->user_id);
-
-                if ($user) {
+                if ($auth->user) {
                     $auth->last_access_to = date('Y-m-d H:i:s');
                     $auth->update();
 
-                    return ['token' => $token, 'user' => $user];
+                    return ['token' => $token, 'user' => $auth->user];
                 }
             }
         }
