@@ -15,6 +15,7 @@ use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Gate;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyHandlerInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
@@ -112,8 +113,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $this->setProgress(80);
 
-            if ($device instanceof KeyInterface)
-                $this->key($device, $flats);
+            if ($device instanceof KeyInterface) {
+                if ($device instanceof KeyHandlerInterface)
+                    $device->handleKey($flats);
+                else
+                    $this->key($device, $flats);
+            }
 
             $this->setProgress(90);
 

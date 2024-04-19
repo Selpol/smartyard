@@ -13,6 +13,7 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyHandlerInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
@@ -20,7 +21,7 @@ use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
-class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, ApartmentInterface, KeyInterface
+class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, ApartmentInterface, KeyInterface, KeyHandlerInterface
 {
     use HikVisionTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, ApartmentTrait, KeyTrait;
 
