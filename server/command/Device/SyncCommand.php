@@ -6,6 +6,7 @@ use Selpol\Command\Trait\LoggerCommandTrait;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
+use Selpol\Framework\Cli\IO\CliIO;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Throwable;
 
@@ -15,17 +16,24 @@ class SyncCommand
     use LoggerCommandTrait;
 
     #[Execute]
-    public function execute(int $id): void
+    public function execute(CliIO $io, int $id): void
     {
+        $bar = $io->getOutput()->getBar();
+
+        $bar->show();
+
         try {
             $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
 
             if ($deviceIntercom) {
-                task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
+                task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync(static fn(int|float $progress) => $bar->set(intval($progress)));
+
                 $this->getLogger()->debug('Синхонизация домофона прошла успешно', ['id' => $id]);
             } else $this->getLogger()->debug('Домофон не найден', ['id' => $id]);
         } catch (Throwable $throwable) {
             $this->getLogger()->debug('Ошибка синхронизации. ' . $throwable, ['id' => $id]);
+        } finally {
+            $bar->hide();
         }
     }
 }

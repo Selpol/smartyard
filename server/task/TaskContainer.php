@@ -53,8 +53,10 @@ class TaskContainer
     /**
      * @throws Exception
      */
-    public function sync(): mixed
+    public function sync(?callable $callback = null): mixed
     {
+        $this->task->setProgressCallback($callback);
+
         return $this->task->onTask();
     }
 
