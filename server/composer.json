@@ -21,6 +21,11 @@
       "utils/common.php"
     ]
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Selpol\\Command\\": "./dev/command"
+    }
+  },
   "repositories": [
     {
       "type": "git",
@@ -29,6 +34,10 @@
     {
       "type": "git",
       "url": "https://github.com/Selpol/validator.git"
+    },
+    {
+      "type": "git",
+      "url": "https://github.com/Selpol/poet.git"
     }
   ],
   "authors": [
@@ -56,5 +65,8 @@
     "psr/http-server-middleware": "^1.0",
     "selpol/framework": "^1.0",
     "php-mqtt/client": "^1.8"
+  },
+  "require-dev": {
+    "selpol/poet": "^1.0"
   }
 }

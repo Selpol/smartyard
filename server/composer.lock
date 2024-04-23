@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67205155edb3204e94458238a233d5b4",
+    "content-hash": "5598ac3a04e9d5676cf5af525c52eab5",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -520,22 +520,22 @@
         },
         {
             "name": "php-amqplib/php-amqplib",
-            "version": "v3.5.4",
+            "version": "v3.6.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-amqplib/php-amqplib.git",
-                "reference": "1aecbd182b35eb039667c50d7d92d71f105be779"
+                "reference": "cb514530ce45a6d2f636be5196010c47c3bcf6e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/1aecbd182b35eb039667c50d7d92d71f105be779",
-                "reference": "1aecbd182b35eb039667c50d7d92d71f105be779",
+                "url": "https://api.github.com/repos/php-amqplib/php-amqplib/zipball/cb514530ce45a6d2f636be5196010c47c3bcf6e0",
+                "reference": "cb514530ce45a6d2f636be5196010c47c3bcf6e0",
                 "shasum": ""
             },
             "require": {
                 "ext-mbstring": "*",
                 "ext-sockets": "*",
-                "php": "^7.1||^8.0",
+                "php": "^7.2||^8.0",
                 "phpseclib/phpseclib": "^2.0|^3.0"
             },
             "conflict": {
@@ -595,9 +595,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-amqplib/php-amqplib/issues",
-                "source": "https://github.com/php-amqplib/php-amqplib/tree/v3.5.4"
+                "source": "https://github.com/php-amqplib/php-amqplib/tree/v3.6.2"
             },
-            "time": "2023-07-01T11:25:08+00:00"
+            "time": "2024-04-15T18:31:22+00:00"
         },
         {
             "name": "php-mqtt/client",
@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.82",
+            "version": "1.0.83",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "8a02f0d32de3b9bf32bd29019a6a168cedfb300f"
+                "reference": "b024115f9252e227a3612a0c3f69183417e3b241"
             },
             "require": {
                 "ext-curl": "*",
@@ -1282,7 +1282,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2024-04-22T11:42:03+00:00"
+            "time": "2024-04-23T13:18:42+00:00"
         },
         {
             "name": "selpol/validator",
@@ -1397,7 +1397,34 @@
             "time": "2023-01-26T09:26:14+00:00"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "selpol/poet",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Selpol/poet.git",
+                "reference": "75317a2bbeed3b18a4917291255be2421f639e33"
+            },
+            "require": {
+                "php": ">8.2"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Selpol\\Poet\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "Ruslan KHudoborodov",
+                    "email": "warfcevip@gmail.com"
+                }
+            ],
+            "description": "PHP Poet",
+            "time": "2024-04-23T12:02:34+00:00"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],
