@@ -51,7 +51,7 @@ class DksIntercom extends IntercomDevice
         $result = [];
 
         if ($this->model->mifare)
-            $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/mifare_cgi', ['action' => 'list'], parse: false));
+            $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'list'], parse: false));
         else
             $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: false));
 
@@ -469,8 +469,8 @@ class DksIntercom extends IntercomDevice
     public function clearRfid(): void
     {
         if ($this->model->mifare) {
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'clear']);
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Apartment' => 0]);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'clear']);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Apartment' => 0]);
         } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'clear']);
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Apartment' => 0]);
