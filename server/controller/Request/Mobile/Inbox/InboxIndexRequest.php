@@ -15,7 +15,7 @@ readonly class InboxIndexRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'date' > rule()->int(),
+            'date' => rule()->int(),
 
             'page' => rule()->required()->int()->clamp(0),
             'size' => rule()->required()->int()->clamp(0, 512),

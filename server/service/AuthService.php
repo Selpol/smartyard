@@ -89,6 +89,11 @@ class AuthService
         if ($this->user === null || !$this->user->canScope())
             return false;
 
+        return $this->checkUserScope(intval($this->user->getIdentifier()), $value);
+    }
+
+    public function checkUserScope(int $id, string $value): bool
+    {
         $role = container(RoleFeature::class);
 
         $defaultPermissions = $role->getDefaultPermissions();
@@ -96,9 +101,7 @@ class AuthService
         if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions))
             return true;
 
-        $identifier = intval($this->user->getIdentifier());
-
-        $permissions = $role->getAllPermissionsForUser($identifier);
+        $permissions = $role->getAllPermissionsForUser($id);
 
         return in_array('*', $permissions) || in_array($value, $permissions);
     }
