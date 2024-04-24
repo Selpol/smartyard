@@ -570,7 +570,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             'addresses-location-get' => '[Адрес] Локации',
 
             'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
-            'camera-hidden' => '[Камера] Доступ к скрытым устройствам'
+            'camera-hidden' => '[Камера] Доступ к скрытым устройствам',
+
+            'mqtt-access' => '[MQTT] Доступ к MQTT'
         ];
 
         foreach ($requirePermissions as $title => $description) {

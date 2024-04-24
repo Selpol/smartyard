@@ -3,6 +3,7 @@
 namespace Selpol\Feature\Mqtt\Internal;
 
 use Selpol\Feature\Mqtt\MqttFeature;
+use Selpol\Service\AuthService;
 use Selpol\Service\RedisService;
 use SensitiveParameter;
 
@@ -13,7 +14,9 @@ readonly class InternalMqttFeature extends MqttFeature
         if ($username === config_get('mqtt.username'))
             return $password === config_get('mqtt.password');
 
-        return $password === container(RedisService::class)->get('user:' . $clientId . ':ws');
+        $success = $password === container(RedisService::class)->get('user:' . $clientId . ':ws');
+
+        return $success && container(AuthService::class)->checkUserScope(intval($clientId), 'mqtt-access');
     }
 
     public function checkAdmin(string $username): bool
