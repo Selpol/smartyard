@@ -12,6 +12,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Permission;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Backup\BackupFeature;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Cache\FileCache;
@@ -262,6 +263,15 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $this->logger->debug('Processing cron', ['part' => $part]);
 
             try {
+                $features = [FrsFeature::class, FileFeature::class];
+
+                foreach ($features as $feature) {
+                    if (container($feature)->cron($part))
+                        $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
+                    else
+                        $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+                }
+
                 if (container(FrsFeature::class)->cron($part))
                     $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
                 else
