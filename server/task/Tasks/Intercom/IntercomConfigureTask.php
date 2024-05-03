@@ -121,7 +121,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $sip_username = sprintf("1%05d", $deviceIntercom->house_domophone_id);
         $sip_server = $asterisk_server->internal_ip;
-        $sip_port = 5060;
+        $sip_port = $asterisk_server->internal_port;
 
         $main_door_dtmf = $deviceIntercom->dtmf;
 

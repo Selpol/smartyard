@@ -75,10 +75,7 @@ readonly class flat extends Api
     public static function DELETE(array $params): array|Response|ResponseInterface
     {
         $flatBlock = FlatBlock::findById($params['_id'], setting: setting()->nonNullable());
-/*
- *             'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
-            'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
- */
+
         if ($flatBlock->status == BlockFeature::STATUS_BILLING && !container(AuthService::class)->checkScope('block-flat-billing-delete'))
             return self::error('Не удалось удалить блокировку квартиры', 400);
 

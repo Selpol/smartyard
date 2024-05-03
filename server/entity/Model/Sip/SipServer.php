@@ -17,6 +17,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $external_ip
  * @property string $internal_ip
  *
+ * @property int $external_port
+ * @property int $internal_port
+ *
  * @property string $created_at
  * @property string $updated_at
  */
@@ -46,6 +49,9 @@ class SipServer extends Entity
 
             'external_ip' => rule()->required()->ipV4()->nonNullable(),
             'internal_ip' => rule()->required()->ipV4()->nonNullable(),
+
+            'external_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable(),
+            'internal_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable(),
 
             'created_at' => rule()->string(),
             'updated_at' => rule()->string()

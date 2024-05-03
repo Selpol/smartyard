@@ -36,7 +36,7 @@ readonly class password extends Api
 
                     $username = sprintf('1%05d', $deviceIntercom->house_domophone_id);
 
-                    $intercom->setSip($username, $password, $sipServer->internal_ip, 5060);
+                    $intercom->setSip($username, $password, $sipServer->internal_ip, $sipServer->internal_port);
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
