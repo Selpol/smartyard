@@ -39,11 +39,12 @@ readonly class password extends Api
                     $username = sprintf('1%05d', $deviceIntercom->house_domophone_id);
 
                     if ($intercom instanceof SipInterface)
-                        $intercom->setSip(new Sip($username, $password, $sipServer->internal_ip, 5060));
+                        $intercom->setSip(new Sip($username, $password, $sipServer->internal_ip, $sipServer->internal_port));
+
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
-                    return self::error('Неудалось обновить sip аккаунт домофона', 500);
+                    return self::error('Неудалось обновить sip аккаунт домофона');
                 }
 
                 $intercom->setLoginPassword($password);

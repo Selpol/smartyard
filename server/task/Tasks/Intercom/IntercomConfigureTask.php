@@ -193,7 +193,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newSip->login = sprintf("1%05d", $deviceIntercom->house_domophone_id);
         $newSip->password = $device->password;
         $newSip->server = $server->internal_ip;
-        $newSip->port = 5060;
+        $newSip->port = $server->internal_port;
 
         if (!$newSip->equal($sip))
             $device->setSip($newSip);

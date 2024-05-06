@@ -12,6 +12,8 @@ readonly abstract class FileFeature extends Feature
 {
     const DEFAULT_DATABASE = 'rbt';
 
+    abstract public function cron(string $part): bool;
+
     /**
      * @param string $realFileName
      * @param resource $stream

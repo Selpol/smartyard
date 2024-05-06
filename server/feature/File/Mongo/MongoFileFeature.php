@@ -17,6 +17,18 @@ readonly class MongoFileFeature extends FileFeature
         $this->database = config_get('feature.file.database', self::DEFAULT_DATABASE);
     }
 
+    public function cron(string $part): bool
+    {
+        if ($part === config_get('feature.file.cron_sync_data_scheduler')) {
+            $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+
+            foreach ($cursor as $document)
+                $this->deleteFile($document->_id);
+        }
+
+        return true;
+    }
+
     public function addFile(string $realFileName, $stream, array $metadata = []): string
     {
         $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();

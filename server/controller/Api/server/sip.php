@@ -27,7 +27,10 @@ readonly class sip extends Api
             'trunk' => rule()->required()->string()->nonNullable(),
 
             'external_ip' => rule()->required()->ipV4()->nonNullable(),
-            'internal_ip' => rule()->required()->ipV4()->nonNullable()
+            'internal_ip' => rule()->required()->ipV4()->nonNullable(),
+
+            'external_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable(),
+            'internal_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable()
         ]));
 
         if ($sipServer->insert())
@@ -47,7 +50,10 @@ readonly class sip extends Api
             'trunk' => rule()->required()->string()->nonNullable(),
 
             'external_ip' => rule()->required()->ipV4()->nonNullable(),
-            'internal_ip' => rule()->required()->ipV4()->nonNullable()
+            'internal_ip' => rule()->required()->ipV4()->nonNullable(),
+
+            'external_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable(),
+            'internal_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable()
         ]);
 
         $sipServer = SipServer::findById($validate['_id'], setting: setting()->nonNullable());
@@ -59,6 +65,9 @@ readonly class sip extends Api
 
         $sipServer->external_ip = $validate['external_ip'];
         $sipServer->internal_ip = $validate['internal_ip'];
+
+        $sipServer->external_port = $validate['external_port'];
+        $sipServer->internal_port = $validate['internal_port'];
 
         if ($sipServer->update())
             return self::success($sipServer->id);

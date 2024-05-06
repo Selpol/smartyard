@@ -91,7 +91,9 @@ return [
         ],
 
         'file' => [
-            'database' => env('FEATURE_FILES_DB', 'rbt')
+            'database' => env('FEATURE_FILES_DB', 'rbt'),
+
+            'cron_sync_data_scheduler' => 'daily'
         ],
 
         'archive' => [
