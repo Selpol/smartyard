@@ -60,8 +60,12 @@ readonly class InternalExternalFeature extends ExternalFeature
                 return array_key_exists('message', $parse) ? $parse['message'] : 'Неизвестная ошибка';
             }
 
+            file_logger('notification')->info('Notification didn\'t send', [$parse]);
+
             return false;
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('notification')->error($throwable);
+
             return false;
         }
     }

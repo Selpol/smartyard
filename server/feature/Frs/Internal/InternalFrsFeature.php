@@ -9,6 +9,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Throwable;
 
 readonly class InternalFrsFeature extends FrsFeature
 {
@@ -104,10 +105,14 @@ readonly class InternalFrsFeature extends FrsFeature
 
         $this->logger->debug('ApiCall Response', ['code' => $response_code, 'data' => $response]);
 
-        if ($response_code > self::R_CODE_OK && !$response)
-            return ["code" => $response_code];
-        else
-            return json_decode($response, true);
+        try {
+            if ($response_code > self::R_CODE_OK && !$response)
+                return ["code" => $response_code];
+            else
+                return json_decode($response, true) ?: false;
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function addStream(string $url, int $cameraId): array
