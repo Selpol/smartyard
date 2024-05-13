@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\Beward\DksIntercom;
 use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
 use Selpol\Device\Ip\Intercom\Beward\MifareDksIntercom;
 use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
+use Selpol\Device\Ip\Intercom\Is\BlotchIntercom;
 use Selpol\Device\Ip\Intercom\Is\Is5Intercom;
 use Selpol\Device\Ip\Intercom\Is\IsIntercom;
 
@@ -279,6 +280,18 @@ class IntercomModel
                     [],
                     true,
                     DsIntercom::class
+                ),
+                'blotch' => new IntercomModel(
+                    'BLOTCH',
+                    'IS',
+                    'BLOTCH',
+                    'is_blotch',
+                    'blotch',
+                    1,
+                    [],
+                    [],
+                    false,
+                    BlotchIntercom::class
                 )
             ];
 
