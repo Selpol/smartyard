@@ -12,7 +12,13 @@ readonly class reset extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $intercom = intercom(intval(rule()->id()->onItem('_id', $params)));
+        $validate = validator($params, [
+            '_id' => rule()->id(),
+
+            'type' => rule()->string()->in(['reset', 'key', 'apartment'])
+        ]);
+
+        $intercom = intercom($validate['_id']);
 
         if ($intercom) {
             file_logger('intercom')->debug('Сброс домофона', ['id' => $params['_id'], 'user' => container(AuthService::class)->getUserOrThrow()->getIdentifier()]);
@@ -20,7 +26,18 @@ readonly class reset extends Api
             if (!$intercom->ping())
                 return self::error('Устройство не доступно', 404);
 
-            $intercom->reset();
+            switch ($validate['type']) {
+                case 'key':
+                    $intercom->clearRfid();;
+                    break;
+                case 'apartment':
+                    $intercom->clearApartment();
+                    break;
+                case 'reset':
+                default:
+                    $intercom->reset();
+                    break;
+            }
 
             if (container(AuditFeature::class)->canAudit())
                 container(AuditFeature::class)->audit(strval($params['_id']), DeviceIntercom::class, 'reset', 'Сброс домофона');
