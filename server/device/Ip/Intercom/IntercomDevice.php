@@ -7,6 +7,7 @@ use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
+use Throwable;
 
 abstract class IntercomDevice extends IpDevice
 {
@@ -359,19 +360,25 @@ abstract class IntercomDevice extends IpDevice
 
     private function getIntercomSetting(): array
     {
-        $coreVar = CoreVar::getRepository()->findByName('intercom.setting');
+        try {
+            $coreVar = CoreVar::getRepository()->findByName('intercom.setting');
 
-        if (!$coreVar)
+            if (!$coreVar)
+                return ['ping' => true, 'sleep' => 0];
+
+            $value = json_decode($coreVar->var_value, true);
+
+            if (!is_array($value))
+                return ['ping' => true, 'sleep' => 0];
+
+            return [
+                'ping' => array_key_exists('ping', $value) ? $value['ping'] : true,
+                'sleep' => array_key_exists('sleep', $value) ? $value['sleep'] : 0
+            ];
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
             return ['ping' => true, 'sleep' => 0];
-
-        $value = json_decode($coreVar->var_value, true);
-
-        if (!is_array($value))
-            return ['ping' => true, 'sleep' => 0];
-
-        return [
-            'ping' => array_key_exists('ping', $value) ? $value['ping'] : true,
-            'sleep' => array_key_exists('sleep', $value) ? $value['sleep'] : 0
-        ];
+        }
     }
 }
