@@ -24,7 +24,7 @@ readonly class key extends Api
 
     public static function POST(array $params): ResponseInterface
     {
-        $key = HouseKey::fetch(criteria()->equal('access_type', $params['accessType'])->equal('access_to', $params['accessTo']));
+        $key = HouseKey::fetch(criteria()->equal('rfid', $params['rfId'])->equal('access_type', $params['accessType'])->equal('access_to', $params['accessTo']));
 
         if ($key) {
             task(new IntercomAddKeyTask($key->rfid, $key->access_to))->sync();
