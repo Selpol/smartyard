@@ -2,10 +2,10 @@
 
 namespace Selpol\Controller\Api\task;
 
-use Psr\Http\Message\ResponseInterface;
-use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Task\TaskFeature;
 
 readonly class task extends Api
@@ -18,12 +18,17 @@ readonly class task extends Api
     {
         $validate = validator($params, [
             'title' => rule()->string(),
+            'message' => rule()->string(),
+
+            'class' => rule()->string(),
 
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], criteria()->like('title', $validate['title'])->desc('created_at')));
+        $criteria = criteria()->like('title', $validate['title'])->like('message', $validate['message'])->equal('class', $validate['class'])->desc('created_at');
+
+        return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], $criteria));
     }
 
     /**

@@ -19,6 +19,7 @@ readonly class InternalTaskFeature extends TaskFeature
         $dbTask = new \Selpol\Entity\Model\Task();
 
         $dbTask->data = serialize($task);
+        $dbTask->class = get_class($task);
         $dbTask->title = $task->title;
         $dbTask->message = $message;
         $dbTask->status = $status;
