@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
 use Throwable;
 
@@ -32,7 +33,13 @@ readonly class house extends Api
 
         $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
 
-        return self::success($house);
+        if ($house) {
+            $house['blocks'] = container(DatabaseService::class)->fetch('SELECT service, status, count(*) FROM flat_block WHERE flat_id IN (SELECT house_flat_id FROM houses_flats WHERE address_house_id = :id) GROUP BY service, status', ['id' => $params['_id']]);
+
+            return self::success($house);
+        }
+
+        return self::error('Не удалось найти дом', 404);
     }
 
     public static function POST(array $params): ResponseInterface
