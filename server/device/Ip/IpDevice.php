@@ -16,6 +16,9 @@ abstract class IpDevice extends Device
 
     public string $password;
 
+    public bool $ping = true;
+    public int $sleep = 0;
+
     protected ClientOption $clientOption;
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password)
@@ -115,8 +118,7 @@ abstract class IpDevice extends Device
 
     public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        if (!$this->pingRaw())
-            throw new DeviceException($this, 'Устройство не доступно');
+        $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
@@ -140,8 +142,7 @@ abstract class IpDevice extends Device
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        if (!$this->pingRaw())
-            throw new DeviceException($this, 'Устройство не доступно');
+        $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
@@ -172,8 +173,7 @@ abstract class IpDevice extends Device
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        if (!$this->pingRaw())
-            throw new DeviceException($this, 'Устройство не доступно');
+        $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
@@ -204,8 +204,7 @@ abstract class IpDevice extends Device
 
     public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        if (!$this->pingRaw())
-            throw new DeviceException($this, 'Устройство не доступно');
+        $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))
             $endpoint = '/' . $endpoint;
@@ -225,6 +224,19 @@ abstract class IpDevice extends Device
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    /**
+     * @return void
+     * @throws DeviceException
+     */
+    private function prepare(): void
+    {
+        if ($this->ping && !$this->pingRaw())
+            throw new DeviceException($this, 'Устройство не доступно');
+
+        if ($this->sleep > 0)
+            usleep($this->sleep);
     }
 
     private function response(ResponseInterface $response, bool $parse): mixed

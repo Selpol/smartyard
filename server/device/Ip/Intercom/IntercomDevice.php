@@ -17,6 +17,11 @@ abstract class IntercomDevice extends IpDevice
         parent::__construct($uri, $password);
 
         $this->model = $model;
+
+        $setting = $this->getIntercomSetting();
+
+        $this->ping = $setting['ping'];
+        $this->sleep = $setting['sleep'];
     }
 
     public function getSipStatus(): bool
@@ -350,5 +355,23 @@ abstract class IntercomDevice extends IpDevice
         $ntp = uri($server);
 
         return [$ntp->getHost(), $ntp->getPort() ?? 123];
+    }
+
+    private function getIntercomSetting(): array
+    {
+        $coreVar = CoreVar::getRepository()->findByName('intercom.setting');
+
+        if (!$coreVar)
+            return ['ping' => true, 'sleep' => 0];
+
+        $value = json_decode($coreVar->var_value, true);
+
+        if (!is_array($value))
+            return ['ping' => true, 'sleep' => 0];
+
+        return [
+            'ping' => array_key_exists('ping', $value) ? $value['ping'] : true,
+            'sleep' => array_key_exists('sleep', $value) ? $value['sleep'] : 0
+        ];
     }
 }

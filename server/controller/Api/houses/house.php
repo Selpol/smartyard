@@ -33,11 +33,8 @@ readonly class house extends Api
 
         $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
 
-        if ($house) {
-            $house['blocks'] = container(DatabaseService::class)->fetch('SELECT service, status, count(*) FROM flat_block WHERE flat_id IN (SELECT house_flat_id FROM houses_flats WHERE address_house_id = :id) GROUP BY service, status', ['id' => $params['_id']]);
-
+        if ($house)
             return self::success($house);
-        }
 
         return self::error('Не удалось найти дом', 404);
     }
