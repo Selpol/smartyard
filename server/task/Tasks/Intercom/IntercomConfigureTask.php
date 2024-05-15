@@ -62,6 +62,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         try {
             $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
+            $setting = $device->getIntercomSetting();
+
+            $device->ping = $setting['ping'];
+            $device->sleep = $setting['sleep'];
 
             if (!$device)
                 return false;
