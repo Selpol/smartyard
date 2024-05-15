@@ -102,7 +102,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
         } else if ($group === 'device') {
-            if ($command === 'device') $this->deviceInfo();
+            if ($command === 'info') $this->deviceInfo();
             else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
             else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
             else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
@@ -737,6 +737,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($group === null || $group === 'device')
             $result[] = implode(PHP_EOL, [
                 '',
+                'device:info                                    - Обновить информацию об домофонах',
                 'device:sync=<id>                               - Синхронизация домофона',
                 'device:call=<id>                               - Остановить звонки на домофоне',
                 'device:reboot=<id>                             - Перезапуск домофона',
