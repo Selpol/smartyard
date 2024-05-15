@@ -58,6 +58,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $asterisk_server = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
         $panel_text = $entrances[0]['callerId'];
+        $entranceType = $entrances[0]['entranceType'];
 
         try {
             $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
@@ -94,7 +95,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if ($is_shared)
                 $device->setGate($links);
 
-            $this->common($panel_text, $entrances, $device);
+            $this->common($entranceType, $panel_text, $entrances, $device);
 
             $device->deffer();
 
@@ -202,8 +203,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function common(string $panel_text, array $entrances, IntercomDevice $device): void
+    private function common(string $entranceType, string $panel_text, array $entrances, IntercomDevice $device): void
     {
+//        $device->setUnlockSip($entranceType == 'wicket');
         $device->setMotionDetection(4, 0, 0, 704, 576);
         $device->setVideoOverlay($panel_text);
         $device->unlock($entrances[0]['locksDisabled']);

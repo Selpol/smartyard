@@ -192,7 +192,7 @@ class DksIntercom extends IntercomDevice
             'quality' => '1',
             'iq' => '1',
             'rc' => '1',
-            'bitrate' => '1024',
+            'bitrate' => '1536',
             'frmrate' => '25',
             'frmintr' => '25',
             'first' => '0',
@@ -406,6 +406,11 @@ class DksIntercom extends IntercomDevice
     public function setUnlockTime(int $time): static
     {
         return $this->setIntercomHelp('DoorOpenTime', $time);
+    }
+
+    public function setDoorOpenSipFail(bool $value): static
+    {
+        return $this->setIntercomHelp('DoorOpenSipFail', $value ? 'on' : 'off');
     }
 
     public function setDisplayText(string $title): static

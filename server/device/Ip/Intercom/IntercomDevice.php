@@ -208,6 +208,11 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setDoorOpenSipFail(bool $value): static
+    {
+        return $this;
+    }
+
     public function setDisplayText(string $title): static
     {
         return $this;
