@@ -73,14 +73,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
+            $info = $device->getSysInfo();
+
+            $deviceIntercom->device_id = $info['DeviceID'];
+            $deviceIntercom->device_model = $info['DeviceModel'];
+            $deviceIntercom->device_software_version = $info['HardwareVersion'];
+            $deviceIntercom->device_hardware_version = $info['SoftwareVersion'];
+
             if ($deviceIntercom->first_time == 0) {
                 $device->prepare();
 
                 $deviceIntercom->first_time = 1;
-
-                $deviceIntercom->update();
-                $deviceIntercom->refresh();
             }
+
+            $deviceIntercom->update();
+            $deviceIntercom->refresh();
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);

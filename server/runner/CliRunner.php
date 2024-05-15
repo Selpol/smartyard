@@ -24,6 +24,7 @@ use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Service\DatabaseService;
+use Selpol\Service\DeviceService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
@@ -101,7 +102,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else if ($command === 'clear') $this->roleClear();
             else echo $this->help('role');
         } else if ($group === 'device') {
-            if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            if ($command === 'device') $this->deviceInfo();
+            else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
             else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
             else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
             else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
@@ -612,6 +614,27 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private function roleClear(): void
     {
         Permission::getRepository()->deleteSql();
+    }
+
+    private function deviceInfo(): void
+    {
+        $deviceIntercoms = DeviceIntercom::fetchAll();
+
+        foreach ($deviceIntercoms as $deviceIntercom) {
+            $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
+
+            if (!$intercom->ping())
+                continue;
+
+            $info = $intercom->getSysInfo();
+
+            $deviceIntercom->device_id = $info['DeviceID'];
+            $deviceIntercom->device_model = $info['DeviceModel'];
+            $deviceIntercom->device_software_version = $info['HardwareVersion'];
+            $deviceIntercom->device_hardware_version = $info['SoftwareVersion'];
+
+            $deviceIntercom->update();
+        }
     }
 
     private function deviceSync(int $id): void

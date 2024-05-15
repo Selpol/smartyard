@@ -15,11 +15,22 @@ readonly class intercoms extends Api
         $validate = validator($params, [
             'comment' => rule()->string()->clamp(0, 1000),
 
+            'device_id' => rule()->string()->clamp(0, 128),
+            'device_model' => rule()->string()->clamp(0, 64),
+            'device_software_version' => rule()->string()->clamp(0, 64),
+            'device_hardware_version' => rule()->string()->clamp(0, 64),
+
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('comment', $validate['comment'])->asc('house_domophone_id');
+        $criteria = criteria()
+            ->like('comment', $validate['comment'])
+            ->like('device_id', $validate['device_id'])
+            ->like('device_model', $validate['device_model'])
+            ->like('device_software_version', $validate['device_software_version'])
+            ->like('device_hardware_version', $validate['device_hardware_version'])
+            ->asc('house_domophone_id');
 
         if (!container(AuthService::class)->checkScope('intercom-hidden'))
             $criteria->equal('hidden', false);
@@ -42,6 +53,10 @@ readonly class intercoms extends Api
                 'comment' => 'comment',
                 'ip' => 'ip',
                 'sos_number' => 'sosNumber',
+                'device_id' => 'deviceId',
+                'device_model' => 'deviceModel',
+                'device_software_version' => 'deviceSoftwareVersion',
+                'device_hardware_version' => 'deviceHardwareVersion',
                 'hidden' => 'hidden'
             ]);
 
