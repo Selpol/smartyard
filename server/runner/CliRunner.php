@@ -103,6 +103,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else echo $this->help('role');
         } else if ($group === 'device') {
             if ($command === 'info') $this->deviceInfo();
+            else if ($command === 'bitrate') $this->deviceBitrate(array_key_exists('vendor', $arguments) ? $arguments['vendor'] : null);
             else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
             else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
             else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
@@ -634,6 +635,20 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $deviceIntercom->device_hardware_version = $info['SoftwareVersion'];
 
             $deviceIntercom->update();
+        }
+    }
+
+    private function deviceBitrate(?string $vendor): void
+    {
+        $deviceIntercoms = DeviceIntercom::fetchAll();
+
+        foreach ($deviceIntercoms as $deviceIntercom) {
+            $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
+
+            if ($vendor && $intercom->model->vendor !== $vendor)
+                continue;
+
+            $intercom->setVideoEncodingDefault();
         }
     }
 
