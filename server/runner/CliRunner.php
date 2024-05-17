@@ -645,10 +645,14 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         foreach ($deviceIntercoms as $deviceIntercom) {
             $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
-            if ($vendor && $intercom->model->vendor !== $vendor)
-                continue;
+            try {
+                if ($vendor && $intercom->model->vendor !== $vendor || !$intercom->ping())
+                    continue;
 
-            $intercom->setVideoEncodingDefault();
+                $intercom->setVideoEncodingDefault();
+            } catch (Throwable $throwable) {
+                echo $throwable->getMessage() . PHP_EOL;
+            }
         }
     }
 
