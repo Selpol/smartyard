@@ -757,6 +757,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result[] = implode(PHP_EOL, [
                 '',
                 'device:info                                    - Обновить информацию об домофонах',
+                'device:bitrate --vendor=<VENDOR>               - Обновить битрейт на камерах',
                 'device:sync=<id>                               - Синхронизация домофона',
                 'device:call=<id>                               - Остановить звонки на домофоне',
                 'device:reboot=<id>                             - Перезапуск домофона',
