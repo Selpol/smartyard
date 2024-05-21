@@ -17,9 +17,15 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
     public $taskUniqueTtl = 600;
 
-    public function __construct(int $id)
+    public bool $removeSubscriber;
+    public bool $removeKey;
+
+    public function __construct(int $id, bool $removeSubscriber, bool $removeKey)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
+
+        $this->removeSubscriber = $removeSubscriber;
+        $this->removeKey = $removeKey;
     }
 
     public function onTask(): bool
@@ -129,8 +135,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
         }
 
-        foreach ($subscribersInFlat as $key => $_)
-            $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
+        if ($this->removeSubscriber)
+            foreach ($subscribersInFlat as $key => $_)
+                $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
     }
 
     /**
@@ -185,12 +192,13 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                     foreach ($intercoms as $intercom)
                         $intercom->addRfidDeffer($key, $flat);
 
-                foreach ($keysInFlat as $key => $value) {
-                    $houseFeature->deleteKey($value);
+                if ($this->removeKey)
+                    foreach ($keysInFlat as $key => $value) {
+                        $houseFeature->deleteKey($value);
 
-                    foreach ($intercoms as $intercom)
-                        $intercom->removeRfidDeffer($key, $flat);
-                }
+                        foreach ($intercoms as $intercom)
+                            $intercom->removeRfidDeffer($key, $flat);
+                    }
             } catch (Throwable $throwable) {
                 file_logger('contractor')->error($throwable);
             } finally {

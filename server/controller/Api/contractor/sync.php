@@ -11,10 +11,21 @@ readonly class sync extends Api
 {
     public static function GET(array $params): array|Response|ResponseInterface
     {
-        $contactor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->columns(['id']));
+        $validate = validator($params, [
+            '_id' => rule()->id(),
+
+            'remove_subscriber' => [filter()->default(false), rule()->bool()],
+            'remove_key' => [filter()->default(false), rule()->bool()]
+        ]);
+
+        $contactor = \Selpol\Entity\Model\Contractor::findById($validate['_id'], setting: setting()->columns(['id']));
 
         if ($contactor) {
-            task(new ContractorSyncTask($contactor->id))->high()->dispatch();
+            task(new ContractorSyncTask(
+                $contactor->id,
+                $validate['remove_subscriber'] ?: false,
+                $validate['remove_key'] ?: false
+            ))->high()->dispatch();
 
             return self::success();
         }
