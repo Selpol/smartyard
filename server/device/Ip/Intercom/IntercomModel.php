@@ -258,7 +258,7 @@ class IntercomModel
                     MifareDksIntercom::class
                 ),
                 'dks977957_2' => new IntercomModel(
-                    'BEWARD DKS977957 2',
+                    'BEWARD DKS977957 2 Выхода',
                     'BEWARD',
                     'DKS977957-2',
                     'beward',
