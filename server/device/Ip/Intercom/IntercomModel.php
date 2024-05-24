@@ -251,7 +251,7 @@ class IntercomModel
                     'DKS977957',
                     'beward',
                     'beward',
-                    1,
+                    2,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KKM-108' => 2, 'KAD2501' => 3, 'KAD2502' => 4],
                     true,
