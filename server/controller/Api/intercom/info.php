@@ -24,8 +24,8 @@ readonly class info extends Api
 
             $deviceIntercom->device_id = $info['DeviceID'];
             $deviceIntercom->device_model = $info['DeviceModel'];
-            $deviceIntercom->device_software_version = $info['HardwareVersion'];
-            $deviceIntercom->device_hardware_version = $info['SoftwareVersion'];
+            $deviceIntercom->device_software_version = $info['SoftwareVersion'];
+            $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
 
             $deviceIntercom->update();
 
