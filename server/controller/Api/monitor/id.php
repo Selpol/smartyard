@@ -58,14 +58,18 @@ readonly class id extends Api
                 $fibers[$i] = new Fiber(static function (string $url) {
                     $timeout = microtime(true);
 
-                    $socket = stream_socket_client($url, $errno, $errstr, timeout: 1, flags: STREAM_CLIENT_ASYNC_CONNECT);
+                    $socket = stream_socket_client($url, $errno, $errstr, flags: STREAM_CLIENT_ASYNC_CONNECT);
+
+                    if (!$socket)
+                        return false;
+
                     stream_set_blocking($socket, false);
 
                     while (true) {
                         $w = [$socket];
                         $r = $e = [];
 
-                        if (stream_select($r, $w, $e, 0, 100000)) {
+                        if (stream_select($r, $w, $e, 0, 250000)) {
                             if (microtime(true) - $timeout > 1)
                                 return false;
 
@@ -93,7 +97,7 @@ readonly class id extends Api
 
                         $fiber->start($url);
                     } else if ($fiber->isTerminated()) {
-                        $result[$params['ids'][$i]] = $fiber->getReturn();
+                        $result[$params['ids'][$i]] = !$fiber->getReturn();
 
                         unset($fibers[$i]);
                     } else if ($fiber->isSuspended())
