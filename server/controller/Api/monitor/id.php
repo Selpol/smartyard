@@ -2,12 +2,11 @@
 
 namespace Selpol\Controller\Api\monitor;
 
-use Psr\Http\Message\ResponseInterface;
-use Psr\SimpleCache\InvalidArgumentException;
-use Selpol\Cache\RedisCache;
-use Selpol\Controller\Api\Api;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\SimpleCache\InvalidArgumentException;
+use Selpol\Controller\Api\Api;
 use Selpol\Feature\Monitor\MonitorFeature;
 
 readonly class id extends Api
@@ -19,9 +18,15 @@ readonly class id extends Api
      */
     public static function GET(array $params): ResponseInterface
     {
-        $id = rule()->id()->onItem('_id', $params);
+        $validate = validator($params, [
+            '_id' => rule()->id(),
 
-        return self::success(container(RedisCache::class)->cache('monitor:' . $id, static fn() => container(MonitorFeature::class)->status($id), 60));
+            'type' => rule()->in(['ping', 'sip'])
+        ]);
+
+        $monitor = container(MonitorFeature::class);
+
+        return self::success((!$validate['type'] || $validate['type'] === 'ping') ? $monitor->ping($validate['_id']) : $monitor->sip($validate['_id']));
     }
 
     /**
@@ -31,6 +36,8 @@ readonly class id extends Api
      */
     public static function POST(array $params): ResponseInterface
     {
+        $type = rule()->in(['ping', 'sip'])->onItem('type', $params);
+
         $result = [];
 
         $monitor = container(MonitorFeature::class);
@@ -38,7 +45,7 @@ readonly class id extends Api
         foreach ($params['ids'] as $id) {
             $id = rule()->id()->onItem('id', ['id' => $id]);
 
-            $result[$id] = container(RedisCache::class)->cache('monitor:' . $id, static fn() => $monitor->status($id), 60);
+            $result[$id] = (!$type || $type === 'ping') ? $monitor->ping($id) : $monitor->sip($id);
         }
 
         return self::success($result);
