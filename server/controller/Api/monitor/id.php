@@ -69,7 +69,7 @@ readonly class id extends Api
                         $w = [$socket];
                         $r = $e = [];
 
-                        if (stream_select($r, $w, $e, 0, 250000)) {
+                        if (stream_select($r, $w, $e, 0, 100000)) {
                             if (microtime(true) - $timeout > 1)
                                 return false;
 
