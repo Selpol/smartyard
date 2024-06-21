@@ -224,21 +224,28 @@ readonly class InternalFrsFeature extends FrsFeature
             return;
         }
 
-        $this->logger->debug('syncData() process', ['server' => $this->servers()]);
+        $servers = $this->servers();
 
-        if (count($this->servers()) === 0)
+        $this->logger->debug('syncData() process', ['server' => $servers]);
+
+        if (count($servers) === 0)
             return;
 
         //syncing all faces
         $frs_all_faces = [];
 
-        foreach ($this->servers() as $frs_server) {
+        foreach ($servers as $index => $frs_server) {
             $all_faces = $this->apiCall($frs_server->url, self::M_LIST_ALL_FACES);
 
-            if ($all_faces && array_key_exists(self::P_DATA, $all_faces)) {
+            if ($all_faces && array_key_exists(self::P_CODE, $all_faces) && $all_faces[self::P_CODE] == 200 && array_key_exists(self::P_DATA, $all_faces) && $all_faces[self::P_DATA]) {
                 $frs_all_faces = array_merge($frs_all_faces, $all_faces[self::P_DATA]);
+            } else {
+                unset($servers[$index]);
             }
         }
+
+        if (count($servers) === 0)
+            return;
 
         $rbt_all_faces = [];
 
@@ -274,7 +281,7 @@ readonly class InternalFrsFeature extends FrsFeature
         if ($diff_faces) {
             $this->logger->debug('syncData() rbt remove faces', ['count' => count($diff_faces)]);
 
-            foreach ($this->servers() as $frs_server) {
+            foreach ($servers as $frs_server) {
                 $this->apiCall($frs_server->url, self::M_DELETE_FACES, [self::P_FACE_IDS => $diff_faces]);
             }
         }
@@ -284,7 +291,7 @@ readonly class InternalFrsFeature extends FrsFeature
 
         $frs_all_data = [];
 
-        foreach ($this->servers() as $frs_server) {
+        foreach ($servers as $frs_server) {
             $frs_all_data[$frs_server->url] = [];
             $streams = $this->apiCall($frs_server->url, self::M_LIST_STREAMS);
 
