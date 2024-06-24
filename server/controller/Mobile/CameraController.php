@@ -66,7 +66,7 @@ readonly class CameraController extends RbtController
             return user_response(404, message: 'Доступа к камере нет');
 
         $response = $camera->toArrayMap([
-            'camera_id' => 'camera_id',
+            'camera_id' => 'id',
             'name' => 'name',
         ]);
 
