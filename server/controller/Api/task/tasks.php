@@ -49,7 +49,7 @@ readonly class tasks extends Api
             ],
             'default' => [
                 PlogCallTask::class => '[События] Звонок',
-                PlogOpenTask::class => '[События] Открытие двеви',
+                PlogOpenTask::class => '[События] Открытие двери',
 
                 QrTask::class => '[Дом] Генерация QR кодов',
                 RecordTask::class => '[Архив] Экспорт архива',

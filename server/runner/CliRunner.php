@@ -585,7 +585,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
             'camera-hidden' => '[Камера] Доступ к скрытым устройствам',
 
-            'mqtt-access' => '[MQTT] Доступ к MQTT'
+            'mqtt-access' => '[MQTT] Доступ к MQTT',
+
+            'intercom-web-call' => '[Веб-Домофон] Сделать звонок с браузера',
+            'device-web-redirect' => '[Веб-Устройство] Перейти на устройство с браузера'
         ];
 
         foreach ($requirePermissions as $title => $description) {
