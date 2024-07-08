@@ -25,7 +25,7 @@ class Is5Intercom extends IsIntercom
                     "MaxBitrate" => 2048
                 ],
                 [
-                    "Channel" => 2,
+                    "Channel" => 1,
                     "Enabled" => true,
                     "Type" => "H264",
                     "Profile" => 1,
