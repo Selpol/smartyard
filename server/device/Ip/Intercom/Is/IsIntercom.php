@@ -206,7 +206,7 @@ class IsIntercom extends IntercomDevice
                     "MaxBitrate" => 1024
                 ],
                 [
-                    "Channel" => 0,
+                    "Channel" => 2,
                     "Type" => "H264",
                     "Profile" => 1,
                     "ByFrame" => true,
