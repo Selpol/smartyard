@@ -12,7 +12,6 @@ class Is5Intercom extends IsIntercom
             'Channels' => [
                 [
                     "Channel" => 0,
-                    "Enabled" => true,
                     "Type" => "H264",
                     "Profile" => 1,
                     "ByFrame" => true,
@@ -26,7 +25,6 @@ class Is5Intercom extends IsIntercom
                 ],
                 [
                     "Channel" => 1,
-                    "Enabled" => true,
                     "Type" => "H264",
                     "Profile" => 1,
                     "ByFrame" => true,
