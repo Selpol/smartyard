@@ -203,10 +203,10 @@ class IsIntercom extends IntercomDevice
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
-                    "MaxBitrate" => 1024
+                    "MaxBitrate" => 1536
                 ],
                 [
-                    "Channel" => 2,
+                    "Channel" => 1,
                     "Type" => "H264",
                     "Profile" => 1,
                     "ByFrame" => true,
