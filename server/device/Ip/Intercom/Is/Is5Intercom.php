@@ -14,7 +14,7 @@ class Is5Intercom extends IsIntercom
                     "Channel" => 0,
                     "Enabled" => true,
                     "Type" => "H264",
-                    "Profile" => 0,
+                    "Profile" => 1,
                     "ByFrame" => true,
                     "Width" => 1920,
                     "Height" => 1080,
@@ -23,20 +23,6 @@ class Is5Intercom extends IsIntercom
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
                     "MaxBitrate" => 2048
-                ],
-                [
-                    "Channel" => 1,
-                    "Enabled" => true,
-                    "Type" => "H264",
-                    "Profile" => 1,
-                    "ByFrame" => true,
-                    "Width" => 640,
-                    "Height" => 480,
-                    "GopMode" => "NormalP",
-                    "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
-                    "IFrameInterval" => 30,
-                    "MaxBitrate" => 512
                 ],
                 [
                     "Channel" => 2,
