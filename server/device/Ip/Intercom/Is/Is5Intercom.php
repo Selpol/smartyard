@@ -13,7 +13,7 @@ class Is5Intercom extends IsIntercom
                 [
                     "Channel" => 0,
                     "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 2,
                     "ByFrame" => true,
                     "Width" => 1920,
                     "Height" => 1080,

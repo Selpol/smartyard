@@ -195,7 +195,7 @@ class IsIntercom extends IntercomDevice
                 [
                     "Channel" => 0,
                     "Type" => "H264",
-                    "Profile" => 2,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => 1280,
                     "Height" => 720,
@@ -208,21 +208,7 @@ class IsIntercom extends IntercomDevice
                 [
                     "Channel" => 1,
                     "Type" => "H264",
-                    "Profile" => 1,
-                    "ByFrame" => true,
-                    "Width" => 640,
-                    "Height" => 480,
-                    "GopMode" => "NormalP",
-                    "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
-                    "IFrameInterval" => 30,
-                    "MaxBitrate" => 512
-                ],
-                [
-                    "Channel" => 2,
-                    "Enabled" => true,
-                    "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => 640,
                     "Height" => 480,
