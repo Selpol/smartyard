@@ -182,7 +182,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 $flat["entrances"][] = $e;
 
             if ($withBlock)
-                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['service', 'status']));
+                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['id', 'service', 'status']));
 
             return $flat;
         }
