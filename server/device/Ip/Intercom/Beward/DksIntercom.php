@@ -31,17 +31,19 @@ class DksIntercom extends IntercomDevice
         return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] == true || array_key_exists('AccountReg2', $response) && $response['AccountReg2'] == true;
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
-        return (int)$this->get('/cgi-bin/intercom_cgi', ['action' => 'linelevel', 'Apartment' => $apartment]);
+        $value = (int)$this->get('/cgi-bin/intercom_cgi', ['action' => 'linelevel', 'Apartment' => $apartment]);
+
+        return $info ? ['resist' => $value, 'status' => 'Не определено'] : $value;
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         $result = [];
 
         for ($i = $from; $i <= $to; $i++)
-            $result[$i] = ['resist' => $this->getLineDialStatus($i)];
+            $result[$i] = $info ? $this->getLineDialStatus($i, true) : ['resist' => $this->getLineDialStatus($i, false)];
 
         return $result;
     }

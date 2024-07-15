@@ -27,17 +27,27 @@ class IsIntercom extends IntercomDevice
         }
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
         $response = $this->get("/panelCode/$apartment/resist");
 
         if (!$response || isset($response['errors']))
-            return 0;
+            return $info ? ['resist' => 0, 'status' => $response['errors'][0]['message']] : 0;
+
+        if ($info) {
+            $status = match ($response['status']) {
+                'up' => 'Трубка снята',
+                'down' => 'Трубка лежит',
+                default => 'Не определено'
+            };
+
+            return ['resist' => intval($response['resist']), 'status' => $status];
+        }
 
         return intval($response['resist']);
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         return $this->post('/panelCode/diag', range($from, $to));
     }

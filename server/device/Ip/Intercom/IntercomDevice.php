@@ -25,12 +25,12 @@ abstract class IntercomDevice extends IpDevice
         return false;
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
-        return 0;
+        return $info ? ['resist' => 0, 'status' => 'Не определено'] : 0;
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         return [];
     }
