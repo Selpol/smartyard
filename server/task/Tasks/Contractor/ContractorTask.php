@@ -102,7 +102,7 @@ abstract class ContractorTask extends Task
 
                     return $previous;
                 }, []),
-                0,
+                null,
                 0,
                 time(),
                 0,

@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -125,8 +126,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         foreach ($subscribers as $subscriber) {
             if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
-                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                if (HouseSubscriber::findById($subscriber[0]) !== null) {
+                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                }
 
                 unset($subscribersInFlat[$subscriber[0]]);
             } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]))

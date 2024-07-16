@@ -312,7 +312,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
+    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string|null $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
     {
         $autoOpen = (int)strtotime($autoOpen);
 

@@ -33,7 +33,7 @@ readonly abstract class HouseFeature extends Feature
 
     abstract function getFlats(string $by, mixed $params, bool $withBlock = false): bool|array;
 
-    abstract function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string;
+    abstract function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string|null $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string;
 
     abstract function modifyFlat(int $flatId, array $params): bool;
 
