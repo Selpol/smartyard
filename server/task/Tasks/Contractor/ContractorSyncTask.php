@@ -96,6 +96,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
     {
         $flat = $this->getOrCreateFlat($contractor, $address);
 
+        if ($flat == null) {
+            return;
+        }
+
         $flats[$flat->house_flat_id] = intval($flat->flat);
 
         /** @var int[] $intercoms */
