@@ -15,13 +15,15 @@ readonly class ClickhouseService
 
     public string $database;
 
-    function __construct(string $host, int $port, string $username, string $password, string $database = 'default')
+    function __construct()
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->username = $username;
-        $this->password = $password;
-        $this->database = $database;
+        $plog = config_get('feature.plog');
+
+        $this->host = $plog['host'];
+        $this->port = $plog['port'];
+        $this->username = $plog['username'];
+        $this->password = $plog['password'];
+        $this->database = $plog['database'];
     }
 
     function select(string $query): array|bool
@@ -61,9 +63,10 @@ readonly class ClickhouseService
 
         try {
             $raw = curl_exec($curl);
+
             $data = @json_decode($raw, true)['data'];
         } catch (Exception $e) {
-            file_logger('clickhouseService')->error($e);
+            file_logger('clickhouse')->error($e);
 
             return false;
         }
@@ -71,12 +74,15 @@ readonly class ClickhouseService
         curl_close($curl);
 
         if (@$headers['x-clickhouseService-exception-code']) {
-            file_logger('clickhouseService')->error(trim($raw));
+            file_logger('clickhouse')->error(trim($raw));
 
             return false;
         }
 
-        return $data;
+        if (is_array($data))
+            return $data;
+
+        return false;
     }
 
     function insert(string $table, array $data): bool|string

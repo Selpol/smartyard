@@ -4,7 +4,6 @@ namespace Selpol\Feature\Plog\ClickHouse;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -25,9 +24,9 @@ readonly class ClickHousePlogFeature extends PlogFeature
 
     public function __construct()
     {
-        $plog = config_get('feature.plog');
+        $this->clickhouse = container(ClickhouseService::class);
 
-        $this->clickhouse = new ClickhouseService($plog['host'], $plog['port'], $plog['username'], $plog['password'], $plog['database']);
+        $plog = config_get('feature.plog');
 
         $this->max_call_length = $plog['max_call_length'];
         $this->ttl_camshot_days = $plog['ttl_camshot_days'];
@@ -349,7 +348,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
 
         $filterFlatsId = implode(',', $flatIds);
 
-        $query = "select date, type from $database.plog where not hidden and FROM_UNIXTIME(date) between $after and $before and flat_id in ($filterFlatsId) and tupleElement(domophone, 'domophone_id') = $intercomId order by date desc";
+        $query = "select date, event from $database.plog where not hidden and date between $after and $before and flat_id in ($filterFlatsId) and domophone.domophone_id = $intercomId order by date desc";
 
         return $this->clickhouse->select($query);
     }
@@ -358,7 +357,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
     {
         $database = $this->clickhouse->database;
 
-        $query = "select date, type from $database.plog where not hidden and FROM_UNIXTIME(date) between $after and $before and tupleElement(domophone, 'domophone_id') = $intercomId order by date desc";
+        $query = "select date, event from $database.plog where not hidden and date between $after and $before and domophone.domophone_id = $intercomId order by date desc";
 
         return $this->clickhouse->select($query);
     }

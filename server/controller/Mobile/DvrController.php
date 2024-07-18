@@ -263,7 +263,7 @@ readonly class DvrController extends RbtController
             $intercomEvents = $plogFeature->getEventsByIntercom($domophoneId, $request->after, $request->before);
 
             if (is_array($intercomEvents)) {
-                $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5, $item['type']], $intercomEvents);
+                $intercomEvents = array_map(static fn(array $item) => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
                 $events = array_merge($dvrEvents, $intercomEvents);
 
                 usort($events, static function (array $a, array $b) {
@@ -296,7 +296,7 @@ readonly class DvrController extends RbtController
         $intercomEvents = $plogFeature->getEventByFlatsAndIntercom($flatsId, $domophoneId, $request->after, $request->before);
 
         if ($intercomEvents) {
-            $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5, $item['type']], $intercomEvents);
+            $intercomEvents = array_map(static fn(array $item) => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
             $events = array_merge($dvrEvents, $intercomEvents);
 
             usort($events, static function (array $a, array $b) {
