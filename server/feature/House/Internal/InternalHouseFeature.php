@@ -678,7 +678,8 @@ readonly class InternalHouseFeature extends HouseFeature
             "last_seen" => "lastSeen",
             "subscriber_name" => "subscriberName",
             "subscriber_patronymic" => "subscriberPatronymic",
-            "voip_enabled" => "voipEnabled"
+            "voip_enabled" => "voipEnabled",
+            "role" => "role"
         ]);
 
         $addresses = container(AddressFeature::class);

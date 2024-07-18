@@ -259,6 +259,26 @@ readonly class DvrController extends RbtController
         if (is_null($domophoneId))
             return user_response(data: $dvrEvents);
 
+        if ($this->getUser()->getOriginalValue()['role'] == 1) {
+            $intercomEvents = $plogFeature->getEventsByIntercom($domophoneId, $request->after, $request->before);
+
+            if (is_array($intercomEvents)) {
+                $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5, $item['type']], $intercomEvents);
+                $events = array_merge($dvrEvents, $intercomEvents);
+
+                usort($events, static function (array $a, array $b) {
+                    if ($a[0] == $b[0])
+                        return 0;
+
+                    return $a[0] > $b[1] ? 1 : -1;
+                });
+
+                return user_response(data: $events);
+            }
+
+            return user_response(data: $dvrEvents);
+        }
+
         $flats = array_filter(
             array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $this->getUser()->getOriginalValue()['flats']),
             static function (array $flat) use ($houseFeature) {
