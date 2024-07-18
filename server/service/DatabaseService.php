@@ -32,6 +32,11 @@ class DatabaseService implements ContainerDisposeInterface
         return call_user_func([$this->connection, $name], $arguments);
     }
 
+    public function quote(string $value): string
+    {
+        return $this->connection->quote($value);
+    }
+
     /**
      * @param string $query
      * @param array $params
