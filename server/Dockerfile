@@ -72,7 +72,6 @@ COPY --link composer.* ./
 RUN composer install --no-dev --no-scripts --no-autoloader --no-progress --no-interaction
 
 COPY --link  . ./
-RUN rm -Rf docker/
 
 RUN set -eux; \
 	mkdir -p var/cache var/log var/log/task; \
