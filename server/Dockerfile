@@ -1,3 +1,5 @@
+# syntax=docker.io/docker/dockerfile:1.7-labs
+
 FROM php:8.2-fpm-alpine
 
 ARG TZ
