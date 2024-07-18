@@ -143,7 +143,7 @@ readonly class InternalBackupFeature extends BackupFeature
                         return 'null';
 
                     return $column;
-                }, $rows));
+                }, $rows[$i]));
 
                 $query .= ')';
             }
