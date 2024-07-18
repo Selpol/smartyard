@@ -61,14 +61,14 @@ abstract readonly class BackupFeature extends Feature
         'addresses_settlements_address_settlement_id_seq',
         'addresses_streets_address_street_id_seq',
 
-        'cameras_camera_id_seq',
-
         'dvr_servers_id_seq',
         'frs_servers_id_seq',
 
         'sip_servers_id_seq',
 
         'sip_user_id_seq',
+
+        'cameras_camera_id_seq',
 
         'houses_domophones_house_domophone_id_seq',
         'houses_entrances_house_entrance_id_seq',
