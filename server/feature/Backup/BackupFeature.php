@@ -19,6 +19,13 @@ abstract readonly class BackupFeature extends Feature
         'addresses_streets',
         'addresses_houses',
 
+        'dvr_servers',
+        'frs_servers',
+
+        'sip_servers',
+
+        'sip_user',
+
         'cameras',
 
         'houses_domophones',
@@ -41,13 +48,6 @@ abstract readonly class BackupFeature extends Feature
         'frs_faces',
         'frs_links_faces',
 
-        'dvr_servers',
-        'frs_servers',
-
-        'sip_servers',
-
-        'sip_user',
-
         'contractor'
     ];
 
@@ -61,17 +61,7 @@ abstract readonly class BackupFeature extends Feature
         'addresses_settlements_address_settlement_id_seq',
         'addresses_streets_address_street_id_seq',
 
-        'houses_domophones_house_domophone_id_seq',
-        'houses_entrances_house_entrance_id_seq',
-        'houses_flats_house_flat_id_seq',
-        'houses_rfids_house_rfid_id_seq',
-        'houses_subscribers_mobile_house_subscriber_id_seq',
-
         'cameras_camera_id_seq',
-
-        'camera_records_record_id_seq',
-
-        'inbox_msg_id_seq',
 
         'dvr_servers_id_seq',
         'frs_servers_id_seq',
@@ -79,6 +69,16 @@ abstract readonly class BackupFeature extends Feature
         'sip_servers_id_seq',
 
         'sip_user_id_seq',
+
+        'houses_domophones_house_domophone_id_seq',
+        'houses_entrances_house_entrance_id_seq',
+        'houses_flats_house_flat_id_seq',
+        'houses_rfids_house_rfid_id_seq',
+        'houses_subscribers_mobile_house_subscriber_id_seq',
+
+        'camera_records_record_id_seq',
+
+        'inbox_msg_id_seq',
 
         'contractor_id_seq'
     ];
