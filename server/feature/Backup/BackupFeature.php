@@ -19,6 +19,8 @@ abstract readonly class BackupFeature extends Feature
         'addresses_streets',
         'addresses_houses',
 
+        'cameras',
+
         'houses_domophones',
         'houses_entrances',
         'houses_entrances_cmses',
@@ -31,8 +33,6 @@ abstract readonly class BackupFeature extends Feature
         'houses_cameras_houses',
         'houses_cameras_flats',
         'houses_cameras_subscribers',
-
-        'cameras',
 
         'camera_records',
 
