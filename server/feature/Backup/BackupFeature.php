@@ -11,7 +11,6 @@ abstract readonly class BackupFeature extends Feature
 {
     public const TABLES = [
         'core_vars',
-        'core_users',
 
         'addresses_regions',
         'addresses_areas',
@@ -41,12 +40,6 @@ abstract readonly class BackupFeature extends Feature
 
         'frs_faces',
         'frs_links_faces',
-
-        'role',
-        'permission',
-        'role_permission',
-        'user_role',
-        'user_permission',
 
         'dvr_servers',
         'frs_servers',
