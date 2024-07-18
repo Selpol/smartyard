@@ -290,7 +290,7 @@ class TrassirDvr extends DvrDevice
                 $stamp = $time + $i;
 
                 if (!$first) {
-                    $result[] = [$stamp, $stamp];
+                    $result[] = [$stamp, $stamp, -1];
                     $length++;
 
                     $first = true;
@@ -301,7 +301,7 @@ class TrassirDvr extends DvrDevice
                 if ($result[$length - 1][1] == $stamp - 1)
                     $result[$length - 1][1] = $stamp;
                 else {
-                    $result[] = [$stamp, $stamp];
+                    $result[] = [$stamp, $stamp, -1];
 
                     $length++;
                 }

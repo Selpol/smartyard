@@ -343,6 +343,26 @@ readonly class ClickHousePlogFeature extends PlogFeature
         return $this->clickhouse->select($query);
     }
 
+    public function getEventByFlatsAndIntercom(array $flatIds, int $intercomId, int $after, int $before): bool|array
+    {
+        $database = $this->clickhouse->database;
+
+        $filterFlatsId = implode(',', $flatIds);
+
+        $query = "select date, type from $database.plog where not hidden and FROM_UNIXTIME(date) between $after and $before and flat_id in ($filterFlatsId) and tupleElement(domophone, 'domophone_id') = $intercomId order by date desc";
+
+        return $this->clickhouse->select($query);
+    }
+
+    public function getEventsByIntercom(int $intercomId, int $after, int $before): bool|array
+    {
+        $database = $this->clickhouse->database;
+
+        $query = "select date, type from $database.plog where not hidden and FROM_UNIXTIME(date) between $after and $before and tupleElement(domophone, 'domophone_id') = $intercomId order by date desc";
+
+        return $this->clickhouse->select($query);
+    }
+
     public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array
     {
         $database = $this->clickhouse->database;

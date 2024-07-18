@@ -63,6 +63,25 @@ readonly abstract class PlogFeature extends Feature
      */
     abstract public function getEventsByFlatsAndDomophone(array $flats_id, int $domophone_id, int $date): bool|array;
 
+    /**
+     * Получить детальный список событий по домофону и квартирам, за определенный промежуток времени
+     * @param array $flatIds список идентификаторов квартир
+     * @param int $intercomId идентификатор домофона
+     * @param int $after фильтр событий после
+     * @param int $before фильтр событий до
+     * @return bool|array
+     */
+    abstract public function getEventByFlatsAndIntercom(array $flatIds, int $intercomId, int $after, int $before): bool|array;
+
+    /**
+     * Получить детальный список событий по домофону, за определенный промежуток времени
+     * @param int $intercomId идентификатор домофона
+     * @param int $after фильтр событий после
+     * @param int $before фильтр событий до
+     * @return bool|array
+     */
+    abstract public function getEventsByIntercom(int $intercomId, int $after, int $before): bool|array;
+
     abstract public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array;
 
     /**

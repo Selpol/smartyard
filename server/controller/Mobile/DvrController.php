@@ -252,7 +252,7 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
-        $dvrEvents = $dvr->event($identifier, $camera, ['token' => $request->token]);
+        $dvrEvents = $dvr->event($identifier, $camera, ['after' => $request->after, 'before' => $request->before, 'token' => $request->token]);
 
         $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($camera->camera_id);
 
@@ -273,10 +273,10 @@ readonly class DvrController extends RbtController
         if (count($flatsId) == 0)
             return user_response(data: $dvrEvents);
 
-        $intercomEvents = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
+        $intercomEvents = $plogFeature->getEventByFlatsAndIntercom($flatsId, $domophoneId, $request->after, $request->before);
 
         if ($intercomEvents) {
-            $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5], $intercomEvents);
+            $intercomEvents = array_map(static fn(array $item) => [$item['date'], $item['date'] + 5, $item['type']], $intercomEvents);
             $events = array_merge($dvrEvents, $intercomEvents);
 
             usort($events, static function (array $a, array $b) {
