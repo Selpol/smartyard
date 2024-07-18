@@ -136,7 +136,7 @@ readonly class InternalBackupFeature extends BackupFeature
 
                 $query .= implode(', ', array_map(static function (mixed $column) use ($database) {
                     if (is_string($column))
-                        return '\'' . $database->quote($column) . '\'';
+                        return $database->quote($column);
                     else if (is_bool($column))
                         return $column ? 'true' : 'false';
                     else if (is_null($column))
