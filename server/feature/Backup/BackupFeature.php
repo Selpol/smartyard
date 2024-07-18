@@ -53,7 +53,6 @@ abstract readonly class BackupFeature extends Feature
 
     public const SEQUENCES = [
         'core_vars_var_id_seq',
-        'core_users_uid_seq',
 
         'addresses_areas_address_area_id_seq',
         'addresses_cities_address_city_id_seq',
@@ -73,9 +72,6 @@ abstract readonly class BackupFeature extends Feature
         'camera_records_record_id_seq',
 
         'inbox_msg_id_seq',
-
-        'role_id_seq',
-        'permission_id_seq',
 
         'dvr_servers_id_seq',
         'frs_servers_id_seq',

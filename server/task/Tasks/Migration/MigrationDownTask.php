@@ -41,7 +41,9 @@ class MigrationDownTask extends MigrationTask
                 }
             }
 
-            $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'database.version'", ['version' => $migrationVersion - 1]);
+            if ($this->version > 0) {
+                $db->modify("UPDATE core_vars SET var_value = :version WHERE var_name = 'database.version'", ['version' => $migrationVersion - 1]);
+            }
         }
 
         return $db->getConnection()->commit();
