@@ -43,9 +43,10 @@ readonly class ClickhouseService
     function insert(string $table, array $data): bool|string
     {
         try {
-            $columns = array_keys($data);
+            $columns = join(', ', array_keys($data));
+            $values = join(', ', array_map(static fn(string $key) => ':' . $key, array_keys($data)));
 
-            return $this->statement('INSERT INTO ' . $table . ' (' . join(', ', $columns) . ') VALUES (' . join(', ', array_map(static fn(string $key) => ':' . $key, $columns)) . ')')->execute($data);
+            return $this->statement('INSERT INTO ' . $table . ' (' . $columns . ') VALUES (' . $values . ')')->execute($data);
         } catch (Throwable $throwable) {
             file_logger('clickhouse')->error($throwable);
         }
