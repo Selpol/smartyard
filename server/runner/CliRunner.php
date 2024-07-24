@@ -587,6 +587,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
             'mqtt-access' => '[MQTT] Доступ к MQTT',
 
+            'mobile-mask' => '[Телефон] Возможность видеть телефон',
+
             'intercom-web-call' => '[Веб-Домофон] Сделать звонок с браузера',
             'device-web-redirect' => '[Веб-Устройство] Перейти на устройство с браузера'
         ];

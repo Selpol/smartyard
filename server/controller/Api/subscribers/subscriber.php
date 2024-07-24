@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Service\AuthService;
 
 readonly class subscriber extends Api
 {
@@ -18,7 +19,8 @@ readonly class subscriber extends Api
         if ($subscribers && count($subscribers) === 1) {
             $subscriber = $subscribers[0];
 
-            $subscriber['mobile'] = mobile_mask($subscriber['mobile']);
+            if (!container(AuthService::class)->checkScope('mobile-mask'))
+                $subscriber['mobile'] = mobile_mask($subscriber['mobile']);
 
             return self::success($subscriber);
         }

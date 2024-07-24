@@ -1,0 +1,2 @@
+ALTER TABLE core_users
+    ADD COLUMN aud_jti CHARACTER VARYING;

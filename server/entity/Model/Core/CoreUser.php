@@ -14,6 +14,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int<0, 1> $enabled
  *
+ * @property string|null $aud_jti
+ *
  * @property string|null $real_name
  * @property string|null $e_mail
  * @property string|null $phone
@@ -53,6 +55,8 @@ class CoreUser extends Entity
             'password' => rule()->required()->string()->nonNullable(),
 
             'enabled' => rule()->required()->int()->nonNullable(),
+
+            'aud_jti' => rule()->string(),
 
             'real_name' => rule()->string(),
             'e_mail' => rule()->string(),

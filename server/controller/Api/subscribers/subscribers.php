@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Service\AuthService;
 
 readonly class subscribers extends Api
 {
@@ -38,12 +39,17 @@ readonly class subscribers extends Api
 
         $households = container(HouseFeature::class);
 
-        $flat = [
-            'subscribers' => array_map(static function (array $item) {
+        $subscribers = $households->getSubscribers(@$params['by'], @$params['query']);
+
+        if (!container(AuthService::class)->checkScope('mobile-mask'))
+            $subscribers = array_map(static function (array $item) {
                 $item['mobile'] = mobile_mask($item['mobile']);
 
                 return $item;
-            }, $households->getSubscribers(@$params['by'], @$params['query'])),
+            }, $subscribers);
+
+        $flat = [
+            'subscribers' => $subscribers,
             'cameras' => $households->getCameras(@$params['by'], @$params['query']),
             'keys' => $households->getKeys(@$params['by'], @$params['query']),
         ];
