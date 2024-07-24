@@ -22,7 +22,7 @@ readonly class users extends Api
                     return $item;
                 }, $users));
 
-            return $users;
+            return self::success($users);
         }
 
         return self::error('Пользователи не найдены', 404);
