@@ -36,10 +36,10 @@ readonly class AuthMiddleware extends RouteMiddleware
     {
         $token = $request->getHeaderLine('Authorization');
 
-        if (!str_starts_with($token[0], 'Bearer '))
+        if (!str_starts_with($token, 'Bearer '))
             return 'Запрос не авторизирован';
 
-        $bearer = substr($token[0], 7);
+        $bearer = substr($token, 7);
 
         if (substr_count($bearer, '.') !== 2) {
             if ($this->user) {
