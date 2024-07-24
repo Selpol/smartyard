@@ -35,7 +35,8 @@ return [
         'web_server_base_path' => env('MOBILE_STATIC', 'http://127.0.0.1/static'),
         'time_zone' => env('MOBILE_TIMEZONE', 'Europe/Moscow'),
 
-        'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32'))
+        'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
+        'user' => boolval(env('MOBILE_USER', false))
     ],
 
     'db' => [

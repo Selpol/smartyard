@@ -18,7 +18,7 @@ readonly class SubscriberMiddleware extends RouteMiddleware
 
         $token = $auth->getTokenOrThrow();
 
-        $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $token->getOriginalValue()['scopes'][1]);
+        $subscribers = container(HouseFeature::class)->getSubscribers('aud_jti', $token->getAudJti());
 
         if (!$subscribers || count($subscribers) === 0)
             return json_response(401, body: ['code' => 401, 'message' => 'Абонент не найден']);

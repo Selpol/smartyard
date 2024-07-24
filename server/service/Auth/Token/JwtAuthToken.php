@@ -26,6 +26,11 @@ readonly class JwtAuthToken implements AuthTokenInterface
         return $this->value['sub'];
     }
 
+    public function getAudJti(): string|null
+    {
+        return $this->value['scopes'][1];
+    }
+
     public function getOriginalValue(): array
     {
         return $this->value;

@@ -127,7 +127,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (!$auth)
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
 
-            container(AuthService::class)->setToken(new CoreAuthToken($auth['token']));
+            container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], null));
             container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
         } else return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
 

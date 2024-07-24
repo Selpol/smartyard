@@ -139,7 +139,7 @@ readonly class AddressController extends RbtController
     {
         $token = $this->getToken();
 
-        $audJti = $token->getOriginalValue()['scopes'][1];
+        $audJti = $token->getAudJti();
 
         $hash = '';
 

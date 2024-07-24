@@ -19,6 +19,8 @@ interface AuthTokenInterface
      */
     public function getIdentifier(): string|int;
 
+    public function getAudJti(): string|null;
+
     /**
      * Получить оригинальное значение токена
      * @return T
