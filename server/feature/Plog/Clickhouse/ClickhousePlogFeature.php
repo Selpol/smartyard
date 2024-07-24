@@ -146,7 +146,8 @@ readonly class ClickhousePlogFeature extends PlogFeature
                 }
                 $event_data[self::COLUMN_HIDDEN] = $hidden;
                 $event_data[self::COLUMN_FLAT_ID] = $flat_id;
-                $this->clickhouse->insert("plog", $event_data);
+
+                $this->clickhouse->insert("plog", [$event_data]);
             }
         } else {
             $hidden = $this->getPlogHidden($event_data[self::COLUMN_FLAT_ID]);
@@ -157,7 +158,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
             $event_data[self::COLUMN_HIDDEN] = $hidden;
 
-            $this->clickhouse->insert("plog", $event_data);
+            $this->clickhouse->insert("plog", [$event_data]);
         }
     }
 
@@ -264,7 +265,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
         $result = $this->clickhouse->select($query);
 
-        if (count($result)) {
+        if (is_array($result) && count($result)) {
             foreach ($result as &$d) {
                 $d['day'] = substr($d['day'], 0, 4) . '-' . substr($d['day'], 4, 2) . '-' . substr($d['day'], 6, 2);
             }
