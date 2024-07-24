@@ -43,7 +43,12 @@ readonly class AuthMiddleware extends RouteMiddleware
 
         if (substr_count($bearer, '.') !== 2) {
             if ($this->user) {
-                $auth = container(AuthenticationFeature::class)->auth($token);
+                $ip = connection_ip($request);
+
+                if (!$ip)
+                    return 'Неизвестный источник запроса';
+
+                $auth = container(AuthenticationFeature::class)->auth($token, $request->getHeaderLine('User-Agent'), $ip);
 
                 if ($auth && $auth['user']['aud_jti']) {
                     container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], $auth['user']['aud_jti']));
