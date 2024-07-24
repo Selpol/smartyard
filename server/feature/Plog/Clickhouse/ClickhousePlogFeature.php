@@ -1,6 +1,6 @@
 <?php
 
-namespace Selpol\Feature\Plog\ClickHouse;
+namespace Selpol\Feature\Plog\Clickhouse;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -14,7 +14,7 @@ use Selpol\Task\Tasks\Plog\PlogCallTask;
 use Selpol\Task\Tasks\Plog\PlogOpenTask;
 use Throwable;
 
-readonly class ClickHousePlogFeature extends PlogFeature
+readonly class ClickhousePlogFeature extends PlogFeature
 {
     private ClickhouseService $clickhouse;
 
@@ -146,7 +146,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
                 }
                 $event_data[self::COLUMN_HIDDEN] = $hidden;
                 $event_data[self::COLUMN_FLAT_ID] = $flat_id;
-                $this->clickhouse->insert("plog", [$event_data]);
+                $this->clickhouse->insert("plog", $event_data);
             }
         } else {
             $hidden = $this->getPlogHidden($event_data[self::COLUMN_FLAT_ID]);
@@ -157,7 +157,7 @@ readonly class ClickHousePlogFeature extends PlogFeature
 
             $event_data[self::COLUMN_HIDDEN] = $hidden;
 
-            $this->clickhouse->insert("plog", [$event_data]);
+            $this->clickhouse->insert("plog", $event_data);
         }
     }
 

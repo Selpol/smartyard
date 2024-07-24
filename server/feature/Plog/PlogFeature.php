@@ -3,10 +3,10 @@
 namespace Selpol\Feature\Plog;
 
 use Selpol\Feature\Feature;
-use Selpol\Feature\Plog\ClickHouse\ClickHousePlogFeature;
+use Selpol\Feature\Plog\Clickhouse\ClickhousePlogFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
-#[Singleton(ClickHousePlogFeature::class)]
+#[Singleton(ClickhousePlogFeature::class)]
 readonly abstract class PlogFeature extends Feature
 {
     //типы событий
