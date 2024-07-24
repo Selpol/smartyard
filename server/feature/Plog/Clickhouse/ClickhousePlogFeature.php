@@ -199,19 +199,15 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
     public function getSyslog(string $ip, int $date): false|array
     {
-        $database = $this->clickhouse->database;
-
         $start_date = $date - $this->max_call_length;
-        $query = "select date, msg, unit from $database.syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
+        $query = "select date, msg, unit from syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
 
         return $this->clickhouse->select($query);
     }
 
     public function getSyslogFilter(string $ip, ?string $message, ?int $minDate, ?int $maxDate, ?int $page, ?int $size): false|array
     {
-        $database = $this->clickhouse->database;
-
-        $query = "SELECT date, msg FROM $database.syslog s WHERE IPv4NumToString(s.ip) = '$ip'";
+        $query = "SELECT date, msg FROM syslog s WHERE IPv4NumToString(s.ip) = '$ip'";
 
         if ($message)
             $query .= ' AND msg LIKE \'%' . $message . '%\'';
@@ -233,15 +229,13 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
     public function getEventsDays(int $flat_id, ?string $filter_events): array|bool
     {
-        $database = $this->clickhouse->database;
-
         if ($filter_events) {
             $query = "
                         select
                             toYYYYMMDD(FROM_UNIXTIME(date)) as day,
                             count(day) as events
                         from
-                            $database.plog
+                            plog
                         where
                             not hidden
                             and flat_id = $flat_id
@@ -257,7 +251,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                             toYYYYMMDD(FROM_UNIXTIME(date)) as day,
                             count(day) as events
                         from
-                            $database.plog
+                            plog
                         where
                             not hidden
                             and flat_id = $flat_id
@@ -285,8 +279,6 @@ readonly class ClickhousePlogFeature extends PlogFeature
      */
     public function getDetailEventsByDay(int $flat_id, string $date): array|bool
     {
-        $database = $this->clickhouse->database;
-
         $query = "
                     select
                         date,
@@ -303,7 +295,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                         toJSONString(phones) phones,
                         preview
                     from
-                        $database.plog
+                        plog
                     where
                         not hidden
                         and toYYYYMMDD(FROM_UNIXTIME(date)) = '$date'
@@ -320,8 +312,6 @@ readonly class ClickhousePlogFeature extends PlogFeature
      */
     public function getEventsByFlatsAndDomophone(array $flats_id, int $domophone_id, int $date): bool|array
     {
-        $database = $this->clickhouse->database;
-
         $filterFlatsId = implode(',', $flats_id);
         $filterDate = date('Ymd', time() - $date * 24 * 60 * 60);
 
@@ -329,7 +319,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                     select
                         date
                     from
-                        $database.plog
+                        plog
                     where
                         not hidden
                         and toYYYYMMDD(FROM_UNIXTIME(date)) >= '$filterDate'
@@ -344,31 +334,25 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
     public function getEventByFlatsAndIntercom(array $flatIds, int $intercomId, int $after, int $before): bool|array
     {
-        $database = $this->clickhouse->database;
-
         $filterFlatsId = implode(',', $flatIds);
 
-        $query = "select date, event from $database.plog where not hidden and date between $after and $before and flat_id in ($filterFlatsId) and domophone.domophone_id = $intercomId order by date desc";
+        $query = "select date, event from plog where not hidden and date between $after and $before and flat_id in ($filterFlatsId) and domophone.domophone_id = $intercomId order by date desc";
 
         return $this->clickhouse->select($query);
     }
 
     public function getEventsByIntercom(int $intercomId, int $after, int $before): bool|array
     {
-        $database = $this->clickhouse->database;
-
-        $query = "select date, event from $database.plog where not hidden and date between $after and $before and domophone.domophone_id = $intercomId order by date desc";
+        $query = "select date, event from plog where not hidden and date between $after and $before and domophone.domophone_id = $intercomId order by date desc";
 
         return $this->clickhouse->select($query);
     }
 
     public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array
     {
-        $database = $this->clickhouse->database;
-
         $offset = $page * $size;
 
-        $query = "SELECT * FROM $database.plog WHERE NOT hidden AND flat_id = $flatId";
+        $query = "SELECT * FROM plog WHERE NOT hidden AND flat_id = $flatId";
 
         if ($type !== null)
             $query .= " AND event = $type";
@@ -384,8 +368,6 @@ readonly class ClickhousePlogFeature extends PlogFeature
      */
     public function getEventDetails(string $uuid): bool|array
     {
-        $database = $this->clickhouse->database;
-
         $query = "
                     select
                         date,
@@ -402,7 +384,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                         toJSONString(phones) phones,
                         preview
                     from
-                        $database.plog
+                        plog
                     where
                         event_uuid = '$uuid'
                 ";
