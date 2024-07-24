@@ -1,0 +1,1 @@
+CREATE INDEX core_auth_token ON core_auth (token);

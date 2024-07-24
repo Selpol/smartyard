@@ -99,16 +99,14 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $params += $request->getQueryParams();
 
         if (count($_POST)) {
-            foreach ($_POST as $key => $value)
-                if ($key == '_token') $http_authorization = 'Bearer ' . urldecode($value);
-                else $params[$key] = urldecode($value);
+            foreach ($_POST as $key => $value) {
+                $params[$key] = urldecode($value);
+            }
         }
 
         $body = $request->getParsedBody();
 
         if (is_array($body)) {
-            if (array_key_exists('_token', $body)) $http_authorization = 'Bearer ' . $body['_token'];
-
             $params += $body;
         }
 
