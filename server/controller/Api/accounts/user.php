@@ -39,7 +39,7 @@ readonly class user extends Api
         $user->phone = $params['phone'];
 
         try {
-            $id = container(OauthFeature::class)->register(substr($params['phone'], 1));
+            $id = container(OauthFeature::class)->register($params['phone']);
 
             if ($id)
                 $user->aud_jti = $id;
@@ -80,7 +80,7 @@ readonly class user extends Api
             $user->phone = $params['phone'];
 
             try {
-                $id = container(OauthFeature::class)->register(substr($params['phone'], 1));
+                $id = container(OauthFeature::class)->register($params['phone']);
 
                 if ($id)
                     $user->aud_jti = $id;
