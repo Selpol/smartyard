@@ -19,7 +19,7 @@ class ClickhouseEntityStatement implements EntityStatementInterface
 
     private readonly string $value;
 
-    private array $data;
+    private array $data = [];
     private array $error = [];
 
     public function __construct(Client $client, ClientOption $option, RequestInterface $request, string $value)
@@ -83,45 +83,21 @@ class ClickhouseEntityStatement implements EntityStatementInterface
 
     public function fetch(): ?array
     {
-        if (!isset($this->data)) {
-            $this->error[] = new EntityMessage(0, 'Не выполнен запрос');
-
-            throw new EntityException($this->error, 'Не выполнен запрос');
-        }
-
         return count($this->data) > 0 ? $this->data[0] : null;
     }
 
     public function fetchColumn(int $index): mixed
     {
-        if (!isset($this->data)) {
-            $this->error[] = new EntityMessage(0, 'Не выполнен запрос');
-
-            throw new EntityException($this->error, 'Не выполнен запрос');
-        }
-
-        return $this->data[0][$index];
+        return count($this->data) > 0 ? $this->data[0][$index] : null;
     }
 
     public function fetchAll(): array
     {
-        if (!isset($this->data)) {
-            $this->error[] = new EntityMessage(0, 'Не выполнен запрос');
-
-            throw new EntityException($this->error, 'Не выполнен запрос');
-        }
-
         return $this->data;
     }
 
     public function count(): int
     {
-        if (!isset($this->data)) {
-            $this->error[] = new EntityMessage(0, 'Не выполнен запрос');
-
-            throw new EntityException($this->error, 'Не выполнен запрос');
-        }
-
         return count($this->data);
     }
 

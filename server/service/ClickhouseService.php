@@ -43,7 +43,9 @@ readonly class ClickhouseService
     function insert(string $table, array $data): bool|string
     {
         try {
-            return $this->statement('INSERT INTO ' . $table . ' ' . json_encode($data) . ' FORMAT JSONEachRow')->execute();
+            $columns = array_keys($data);
+
+            return $this->statement('INSERT INTO ' . $table . ' (' . join(', ', $columns) . ') VALUES (' . join(', ', array_map(static fn(string $key) => ':' . $key, $columns)) . ')')->execute($data);
         } catch (Throwable $throwable) {
             file_logger('clickhouse')->error($throwable);
         }
