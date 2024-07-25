@@ -17,6 +17,13 @@ return [
         'trust' => explode(',', env('ASTERISK_TRUST', '127.0.0.1/32'))
     ],
 
+    'clickhouse' => [
+        'endpoint' => env('CLICKHOUSE_ENDPOINT', 'http://127.0.0.1:8123?database=default'),
+
+        'username' => env('CLICKHOUSE_USERNAME', 'default'),
+        'password' => env('CLICKHOUSE_PASSWORD', 'password')
+    ],
+
     'mqtt' => [
         'trust' => explode(',', env('MQTT_TRUST', '0.0.0.0/0')),
 

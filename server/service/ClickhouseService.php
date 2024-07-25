@@ -13,24 +13,15 @@ readonly class ClickhouseService
 {
     private ClickhouseEntityConnection $connection;
 
-    private string $host;
-    private int $port;
-    private string $username;
-    private string $password;
-
     public string $database;
 
     function __construct()
     {
-        $plog = config_get('feature.plog');
+        $config = config_get('clickhouse');
 
-        $this->connection = new ClickhouseEntityConnection(new Client(), 'http://' . $plog['host'] . ':' . $plog['port'] . '?database=' . $plog['database'], $plog['username'], $plog['password']);
+        $this->connection = new ClickhouseEntityConnection(new Client(), $config['endpoint'], $config['username'], $config['password']);
 
-        $this->host = $plog['host'];
-        $this->port = $plog['port'];
-        $this->username = $plog['username'];
-        $this->password = $plog['password'];
-        $this->database = $plog['database'];
+        $this->database = config_get('feature.plog.database', 'default') ?? 'default';
     }
 
     public function statement(string $query): EntityStatementInterface
@@ -40,14 +31,18 @@ readonly class ClickhouseService
 
     function select(string $query): array|bool
     {
+        $plog = config_get('feature.plog');
+
+        $host = $plog['host'];
+        $port = $plog['port'];
+
+        $username = $plog['username'];
+        $password = $plog['password'];
+
         $curl = curl_init();
         $headers = [];
 
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: text/plain; charset=UTF-8',
-            "X-ClickHouse-User: $this->username",
-            "X-ClickHouse-Key: $this->password",
-        ]);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: text/plain; charset=UTF-8', "X-ClickHouse-User: $username", "X-ClickHouse-Key: $password"]);
 
         curl_setopt($curl, CURLOPT_HEADERFUNCTION,
             function ($curl, $header) use (&$headers) {
@@ -66,7 +61,7 @@ readonly class ClickhouseService
         curl_setopt($curl, CURLOPT_POSTFIELDS, trim($query) . " FORMAT JSON");
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_URL, "http://{$this->host}:{$this->port}");
+        curl_setopt($curl, CURLOPT_URL, "http://$host:$port");
         curl_setopt($curl, CURLOPT_POST, true);
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -99,13 +94,21 @@ readonly class ClickhouseService
 
     function insert(string $table, array $data): bool|string
     {
+        $plog = config_get('feature.plog');
+
+        $host = $plog['host'];
+        $port = $plog['port'];
+
+        $username = $plog['username'];
+        $password = $plog['password'];
+
         $curl = curl_init();
         $headers = [];
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, [
             'Content-Type: text/plain; charset=UTF-8',
-            "X-ClickHouse-User: $this->username",
-            "X-ClickHouse-Key: $this->password",
+            "X-ClickHouse-User: $username",
+            "X-ClickHouse-Key: $password",
         ]);
 
         curl_setopt($curl, CURLOPT_HEADERFUNCTION,
@@ -130,7 +133,7 @@ readonly class ClickhouseService
         curl_setopt($curl, CURLOPT_POSTFIELDS, $_data);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_URL, "http://{$this->host}:{$this->port}/?query=" . urlencode("INSERT INTO {$this->database}.$table FORMAT JSONEachRow"));
+        curl_setopt($curl, CURLOPT_URL, "http://$host:$port/?query=" . urlencode("INSERT INTO {$this->database}.$table FORMAT JSONEachRow"));
         curl_setopt($curl, CURLOPT_POST, true);
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

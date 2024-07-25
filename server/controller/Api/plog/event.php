@@ -34,7 +34,7 @@ readonly class event extends Api
                     return $item;
                 }, $result));
 
-            return $result;
+            return self::success($result);
         }
 
         return self::success([]);

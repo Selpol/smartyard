@@ -28,15 +28,13 @@ readonly class ClickhouseEntityConnection implements EntityConnectionInterface
     {
         $value = trim($value);
 
-        $request = request('POST', $this->endpoint);
-
         $option = new ClientOption();
         $option->basic($this->username, $this->password);
 
         if (str_starts_with(strtoupper(substr($value, 0, 6)), 'SELECT'))
             $value .= ' FORMAT JSON';
 
-        return new ClickhouseEntityStatement($this->client, $option, $request, $value);
+        return new ClickhouseEntityStatement($this->client, $option, request('POST', uri($this->endpoint), ['Content-Type' => ['text/plain; charset=UTF-8']]), $value);
     }
 
     public function lastInsertId(string $value): mixed

@@ -40,6 +40,14 @@ services:
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
     networks:
       backend:
+  clickhouse:
+    image: bitnami/clickhouse:23.8.15
+    ports:
+      - "8123:8123"
+    environment:
+      - CLICKHOUSE_ADMIN_PASSWORD=${CLICKHOUSE_PASSWORD}
+    networks:
+      backend:
   amqp:
     image: heidiks/rabbitmq-delayed-message-exchange:3.10.2-management
     container_name: amqp
@@ -77,6 +85,7 @@ services:
       - AMQP_PORT=5672
       - MQTT_HOST=mqtt
       - MQTT_PORT=1883
+      - CLICKHOUSE_ENDPOINT=http://clickhouse:8123?database=default
     depends_on:
       - database
       - redis
