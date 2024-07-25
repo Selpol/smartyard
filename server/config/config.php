@@ -43,7 +43,9 @@ return [
         'time_zone' => env('MOBILE_TIMEZONE', 'Europe/Moscow'),
 
         'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
-        'user' => boolval(env('MOBILE_USER', false))
+
+        'user' => boolval(env('MOBILE_USER', false)),
+        'null' => boolval(env('MOBILE_NULL', false))
     ],
 
     'db' => [
