@@ -121,7 +121,10 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $feature->add($task, $throwable->getMessage(), 0);
 
-                $task->onError($throwable);
+                try {
+                    $task->onError($throwable);
+                } catch (Throwable) {
+                }
 
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
