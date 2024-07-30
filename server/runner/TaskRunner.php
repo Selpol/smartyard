@@ -115,11 +115,16 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $service->task($uuid, $task->title, 'done', $task->uid, 'OK');
             } catch (Throwable $throwable) {
-                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
+                $message = $throwable instanceof KernelException ? $throwable->getLocalizedMessage() : $throwable->getMessage();
+
+                if ($message == '')
+                    $message = $throwable->getMessage();
+
+                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
 
                 $task->setProgressCallback(null);
 
-                $feature->add($task, $throwable->getMessage(), 0);
+                $feature->add($task, $message, 0);
 
                 try {
                     $task->onError($throwable);
@@ -129,8 +134,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
 
-                if ($throwable instanceof KernelException) $service->task($uuid, $task->title, 'done', $task->uid, $throwable->getLocalizedMessage());
-                else $service->task($uuid, $task->title, 'done', $task->uid, 'ERROR');
+                $service->task($uuid, $task->title, 'done', $task->uid, $message);
             } finally {
                 $feature->releaseUnique($task);
             }

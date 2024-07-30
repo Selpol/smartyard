@@ -2,7 +2,6 @@
 
 namespace Selpol\Device\Exception;
 
-use RuntimeException;
 use Selpol\Device\Device;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Throwable;
