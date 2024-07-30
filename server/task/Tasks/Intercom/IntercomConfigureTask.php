@@ -14,6 +14,7 @@ use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Service\DeviceService;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -30,6 +31,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
     }
 
+    /**
+     * @throws Throwable
+     */
     public function onTask(): bool
     {
         $households = container(HouseFeature::class);
@@ -123,7 +127,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable, ['id' => $this->id]);
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw $throwable;
         }
     }
 

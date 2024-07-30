@@ -120,6 +120,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 if ($message == '')
                     $message = $throwable->getMessage();
 
+                $service->task($uuid, $task->title, 'done', $task->uid, $message);
+
                 $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
 
                 $task->setProgressCallback(null);
@@ -133,8 +135,6 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
-
-                $service->task($uuid, $task->title, 'done', $task->uid, $message);
             } finally {
                 $feature->releaseUnique($task);
             }
