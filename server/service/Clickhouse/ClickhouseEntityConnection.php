@@ -2,23 +2,18 @@
 
 namespace Selpol\Service\Clickhouse;
 
-use Selpol\Framework\Client\Client;
 use Selpol\Framework\Client\ClientOption;
 use Selpol\Framework\Entity\Database\EntityConnectionInterface;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 
 readonly class ClickhouseEntityConnection implements EntityConnectionInterface
 {
-    private Client $client;
-
     private string $endpoint;
     private string $username;
     private string $password;
 
-    public function __construct(Client $client, string $endpoint, string $username, string $password)
+    public function __construct(string $endpoint, string $username, string $password)
     {
-        $this->client = $client;
-
         $this->endpoint = $endpoint;
         $this->username = $username;
         $this->password = $password;
@@ -34,7 +29,7 @@ readonly class ClickhouseEntityConnection implements EntityConnectionInterface
         if (str_starts_with(strtoupper(substr($value, 0, 6)), 'SELECT'))
             $value .= ' FORMAT JSON';
 
-        return new ClickhouseEntityStatement($this->client, $option, request('POST', uri($this->endpoint), ['Content-Type' => ['text/plain; charset=UTF-8']]), $value);
+        return new ClickhouseEntityStatement($option, request('POST', uri($this->endpoint), ['Content-Type' => ['text/plain; charset=UTF-8']]), $value);
     }
 
     public function lastInsertId(string $value): mixed

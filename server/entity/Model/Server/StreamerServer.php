@@ -11,6 +11,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $title
  * @property string $url
+ * @property string|null $web
  *
  * @property string $created_at
  * * @property string $updated_at
@@ -34,6 +35,7 @@ class StreamerServer extends Entity
 
             'title' => rule()->required()->string()->nonNullable(),
             'url' => rule()->required()->url()->nonNullable(),
+            'web' => rule()->url(),
 
             'created_at' => rule()->string(),
             'updated_at' => rule()->string()

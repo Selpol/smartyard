@@ -3,7 +3,6 @@
 namespace Selpol\Service;
 
 use Exception;
-use Selpol\Framework\Client\Client;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\Clickhouse\ClickhouseEntityConnection;
@@ -19,7 +18,7 @@ readonly class ClickhouseService
     {
         $config = config_get('clickhouse');
 
-        $this->connection = new ClickhouseEntityConnection(new Client(), $config['endpoint'], $config['username'], $config['password']);
+        $this->connection = new ClickhouseEntityConnection($config['endpoint'], $config['username'], $config['password']);
 
         $this->database = config_get('feature.plog.database', 'default') ?? 'default';
     }

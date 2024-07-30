@@ -12,7 +12,6 @@ use Throwable;
 
 class ClickhouseEntityStatement implements EntityStatementInterface
 {
-    private readonly Client $client;
     private readonly ClientOption $option;
 
     private readonly RequestInterface $request;
@@ -22,9 +21,8 @@ class ClickhouseEntityStatement implements EntityStatementInterface
     private array $data = [];
     private array $error = [];
 
-    public function __construct(Client $client, ClientOption $option, RequestInterface $request, string $value)
+    public function __construct(ClientOption $option, RequestInterface $request, string $value)
     {
-        $this->client = $client;
         $this->option = $option;
 
         $this->request = $request;
@@ -49,7 +47,7 @@ class ClickhouseEntityStatement implements EntityStatementInterface
         try {
             $this->request->withBody(stream($query));
 
-            $response = $this->client->send($this->request, $this->option);
+            $response = container(Client::class)->send($this->request, $this->option);
 
             if ($response->getStatusCode() === 200) {
                 if ($response->getHeaderLine('X-ClickHouse-Format') == 'JSON') {
