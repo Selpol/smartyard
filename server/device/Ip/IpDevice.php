@@ -73,29 +73,8 @@ abstract class IpDevice extends Device
 
     public function ping(): bool
     {
-        $url = $this->uri->getHost();
-
-        if ($this->uri->getPort() === null) {
-            $url .= ':' . match (strtolower($this->uri->getScheme())) {
-                    'http' => 80,
-                    'https' => 443,
-                    default => 22
-                };
-        } else $url .= ':' . $this->uri->getPort();
-
         try {
-            $fp = stream_socket_client($url, $code, $message, timeout: 1);
-
-            if ($fp) {
-                fclose($fp);
-
-                if (array_key_exists('DeviceID', $this->getSysInfo()))
-                    return true;
-
-                return false;
-            }
-
-            return false;
+            return array_key_exists('DeviceID', $this->getSysInfo());
         } catch (Throwable) {
             return false;
         }
