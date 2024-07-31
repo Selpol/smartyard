@@ -561,6 +561,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 return true;
             }
 
+            if (in_array('!' . $title, $filter)) {
+                return false;
+            }
+
             $segments = explode('-', $title);
 
             for ($i = 0; $i + 1 < count($segments); $i++) {
