@@ -8,7 +8,7 @@ use Selpol\Feature\Authentication\AuthenticationFeature;
 
 readonly class InternalAuthenticationFeature extends AuthenticationFeature
 {
-    public function checkAuth(string $login, string $password): int|bool
+    public function checkAuth(string $login, string $password): string|int|bool
     {
         $user = CoreUser::fetch(criteria()->equal('login', $login)->equal('enabled', 1), setting: setting()->columns(['uid', 'password']));
 
