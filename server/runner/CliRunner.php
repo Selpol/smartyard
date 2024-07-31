@@ -83,6 +83,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         } else if ($group === 'admin') {
             if ($command === 'password') $this->adminPassword($arguments['admin:password']);
             else echo $this->help('admin');
+        } else if ($group === 'user') {
+            if ($command === 'password') $this->userPassword(intval($arguments['user:password']), $arguments['password']);
+            else echo $this->help('user');
         } else if ($group === 'cron') {
             if ($command === 'run') $this->cronRun($arguments);
             else if ($command === 'install') $this->cronInstall();
@@ -246,6 +249,20 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             echo "admin account updated\n";
         } catch (Exception) {
             echo "admin account update failed\n";
+        }
+    }
+
+    private function userPassword(int $id, string $password): void
+    {
+        $connection = container(DatabaseService::class)->getConnection();
+
+        try {
+            $sth = $connection->prepare("update core_users set password = :password where uid = :uid");
+            $sth->execute(["password" => password_hash($password, PASSWORD_DEFAULT), 'uid' => $id]);
+
+            $this->logger->debug('Update user password');
+        } catch (Throwable $throwable) {
+            $this->logger->debug('Fail update user password' . PHP_EOL . $throwable);
         }
     }
 

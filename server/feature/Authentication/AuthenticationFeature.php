@@ -48,7 +48,7 @@ readonly abstract class AuthenticationFeature extends Feature
             }
         }
 
-        return ["result" => false, "code" => 403, "error" => "forbidden"];
+        return ["result" => false, "code" => 403, "error" => "forbidden", "message" => "Логин или пароль не верен"];
     }
 
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
