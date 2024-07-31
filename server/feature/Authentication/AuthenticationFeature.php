@@ -46,6 +46,8 @@ readonly abstract class AuthenticationFeature extends Feature
 
                 return ["result" => true, "token" => $auth->token];
             }
+
+            return ["result" => false, "code" => 500, "error" => "error", "message" => "Не удалось завершить авторизацию"];
         }
 
         return ["result" => false, "code" => 403, "error" => "forbidden", "message" => $uid];
