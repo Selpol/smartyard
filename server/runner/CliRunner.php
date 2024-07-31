@@ -532,6 +532,31 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $dir = path('controller/Api');
         $apis = scandir($dir);
 
+        $filter = config_get('feature.role.filter_permissions', ['*']);
+
+        function check(string $title, array $filter): bool
+        {
+            if (in_array('*', $filter)) {
+                return true;
+            }
+
+            if (in_array($title, $filter)) {
+                return true;
+            }
+
+            $segments = explode('-', $title);
+
+            for ($i = 0; $i + 1 < count($segments); $i++) {
+                $item = join('-', array_slice($segments, 0, $i + 1));
+
+                if (in_array($item . '-*', $filter)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         foreach ($apis as $api) {
             if ($api != "." && $api != ".." && is_dir($dir . "/$api")) {
                 $methods = scandir($dir . "/$api");
@@ -555,19 +580,21 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     $title = $api . '-' . $method . '-' . strtolower(is_int($key) ? $request_methods[$key] : $key);
                                     $description = is_int($key) ? $title : $request_methods[$key];
 
-                                    if (!array_key_exists($title, $titlePermissions)) {
-                                        $permission = new Permission();
+                                    if (check($title, $filter)) {
+                                        if (!array_key_exists($title, $titlePermissions)) {
+                                            $permission = new Permission();
 
-                                        $permission->title = $title;
-                                        $permission->description = $description;
+                                            $permission->title = $title;
+                                            $permission->description = $description;
 
-                                        $permission->insert();
-                                    } else if ($titlePermissions[$title]->description != $description) {
-                                        $titlePermissions[$title]->description = $description;
-                                        $titlePermissions[$title]->update();
+                                            $permission->insert();
+                                        } else if ($titlePermissions[$title]->description != $description) {
+                                            $titlePermissions[$title]->description = $description;
+                                            $titlePermissions[$title]->update();
+                                        }
+
+                                        unset($titlePermissions[$title]);
                                     }
-
-                                    unset($titlePermissions[$title]);
                                 }
                             }
                         }
@@ -594,19 +621,21 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         ];
 
         foreach ($requirePermissions as $title => $description) {
-            if (!array_key_exists($title, $titlePermissions)) {
-                $permission = new Permission();
+            if (check($title, $filter)) {
+                if (!array_key_exists($title, $titlePermissions)) {
+                    $permission = new Permission();
 
-                $permission->title = $title;
-                $permission->description = $description;
+                    $permission->title = $title;
+                    $permission->description = $description;
 
-                $permission->insert();
-            } else if ($titlePermissions[$title]->description != $description) {
-                $titlePermissions[$title]->description = $description;
-                $titlePermissions[$title]->update();
+                    $permission->insert();
+                } else if ($titlePermissions[$title]->description != $description) {
+                    $titlePermissions[$title]->description = $description;
+                    $titlePermissions[$title]->update();
+                }
+
+                unset($titlePermissions[$title]);
             }
-
-            unset($titlePermissions[$title]);
         }
 
         foreach ($titlePermissions as $permission)

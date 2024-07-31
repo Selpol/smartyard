@@ -78,7 +78,8 @@ return [
 
     'feature' => [
         'role' => [
-            'default_permissions' => explode(',', env('FEATURE_ROLE_PERMISSIONS', ''))
+            'filter_permissions' => explode(',', env('FEATURE_ROLE_FILTER_PERMISSIONS', '*')),
+            'default_permissions' => explode(',', env('FEATURE_ROLE_DEFAULT_PERMISSIONS', ''))
         ],
 
         'frs' => [
