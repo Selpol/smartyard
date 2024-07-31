@@ -18,7 +18,7 @@ readonly abstract class AuthenticationFeature extends Feature
     {
         $uid = $this->checkAuth($login, $password);
 
-        if ($uid !== false) {
+        if (is_int($uid)) {
             $auths = CoreAuth::fetchAll(criteria()->equal('user_id', $uid)->equal('status', 1));
 
             if (count($auths) > 5) {
@@ -48,7 +48,7 @@ readonly abstract class AuthenticationFeature extends Feature
             }
         }
 
-        return ["result" => false, "code" => 403, "error" => "forbidden", "message" => "Логин или пароль не верен"];
+        return ["result" => false, "code" => 403, "error" => "forbidden", "message" => $uid];
     }
 
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool

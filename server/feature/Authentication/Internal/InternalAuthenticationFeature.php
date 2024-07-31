@@ -3,20 +3,21 @@
 namespace Selpol\Feature\Authentication\Internal;
 
 use PDO;
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 
 readonly class InternalAuthenticationFeature extends AuthenticationFeature
 {
     public function checkAuth(string $login, string $password): int|bool
     {
-        $sth = $this->getDatabase()->getConnection()->prepare("select uid, password from core_users where login = :login and enabled = 1");
+        $user = CoreUser::fetch(criteria()->equal('login', $login)->equal('enabled', 1), setting: setting()->columns(['uid', 'password']));
 
-        $sth->execute([":login" => $login]);
+        if ($user == null)
+            return 'Пользователь не найден';
 
-        $res = $sth->fetchAll(PDO::FETCH_ASSOC);
+        if (!password_verify($password, $user->password))
+            return 'Пароль не верен';
 
-        if (count($res) == 1 && password_verify($password, $res[0]["password"]))
-            return $res[0]["uid"];
-        else return false;
+        return $user->uid;
     }
 }
