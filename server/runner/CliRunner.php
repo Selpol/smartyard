@@ -84,7 +84,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($command === 'password') $this->adminPassword($arguments['admin:password']);
             else echo $this->help('admin');
         } else if ($group === 'user') {
-            if ($command === 'password') $this->userPassword(intval($arguments['user:password']), $arguments['password']);
+            if ($command === 'password') $this->userPassword(intval($arguments['user:password']), $arguments['--password']);
             else echo $this->help('user');
         } else if ($group === 'cron') {
             if ($command === 'run') $this->cronRun($arguments);
@@ -772,6 +772,12 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result[] = implode(PHP_EOL, [
                 '',
                 'admin:password=<password>                      - Обновить пароль администратора'
+            ]);
+
+        if ($group === null || $group === 'user')
+            $result[] = implode(PHP_EOL, [
+                '',
+                'user:password=<id> --password=<password>       - Обновить пароль пользователя'
             ]);
 
         if ($group === null || $group === 'cron')
