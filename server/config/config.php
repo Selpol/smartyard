@@ -1,5 +1,7 @@
 <?php
 
+use Selpol\Feature\Oauth\Resource\ResourceOauthFeature;
+
 return [
     'language' => env('LANGUAGE', 'ru'),
 
@@ -127,6 +129,8 @@ return [
         ],
 
         'oauth' => [
+            'backend' => env('FEATURE_OAUTH_BACKEND', ResourceOauthFeature::class),
+
             'public_key' => env('FEATURE_OAUTH_PUBLIC_KEY'),
             'audience' => env('FEATURE_OAUTH_AUDIENCE'),
             'web_api' => env('FEATURE_OAUTH_WEB_API'),

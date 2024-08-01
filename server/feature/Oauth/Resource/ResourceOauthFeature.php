@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Feature\Oauth\Internal;
+namespace Selpol\Feature\Oauth\Resource;
 
 use Selpol\Feature\Oauth\OauthFeature;
 
-readonly class InternalOauthFeature extends OauthFeature
+readonly class ResourceOauthFeature extends OauthFeature
 {
     public function validateJwt(string $value): ?array
     {
