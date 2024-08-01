@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Service\AuthService;
 use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
 use Throwable;
@@ -23,17 +24,27 @@ readonly class house extends Api
         if ($flats)
             usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);
 
-        $house = [
-            "flats" => $flats,
-            "entrances" => $households->getEntrances("houseId", $params["_id"]),
-            "cameras" => $households->getCameras("houseId", $params["_id"]),
-            "domophoneModels" => IntercomModel::modelsToArray(),
-            "cmses" => IntercomCms::modelsToArray(),
-        ];
+        $house = ["flats" => $flats];
 
-        $house = ($house["flats"] !== false && $house["entrances"] !== false && $house["domophoneModels"] !== false && $house["cmses"] !== false) ? $house : false;
+        $service = container(AuthService::class);
 
-        if ($house)
+        if ($service->checkScope('houses-entrance-get')) {
+            $house['entrances'] = $households->getEntrances("houseId", $params["_id"]);
+        }
+
+        if ($service->checkScope('cameras-cameras-get')) {
+            $house['cameras'] = $households->getCameras("houseId", $params["_id"]);
+        }
+
+        if ($service->checkScope('intercom-model-get')) {
+            $house['domophoneModels'] = IntercomModel::modelsToArray();
+        }
+
+        if ($service->checkScope('houses-cms-get')) {
+            $house['cmses'] = IntercomCms::modelsToArray();
+        }
+
+        if ($house['flats'])
             return self::success($house);
 
         return self::error('Не удалось найти дом', 404);

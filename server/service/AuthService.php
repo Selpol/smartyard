@@ -14,6 +14,11 @@ class AuthService
     private ?AuthTokenInterface $token = null;
     private ?AuthUserInterface $user = null;
 
+    /**
+     * @var array<int, string[]>
+     */
+    private array $scopes = [];
+
     public function getToken(): ?AuthTokenInterface
     {
         return $this->token;
@@ -77,7 +82,10 @@ class AuthService
         if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions))
             return true;
 
-        $permissions = $role->getAllPermissionsForUser($id);
+        if (!array_key_exists($id, $this->scopes))
+            $this->scopes = $role->getAllPermissionsForUser($id);
+
+        $permissions = $this->scopes[$id];
 
         return in_array('*', $permissions) || in_array($value, $permissions);
     }
