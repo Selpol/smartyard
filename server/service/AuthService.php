@@ -83,7 +83,7 @@ class AuthService
             return true;
 
         if (!array_key_exists($id, $this->scopes))
-            $this->scopes = $role->getAllPermissionsForUser($id);
+            $this->scopes[$id] = $role->getAllPermissionsForUser($id);
 
         $permissions = $this->scopes[$id];
 
