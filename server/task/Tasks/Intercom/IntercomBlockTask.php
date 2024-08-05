@@ -35,7 +35,7 @@ class IntercomBlockTask extends Task
             $entrances = container(HouseFeature::class)->getEntrances('flatId', $block->flat_id);
 
             foreach ($entrances as $entrance) {
-                $intercomId = $entrance['house_domophone_id'];
+                $intercomId = $entrance['domophoneId'];
 
                 if (!array_key_exists($intercomId, $intercoms)) {
                     $intercom = container(DeviceService::class)->intercomById($intercomId);
