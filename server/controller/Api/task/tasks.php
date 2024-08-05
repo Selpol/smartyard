@@ -16,6 +16,7 @@ use Selpol\Task\Tasks\Intercom\Cms\IntercomSyncCmsTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
+use Selpol\Task\Tasks\Intercom\IntercomBlockTask;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
@@ -70,6 +71,7 @@ readonly class tasks extends Api
                 IntercomCmsFlatTask::class => '[Домофон] Синхронизация КМС Трубки',
                 IntercomDeleteFlatTask::class => '[Домофон] Удаление квартиры',
                 IntercomSyncFlatTask::class => '[Домофон] Синхронизация квартиры',
+                IntercomBlockTask::class => '[Домофон] Синхронизация блокировок КМС Трубок',
 
                 IntercomAddKeyTask::class => '[Домофон] Добавление ключ',
                 IntercomDeleteKeyTask::class => '[Домофон] Удаление ключ',

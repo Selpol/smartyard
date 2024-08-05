@@ -61,7 +61,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $flats = [];
 
         $progress = 15;
-        $delta = (50 - 15) / count($addresses);
+        $delta = (50 - $progress) / count($addresses);
 
         foreach ($addresses as $address)
             try {

@@ -41,6 +41,7 @@ readonly class audits extends Api
             'Selpol\\Task\\Tasks\\Intercom\\IntercomEntranceTask' => 'Задача синхронизации входа',
             'Selpol\\Task\\Tasks\\Intercom\\IntercomLevelTask' => 'Задача синхронизации уровня на домофоне',
             'Selpol\\Task\\Tasks\\Intercom\\IntercomUnlockTask' => 'Задача синхронизации реле на домофоне',
+            'Selpol\\Task\\Tasks\\Intercom\\IntercomBlockTask' => 'Задача синхронизации блокировок КМС Трубок',
             'Selpol\\Task\\Tasks\\Intercom\\Key\\IntercomHouseKeyTask' => 'Задача синхронизации ключей дома',
             'Selpol\\Task\\Tasks\\Intercom\\Key\\IntercomKeysKeyTask' => 'Задача синхронизация ключей',
             'Selpol\\Task\\Tasks\\QrTask' => 'Задача генерации QR-кода',

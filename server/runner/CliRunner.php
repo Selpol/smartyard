@@ -27,6 +27,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\DeviceService;
 use Selpol\Service\PrometheusService;
 use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
+use Selpol\Task\Tasks\Intercom\IntercomBlockTask;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
 use Selpol\Task\Tasks\Migration\MigrationUpTask;
@@ -108,6 +109,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($command === 'info') $this->deviceInfo();
             else if ($command === 'bitrate') $this->deviceBitrate(array_key_exists('vendor', $arguments) ? $arguments['vendor'] : null);
             else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
+            else if ($command === 'block') $this->deviceBlock();
             else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
             else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
             else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
@@ -724,6 +726,21 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
     }
 
+    private function deviceBlock(): void
+    {
+        $task = new IntercomBlockTask();
+
+        try {
+            $task->setProgressCallback(function (int|float $value) {
+                $this->getLogger()?->debug('Device block task process: ' . $value);
+            });
+
+            $task->onTask();
+        } catch (Throwable $throwable) {
+            $this->getLogger()?->error($throwable);
+        }
+    }
+
     private function deviceReboot(int $id): void
     {
         if ($device = intercom($id)) $device->reboot();
@@ -820,6 +837,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 'device:info                                    - Обновить информацию об домофонах',
                 'device:bitrate --vendor=<VENDOR>               - Обновить битрейт на камерах',
                 'device:sync=<id>                               - Синхронизация домофона',
+                'device:block                                   - Синхронизация блокировок КМС Трубок',
                 'device:call=<id>                               - Остановить звонки на домофоне',
                 'device:reboot=<id>                             - Перезапуск домофона',
                 'device:reset=<id>                              - Сбросить домофон'
