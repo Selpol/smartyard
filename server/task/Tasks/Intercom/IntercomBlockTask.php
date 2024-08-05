@@ -31,36 +31,40 @@ class IntercomBlockTask extends Task
         $delta = (100 - $progress) / count($blocks);
 
         foreach ($blocks as $block) {
-            $flat = HouseFlat::findById($block->flat_id)->flat;
-            $entrances = container(HouseFeature::class)->getEntrances('flatId', $block->flat_id);
+            try {
+                $flat = HouseFlat::findById($block->flat_id)->flat;
+                $entrances = container(HouseFeature::class)->getEntrances('flatId', $block->flat_id);
 
-            foreach ($entrances as $entrance) {
-                $intercomId = $entrance['domophoneId'];
+                foreach ($entrances as $entrance) {
+                    $intercomId = $entrance['domophoneId'];
 
-                if (!array_key_exists($intercomId, $intercoms)) {
-                    $intercom = container(DeviceService::class)->intercomById($intercomId);
+                    if (!array_key_exists($intercomId, $intercoms)) {
+                        $intercom = container(DeviceService::class)->intercomById($intercomId);
 
-                    try {
-                        if ($intercom->ping())
-                            $intercoms[$intercomId] = $intercom;
-                    } catch (Throwable) {
-                        $intercoms[$intercomId] = false;
+                        try {
+                            if ($intercom->ping())
+                                $intercoms[$intercomId] = $intercom;
+                        } catch (Throwable) {
+                            $intercoms[$intercomId] = false;
+                        }
                     }
-                }
 
-                if ($intercoms[$intercomId] === false) {
+                    if ($intercoms[$intercomId] === false) {
+                        $progress += $delta;
+
+                        $this->setProgress($progress);
+
+                        continue;
+                    }
+
+                    $intercoms[$intercomId]->setApartmentCms(intval($flat), false);
+
                     $progress += $delta;
 
                     $this->setProgress($progress);
-
-                    continue;
                 }
-
-                $intercoms[$intercomId]->setApartmentCms(intval($flat), false);
-
-                $progress += $delta;
-
-                $this->setProgress($progress);
+            } catch (Throwable $throwable) {
+                file_logger('intercom')->error($throwable);
             }
         }
 
