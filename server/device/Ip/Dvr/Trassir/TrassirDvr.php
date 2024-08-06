@@ -317,7 +317,7 @@ class TrassirDvr extends DvrDevice
             return null;
 
         if ($command === DvrCommand::PLAY && array_key_exists('seek', $arguments) && array_key_exists('from', $arguments) && array_key_exists('to', $arguments) && !is_null($arguments['to'])) {
-            $response = $this->get('/archive_command', ['command' => 'play', 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+            $response = $this->get('/archive_command', ['command' => 'play', 'direction' => 1, 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
 
             if (array_key_exists('success', $response) && $response['success'] == 1) {
                 if (array_key_exists('first_frame_ts', $response))
@@ -332,7 +332,7 @@ class TrassirDvr extends DvrDevice
 
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::SEEK && $arguments['seek']) {
-            $response = $this->get('/archive_command', ['command' => 'seek', 'direction' => 0, 'timestamp' => $arguments['seek'], 'token' => $arguments['token'], 'sid' => $this->getSid()]);
+            $response = $this->get('/archive_command', ['command' => 'seek', 'direction' => 1, 'timestamp' => $arguments['seek'], 'token' => $arguments['token'], 'sid' => $this->getSid()]);
 
             return array_key_exists('success', $response) && $response['success'] == 1;
         } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
@@ -350,17 +350,15 @@ class TrassirDvr extends DvrDevice
 
             return $response->getStatusCode() === 200;
         } else if ($command === DvrCommand::STATUS) {
-            $response = $this->get('/archive_command', ['type' => 'state', 'sid' => $this->getSid()]);
+            $response = $this->get('/archive_status', ['type' => 'state', 'sid' => $this->getSid()]);
 
             if (!is_array($response))
                 return null;
 
             foreach ($response as $value) {
-                if (array_key_exists('token', $value) && $value['token'] === $arguments['token'])
-                    return [
-                        'seek' => strtotime($value['time']),
-                        'speed' => (int)round($value['speed'])
-                    ];
+                if (array_key_exists('token', $value) && $value['token'] === $arguments['token']) {
+                    return ['seek' => strtotime($value['time']), 'speed' => intval($value['speed'])];
+                }
             }
         }
 

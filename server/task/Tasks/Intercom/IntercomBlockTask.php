@@ -50,19 +50,15 @@ class IntercomBlockTask extends Task
                     }
 
                     if ($intercoms[$intercomId] === false) {
-                        $progress += $delta;
-
-                        $this->setProgress($progress);
-
                         continue;
                     }
 
                     $intercoms[$intercomId]->setApartmentCms(intval($flat), false);
-
-                    $progress += $delta;
-
-                    $this->setProgress($progress);
                 }
+
+                $progress += $delta;
+
+                $this->setProgress($progress);
             } catch (Throwable $throwable) {
                 file_logger('intercom')->error($throwable);
             }
