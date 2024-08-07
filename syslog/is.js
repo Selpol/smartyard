@@ -63,6 +63,10 @@ syslog.on("message", async ({date, host, message}) => {
         const rfid = isMsg.split("RFID")[1].split(",")[0].trim();
 
         await API.openDoor({date: now, ip: host, detail: rfid, by: "rfid"});
+    } else if (/^Main door is opened by main reader, UUID [a-fA-F0-9]+, flat \d+$/.test(isMsg)) {
+        const rfid = isMsg.split("UUID")[1].split(",")[0].trim();
+
+        await API.openDoor({date: now, ip: host, detail: rfid, by: "rfid"});
     }
 
     // Opening door by personal code
