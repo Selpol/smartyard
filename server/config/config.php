@@ -46,8 +46,8 @@ return [
 
         'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
 
-        'user' => boolval(env('MOBILE_USER', false)),
-        'null' => boolval(env('MOBILE_NULL', false))
+        'user' => env('MOBILE_USER', '0') == '1',
+        'null' => env('MOBILE_NULL', '0') == '1',
     ],
 
     'db' => [
