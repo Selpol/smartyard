@@ -320,9 +320,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return $previous;
         }, []);
 
-        /** @var array<int, bool> $processed */
-        $processed = [];
-
         foreach ($entrances as $entrance) {
             $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
@@ -362,27 +359,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 );
 
                 if (array_key_exists($flat->flat, $apartments)) {
+                    unset($apartments[$flat->flat]);
+
                     if (!$apartment->equal($apartments[$flat->flat]))
                         $device->setApartment($apartment);
                 } else {
                     $device->addApartment($apartment);
-
-                    $apartments[$flat->flat] = $apartment;
                 }
-
-                $processed[$flat->flat] = true;
             }
 
             $progress += $delta;
             $this->setProgress($progress);
         }
 
-        $removed = array_filter(array_keys($apartments), static fn(int $value) => !array_key_exists($value, $processed));
-
-        foreach ($removed as $value) {
-            $device->removeApartment($apartments[$value]);
-
-            unset($apartments[$value]);
+        foreach ($apartments as $apartment) {
+            $device->removeApartment($apartment);
         }
     }
 
@@ -553,7 +544,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function commonSyslog(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void
     {
-        $server = uri(config('syslog_servers')[$deviceModel->syslog]);
+        $urls = config('syslog_servers')[$deviceModel->syslog];
+
+        $server = uri($urls[array_rand($urls)]);
 
         $syslog = $device->getSyslog();
 
