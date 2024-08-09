@@ -5,6 +5,8 @@ namespace Selpol\Task\Tasks\Intercom;
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\DeviceService;
@@ -45,15 +47,21 @@ class IntercomLevelTask extends IntercomTask
         try {
             $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
-            if (!$device)
+            if (!$device) {
                 return false;
+            }
 
-            if (!$device->ping())
+            if (!$device->ping()) {
                 throw new DeviceException($device, 'Устройство не доступно');
+            }
+
+            if (!$device instanceof CmsInterface) {
+                return false;
+            }
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
 
-            $device->setCmsLevels($cms_levels);
+            $device->setCmsLevels(new CmsLevels($cms_levels));
 
             return true;
         } catch (Throwable $throwable) {

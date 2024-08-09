@@ -4,6 +4,10 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
+use Selpol\Device\Ip\Intercom\Setting\Code\Code;
+use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -35,8 +39,13 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
 
             $this->setProgress(25);
 
-            if (!$device->ping())
+            if (!$device->ping()) {
                 throw new DeviceException($device, 'Устройство не доступно');
+            }
+
+            if (!$device instanceof ApartmentInterface) {
+                return false;
+            }
 
             $this->setProgress(50);
 
@@ -56,13 +65,18 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
                         $apartment = $flat_entrance['apartment'];
                 }
 
-                $device->setApartment(
+                $device->setApartment(new Apartment(
                     $apartment,
                     $entrance['shared'] ? false : $flat['cmsEnabled'],
+                    $entrance['shared'] ? false : $flat['cmsEnabled'],
+                    count($apartment_levels) > 0 ? $apartment_levels[0] : null,
+                    count($apartment_levels) > 1 ? $apartment_levels[1] : null,
                     $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
-                    $apartment_levels,
-                    intval($flat['openCode']) ?: 0
-                );
+                ));
+
+                if ($device instanceof CodeInterface) {
+                    $device->addCode(new Code(intval($flat['openCode']) ?: 0, $apartment->apartment));
+                }
             }
             return true;
         } catch (Throwable $throwable) {

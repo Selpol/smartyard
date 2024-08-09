@@ -3,10 +3,13 @@
 namespace Selpol\Device\Ip\Intercom\Is;
 
 use Selpol\Device\Ip\Intercom\IntercomCms;
+use Selpol\Device\Ip\Intercom\Setting\Common\DDns;
+use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
+use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;
 
 class Is5Intercom extends IsIntercom
 {
-    public function setVideoEncodingDefault(): static
+    public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
         $this->put('/camera/codec', [
             'Channels' => [
@@ -21,7 +24,7 @@ class Is5Intercom extends IsIntercom
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
-                    "MaxBitrate" => 2048
+                    "MaxBitrate" => $videoEncoding->primaryBitrate
                 ],
                 [
                     "Channel" => 1,
@@ -34,40 +37,25 @@ class Is5Intercom extends IsIntercom
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
-                    "MaxBitrate" => 512
+                    "MaxBitrate" => $videoEncoding->secondaryBitrate
                 ]
             ]
         ]);
-
-        return $this;
     }
 
-    public function setSyslog(string $server, int $port): static
+    public function setSyslog(Syslog $syslog): void
     {
-        $this->put('/v1/network/syslog', ['addr' => $server, 'port' => $port]);
-
-        return $this;
+        $this->put('/v1/network/syslog', ['addr' => $syslog->server, 'port' => $syslog->port]);
     }
 
-    public function setDDns(bool $value, array $options = []): static
+    public function setDDns(DDns $dDns): void
     {
-        if (!$value)
-            $this->put('/v1/ddns', ['enabled' => false]);
-
-        return $this;
+        $this->put('/v1/ddns', ['enabled' => $dDns->enable]);
     }
 
-    public function setDisplayText(string $title): static
+    public function clearCms(string $cms): void
     {
-        if ($title === "") $this->put('/panelDisplay/settings', ['strDisplay' => false]);
-        else $this->put('/panelDisplay/settings', ['strDisplay' => true, 'speed' => 500, 'imgStr' => $title]);
-
-        return $this;
-    }
-
-    public function clearCms(string $model): void
-    {
-        $cms = IntercomCms::model($model);
+        $cms = IntercomCms::model($cms);
 
         if (!$cms)
             return;

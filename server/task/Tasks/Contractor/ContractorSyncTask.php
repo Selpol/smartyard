@@ -3,6 +3,8 @@
 namespace Selpol\Task\Tasks\Contractor;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
@@ -195,17 +197,20 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                     }
                 }
 
-                foreach ($addKeys as $key)
-                    foreach ($intercoms as $intercom)
-                        $intercom->addRfidDeffer($key, $flat);
+                foreach ($intercoms as $intercom) {
+                    if ($intercom instanceof KeyInterface) {
+                        foreach ($addKeys as $key) {
+                            $intercom->addKey(new Key($key, $flat));
+                        }
 
-                if ($this->removeKey)
-                    foreach ($keysInFlat as $key => $value) {
-                        $houseFeature->deleteKey($value);
-
-                        foreach ($intercoms as $intercom)
-                            $intercom->removeRfidDeffer($key, $flat);
+                        if ($this->removeKey) {
+                            foreach ($keysInFlat as $key => $value) {
+                                $houseFeature->deleteKey($value);
+                                $intercom->removeKey(new Key($key, $flat));
+                            }
+                        }
                     }
+                }
             } catch (Throwable $throwable) {
                 file_logger('contractor')->error($throwable);
             } finally {
@@ -213,8 +218,5 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 $this->setProgress($progress);
             }
         }
-
-        foreach ($intercoms as $intercom)
-            $intercom->defferRfids();
     }
 }

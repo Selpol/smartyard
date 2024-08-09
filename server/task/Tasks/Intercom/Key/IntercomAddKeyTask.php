@@ -3,6 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom\Key;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Throwable;
@@ -51,7 +53,9 @@ class IntercomAddKeyTask extends Task
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
-            $device->addRfid($this->key, $flat);
+            if ($device instanceof KeyInterface) {
+                $device->addKey(new Key($this->key, $flat));
+            }
         } catch (Throwable) {
         }
     }

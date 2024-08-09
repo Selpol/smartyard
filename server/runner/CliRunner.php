@@ -107,7 +107,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             else echo $this->help('role');
         } else if ($group === 'device') {
             if ($command === 'info') $this->deviceInfo();
-            else if ($command === 'bitrate') $this->deviceBitrate(array_key_exists('vendor', $arguments) ? $arguments['vendor'] : null);
             else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
             else if ($command === 'block') $this->deviceBlock();
             else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
@@ -695,24 +694,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
     }
 
-    private function deviceBitrate(?string $vendor): void
-    {
-        $deviceIntercoms = DeviceIntercom::fetchAll();
-
-        foreach ($deviceIntercoms as $deviceIntercom) {
-            $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
-
-            try {
-                if ($vendor && $intercom->model->vendor !== $vendor || !$intercom->ping())
-                    continue;
-
-                $intercom->setVideoEncodingDefault();
-            } catch (Throwable $throwable) {
-                echo $throwable->getMessage() . PHP_EOL;
-            }
-        }
-    }
-
     private function deviceSync(int $id): void
     {
         try {
@@ -835,7 +816,6 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $result[] = implode(PHP_EOL, [
                 '',
                 'device:info                                    - Обновить информацию об домофонах',
-                'device:bitrate --vendor=<VENDOR>               - Обновить битрейт на камерах',
                 'device:sync=<id>                               - Синхронизация домофона',
                 'device:block                                   - Синхронизация блокировок КМС Трубок',
                 'device:call=<id>                               - Остановить звонки на домофоне',

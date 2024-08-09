@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Block\BlockFeature;
@@ -53,7 +54,9 @@ class IntercomBlockTask extends Task
                         continue;
                     }
 
-                    $intercoms[$intercomId]->setApartmentCms(intval($flat), false);
+                    if ($intercoms[$intercomId] instanceof ApartmentInterface) {
+                        $intercoms[$intercomId]->setApartmentHandset(intval($flat), false);
+                    }
                 }
 
                 $progress += $delta;

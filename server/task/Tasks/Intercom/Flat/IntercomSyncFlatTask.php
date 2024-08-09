@@ -3,6 +3,10 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
+use Selpol\Device\Ip\Intercom\Setting\Code\Code;
+use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Audit\AuditFeature;
@@ -59,6 +63,9 @@ class IntercomSyncFlatTask extends Task
             if (!$device->ping())
                 return;
 
+            if (!$device instanceof ApartmentInterface)
+                return;
+
             if ($this->userId >= 0)
                 container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ')');
 
@@ -75,24 +82,27 @@ class IntercomSyncFlatTask extends Task
                     $apartment = $flat_entrance['apartment'];
             }
 
-            $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
+            $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
+            $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
 
-            if ($this->add)
-                $device->addApartment(
-                    $apartment,
-                    $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),
-                    $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
-                    $apartment_levels,
-                    intval($flat['openCode']) ?: 0
-                );
-            else
-                $device->setApartment(
-                    $apartment,
-                    $entrance['shared'] ? false : ($block ? false : $flat['cmsEnabled']),
-                    $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
-                    $apartment_levels,
-                    intval($flat['openCode']) ?: 0
-                );
+            $apartment = new Apartment(
+                $apartment,
+                $entrance['shared'] ? false : ($blockCms ? false : $flat['cmsEnabled']),
+                $blockCall == null,
+                count($apartment_levels) > 0 ? $apartment_levels[0] : null,
+                count($apartment_levels) > 1 ? $apartment_levels[1] : null,
+                $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+            );
+
+            if ($this->add) {
+                $device->addApartment($apartment);
+            } else {
+                $device->setApartment($apartment);
+            }
+
+            if ($device instanceof CodeInterface) {
+                $device->addCode(new Code(intval($flat['openCode']) ?: 0, $apartment->apartment));
+            }
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 

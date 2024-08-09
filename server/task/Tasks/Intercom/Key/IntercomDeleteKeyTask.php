@@ -3,6 +3,8 @@
 namespace Selpol\Task\Tasks\Intercom\Key;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Throwable;
@@ -55,7 +57,9 @@ class IntercomDeleteKeyTask extends Task
 
             $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-            $device->removeRfid($this->key, $flat['flat']);
+            if ($device instanceof KeyInterface) {
+                $device->removeKey(new Key($this->key, $flat['flat']));
+            }
         } catch (Throwable) {
         }
     }

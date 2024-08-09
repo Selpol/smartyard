@@ -4,6 +4,8 @@ namespace Selpol\Controller\Api\intercom;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Service\AuthService;
@@ -28,10 +30,14 @@ readonly class reset extends Api
 
             switch ($validate['type']) {
                 case 'key':
-                    $intercom->clearRfid();;
+                    if ($intercom instanceof KeyInterface) {
+                        $intercom->clearKey();;
+                    }
                     break;
                 case 'apartment':
-                    $intercom->clearApartment();
+                    if ($intercom instanceof ApartmentInterface) {
+                        $intercom->clearApartments();
+                    }
                     break;
                 case 'reset':
                 default:

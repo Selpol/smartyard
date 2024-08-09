@@ -3,6 +3,8 @@
 namespace Selpol\Controller\Api\intercom;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
@@ -36,7 +38,9 @@ readonly class password extends Api
 
                     $username = sprintf('1%05d', $deviceIntercom->house_domophone_id);
 
-                    $intercom->setSip($username, $password, $sipServer->internal_ip, $sipServer->internal_port);
+                    if ($intercom instanceof SipInterface) {
+                        $intercom->setSip(new Sip($username, $password, $sipServer->internal_ip, $sipServer->internal_port));
+                    }
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
