@@ -122,7 +122,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $service->task($uuid, $task->title, 'done', $task->uid, $message);
 
-                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
+                $logger->info('Dequeue error task' . PHP_EOL . $throwable, ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
 
                 $task->setProgressCallback(null);
 

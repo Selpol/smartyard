@@ -45,8 +45,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function onTask(): bool
     {
-        $households = container(HouseFeature::class);
-
         $deviceIntercom = DeviceIntercom::findById($this->id, setting: setting()->nonNullable());
         $deviceModel = IntercomModel::model($deviceIntercom->model);
 
@@ -295,7 +293,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $cms = container(HouseFeature::class)->getCms($entrances[0]->house_entrance_id);
 
         foreach ($cms as $value)
-            $device->setCmsApartmentDeffer(new CmsApartment($value['cms'] + 1, $value['dozen'], $value['unit'], $value['apartment']));
+            $device->setCmsApartmentDeffer(new CmsApartment(intval($value['cms']) + 1, intval($value['dozen']), intval($value['unit']), intval($value['apartment'])));
 
         $device->defferCms();
     }
@@ -322,7 +320,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $processed = [];
 
         foreach ($entrances as $entrance) {
-            $houseFlats = $entrance->flats;
+            $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
+
+            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', $entrancesFlats));
 
             if (count($houseFlats) === 0)
                 continue;
