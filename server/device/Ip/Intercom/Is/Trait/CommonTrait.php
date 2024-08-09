@@ -55,7 +55,7 @@ trait CommonTrait
         if ($this->model->mifare) {
             $response = $this->get('/key/settings');
 
-            return new Mifare($response['encryption']['enable'] ?? false, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
+            return new Mifare(boolval($response['encryption']['enable']) ?? false, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
         }
 
         return new Mifare(false, '', 0);
