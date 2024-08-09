@@ -131,17 +131,6 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
         } else return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
 
-        if ($http_authorization && $auth) {
-            $params["_uid"] = $auth["uid"];
-
-            $params["_login"] = $auth["login"];
-            $params["_token"] = $auth["token"];
-        }
-
-        $params["_md5"] = md5(print_r($params, true));
-
-        $params["_ip"] = $ip;
-
         if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method']))) {
             try {
                 $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower($params['_request_method']));
