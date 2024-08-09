@@ -323,46 +323,40 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         foreach ($entrances as $entrance) {
             $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
-            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', $entrancesFlats));
+            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', array_map(static fn(array $flat) => $flat['house_flat_id'], $entrancesFlats)));
 
             if (count($houseFlats) === 0)
                 continue;
 
-            $entranceLevels = array_filter(
-                array_map(static fn(string $value) => intval($value), preg_split(',', $entrance->cms_levels)),
-                static fn(int $value) => $value
-            );
+            $entranceLevels = array_map(static fn(string $value) => intval($value), explode(',', $entrance->cms_levels ?? ''));
 
             foreach ($houseFlats as $flat) {
-                if (!array_key_exists($flat->flat, $flats))
-                    $flats[$flat->flat] = $flat;
+                if (!array_key_exists(intval($flat->flat), $flats))
+                    $flats[intval($flat->flat)] = $flat;
 
                 $flatEntrance = container(DatabaseService::class)->get('SELECT apartment, cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
 
                 if (!$flatEntrance)
                     throw new DeviceException($device, 'Вход к квартире не привязан');
 
-                $levels = array_filter(
-                    array_map(static fn(string $value) => intval($value), preg_split(',', $flatEntrance['cms_levels'])),
-                    static fn(int $value) => $value
-                );
+                $levels = array_map(static fn(string $value) => intval($value), explode(',', $flatEntrance['cms_levels'] ?? ''));
 
-                $block = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
+                $block = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
 
                 $apartment = new Apartment(
-                    $flat->flat,
-                    $entrance->shared ? false : ($block ? false : $flat->cms_enabled),
-                    $entrance->shared ? false : ($block ? false : $flat->sip_enabled),
+                    intval($flat->flat),
+                    !$entrance->shared && !$block && $flat->cms_enabled,
+                    !$entrance->shared && !$block && $flat->sip_enabled,
                     array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : null),
                     array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : null),
                     $entrance->shared || $block ? [] : [sprintf('1%09d', $flat->house_flat_id)]
                 );
 
-                if (array_key_exists($flat->flat, $apartments)) {
-                    unset($apartments[$flat->flat]);
-
-                    if (!$apartment->equal($apartments[$flat->flat]))
+                if (array_key_exists(intval($flat->flat), $apartments)) {
+                    if (!$apartment->equal($apartments[intval($flat->flat)]))
                         $device->setApartment($apartment);
+
+                    unset($apartments[intval($flat->flat)]);
                 } else {
                     $device->addApartment($apartment);
                 }
@@ -388,7 +382,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $delta = (90 - 80) / count($flats);
 
         foreach ($flats as $apartment => $flat) {
-            $flatKeys = HouseKey::fetchAll(criteria()->equal('access_to', $flat['flatId'])->equal('access_type', 2));
+            $flatKeys = HouseKey::fetchAll(criteria()->equal('access_to', $flat->house_flat_id)->equal('access_type', 2));
 
             /** @var array<string, Key> $keys */
             $keys = array_reduce($device->getKeys($apartment), static function (array $previous, Key $current) {
@@ -528,7 +522,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
 
             if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms))
-                $intercoms[$entrance->house_domophone_id] = $entrance->intercom;
+                $intercoms[$entrance->house_domophone_id] = DeviceIntercom::findById($entrance->house_domophone_id);
 
             if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $flat->flat)
                 $gates[count($gates) - 1]->end++;
@@ -538,7 +532,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 $flat->flat,
                 $flat->flat
             );
-
         }
     }
 

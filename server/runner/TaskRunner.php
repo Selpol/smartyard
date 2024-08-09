@@ -104,7 +104,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $task->onTask();
 
-                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => (microtime(true) - $time) / 1000]);
+                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => (microtime(true) * 1000 - $time) / 1000]);
 
                 $task->setProgressCallback(null);
 

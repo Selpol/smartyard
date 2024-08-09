@@ -82,13 +82,13 @@ class IntercomSyncFlatTask extends Task
                     $apartment = $flat_entrance['apartment'];
             }
 
-            $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
             $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
+            $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
 
             $apartment = new Apartment(
                 $apartment,
-                $entrance['shared'] ? false : ($blockCms ? false : $flat['cmsEnabled']),
-                $blockCall == null,
+                !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
+                !$entrance['shared'] && !$blockCall && $flat['sipEnabled'],
                 count($apartment_levels) > 0 ? $apartment_levels[0] : null,
                 count($apartment_levels) > 1 ? $apartment_levels[1] : null,
                 $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
