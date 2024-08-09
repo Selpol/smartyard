@@ -55,7 +55,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(1);
 
-        $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $this->id, 'output' => '0']);
+        $entrances = HouseEntrance::fetchAll(criteria()->equal('house_domophone_id', $this->id)->equal('domophone_output', 0));
 
         if (count($entrances) === 0)
             throw new KernelException('Устройство не привязанно к какому-то либо входу');
