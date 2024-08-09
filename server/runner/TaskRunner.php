@@ -104,11 +104,13 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $task->onTask();
 
-                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => (microtime(true) * 1000 - $time) / 1000]);
+                $elapsed = (microtime(true) * 1000 - $time);
+
+                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => $elapsed]);
 
                 $task->setProgressCallback(null);
 
-                $feature->add($task, 'OK', 1);
+                $feature->add($task, 'OK ' . round($elapsed / 1000, 2) . 's', 1);
 
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
