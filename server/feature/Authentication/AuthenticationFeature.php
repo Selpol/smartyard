@@ -12,13 +12,13 @@ use Selpol\Service\DatabaseService;
 #[Singleton(InternalAuthenticationFeature::class)]
 readonly abstract class AuthenticationFeature extends Feature
 {
-    public abstract function checkAuth(string $login, string $password): int|bool;
+    public abstract function checkAuth(string $login, string $password): string|int|bool;
 
     public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
         $uid = $this->checkAuth($login, $password);
 
-        if ($uid !== false) {
+        if (!is_string($uid)) {
             $auths = CoreAuth::fetchAll(criteria()->equal('user_id', $uid)->equal('status', 1));
 
             if (count($auths) > 5) {
@@ -46,9 +46,11 @@ readonly abstract class AuthenticationFeature extends Feature
 
                 return ["result" => true, "token" => $auth->token];
             }
+
+            return ["result" => false, "code" => 500, "error" => "error", "message" => "Не удалось завершить авторизацию"];
         }
 
-        return ["result" => false, "code" => 403, "error" => "forbidden"];
+        return ["result" => false, "code" => 403, "error" => "forbidden", "message" => $uid];
     }
 
     public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool

@@ -19,6 +19,7 @@ readonly class InternalTaskFeature extends TaskFeature
         $dbTask = new \Selpol\Entity\Model\Task();
 
         $dbTask->data = serialize($task);
+        $dbTask->class = get_class($task);
         $dbTask->title = $task->title;
         $dbTask->message = $message;
         $dbTask->status = $status;
@@ -43,40 +44,47 @@ readonly class InternalTaskFeature extends TaskFeature
         return false;
     }
 
+    public function getUniques(): array
+    {
+        $keys = $this->getRedis()->keys('task:unique:*');
+
+        return array_map(fn(string $key) => $this->getRedis()->get($key), $keys);
+    }
+
     public function setUnique(Task $task): void
     {
-//        if ($task instanceof TaskUniqueInterface) {
-//            $unique = $task->unique();
-//
-//            $this->getRedis()->setEx('task:unique:' . $unique[0], $unique[1], $unique[0]);
-//        }
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            $this->getRedis()->setEx('task:unique:' . $unique[0], $unique[1], $unique[0]);
+        }
     }
 
     public function hasUnique(Task $task): bool
     {
-//        if ($task instanceof TaskUniqueInterface) {
-//            $unique = $task->unique();
-//
-//            return $this->getRedis()->exist('task:unique:' . $unique[0]);
-//        }
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            return $this->getRedis()->exist('task:unique:' . $unique[0]);
+        }
 
         return false;
     }
 
     public function releaseUnique(Task $task): void
     {
-//        if ($task instanceof TaskUniqueInterface) {
-//            $unique = $task->unique();
-//
-//            $this->getRedis()->del('task:unique:' . $unique[0]);
-//        }
+        if ($task instanceof TaskUniqueInterface) {
+            $unique = $task->unique();
+
+            $this->getRedis()->del('task:unique:' . $unique[0]);
+        }
     }
 
     public function clearUnique(): void
     {
-//        $keys = $this->getRedis()->keys('task:unique:*');
-//
-//        if (count($keys))
-//            $this->getRedis()->del(...$keys);
+        $keys = $this->getRedis()->keys('task:unique:*');
+
+        if (count($keys))
+            $this->getRedis()->del(...$keys);
     }
 }

@@ -4,10 +4,10 @@ use Selpol\Cache\RedisCache;
 use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Client\Client;
 use Selpol\Framework\Container\ContainerConfigurator;
-use Selpol\Service\Database\EntityConnection;
+use Selpol\Service\Database\PDOEntityConnection;
 
 return static function (ContainerConfigurator $configurator) {
-    $configurator->entity(EntityConnection::class);
+    $configurator->entity(PDOEntityConnection::class);
 
     $configurator->singleton(FileCache::class);
     $configurator->singleton(RedisCache::class);

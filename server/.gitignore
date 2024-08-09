@@ -1,3 +1,10 @@
-.env
+.env*
+!.env.sample
+
 vendor
-supervisord.pid
+
+*.Dockerfile
+!Dev.Dockerfile
+
+docker-compose-*.yaml
+!docker-compose-dev.yaml

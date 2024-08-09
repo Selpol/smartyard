@@ -30,6 +30,10 @@ readonly class intercom extends Api
             'comment' => 'comment',
             'ip' => 'ip',
             'sos_number' => 'sosNumber',
+            'device_id' => 'deviceId',
+            'device_model' => 'deviceModel',
+            'device_software_version' => 'deviceSoftwareVersion',
+            'device_hardware_version' => 'deviceHardwareVersion',
             'hidden' => 'hidden'
         ]);
 

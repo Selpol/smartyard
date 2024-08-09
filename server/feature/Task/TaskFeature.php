@@ -14,6 +14,8 @@ readonly abstract class TaskFeature extends Feature
 
     public abstract function dispatch(int $id): bool;
 
+    public abstract function getUniques(): array;
+
     public abstract function setUnique(Task $task): void;
 
     public abstract function hasUnique(Task $task): bool;

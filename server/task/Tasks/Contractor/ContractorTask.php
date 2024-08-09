@@ -79,8 +79,12 @@ abstract class ContractorTask extends Task
         return array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $value), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
     }
 
-    protected function getOrCreateFlat(Contractor $contractor, int $address): HouseFlat
+    protected function getOrCreateFlat(Contractor $contractor, int $address): ?HouseFlat
     {
+        if (AddressHouse::findById($address) == null) {
+            return null;
+        }
+
         $flat = HouseFlat::fetch(criteria()->equal('address_house_id', $address)->equal('flat', $contractor->flat), setting: setting()->columns(['house_flat_id', 'flat']));
 
         if (!$flat) {
@@ -102,7 +106,7 @@ abstract class ContractorTask extends Task
 
                     return $previous;
                 }, []),
-                0,
+                null,
                 0,
                 time(),
                 0,

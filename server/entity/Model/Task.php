@@ -11,6 +11,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $data
  *
+ * @property string|null $class
+ *
  * @property string $title
  * @property string $message
  *
@@ -39,6 +41,8 @@ class Task extends Entity
             static::$columnId => rule()->id(),
 
             'data' => rule()->required()->nonNullable(),
+
+            'class' => rule()->string(),
 
             'title' => rule()->required()->string()->nonNullable(),
             'message' => rule()->required()->string()->clamp(0, 4096)->nonNullable(),

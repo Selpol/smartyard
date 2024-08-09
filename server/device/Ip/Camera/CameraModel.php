@@ -5,6 +5,7 @@ namespace Selpol\Device\Ip\Camera;
 use Selpol\Device\Ip\Camera\Beward\BewardCamera;
 use Selpol\Device\Ip\Camera\Fake\FakeCamera;
 use Selpol\Device\Ip\Camera\HikVision\HikVisionCamera;
+use Selpol\Device\Ip\Camera\Is\BlotchCamera;
 use Selpol\Device\Ip\Camera\Is\IsCamera;
 
 class CameraModel
@@ -53,6 +54,7 @@ class CameraModel
         if (!isset(self::$models))
             self::$models = [
                 'is' => new CameraModel('Sokol', 'IS', IsCamera::class),
+                'blotch' => new CameraModel('BLOTCH', 'IS', BlotchCamera::class),
                 'beward' => new CameraModel('Beward', 'BEWARD', BewardCamera::class),
                 'hikVision' => new CameraModel('HikVision', 'HIKVISION', HikVisionCamera::class),
 

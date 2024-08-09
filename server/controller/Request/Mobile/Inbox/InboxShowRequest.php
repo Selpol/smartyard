@@ -1,25 +1,25 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Mobile;
+namespace Selpol\Controller\Request\Mobile\Inbox;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int|null $messageId
+ * @property-read string $date
  */
-readonly class InboxReadRequest extends RouteRequest
+readonly class InboxShowRequest extends RouteRequest
 {
     public static function getValidate(): array
     {
         return [
-            'messageId' => rule()->int()->clamp(0)
+            'date' => rule()->required()->string()->nonNullable()
         ];
     }
 
     public static function getValidateTitle(): array
     {
         return [
-            'messageId' => 'Идентификатор'
+            'date' => 'Дата'
         ];
     }
 }

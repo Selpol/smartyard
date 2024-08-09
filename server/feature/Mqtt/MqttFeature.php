@@ -10,7 +10,10 @@ use SensitiveParameter;
 #[Singleton(InternalMqttFeature::class)]
 readonly abstract class MqttFeature extends Feature
 {
-    public const ACL_NONE = 0;
+    protected const TOPICS = [
+        'task' => self::ACL_READ | self::ACL_SUBSCRIBE,
+        'user' => self::ACL_READ | self::ACL_WRITE | self::ACL_SUBSCRIBE
+    ];
 
     public const ACL_READ = 1 << 0;
     public const ACL_WRITE = 1 << 1;

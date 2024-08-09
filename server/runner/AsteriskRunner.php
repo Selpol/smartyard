@@ -120,8 +120,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
-                        if (count($subscribers) > 0)
-                            echo json_encode($subscribers);
+                        echo json_encode($subscribers);
 
                         break;
 
@@ -197,7 +196,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 $address = implode(', ', array_slice($segments, 2));
                             else
                                 $address = $house->house_full;
-                        } catch (Throwable $throwable) {
+                        } catch (Throwable) {
                             $address = $house->house_full;
                         }
 
@@ -207,7 +206,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'hash' => $params['hash'],
                             'extension' => $params['extension'],
                             'server' => $server->external_ip,
-                            'port' => 5060,
+                            'port' => $server->external_port,
                             'transport' => 'tcp',
                             'dtmf' => $params['dtmf'],
                             'timestamp' => time(),

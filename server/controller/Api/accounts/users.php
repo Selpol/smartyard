@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\accounts;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Service\AuthService;
 
 readonly class users extends Api
 {
@@ -12,13 +13,17 @@ readonly class users extends Api
     {
         $users = container(UserFeature::class)->getUsers();
 
-        if ($users)
-            return self::success(array_map(static function (array $item) {
-                if ($item['phone'])
-                    $item['phone'] = mobile_mask($item['phone']);
+        if ($users) {
+            if (!container(AuthService::class)->checkScope('mobile-mask'))
+                return self::success(array_map(static function (array $item) {
+                    if ($item['phone'])
+                        $item['phone'] = mobile_mask($item['phone']);
 
-                return $item;
-            }, $users));
+                    return $item;
+                }, $users));
+
+            return self::success($users);
+        }
 
         return self::error('Пользователи не найдены', 404);
     }

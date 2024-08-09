@@ -1,0 +1,1 @@
+DROP INDEX core_auth_token;

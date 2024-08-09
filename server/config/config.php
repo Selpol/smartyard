@@ -1,5 +1,7 @@
 <?php
 
+use Selpol\Feature\Oauth\Resource\ResourceOauthFeature;
+
 return [
     'language' => env('LANGUAGE', 'ru'),
 
@@ -15,6 +17,13 @@ return [
 
     'asterisk' => [
         'trust' => explode(',', env('ASTERISK_TRUST', '127.0.0.1/32'))
+    ],
+
+    'clickhouse' => [
+        'endpoint' => env('CLICKHOUSE_ENDPOINT', 'http://127.0.0.1:8123?database=default'),
+
+        'username' => env('CLICKHOUSE_USERNAME', 'default'),
+        'password' => env('CLICKHOUSE_PASSWORD', 'password')
     ],
 
     'mqtt' => [
@@ -35,7 +44,10 @@ return [
         'web_server_base_path' => env('MOBILE_STATIC', 'http://127.0.0.1/static'),
         'time_zone' => env('MOBILE_TIMEZONE', 'Europe/Moscow'),
 
-        'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32'))
+        'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
+
+        'user' => env('MOBILE_USER', '0') == '1',
+        'null' => env('MOBILE_NULL', '0') == '1',
     ],
 
     'db' => [
@@ -68,7 +80,8 @@ return [
 
     'feature' => [
         'role' => [
-            'default_permissions' => explode(',', env('FEATURE_ROLE_PERMISSIONS', ''))
+            'filter_permissions' => explode(',', env('FEATURE_ROLE_FILTER_PERMISSIONS', '*')),
+            'default_permissions' => explode(',', env('FEATURE_ROLE_DEFAULT_PERMISSIONS', ''))
         ],
 
         'frs' => [
@@ -91,7 +104,9 @@ return [
         ],
 
         'file' => [
-            'database' => env('FEATURE_FILES_DB', 'rbt')
+            'database' => env('FEATURE_FILES_DB', 'rbt'),
+
+            'cron_sync_data_scheduler' => 'daily'
         ],
 
         'archive' => [
@@ -114,6 +129,8 @@ return [
         ],
 
         'oauth' => [
+            'backend' => env('FEATURE_OAUTH_BACKEND', ResourceOauthFeature::class),
+
             'public_key' => env('FEATURE_OAUTH_PUBLIC_KEY'),
             'audience' => env('FEATURE_OAUTH_AUDIENCE'),
             'web_api' => env('FEATURE_OAUTH_WEB_API'),

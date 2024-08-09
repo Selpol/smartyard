@@ -7,6 +7,7 @@ use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
+use Throwable;
 
 abstract class IntercomDevice extends IpDevice
 {
@@ -24,12 +25,12 @@ abstract class IntercomDevice extends IpDevice
         return false;
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
-        return 0;
+        return $info ? ['resist' => 0, 'status' => 'Не определено'] : 0;
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         return [];
     }
@@ -208,6 +209,11 @@ abstract class IntercomDevice extends IpDevice
         return $this;
     }
 
+    public function setDoorOpenSipFail(bool $value): static
+    {
+        return $this;
+    }
+
     public function setDisplayText(string $title): static
     {
         return $this;
@@ -314,6 +320,33 @@ abstract class IntercomDevice extends IpDevice
 
     public function deffer(): void
     {
+    }
+
+    /**
+     * @psalm-return array<{ping: bool, sleep: int}>
+     */
+    public function getIntercomSetting(): array
+    {
+        try {
+            $coreVar = CoreVar::getRepository()->findByName('intercom.setting');
+
+            if (!$coreVar)
+                return ['ping' => true, 'sleep' => 0];
+
+            $value = json_decode($coreVar->var_value, true);
+
+            if (!is_array($value))
+                return ['ping' => true, 'sleep' => 0];
+
+            return [
+                'ping' => array_key_exists('ping', $value) ? $value['ping'] : true,
+                'sleep' => array_key_exists('sleep', $value) ? $value['sleep'] : 0
+            ];
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
+
+            return ['ping' => true, 'sleep' => 0];
+        }
     }
 
     private function getIntercomClean(): array

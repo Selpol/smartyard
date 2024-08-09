@@ -4,6 +4,7 @@ namespace Selpol\Runner;
 
 use Exception;
 use Selpol\Feature\Task\TaskFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
@@ -88,19 +89,18 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $prometheus = container(PrometheusService::class);
 
             $counter = $prometheus->getCounter('task', 'count', 'Task count', ['class', 'status']);
-            $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [1, 2, 5, 10, 15, 25, 50, 100, 250, 500]);
+            $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 10000, 25000, 50000, 100000]);
 
             $uuid = guid_v4();
 
             $time = microtime(true) * 1000;
 
             try {
-                $service->task($uuid, $task->title, 'start', 0);
+                $service->task($uuid, $task->title, 'start', $task->uid, 0);
 
-                $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $progress));
+                $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
 
                 $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
-                $time = microtime(true);
 
                 $task->onTask();
 
@@ -112,21 +112,31 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
+
+                $service->task($uuid, $task->title, 'done', $task->uid, 'OK');
             } catch (Throwable $throwable) {
-                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $throwable->getMessage()]);
+                $message = $throwable instanceof KernelException ? $throwable->getLocalizedMessage() : $throwable->getMessage();
+
+                if ($message == '')
+                    $message = $throwable->getMessage();
+
+                $service->task($uuid, $task->title, 'done', $task->uid, $message);
+
+                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
 
                 $task->setProgressCallback(null);
 
-                $feature->add($task, $throwable->getMessage(), 0);
+                $feature->add($task, $message, 0);
 
-                $task->onError($throwable);
+                try {
+                    $task->onError($throwable);
+                } catch (Throwable) {
+                }
 
                 $counter->incBy(1, [$task::class, false]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, false]);
             } finally {
                 $feature->releaseUnique($task);
-
-                $service->task($uuid, $task->title, 'done', 100);
             }
         });
     }

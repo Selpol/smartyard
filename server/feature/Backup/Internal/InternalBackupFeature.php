@@ -99,25 +99,56 @@ readonly class InternalBackupFeature extends BackupFeature
     {
         $database->modify('TRUNCATE ' . $table . ' CASCADE');
 
-        $query = 'INSERT INTO ' . $table . '(' . implode(', ', $columns) . ') VALUES (';
+        $last = false;
 
-        while ($row = $reader->row()) {
-            $rowQuery = $query;
+        while (true) {
+            $rows = [];
 
-            $rowQuery .= implode(', ', array_map(static function (mixed $column) {
-                if (is_string($column))
-                    return '\'' . $column . '\'';
-                else if (is_bool($column))
-                    return $column ? 'true' : 'false';
-                else if (is_null($column))
-                    return 'null';
+            if (!$last) {
+                while (true) {
+                    $row = $reader->row();
 
-                return $column;
-            }, $row));
+                    if (!$row) {
+                        $last = true;
 
-            $rowQuery .= ')';
+                        break;
+                    }
 
-            $database->insert($rowQuery);
+                    $rows[] = $row;
+
+                    if (count($rows) == 1000) {
+                        break;
+                    }
+                }
+            }
+
+            if (count($rows) == 0) {
+                break;
+            }
+
+            $query = 'INSERT INTO ' . $table . '(' . implode(', ', $columns) . ') VALUES';
+
+            for ($i = 0; $i < count($rows); $i++) {
+                if ($i != 0)
+                    $query .= ',';
+
+                $query .= ' (';
+
+                $query .= implode(', ', array_map(static function (mixed $column) use ($database) {
+                    if (is_string($column))
+                        return $database->quote($column);
+                    else if (is_bool($column))
+                        return $column ? 'true' : 'false';
+                    else if (is_null($column))
+                        return 'null';
+
+                    return $column;
+                }, $rows[$i]));
+
+                $query .= ')';
+            }
+
+            $database->insert($query);
         }
     }
 

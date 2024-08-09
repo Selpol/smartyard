@@ -114,7 +114,7 @@ class FlussonicDvr extends DvrDevice
                 );
             }
         } else if ($stream === DvrStream::ARCHIVE) {
-            $timeline = $this->timeline($identifier, $camera, []);
+            $timeline = $this->timeline($identifier, $camera, ['short' => true]);
 
             if (!$timeline)
                 return null;
@@ -135,6 +135,33 @@ class FlussonicDvr extends DvrDevice
 
     public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
     {
+        if (!array_key_exists('short', $arguments)) {
+            $from = time() - 86400 * 60;
+            $to = time() + 60;
+
+            $response = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value . '&from=' . $from . '&to=' . $to . '&request=ranges');
+
+            if (!$response || !is_array($response))
+                return null;
+
+            /** @var array|null $ranges */
+            $ranges = null;
+
+            foreach ($response as $value) {
+                if ($value['stream'] == $camera->dvr_stream) {
+                    if (array_key_exists('ranges', $value))
+                        $ranges = $value['ranges'];
+
+                    break;
+                }
+            }
+
+            if (!$ranges)
+                return null;
+
+            return array_map(static fn(array $value) => [$value['from'], $value['from'] + $value['duration']], $ranges);
+        }
+
         /** @var array<string, array<string, int>> $timeline */
         $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
 

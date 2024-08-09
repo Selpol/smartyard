@@ -16,7 +16,7 @@ readonly class login extends Api
         if ($auth['result'])
             return self::success($auth['token']);
 
-        return self::error('Не удалось войти', 401);
+        return self::error(array_key_exists('message', $auth) ? $auth['message'] : 'Не удалось войти', 401);
     }
 
     public static function index(): bool|array

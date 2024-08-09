@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   nginx:
@@ -6,11 +6,13 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+      - "9001:9001"
     volumes:
       - ./docker/nginx/dev-nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - php
     networks:
+      backend:
       frontend:
   database:
     image: postgres:15-alpine
@@ -36,6 +38,14 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
+    networks:
+      backend:
+  clickhouse:
+    image: bitnami/clickhouse:23.8.15
+    ports:
+      - "8123:8123"
+    environment:
+      - CLICKHOUSE_ADMIN_PASSWORD=${CLICKHOUSE_PASSWORD}
     networks:
       backend:
   amqp:
@@ -75,13 +85,14 @@ services:
       - AMQP_PORT=5672
       - MQTT_HOST=mqtt
       - MQTT_PORT=1883
+      - CLICKHOUSE_ENDPOINT=http://clickhouse:8123?database=default
     depends_on:
       - database
       - redis
       - amqp
+      - mqtt
     networks:
       backend:
-      frontend:
 
 networks:
   frontend:

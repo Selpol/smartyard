@@ -5,6 +5,7 @@ namespace Selpol\Controller\Mobile;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
+use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
@@ -46,6 +47,41 @@ readonly class CameraController extends RbtController
         return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
     }
 
+    #[Get(
+        '/show/{id}',
+        includes: [
+            FlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id'],
+            BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
+            BlockFlatMiddleware::class => ['flat' => 'flat_id', 'house' => 'house_id', 'services' => [BlockFeature::SERVICE_CCTV]]
+        ]
+    )]
+    public function get(CameraGetRequest $request, int $id): ResponseInterface
+    {
+        $camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'name']));
+
+        if (!$camera)
+            return user_response(404, message: 'Камера не найдена');
+
+        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
+            return user_response(404, message: 'Доступа к камере нет');
+
+        $response = $camera->toArrayMap([
+            'camera_id' => 'id',
+            'name' => 'name',
+        ]);
+
+        if (!is_null($request->house_id))
+            $response['houseId'] = $request->house_id;
+
+        if (!is_null($request->flat_id))
+            $response['flatId'] = $request->flat_id;
+
+        if (!is_null($request->entrance_id))
+            $response['entranceId'] = $request->entrance_id;
+
+        return user_response(data: $response);
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      */
@@ -54,7 +90,7 @@ readonly class CameraController extends RbtController
     {
         $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1), setting()->columns(['camera_id', 'name', 'lat', 'lon']));
 
-        return user_response(data: $cameras)
+        return user_response(data: array_map(static fn(DeviceCamera $camera) => $camera->toArrayMap(['camera_id' => 'id', 'name' => 'name', 'lat' => 'lat', 'lon' => 'lon']), $cameras))
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);

@@ -7,11 +7,11 @@ use Selpol\Framework\Entity\Database\EntityConnectionInterface;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\DatabaseService;
 
-readonly class EntityConnection implements EntityConnectionInterface
+readonly class PDOEntityConnection implements EntityConnectionInterface
 {
     public function statement(string $value): EntityStatementInterface
     {
-        return new EntityStatement($this->getConnection()->prepare($value));
+        return new PDOEntityStatement($this->getConnection()->prepare($value));
     }
 
     public function lastInsertId(string $value): mixed

@@ -5,8 +5,11 @@ namespace Selpol\Controller\Api\accounts;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreUser;
+use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Feature\User\UserFeature;
+use Selpol\Service\AuthService;
 use Selpol\Service\RedisService;
+use Throwable;
 
 readonly class user extends Api
 {
@@ -15,7 +18,7 @@ readonly class user extends Api
         $user = container(UserFeature::class)->getUser($params["_id"]);
 
         if ($user) {
-            if ($user['phone'])
+            if ($user['phone'] && !container(AuthService::class)->checkScope('mobile-mask'))
                 $user['phone'] = mobile_mask($user['phone']);
 
             return self::success($user);
@@ -34,6 +37,14 @@ readonly class user extends Api
         $user->real_name = $params['realName'];
         $user->e_mail = $params['eMail'];
         $user->phone = $params['phone'];
+
+        try {
+            $id = container(OauthFeature::class)->register($params['phone']);
+
+            if ($id)
+                $user->aud_jti = $id;
+        } catch (Throwable) {
+        }
 
         if ($user->insert())
             return self::success($user->uid);
@@ -65,8 +76,17 @@ readonly class user extends Api
         $user->real_name = $params['realName'];
         $user->e_mail = $params['eMail'];
 
-        if (str_contains($params['phone'], '*'))
+        if (!str_contains($params['phone'], '*')) {
             $user->phone = $params['phone'];
+
+            try {
+                $id = container(OauthFeature::class)->register($params['phone']);
+
+                if ($id)
+                    $user->aud_jti = $id;
+            } catch (Throwable) {
+            }
+        }
 
         $user->tg = $params['tg'];
         $user->notification = $params['notification'];

@@ -14,6 +14,7 @@ use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Service\DeviceService;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -30,6 +31,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         parent::__construct($id, 'Настройка домофона (' . $id . ')');
     }
 
+    /**
+     * @throws Throwable
+     */
     public function onTask(): bool
     {
         $households = container(HouseFeature::class);
@@ -58,9 +62,14 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $asterisk_server = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
         $panel_text = $entrances[0]['callerId'];
+        $entranceType = $entrances[0]['entranceType'];
 
         try {
             $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
+            $setting = $device->getIntercomSetting();
+
+            $device->ping = $setting['ping'];
+            $device->sleep = $setting['sleep'];
 
             if (!$device)
                 return false;
@@ -68,14 +77,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if (!$device->ping())
                 throw new DeviceException($device, 'Устройство не доступно');
 
+            $info = $device->getSysInfo();
+
+            $deviceIntercom->device_id = $info['DeviceID'];
+            $deviceIntercom->device_model = $info['DeviceModel'];
+            $deviceIntercom->device_software_version = $info['SoftwareVersion'];
+            $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+
             if ($deviceIntercom->first_time == 0) {
                 $device->prepare();
 
                 $deviceIntercom->first_time = 1;
-
-                $deviceIntercom->update();
-                $deviceIntercom->refresh();
             }
+
+            $deviceIntercom->update();
+            $deviceIntercom->refresh();
 
             $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
             $cms_model = IntercomCms::model($entrances[0]['cms']);
@@ -94,7 +110,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if ($is_shared)
                 $device->setGate($links);
 
-            $this->common($panel_text, $entrances, $device);
+            $this->common($entranceType, $panel_text, $entrances, $device);
 
             $device->deffer();
 
@@ -111,7 +127,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable, ['id' => $this->id]);
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw $throwable;
         }
     }
 
@@ -121,7 +137,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $sip_username = sprintf("1%05d", $deviceIntercom->house_domophone_id);
         $sip_server = $asterisk_server->internal_ip;
-        $sip_port = 5060;
+        $sip_port = $asterisk_server->internal_port;
 
         $main_door_dtmf = $deviceIntercom->dtmf;
 
@@ -202,8 +218,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function common(string $panel_text, array $entrances, IntercomDevice $device): void
+    private function common(string $entranceType, string $panel_text, array $entrances, IntercomDevice $device): void
     {
+//        $device->setUnlockSip($entranceType == 'wicket');
         $device->setMotionDetection(4, 0, 0, 704, 576);
         $device->setVideoOverlay($panel_text);
         $device->unlock($entrances[0]['locksDisabled']);

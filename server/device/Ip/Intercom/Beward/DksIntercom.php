@@ -31,17 +31,19 @@ class DksIntercom extends IntercomDevice
         return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] == true || array_key_exists('AccountReg2', $response) && $response['AccountReg2'] == true;
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
-        return (int)$this->get('/cgi-bin/intercom_cgi', ['action' => 'linelevel', 'Apartment' => $apartment]);
+        $value = (int)$this->get('/cgi-bin/intercom_cgi', ['action' => 'linelevel', 'Apartment' => $apartment]);
+
+        return $info ? ['resist' => $value, 'status' => 'Не определено'] : $value;
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         $result = [];
 
         for ($i = $from; $i <= $to; $i++)
-            $result[$i] = ['resist' => $this->getLineDialStatus($i)];
+            $result[$i] = $info ? $this->getLineDialStatus($i, true) : ['resist' => $this->getLineDialStatus($i, false)];
 
         return $result;
     }
@@ -51,7 +53,7 @@ class DksIntercom extends IntercomDevice
         $result = [];
 
         if ($this->model->mifare)
-            $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/mifare_cgi', ['action' => 'list'], parse: false));
+            $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'list'], parse: false));
         else
             $rfids = $this->parseParamValueHelp($this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: false));
 
@@ -192,7 +194,7 @@ class DksIntercom extends IntercomDevice
             'quality' => '1',
             'iq' => '1',
             'rc' => '1',
-            'bitrate' => '2048',
+            'bitrate' => '1536',
             'frmrate' => '25',
             'frmintr' => '25',
             'first' => '0',
@@ -408,6 +410,11 @@ class DksIntercom extends IntercomDevice
         return $this->setIntercomHelp('DoorOpenTime', $time);
     }
 
+    public function setDoorOpenSipFail(bool $value): static
+    {
+        return $this->setIntercomHelp('DoorOpenSipFail', $value ? 'on' : 'off');
+    }
+
     public function setDisplayText(string $title): static
     {
         $this->post('/cgi-bin/display_cgi', ['action' => 'set', 'TickerEnable' => $title ? 'on' : 'off', 'TickerText' => $title, 'TickerTimeout' => 125, 'LineEnable1' => 'off', 'LineEnable2' => 'off', 'LineEnable3' => 'off', 'LineEnable4' => 'off', 'LineEnable5' => 'off']);
@@ -469,8 +476,8 @@ class DksIntercom extends IntercomDevice
     public function clearRfid(): void
     {
         if ($this->model->mifare) {
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'clear']);
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'delete', 'Apartment' => 0]);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'clear']);
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Apartment' => 0]);
         } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'clear']);
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Apartment' => 0]);

@@ -8,7 +8,6 @@ use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
 use Selpol\Service\Exception\DatabaseException;
-use Throwable;
 
 #[Singleton]
 class DatabaseService implements ContainerDisposeInterface
@@ -31,6 +30,11 @@ class DatabaseService implements ContainerDisposeInterface
     public function __call(string $name, array $arguments)
     {
         return call_user_func([$this->connection, $name], $arguments);
+    }
+
+    public function quote(string $value): string
+    {
+        return $this->connection->quote($value);
     }
 
     /**

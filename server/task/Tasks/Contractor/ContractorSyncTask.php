@@ -6,61 +6,82 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
+use Selpol\Task\TaskUniqueInterface;
+use Selpol\Task\Trait\TaskUniqueTrait;
 use Throwable;
 
-class ContractorSyncTask extends ContractorTask
+class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 {
-    public function __construct(int $id)
+    use TaskUniqueTrait;
+
+    public $taskUniqueTtl = 600;
+
+    public bool $removeSubscriber;
+    public bool $removeKey;
+
+    public function __construct(int $id, bool $removeSubscriber, bool $removeKey)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
+
+        $this->removeSubscriber = $removeSubscriber;
+        $this->removeKey = $removeKey;
     }
 
     public function onTask(): bool
     {
-        try {
-            $contractor = $this->getContractor();
+        $contractor = $this->getContractor();
 
-            $addressesGroup = $this->getAddressesList();
+        $addressesGroup = $this->getAddressesList();
 
-            if (count($addressesGroup) === 0)
-                return true;
+        if (count($addressesGroup) === 0)
+            return true;
 
-            $subscribersGroup = $this->getSubscribersList();
-            $keysGroup = $this->getKeysList();
+        $this->setProgress(5);
 
-            if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
-                return true;
+        $subscribersGroup = $this->getSubscribersList();
+        $keysGroup = $this->getKeysList();
 
-            $addresses = $this->getUniqueAddressesIds($addressesGroup);
-            $subscribers = $this->getUniqueSubscribersIdsAndRoles($subscribersGroup);
-            $keys = $this->getUniqueKeys($keysGroup);
+        if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
+            return true;
 
-            /** @var array<int, bool> $devices */
-            $devices = [];
+        $this->setProgress(10);
 
-            /** @var array<int, int> $flats */
-            $flats = [];
+        $addresses = $this->getUniqueAddressesIds($addressesGroup);
+        $subscribers = $this->getUniqueSubscribersIdsAndRoles($subscribersGroup);
+        $keys = $this->getUniqueKeys($keysGroup);
 
-            foreach ($addresses as $address)
-                try {
-                    $this->address($contractor, $address, $subscribers, $devices, $flats);
-                } catch (Throwable $throwable) {
-                    file_logger('contract')->error($throwable);
-                }
+        $this->setProgress(15);
 
+        /** @var array<int, bool> $devices */
+        $devices = [];
+
+        /** @var array<int, int> $flats */
+        $flats = [];
+
+        $progress = 15;
+        $delta = (50 - $progress) / count($addresses);
+
+        foreach ($addresses as $address)
             try {
-                $this->keys($contractor, $devices, $flats, $keys);
+                $this->address($contractor, $address, $subscribers, $devices, $flats);
+
+                $progress += $delta;
+                $this->setProgress($progress);
             } catch (Throwable $throwable) {
                 file_logger('contract')->error($throwable);
             }
 
-            return true;
+        $this->setProgress(50);
+
+        try {
+            $this->keys($contractor, $devices, $flats, $keys);
         } catch (Throwable $throwable) {
             file_logger('contract')->error($throwable);
-
-            return false;
         }
+
+        return true;
     }
 
     /**
@@ -74,6 +95,10 @@ class ContractorSyncTask extends ContractorTask
     private function address(Contractor $contractor, int $address, array $subscribers, array &$devices, array &$flats): void
     {
         $flat = $this->getOrCreateFlat($contractor, $address);
+
+        if ($flat == null) {
+            return;
+        }
 
         $flats[$flat->house_flat_id] = intval($flat->flat);
 
@@ -105,8 +130,10 @@ class ContractorSyncTask extends ContractorTask
 
         foreach ($subscribers as $subscriber) {
             if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
-                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                if (HouseSubscriber::findById($subscriber[0]) !== null) {
+                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                }
 
                 unset($subscribersInFlat[$subscriber[0]]);
             } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]))
@@ -115,8 +142,9 @@ class ContractorSyncTask extends ContractorTask
                 file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
         }
 
-        foreach ($subscribersInFlat as $key => $_)
-            $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
+        if ($this->removeSubscriber)
+            foreach ($subscribersInFlat as $key => $_)
+                $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
     }
 
     /**
@@ -133,36 +161,56 @@ class ContractorSyncTask extends ContractorTask
         /** @var IntercomDevice[] $intercoms */
         $intercoms = array_filter(array_map(static fn(int $id) => intercom($id), array_keys($devices)), static fn(IntercomDevice $device) => $device->ping());
 
+        $progress = 50;
+        $delta = (100 - 50) / count($flats);
+
         foreach ($flats as $id => $flat) {
-            /** @var array<string, int> $keysInFlat */
-            $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
-                $previous[$current['rfId']] = $current['keyId'];
+            try {
+                /** @var array<string, int> $keysInFlat */
+                $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
+                    $previous[$current['rfId']] = $current['keyId'];
 
-                return $previous;
-            }, []);
+                    return $previous;
+                }, []);
 
-            foreach ($keys as $key) {
-                if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
-                else {
-                    (new HouseKey([
-                        'rfid' => $key,
+                $addKeys = [];
 
-                        'access_type' => 2,
-                        'access_to' => $id,
+                foreach ($keys as $key) {
+                    if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
+                    else {
+                        try {
+                            (new HouseKey([
+                                'rfid' => $key,
 
-                        'comments' => 'Ключ (' . $contractor->title . ')'
-                    ]))->insert();
+                                'access_type' => 2,
+                                'access_to' => $id,
 
+                                'comments' => 'Ключ (' . $contractor->title . ')'
+                            ]))->insert();
+
+                            $addKeys[] = $key;
+                        } catch (Throwable $throwable) {
+                            file_logger('contractor')->error($throwable);
+                        }
+                    }
+                }
+
+                foreach ($addKeys as $key)
                     foreach ($intercoms as $intercom)
                         $intercom->addRfidDeffer($key, $flat);
-                }
-            }
 
-            foreach ($keysInFlat as $key => $value) {
-                $houseFeature->deleteKey($value);
+                if ($this->removeKey)
+                    foreach ($keysInFlat as $key => $value) {
+                        $houseFeature->deleteKey($value);
 
-                foreach ($intercoms as $intercom)
-                    $intercom->removeRfidDeffer($key, $flat);
+                        foreach ($intercoms as $intercom)
+                            $intercom->removeRfidDeffer($key, $flat);
+                    }
+            } catch (Throwable $throwable) {
+                file_logger('contractor')->error($throwable);
+            } finally {
+                $progress += $delta;
+                $this->setProgress($progress);
             }
         }
 

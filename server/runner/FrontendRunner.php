@@ -99,16 +99,14 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $params += $request->getQueryParams();
 
         if (count($_POST)) {
-            foreach ($_POST as $key => $value)
-                if ($key == '_token') $http_authorization = 'Bearer ' . urldecode($value);
-                else $params[$key] = urldecode($value);
+            foreach ($_POST as $key => $value) {
+                $params[$key] = urldecode($value);
+            }
         }
 
         $body = $request->getParsedBody();
 
         if (is_array($body)) {
-            if (array_key_exists('_token', $body)) $http_authorization = 'Bearer ' . $body['_token'];
-
             $params += $body;
         }
 
@@ -129,7 +127,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (!$auth)
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
 
-            container(AuthService::class)->setToken(new CoreAuthToken($auth['token']));
+            container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], null));
             container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
         } else return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
 

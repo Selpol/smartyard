@@ -20,12 +20,16 @@ readonly class RateLimitMiddleware extends RouteMiddleware
 
     private bool $request;
 
+    private bool $null;
+
     public function __construct(array $config)
     {
         $this->trust = $config['trust'];
 
         $this->count = $config['count'];
         $this->ttl = $config['ttl'];
+
+        $this->null = $config['null'];
 
         $this->request = $config['request'] ?? false;
     }
@@ -35,13 +39,24 @@ readonly class RateLimitMiddleware extends RouteMiddleware
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $redis = container(RedisService::class)->getConnection();
+
+        if (is_null($redis)) {
+            if (!$this->null) {
+                $ttl = 5;
+
+                return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
+                    ->withHeader('Retry-After', $ttl);
+            }
+
+            return $handler->handle($request);
+        }
+
         $ip = connection_ip($request);
 
         foreach ($this->trust as $item)
             if (ip_in_range($ip, $item))
                 return $handler->handle($request);
-
-        $redis = container(RedisService::class)->getConnection();
 
         $key = 'rate:' . $ip;
 

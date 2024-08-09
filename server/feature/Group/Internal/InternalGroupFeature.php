@@ -26,7 +26,7 @@ readonly class InternalGroupFeature extends GroupFeature
         if ($name !== null) $filter['name'] = $name;
         if ($type !== null) $filter['type'] = $type;
         if ($for !== null) $filter['for'] = $for;
-        if ($id !== null) $filter['id'] = $id;
+        if ($id !== null) $filter['id'] = (int)$id;
 
         $options = [];
 

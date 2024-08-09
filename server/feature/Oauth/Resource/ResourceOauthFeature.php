@@ -1,10 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Feature\Oauth\Internal;
+namespace Selpol\Feature\Oauth\Resource;
 
 use Selpol\Feature\Oauth\OauthFeature;
 
-readonly class InternalOauthFeature extends OauthFeature
+readonly class ResourceOauthFeature extends OauthFeature
 {
     public function validateJwt(string $value): ?array
     {
@@ -15,7 +15,7 @@ readonly class InternalOauthFeature extends OauthFeature
 
         $publicKey = file_get_contents($oauth['public_key']);
 
-        if (openssl_verify(utf8_decode($header . '.' . $payload), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
+        if (openssl_verify(mb_convert_encoding($header . '.' . $payload, 'ISO-8859-1', 'UTF-8'), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
             return null;
 
         $jwt = json_decode(base64_decode($payload), true);

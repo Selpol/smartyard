@@ -10,6 +10,7 @@ use PhpMqtt\Client\Exceptions\ProtocolNotSupportedException;
 use PhpMqtt\Client\MqttClient;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
+use Selpol\Runner\TaskRunner;
 use Throwable;
 
 #[Singleton]
@@ -38,9 +39,9 @@ readonly class MqttService implements ContainerDisposeInterface
         }
     }
 
-    public function task(string $uuid, string $title, string $action, mixed $data): void
+    public function task(string $uuid, string $title, string $action, ?int $uid, mixed $data): void
     {
-        $this->publish('task', ['uuid' => $uuid, 'title' => $title, 'action' => $action, 'data' => $data]);
+        $this->publish($uid !== null ? ('task:' . $uid) : 'task', ['uuid' => $uuid, 'title' => $title, 'action' => $action, 'data' => $data]);
     }
 
     /**
@@ -61,7 +62,9 @@ readonly class MqttService implements ContainerDisposeInterface
         if (!$this->client->isConnected()) {
             $config = config('mqtt');
 
-            $this->client->connect((new ConnectionSettings())->setUsername($config['username'])->setPassword($config['password']));
+            $keepAliveInternal = kernel()->getRunner() instanceof TaskRunner ? 3600 : 10;
+
+            $this->client->connect((new ConnectionSettings())->setUsername($config['username'])->setPassword($config['password'])->setKeepAliveInterval($keepAliveInternal)->setReconnectAutomatically(true));
         }
     }
 }

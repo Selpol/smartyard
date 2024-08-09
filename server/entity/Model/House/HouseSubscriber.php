@@ -26,6 +26,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string|null $subscriber_name
  * @property string|null $subscriber_patronymic
+ *
+ * @property int $role
  */
 class HouseSubscriber extends Entity
 {
@@ -59,7 +61,9 @@ class HouseSubscriber extends Entity
             'last_seen' => rule()->int(),
 
             'subscriber_name' => rule()->string(),
-            'subscriber_patronymic' => rule()->string()
+            'subscriber_patronymic' => rule()->string(),
+
+            'role' => rule()->int()
         ];
     }
 }

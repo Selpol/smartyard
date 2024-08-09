@@ -182,7 +182,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 $flat["entrances"][] = $e;
 
             if ($withBlock)
-                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['service', 'status']));
+                $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['id', 'service', 'status']));
 
             return $flat;
         }
@@ -312,7 +312,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
     }
 
-    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
+    function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string|null $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
     {
         $autoOpen = (int)strtotime($autoOpen);
 
@@ -678,7 +678,8 @@ readonly class InternalHouseFeature extends HouseFeature
             "last_seen" => "lastSeen",
             "subscriber_name" => "subscriberName",
             "subscriber_patronymic" => "subscriberPatronymic",
-            "voip_enabled" => "voipEnabled"
+            "voip_enabled" => "voipEnabled",
+            "role" => "role"
         ]);
 
         $addresses = container(AddressFeature::class);

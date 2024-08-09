@@ -219,6 +219,9 @@ LUA,
     {
         $redis = container(RedisService::class)->getConnection();
 
+        if (is_null($redis))
+            return [];
+
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]));
 
         sort($keys);
@@ -298,6 +301,9 @@ LUA,
     {
         $redis = container(RedisService::class)->getConnection();
 
+        if (is_null($redis))
+            return [];
+
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]));
         sort($keys);
         $gauges = [];
@@ -337,6 +343,9 @@ LUA,
     private function collectCounters(): array
     {
         $redis = container(RedisService::class)->getConnection();
+
+        if (is_null($redis))
+            return [];
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Counter::TYPE, self::SUFFIX]));
         sort($keys);

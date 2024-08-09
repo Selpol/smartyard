@@ -6,14 +6,14 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RedisException;
+use Selpol\Framework\Router\Route\Route;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\PrometheusService;
 
 readonly class PrometheusMiddleware extends RouteMiddleware
 {
     /**
-     * @throws NotFoundExceptionInterface|RedisException
+     * @throws NotFoundExceptionInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -22,21 +22,25 @@ readonly class PrometheusMiddleware extends RouteMiddleware
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     private function handle(ServerRequestInterface $request, ResponseInterface $response): ResponseInterface
     {
         $prometheus = container(PrometheusService::class);
 
-        $target = $request->getRequestTarget();
+        /** @var Route|null $route */
+        $route = $request->getAttribute('route');
+
+        if ($route && array_key_exists('class', $route->route)) $class = $route->route['class'][0] . '@' . $route->route['class'][1];
+        else $class = '_@_';
+
         $method = $request->getMethod();
 
-        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['url', 'method', 'code']);
-        $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte', ['url', 'method', 'code']);
+        $requestCount = $prometheus->getCounter('http', 'request_count', 'Http request count', ['class', 'method', 'code']);
+        $requestBodySizeByte = $prometheus->getCounter('http', 'request_body_size_byte', 'Http request body size byte', ['class', 'method', 'code']);
 
         $code = $response->getStatusCode();
 
-        $requestCount->incBy(1, [$target, $method, $code]);
+        $requestCount->incBy(1, [$class, $method, $code]);
 
         $size = $request->getBody()->getSize();
 
@@ -46,15 +50,15 @@ readonly class PrometheusMiddleware extends RouteMiddleware
             $size = strlen($request->getBody()->getContents());
         }
 
-        $requestBodySizeByte->incBy($size, [$target, $method, $code]);
+        $requestBodySizeByte->incBy($size, [$class, $method, $code]);
 
         if ($response->getStatusCode() !== 204) {
-            $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['url', 'method', 'code']);
-            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$target, $method, $code]);
+            $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['class', 'method', 'code']);
+            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$class, $method, $code]);
         }
 
-        $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['url', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
-        $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$target, $method, $code]);
+        $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['class', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);
+        $responseElapsed->observe(microtime(true) * 1000 - $_SERVER['REQUEST_TIME_FLOAT'] * 1000, [$class, $method, $code]);
 
         return $response;
     }

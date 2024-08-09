@@ -1,0 +1,7 @@
+vendor
+
+var/cache/*
+var/log/*
+
+*Dockerfile
+docker-compose*.yaml

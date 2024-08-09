@@ -5,14 +5,23 @@ namespace Selpol\Middleware\Mobile;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Framework\Http\ServerRequest;
 use Selpol\Framework\Router\Route\RouteMiddleware;
+use Selpol\Service\Auth\Token\CoreAuthToken;
 use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
 
 readonly class AuthMiddleware extends RouteMiddleware
 {
+    private bool $user;
+
+    public function __construct(array $config)
+    {
+        $this->user = $config['user'];
+    }
+
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $result = $this->setJwtFromRequest($request);
@@ -25,15 +34,31 @@ readonly class AuthMiddleware extends RouteMiddleware
 
     private function setJwtFromRequest(ServerRequest $request): ?string
     {
-        $token = $request->getHeader('Authorization');
+        $token = $request->getHeaderLine('Authorization');
 
-        if (count($token) === 0 || !str_starts_with($token[0], 'Bearer '))
+        if (!str_starts_with($token, 'Bearer '))
             return 'Запрос не авторизирован';
 
-        $bearer = substr($token[0], 7);
+        $bearer = substr($token, 7);
 
-        if (substr_count($bearer, '.') !== 2)
+        if (substr_count($bearer, '.') !== 2) {
+            if ($this->user) {
+                $ip = connection_ip($request);
+
+                if (!$ip)
+                    return 'Неизвестный источник запроса';
+
+                $auth = container(AuthenticationFeature::class)->auth($token, $request->getHeaderLine('User-Agent'), $ip);
+
+                if ($auth && $auth['user']['aud_jti']) {
+                    container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], $auth['user']['aud_jti']));
+
+                    return null;
+                }
+            }
+
             return 'Не верный формат токена';
+        }
 
         $jwt = container(OauthFeature::class)->validateJwt($bearer);
 

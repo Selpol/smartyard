@@ -9,7 +9,7 @@ use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Framework\Entity\EntityMessage;
 use Selpol\Framework\Entity\Exception\EntityException;
 
-readonly class EntityStatement implements EntityStatementInterface
+readonly class PDOEntityStatement implements EntityStatementInterface
 {
     private PDOStatement $statement;
 

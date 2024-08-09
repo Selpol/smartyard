@@ -27,17 +27,27 @@ class IsIntercom extends IntercomDevice
         }
     }
 
-    public function getLineDialStatus(int $apartment): int
+    public function getLineDialStatus(int $apartment, bool $info): array|int
     {
         $response = $this->get("/panelCode/$apartment/resist");
 
         if (!$response || isset($response['errors']))
-            return 0;
+            return $info ? ['resist' => 0, 'status' => $response['errors'][0]['message']] : 0;
+
+        if ($info) {
+            $status = match ($response['status']) {
+                'up' => 'Трубка снята',
+                'down' => 'Трубка лежит',
+                default => 'Не определено'
+            };
+
+            return ['resist' => intval($response['resist']), 'status' => $status];
+        }
 
         return intval($response['resist']);
     }
 
-    public function getAllLineDialStatus(int $from, int $to): array
+    public function getAllLineDialStatus(int $from, int $to, bool $info): array
     {
         return $this->post('/panelCode/diag', range($from, $to));
     }
@@ -195,7 +205,7 @@ class IsIntercom extends IntercomDevice
                 [
                     "Channel" => 0,
                     "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => 1280,
                     "Height" => 720,
@@ -203,12 +213,12 @@ class IsIntercom extends IntercomDevice
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
-                    "MaxBitrate" => 1024
+                    "MaxBitrate" => 1536
                 ],
                 [
-                    "Channel" => 0,
+                    "Channel" => 1,
                     "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => 640,
                     "Height" => 480,
@@ -288,17 +298,15 @@ class IsIntercom extends IntercomDevice
 
     public function setMifare(string $key, int $sector): static
     {
-        if ($this->model->mifare) {
-            $this->put('/key/settings', [
-                'encryption' => [
-                    'enabled' => true,
-                    'key_type' => 'A',
-                    'key_auth' => $key,
-                    'sector' => $sector,
-                    'increment' => ['enabled' => false, 'block' => 0, 'openByError' => false]
-                ]
-            ]);
-        }
+        $this->put('/key/settings', [
+            'encryption' => [
+                'enabled' => $this->model->mifare,
+                'key_type' => 'A',
+                'key_auth' => $key,
+                'sector' => $sector,
+                'increment' => ['enabled' => false, 'block' => 0, 'openByError' => false]
+            ]
+        ]);
 
         return $this;
     }
