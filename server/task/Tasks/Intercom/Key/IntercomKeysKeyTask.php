@@ -60,11 +60,11 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
             return;
         }
 
-        if (!$device->ping()) {
+        if (!$device instanceof KeyInterface) {
             return;
         }
 
-        if (!$device instanceof KeyInterface) {
+        if (!$device->ping()) {
             return;
         }
 

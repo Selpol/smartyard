@@ -26,8 +26,9 @@ class IntercomAddKeyTask extends Task
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat)
+        if (!$flat) {
             return false;
+        }
 
         $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
@@ -35,8 +36,9 @@ class IntercomAddKeyTask extends Task
             foreach ($entrances as $entrance) {
                 $id = $entrance['domophoneId'];
 
-                if ($id)
+                if ($id) {
                     $this->add($id, $flat['flat']);
+                }
             }
 
             return true;
@@ -50,10 +52,11 @@ class IntercomAddKeyTask extends Task
         try {
             $device = intercom($id);
 
-            if (!$device->ping())
-                throw new DeviceException($device, 'Устройство не доступно');
-
             if ($device instanceof KeyInterface) {
+                if (!$device->ping()) {
+                    throw new DeviceException($device, 'Устройство не доступно');
+                }
+
                 $device->addKey(new Key($this->key, $flat));
             }
         } catch (Throwable) {

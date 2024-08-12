@@ -100,6 +100,6 @@ trait VideoTrait
 
     public function setVideoOverlay(VideoOverlay $videoOverlay): void
     {
-        $this->post('/cgi-bin/videoOsdCfgEx', http_build_query(['title' => $videoOverlay->title, 'tcolor' => 0, 'cktitle' => 1, 'ckdate' => 1, 'cktime' => 1, 'ckweek' => 1, 'dateformat' => 2, 'txttitle' => 'http://www.likam.it/text.txt', 'pictitle' => 'http://www.likam.it/banner.bmp', 'autoloadtime' => 360]), ['Content-Type' => 'application/x-www-form-urlencoded']);
+        $this->post('/cgi-bin/videoOsdCfgEx', http_build_query(['title' => $videoOverlay->title, 'tcolor' => 0, 'cktitle' => 1, 'ckdate' => 1, 'cktime' => 1, 'ckweek' => 0, 'dateformat' => 2, 'txttitle' => 'http://www.likam.it/text.txt', 'pictitle' => 'http://www.likam.it/banner.bmp', 'autoloadtime' => 360]), ['Content-Type' => 'application/x-www-form-urlencoded']);
     }
 }

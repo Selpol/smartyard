@@ -30,8 +30,9 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
     {
         $entrances = container(HouseFeature::class)->getEntrances('houseId', $this->id);
 
-        if (!$entrances || count($entrances) === 0)
+        if (!$entrances || count($entrances) === 0) {
             return false;
+        }
 
         foreach ($entrances as $entrance) {
             try {
@@ -57,12 +58,12 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
             return;
         }
 
-        if (!$device->ping()) {
-            throw new DeviceException($device, 'Устройство не доступно');
-        }
-
         if (!$device instanceof KeyInterface) {
             return;
+        }
+
+        if (!$device->ping()) {
+            throw new DeviceException($device, 'Устройство не доступно');
         }
 
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
@@ -75,14 +76,17 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
             if ($flat_entrances && count($flat_entrances) > 0) {
                 $apartment = $flat['flat'];
 
-                foreach ($flat_entrances as $flat_entrance)
-                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
+                foreach ($flat_entrances as $flat_entrance) {
+                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
                         $apartment = $flat_entrance['apartment'];
+                    }
+                }
 
                 $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
 
-                foreach ($keys as $key)
+                foreach ($keys as $key) {
                     $device->addKey(new Key($key['rfId'], $apartment));
+                }
             }
         }
     }

@@ -25,11 +25,11 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
     {
         $intercom = intercom($this->id);
 
-        if ($intercom?->ping() !== true) {
-            throw new DeviceException($intercom, 'Устройство не доступно');
-        }
-
         if ($intercom instanceof CmsInterface) {
+            if ($intercom?->ping() !== true) {
+                throw new DeviceException($intercom, 'Устройство не доступно');
+            }
+
             $intercom->setCmsModel($this->cms);
         }
 

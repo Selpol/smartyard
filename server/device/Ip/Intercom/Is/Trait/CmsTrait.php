@@ -15,8 +15,9 @@ trait CmsTrait
     {
         $response = $this->get("/panelCode/$apartment/resist");
 
-        if (!$response || isset($response['errors']))
+        if (!$response || isset($response['errors'])) {
             return $info ? ['resist' => 0, 'status' => $response['errors'][0]['message']] : 0;
+        }
 
         if ($info) {
             $status = match ($response['status']) {
@@ -53,8 +54,9 @@ trait CmsTrait
 
     public function setCmsModel(string $cms): void
     {
-        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap))
+        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap)) {
             $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($cms)], 'usingCom3' => true]);
+        }
     }
 
     public function setCmsLevels(CmsLevels $cmsLevels): void
@@ -71,24 +73,30 @@ trait CmsTrait
 
     public function setCmsApartmentDeffer(CmsApartment $cmsApartment): void
     {
-        if ($this->tempCmses === null)
+        if ($this->tempCmses === null) {
             $this->tempCmses = [];
+        }
 
-        if ($this->cmses === null)
+        if ($this->cmses === null) {
             $this->cmses = [];
+        }
 
-        if (!array_key_exists($cmsApartment->index, $this->tempCmses))
+        if (!array_key_exists($cmsApartment->index, $this->tempCmses)) {
             $this->tempCmses[$cmsApartment->index] = $this->get('/switch/matrix/' . $cmsApartment->index);
+        }
 
         if (!array_key_exists($cmsApartment->index, $this->cmses)) {
-            if (!$this->updateCmses && $this->tempCmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] !== $cmsApartment->apartment)
+            if (!$this->updateCmses && $this->tempCmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] !== $cmsApartment->apartment) {
                 $this->updateCmses = true;
+            }
 
             $matrix = $this->tempCmses[$cmsApartment->index];
 
-            for ($j = 0; $j < count($matrix['matrix']); $j++)
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
+            for ($j = 0; $j < count($matrix['matrix']); $j++) {
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
                     $matrix['matrix'][$j][$k] = 0;
+                }
+            }
 
             $this->cmses[$cmsApartment->index] = $matrix;
         }
@@ -99,8 +107,9 @@ trait CmsTrait
     public function defferCms(): void
     {
         if ($this->updateCmses && $this->cmses) {
-            foreach ($this->cmses as $index => $value)
+            foreach ($this->cmses as $index => $value) {
                 $this->put('/switch/matrix/' . $index, ['capacity' => $value['capacity'], 'matrix' => $value['matrix']]);
+            }
 
             $this->tempCmses = null;
             $this->cmses = null;

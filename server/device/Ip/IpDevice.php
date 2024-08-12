@@ -94,24 +94,24 @@ abstract class IpDevice extends Device
     {
         $this->prepare();
 
-        if (!str_starts_with($endpoint, '/'))
+        if (!str_starts_with($endpoint, '/')) {
             $endpoint = '/' . $endpoint;
+        }
 
-        if (!str_starts_with($endpoint, 'http'))
+        if (!str_starts_with($endpoint, 'http')) {
             $endpoint = $this->uri . $endpoint;
+        }
 
         try {
             $request = client_request('GET', $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
 
-            foreach ($headers as $header => $value)
+            foreach ($headers as $header => $value) {
                 $request->withHeader($header, $value);
+            }
 
             $response = $this->client->send($request, $this->clientOption);
-            $response = $this->response($response, $parse);
 
-            file_logger('intercom')->debug('GET' . $endpoint, [$query, $response]);
-
-            return $response;
+            return $this->response($response, $parse);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
@@ -119,27 +119,29 @@ abstract class IpDevice extends Device
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        file_logger('intercom')->debug('POST' . $endpoint, [$body]);
-
         $this->prepare();
 
-        if (!str_starts_with($endpoint, '/'))
+        if (!str_starts_with($endpoint, '/')) {
             $endpoint = '/' . $endpoint;
+        }
 
-        if (!str_starts_with($endpoint, 'http'))
+        if (!str_starts_with($endpoint, 'http')) {
             $endpoint = $this->uri . $endpoint;
+        }
 
         try {
             $request = client_request('POST', $endpoint);
 
-            foreach ($headers as $header => $value)
+            foreach ($headers as $header => $value) {
                 $request->withHeader($header, $value);
+            }
 
             if ($body) {
-                if (is_string($body))
+                if (is_string($body)) {
                     $request->withBody(stream($body));
-                else
+                } else {
                     $request->withBody(stream(json_encode($body)));
+                }
             }
 
             $response = $this->client->send($request, $this->clientOption);
@@ -152,27 +154,29 @@ abstract class IpDevice extends Device
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
-        file_logger('intercom')->debug('PUT' . $endpoint, [$body]);
-
         $this->prepare();
 
-        if (!str_starts_with($endpoint, '/'))
+        if (!str_starts_with($endpoint, '/')) {
             $endpoint = '/' . $endpoint;
+        }
 
-        if (!str_starts_with($endpoint, 'http'))
+        if (!str_starts_with($endpoint, 'http')) {
             $endpoint = $this->uri . $endpoint;
+        }
 
         try {
             $request = client_request('PUT', $endpoint);
 
-            foreach ($headers as $header => $value)
+            foreach ($headers as $header => $value) {
                 $request->withHeader($header, $value);
+            }
 
             if ($body) {
-                if (is_string($body))
+                if (is_string($body)) {
                     $request->withBody(stream($body));
-                else
+                } else {
                     $request->withBody(stream(json_encode($body)));
+                }
             }
 
             $response = $this->client->send($request, $this->clientOption);
@@ -187,17 +191,20 @@ abstract class IpDevice extends Device
     {
         $this->prepare();
 
-        if (!str_starts_with($endpoint, '/'))
+        if (!str_starts_with($endpoint, '/')) {
             $endpoint = '/' . $endpoint;
+        }
 
-        if (!str_starts_with($endpoint, 'http'))
+        if (!str_starts_with($endpoint, 'http')) {
             $endpoint = $this->uri . $endpoint;
+        }
 
         try {
             $request = client_request('DELETE', $endpoint);
 
-            foreach ($headers as $header => $value)
+            foreach ($headers as $header => $value) {
                 $request->withHeader($header, $value);
+            }
 
             $response = $this->client->send($request, $this->clientOption);
 
@@ -213,17 +220,20 @@ abstract class IpDevice extends Device
      */
     private function prepare(): void
     {
-        if ($this->ping && !$this->pingRaw())
+        if ($this->ping && !$this->pingRaw()) {
             throw new DeviceException($this, 'Устройство не доступно');
+        }
 
-        if ($this->sleep > 0)
+        if ($this->sleep > 0) {
             usleep($this->sleep);
+        }
     }
 
     private function response(ResponseInterface $response, bool $parse): mixed
     {
-        if ($parse)
+        if ($parse) {
             return parse_body($response);
+        }
 
         return $response->getBody()->getContents();
     }

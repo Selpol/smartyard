@@ -58,11 +58,13 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
                 });
 
                 foreach ($flat_entrances as $flat_entrance) {
-                    if (isset($flat_entrance['apartmentLevels']))
+                    if (isset($flat_entrance['apartmentLevels'])) {
                         $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
+                    }
 
-                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
+                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
                         $apartment = $flat_entrance['apartment'];
+                    }
                 }
 
                 $device->setApartment(new Apartment(
@@ -82,8 +84,9 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 throw $throwable;
+            }
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

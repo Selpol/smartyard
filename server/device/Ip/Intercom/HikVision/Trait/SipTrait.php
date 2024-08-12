@@ -13,8 +13,9 @@ trait SipTrait
         try {
             $response = $this->get('/ISAPI/System/Network/SIP/1');
 
-            if (!$response)
+            if (!$response) {
                 return false;
+            }
 
             return collection_get($response, 'Standard.registerStatus', false) == true;
         } catch (Throwable) {
@@ -27,8 +28,9 @@ trait SipTrait
         $response = $this->get('/ISAPI/System/Network/SIP');
         $standard = $response['SIPServer']['Standard'];
 
-        if ($standard['enabled'])
+        if ($standard['enabled']) {
             return new Sip($standard['authID'], $standard['password'], $standard['proxy'], intval($standard['port']));
+        }
 
         return new Sip('', '', '', 0);
     }

@@ -48,8 +48,9 @@ trait BewardTrait
 
     protected function parseParamValueHelp(?string $response): array
     {
-        if (is_null($response))
+        if (is_null($response)) {
             return [];
+        }
 
         $return = [];
 
@@ -58,8 +59,9 @@ trait BewardTrait
         foreach ($result as $item) {
             $value = array_map('trim', explode('=', trim($item)));
 
-            if ($value[0] != '')
+            if ($value[0] != '') {
                 $return[$value[0]] = array_key_exists(1, $value) ? $value[1] : true;
+            }
         }
 
         return $return;

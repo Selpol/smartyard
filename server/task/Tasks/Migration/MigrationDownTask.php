@@ -15,8 +15,9 @@ class MigrationDownTask extends MigrationTask
 
     public function onTask(): bool
     {
-        if ($this->version && $this->dbVersion <= $this->version)
+        if ($this->version && $this->dbVersion <= $this->version) {
             return true;
+        }
 
         $migrations = array_reverse($this->getMigration('down', $this->version, $this->dbVersion + 1), true);
 

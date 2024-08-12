@@ -11,8 +11,9 @@ trait CodeTrait
         if (!is_null($apartment)) {
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
 
-            if ($response['DoorCodeActive'] === 'on' && $response['DoorCode'] !== '0')
+            if ($response['DoorCodeActive'] === 'on' && $response['DoorCode'] !== '0') {
                 return [new Code(intval($response['DoorCode']), $apartment)];
+            }
 
             return [];
         }
@@ -53,7 +54,8 @@ trait CodeTrait
     {
         $apartments = $this->getApartments();
 
-        foreach ($apartments as $apartment)
+        foreach ($apartments as $apartment) {
             $this->removeCode(new Code(0, $apartment->apartment));
+        }
     }
 }

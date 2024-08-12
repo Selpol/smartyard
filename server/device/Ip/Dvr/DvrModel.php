@@ -42,19 +42,21 @@ class DvrModel
 
     public static function models(): array
     {
-        if (!isset(self::$models))
+        if (!isset(self::$models)) {
             self::$models = [
                 'flussonic' => new DvrModel('FLUSSONIC', 'FLUSSONIC', FlussonicDvr::class),
                 'trassir' => new DvrModel('TRASSIR', 'TRASSIR', TrassirDvr::class),
             ];
+        }
 
         return self::$models;
     }
 
     public static function model(string $value): ?DvrModel
     {
-        if (array_key_exists($value, self::models()))
+        if (array_key_exists($value, self::models())) {
             return self::$models[$value];
+        }
 
         return null;
     }

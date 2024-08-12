@@ -71,8 +71,9 @@ trait CommonTrait
     {
         $gate = $this->parseParamValueHelp($this->get('/cgi-bin/gate_cgi', ['action' => 'get']));
 
-        if ($gate['Enable'] === 'off')
+        if ($gate['Enable'] === 'off') {
             return [];
+        }
 
         $result = [];
 
@@ -139,7 +140,9 @@ trait CommonTrait
 
     public function setRelay(Relay $relay): void
     {
-        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'DoorOpenMode' => $relay->lock ? 'off' : 'on', 'DoorOpenTime' => $relay->openDuration]);
+        $value = $relay->lock ? 'off' : 'on';
+
+        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'DoorOpenMode' => $value, 'MainDoorOpenMode' => $value, 'AltDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
     }
 
     public function setDDns(DDns $dDns): void
@@ -154,8 +157,9 @@ trait CommonTrait
 
     public function setAutoCollectKey(bool $value): void
     {
-        if ($this->model->mifare)
+        if ($this->model->mifare) {
             $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
+        }
     }
 
     /**

@@ -39,11 +39,13 @@ class QrTask extends Task implements TaskUniqueInterface
         $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
 
         if ($this->override) {
-            foreach ($uuids as $uuid)
+            foreach ($uuids as $uuid) {
                 $file->deleteFile($uuid['id']);
+            }
         } else {
-            if (count($uuids) > 0)
+            if (count($uuids) > 0) {
                 return $uuids[count($uuids) - 1]['id'];
+            }
         }
 
         $qr = $this->getOrCreateQr($house);
@@ -110,8 +112,9 @@ class QrTask extends Task implements TaskUniqueInterface
         } finally {
             unlink($file);
 
-            foreach ($files as $file)
+            foreach ($files as $file) {
                 unlink($file);
+            }
         }
     }
 

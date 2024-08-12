@@ -19,8 +19,9 @@ trait KeyTrait
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: false));
         }
 
-        if (count($response) == 0)
+        if (count($response) == 0) {
             return [];
+        }
 
         $start = intval(substr(array_key_first($response), 3));
         $end = intval(substr(array_key_last($response), 5));
@@ -28,13 +29,15 @@ trait KeyTrait
         $result = [];
 
         for ($i = $start; $i <= $end; $i++) {
-            if (!array_key_exists('Key' . $i, $response))
+            if (!array_key_exists('Key' . $i, $response)) {
                 continue;
+            }
 
             $key = $response['Key' . $i];
 
-            if (!$key)
+            if (!$key) {
                 continue;
+            }
 
             $result[] = new Key($key, intval($response['Apartment' . $i]));
         }
@@ -46,32 +49,36 @@ trait KeyTrait
 
     public function addKey(Key $key): void
     {
-        if ($this->model->mifare)
+        if ($this->model->mifare) {
             $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'CipherIndex' => 1]);
-        else
+        } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment]);
+        }
     }
 
     public function removeKey(Key|string $key): void
     {
         if ($key instanceof Key) {
-            if ($this->model->mifare)
+            if ($this->model->mifare) {
                 $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
-            else
+            } else {
                 $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
+            }
         } else {
-            if ($this->model->mifare)
+            if ($this->model->mifare) {
                 $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Key' => $key]);
-            else
+            } else {
                 $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key]);
+            }
         }
     }
 
     public function clearKey(): void
     {
-        if ($this->model->mifare)
+        if ($this->model->mifare) {
             $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'clear']);
-        else
+        } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'clear']);
+        }
     }
 }

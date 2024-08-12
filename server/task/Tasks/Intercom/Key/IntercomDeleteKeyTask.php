@@ -28,8 +28,9 @@ class IntercomDeleteKeyTask extends Task
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat)
+        if (!$flat) {
             return false;
+        }
 
         $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
@@ -37,8 +38,9 @@ class IntercomDeleteKeyTask extends Task
             foreach ($entrances as $entrance) {
                 $id = $entrance['domophoneId'];
 
-                if ($id)
+                if ($id) {
                     $this->delete($id);
+                }
             }
 
             return true;
@@ -52,12 +54,13 @@ class IntercomDeleteKeyTask extends Task
         try {
             $device = intercom($id);
 
-            if (!$device->ping())
-                throw new DeviceException($device, 'Устройство не доступно');
-
             $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
             if ($device instanceof KeyInterface) {
+                if (!$device->ping()) {
+                    throw new DeviceException($device, 'Устройство не доступно');
+                }
+
                 $device->removeKey(new Key($this->key, $flat['flat']));
             }
         } catch (Throwable) {

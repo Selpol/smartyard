@@ -27,8 +27,9 @@ class IntercomCmsFlatTask extends Task
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat)
+        if (!$flat) {
             return false;
+        }
 
         $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
@@ -36,8 +37,9 @@ class IntercomCmsFlatTask extends Task
             foreach ($entrances as $entrance) {
                 $id = $entrance['domophoneId'];
 
-                if ($id)
+                if ($id) {
                     $this->apartment($id, $flat, $entrance);
+                }
             }
 
             return true;
@@ -50,6 +52,10 @@ class IntercomCmsFlatTask extends Task
     {
         try {
             $intercom = intercom($id);
+
+            if (!$intercom instanceof ApartmentInterface) {
+                return;
+            }
 
             if (!$intercom->ping()) {
                 throw new DeviceException($intercom, 'Устройство не доступно');
@@ -67,14 +73,13 @@ class IntercomCmsFlatTask extends Task
                 }
             }
 
-            if ($intercom instanceof ApartmentInterface) {
-                $intercom->setApartmentHandset(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
-            }
+            $intercom->setApartmentHandset(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 throw $throwable;
+            }
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

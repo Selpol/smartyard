@@ -57,8 +57,9 @@ class Is5Intercom extends IsIntercom
     {
         $cms = IntercomCms::model($cms);
 
-        if (!$cms)
+        if (!$cms) {
             return;
+        }
 
         $length = count($cms->cms);
 
@@ -67,9 +68,11 @@ class Is5Intercom extends IsIntercom
 
             $matrix['capacity'] = $cms->capacity;
 
-            for ($j = 0; $j < count($matrix['matrix']); $j++)
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
+            for ($j = 0; $j < count($matrix['matrix']); $j++) {
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
                     $matrix['matrix'][$j][$k] = 0;
+                }
+            }
 
             $this->put('/switch/matrix/' . $i, $matrix);
         }

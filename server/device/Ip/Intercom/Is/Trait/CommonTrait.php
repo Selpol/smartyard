@@ -99,11 +99,13 @@ trait CommonTrait
     {
         $response = $this->get('/gate/settings');
 
-        if (!$response['gateMode'] || !$response['prefixHouse'])
+        if (!$response['gateMode'] || !$response['prefixHouse']) {
             return [];
+        }
 
-        if (!$response['direct']['mode'])
+        if (!$response['direct']['mode']) {
             return [new Gate('', 0, 0, 0)];
+        }
 
         $result = [];
 
@@ -156,10 +158,7 @@ trait CommonTrait
 
     public function setRoom(Room $room): void
     {
-        $this->put('/panelCode/settings', [
-            'consiergeRoom' => $room->concierge,
-            'sosRoom' => $room->sos
-        ]);
+        $this->put('/panelCode/settings', ['consiergeRoom' => $room->concierge, 'sosRoom' => $room->sos]);
     }
 
     public function setRelay(Relay $relay): void
@@ -168,8 +167,9 @@ trait CommonTrait
 
         $relays = $this->get('/relay/info');
 
-        foreach ($relays as $value)
+        foreach ($relays as $value) {
             $this->put('/relay/' . $value . '/settings', ['switchTime' => $relay->openDuration]);
+        }
     }
 
     public function setDDns(DDns $dDns): void
@@ -198,11 +198,15 @@ trait CommonTrait
             if ($direct['mode']) {
                 $direct['rules'] = [];
 
-                foreach ($value as $gate)
-                    if (filter_var($gate->address, FILTER_VALIDATE_IP) !== false)
+                foreach ($value as $gate) {
+                    if (filter_var($gate->address, FILTER_VALIDATE_IP) !== false) {
                         $direct['rules'][$gate->prefix] = [$gate->begin . '-' . $gate->end => $gate->address];
+                    }
+                }
             }
-        } else $direct = ['mode' => false];
+        } else {
+            $direct = ['mode' => false];
+        }
 
         $this->put('/gate/settings', ['gateMode' => count($value) > 0, 'prefixHouse' => count($value) > 0, 'direct' => $direct]);
     }

@@ -21,8 +21,9 @@ trait CmsTrait
     {
         $result = [];
 
-        for ($i = $from; $i <= $to; $i++)
+        for ($i = $from; $i <= $to; $i++) {
             $result[$i] = $info ? $this->getLineDialStatus($i, true) : ['resist' => $this->getLineDialStatus($i, false)];
+        }
 
         return $result;
     }
@@ -34,9 +35,11 @@ trait CmsTrait
 
         $model = $lines[0];
 
-        foreach ($this->model->cmsesMap as $cms => $value)
-            if ($value === $model)
+        foreach ($this->model->cmsesMap as $cms => $value) {
+            if ($value === $model) {
                 return $cms;
+            }
+        }
 
         return '';
     }
@@ -50,8 +53,9 @@ trait CmsTrait
 
     public function setCmsModel(string $cms): void
     {
-        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap))
+        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap)) {
             $this->get('/webs/kmnDUCfgEx', ['kmntype' => $this->model->cmsesMap[strtoupper($cms)]]);
+        }
     }
 
     public function setCmsLevels(CmsLevels $cmsLevels): void
@@ -64,8 +68,9 @@ trait CmsTrait
 
     public function setCmsApartmentDeffer(CmsApartment $cmsApartment): void
     {
-        if ($this->cmses === null)
+        if ($this->cmses === null) {
             $this->cmses = [];
+        }
 
         $this->cmses[] = ['index' => $cmsApartment->index, 'dozen' => $cmsApartment->dozen, 'unit' => $cmsApartment->unit, 'apartment' => $cmsApartment->apartment];
     }
@@ -78,8 +83,9 @@ trait CmsTrait
             $modify = false;
 
             foreach ($this->cmses as $cms) {
-                if ($cmses[$cms['index'] - 1][$cms['unit']][$cms['dozen']] != $cms['apartment'])
+                if ($cmses[$cms['index'] - 1][$cms['unit']][$cms['dozen']] != $cms['apartment']) {
                     $modify = true;
+                }
 
                 $cmses[$cms['index'] - 1][$cms['unit']][$cms['dozen']] = $cms['apartment'];
             }
@@ -120,13 +126,16 @@ trait CmsTrait
         $cmses = [];
 
         for ($i = 0; $i < count($lines); $i++) {
-            if ($i === 0) $model = intval($lines[$i]);
-            else if ($lines[$i] === '') $cmses[] = [];
-            else {
+            if ($i === 0) {
+                $model = intval($lines[$i]);
+            } else if ($lines[$i] === '') {
+                $cmses[] = [];
+            } else {
                 $count = count(explode(',', $lines[$i]));
 
-                if ($count)
+                if ($count) {
                     $cmses[count($cmses) - 1][] = array_fill(0, $count, 0);
+                }
             }
         }
 
@@ -138,8 +147,9 @@ trait CmsTrait
         $content = $model . PHP_EOL . PHP_EOL;
 
         foreach ($cmses as $cms) {
-            foreach ($cms as $cm)
+            foreach ($cms as $cm) {
                 $content .= implode(',', $cm) . PHP_EOL;
+            }
 
             $content .= PHP_EOL;
         }

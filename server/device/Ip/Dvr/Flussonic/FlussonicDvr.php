@@ -74,22 +74,26 @@ class FlussonicDvr extends DvrDevice
     {
         $device = container(DeviceService::class)->cameraByEntity($camera);
 
-        if (!$device)
+        if (!$device) {
             return null;
+        }
 
-        if ($device->model->vendor === 'FAKE' && $camera->screenshot)
+        if ($device->model->vendor === 'FAKE' && $camera->screenshot) {
             return $this->client->send(client_request('GET', $camera->screenshot))->getBody();
+        }
 
         return $device->getScreenshot();
     }
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
-        if ($arguments['time'])
+        if ($arguments['time']) {
             return $this->getUrl($camera) . '/' . $arguments['time'] . '-preview.mp4?token=' . $identifier->value;
+        }
 
-        if ($camera->model === 'fake')
+        if ($camera->model === 'fake') {
             return $this->getUrl($camera) . '/preview.mp4?token=' . $identifier->value;
+        }
 
         return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
     }
@@ -97,11 +101,11 @@ class FlussonicDvr extends DvrDevice
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
     {
         if ($stream === DvrStream::ONLINE) {
-            if ($container === DvrContainer::RTSP)
+            if ($container === DvrContainer::RTSP) {
                 return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value));
-            else if ($container === DvrContainer::HLS)
+            } else if ($container === DvrContainer::HLS) {
                 return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
-            else if ($container === DvrContainer::RTC) {
+            } else if ($container === DvrContainer::RTC) {
                 $stream = new Stream(container(StreamerFeature::class)->random());
 
                 $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value))->input(StreamInput::RTSP)->output(StreamOutput::RTC);
@@ -116,8 +120,9 @@ class FlussonicDvr extends DvrDevice
         } else if ($stream === DvrStream::ARCHIVE) {
             $timeline = $this->timeline($identifier, $camera, ['short' => true]);
 
-            if (!$timeline)
+            if (!$timeline) {
                 return null;
+            }
 
             $from = $timeline[0][0];
             $to = $timeline[0][1];
@@ -141,23 +146,26 @@ class FlussonicDvr extends DvrDevice
 
             $response = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value . '&from=' . $from . '&to=' . $to . '&request=ranges');
 
-            if (!$response || !is_array($response))
+            if (!$response || !is_array($response)) {
                 return null;
+            }
 
             /** @var array|null $ranges */
             $ranges = null;
 
             foreach ($response as $value) {
                 if ($value['stream'] == $camera->dvr_stream) {
-                    if (array_key_exists('ranges', $value))
+                    if (array_key_exists('ranges', $value)) {
                         $ranges = $value['ranges'];
+                    }
 
                     break;
                 }
             }
 
-            if (!$ranges)
+            if (!$ranges) {
                 return null;
+            }
 
             return array_map(static fn(array $value) => [$value['from'], $value['from'] + $value['duration']], $ranges);
         }
@@ -165,16 +173,18 @@ class FlussonicDvr extends DvrDevice
         /** @var array<string, array<string, int>> $timeline */
         $timeline = $this->get($camera->dvr_stream . '/recording_status.json?token=' . $identifier->value);
 
-        if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline))
+        if (!$timeline || !array_key_exists($camera->dvr_stream, $timeline)) {
             return null;
+        }
 
         return [[$timeline[$camera->dvr_stream]['from'], $timeline[$camera->dvr_stream]['to']]];
     }
 
     public function command(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, DvrCommand $command, array $arguments): mixed
     {
-        if ($command === DvrCommand::SEEK && $arguments['seek'])
+        if ($command === DvrCommand::SEEK && $arguments['seek']) {
             return ['archive' => $this->video($identifier, $camera, $container, $stream, ['time' => $arguments['seek']])];
+        }
 
         return null;
     }

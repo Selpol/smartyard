@@ -43,8 +43,9 @@ class IntercomBlockTask extends Task
                         $intercom = container(DeviceService::class)->intercomById($intercomId);
 
                         try {
-                            if ($intercom->ping())
+                            if ($intercom->ping()) {
                                 $intercoms[$intercomId] = $intercom;
+                            }
                         } catch (Throwable) {
                             $intercoms[$intercomId] = false;
                         }

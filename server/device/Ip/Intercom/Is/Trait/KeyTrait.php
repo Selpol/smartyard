@@ -23,10 +23,11 @@ trait KeyTrait
 
     public function removeKey(Key|string $key): void
     {
-        if ($key instanceof Key)
+        if ($key instanceof Key) {
             $this->delete('/key/store/' . $key->key);
-        else
+        } else {
             $this->delete('/key/store/' . $key);
+        }
     }
 
     public function clearKey(): void

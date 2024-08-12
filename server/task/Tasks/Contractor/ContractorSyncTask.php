@@ -37,16 +37,18 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $addressesGroup = $this->getAddressesList();
 
-        if (count($addressesGroup) === 0)
+        if (count($addressesGroup) === 0) {
             return true;
+        }
 
         $this->setProgress(5);
 
         $subscribersGroup = $this->getSubscribersList();
         $keysGroup = $this->getKeysList();
 
-        if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
+        if (count($subscribersGroup) === 0 && count($keysGroup) === 0) {
             return true;
+        }
 
         $this->setProgress(10);
 
@@ -107,9 +109,11 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         /** @var int[] $intercoms */
         $intercoms = array_map(static fn(array $entrance) => intval($entrance['domophoneId']), container(HouseFeature::class)->getEntrances('houseId', $address));
 
-        foreach ($intercoms as $intercom)
-            if (!array_key_exists($intercom, $devices))
+        foreach ($intercoms as $intercom) {
+            if (!array_key_exists($intercom, $devices)) {
                 $devices[$intercom] = true;
+            }
+        }
 
         $this->subscriber($flat, $subscribers);
     }
@@ -133,20 +137,24 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         foreach ($subscribers as $subscriber) {
             if (array_key_exists($subscriber[0], $subscribersInFlat)) {
                 if (HouseSubscriber::findById($subscriber[0]) !== null) {
-                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
+                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
                         $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                    }
                 }
 
                 unset($subscribersInFlat[$subscriber[0]]);
-            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]))
+            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
                 file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
-            else
+            } else {
                 file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+            }
         }
 
-        if ($this->removeSubscriber)
-            foreach ($subscribersInFlat as $key => $_)
+        if ($this->removeSubscriber) {
+            foreach ($subscribersInFlat as $key => $_) {
                 $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
+            }
+        }
     }
 
     /**
@@ -178,8 +186,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 $addKeys = [];
 
                 foreach ($keys as $key) {
-                    if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
-                    else {
+                    if (array_key_exists($key, $keysInFlat)) {
+                        unset($keysInFlat[$key]);
+                    } else {
                         try {
                             (new HouseKey([
                                 'rfid' => $key,

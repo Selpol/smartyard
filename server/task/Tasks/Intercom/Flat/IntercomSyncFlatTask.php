@@ -36,8 +36,9 @@ class IntercomSyncFlatTask extends Task
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat)
+        if (!$flat) {
             return false;
+        }
 
         $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
@@ -45,8 +46,9 @@ class IntercomSyncFlatTask extends Task
             foreach ($entrances as $entrance) {
                 $id = $entrance['domophoneId'];
 
-                if ($id)
+                if ($id) {
                     $this->apartment($id, $flat, $entrance);
+                }
             }
 
             return true;
@@ -60,14 +62,17 @@ class IntercomSyncFlatTask extends Task
         try {
             $device = intercom($id);
 
-            if (!$device->ping())
+            if (!$device instanceof ApartmentInterface) {
                 return;
+            }
 
-            if (!$device instanceof ApartmentInterface)
+            if (!$device->ping()) {
                 return;
+            }
 
-            if ($this->userId >= 0)
+            if ($this->userId >= 0) {
                 container(AuditFeature::class)->auditForUserId($this->userId, $flat['flatId'], HouseFlat::class, 'update', '[Дом квартира] Обновление блокировки квартиры кв ' . $flat['flat'] . ' (' . $flat['flatId'] . ')');
+            }
 
             $apartment = $flat['flat'];
             $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
@@ -75,11 +80,13 @@ class IntercomSyncFlatTask extends Task
             $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
-                if (isset($flat_entrance['apartmentLevels']))
+                if (isset($flat_entrance['apartmentLevels'])) {
                     $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
+                }
 
-                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
+                if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
                     $apartment = $flat_entrance['apartment'];
+                }
             }
 
             $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]);
@@ -106,8 +113,9 @@ class IntercomSyncFlatTask extends Task
         } catch (Throwable $throwable) {
             file_logger('intercom')->error($throwable);
 
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 throw $throwable;
+            }
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }

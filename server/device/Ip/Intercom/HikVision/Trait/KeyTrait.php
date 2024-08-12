@@ -41,8 +41,9 @@ trait KeyTrait
             $lastUser = ['id' => $id, 'name' => $name, 'count' => 0];
         }
 
-        if ($lastUser == null)
+        if ($lastUser == null) {
             return;
+        }
 
         $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastUser['id'], 'cardNo' => sprintf("%'.010d", hexdec($key->key)), 'cardType' => 'normalCard']]);
     }
@@ -54,8 +55,9 @@ trait KeyTrait
 
     public function clearKey(): void
     {
-        foreach ($this->getUsers() as $user)
+        foreach ($this->getUsers() as $user) {
             $this->put('/ISAPI/AccessControl/UserInfo/Delete?format=json', ['UserInfoDelCond' => ['EmployeeNoList' => [['employeeNo' => (string)$user]]]]);
+        }
     }
 
     public function handleKey(array $flats): void
@@ -119,14 +121,16 @@ trait KeyTrait
     {
         $count = $this->getUsersCount();
 
-        if ($count === 0)
+        if ($count === 0) {
             return null;
+        }
 
         try {
             $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => strval($count), 'maxResults' => 1, 'searchResultPosition' => $count - 1]]);
 
-            if (!array_key_exists('responseStatusStrg', $response) || $response['responseStatusStrg'] !== 'OK')
+            if (!array_key_exists('responseStatusStrg', $response) || $response['responseStatusStrg'] !== 'OK') {
                 return null;
+            }
 
             return [
                 'id' => $response['UserInfoSearch']['UserInfo'][0]['employeeNo'],
@@ -154,8 +158,9 @@ trait KeyTrait
 
             $userInfos = $response['UserInfoSearch']['UserInfo'] ?? [];
 
-            foreach ($userInfos as $userInfo)
+            foreach ($userInfos as $userInfo) {
                 $result[] = intval($userInfo['employeeNo']);
+            }
         }
 
         return $result;

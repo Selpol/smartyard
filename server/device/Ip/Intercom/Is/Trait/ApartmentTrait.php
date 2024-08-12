@@ -24,8 +24,9 @@ trait ApartmentTrait
     {
         $response = $this->get('/panelCode/' . $apartment);
 
-        if (!array_key_exists('panelCode', $response))
+        if (!array_key_exists('panelCode', $response)) {
             return null;
+        }
 
         return new Apartment(
             $response['panelCode'],
@@ -66,10 +67,11 @@ trait ApartmentTrait
 
     public function removeApartment(Apartment|int $apartment): void
     {
-        if ($apartment instanceof Apartment)
+        if ($apartment instanceof Apartment) {
             $this->delete('panelCode/' . $apartment->apartment);
-        else
+        } else {
             $this->delete('panelCode/' . $apartment);
+        }
     }
 
     public function clearApartments(): void

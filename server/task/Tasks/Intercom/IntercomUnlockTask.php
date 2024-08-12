@@ -24,13 +24,15 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
     {
         $device = intercom($this->id);
 
-        if (!$device)
+        if (!$device) {
             throw new DeviceException($device, 'Устройство не найдено');
+        }
 
         $this->setProgress(25);
 
-        if (!$device->ping())
+        if (!$device->ping()) {
             throw new DeviceException($device, 'Устройство не доступно');
+        }
 
         $this->setProgress(50);
 

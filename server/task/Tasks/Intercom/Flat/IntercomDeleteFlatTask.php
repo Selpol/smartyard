@@ -34,11 +34,11 @@ class IntercomDeleteFlatTask extends Task
         try {
             $device = intercom($intercom);
 
-            if (!$device->ping()) {
-                throw new DeviceException($device, 'Устройство не доступно');
-            }
-
             if ($device instanceof ApartmentInterface) {
+                if (!$device->ping()) {
+                    throw new DeviceException($device, 'Устройство не доступно');
+                }
+
                 $device->removeApartment($apartment);
             }
         } catch (Throwable $throwable) {

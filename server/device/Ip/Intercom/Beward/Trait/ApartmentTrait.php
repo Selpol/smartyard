@@ -19,8 +19,9 @@ trait ApartmentTrait
         $result = [];
 
         for ($i = $start; $i <= $end; $i++) {
-            if (!array_key_exists('Number' . $i, $response))
+            if (!array_key_exists('Number' . $i, $response)) {
                 continue;
+            }
 
             $number = $response['Number' . $i];
 
@@ -72,8 +73,9 @@ trait ApartmentTrait
         if (count($apartment->numbers)) {
             $sipNumbers = array_merge([$apartment], $apartment->numbers);
 
-            for ($i = 1; $i <= count($sipNumbers); $i++)
+            for ($i = 1; $i <= count($sipNumbers); $i++) {
                 $params['Phone' . $i] = $sipNumbers[$i - 1];
+            }
         }
 
         $this->get('/cgi-bin/apartment_cgi', $params);
@@ -86,10 +88,11 @@ trait ApartmentTrait
 
     public function removeApartment(Apartment|int $apartment): void
     {
-        if ($apartment instanceof Apartment)
+        if ($apartment instanceof Apartment) {
             $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => $apartment->apartment]);
-        else
+        } else {
             $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => $apartment]);
+        }
     }
 
     public function clearApartments(): void
