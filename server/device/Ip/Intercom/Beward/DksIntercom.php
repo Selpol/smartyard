@@ -19,7 +19,6 @@ use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
-use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Framework\Http\Uri;
@@ -36,41 +35,6 @@ class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterfa
         parent::__construct($uri, $password, $model);
 
         $this->clientOption->digest($this->login, $this->password);
-    }
-
-    public function setVideoEncoding(VideoEncoding $videoEncoding): void
-    {
-        $this->get('/webs/videoEncodingCfgEx', [
-            'vlevel' => '2',
-            'encoder' => '0',
-            'sys_cif' => '0',
-            'advanced' => '1',
-            'ratectrl' => '0',
-            'quality' => '1',
-            'iq' => '1',
-            'rc' => '1',
-            'bitrate' => $videoEncoding->primaryBitrate,
-            'frmrate' => '25',
-            'frmintr' => '25',
-            'first' => '0',
-            'framingpos' => '0',
-            'vlevel2' => '0',
-            'encoder2' => '0',
-            'sys_cif2' => '1',
-            'advanced2' => '1',
-            'ratectrl2' => '0',
-            'quality2' => '1',
-            'iq2' => '1',
-            'rc2' => '1',
-            'bitrate2' => $videoEncoding->secondaryBitrate,
-            'frmrate2' => '25',
-            'frmintr2' => '25',
-            'first2' => '0',
-            'maxfrmintr' => '200',
-            'maxfrmrate' => '25',
-            'nlevel' => '1',
-            'nfluctuate' => '1',
-        ]);
     }
 
     public function open(int $value): void

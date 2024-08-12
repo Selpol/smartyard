@@ -9,13 +9,12 @@ use Throwable;
 
 trait KeyTrait
 {
-
     /**
-     * @param int $apartment
+     * @param int|null $apartment
      * @return Key[]
      * @return Key[]
      */
-    public function getKeys(int $apartment): array
+    public function getKeys(?int $apartment): array
     {
         return [];
     }

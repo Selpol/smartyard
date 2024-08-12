@@ -23,6 +23,6 @@ class SipOption
 
     public function equal(SipOption $other): bool
     {
-        return $this->callTimeout === $other->callTimeout && $this->talkTimeout === $other->talkTimeout && $this->dtmf === $other->dtmf && $this->echo = $other->echo;
+        return $this->callTimeout === $other->callTimeout && $this->talkTimeout === $other->talkTimeout && $this->dtmf == $other->dtmf && $this->echo == $other->echo;
     }
 }

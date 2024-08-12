@@ -13,7 +13,7 @@ trait VideoTrait
     {
         $response = $this->get('/camera/codec');
 
-        return new VideoEncoding($response['Channels'][0]['MaxBitrate'], $response['Channels'][1]['MaxBitrate']);
+        return new VideoEncoding($response['Channels'][0]['MaxBitrate'] ?? 0, $response['Channels'][1]['MaxBitrate'] ?? 0);
     }
 
     public function getVideoDetection(): VideoDetection
@@ -38,31 +38,33 @@ trait VideoTrait
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
         $this->put('/camera/codec', [
-            [
-                "Channel" => 0,
-                "Type" => "H264",
-                "Profile" => 1,
-                "ByFrame" => true,
-                "Width" => 1280,
-                "Height" => 720,
-                "GopMode" => "NormalP",
-                "IPQpDelta" => 2,
-                "RcMode" => "AVBR",
-                "IFrameInterval" => 30,
-                "MaxBitrate" => $videoEncoding->primaryBitrate
-            ],
-            [
-                "Channel" => 0,
-                "Type" => "H264",
-                "Profile" => 1,
-                "ByFrame" => true,
-                "Width" => 640,
-                "Height" => 480,
-                "GopMode" => "NormalP",
-                "IPQpDelta" => 2,
-                "RcMode" => "AVBR",
-                "IFrameInterval" => 30,
-                "MaxBitrate" => $videoEncoding->secondaryBitrate
+            'Channels' => [
+                [
+                    "Channel" => 0,
+                    "Type" => "H264",
+                    "Profile" => 0,
+                    "ByFrame" => true,
+                    "Width" => 1280,
+                    "Height" => 720,
+                    "GopMode" => "NormalP",
+                    "IPQpDelta" => 2,
+                    "RcMode" => "AVBR",
+                    "IFrameInterval" => 30,
+                    "MaxBitrate" => $videoEncoding->primaryBitrate
+                ],
+                [
+                    "Channel" => 1,
+                    "Type" => "H264",
+                    "Profile" => 0,
+                    "ByFrame" => true,
+                    "Width" => 640,
+                    "Height" => 480,
+                    "GopMode" => "NormalP",
+                    "IPQpDelta" => 2,
+                    "RcMode" => "AVBR",
+                    "IFrameInterval" => 30,
+                    "MaxBitrate" => $videoEncoding->secondaryBitrate
+                ]
             ]
         ]);
     }

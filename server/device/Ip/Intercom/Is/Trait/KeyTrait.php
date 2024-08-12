@@ -6,9 +6,9 @@ use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 
 trait KeyTrait
 {
-    public function getKeys(int $apartment): array
+    public function getKeys(?int $apartment): array
     {
-        $response = $this->get('/key/store', ['panelCode' => $apartment]);
+        $response = $this->get('/key/store', is_null($apartment) ? [] : ['panelCode' => $apartment]);
         $result = array_map(static fn(array $key) => new Key($key['uuid'], $key['panelCode']), $response);
 
         usort($result, static fn(Key $a, Key $b) => strcmp($a->key, $b->key));

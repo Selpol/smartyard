@@ -49,7 +49,7 @@ trait CommonTrait
         $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
         $alarm = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'get']));
 
-        return new Room($intercom['ConciergeApartment'], $alarm['SOSCallNumber']);
+        return new Room(strval($intercom['ConciergeApartment']), strval($alarm['SOSCallNumber']));
     }
 
     public function getRelay(): Relay

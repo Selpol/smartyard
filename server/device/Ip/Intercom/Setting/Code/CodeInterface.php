@@ -5,10 +5,10 @@ namespace Selpol\Device\Ip\Intercom\Setting\Code;
 interface CodeInterface
 {
     /**
-     * @param int $apartment
+     * @param int|null $apartment
      * @return Code[]
      */
-    public function getCodes(int $apartment): array;
+    public function getCodes(?int $apartment): array;
 
     public function addCode(Code $code): void;
 

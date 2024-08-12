@@ -7,11 +7,11 @@ use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 trait KeyTrait
 {
     /**
-     * @param int $apartment
+     * @param int|null $apartment
      * @return Key[]
      * @return Key[]
      */
-    public function getKeys(int $apartment): array
+    public function getKeys(?int $apartment): array
     {
         if ($this->model->mifare)
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'list'], parse: false));

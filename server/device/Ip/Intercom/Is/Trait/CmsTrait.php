@@ -7,6 +7,7 @@ use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 
 trait CmsTrait
 {
+    private bool $updateCmses = false;
     private ?array $tempCmses = null;
     private ?array $cmses = null;
 
@@ -79,24 +80,25 @@ trait CmsTrait
         if (!array_key_exists($cmsApartment->index, $this->tempCmses))
             $this->tempCmses[$cmsApartment->index] = $this->get('/switch/matrix/' . $cmsApartment->index);
 
-        if ($this->tempCmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] !== $cmsApartment->apartment) {
-            if (!array_key_exists($cmsApartment->index, $this->cmses)) {
-                $matrix = $this->tempCmses[$cmsApartment->index];
+        if (!array_key_exists($cmsApartment->index, $this->cmses)) {
+            if (!$this->updateCmses && $this->tempCmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] !== $cmsApartment->apartment)
+                $this->updateCmses = true;
 
-                for ($j = 0; $j < count($matrix['matrix']); $j++)
-                    for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
-                        $matrix['matrix'][$j][$k] = 0;
+            $matrix = $this->tempCmses[$cmsApartment->index];
 
-                $this->cmses[$cmsApartment->index] = $matrix;
-            }
+            for ($j = 0; $j < count($matrix['matrix']); $j++)
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++)
+                    $matrix['matrix'][$j][$k] = 0;
 
-            $this->cmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] = $cmsApartment->apartment;
+            $this->cmses[$cmsApartment->index] = $matrix;
         }
+
+        $this->cmses[$cmsApartment->index]['matrix'][$cmsApartment->dozen][$cmsApartment->unit] = $cmsApartment->apartment;
     }
 
     public function defferCms(): void
     {
-        if ($this->cmses) {
+        if ($this->updateCmses && $this->cmses) {
             foreach ($this->cmses as $index => $value)
                 $this->put('/switch/matrix/' . $index, ['capacity' => $value['capacity'], 'matrix' => $value['matrix']]);
 

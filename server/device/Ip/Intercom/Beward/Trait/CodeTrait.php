@@ -6,11 +6,7 @@ use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 
 trait CodeTrait
 {
-    /**
-     * @param int $apartment
-     * @return Code[]
-     */
-    public function getCodes(int $apartment): array
+    public function getCodes(?int $apartment): array
     {
         $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
 

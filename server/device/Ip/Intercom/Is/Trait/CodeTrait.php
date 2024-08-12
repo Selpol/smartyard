@@ -6,9 +6,9 @@ use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 
 trait CodeTrait
 {
-    public function getCodes(int $apartment): array
+    public function getCodes(?int $apartment): array
     {
-        $response = $this->get('/openCode/' . $apartment);
+        $response = $this->get(is_null($apartment) ? '/openCode' : ('/openCode/' . $apartment));
         $result = array_map(static fn(array $code) => new Code($code['code'], $code['panelCode']), $response);
 
         usort($result, static fn(Code $a, Code $b) => $a->code > $b->code);

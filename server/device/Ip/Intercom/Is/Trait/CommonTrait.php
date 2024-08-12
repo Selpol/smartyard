@@ -55,7 +55,7 @@ trait CommonTrait
         if ($this->model->mifare) {
             $response = $this->get('/key/settings');
 
-            return new Mifare(boolval($response['encryption']['enable']) ?? false, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
+            return new Mifare($response['encryption']['enabled'] == true, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
         }
 
         return new Mifare(false, '', 0);
@@ -65,7 +65,7 @@ trait CommonTrait
     {
         $response = $this->get('/panelCode/settings');
 
-        return new Room($response['consiergeRoom'], $response['sosRoom']);
+        return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
     }
 
     public function getRelay(): Relay

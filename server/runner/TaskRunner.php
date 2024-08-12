@@ -110,7 +110,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $task->setProgressCallback(null);
 
-                $feature->add($task, 'OK ' . round($elapsed / 1000, 2) . 's', 1);
+                $feature->add($task, 'OK (' . round($elapsed / 1000, 2) . 's)', 1);
 
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
