@@ -477,8 +477,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return $previous;
         }, []);
 
-        file_logger('intercom')->debug('', [$apartmentCodes]);
-
         foreach ($flats as $apartment => $flat) {
             $code = intval($flat->open_code) ?: 0;
 
