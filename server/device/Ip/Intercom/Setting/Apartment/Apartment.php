@@ -29,7 +29,7 @@ class Apartment
 
     public function equal(Apartment $other): bool
     {
-        return $this->equalWithoutNumbers($other) && $this->numbers === $other->numbers;
+        return $this->equalWithoutNumbers($other) && $this->numbers == $other->numbers;
     }
 
     public function equalWithoutNumbers(Apartment $other): bool

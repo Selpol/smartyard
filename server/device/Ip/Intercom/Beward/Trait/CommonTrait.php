@@ -35,10 +35,10 @@ trait CommonTrait
     public function getMifare(): Mifare
     {
         if ($this->model->mifare) {
-            $cipher = $this->parseParamValueHelp($this->get('/cgi-bin/cipher_cgi', ['action' => 'get']));
+            $cipher = $this->parseParamValueHelp($this->get('/cgi-bin/cipher_cgi', ['action' => 'list']));
             $mifare = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get']));
 
-            return new Mifare(true, $cipher['Value'], intval($mifare['Sector']));
+            return new Mifare(true, array_key_exists('Value1', $cipher) ? $cipher['Value1'] : '', intval($mifare['Sector']));
         }
 
         return new Mifare(false, '', 0);

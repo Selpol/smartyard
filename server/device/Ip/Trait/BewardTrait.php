@@ -46,16 +46,20 @@ trait BewardTrait
         $this->get('/cgi-bin/factorydefault_cgi');
     }
 
-    protected function parseParamValueHelp(string $response): array
+    protected function parseParamValueHelp(?string $response): array
     {
+        if (is_null($response))
+            return [];
+
         $return = [];
 
         $result = explode(PHP_EOL, $response);
 
         foreach ($result as $item) {
-            $value = explode('=', trim($item));
+            $value = array_map('trim', explode('=', trim($item)));
 
-            $return[trim($value[0])] = array_key_exists(1, $value) ? trim($value[1]) : true;
+            if ($value[0] != '')
+                $return[$value[0]] = array_key_exists(1, $value) ? $value[1] : true;
         }
 
         return $return;

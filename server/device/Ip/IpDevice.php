@@ -107,8 +107,11 @@ abstract class IpDevice extends Device
                 $request->withHeader($header, $value);
 
             $response = $this->client->send($request, $this->clientOption);
+            $response = $this->response($response, $parse);
 
-            return $this->response($response, $parse);
+            file_logger('intercom')->debug('GET' . $endpoint, [$query, $response]);
+
+            return $response;
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
@@ -116,6 +119,8 @@ abstract class IpDevice extends Device
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        file_logger('intercom')->debug('POST' . $endpoint, [$body]);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))
@@ -147,6 +152,8 @@ abstract class IpDevice extends Device
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
     {
+        file_logger('intercom')->debug('PUT' . $endpoint, [$body]);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/'))

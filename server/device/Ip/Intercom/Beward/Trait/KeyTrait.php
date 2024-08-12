@@ -13,13 +13,17 @@ trait KeyTrait
      */
     public function getKeys(?int $apartment): array
     {
-        if ($this->model->mifare)
+        if ($this->model->mifare) {
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'list'], parse: false));
-        else
+        } else {
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: false));
+        }
 
-        $start = intval(substr($response[array_key_first($response)], 6));
-        $end = intval(substr($response[array_key_last($response)], 5, -2));
+        if (count($response) == 0)
+            return [];
+
+        $start = intval(substr(array_key_first($response), 3));
+        $end = intval(substr(array_key_last($response), 5));
 
         $result = [];
 
@@ -32,7 +36,7 @@ trait KeyTrait
             if (!$key)
                 continue;
 
-            $result[] = new Key($key, intval($result['Apartment' . $i]));
+            $result[] = new Key($key, intval($response['Apartment' . $i]));
         }
 
         usort($result, static fn(Key $a, Key $b) => strcmp($a->key, $b->key));

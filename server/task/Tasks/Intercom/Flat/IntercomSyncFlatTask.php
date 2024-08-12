@@ -88,10 +88,10 @@ class IntercomSyncFlatTask extends Task
             $apartment = new Apartment(
                 $apartment,
                 !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
-                !$entrance['shared'] && !$blockCall && $flat['sipEnabled'],
-                count($apartment_levels) > 0 ? $apartment_levels[0] : null,
-                count($apartment_levels) > 1 ? $apartment_levels[1] : null,
-                $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+                !$entrance['shared'] && !$blockCall,
+                count($apartment_levels) > 0 ? $apartment_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : null),
+                count($apartment_levels) > 1 ? $apartment_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : null),
+                ($entrance['shared'] || $blockCall) ? [] : [sprintf('1%09d', $flat['flatId'])],
             );
 
             if ($this->add) {

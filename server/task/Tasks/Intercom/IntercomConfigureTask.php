@@ -383,8 +383,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     intval($flat->flat),
                     $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                     $entrance->shared == 0 && !$blockCall,
-                    array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : null),
-                    array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : null),
+                    array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : null)),
+                    array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 530 : null)),
                     ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
                 );
 
@@ -476,6 +476,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             return $previous;
         }, []);
+
+        file_logger('intercom')->debug('', [$apartmentCodes]);
 
         foreach ($flats as $apartment => $flat) {
             $code = intval($flat->open_code) ?: 0;
