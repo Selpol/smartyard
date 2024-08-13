@@ -59,7 +59,8 @@ class IntercomAddKeyTask extends Task
 
                 $device->addKey(new Key($this->key, $flat));
             }
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
         }
     }
 }

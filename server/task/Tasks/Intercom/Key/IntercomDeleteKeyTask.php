@@ -63,7 +63,8 @@ class IntercomDeleteKeyTask extends Task
 
                 $device->removeKey(new Key($this->key, $flat['flat']));
             }
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('intercom')->error($throwable);
         }
     }
 }
