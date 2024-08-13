@@ -30,6 +30,6 @@ abstract class IntercomKeyTask extends Task
     {
         $ids = container(DatabaseService::class)->get('SELECT house_entrance_id FROM houses_entrances_flats WHERE house_flat_id = :id', ['id' => $this->flatId]);
 
-        return HouseEntrance::fetchAll(criteria()->in('house_entrance_id', array_map(static fn(array $id) => $id['house_entrance_id'], $ids)), setting()->columns(['house_domophone_id']));
+        return HouseEntrance::fetchAll(criteria()->in('house_entrance_id', array_values(array_unique(array_map(static fn(array $id) => $id['house_entrance_id'], $ids)))), setting()->columns(['house_domophone_id']));
     }
 }
