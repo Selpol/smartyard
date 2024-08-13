@@ -2,16 +2,11 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
-use Selpol\Device\Exception\DeviceException;
-use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
-use Selpol\Entity\Model\House\HouseFlat;
-use Selpol\Feature\House\HouseFeature;
-use Selpol\Task\Task;
 use Throwable;
 
-class IntercomDeleteKeyTask extends Task
+class IntercomDeleteKeyTask extends IntercomKeyTask
 {
     public string $key;
 
@@ -19,26 +14,24 @@ class IntercomDeleteKeyTask extends Task
 
     public function __construct(string $key, int $flatId)
     {
-        parent::__construct('Удалить ключ (' . $key . ', ' . $flatId . ')');
+        parent::__construct($flatId, 'Удалить ключ (' . $key . ', ' . $flatId . ')');
 
         $this->key = $key;
-
-        $this->flatId = $flatId;
     }
 
     public function onTask(): bool
     {
-        $flat = HouseFlat::findById($this->flatId, setting: setting()->columns(['flat']));
+        $flat = $this->getFlat();
 
         if (!$flat) {
             return false;
         }
 
-        $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
+        $entrances = $this->getEntrances();
 
         if ($entrances && count($entrances) > 0) {
             foreach ($entrances as $entrance) {
-                $this->delete($entrance['domophoneId'], intval($flat->flat));
+                $this->delete($entrance->house_domophone_id, intval($flat->flat));
             }
 
             return true;
