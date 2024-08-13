@@ -54,7 +54,7 @@ class IntercomAddKeyTask extends Task
 
             if ($device instanceof KeyInterface) {
                 if (!$device->ping()) {
-                    throw new DeviceException($device, 'Устройство не доступно');
+                    return;
                 }
 
                 $device->addKey(new Key($this->key, $flat));

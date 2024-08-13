@@ -63,7 +63,7 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
         }
 
         if (!$device->ping()) {
-            throw new DeviceException($device, 'Устройство не доступно');
+            return;
         }
 
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);

@@ -58,7 +58,7 @@ class IntercomDeleteKeyTask extends Task
 
             if ($device instanceof KeyInterface) {
                 if (!$device->ping()) {
-                    throw new DeviceException($device, 'Устройство не доступно');
+                    return;
                 }
 
                 $device->removeKey(new Key($this->key, $flat['flat']));

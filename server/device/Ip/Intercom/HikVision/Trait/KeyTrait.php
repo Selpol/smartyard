@@ -27,7 +27,7 @@ trait KeyTrait
             $cardInfos = $response['CardInfoSearch']['CardInfo'] ?? [];
 
             foreach ($cardInfos as $cardInfo) {
-                $result[] = new Key(strtoupper(sprintf("%'.014s", dechex($cardInfo['cardNo']))), intval($cardInfo['employeeNo']));
+                $result[] = new Key(strtoupper(sprintf("%'.014s", dechex(intval($cardInfo['cardNo'])))), intval($cardInfo['employeeNo']));
             }
         };
 
