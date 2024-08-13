@@ -5,6 +5,8 @@ use Selpol\Feature\Oauth\Resource\ResourceOauthFeature;
 return [
     'language' => env('LANGUAGE', 'ru'),
 
+    'debug' => boolval(env('DEBUG', '0')),
+
     'timezone' => 'Europe/Moscow',
 
     'api' => [

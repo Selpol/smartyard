@@ -19,6 +19,8 @@ abstract class IpDevice extends Device
     public bool $ping = true;
     public int $sleep = 0;
 
+    public bool $debug;
+
     protected ClientOption $clientOption;
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password)
@@ -28,6 +30,8 @@ abstract class IpDevice extends Device
         $this->password = trim($password);
 
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
+
+        $this->debug = config_get('debug', false);
     }
 
     public function withTimeout(int $value): static
@@ -110,8 +114,13 @@ abstract class IpDevice extends Device
             }
 
             $response = $this->client->send($request, $this->clientOption);
+            $response = $this->response($response, $parse);
 
-            return $this->response($response, $parse);
+            if ($this->debug) {
+                file_logger('intercom')->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
+            }
+
+            return $response;
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
@@ -145,8 +154,13 @@ abstract class IpDevice extends Device
             }
 
             $response = $this->client->send($request, $this->clientOption);
+            $response = $this->response($response, $parse);
 
-            return $this->response($response, $parse);
+            if ($this->debug) {
+                file_logger('intercom')->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
+            }
+
+            return $response;
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
@@ -180,8 +194,13 @@ abstract class IpDevice extends Device
             }
 
             $response = $this->client->send($request, $this->clientOption);
+            $response = $this->response($response, $parse);
 
-            return $this->response($response, $parse);
+            if ($this->debug) {
+                file_logger('intercom')->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
+            }
+
+            return $response;
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }
@@ -207,8 +226,13 @@ abstract class IpDevice extends Device
             }
 
             $response = $this->client->send($request, $this->clientOption);
+            $response = $this->response($response, $parse);
 
-            return $this->response($response, $parse);
+            if ($this->debug) {
+                file_logger('intercom')->debug('DELETE/' . $endpoint, ['response' => $response]);
+            }
+
+            return $response;
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
         }

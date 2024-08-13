@@ -52,11 +52,13 @@ readonly class entrance extends Api
         if ($success) {
             task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0))->high()->dispatch();
 
-            if ($entrance->cms !== $params['cms'])
+            if ($entrance->cms !== $params['cms']) {
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
+            }
 
-            if ($entrance->cms_levels !== $params['cmsLevels'])
+            if ($entrance->cms_levels !== $params['cmsLevels']) {
                 task(new IntercomLevelTask($entrance->house_domophone_id))->high()->dispatch();
+            }
         }
 
         return $success ? self::success($params['_id']) : self::error('Не удалось обновить вход', 400);
@@ -66,10 +68,11 @@ readonly class entrance extends Api
     {
         $households = container(HouseFeature::class);
 
-        if (@$params["houseId"])
+        if (@$params["houseId"]) {
             $success = $households->deleteEntrance($params["_id"], $params["houseId"]);
-        else
+        } else {
             $success = $households->destroyEntrance($params["_id"]);
+        }
 
         return $success ? self::success() : self::error(@$params["houseId"] ? 'Не удалось отвязать вход от дома' : 'Не удалось удалить вход', 400);
     }
