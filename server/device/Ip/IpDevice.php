@@ -3,8 +3,6 @@
 namespace Selpol\Device\Ip;
 
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerAwareTrait;
-use Psr\Log\LoggerInterface;
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Client\ClientOption;
@@ -12,10 +10,8 @@ use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
-abstract class IpDevice extends Device implements LoggerInterface
+abstract class IpDevice extends Device
 {
-    use LoggerAwareTrait;
-
     public string $login = 'root';
 
     public string $password;
