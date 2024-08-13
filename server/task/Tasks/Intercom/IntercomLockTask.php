@@ -7,7 +7,7 @@ use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
 
-class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
+class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
 {
     use TaskUniqueTrait;
 
@@ -15,7 +15,7 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
 
     public function __construct(int $id, bool $lock)
     {
-        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Открыто' : 'Закрыто') . ')');
+        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Закрыто' : 'Открыто') . ')');
 
         $this->lock = $lock;
     }
@@ -38,7 +38,7 @@ class IntercomUnlockTask extends IntercomTask implements TaskUniqueInterface
 
         if ($device instanceof CommonInterface) {
             $relay = $device->getRelay();
-            $relay->lock = !$this->lock;
+            $relay->lock = $this->lock;
 
             $device->setRelay($relay);
         }

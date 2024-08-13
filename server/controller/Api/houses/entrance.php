@@ -8,7 +8,7 @@ use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSetCmsTask;
 use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
-use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
+use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 
 readonly class entrance extends Api
 {
@@ -33,7 +33,7 @@ readonly class entrance extends Api
             $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
             if ($entranceId) {
-                task(new IntercomUnlockTask(intval($params['domophoneId']), boolval($params['locksDisabled'])))->high()->dispatch();
+                task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0))->high()->dispatch();
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
             }
 
@@ -50,7 +50,7 @@ readonly class entrance extends Api
         $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
         if ($success) {
-            task(new IntercomUnlockTask(intval($params['domophoneId']), boolval($params['locksDisabled'])))->high()->dispatch();
+            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0))->high()->dispatch();
 
             if ($entrance->cms !== $params['cms'])
                 task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
