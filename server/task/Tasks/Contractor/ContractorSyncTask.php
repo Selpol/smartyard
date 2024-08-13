@@ -67,7 +67,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $progress = 15;
         $delta = (50 - $progress) / count($addresses);
 
-        foreach ($addresses as $address)
+        foreach ($addresses as $address) {
             try {
                 $this->address($contractor, $address, $subscribers, $devices, $flats);
 
@@ -76,6 +76,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
             } catch (Throwable $throwable) {
                 $this->logger?->error($throwable);
             }
+        }
 
         $this->setProgress(50);
 
@@ -208,6 +209,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                 foreach ($intercoms as $intercom) {
                     if ($intercom instanceof KeyInterface) {
+                        if (!$intercom->ping()) {
+                            continue;
+                        }
+
                         foreach ($addKeys as $key) {
                             $intercom->addKey(new Key($key, $flat));
                         }
