@@ -30,6 +30,8 @@ class IntercomSyncFlatTask extends Task
 
         $this->flatId = $flatId;
         $this->add = $add;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

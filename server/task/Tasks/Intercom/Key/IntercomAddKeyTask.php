@@ -16,6 +16,8 @@ class IntercomAddKeyTask extends IntercomKeyTask
         parent::__construct($flatId, 'Добавить ключ (' . $key . ', ' . $flatId . ')');
 
         $this->key = $key;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

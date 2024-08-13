@@ -23,6 +23,8 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
         parent::__construct('Конфигурация CMS (' . $entranceId . ')');
 
         $this->entranceId = $entranceId;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

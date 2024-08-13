@@ -24,6 +24,8 @@ class RecordTask extends Task implements TaskUniqueInterface
 
         $this->subscriberId = $subscriberId;
         $this->recordId = $recordId;
+
+        $this->setLogger(file_logger('task-record'));
     }
 
     public function onTask(): bool

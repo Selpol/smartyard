@@ -17,6 +17,8 @@ class FrsRemoveStreamTask extends Task
 
         $this->frsServerId = $frsServerId;
         $this->cameraId = $cameraId;
+
+        $this->setLogger(file_logger('task-frs'));
     }
 
     public function onTask(): bool

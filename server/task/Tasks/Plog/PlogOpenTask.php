@@ -35,6 +35,8 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
         $this->door = $door;
         $this->date = $date;
         $this->detail = $detail;
+
+        $this->setLogger(file_logger('task-plog-open'));
     }
 
     public function onTask(): bool

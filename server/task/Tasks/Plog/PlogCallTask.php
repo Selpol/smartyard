@@ -30,6 +30,8 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
         $this->date = $date;
         $this->call = $call;
+
+        $this->setLogger(file_logger('task-plog-call'));
     }
 
     public function onTask(): bool

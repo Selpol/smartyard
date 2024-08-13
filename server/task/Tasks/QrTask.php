@@ -28,6 +28,8 @@ class QrTask extends Task implements TaskUniqueInterface
 
         $this->houseId = $houseId;
         $this->override = $override;
+
+        $this->setLogger(file_logger('task-qr'));
     }
 
     public function onTask(): ?string

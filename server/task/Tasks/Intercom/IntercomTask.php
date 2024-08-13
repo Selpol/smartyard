@@ -14,5 +14,7 @@ abstract class IntercomTask extends Task
         parent::__construct($title);
 
         $this->id = $id;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 }

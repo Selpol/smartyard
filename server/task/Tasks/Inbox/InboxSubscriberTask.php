@@ -23,6 +23,8 @@ class InboxSubscriberTask extends Task
         $this->title = $title;
         $this->message = $message;
         $this->action = $action;
+
+        $this->setLogger(file_logger('task-inbox'));
     }
 
     public function onTask(): bool

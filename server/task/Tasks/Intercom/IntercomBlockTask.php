@@ -17,6 +17,8 @@ class IntercomBlockTask extends Task
     public function __construct()
     {
         parent::__construct('Синхронизация блокировок домофона');
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

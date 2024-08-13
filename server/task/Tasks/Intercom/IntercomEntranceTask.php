@@ -26,6 +26,8 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
         parent::__construct('Синхронизация входа (' . $entranceId . ')');
 
         $this->entranceId = $entranceId;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

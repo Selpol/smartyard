@@ -18,6 +18,8 @@ class IntercomDeleteFlatTask extends Task
         parent::__construct('Удаления квартиры (' . $subscriberId . ')');
 
         $this->entrances = $entrances;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool

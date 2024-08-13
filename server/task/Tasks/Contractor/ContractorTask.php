@@ -21,6 +21,8 @@ abstract class ContractorTask extends Task
         parent::__construct($title);
 
         $this->id = $id;
+
+        $this->setLogger(file_logger('task-contractor'));
     }
 
     protected function getContractor(): Contractor

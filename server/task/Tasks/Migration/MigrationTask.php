@@ -23,6 +23,8 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
         $this->dbVersion = $dbVersion;
         $this->version = $version;
         $this->force = $force;
+
+        $this->setLogger(file_logger('task-migration'));
     }
 
     protected function getMigration(string $path, ?int $min = null, ?int $max = null): array

@@ -16,6 +16,8 @@ abstract class IntercomKeyTask extends Task
         parent::__construct($title);
 
         $this->flatId = $flatId;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     protected function getFlat(): ?HouseFlat

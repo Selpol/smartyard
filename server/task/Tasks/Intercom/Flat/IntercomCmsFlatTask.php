@@ -21,6 +21,8 @@ class IntercomCmsFlatTask extends Task
 
         $this->flatId = $subscriberId;
         $this->block = $block;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool
