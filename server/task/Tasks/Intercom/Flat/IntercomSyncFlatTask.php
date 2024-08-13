@@ -111,7 +111,7 @@ class IntercomSyncFlatTask extends Task
                 $device->addCode(new Code(intval($flat['openCode']) ?: 0, $apartment->apartment));
             }
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            $this->logger?->error($throwable);
 
             if ($throwable instanceof KernelException) {
                 throw $throwable;

@@ -17,6 +17,8 @@ abstract class CameraDevice extends IpDevice
         parent::__construct($uri, $password);
 
         $this->model = $model;
+
+        $this->setLogger(file_logger('camera'));
     }
 
     public function getScreenshot(): Stream

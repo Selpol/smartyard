@@ -113,7 +113,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
     public function onError(Throwable $throwable): void
     {
-        file_logger('task')->debug('PlogCallTask error' . PHP_EOL . $throwable);
+        $this->logger?->debug('PlogCallTask error' . PHP_EOL . $throwable);
 
         $this->retry(300);
     }

@@ -64,7 +64,7 @@ class IntercomBlockTask extends Task
 
                 $this->setProgress($progress);
             } catch (Throwable $throwable) {
-                file_logger('intercom')->error($throwable);
+                $this->logger?->error($throwable);
             }
         }
 

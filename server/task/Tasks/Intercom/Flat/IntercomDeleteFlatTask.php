@@ -42,7 +42,7 @@ class IntercomDeleteFlatTask extends Task
                 $device->removeApartment($apartment);
             }
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            $this->logger?->error($throwable);
 
             if ($throwable instanceof KernelException) {
                 throw $throwable;

@@ -75,7 +75,7 @@ class IntercomCmsFlatTask extends Task
 
             $intercom->setApartmentHandset(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            $this->logger?->error($throwable);
 
             if ($throwable instanceof KernelException) {
                 throw $throwable;

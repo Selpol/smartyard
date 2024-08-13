@@ -31,6 +31,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\DeviceService;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
+use Throwable;
 
 class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 {
@@ -154,6 +155,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
 
         return true;
+    }
+
+    public function onError(Throwable $throwable): void
+    {
+        $this->logger?->error($throwable);
     }
 
     private function audio(IntercomDevice & AudioInterface $device): void

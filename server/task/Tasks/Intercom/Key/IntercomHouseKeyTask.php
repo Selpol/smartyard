@@ -38,7 +38,7 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
             try {
                 $this->entrance($entrance);
             } catch (Throwable $throwable) {
-                file_logger('intercom')->error($throwable);
+                $this->logger?->error($throwable);
             }
         }
 

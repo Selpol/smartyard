@@ -74,7 +74,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 $progress += $delta;
                 $this->setProgress($progress);
             } catch (Throwable $throwable) {
-                file_logger('contract')->error($throwable);
+                $this->logger?->error($throwable);
             }
 
         $this->setProgress(50);
@@ -82,7 +82,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         try {
             $this->keys($contractor, $devices, $flats, $keys);
         } catch (Throwable $throwable) {
-            file_logger('contract')->error($throwable);
+            $this->logger?->error($throwable);
         }
 
         return true;
@@ -144,9 +144,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                 unset($subscribersInFlat[$subscriber[0]]);
             } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
-                file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
             } else {
-                file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
             }
         }
 
@@ -201,7 +201,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                             $addKeys[] = $key;
                         } catch (Throwable $throwable) {
-                            file_logger('contractor')->error($throwable);
+                            $this->logger?->error($throwable);
                         }
                     }
                 }
@@ -221,7 +221,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                     }
                 }
             } catch (Throwable $throwable) {
-                file_logger('contractor')->error($throwable);
+                $this->logger?->error($throwable);
             } finally {
                 $progress += $delta;
                 $this->setProgress($progress);

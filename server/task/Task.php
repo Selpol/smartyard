@@ -3,10 +3,14 @@
 namespace Selpol\Task;
 
 use Exception;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Throwable;
 
-abstract class Task
+abstract class Task implements LoggerAwareInterface
 {
+    use LoggerAwareTrait;
+
     public string $title;
 
     public ?int $uid = null;
@@ -16,6 +20,10 @@ abstract class Task
     public function __construct(string $title)
     {
         $this->title = $title;
+
+        $segments = explode('\\', static::class);
+
+        $this->setLogger(file_logger('task/' . ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '-$0', $segments[count($segments) - 1])), '-')));
     }
 
     /**

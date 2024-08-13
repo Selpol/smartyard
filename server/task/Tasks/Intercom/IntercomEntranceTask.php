@@ -82,7 +82,7 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
             }
             return true;
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            $this->logger?->error($throwable);
 
             if ($throwable instanceof KernelException) {
                 throw $throwable;

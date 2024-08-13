@@ -29,6 +29,8 @@ abstract class DvrDevice extends IpDevice
 
         $this->model = $model;
         $this->server = $server;
+
+        $this->setLogger(file_logger('dvr'));
     }
 
     public function getCameras(): array

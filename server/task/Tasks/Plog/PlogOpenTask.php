@@ -39,9 +39,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
     public function onTask(): bool
     {
-        $logger = file_logger('plog');
-
-        $logger->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
+        $this->logger?->debug('Plog open task', ['type' => $this->type, 'id' => $this->id]);
 
         $plog = container(PlogFeature::class);
 
@@ -63,7 +61,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
             $flat_list = $this->getFlatIdByRfid($rfid_key);
 
-            $logger->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail]);
+            $this->logger?->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail]);
 
             if (count($flat_list) == 0) {
                 return false;
@@ -136,7 +134,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
     public function onError(Throwable $throwable): void
     {
-        file_logger('task')->debug('PlogOpenTask error' . PHP_EOL . $throwable);
+        $this->logger?->debug('PlogOpenTask error' . PHP_EOL . $throwable);
 
         $this->retry(300);
     }

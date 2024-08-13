@@ -3,6 +3,8 @@
 namespace Selpol\Device\Ip;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerInterface;
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Client\ClientOption;
@@ -10,8 +12,10 @@ use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 use Throwable;
 
-abstract class IpDevice extends Device
+abstract class IpDevice extends Device implements LoggerInterface
 {
+    use LoggerAwareTrait;
+
     public string $login = 'root';
 
     public string $password;
@@ -32,6 +36,8 @@ abstract class IpDevice extends Device
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
 
         $this->debug = config_get('debug', false);
+
+        $this->setLogger(file_logger('ip'));
     }
 
     public function withTimeout(int $value): static
@@ -117,7 +123,7 @@ abstract class IpDevice extends Device
             $response = $this->response($response, $parse);
 
             if ($this->debug) {
-                file_logger('intercom')->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
+                $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
             }
 
             return $response;
@@ -157,7 +163,7 @@ abstract class IpDevice extends Device
             $response = $this->response($response, $parse);
 
             if ($this->debug) {
-                file_logger('intercom')->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
+                $this->logger?->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
             }
 
             return $response;
@@ -197,7 +203,7 @@ abstract class IpDevice extends Device
             $response = $this->response($response, $parse);
 
             if ($this->debug) {
-                file_logger('intercom')->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
+                $this->logger?->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
             }
 
             return $response;
@@ -229,7 +235,7 @@ abstract class IpDevice extends Device
             $response = $this->response($response, $parse);
 
             if ($this->debug) {
-                file_logger('intercom')->debug('DELETE/' . $endpoint, ['response' => $response]);
+                $this->logger?->debug('DELETE/' . $endpoint, ['response' => $response]);
             }
 
             return $response;

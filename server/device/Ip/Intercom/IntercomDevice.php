@@ -17,6 +17,8 @@ abstract class IntercomDevice extends IpDevice
         parent::__construct($uri, $password);
 
         $this->model = $model;
+
+        $this->setLogger(file_logger('intercom'));
     }
 
     public function open(int $value): void

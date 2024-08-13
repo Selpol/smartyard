@@ -27,7 +27,7 @@ class IntercomLevelTask extends IntercomTask
         $deviceModel = IntercomModel::model($deviceIntercom->model);
 
         if (!$deviceIntercom || !$deviceModel) {
-            file_logger('intercom')->debug('Domophone not found', ['id' => $this->id]);
+            $this->logger?->debug('Domophone not found', ['id' => $this->id]);
 
             return false;
         }
@@ -37,7 +37,7 @@ class IntercomLevelTask extends IntercomTask
         $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $this->id, 'output' => '0']);
 
         if (!$entrances) {
-            file_logger('intercom')->debug('This domophone is not linked with any entrance', ['id' => $this->id]);
+            $this->logger?->debug('This domophone is not linked with any entrance', ['id' => $this->id]);
 
             return false;
         }
@@ -65,7 +65,7 @@ class IntercomLevelTask extends IntercomTask
 
             return true;
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable, ['id' => $this->id]);
+            $this->logger?->error($throwable, ['id' => $this->id]);
 
             throw new RuntimeException($throwable->getMessage(), previous: $throwable);
         }
