@@ -56,8 +56,9 @@ class DeviceService
         }
 
         $camera = $this->camera($camera->model, $camera->url, $camera->credentials);
+        $this->cameras[$id] = $camera;
 
-        return $this->cameras[$id] = $camera;
+        return $camera;
     }
 
     public function camera(string $model, string $url, #[SensitiveParameter] string $password): ?CameraDevice
@@ -91,8 +92,9 @@ class DeviceService
         }
 
         $intercom = $this->intercom($intercom->model, $intercom->url, $intercom->credentials);
+        $this->intercoms[$id] = $intercom;
 
-        return $this->intercoms[$id] = $intercom;
+        return $intercom;
     }
 
     public function intercom(string $model, string $url, #[SensitiveParameter] string $password): ?IntercomDevice
@@ -132,8 +134,9 @@ class DeviceService
         $credentials = $server->credentials();
 
         $dvr = $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password'], $server);
+        $this->dvrs[$id] = $dvr;
 
-        return $this->dvrs[$id] = $dvr;
+        return $dvr;
     }
 
     public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password, DvrServer $server): ?DvrDevice
