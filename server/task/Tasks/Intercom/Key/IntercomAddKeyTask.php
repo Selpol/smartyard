@@ -2,9 +2,9 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Throwable;
@@ -24,7 +24,7 @@ class IntercomAddKeyTask extends Task
 
     public function onTask(): bool
     {
-        $flat = container(HouseFeature::class)->getFlat($this->flatId);
+        $flat = HouseFlat::findById($this->flatId, setting: setting()->columns(['flat']));
 
         if (!$flat) {
             return false;
@@ -34,11 +34,7 @@ class IntercomAddKeyTask extends Task
 
         if ($entrances && count($entrances) > 0) {
             foreach ($entrances as $entrance) {
-                $id = $entrance['domophoneId'];
-
-                if ($id) {
-                    $this->add($id, $flat['flat']);
-                }
+                $this->add($entrance['domophoneId'], intval($flat->flat));
             }
 
             return true;
