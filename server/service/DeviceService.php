@@ -40,7 +40,7 @@ class DeviceService
             return $this->cameras[$id];
         }
 
-        if ($camera = DeviceCamera::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable())) {
+        if ($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials'])->nonNullable())) {
             return $this->cameraByEntity($camera);
         }
 
@@ -76,7 +76,7 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        if ($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['model', 'url', 'credentials'])->nonNullable())) {
+        if ($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials'])->nonNullable())) {
             return $this->intercomByEntity($intercom);
         }
 
