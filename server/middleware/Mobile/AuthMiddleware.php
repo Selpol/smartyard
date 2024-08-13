@@ -26,8 +26,9 @@ readonly class AuthMiddleware extends RouteMiddleware
     {
         $result = $this->setJwtFromRequest($request);
 
-        if ($result !== null)
+        if ($result !== null) {
             return json_response(401, body: ['code' => 401, 'message' => $result])->withStatus(401);
+        }
 
         return $handler->handle($request);
     }
@@ -36,8 +37,9 @@ readonly class AuthMiddleware extends RouteMiddleware
     {
         $token = $request->getHeaderLine('Authorization');
 
-        if (!str_starts_with($token, 'Bearer '))
+        if (!str_starts_with($token, 'Bearer ')) {
             return 'Запрос не авторизирован';
+        }
 
         $bearer = substr($token, 7);
 
@@ -45,8 +47,9 @@ readonly class AuthMiddleware extends RouteMiddleware
             if ($this->user) {
                 $ip = connection_ip($request);
 
-                if (!$ip)
+                if (!$ip) {
                     return 'Неизвестный источник запроса';
+                }
 
                 $auth = container(AuthenticationFeature::class)->auth($token, $request->getHeaderLine('User-Agent'), $ip);
 
@@ -62,8 +65,9 @@ readonly class AuthMiddleware extends RouteMiddleware
 
         $jwt = container(OauthFeature::class)->validateJwt($bearer);
 
-        if ($jwt === null)
+        if ($jwt === null) {
             return 'Запрос не авторизирован';
+        }
 
         container(AuthService::class)->setToken(new JwtAuthToken($jwt));
 

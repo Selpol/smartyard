@@ -26,8 +26,9 @@ readonly class ClickhouseEntityConnection implements EntityConnectionInterface
         $option = new ClientOption();
         $option->basic($this->username, $this->password);
 
-        if (str_starts_with(strtoupper(substr($value, 0, 6)), 'SELECT'))
+        if (str_starts_with(strtoupper(substr($value, 0, 6)), 'SELECT')) {
             $value .= ' FORMAT JSON';
+        }
 
         return new ClickhouseEntityStatement($option, request('POST', uri($this->endpoint), ['Content-Type' => ['text/plain; charset=UTF-8']]), $value);
     }

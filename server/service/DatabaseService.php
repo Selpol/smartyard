@@ -53,8 +53,9 @@ class DatabaseService implements ContainerDisposeInterface
             if ($statement->execute($params)) {
                 $count = $statement->rowCount();
 
-                for ($i = 0; $i < $count; $i++)
+                for ($i = 0; $i < $count; $i++) {
                     yield $statement->fetch($mode, cursorOffset: $i);
+                }
             }
         } catch (PDOException) {
         }
@@ -62,11 +63,13 @@ class DatabaseService implements ContainerDisposeInterface
 
     public function insert(string $query, array|bool $params = [], array|bool $options = []): bool|int|string
     {
-        if (is_bool($params))
+        if (is_bool($params)) {
             $params = [];
+        }
 
-        if (is_bool($options))
+        if (is_bool($options)) {
             $options = [];
+        }
 
         try {
             $sth = $this->connection->prepare($query);
@@ -79,10 +82,11 @@ class DatabaseService implements ContainerDisposeInterface
                 }
             } else return false;
         } catch (PDOException $e) {
-            if ($e->getCode() == 23505)
+            if ($e->getCode() == 23505) {
                 throw new DatabaseException(DatabaseException::UNIQUE_VIOLATION, 'Ключ уже существует', previous: $e);
-            else if ($e->getCode() == 23503)
+            } else if ($e->getCode() == 23503) {
                 throw new DatabaseException(DatabaseException::FOREIGN_VIOLATION, 'Существуют дочерние объекты', previous: $e);
+            }
 
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
@@ -102,18 +106,22 @@ class DatabaseService implements ContainerDisposeInterface
 
     public function modify(string $query, array|bool $params = [], array|bool $options = []): bool|int
     {
-        if (is_bool($params))
+        if (is_bool($params)) {
             $params = [];
+        }
 
-        if (is_bool($options))
+        if (is_bool($options)) {
             $options = [];
+        }
 
         try {
             $sth = $this->connection->prepare($query);
 
-            if ($sth->execute($this->remap($params)))
+            if ($sth->execute($this->remap($params))) {
                 return $sth->rowCount();
-            else return false;
+            } else {
+                return false;
+            }
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
@@ -133,14 +141,17 @@ class DatabaseService implements ContainerDisposeInterface
 
     public function modifyEx(string $query, array|bool $map, array|bool $params, array|bool $options = []): bool
     {
-        if (is_bool($map))
+        if (is_bool($map)) {
             $map = [];
+        }
 
-        if (is_bool($params))
+        if (is_bool($params)) {
             $params = [];
+        }
 
-        if (is_bool($options))
+        if (is_bool($options)) {
             $options = [];
+        }
 
         $mod = false;
 
@@ -149,10 +160,11 @@ class DatabaseService implements ContainerDisposeInterface
                 if (array_key_exists($param, $params)) {
                     $sth = $this->connection->prepare(sprintf($query, $db, $db));
 
-                    if ($sth->execute($this->remap([$db => $params[$param]])))
-                        if ($sth->rowCount())
+                    if ($sth->execute($this->remap([$db => $params[$param]]))) {
+                        if ($sth->rowCount()) {
                             $mod = true;
-
+                        }
+                    }
                 }
             }
             return $mod;
@@ -175,20 +187,26 @@ class DatabaseService implements ContainerDisposeInterface
 
     public function get(string $query, array|bool $params = [], array|bool $map = [], array $options = []): bool|array
     {
-        if (is_bool($params))
+        if (is_bool($params)) {
             $params = [];
+        }
 
-        if (is_bool($map))
+        if (is_bool($map)) {
             $map = [];
+        }
 
         try {
             if ($params) {
                 $sth = $this->connection->prepare($query);
 
-                if ($sth->execute($params))
+                if ($sth->execute($params)) {
                     $a = $sth->fetchAll(PDO::FETCH_ASSOC);
-                else return false;
-            } else $a = $this->connection->query($query, PDO::FETCH_ASSOC)->fetchAll();
+                } else {
+                    return false;
+                }
+            } else {
+                $a = $this->connection->query($query, PDO::FETCH_ASSOC)->fetchAll();
+            }
 
             $r = [];
 
@@ -196,21 +214,30 @@ class DatabaseService implements ContainerDisposeInterface
                 foreach ($a as $f) {
                     $x = [];
 
-                    foreach ($map as $k => $l)
+                    foreach ($map as $k => $l) {
                         $x[$l] = $f[$k];
+                    }
 
                     $r[] = $x;
                 }
-            } else $r = $a;
+            } else {
+                $r = $a;
+            }
 
             if (in_array('singlify', $options)) {
-                if (count($r) === 1) return $r[0];
-                else return false;
+                if (count($r) === 1) {
+                    return $r[0];
+                } else {
+                    return false;
+                }
             }
 
             if (in_array('fieldlify', $options)) {
-                if (count($r) === 1) return $r[0][array_key_first($r[0])];
-                else return false;
+                if (count($r) === 1) {
+                    return $r[0][array_key_first($r[0])];
+                } else {
+                    return false;
+                }
             }
 
             return $r;
@@ -242,8 +269,11 @@ class DatabaseService implements ContainerDisposeInterface
 
         if ($map) {
             foreach ($map as $key => $value) {
-                if (is_null($value)) $result[$key] = $value;
-                else $result[$key] = is_string($value) ? trim($value) : $value;
+                if (is_null($value)) {
+                    $result[$key] = $value;
+                } else {
+                    $result[$key] = is_string($value) ? trim($value) : $value;
+                }
             }
         }
 

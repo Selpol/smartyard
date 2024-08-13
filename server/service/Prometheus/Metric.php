@@ -24,8 +24,9 @@ readonly class Metric
 
         $result = [];
 
-        foreach ($value['samples'] as $sample)
+        foreach ($value['samples'] as $sample) {
             $result[] = new Sample($sample);
+        }
 
         $this->samples = $result;
     }

@@ -67,8 +67,9 @@ class ClickhouseEntityStatement implements EntityStatementInterface
                 $message = $response->getBody()->getContents();
                 $error = 'Code: ' . $code . '. ';
 
-                if (str_starts_with($message, $error))
+                if (str_starts_with($message, $error)) {
                     $message = substr($message, strlen($error));
+                }
 
                 $this->error[] = new EntityMessage(intval($code), $message);
             }

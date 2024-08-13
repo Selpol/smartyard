@@ -29,8 +29,9 @@ readonly class BlockMiddleware extends RouteMiddleware
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($block = container(BlockFeature::class)->getFirstBlockForSubscriber(container(AuthService::class)->getUserOrThrow()->getIdentifier(), $this->services))
+        if ($block = container(BlockFeature::class)->getFirstBlockForSubscriber(container(AuthService::class)->getUserOrThrow()->getIdentifier(), $this->services)) {
             return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
+        }
 
         return $handler->handle($request);
     }

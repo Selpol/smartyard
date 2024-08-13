@@ -54,17 +54,21 @@ readonly class RateLimitMiddleware extends RouteMiddleware
 
         $ip = connection_ip($request);
 
-        foreach ($this->trust as $item)
-            if (ip_in_range($ip, $item))
+        foreach ($this->trust as $item) {
+            if (ip_in_range($ip, $item)) {
                 return $handler->handle($request);
+            }
+        }
 
         $key = 'rate:' . $ip;
 
-        if ($token = container(AuthService::class)->getToken())
+        if ($token = container(AuthService::class)->getToken()) {
             $key .= ':' . $token->getIdentifierName() . '-' . $token->getIdentifier();
+        }
 
-        if ($this->request)
+        if ($this->request) {
             $key .= ':' . str_replace('/', '-', $request->getRequestTarget());
+        }
 
         if (!$redis->exists($key)) {
             $redis->incr($key);

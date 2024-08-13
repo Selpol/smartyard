@@ -20,8 +20,9 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     public function run(array $arguments): int
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST')
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             return $this->bad();
+        }
 
         $mqtt = config('mqtt');
 
@@ -29,15 +30,17 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $trust = false;
 
-        foreach ($mqtt['trust'] as $range)
+        foreach ($mqtt['trust'] as $range) {
             if (ip_in_range($ip, $range)) {
                 $trust = true;
 
                 break;
             }
+        }
 
-        if (!$trust)
+        if (!$trust) {
             return $this->bad();
+        }
 
         $input = json_decode(file_get_contents('php://input', true), true);
 
@@ -45,23 +48,29 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $path = $uri->getPath();
 
         if ($path === '/mqtt/user') {
-            if (!array_key_exists('username', $input) || !array_key_exists('password', $input) || !array_key_exists('clientid', $input))
+            if (!array_key_exists('username', $input) || !array_key_exists('password', $input) || !array_key_exists('clientid', $input)) {
                 return $this->bad();
+            }
 
-            if (container(MqttFeature::class)->checkUser($input['username'], $input['password'], $input['clientid']))
+            if (container(MqttFeature::class)->checkUser($input['username'], $input['password'], $input['clientid'])) {
                 return $this->ok();
+            }
         } else if ($path === '/mqtt/admin') {
-            if (!array_key_exists('username', $input))
+            if (!array_key_exists('username', $input)) {
                 return $this->bad();
+            }
 
-            if (container(MqttFeature::class)->checkAdmin($input['username']))
+            if (container(MqttFeature::class)->checkAdmin($input['username'])) {
                 return $this->ok();
+            }
         } else if ($path === '/mqtt/acl') {
-            if (!array_key_exists('username', $input) || !array_key_exists('clientid', $input) || !array_key_exists('topic', $input) || !array_key_exists('acc', $input))
+            if (!array_key_exists('username', $input) || !array_key_exists('clientid', $input) || !array_key_exists('topic', $input) || !array_key_exists('acc', $input)) {
                 return $this->bad();
+            }
 
-            if (container(MqttFeature::class)->checkAcl($input['username'], $input['clientid'], $input['topic'], intval($input['acc'])))
+            if (container(MqttFeature::class)->checkAcl($input['username'], $input['clientid'], $input['topic'], intval($input['acc']))) {
                 return $this->ok();
+            }
         }
 
         return $this->bad();

@@ -45,8 +45,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      */
     function run(array $arguments): int
     {
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS')
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             return $this->emit(response(204));
+        }
 
         $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
@@ -58,8 +59,9 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
 
         $route = $this->getRouterValue($request);
 
-        if ($route !== null)
+        if ($route !== null) {
             return $this->emit($this->handle($request));
+        }
 
         return $this->emit(rbt_response(404));
     }
@@ -67,18 +69,18 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
     function error(Throwable $throwable): int
     {
         try {
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 $response = rbt_response($throwable->getCode() ?: 500, $throwable->getLocalizedMessage());
-            else if ($throwable instanceof ValidatorException) {
+            } else if ($throwable instanceof ValidatorException) {
                 $response = rbt_response(400, $throwable->getValidatorMessage()->message);
 
                 file_logger('response_400')->error($throwable);
             } else if ($throwable instanceof DatabaseException) {
-                if ($throwable->isUniqueViolation())
+                if ($throwable->isUniqueViolation()) {
                     $response = rbt_response(400, 'Дубликат объекта');
-                else if ($throwable->isForeignViolation())
+                } else if ($throwable->isForeignViolation()) {
                     $response = rbt_response(400, 'Объект имеет дочерние зависимости');
-                else $response = rbt_response(500);
+                } else $response = rbt_response(500);
             } else {
                 file_logger('response')->error($throwable);
 

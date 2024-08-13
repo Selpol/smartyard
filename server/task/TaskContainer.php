@@ -67,20 +67,23 @@ class TaskContainer
         try {
             $canAudit = container(AuditFeature::class)->canAudit();
 
-            if ($canAudit && $this->task->uid === null)
+            if ($canAudit && $this->task->uid === null) {
                 $this->task->uid = container(AuthService::class)->getUserOrThrow()->getIdentifier();
+            }
 
             container(TaskService::class)->enqueue($queue, $this->task, $this->start);
 
-            if ($canAudit)
+            if ($canAudit) {
                 container(AuditFeature::class)->audit('-1', $this->task::class, 'task', $this->task->title);
+            }
 
             return true;
         } catch (Throwable $throwable) {
             $logger->error('Error dispatching task' . PHP_EOL . $throwable);
 
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 throw $throwable;
+            }
 
             return false;
         }

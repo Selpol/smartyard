@@ -20,12 +20,15 @@ trait TaskUniqueTrait
 
         $exclude = ['title', 'uid', 'retry', 'taskUniqueIgnore', 'taskUniqueTtl'];
 
-        if (isset($this->taskUniqueIgnore))
+        if (isset($this->taskUniqueIgnore)) {
             $exclude = array_merge($this->taskUniqueIgnore, $exclude);
+        }
 
-        foreach ($properties as $property)
-            if (!$property->isStatic() && !in_array($property->getName(), $exclude))
+        foreach ($properties as $property) {
+            if (!$property->isStatic() && !in_array($property->getName(), $exclude)) {
                 $value[] = $property->getValue($this);
+            }
+        }
 
         return [implode('/', $value), $this->taskUniqueTtl ?? 60];
     }

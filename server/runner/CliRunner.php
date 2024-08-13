@@ -163,19 +163,22 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if ($initDbVersion > $version) {
                 $this->logger->debug('Start upgrading migration from ' . $version . ' to ' . $initDbVersion);
 
-                if (task(new MigrationUpTask($version, $initDbVersion, $force))->sync())
+                if (task(new MigrationUpTask($version, $initDbVersion, $force))->sync()) {
                     $this->logger->debug('Upgrade migration from ' . $version . ' to ' . $initDbVersion);
+                }
             } else if ($initDbVersion < $version) {
                 $this->logger->debug('Start downgrading migration from ' . $version . ' to ' . $initDbVersion);
 
-                if (task(new MigrationDownTask($version, $initDbVersion, $force))->sync())
+                if (task(new MigrationDownTask($version, $initDbVersion, $force))->sync()) {
                     $this->logger->debug('Downgrade migration from ' . $version . ' to ' . $initDbVersion);
+                }
             }
         } else {
             $this->logger->debug('Start upgrading migration from ' . $version . ' to latest');
 
-            if (task(new MigrationUpTask($version, null, $force))->sync())
+            if (task(new MigrationUpTask($version, null, $force))->sync()) {
                 $this->logger->debug('Upgrade migration from ' . $version . ' to latest');
+            }
         }
     }
 
@@ -272,12 +275,13 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $parts = ["minutely", "5min", "hourly", "daily", "monthly"];
         $part = false;
 
-        foreach ($parts as $p)
+        foreach ($parts as $p) {
             if (in_array($p, $arguments)) {
                 $part = $p;
 
                 break;
             }
+        }
 
         if ($part) {
             $start = microtime(true) * 1000;
@@ -287,16 +291,18 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $features = [FrsFeature::class, FileFeature::class];
 
                 foreach ($features as $feature) {
-                    if (container($feature)->cron($part))
+                    if (container($feature)->cron($part)) {
                         $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
-                    else
+                    } else {
                         $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+                    }
                 }
 
-                if (container(FrsFeature::class)->cron($part))
+                if (container(FrsFeature::class)->cron($part)) {
                     $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
-                else
+                } else {
                     $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+                }
             } catch (Throwable $throwable) {
                 $this->logger->error('Error cron' . PHP_EOL . $throwable, ['feature' => FrsFeature::class, 'part' => $part]);
             }
@@ -319,14 +325,17 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $lines = 0;
 
         foreach ($crontab as $line) {
-            if ($line === "## RBT crons start, dont touch!!!")
+            if ($line === "## RBT crons start, dont touch!!!") {
                 $skip = true;
+            }
 
-            if (!$skip)
+            if (!$skip) {
                 $clean[] = $line;
+            }
 
-            if ($line === "## RBT crons end, dont touch!!!")
+            if ($line === "## RBT crons end, dont touch!!!") {
                 $skip = false;
+            }
         }
 
         $clean = explode("\n", trim(implode("\n", $clean)));
@@ -369,14 +378,19 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $lines = 0;
 
         foreach ($crontab as $line) {
-            if ($line === "## RBT crons start, dont touch!!!")
+            if ($line === "## RBT crons start, dont touch!!!") {
                 $skip = true;
+            }
 
-            if (!$skip) $clean[] = $line;
-            else $lines++;
+            if (!$skip) {
+                $clean[] = $line;
+            } else {
+                $lines++;
+            }
 
-            if ($line === "## RBT crons end, dont touch!!!")
+            if ($line === "## RBT crons end, dont touch!!!") {
                 $skip = false;
+            }
         }
 
         $clean = explode("\n", trim(implode("\n", $clean)));
@@ -407,8 +421,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $headers = ['TYPE', 'ID', 'FACTORY'];
             $result = [];
 
-            foreach ($factories as $id => $factory)
+            foreach ($factories as $id => $factory) {
                 $result[] = ['TYPE' => $factory[0] ? 'SINGLETON' : 'FACTORY', 'ID' => $id, 'FACTORY' => $factory[1] ?: ''];
+            }
 
             $this->logger->debug('CONTAINER TABLE:');
             $this->logger->debug($this->table($headers, $result));
@@ -660,8 +675,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
         }
 
-        foreach ($titlePermissions as $permission)
+        foreach ($titlePermissions as $permission) {
             $permission->delete();
+        }
     }
 
     /**
@@ -680,8 +696,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         foreach ($deviceIntercoms as $deviceIntercom) {
             $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
-            if (!$intercom->ping())
+            if (!$intercom->ping()) {
                 continue;
+            }
 
             $info = $intercom->getSysInfo();
 
@@ -699,9 +716,11 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         try {
             $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
 
-            if ($deviceIntercom)
+            if ($deviceIntercom) {
                 task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
-            else echo 'Домофон не найден' . PHP_EOL;
+            } else {
+                echo 'Домофон не найден' . PHP_EOL;
+            }
         } catch (Throwable $throwable) {
             echo 'Ошибка синхронизации. ' . $throwable . PHP_EOL;
         }
@@ -724,20 +743,29 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     private function deviceReboot(int $id): void
     {
-        if ($device = intercom($id)) $device->reboot();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if ($device = intercom($id)) {
+            $device->reboot();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     private function deviceReset(int $id): void
     {
-        if ($device = intercom($id)) $device->reset();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if ($device = intercom($id)) {
+            $device->reset();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     private function deviceCall(int $id): void
     {
-        if ($device = intercom($id)) $device->callStop();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if ($device = intercom($id)) {
+            $device->callStop();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     public function taskUnique(): void
@@ -757,40 +785,45 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $result = [];
 
-        if ($group === null || $group === 'db')
+        if ($group === null || $group === 'db') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'db:init [--version=<version>]                  - Инициализация базы данных',
                 'db:check                                       - Проверка доступности базы данных'
             ]);
+        }
 
-        if ($group === null || $group === 'amqp')
+        if ($group === null || $group === 'amqp') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'amqp:check                                     - Проверка доступности AMQP'
             ]);
+        }
 
-        if ($group === null || $group === 'admin')
+        if ($group === null || $group === 'admin') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'admin:password=<password>                      - Обновить пароль администратора'
             ]);
+        }
 
-        if ($group === null || $group === 'user')
+        if ($group === null || $group === 'user') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'user:password=<id> --password=<password>       - Обновить пароль пользователя'
             ]);
+        }
 
-        if ($group === null || $group === 'cron')
+        if ($group === null || $group === 'cron') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'cron:run=<type>                                - Выполнить задачи по времени',
                 'cron:install                                   - Установить задачи по времени',
                 'cron:uninstall                                 - Удалить задачи по времени'
             ]);
+        }
 
-        if ($group === null || $group === 'kernel')
+        if ($group === null || $group === 'kernel') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'kernel:container                               - Показать зависимости приложения',
@@ -798,21 +831,24 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 'kernel:clear                                   - Очистить приложение',
                 'kernel:wipe                                    - Очистить метрики приложения'
             ]);
+        }
 
-        if ($group === null || $group === 'audit')
+        if ($group === null || $group === 'audit') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'audit:clear                                    - Очистить данные аудита'
             ]);
+        }
 
-        if ($group === null || $group === 'role')
+        if ($group === null || $group === 'role') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'role:init                                      - Инициализация групп',
                 'role:clear                                     - Удалить группы'
             ]);
+        }
 
-        if ($group === null || $group === 'device')
+        if ($group === null || $group === 'device') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'device:info                                    - Обновить информацию об домофонах',
@@ -822,18 +858,21 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 'device:reboot=<id>                             - Перезапуск домофона',
                 'device:reset=<id>                              - Сбросить домофон'
             ]);
+        }
 
-        if ($group === null || $group === 'task')
+        if ($group === null || $group === 'task') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'task:unique                                    - Очистить данные об уникальности задач'
             ]);
+        }
 
-        if ($group === null || $group === 'inbox')
+        if ($group === null || $group === 'inbox') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'inbox:server=<value> --subscriber=<subscriber> - Обновить сервер абоненту'
             ]);
+        }
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;
     }
@@ -849,8 +888,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $max = strlen($header);
 
                 foreach ($values as $value) {
-                    if (strlen($value[$header]) > $max)
+                    if (strlen($value[$header]) > $max) {
                         $max = strlen($value[$header]);
+                    }
                 }
 
                 return $previous . ' | %' . $max . '.' . $max . 's';
@@ -859,8 +899,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = sprintf($mask, ...$headers);
         $result .= PHP_EOL . str_repeat('-', strlen($result)) . PHP_EOL;
 
-        foreach ($values as $value)
+        foreach ($values as $value) {
             $result .= sprintf($mask, ...array_map(static fn(string $header) => $value[$header], $headers)) . PHP_EOL;
+        }
 
         return $result;
     }

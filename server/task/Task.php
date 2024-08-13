@@ -36,14 +36,17 @@ abstract class Task implements LoggerAwareInterface
 
     public function setProgressCallback(?callable $callback): void
     {
-        if ($callback)
+        if ($callback) {
             $this->progressCallback = $callback;
-        else unset($this->progressCallback);
+        } else {
+            unset($this->progressCallback);
+        }
     }
 
     protected function setProgress(int|float $progress): void
     {
-        if (isset($this->progressCallback) && $this->progressCallback)
+        if (isset($this->progressCallback) && $this->progressCallback) {
             call_user_func($this->progressCallback, $progress);
+        }
     }
 }

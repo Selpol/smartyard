@@ -30,10 +30,16 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
         $this->house = array_key_exists('house', $config) ? $config['house'] : null;
 
         if ($this->house) {
-            if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
-            else $this->flat = null;
-        } else if (array_key_exists('flat', $config)) $this->flat = $config['flat'];
-        else $this->flat = 'flat_id';
+            if (array_key_exists('flat', $config)) {
+                $this->flat = $config['flat'];
+            } else {
+                $this->flat = null;
+            }
+        } else if (array_key_exists('flat', $config)) {
+            $this->flat = $config['flat'];
+        } else {
+            $this->flat = 'flat_id';
+        }
 
         $this->services = $config['services'];
 
@@ -46,16 +52,18 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
         /** @var Route|null $route */
         $route = $request->getAttribute('route');
 
-        if (!$route)
+        if (!$route) {
             throw new KernelException('Ошибка проверки доступа', '', 500);
+        }
 
         $value = $route->toArray();
 
         if ($this->flat && array_key_exists($this->flat, $value) && !is_null($value[$this->flat])) {
             $flatId = rule()->id()->onItem($this->flat, $value);
 
-            if ($block = container(BlockFeature::class)->getFirstBlockForFlat($flatId, $this->services))
+            if ($block = container(BlockFeature::class)->getFirstBlockForFlat($flatId, $this->services)) {
                 return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
+            }
         } else if ($this->house && array_key_exists($this->house, $value) && !is_null($value[$this->house])) {
             $houseId = rule()->id()->onItem($this->house, $value);
 
@@ -64,9 +72,12 @@ readonly class BlockFlatMiddleware extends RouteMiddleware
 
             $blockFlats = array_filter($flats, static fn(?FlatBlock $block) => $block != null);
 
-            if (count($flats) == count($blockFlats))
+            if (count($flats) == count($blockFlats)) {
                 return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($blockFlats[0]->cause ? (' ' . $blockFlats[0]->cause) : '')]);
-        } else return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Не удалось определить квартиру']);
+            }
+        } else {
+            return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Не удалось определить квартиру']);
+        }
 
         return $handler->handle($request);
     }

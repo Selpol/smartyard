@@ -21,12 +21,15 @@ readonly class AuthMiddleware extends RouteMiddleware
     {
         $ip = connection_ip($request);
 
-        if ($ip === null)
+        if ($ip === null) {
             return json_response(404, body: ['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
+        }
 
-        foreach ($this->trust as $item)
-            if (ip_in_range($ip, $item))
+        foreach ($this->trust as $item) {
+            if (ip_in_range($ip, $item)) {
                 return $handler->handle($request);
+            }
+        }
 
         return json_response(404, body: ['code' => 404, 'name' => Response::$codes[404]['name'], 'message' => Response::$codes[404]['message']])->withStatus(404);
     }

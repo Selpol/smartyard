@@ -51,13 +51,15 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
     {
         $feature = container(TaskFeature::class);
 
-        if ($feature->hasUnique($task))
+        if ($feature->hasUnique($task)) {
             throw new KernelException('Задача уже существует', code: 400);
+        }
 
         $feature->setUnique($task);
 
-        if ($this->connection == null || $this->channel == null)
+        if ($this->connection == null || $this->channel == null) {
             $this->connect();
+        }
 
         $this->channel->exchange_declare('delayed_exchange', 'x-delayed-message', durable: true, arguments: new AMQPTable(['x-delayed-type' => 'direct']));
 
@@ -66,8 +68,9 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 
         $message = new AMQPMessage(serialize($task), ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]);
 
-        if ($delay)
+        if ($delay) {
             $message->set('application_headers', new AMQPTable(['x-delay' => $delay * 1000]));
+        }
 
         $this->channel->basic_publish($message, 'delayed_exchange', $queue);
 
@@ -79,8 +82,9 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
      */
     public function dequeue(string $queue, callable|TaskCallbackInterface $callback): void
     {
-        if ($this->connection == null || $this->channel == null)
+        if ($this->connection == null || $this->channel == null) {
             $this->connect();
+        }
 
         $this->channel->queue_declare($queue, durable: true);
 
@@ -90,15 +94,17 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
             try {
                 $task = unserialize($message->body);
 
-                if ($task instanceof Task)
+                if ($task instanceof Task) {
                     $callback($task);
+                }
             } catch (Exception $exception) {
                 $logger?->error($exception);
             }
         });
 
-        while ($this->channel->is_consuming())
+        while ($this->channel->is_consuming()) {
             $this->channel->wait();
+        }
     }
 
     /**

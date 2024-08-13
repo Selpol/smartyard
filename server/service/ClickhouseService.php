@@ -48,8 +48,9 @@ readonly class ClickhouseService
                 $len = strlen($header);
                 $header = explode(':', $header, 2);
 
-                if (count($header) < 2)
+                if (count($header) < 2) {
                     return $len;
+                }
 
                 $headers[strtolower(trim($header[0]))][] = trim($header[1]);
 
@@ -85,8 +86,9 @@ readonly class ClickhouseService
             return false;
         }
 
-        if (is_array($data))
+        if (is_array($data)) {
             return $data;
+        }
 
         return false;
     }
@@ -115,8 +117,9 @@ readonly class ClickhouseService
                 $len = strlen($header);
                 $header = explode(':', $header, 2);
 
-                if (count($header) < 2)
+                if (count($header) < 2) {
                     return $len;
+                }
 
                 $headers[strtolower(trim($header[0]))][] = trim($header[1]);
 
@@ -126,8 +129,9 @@ readonly class ClickhouseService
 
         $_data = "";
 
-        foreach ($data as $line)
+        foreach ($data as $line) {
             $_data .= json_encode($line) . "\n";
+        }
 
         curl_setopt($curl, CURLOPT_POSTFIELDS, $_data);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);

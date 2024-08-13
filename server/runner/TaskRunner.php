@@ -62,8 +62,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
             sapi_windows_set_ctrl_handler(static function (int $event) {
-                if ($event == PHP_WINDOWS_EVENT_CTRL_C)
+                if ($event == PHP_WINDOWS_EVENT_CTRL_C) {
                     exit(0);
+                }
             });
         else {
             pcntl_async_signals(true);
@@ -119,8 +120,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             } catch (Throwable $throwable) {
                 $message = $throwable instanceof KernelException ? $throwable->getLocalizedMessage() : $throwable->getMessage();
 
-                if ($message == '')
+                if ($message == '') {
                     $message = $throwable->getMessage();
+                }
 
                 $service->task($uuid, $task->title, 'done', $task->uid, $message);
 
