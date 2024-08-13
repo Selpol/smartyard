@@ -65,8 +65,9 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
             $logger->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail]);
 
-            if (count($flat_list) == 0)
+            if (count($flat_list) == 0) {
                 return false;
+            }
         }
 
         if ($this->type == PlogFeature::EVENT_OPENED_BY_CODE) {
@@ -75,8 +76,9 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
             $event_data[PlogFeature::COLUMN_CODE] = $open_code;
             $flat_list = $this->getFlatIdByCode($open_code);
 
-            if (count($flat_list) == 0)
+            if (count($flat_list) == 0) {
                 return false;
+            }
         }
 
         if ($this->type == PlogFeature::EVENT_OPENED_BY_APP) {
@@ -85,8 +87,9 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
             $event_data[PlogFeature::COLUMN_PHONES]['user_phone'] = $user_phone;
             $flat_list = $this->getFlatIdByUserPhone($user_phone);
 
-            if (!$flat_list || count($flat_list) == 0)
+            if (!$flat_list || count($flat_list) == 0) {
                 return false;
+            }
         }
 
         if ($this->type == PlogFeature::EVENT_OPENED_BY_FACE) {
@@ -103,23 +106,26 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
             $flat_list = container(FrsFeature::class)->getFlatsByFaceId($face_id, $entrance["entranceId"]);
 
-            if (!$flat_list || count($flat_list) == 0)
+            if (!$flat_list || count($flat_list) == 0) {
                 return false;
+            }
         }
 
         $image_data = $plog->getCamshot($this->id, $this->door, $this->date, $event_id);
 
         if ($image_data) {
-            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID]))
+            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID])) {
                 $event_data[PlogFeature::COLUMN_IMAGE_UUID] = $image_data[PlogFeature::COLUMN_IMAGE_UUID];
+            }
 
             $event_data[PlogFeature::COLUMN_PREVIEW] = $image_data[PlogFeature::COLUMN_PREVIEW];
 
             if (isset($image_data[PlogFeature::COLUMN_FACE])) {
                 $event_data[PlogFeature::COLUMN_FACE] = $image_data[PlogFeature::COLUMN_FACE];
 
-                if (isset($face_id))
+                if (isset($face_id)) {
                     $event_data[PlogFeature::COLUMN_FACE][FrsFeature::P_FACE_ID] = $face_id;
+                }
             }
         }
 

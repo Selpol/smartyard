@@ -23,8 +23,9 @@ abstract class PlogTask extends Task
 
         $result = $households->getEntrances('domophoneId', ['domophoneId' => $this->id, 'output' => $domophone_output]);
 
-        if ($result && $result[0])
+        if ($result && $result[0]) {
             return $result[0]['entrance'];
+        }
 
         return false;
     }
@@ -65,47 +66,50 @@ abstract class PlogTask extends Task
         return false;
     }
 
-    protected function getFlatIdByPrefixAndNumber($prefix, $flat_number)
+    protected function getFlatIdByPrefixAndNumber(int|string $prefix, int|string $flat_number): ?int
     {
         $households = container(HouseFeature::class);
         $result = $households->getFlats('flatIdByPrefix', ['prefix' => $prefix, 'flatNumber' => $flat_number, 'domophoneId' => $this->id]);
 
-        if ($result && $result[0])
-            return $result[0]['flatId'];
+        if ($result && $result[0]) {
+            return intval($result[0]['flatId']);
+        }
 
         return false;
     }
 
-    protected function getFlatIdByNumber($flat_number)
+    protected function getFlatIdByNumber(int|string $flat_number): ?int
     {
         $households = container(HouseFeature::class);
         $result = $households->getFlats('apartment', ['domophoneId' => $this->id, 'flatNumber' => $flat_number]);
 
         if ($result && $result[0])
-            return $result[0]['flatId'];
+            return intval($result[0]['flatId']);
 
         return false;
     }
 
-    protected function getFlatIdByDomophoneId()
+    protected function getFlatIdByDomophoneId(): ?int
     {
         $households = container(HouseFeature::class);
         $result = $households->getFlats('domophoneId', $this->id);
 
         // Only if one apartment is linked
-        if ($result && count($result) === 1 && $result[0])
-            return $result[0]['flatId'];
+        if ($result && count($result) === 1 && $result[0]) {
+            return intval($result[0]['flatId']);
+        }
 
         return false;
     }
 
-    protected function getEntranceCount($flat_id)
+    protected function getEntranceCount($flat_id): int
     {
         $households = container(HouseFeature::class);
         $result = $households->getEntrances('flatId', $flat_id);
 
-        if ($result)
+        if ($result) {
             return count($result);
+        }
 
         return 0;
     }

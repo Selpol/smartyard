@@ -510,7 +510,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     }
 
     /**
-     * TODO: Доделать реализацию
      * @param CommonInterface&IntercomDevice $device
      * @param HouseEntrance $entrance
      * @param array<int, HouseFlat> $flats
@@ -534,7 +533,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         /**
          * house_domophone_id -> DeviceIntercom
-         * @var array<int, DeviceIntercom> $intercoms
+         * @var array<int, string> $intercoms
          */
         $intercoms = [];
 
@@ -590,15 +589,17 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             }
 
             if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms)) {
-                $intercoms[$entrance->house_domophone_id] = DeviceIntercom::findById($entrance->house_domophone_id);
+                $intercoms[$entrance->house_domophone_id] = DeviceIntercom::findById($entrance->house_domophone_id, setting: setting()->columns(['ip']))->ip;
             }
 
             if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $flat->flat) {
                 $gates[count($gates) - 1]->end++;
             } else {
-                $gates[] = new Gate($intercoms[$flatEntrance->house_domophone_id]->ip, $prefixes[$flat->address_house_id], $flat->flat, $flat->flat);
+                $gates[] = new Gate($intercoms[$flatEntrance->house_domophone_id], $prefixes[$flat->address_house_id], $flat->flat, $flat->flat);
             }
         }
+
+        $device->setGates($gates);
     }
 
     public function commonSyslog(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void
