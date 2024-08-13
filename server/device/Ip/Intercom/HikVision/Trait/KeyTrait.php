@@ -5,6 +5,9 @@ namespace Selpol\Device\Ip\Intercom\HikVision\Trait;
 use DateInterval;
 use DateTime;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Entity\Model\House\HouseEntrance;
+use Selpol\Entity\Model\House\HouseKey;
+use Selpol\Service\DatabaseService;
 use Throwable;
 
 trait KeyTrait
@@ -16,7 +19,29 @@ trait KeyTrait
      */
     public function getKeys(?int $apartment): array
     {
-        return [];
+        $result = [];
+
+        $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => 0]]);
+
+        $process = function (array $response) use (&$result) {
+            $cardInfos = $response['CardInfoSearch']['CardInfo'] ?? [];
+
+            foreach ($cardInfos as $cardInfo) {
+                $result[] = new Key(strtoupper(sprintf("%'.014s", dechex($cardInfo['cardNo']))), intval($cardInfo['employeeNo']));
+            }
+        };
+
+        $process($response);
+
+        $pages = (int)ceil($response['CardInfoSearch']['totalMatches'] / 30);
+
+        for ($i = 2; $i < $pages; $i++) {
+            $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => ($i - 1) * 30]]);
+
+            $process($response);
+        }
+
+        return $result;
     }
 
     public function addKey(Key $key): void
@@ -25,7 +50,7 @@ trait KeyTrait
 
         if ($lastUser == null) {
             $id = '1';
-            $name = (string)$key->apartment;
+            $name = date('Y-m-d H:i:s');
 
             $this->addUser($id, $name);
 
@@ -34,7 +59,7 @@ trait KeyTrait
 
         if ($lastUser['count'] == 5) {
             $id = (string)(intval($lastUser['id']) + 1);
-            $name = (string)$key->apartment;
+            $name = date('Y-m-d H:i:s');
 
             $this->addUser($id, $name);
 
@@ -60,9 +85,49 @@ trait KeyTrait
         }
     }
 
-    public function handleKey(array $flats): void
+    public function handleKey(array $flats, array $entrances): void
     {
-        $this->clearKey();
+        $flats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id IN (' . join(', ', array_map(static fn(HouseEntrance $entrance) => $entrance->house_entrance_id, $entrances)) . ')');
+        $keys = HouseKey::fetchAll(criteria()->equal('access_type', 2)->in('access_to', array_map(static fn(array $flat) => $flat['house_flat_id'], $flats)));
+
+        /** @var array<string, Key> $rfidKeys */
+        $rfidKeys = array_reduce($this->getKeys(null), static function (array $previous, Key $current) {
+            $previous[$current->key] = $current;
+
+            return $previous;
+        }, []);
+
+        $lastUser = $this->getLastUser();
+
+        if ($lastUser == null) {
+            $id = '1';
+
+            $this->addUser($id, date('Y-m-d H:i:s'));
+
+            $lastUser = ['id' => $id, 'count' => 0];
+        }
+
+        foreach ($keys as $key) {
+            if (array_key_exists($key->rfid, $rfidKeys)) {
+                unset($rfidKeys[$key->rfid]);
+
+                continue;
+            }
+
+            if ($lastUser['count'] == 5) {
+                $id = (string)(intval($lastUser['id']) + 1);
+
+                $this->addUser($id, date('Y-m-d H:i:s'));
+
+                $lastUser = ['id' => $id, 'count' => 0];
+            }
+
+            $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastUser['id'], 'cardNo' => sprintf("%'.010d", hexdec($key->rfid)), 'cardType' => 'normalCard']]);
+        }
+
+        foreach ($rfidKeys as $key) {
+            $this->removeKey($key);
+        }
     }
 
     private function addUser(string $id, string $name): static
@@ -73,32 +138,6 @@ trait KeyTrait
         $endTime = $now->add(new DateInterval('P10Y'))->format('Y-m-dTH:i:s');
 
         $this->post('/ISAPI/AccessControl/UserInfo/Record?format=json', [
-            'UserInfo' => [
-                'employeeNo' => $id,
-                'name' => $name,
-                'userType' => 'normal',
-                'localUIRight' => false,
-                'maxOpenDoorTime' => 0,
-                'Valid' => ['enable' => true, 'beginTime' => $beginTime, 'endTime' => $endTime, 'timeType' => 'local'],
-                'doorRight' => '1',
-                'RightPlan' => [['doorNo' => 1, 'planTemplateNo' => '1']],
-                'roomNumber' => 1,
-                'floorNumber' => 0,
-                'userVerifyMode' => ''
-            ]
-        ]);
-
-        return $this;
-    }
-
-    private function setUser(string $id, string $name): static
-    {
-        $now = new DateTime();
-
-        $beginTime = $now->format('Y-m-dTH:i:s');
-        $endTime = $now->add(new DateInterval('P10Y'))->format('Y-m-dTH:i:s');
-
-        $this->put('/ISAPI/AccessControl/UserInfo/Modify?format=json', [
             'UserInfo' => [
                 'employeeNo' => $id,
                 'name' => $name,
@@ -134,8 +173,6 @@ trait KeyTrait
 
             return [
                 'id' => $response['UserInfoSearch']['UserInfo'][0]['employeeNo'],
-                'name' => $response['UserInfoSearch']['UserInfo'][0]['name'],
-
                 'count' => $response['UserInfoSearch']['UserInfo'][0]['numOfCard'],
             ];
         } catch (Throwable $throwable) {
@@ -151,10 +188,10 @@ trait KeyTrait
     private function getUsers(): array
     {
         $result = [];
-        $pages = $this->getUsersCount() / 20 + 1;
+        $pages = $this->getUsersCount() / 30 + 1;
 
         for ($i = 1; $i <= $pages; $i++) {
-            $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 20, 'searchResultPosition' => ($i - 1) * 20]]);
+            $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => ($i - 1) * 30]]);
 
             $userInfos = $response['UserInfoSearch']['UserInfo'] ?? [];
 

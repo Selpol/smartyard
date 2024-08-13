@@ -18,6 +18,10 @@ trait CommonTrait
         $time = $this->get('/ISAPI/System/time');
         $servers = $this->get('/ISAPI/System/time/ntpServers/1');
 
+        if (is_null($servers['ipAddress'])) {
+            return new Ntp('', 123, $time['timeZone']);
+        }
+
         return new Ntp($servers['ipAddress'], intval($servers['port']), $time['timeZone']);
     }
 
@@ -47,9 +51,9 @@ trait CommonTrait
     public function getRelay(): Relay
     {
         $door = $this->get('/ISAPI/AccessControl/Door/param/1');
-        $remote = $this->get('/ISAPI/AccessControl/RemoteControl/door/1');
+        $param = $door['DoorParam'];
 
-        return new Relay(true, intval($door['openDuration']));
+        return new Relay($param['magneticType'] === 'alwaysClose', intval($param['openDuration']));
     }
 
     public function getDDns(): DDns
@@ -103,8 +107,7 @@ trait CommonTrait
 
     public function setRelay(Relay $relay): void
     {
-        $this->put('/ISAPI/AccessControl/Door/param/1', "<DoorParam><doorName>Door1</doorName><openDuration>" . $relay->openDuration . "</openDuration></DoorParam>", ['Content-Type' => 'application/xml']);
-        $this->put('/ISAPI/AccessControl/RemoteControl/door/1', !$relay->lock ? '<cmd>alwaysOpen</cmd>' : '<cmd>resume</cmd>', ['Content-Type' => 'application/xml']);
+        $this->put('/ISAPI/AccessControl/Door/param/1', "<DoorParam><doorName>Door1</doorName><openDuration>" . $relay->openDuration . "</openDuration><magneticType>" . ($relay->lock ? 'alwaysClose' : 'alwaysOpen') . "</magneticType>></DoorParam>", ['Content-Type' => 'application/xml']);
     }
 
     public function setDDns(DDns $dDns): void

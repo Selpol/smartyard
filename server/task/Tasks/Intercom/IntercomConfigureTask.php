@@ -117,19 +117,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 $this->apartment($device, $entrances, $flats);
 
-                if (count($flats) > 0) {
-                    $this->setProgress(80);
+                if ($device instanceof KeyHandlerInterface) {
+                    $device->handleKey($flats, $entrances);
+                } else {
+                    if (count($flats) > 0) {
+                        $this->setProgress(80);
 
-                    if ($device instanceof KeyInterface) {
-                        if ($device instanceof KeyHandlerInterface) {
-                            $device->handleKey($flats);
-                        } else {
+                        if ($device instanceof KeyInterface) {
                             $this->key($device, $flats);
                         }
                     }
+                }
 
-                    $this->setProgress(90);
+                $this->setProgress(90);
 
+                if (count($flats) > 0) {
                     if ($device instanceof CodeInterface) {
                         $this->code($device, $flats);
                     }

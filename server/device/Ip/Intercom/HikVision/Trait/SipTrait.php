@@ -28,8 +28,8 @@ trait SipTrait
         $response = $this->get('/ISAPI/System/Network/SIP');
         $standard = $response['SIPServer']['Standard'];
 
-        if ($standard['enabled']) {
-            return new Sip($standard['authID'], $standard['password'], $standard['proxy'], intval($standard['port']));
+        if ($standard['enabled'] === 'true') {
+            return new Sip($standard['authID'], '', $standard['proxy'], intval($standard['port']));
         }
 
         return new Sip('', '', '', 0);
