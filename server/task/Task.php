@@ -23,7 +23,7 @@ abstract class Task implements LoggerAwareInterface
 
         $segments = explode('\\', static::class);
 
-        $this->setLogger(file_logger('task/' . ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '-$0', $segments[count($segments) - 1])), '-')));
+        $this->setLogger(file_logger(ltrim(strtolower(preg_replace('/[A-Z]([A-Z](?![a-z]))*/', '-$0', $segments[count($segments) - 1])), '-')));
     }
 
     /**
