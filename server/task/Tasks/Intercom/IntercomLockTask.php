@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
+use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
 
@@ -37,10 +38,9 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(50);
 
         if ($device instanceof CommonInterface) {
-            $relay = $device->getRelay();
-            $relay->lock = $this->lock;
+            $clean = $device->getIntercomClean();
 
-            $device->setRelay($relay);
+            $device->setRelay(new Relay($this->lock, $clean['unlockTime']));
         }
 
         return true;
