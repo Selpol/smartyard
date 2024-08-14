@@ -13,15 +13,11 @@ trait ApartmentTrait
     {
         $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
 
-        if (count($response) == 0)
-            return [];
-
-        $start = intval(substr(array_key_first($response), 6));
         $end = intval(substr(array_key_last($response), 5, -2));
 
         $result = [];
 
-        for ($i = $start; $i <= $end; $i++) {
+        for ($i = 1; $i <= $end; $i++) {
             if (!array_key_exists('Number' . $i, $response)) {
                 continue;
             }

@@ -23,12 +23,11 @@ trait KeyTrait
             return [];
         }
 
-        $start = intval(substr(array_key_first($response), 3));
         $end = intval(substr(array_key_last($response), 5));
 
         $result = [];
 
-        for ($i = $start; $i <= $end; $i++) {
+        for ($i = 1; $i <= $end; $i++) {
             if (!array_key_exists('Key' . $i, $response)) {
                 continue;
             }
