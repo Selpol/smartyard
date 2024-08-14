@@ -59,7 +59,7 @@ class IntercomLevelTask extends IntercomTask
                 return false;
             }
 
-            $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
+            $cms_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $entrances[0]['cmsLevels'] ?? ''), static fn(string $value) => $value != ''));
 
             $device->setCmsLevels(new CmsLevels($cms_levels));
 

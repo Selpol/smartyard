@@ -63,8 +63,8 @@ trait CmsTrait
     {
         $this->put('/levels', [
             'resistances' => [
-                'error' => $cmsLevels->value[0],
-                'break' => $cmsLevels->value[1],
+                'error' => array_key_exists(0, $cmsLevels->value) ? $cmsLevels->value[0] : 255,
+                'break' => array_key_exists(1, $cmsLevels->value) ? $cmsLevels->value[1] : 255,
                 'quiescent' => array_key_exists(2, $cmsLevels->value) ? $cmsLevels->value[2] : 255,
                 'answer' => array_key_exists(3, $cmsLevels->value) ? $cmsLevels->value[3] : 255,
             ],
