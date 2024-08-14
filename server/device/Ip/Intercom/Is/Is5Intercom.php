@@ -52,29 +52,4 @@ class Is5Intercom extends IsIntercom
     {
         $this->put('/v1/ddns', ['enabled' => $dDns->enable]);
     }
-
-    public function clearCms(string $cms): void
-    {
-        $cms = IntercomCms::model($cms);
-
-        if (!$cms) {
-            return;
-        }
-
-        $length = count($cms->cms);
-
-        for ($i = 1; $i <= $length; $i++) {
-            $matrix = $this->get('/switch/matrix/' . $i);
-
-            $matrix['capacity'] = $cms->capacity;
-
-            for ($j = 0; $j < count($matrix['matrix']); $j++) {
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
-                    $matrix['matrix'][$j][$k] = 0;
-                }
-            }
-
-            $this->put('/switch/matrix/' . $i, $matrix);
-        }
-    }
 }

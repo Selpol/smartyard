@@ -51,6 +51,7 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
                 }
 
                 $intercom->setCmsModel($entrance['cms']);
+                $intercom->clearCms($entrance['cms']);
 
                 $cms_allocation = container(HouseFeature::class)->getCms($entrance['entranceId']);
 

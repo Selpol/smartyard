@@ -14,8 +14,8 @@ trait ApartmentTrait
             $value['panelCode'],
             $value['callsEnabled']['handset'],
             $value['callsEnabled']['sip'],
-            $value['resistances']['answer'],
-            $value['resistances']['quiescent'],
+            $value['resistances']['answer'] ?? 255,
+            $value['resistances']['quiescent'] ?? 255,
             $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
         ), $response);
     }
@@ -32,32 +32,42 @@ trait ApartmentTrait
             $response['panelCode'],
             $response['callsEnabled']['handset'],
             $response['callsEnabled']['sip'],
-            $response['resistances']['answer'],
-            $response['resistances']['quiescent'],
+            $response['resistances']['answer'] ?? 255,
+            $response['resistances']['quiescent'] ?? 255,
             $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
         );
     }
 
     public function addApartment(Apartment $apartment): void
     {
-        $this->post('/panelCode/' . $apartment->apartment, [
+        $body = [
             'panelCode' => $apartment->apartment,
             'callsEnabled' => ['handset' => $apartment->handset, 'sip' => $apartment->sip],
-            'soundOpenTh' => null,
-            'typeSound' => 3,
-            'resistances' => ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent]
-        ]);
+        ];
+
+        if ($apartment->handset) {
+            $body['soundOpenTh'] = null;
+            $body['typeSound'] = 3;
+            $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
+        }
+
+        $this->post('/panelCode', $body);
     }
 
     public function setApartment(Apartment $apartment): void
     {
-        $this->put('/panelCode/' . $apartment->apartment, [
+        $body = [
             'panelCode' => $apartment->apartment,
             'callsEnabled' => ['handset' => $apartment->handset, 'sip' => $apartment->sip],
-            'soundOpenTh' => null,
-            'typeSound' => 3,
-            'resistances' => ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent]
-        ]);
+        ];
+
+        if ($apartment->handset) {
+            $body['soundOpenTh'] = null;
+            $body['typeSound'] = 3;
+            $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
+        }
+
+        $this->put('/panelCode/' . $apartment->apartment, $body);
     }
 
     public function setApartmentHandset(int $apartment, bool $value): void

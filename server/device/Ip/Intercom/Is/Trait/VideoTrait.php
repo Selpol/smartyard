@@ -67,6 +67,8 @@ trait VideoTrait
                 ]
             ]
         ]);
+
+        $this->put('/camera/picture', ['u8Contr' => 50, 'u8Luma' => 50, 'u8Satu' => 50]);
     }
 
     public function setVideoDetection(VideoDetection $videoDetection): void

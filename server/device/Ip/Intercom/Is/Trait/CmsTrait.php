@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
+use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 
@@ -118,22 +119,26 @@ trait CmsTrait
 
     public function clearCms(string $cms): void
     {
-        for ($i = 1; $i <= 3; $i++) {
-            if ($cms == 'FACTORIAL 8x8') {
-                $capacity = 64;
+        $cms = IntercomCms::model($cms);
 
-                $matrix = array_fill(0, 8, array_fill(0, 8, null));
-            } elseif ($cms == 'COM-220U') {
-                $capacity = 220;
+        if (!$cms) {
+            return;
+        }
 
-                $matrix = array_fill(0, 10, array_fill(0, 22, null));
-            } else {
-                $capacity = 100;
+        $length = count($cms->cms);
 
-                $matrix = array_fill(0, 10, array_fill(0, 10, null));
+        for ($i = 1; $i <= $length; $i++) {
+            $matrix = $this->get('/switch/matrix/' . $i);
+
+            $matrix['capacity'] = $cms->capacity;
+
+            for ($j = 0; $j < count($matrix['matrix']); $j++) {
+                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
+                    $matrix['matrix'][$j][$k] = 0;
+                }
             }
 
-            $this->put('/switch/matrix/' . $i, ['capacity' => $capacity, 'matrix' => $matrix]);
+            $this->put('/switch/matrix/' . $i, $matrix);
         }
     }
 }

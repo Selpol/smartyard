@@ -31,6 +31,7 @@ class IntercomSetCmsTask extends IntercomTask implements TaskUniqueInterface
             }
 
             $intercom->setCmsModel($this->cms);
+            $intercom->clearCms($this->cms);
         }
 
         return true;
