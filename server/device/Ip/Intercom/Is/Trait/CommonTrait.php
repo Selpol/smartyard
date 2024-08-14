@@ -68,7 +68,7 @@ trait CommonTrait
         return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
     }
 
-    public function getRelay(): Relay
+    public function getRelay(int $type): Relay
     {
         $settings = $this->get('/relay/settings');
         $relay = $this->get('/relay/1/settings');
@@ -161,7 +161,7 @@ trait CommonTrait
         $this->put('/panelCode/settings', ['consiergeRoom' => $room->concierge, 'sosRoom' => $room->sos]);
     }
 
-    public function setRelay(Relay $relay): void
+    public function setRelay(Relay $relay, int $type): void
     {
         $this->put('relay/settings', ['alwaysOpen' => !$relay->lock]);
 

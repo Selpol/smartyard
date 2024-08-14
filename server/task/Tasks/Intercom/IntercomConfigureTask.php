@@ -284,18 +284,20 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newRoom->sos = $clean->sos;
 
         if (!$newRoom->equal($room)) {
-            $device->setRoom($room);
+            $device->setRoom($newRoom);
         }
 
         if (count($entrances) > 0) {
-            $relay = $device->getRelay();
+            foreach ($entrances as $entrance) {
+                $relay = $device->getRelay($entrance->domophone_output ?? 0);
 
-            $newRelay = clone $relay;
-            $newRelay->lock = !$entrances[0]->locks_disabled;
-            $newRelay->openDuration = $clean->unlockTime;
+                $newRelay = clone $relay;
+                $newRelay->lock = !$entrance->locks_disabled;
+                $newRelay->openDuration = $clean->unlockTime;
 
-            if (!$newRelay->equal($relay)) {
-                $device->setRelay($newRelay);
+                if (!$newRelay->equal($relay)) {
+                    $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
+                }
             }
         }
 

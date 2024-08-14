@@ -14,7 +14,7 @@ interface CommonInterface
 
     public function getRoom(): Room;
 
-    public function getRelay(): Relay;
+    public function getRelay(int $type): Relay;
 
     public function getDDns(): DDns;
 
@@ -37,7 +37,7 @@ interface CommonInterface
 
     public function setRoom(Room $room): void;
 
-    public function setRelay(Relay $relay): void;
+    public function setRelay(Relay $relay, int $type): void;
 
     public function setDDns(DDns $dDns): void;
 

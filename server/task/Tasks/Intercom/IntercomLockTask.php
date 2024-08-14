@@ -13,12 +13,14 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
     use TaskUniqueTrait;
 
     public bool $lock;
+    public int $type;
 
-    public function __construct(int $id, bool $lock)
+    public function __construct(int $id, bool $lock, int $type)
     {
-        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Закрыто' : 'Открыто') . ')');
+        parent::__construct($id, 'Синхронизация замка (' . $id . ', ' . ($lock ? 'Закрыто' : 'Открыто') . ', ' . ($type == 0 ? 'Основной' : 'Дополнительный') . ')');
 
         $this->lock = $lock;
+        $this->type = $type;
     }
 
     public function onTask(): bool
@@ -40,7 +42,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         if ($device instanceof CommonInterface) {
             $clean = $device->getIntercomClean();
 
-            $device->setRelay(new Relay($this->lock, $clean->unlockTime));
+            $device->setRelay(new Relay($this->lock, $clean->unlockTime), $this->type);
         }
 
         return true;

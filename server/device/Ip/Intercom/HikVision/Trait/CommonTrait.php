@@ -48,7 +48,7 @@ trait CommonTrait
         return new Room('', '');
     }
 
-    public function getRelay(): Relay
+    public function getRelay(int $type): Relay
     {
         $door = $this->get('/ISAPI/AccessControl/Door/param/1');
         $param = $door['DoorParam'];
@@ -105,7 +105,7 @@ trait CommonTrait
 
     }
 
-    public function setRelay(Relay $relay): void
+    public function setRelay(Relay $relay, int $type): void
     {
         $this->put('/ISAPI/AccessControl/Door/param/1', "<DoorParam><doorName>Door1</doorName><openDuration>" . $relay->openDuration . "</openDuration><magneticType>" . ($relay->lock ? 'alwaysClose' : 'alwaysOpen') . "</magneticType>></DoorParam>", ['Content-Type' => 'application/xml']);
     }

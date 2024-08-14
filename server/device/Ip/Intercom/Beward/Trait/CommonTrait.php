@@ -52,11 +52,17 @@ trait CommonTrait
         return new Room(strval($intercom['ConciergeApartment']), strval($alarm['SOSCallNumber']));
     }
 
-    public function getRelay(): Relay
+    public function getRelay(int $type): Relay
     {
         $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
 
-        return new Relay($intercom['DoorOpenMode'] === 'off', intval($intercom['DoorOpenTime']));
+        if ($this == 1) {
+            return new Relay($intercom['AltDoorOpenMode'] === 'off', intval($intercom['DoorOpenTime']));
+        }
+
+        $mode = array_key_exists('DoorOpenMode', $intercom) ? $intercom['DoorOpenMode'] : (array_key_exists('MainDoorOpenMode', $intercom) ? $intercom['MainDoorOpenMode'] : 'on');
+
+        return new Relay($mode === 'off', intval($intercom['DoorOpenTime']));
     }
 
     public function getDDns(): DDns
@@ -138,11 +144,17 @@ trait CommonTrait
         $this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'set', 'SOSCallActive' => 'on', 'SOSCallNumber' => $room->sos]);
     }
 
-    public function setRelay(Relay $relay): void
+    public function setRelay(Relay $relay, int $type): void
     {
         $value = $relay->lock ? 'off' : 'on';
 
-        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'DoorOpenMode' => $value, 'MainDoorOpenMode' => $value, 'AltDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
+        if ($type == 1) {
+            $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'AltDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
+
+            return;
+        }
+
+        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'DoorOpenMode' => $value, 'MainDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
     }
 
     public function setDDns(DDns $dDns): void
