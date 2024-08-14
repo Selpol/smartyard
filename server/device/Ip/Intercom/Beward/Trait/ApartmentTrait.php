@@ -6,11 +6,18 @@ use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
 
 trait ApartmentTrait
 {
+    /** @var array<int, Apartment> */
+    private array $apartments;
+
     /**
      * @return Apartment[]
      */
     public function getApartments(): array
     {
+        if (isset($this->apartments)) {
+            return $this->apartments;
+        }
+
         $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
 
         if (count($response) == 0) {
@@ -28,7 +35,7 @@ trait ApartmentTrait
 
             $number = $response['Number' . $i];
 
-            $result[] = new Apartment(
+            $result[intval($number)] = new Apartment(
                 intval($number),
                 $response['BlockCMS' . $i] === 'off',
                 $response['PhonesActive' . $i] === 'on',
@@ -37,6 +44,8 @@ trait ApartmentTrait
                 array_values($response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value) => $value !== '') : [])
             );
         }
+
+        $this->apartments = $result;
 
         return $result;
     }
@@ -82,6 +91,8 @@ trait ApartmentTrait
         }
 
         $this->get('/cgi-bin/apartment_cgi', $params);
+
+        $this->apartments[$apartment->apartment] = $apartment;
     }
 
     public function setApartmentHandset(int $apartment, bool $value): void
@@ -95,6 +106,10 @@ trait ApartmentTrait
             $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => $apartment->apartment]);
         } else {
             $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => $apartment]);
+        }
+
+        if (isset($this->apartments) && array_key_exists($apartment instanceof Apartment ? $apartment->apartment : $apartment, $this->apartments)) {
+            unset($this->apartments[$apartment instanceof Apartment ? $apartment->apartment : $apartment]);
         }
     }
 
