@@ -14,6 +14,7 @@ use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Gate;
+use Selpol\Device\Ip\Intercom\Setting\IntercomClean;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyHandlerInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
@@ -211,7 +212,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom, array $clean): void
+    private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom, IntercomClean $clean): void
     {
         $server = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
@@ -230,8 +231,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $sipOption = $device->getSipOption();
 
         $newSipOption = clone $sipOption;
-        $newSipOption->callTimeout = $clean['callTimeout'];
-        $newSipOption->talkTimeout = $clean['talkTimeout'];
+        $newSipOption->callTimeout = $clean->callTimeout;
+        $newSipOption->talkTimeout = $clean->talkTimeout;
         $newSipOption->dtmf = [$deviceIntercom->dtmf, '2'];
         $newSipOption->echo = false;
 
@@ -243,11 +244,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     /**
      * @param CommonInterface&IntercomDevice $device
      * @param HouseEntrance[] $entrances
-     * @param array $clean
+     * @param IntercomClean $clean
      * @param array $ntpServer
      * @return void
      */
-    public function common(IntercomDevice & CommonInterface $device, array $entrances, array $clean, array $ntpServer): void
+    public function common(IntercomDevice & CommonInterface $device, array $entrances, IntercomClean $clean, array $ntpServer): void
     {
         $ntp = $device->getNtp();
 
@@ -279,8 +280,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $room = $device->getRoom();
 
         $newRoom = clone $room;
-        $newRoom->concierge = strval($clean['concierge']);
-        $newRoom->sos = strval($clean['sos']);
+        $newRoom->concierge = $clean->concierge;
+        $newRoom->sos = $clean->sos;
 
         if (!$newRoom->equal($room)) {
             $device->setRoom($room);
@@ -291,7 +292,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $newRelay = clone $relay;
             $newRelay->lock = !$entrances[0]->locks_disabled;
-            $newRelay->openDuration = $clean['unlockTime'];
+            $newRelay->openDuration = $clean->unlockTime;
 
             if (!$newRelay->equal($relay)) {
                 $device->setRelay($newRelay);

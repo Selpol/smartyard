@@ -40,7 +40,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         if ($device instanceof CommonInterface) {
             $clean = $device->getIntercomClean();
 
-            $device->setRelay(new Relay($this->lock, $clean['unlockTime']));
+            $device->setRelay(new Relay($this->lock, $clean->unlockTime));
         }
 
         return true;

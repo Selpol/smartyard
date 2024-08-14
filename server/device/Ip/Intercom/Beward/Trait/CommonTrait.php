@@ -135,7 +135,7 @@ trait CommonTrait
     public function setRoom(Room $room): void
     {
         $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'ConciergeApartment' => $room->concierge]);
-        $this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'set', 'SOSCallNumber' => $room->sos]);
+        $this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'set', 'SOSCallActive' => 'on', 'SOSCallNumber' => $room->sos]);
     }
 
     public function setRelay(Relay $relay): void
