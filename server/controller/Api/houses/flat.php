@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\houses;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\AuthService;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomDeleteFlatTask;
@@ -27,6 +28,14 @@ readonly class flat extends Api
     {
         $households = container(HouseFeature::class);
 
+        if (strlen($params['openCode']) > 1) {
+            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
+
+            if ($flat != null) {
+                return self::error('В квартире ' . $flat->flat . ' уже существует код ' . $params['openCode'], 400);
+            }
+        }
+
         $flatId = $households->addFlat((int)$params["houseId"], $params["floor"], $params["flat"], $params["code"], $params["entrances"], $params["apartmentsAndLevels"], $params["openCode"], (int)$params["plog"], (int)$params["autoOpen"], (int)$params["whiteRabbit"], (int)$params["sipEnabled"], $params["sipPassword"], $params['comment']);
 
         if ($flatId)
@@ -38,6 +47,14 @@ readonly class flat extends Api
     public static function PUT(array $params): ResponseInterface
     {
         $households = container(HouseFeature::class);
+
+        if (strlen($params['openCode']) > 1) {
+            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
+
+            if ($flat != null) {
+                return self::error('В квартире ' . $flat->flat . ' уже существует код ' . $params['openCode'], 400);
+            }
+        }
 
         $success = $households->modifyFlat($params["_id"], $params);
 

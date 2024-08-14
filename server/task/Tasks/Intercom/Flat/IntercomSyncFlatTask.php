@@ -77,13 +77,13 @@ class IntercomSyncFlatTask extends Task
             }
 
             $apartment = $flat['flat'];
-            $apartment_levels = array_map('intval', explode(',', $entrance['cmsLevels']));
+            $apartment_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $entrance['cmsLevels'] ?? ''), static fn(string $value) => $value != ''));
 
             $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
                 if (isset($flat_entrance['apartmentLevels'])) {
-                    $apartment_levels = array_map('intval', explode(',', $flat_entrance['apartmentLevels']));
+                    $apartment_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $flat_entrance['cms_levels'] ?? ''), static fn(string $value) => $value != ''));
                 }
 
                 if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
@@ -110,7 +110,21 @@ class IntercomSyncFlatTask extends Task
             }
 
             if ($device instanceof CodeInterface) {
-                $device->addCode(new Code(intval($flat['openCode']) ?: 0, $apartment->apartment));
+                $flatCode = new Code(intval($flat['openCode']) ?: 0, $apartment->apartment);
+
+                $codes = $device->getCodes($apartment->apartment);
+
+                foreach ($codes as $code) {
+                    if (!isset($flatCode) || !$flatCode->equal($code)) {
+                        $device->removeCode($code);
+                    } else {
+                        unset($flatCode);
+                    }
+                }
+
+                if (isset($flatCode)) {
+                    $device->addCode($flatCode);
+                }
             }
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable);
