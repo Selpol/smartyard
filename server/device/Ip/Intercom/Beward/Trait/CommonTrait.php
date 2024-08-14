@@ -166,12 +166,14 @@ trait CommonTrait
 
     public function setDDns(DDns $dDns): void
     {
-        $this->post('/webs/netDDNSCfgEx', http_build_query(['provider' => 0]), ['Content-Type' => 'application/x-www-form-urlencoded']);
+        if (!$dDns->enable) {
+            $this->get('/cgi-bin/ddns_cgi', ['action' => 'set', 'Provider' => '']);
+        }
     }
 
     public function setUPnP(bool $value): void
     {
-        $this->post('/webs/netUPNPCfgEx', http_build_query(['cksearch' => $value ? 1 : 0]), ['Content-Type' => 'application/x-www-form-urlencoded']);
+        $this->get('/cgi-bin/upnp_cgi', ['action' => 'set', 'UpnpSearchSwitch' => $value ? 'open' : 'close']);
     }
 
     public function setIndividualLevels(bool $value): void
