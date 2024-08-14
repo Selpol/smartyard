@@ -70,23 +70,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             throw new DeviceException($device, 'Устройство не доступно');
         }
 
-        if ($deviceIntercom->first_time == 0) {
-            $deviceIntercom->first_time = 1;
-
-            $deviceIntercom->update();
-            $deviceIntercom->refresh();
-        }
-
         $this->setProgress(5);
 
         $clean = $device->getIntercomClean();
         $ntp = $device->getIntercomNtp();
 
-        if ($device instanceof AudioInterface) {
-            $this->audio($device);
-        }
-
-        $this->setProgress(5);
+        $this->setProgress(6);
 
         if ($device instanceof VideoInterface) {
             $this->video($device, $entrances);
@@ -155,6 +144,17 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $this->commonSyslog($device, $deviceModel);
         }
 
+        if ($deviceIntercom->first_time == 0) {
+            if ($device instanceof AudioInterface) {
+                $this->audio($device);
+            }
+
+            $deviceIntercom->first_time = 1;
+
+            $deviceIntercom->update();
+            $deviceIntercom->refresh();
+        }
+
         return true;
     }
 
@@ -186,8 +186,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $videoEncoding = $device->getVideoEncoding();
 
         $newVideoEncoding = clone $videoEncoding;
-        $newVideoEncoding->primaryBitrate = 2048;
-        $newVideoEncoding->secondaryBitrate = 512;
+        $newVideoEncoding->primaryBitrate = $device->model->primaryBitrate;
+        $newVideoEncoding->secondaryBitrate = $device->model->secondaryBitrate;
 
         if (!$newVideoEncoding->equal($videoEncoding)) {
             $device->setVideoEncoding($newVideoEncoding);
@@ -398,8 +398,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     intval($flat->flat),
                     $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                     $entrance->shared == 0 && !$blockCall,
-                    array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : null)),
-                    array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 530 : null)),
+                    array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null))),
+                    array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null))),
                     ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
                 );
 
