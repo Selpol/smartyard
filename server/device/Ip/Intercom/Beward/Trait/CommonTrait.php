@@ -67,7 +67,7 @@ trait CommonTrait
 
     public function getDDns(): DDns
     {
-        return new DDns(false, '', 0);
+        return new DDns(true, '', 0);
     }
 
     /**
@@ -101,7 +101,7 @@ trait CommonTrait
 
     public function getUPnP(): bool
     {
-        return false;
+        return true;
     }
 
     public function getIndividualLevels(): bool
@@ -166,12 +166,12 @@ trait CommonTrait
 
     public function setDDns(DDns $dDns): void
     {
-
+        $this->post('/webs/netDDNSCfgEx', http_build_query(['provider' => 0]), ['Content-Type' => 'application/x-www-form-urlencoded']);
     }
 
     public function setUPnP(bool $value): void
     {
-        $this->get('/webs/netUPNPCfgEx', ['cksearch' => $value ? 1 : 0]);
+        $this->post('/webs/netUPNPCfgEx', http_build_query(['cksearch' => $value ? 1 : 0]), ['Content-Type' => 'application/x-www-form-urlencoded']);
     }
 
     public function setIndividualLevels(bool $value): void
