@@ -34,6 +34,6 @@ trait AudioTrait
         }
 
         $this->put('/levels', ['volumes' => ['panelCall' => $audio->value[0], 'panelTalk' => $audio->value[1], 'thTalk' => $audio->value[2], 'thCall' => $audio->value[3], 'uartFrom' => $audio->value[4], 'uartTo' => $audio->value[5]]]);
-        $this->put('/system/settings', ['enable' => false, 'online' => false]);
+        $this->put('/system/settings', ['assist' => ['enable' => false, 'online' => false]]);
     }
 }
