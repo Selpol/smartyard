@@ -116,5 +116,7 @@ trait ApartmentTrait
     public function clearApartments(): void
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'clear', 'FirstNumber' => 1, 'LastNumber' => 9999]);
+
+        unset($this->apartments);
     }
 }
