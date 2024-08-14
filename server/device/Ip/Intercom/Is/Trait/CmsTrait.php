@@ -138,7 +138,9 @@ trait CmsTrait
                 }
             }
 
-            $this->put('/switch/matrix/' . $i, $matrix);
+            if (count($matrix['matrix']) > 0) {
+                $this->put('/switch/matrix/' . $i, $matrix);
+            }
         }
     }
 }

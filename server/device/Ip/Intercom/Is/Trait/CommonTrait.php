@@ -168,7 +168,7 @@ trait CommonTrait
 
     public function setRelay(Relay $relay, int $type): void
     {
-        $this->put('relay/settings', ['alwaysOpen' => !$relay->lock]);
+        $this->put('relay/settings', ['inverseDoor' => true, 'alwaysOpenNetMode' => false, 'alwaysOpen' => !$relay->lock]);
 
         $relays = $this->get('/relay/info');
 
