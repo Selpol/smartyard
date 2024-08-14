@@ -88,6 +88,11 @@ trait CommonTrait
         return false;
     }
 
+    public function getIndividualLevels(): bool
+    {
+        return true;
+    }
+
     public function getAutoCollectKey(): bool
     {
         $response = $this->get('/key/settings');
@@ -178,6 +183,10 @@ trait CommonTrait
     }
 
     public function setUPnP(bool $value): void
+    {
+    }
+
+    public function setIndividualLevels(bool $value): void
     {
     }
 

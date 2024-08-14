@@ -104,6 +104,13 @@ trait CommonTrait
         return false;
     }
 
+    public function getIndividualLevels(): bool
+    {
+        $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
+
+        return array_key_exists('IndividualLevels', $intercom) && $intercom['IndividualLevels'] == 'on';
+    }
+
     public function getAutoCollectKey(): bool
     {
         if ($this->model->mifare) {
@@ -165,6 +172,11 @@ trait CommonTrait
     public function setUPnP(bool $value): void
     {
         $this->get('/webs/netUPNPCfgEx', ['cksearch' => $value ? 1 : 0]);
+    }
+
+    public function setIndividualLevels(bool $value): void
+    {
+        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'IndividualLevels' => $value ? 'on' : 'off']);
     }
 
     public function setAutoCollectKey(bool $value): void

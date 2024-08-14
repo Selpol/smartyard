@@ -74,6 +74,11 @@ trait CommonTrait
         return false;
     }
 
+    public function getIndividualLevels(): bool
+    {
+        return true;
+    }
+
     public function getAutoCollectKey(): bool
     {
         return false;
@@ -116,6 +121,11 @@ trait CommonTrait
     }
 
     public function setUPnP(bool $value): void
+    {
+
+    }
+
+    public function setIndividualLevels(bool $value): void
     {
 
     }

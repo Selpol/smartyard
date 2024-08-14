@@ -25,6 +25,8 @@ interface CommonInterface
 
     public function getUPnP(): bool;
 
+    public function getIndividualLevels(): bool;
+
     public function getAutoCollectKey(): bool;
 
     public function setNtp(Ntp $ntp): void;
@@ -42,6 +44,8 @@ interface CommonInterface
     public function setDDns(DDns $dDns): void;
 
     public function setUPnP(bool $value): void;
+
+    public function setIndividualLevels(bool $value): void;
 
     public function setAutoCollectKey(bool $value): void;
 

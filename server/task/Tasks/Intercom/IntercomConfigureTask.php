@@ -314,6 +314,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $device->setUPnP(false);
         }
 
+        if (!$device->getIndividualLevels()) {
+            $device->setIndividualLevels(true);
+        }
+
         if ($device->getAutoCollectKey()) {
             $device->setAutoCollectKey(false);
         }
