@@ -52,6 +52,10 @@ return [
         'null' => env('MOBILE_NULL', '0') == '1',
     ],
 
+    'frontend' => [
+        'user_auth_active' => env('FRONTEND_USER_AUTH_ACTIVE', 5)
+    ],
+
     'db' => [
         'dsn' => 'pgsql:host=' . env('DB_HOST', '127.0.0.1') . ';port=' . intval(env('DB_PORT', '5432')) . ';dbname=' . env('DB_DATABASE', 'rbt'),
 

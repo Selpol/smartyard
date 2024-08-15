@@ -21,7 +21,7 @@ readonly abstract class AuthenticationFeature extends Feature
         if (!is_string($uid)) {
             $auths = CoreAuth::fetchAll(criteria()->equal('user_id', $uid)->equal('status', 1));
 
-            if (count($auths) > 5) {
+            if (count($auths) > config_get('frontend.user_auth_active', 5)) {
                 foreach ($auths as $auth) {
                     $auth->status = 0;
 
