@@ -136,7 +136,7 @@ readonly class ClickhouseService
         curl_setopt($curl, CURLOPT_POSTFIELDS, $_data);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_URL, "http://$host:$port/?query=" . urlencode("INSERT INTO {$this->database}.$table FORMAT JSONEachRow"));
+        curl_setopt($curl, CURLOPT_URL, sprintf('http://%s:%s/?query=', $host, $port) . urlencode(sprintf('INSERT INTO %s.%s FORMAT JSONEachRow', $this->database, $table)));
         curl_setopt($curl, CURLOPT_POST, true);
 
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

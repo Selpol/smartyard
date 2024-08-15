@@ -488,7 +488,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         foreach ($flats as $apartment => $flat) {
             $code = intval($flat->open_code) !== 0 ? intval($flat->open_code) : null;
 
-            if ($code !== 0) {
+            if ($code !== null) {
                 if (array_key_exists($apartment, $apartmentCodes)) {
                     if (count($apartmentCodes[$apartment]) == 1) {
                         if ($apartmentCodes[$apartment][0]->code != $code) {

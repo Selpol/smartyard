@@ -411,7 +411,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         system("crontab " . sys_get_temp_dir() . "/rbt_crontab");
 
-        echo "$lines crontabs lines added\n";
+        echo $lines . ' crontabs lines added
+';
 
         $this->logger->debug('Install crontabs', ['lines' => $lines]);
     }
@@ -449,7 +450,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         system("crontab " . sys_get_temp_dir() . "/rbt_crontab");
 
-        echo "$lines crontabs lines removed\n";
+        echo $lines . ' crontabs lines removed
+';
 
         $this->logger->debug('Uninstall crontabs', ['lines' => $lines]);
     }
