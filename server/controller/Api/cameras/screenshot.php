@@ -11,8 +11,9 @@ readonly class screenshot extends Api
     {
         $device = camera($params['_id']);
 
-        if (!$device->ping())
+        if (!$device->ping()) {
             return self::error('Устройство не доступно', 400);
+        }
 
         return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($device->getScreenshot());
     }

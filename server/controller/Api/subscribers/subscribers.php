@@ -19,11 +19,11 @@ readonly class subscribers extends Api
                 'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
                 'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
             ]);
-
             $criteria = criteria()->like('subscriber_name', $validate['name'])->orLike('subscriber_patronymic', $validate['name'])->asc('house_subscriber_id');
-
             return self::success(HouseSubscriber::fetchPage($validate['page'], $validate['size'], $criteria, setting()->columns(['house_subscriber_id', 'subscriber_name', 'subscriber_patronymic'])));
-        } else if ($params['by'] === 'ids') {
+        }
+
+        if ($params['by'] === 'ids') {
             $validate = validator($params, [
                 'ids' => rule()->required()->array()->nonNullable(),
                 'ids.*' => rule()->id(),
@@ -41,12 +41,13 @@ readonly class subscribers extends Api
 
         $subscribers = $households->getSubscribers(@$params['by'], @$params['query']);
 
-        if (!container(AuthService::class)->checkScope('mobile-mask'))
+        if (!container(AuthService::class)->checkScope('mobile-mask')) {
             $subscribers = array_map(static function (array $item) {
                 $item['mobile'] = mobile_mask($item['mobile']);
 
                 return $item;
             }, $subscribers);
+        }
 
         $flat = [
             'subscribers' => $subscribers,
@@ -54,8 +55,9 @@ readonly class subscribers extends Api
             'keys' => $households->getKeys(@$params['by'], @$params['query']),
         ];
 
-        if ($flat)
+        if ($flat !== []) {
             return self::success($flat);
+        }
 
         return self::error('Не удалось получить квартиру', 400);
     }

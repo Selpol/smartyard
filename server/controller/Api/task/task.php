@@ -39,8 +39,9 @@ readonly class task extends Api
     {
         $result = container(TaskFeature::class)->dispatch($params['_id']);
 
-        if ($result)
+        if ($result) {
             return self::success($params['_id']);
+        }
 
         return self::error('Не удалось перезапустить задачу', 400);
     }

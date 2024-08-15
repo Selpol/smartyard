@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Device\Ip\Dvr\DvrDevice;
+use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
@@ -59,25 +61,30 @@ readonly class CameraController extends RbtController
     {
         $camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'name']));
 
-        if (!$camera)
+        if (!$camera instanceof DeviceCamera) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
-        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
+        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id)) {
             return user_response(404, message: 'Доступа к камере нет');
+        }
 
         $response = $camera->toArrayMap([
             'camera_id' => 'id',
             'name' => 'name',
         ]);
 
-        if (!is_null($request->house_id))
+        if (!is_null($request->house_id)) {
             $response['houseId'] = $request->house_id;
+        }
 
-        if (!is_null($request->flat_id))
+        if (!is_null($request->flat_id)) {
             $response['flatId'] = $request->flat_id;
+        }
 
-        if (!is_null($request->entrance_id))
+        if (!is_null($request->entrance_id)) {
             $response['entranceId'] = $request->entrance_id;
+        }
 
         return user_response(data: $response);
     }
@@ -90,7 +97,7 @@ readonly class CameraController extends RbtController
     {
         $cameras = DeviceCamera::fetchAll(criteria()->equal('common', 1), setting()->columns(['camera_id', 'name', 'lat', 'lon']));
 
-        return user_response(data: array_map(static fn(DeviceCamera $camera) => $camera->toArrayMap(['camera_id' => 'id', 'name' => 'name', 'lat' => 'lat', 'lon' => 'lon']), $cameras))
+        return user_response(data: array_map(static fn(DeviceCamera $camera): array => $camera->toArrayMap(['camera_id' => 'id', 'name' => 'name', 'lat' => 'lat', 'lon' => 'lon']), $cameras))
             ->withHeader('Access-Control-Allow-Origin', '*')
             ->withHeader('Access-Control-Allow-Headers', '*')
             ->withHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']);
@@ -101,18 +108,21 @@ readonly class CameraController extends RbtController
     {
         $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
 
-        if (!$camera)
+        if (!$camera instanceof DeviceCamera) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         $dvr = dvr($camera->dvr_server_id);
 
-        if (!$dvr)
+        if (!$dvr instanceof DvrDevice) {
             return user_response(404, message: 'Устройство не найден');
+        }
 
         $identifier = $dvr->identifier($camera, $request->time ?? time(), null);
 
-        if (!$identifier)
+        if (!$identifier instanceof DvrIdentifier) {
             return user_response(404, message: 'Идентификатор не найден');
+        }
 
         try {
             $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
@@ -158,8 +168,9 @@ readonly class CameraController extends RbtController
 
         $camera = DeviceCamera::findById($cameraId);
 
-        if (!$camera)
+        if (!$camera instanceof DeviceCamera) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         $entrances = $houseFeature->getEntrances('houseId', $request->houseId);
 
@@ -173,8 +184,9 @@ readonly class CameraController extends RbtController
             }
         }
 
-        if (!$findEntrance)
+        if (!$findEntrance) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         $flats = [];
 
@@ -184,18 +196,21 @@ readonly class CameraController extends RbtController
             }
         }
 
-        if (!$flats)
+        if ($flats === []) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         $statement = $databaseService->getConnection()->prepare('SELECT 1 FROM houses_entrances_flats WHERE house_flat_id IN (' . implode(', ', $flats) . ') AND house_entrance_id = :entrance_id');
 
-        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1)
+        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         $dvr = $camera->getDvrServer();
 
-        if (!$dvr)
+        if (!$dvr instanceof DvrServer) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         return user_response(data: $dvrFeature->convertCameraForSubscriber($dvr, $camera->toArrayMap([
             "camera_id" => "cameraId",
@@ -234,12 +249,13 @@ readonly class CameraController extends RbtController
 
         $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($request->cameraId);
 
-        if (is_null($domophoneId))
+        if (is_null($domophoneId)) {
             return user_response(404, message: 'Домофон не найден');
+        }
 
         $flats = array_filter(
-            array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
-            static function (array $flat) use ($houseFeature) {
+            array_map(static fn(array $item): array => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
+            static function (array $flat) use ($houseFeature): bool {
                 $plog = $houseFeature->getFlatPlog($flat['id']);
 
                 return is_null($plog) || $plog == PlogFeature::ACCESS_ALL || $plog == PlogFeature::ACCESS_OWNER_ONLY && $flat['owner'];
@@ -248,13 +264,15 @@ readonly class CameraController extends RbtController
 
         $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
 
-        if (count($flatsId) == 0)
+        if (count($flatsId) == 0) {
             return user_response(404, message: 'Квартира у абонента не найдена');
+        }
 
         $events = $plogFeature->getEventsByFlatsAndDomophone($flatsId, $domophoneId, $request->date);
 
-        if ($events)
+        if ($events) {
             return user_response(200, array_map(static fn(array $item) => $item['date'], $events));
+        }
 
         return user_response(404, message: 'События не найдены');
     }
@@ -264,11 +282,13 @@ readonly class CameraController extends RbtController
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
-            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId)
+            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId) {
                 continue;
+            }
 
-            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null)
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null) {
                 continue;
+            }
 
             $flatDetail = $houseFeature->getFlat($flat['flatId']);
 
@@ -298,8 +318,9 @@ readonly class CameraController extends RbtController
             }, $flatCameras));
 
             foreach ($flatDetail['entrances'] as $entrance) {
-                if (array_key_exists($entrance['entranceId'], $house['doors']))
+                if (array_key_exists($entrance['entranceId'], $house['doors'])) {
                     continue;
+                }
 
                 $e = $houseFeature->getEntrance($entrance['entranceId']);
                 $door = [];
@@ -335,22 +356,25 @@ readonly class CameraController extends RbtController
             unset($houses[$house_key]['cameras']);
 
             foreach ($h['cameras'] as $camera) {
-                if ($camera['cameraId'] === null)
+                if ($camera['cameraId'] === null) {
                     continue;
+                }
 
-                if (array_key_exists($camera['cameraId'], $ids))
+                if (array_key_exists($camera['cameraId'], $ids)) {
                     continue;
+                }
 
                 $ids[$camera['cameraId']] = true;
 
-                if (!array_key_exists($camera['dvrServerId'], $dvrs))
+                if (!array_key_exists($camera['dvrServerId'], $dvrs)) {
                     $dvrs[$camera['dvrServerId']] = DvrServer::findById($camera['dvrServerId'], setting: setting()->nonNullable());
+                }
 
                 $result[] = $dvrFeature->convertCameraForSubscriber($dvrs[$camera['dvrServerId']], $camera, $user);
             }
         }
 
-        usort($result, static fn(array $a, array $b) => strcmp($a['name'], $b['name']));
+        usort($result, static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
 
         return $result;
     }

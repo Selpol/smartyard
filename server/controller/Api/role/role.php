@@ -24,8 +24,9 @@ readonly class role extends Api
         $role->title = $validate['title'];
         $role->description = $validate['description'];
 
-        if ($role->insert())
+        if ($role->insert()) {
             return self::success($role->id);
+        }
 
         return self::error('Не удалось создать группу', 400);
     }
@@ -40,14 +41,16 @@ readonly class role extends Api
 
         $role = \Selpol\Entity\Model\Role::findById($validate['_id'], setting: setting()->nonNullable());
 
-        if (!$role)
+        if (!$role instanceof \Selpol\Entity\Model\Role) {
             return self::error('Группа не найдена', 404);
+        }
 
         $role->title = $validate['title'];
         $role->description = $validate['description'];
 
-        if ($role->update())
+        if ($role->update()) {
             return self::success($role->id);
+        }
 
         return self::error('Не удалось обновить группу', 400);
     }
@@ -57,11 +60,13 @@ readonly class role extends Api
 
         $role = \Selpol\Entity\Model\Role::findById(rule()->id()->onItem('_id', $params));
 
-        if (!$role)
+        if (!$role instanceof \Selpol\Entity\Model\Role) {
             return self::error('Группа не найдена', 404);
+        }
 
-        if ($role->delete())
+        if ($role->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить группу', 400);
     }

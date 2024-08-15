@@ -25,8 +25,9 @@ readonly class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]));
 
-        if ($frsServer->insert())
+        if ($frsServer->insert()) {
             return self::success($frsServer->id);
+        }
 
         return self::error('Не удалось создать Frs сервер', 400);
     }
@@ -45,8 +46,9 @@ readonly class frs extends Api
         $frsServer->title = $validate['title'];
         $frsServer->url = $validate['url'];
 
-        if ($frsServer->update())
+        if ($frsServer->update()) {
             return self::success($frsServer->id);
+        }
 
         return self::error('Не удалось обновить Frs сервер', 400);
     }
@@ -55,8 +57,9 @@ readonly class frs extends Api
     {
         $frsServer = FrsServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($frsServer?->delete())
+        if ($frsServer?->delete() === true) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить Frs сервер', 400);
     }

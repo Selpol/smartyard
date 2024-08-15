@@ -35,8 +35,9 @@ readonly class user extends Api
             'password' => rule()->required()->string()->nonNullable()
         ]));
 
-        if ($sipUser->insert())
+        if ($sipUser->insert()) {
             return self::success($sipUser->id);
+        }
 
         return self::error('Не удалось создать сип аккаунт', 400);
     }
@@ -60,8 +61,9 @@ readonly class user extends Api
 
         $sipUser->password = $validate['password'];
 
-        if ($sipUser->update())
+        if ($sipUser->update()) {
             return self::success($sipUser->id);
+        }
 
         return self::error('Не удалось обновить сип аккаунт', 400);
     }
@@ -70,8 +72,9 @@ readonly class user extends Api
     {
         $sipUser = SipUser::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($sipUser->delete())
+        if ($sipUser->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить сип аккаунт', 400);
     }

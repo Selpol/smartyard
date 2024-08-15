@@ -19,8 +19,9 @@ readonly class subscriber extends Api
         if ($subscribers && count($subscribers) === 1) {
             $subscriber = $subscribers[0];
 
-            if (!container(AuthService::class)->checkScope('mobile-mask'))
+            if (!container(AuthService::class)->checkScope('mobile-mask')) {
                 $subscriber['mobile'] = mobile_mask($subscriber['mobile']);
+            }
 
             return self::success($subscriber);
         }
@@ -34,8 +35,9 @@ readonly class subscriber extends Api
 
         $subscriberId = $households->addSubscriber($params['mobile'], @$params['subscriberName'], @$params['subscriberPatronymic'], null, array_key_exists('flatId', $params) ? intval($params['flatId']) : null, @$params['message']);
 
-        if ($subscriberId)
+        if ($subscriberId) {
             return self::success($subscriberId);
+        }
 
         return self::error('Не удалось создать абонента', 400);
     }
@@ -47,8 +49,9 @@ readonly class subscriber extends Api
         $success = $households->modifySubscriber($params['_id'], $params)
             && $households->setSubscriberFlats($params['_id'], $params['flats']);
 
-        if ($success)
+        if ($success) {
             return self::success($params['_id']);
+        }
 
         return self::error('Не удалось обновить абонента', 400);
     }
@@ -56,14 +59,16 @@ readonly class subscriber extends Api
     public static function DELETE(array $params): ResponseInterface
     {
         if (array_key_exists('force', $params) && $params['force']) {
-            if (HouseSubscriber::findById($params['subscriberId'], setting: setting()->nonNullable())->delete())
+            if (HouseSubscriber::findById($params['subscriberId'], setting: setting()->nonNullable())->delete()) {
                 return self::success();
+            }
 
             return self::error('Не удалось удалить абонента', 400);
         }
 
-        if (container(HouseFeature::class)->removeSubscriberFromFlat($params['_id'], $params['subscriberId']))
+        if (container(HouseFeature::class)->removeSubscriberFromFlat($params['_id'], $params['subscriberId'])) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить абонента из квартиры', 400);
     }

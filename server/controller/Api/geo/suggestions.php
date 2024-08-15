@@ -10,15 +10,15 @@ readonly class suggestions extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        $suggestions = container(GeoFeature::class)->suggestions($params["search"], array_key_exists('bound', $params) ? $params['bound'] : null);
+        $suggestions = container(GeoFeature::class)->suggestions($params["search"], $params['bound'] ?? null);
 
-        if ($suggestions)
-            return self::success(array_map(static function (array $suggestion) {
+        if ($suggestions) {
+            return self::success(array_map(static function (array $suggestion): array {
                 return [
                     'value' => $suggestion['value'],
 
-                    'latitude' => array_key_exists('geo_lat', $suggestion['data']) ? $suggestion['data']['geo_lat'] : null,
-                    'longitude' => array_key_exists('geo_lon', $suggestion['data']) ? $suggestion['data']['geo_lon'] : null,
+                    'latitude' => $suggestion['data']['geo_lat'] ?? null,
+                    'longitude' => $suggestion['data']['geo_lon'] ?? null,
 
                     'data' => [
                         'region_fias_id' => $suggestion['data']['region_fias_id'],
@@ -32,6 +32,7 @@ readonly class suggestions extends Api
                     ]
                 ];
             }, $suggestions));
+        }
 
         return self::error('Адрес не найден', 404);
     }

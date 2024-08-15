@@ -43,7 +43,7 @@ readonly class ActionController extends RbtController
             (new EntitySetting())->columns(['camera_id', 'frs_server_id'])
         );
 
-        if (!$deviceCamera || !$deviceCamera->frs_server_id) {
+        if (!$deviceCamera instanceof DeviceCamera || !$deviceCamera->frs_server_id) {
             file_logger('motion')->debug('Motion detection not enabled', ['frs' => '-', 'ip' => $request->ip]);
 
             return user_response(400, message: 'Детектор движений не включен');

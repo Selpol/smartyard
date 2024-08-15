@@ -32,12 +32,13 @@ readonly class SyncController extends RbtController
     {
         $body = $request->getParsedBody();
 
-        $houses = $databaseService->get('SELECT address_house_id, house_uuid FROM addresses_houses WHERE house_uuid IN (' . implode(', ', array_map(static fn(string $value) => "'" . $value . "'", $body)) . ')');
+        $houses = $databaseService->get('SELECT address_house_id, house_uuid FROM addresses_houses WHERE house_uuid IN (' . implode(', ', array_map(static fn(string $value): string => "'" . $value . "'", $body)) . ')');
 
         $result = [];
 
-        if (count($houses)) {
-            for ($i = 0; $i < count($houses); $i++)
+        if (count($houses) > 0) {
+            $counter = count($houses);
+            for ($i = 0; $i < $counter; ++$i)
                 $result[$houses[$i]['house_uuid']] = [
                     'id' => $houses[$i]['address_house_id'],
                     'flats' => $databaseService->get('SELECT house_flat_id as id, flat FROM  houses_flats WHERE address_house_id = :id', ['id' => $houses[$i]['address_house_id']])
@@ -74,8 +75,9 @@ readonly class SyncController extends RbtController
             try {
                 $subscriberId = $houseFeature->addSubscriber($validate['id'], $validate['name'], $validate['patronymic'], $validate['audJti']);
 
-                if ($subscriberId)
+                if ($subscriberId) {
                     $result[$validate['id']] = $subscriberId;
+                }
             } catch (Throwable $throwable) {
                 if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation()) {
                     $subscriber = HouseSubscriber::findById($validate['id'], setting: setting()->nonNullable());
@@ -106,8 +108,9 @@ readonly class SyncController extends RbtController
                     'patronymic' => rule()->required()->clamp(1, 32)->nonNullable(),
                 ]);
 
-                if ($houseFeature->modifySubscriber($validate['subscriberId'], ['subscriberName' => $validate['name'], 'subscriberPatronymic' => $validate['patronymic']]))
+                if ($houseFeature->modifySubscriber($validate['subscriberId'], ['subscriberName' => $validate['name'], 'subscriberPatronymic' => $validate['patronymic']])) {
                     $result[$validate['subscriberId']] = true;
+                }
             } catch (Throwable) {
             }
         }
@@ -128,8 +131,9 @@ readonly class SyncController extends RbtController
 
         foreach ($body as $item)
             try {
-                if (HouseSubscriber::findById($item, setting: setting()->nonNullable())->delete())
+                if (HouseSubscriber::findById($item, setting: setting()->nonNullable())->delete()) {
                     $result[$item] = true;
+                }
             } catch (Throwable) {
             }
 
@@ -158,29 +162,21 @@ readonly class SyncController extends RbtController
 
                     if ($block != null) {
                         if ($intercom) {
-                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
-
+                            $block->status |= BlockFeature::STATUS_BILLING;
                             $block->cause = 'Заблокировано за неуплату';
-
                             $block->update();
+                        } elseif ($block->status == BlockFeature::STATUS_BILLING) {
+                            $block->delete();
                         } else {
-                            if ($block->status == BlockFeature::STATUS_BILLING)
-                                $block->delete();
-                            else {
-                                $block->status = BlockFeature::STATUS_ADMIN;
-                                $block->update();
-                            }
+                            $block->status = BlockFeature::STATUS_ADMIN;
+                            $block->update();
                         }
-                    } else if ($intercom) {
+                    } elseif ($intercom) {
                         $block = new FlatBlock();
-
                         $block->flat_id = $validate['id'];
-
                         $block->service = BlockFeature::SERVICE_INTERCOM;
                         $block->status = BlockFeature::STATUS_BILLING;
-
                         $block->cause = 'Заблокировано за неуплату';
-
                         $block->insert();
                     }
 
@@ -193,29 +189,21 @@ readonly class SyncController extends RbtController
 
                     if ($block != null) {
                         if ($cctv) {
-                            $block->status = $block->status | BlockFeature::STATUS_BILLING;
-
+                            $block->status |= BlockFeature::STATUS_BILLING;
                             $block->cause = 'Заблокировано за неуплату';
-
                             $block->update();
+                        } elseif ($block->status == BlockFeature::STATUS_BILLING) {
+                            $block->delete();
                         } else {
-                            if ($block->status == BlockFeature::STATUS_BILLING)
-                                $block->delete();
-                            else {
-                                $block->status = BlockFeature::STATUS_ADMIN;
-                                $block->update();
-                            }
+                            $block->status = BlockFeature::STATUS_ADMIN;
+                            $block->update();
                         }
-                    } else if ($cctv) {
+                    } elseif ($cctv) {
                         $block = new FlatBlock();
-
                         $block->flat_id = $validate['id'];
-
                         $block->service = BlockFeature::SERVICE_CCTV;
                         $block->status = BlockFeature::STATUS_BILLING;
-
                         $block->cause = 'Заблокировано за неуплату';
-
                         $block->insert();
                     }
 
@@ -249,11 +237,13 @@ readonly class SyncController extends RbtController
             }
 
             try {
-                if ($databaseService->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
+                if ($databaseService->insert('INSERT INTO houses_flats_subscribers(house_subscriber_id, house_flat_id, role) VALUES (:subscriber_id, :flat_id, :role)', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']])) {
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+                }
             } catch (Throwable $throwable) {
-                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation())
+                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation()) {
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+                }
             }
         }
 
@@ -278,11 +268,13 @@ readonly class SyncController extends RbtController
             }
 
             try {
-                if ($databaseService->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']]))
+                if ($databaseService->modify('UPDATE houses_flats_subscribers SET role = :role WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat'], 'role' => $validate['role']])) {
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+                }
             } catch (Throwable $throwable) {
-                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation())
+                if ($throwable instanceof DatabaseException && $throwable->isUniqueViolation()) {
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+                }
             }
         }
 
@@ -303,8 +295,9 @@ readonly class SyncController extends RbtController
             try {
                 $validate = validator($item, ['subscriber' => rule()->id(), 'flat' => rule()->id()]);
 
-                if ($databaseService->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']]))
+                if ($databaseService->modify('DELETE FROM houses_flats_subscribers WHERE house_subscriber_id = :subscriber_id AND house_flat_id = :flat_id', ['subscriber_id' => $validate['subscriber'], 'flat_id' => $validate['flat']])) {
                     $result[$validate['subscriber'] . '-' . $validate['flat']] = true;
+                }
             } catch (Throwable) {
             }
         }

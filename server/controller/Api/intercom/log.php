@@ -21,16 +21,16 @@ readonly class log extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        if (array_key_exists('ip', $params))
+        if (array_key_exists('ip', $params)) {
             $ip = rule()->required()->ipV4()->nonNullable()->onItem('ip', $params);
-        else if (array_key_exists('_id', $params)) {
+        } elseif (array_key_exists('_id', $params)) {
             $id = rule()->id()->onItem('_id', $params);
-
             $ip = DeviceIntercom::findById($id, setting: setting()->nonNullable())->ip;
         }
 
-        if (!isset($ip))
+        if (!isset($ip)) {
             return self::error('Не удалось определить IP-адрес', 404);
+        }
 
         $logs = container(PlogFeature::class)->getSyslogFilter($ip, $validate['message'], $validate['minDate'], $validate['maxDate'], $validate['page'], $validate['size']);
 

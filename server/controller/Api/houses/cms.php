@@ -24,8 +24,9 @@ readonly class cms extends Api
 
         $success = $households->setCms($params['_id'], $params['cms']);
 
-        if ($success)
+        if ($success) {
             task(new IntercomSyncCmsTask($params['_id']))->high()->dispatch();
+        }
 
         return $success ? self::success($params['_id']) : self::error('Не удалось обновить КМС', 400);
     }

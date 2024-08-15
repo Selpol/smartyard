@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Entity\Model\Block\FlatBlock;
+use Selpol\Entity\Model\Block\SubscriberBlock;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
 use Selpol\Controller\RbtController;
@@ -48,15 +50,16 @@ readonly class DvrController extends RbtController
     {
         $camera = DeviceCamera::findById($request->id);
 
-        if (!$camera)
+        if (!$camera instanceof DeviceCamera) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
-        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id))
+        if (!$camera->checkAccessForSubscriber($this->getUser()->getOriginalValue(), $request->house_id, $request->flat_id, $request->entrance_id)) {
             return user_response(403, message: 'Доступа к камере нет');
+        }
 
         if (!is_null($request->house_id)) {
             $findFlatId = null;
-
             foreach ($this->getUser()->getOriginalValue()['flats'] as $flat) {
                 if ($flat['addressHouseId'] == $request->house_id) {
                     $findFlatId = $flat['flatId'];
@@ -65,25 +68,30 @@ readonly class DvrController extends RbtController
                 }
             }
 
-            if (is_null($findFlatId))
+            if (is_null($findFlatId)) {
                 return user_response(404, message: 'Квартира не найдена');
+            }
 
-            if (($block = $blockFeature->getFirstBlockForFlat($findFlatId, [BlockFeature::SERVICE_CCTV])) !== null)
+            if (($block = $blockFeature->getFirstBlockForFlat($findFlatId, [BlockFeature::SERVICE_CCTV])) instanceof FlatBlock) {
                 return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
-        } else if (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) !== null)
+            }
+        } elseif (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) instanceof FlatBlock) {
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
-        else if (($block = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV])) !== null)
+        } elseif (($block = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV])) instanceof SubscriberBlock) {
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+        }
 
         $dvr = dvr($camera->dvr_server_id);
 
-        if (!$dvr)
+        if (!$dvr instanceof DvrDevice) {
             return user_response(404, message: 'Устройство не найдено');
+        }
 
         $identifier = $dvr->identifier($camera, $request->time ?? time(), $this->getUser()->getIdentifier());
 
-        if (!$identifier)
+        if (!$identifier instanceof DvrIdentifier) {
             return user_response(404, message: 'Идентификатор не найден');
+        }
 
         try {
             $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getIdentifier()], 360);
@@ -109,8 +117,9 @@ readonly class DvrController extends RbtController
         try {
             $result = $this->process($cache, $request->id);
 
-            if ($result instanceof ResponseInterface)
+            if ($result instanceof ResponseInterface) {
                 return $result;
+            }
 
             /**
              * @var DvrIdentifier $identifier
@@ -133,8 +142,9 @@ readonly class DvrController extends RbtController
         try {
             $result = $this->process($cache, $request->id);
 
-            if ($result instanceof ResponseInterface)
+            if ($result instanceof ResponseInterface) {
                 return $result;
+            }
 
             /**
              * @var DvrIdentifier $identifier
@@ -145,8 +155,9 @@ readonly class DvrController extends RbtController
 
             $screenshot = $dvr->screenshot($identifier, $camera, $request->time);
 
-            if ($screenshot)
+            if ($screenshot) {
                 return response()->withHeader('Content-Type', 'image/jpeg')->withBody($screenshot);
+            }
 
             return response(204);
         } catch (Throwable $throwable) {
@@ -161,8 +172,9 @@ readonly class DvrController extends RbtController
     {
         $result = $this->process($cache, $request->id);
 
-        if ($result instanceof ResponseInterface)
+        if ($result instanceof ResponseInterface) {
             return $result;
+        }
 
         /**
          * @var DvrIdentifier $identifier
@@ -171,13 +183,15 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
-        if (!is_null($request->time) && is_null($identifier->subscriber))
+        if (!is_null($request->time) && is_null($identifier->subscriber)) {
             return user_response(403, message: 'Доступ к предпросмотру архива запрещен');
+        }
 
         $preview = $dvr->preview($identifier, $camera, ['time' => $request->time]);
 
-        if (!$preview)
+        if (!$preview) {
             return user_response(404, message: 'Предпросмотр не доступен');
+        }
 
         return user_response(data: $preview);
     }
@@ -187,8 +201,9 @@ readonly class DvrController extends RbtController
     {
         $result = $this->process($cache, $request->id);
 
-        if ($result instanceof ResponseInterface)
+        if ($result instanceof ResponseInterface) {
             return $result;
+        }
 
         /**
          * @var DvrIdentifier $identifier
@@ -197,8 +212,9 @@ readonly class DvrController extends RbtController
          */
         list($identifier, $camera, $dvr) = $result;
 
-        if ($request->stream == 'archive' && is_null($identifier->subscriber))
+        if ($request->stream == 'archive' && is_null($identifier->subscriber)) {
             return user_response(403, message: 'Доступ к архиву запрещен');
+        }
 
         $video = $dvr->video(
             $identifier,
@@ -208,8 +224,9 @@ readonly class DvrController extends RbtController
             ['time' => $request->time, 'sub' => $request->sub, 'hw' => $request->hw]
         );
 
-        if (!$video)
+        if (!$video) {
             return user_response(404, message: 'Видео не доступно');
+        }
 
         return user_response(data: $video);
     }
@@ -219,8 +236,9 @@ readonly class DvrController extends RbtController
     {
         $result = $this->process($cache, $request->id);
 
-        if ($result instanceof ResponseInterface)
+        if ($result instanceof ResponseInterface) {
             return $result;
+        }
 
         /**
          * @var DvrIdentifier $identifier
@@ -231,8 +249,9 @@ readonly class DvrController extends RbtController
 
         $timeline = $dvr->timeline($identifier, $camera, ['token' => $request->token]);
 
-        if (!$timeline)
+        if (!$timeline) {
             return user_response(404, message: 'Таймлайн не найден');
+        }
 
         return user_response(data: $timeline);
     }
@@ -242,8 +261,9 @@ readonly class DvrController extends RbtController
     {
         $result = $this->process($cache, $request->id);
 
-        if ($result instanceof ResponseInterface)
+        if ($result instanceof ResponseInterface) {
             return $result;
+        }
 
         /**
          * @var DvrIdentifier $identifier
@@ -256,19 +276,21 @@ readonly class DvrController extends RbtController
 
         $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($camera->camera_id);
 
-        if (is_null($domophoneId))
+        if (is_null($domophoneId)) {
             return user_response(data: $dvrEvents);
+        }
 
         if ($this->getUser()->getOriginalValue()['role'] == 1) {
             $intercomEvents = $plogFeature->getEventsByIntercom($domophoneId, $request->after, $request->before);
 
             if (is_array($intercomEvents)) {
-                $intercomEvents = array_map(static fn(array $item) => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
+                $intercomEvents = array_map(static fn(array $item): array => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
                 $events = array_merge($dvrEvents, $intercomEvents);
 
-                usort($events, static function (array $a, array $b) {
-                    if ($a[0] == $b[0])
+                usort($events, static function (array $a, array $b): int {
+                    if ($a[0] == $b[0]) {
                         return 0;
+                    }
 
                     return $a[0] > $b[1] ? 1 : -1;
                 });
@@ -280,8 +302,8 @@ readonly class DvrController extends RbtController
         }
 
         $flats = array_filter(
-            array_map(static fn(array $item) => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $this->getUser()->getOriginalValue()['flats']),
-            static function (array $flat) use ($houseFeature) {
+            array_map(static fn(array $item): array => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $this->getUser()->getOriginalValue()['flats']),
+            static function (array $flat) use ($houseFeature): bool {
                 $plog = $houseFeature->getFlatPlog($flat['id']);
 
                 return is_null($plog) || $plog == PlogFeature::ACCESS_ALL || $plog == PlogFeature::ACCESS_OWNER_ONLY && $flat['owner'];
@@ -290,18 +312,20 @@ readonly class DvrController extends RbtController
 
         $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
 
-        if (count($flatsId) == 0)
+        if (count($flatsId) == 0) {
             return user_response(data: $dvrEvents);
+        }
 
         $intercomEvents = $plogFeature->getEventByFlatsAndIntercom($flatsId, $domophoneId, $request->after, $request->before);
 
         if ($intercomEvents) {
-            $intercomEvents = array_map(static fn(array $item) => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
+            $intercomEvents = array_map(static fn(array $item): array => [$item['date'] - 10, $item['date'] + 10, $item['event']], $intercomEvents);
             $events = array_merge($dvrEvents, $intercomEvents);
 
-            usort($events, static function (array $a, array $b) {
-                if ($a[0] == $b[0])
+            usort($events, static function (array $a, array $b): int {
+                if ($a[0] == $b[0]) {
                     return 0;
+                }
 
                 return $a[0] > $b[1] ? 1 : -1;
             });
@@ -317,8 +341,9 @@ readonly class DvrController extends RbtController
     {
         $result = $this->process($cache, $request->id);
 
-        if ($result instanceof ResponseInterface)
+        if ($result instanceof ResponseInterface) {
             return $result;
+        }
 
         /**
          * @var DvrIdentifier $identifier
@@ -343,11 +368,13 @@ readonly class DvrController extends RbtController
                 'to' => $request->to
             ]
         );
-
-        if (!$command)
+        if (!$command) {
             return user_response(404, message: 'Команда не доступна');
-        else if ($command === true)
+        }
+
+        if ($command === true) {
             return user_response();
+        }
 
         return user_response(data: $command);
     }
@@ -357,26 +384,31 @@ readonly class DvrController extends RbtController
         try {
             $value = $cache->get('dvr:' . $id);
 
-            if (!$value)
+            if (!$value) {
                 return user_response(404, message: 'Идентификатор не найден');
+            }
 
             $camera = DeviceCamera::findById($value[2]);
 
-            if (!$camera)
+            if (!$camera instanceof DeviceCamera) {
                 return user_response(404, message: 'Камера не найдена');
+            }
 
             $dvr = dvr($camera->dvr_server_id);
 
-            if (!$dvr)
+            if (!$dvr instanceof DvrDevice) {
                 return user_response(404, message: 'Устройство не найден');
+            }
 
-            if (!$cache->set('dvr:' . $id, $value, 360))
+            if (!$cache->set('dvr:' . $id, $value, 360)) {
                 return user_response(404, message: 'Не удалось обновить идентификатор');
+            }
 
             $identifier = new DvrIdentifier($id, $value[0], $value[1], $value[3]);
 
-            if (!$identifier->isNotExpired())
+            if (!$identifier->isNotExpired()) {
                 return user_response(400, message: 'Токен доступа устарел');
+            }
 
             return [$identifier, $camera, $dvr];
         } catch (Throwable $throwable) {

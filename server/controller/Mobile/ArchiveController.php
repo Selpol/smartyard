@@ -35,19 +35,22 @@ readonly class ArchiveController extends RbtController
         $from = strtotime($request->from);
         $to = strtotime($request->to);
 
-        if (!$from || !$to)
+        if ($from === 0 || $from === false || ($to === 0 || $to === false)) {
             return user_response(400, message: 'Неверный формат данных');
+        }
 
         $camera = DeviceCamera::findById($request->id);
 
-        if (!$camera || !$camera->checkAllAccessForSubscriber($this->getUser()->getOriginalValue()))
+        if (!$camera instanceof DeviceCamera || !$camera->checkAllAccessForSubscriber($this->getUser()->getOriginalValue())) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         // проверяем, не был ли уже запрошен данный кусок из архива.
         $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
-        if (@$check['id'])
+        if (array_key_exists('id', $check)) {
             return user_response(200, $check['id']);
+        }
 
         $result = (int)$archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 

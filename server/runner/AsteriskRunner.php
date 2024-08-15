@@ -60,7 +60,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             case 'aors':
             case 'auths':
             case 'endpoints':
-                if (@$_POST['id']) {
+                if (array_key_exists('id', $_POST)) {
                     echo $this->response($this->getExtension($_POST['id'], $path[0]));
                 }
 

@@ -18,8 +18,9 @@ readonly class user extends Api
         $user = container(UserFeature::class)->getUser($params["_id"]);
 
         if ($user) {
-            if ($user['phone'] && !container(AuthService::class)->checkScope('mobile-mask'))
+            if ($user['phone'] && !container(AuthService::class)->checkScope('mobile-mask')) {
                 $user['phone'] = mobile_mask($user['phone']);
+            }
 
             return self::success($user);
         }
@@ -41,13 +42,15 @@ readonly class user extends Api
         try {
             $id = container(OauthFeature::class)->register($params['phone']);
 
-            if ($id)
+            if ($id) {
                 $user->aud_jti = $id;
+            }
         } catch (Throwable) {
         }
 
-        if ($user->insert())
+        if ($user->insert()) {
             return self::success($user->uid);
+        }
 
         return self::error('Не удалось создать пользователя', 400);
     }
@@ -63,8 +66,9 @@ readonly class user extends Api
                 if (!$user->enabled) {
                     $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
 
-                    if (count($keys) > 0)
+                    if (count($keys) > 0) {
                         container(RedisService::class)->del(...$keys);
+                    }
                 }
 
                 return self::success($user->uid);
@@ -82,8 +86,9 @@ readonly class user extends Api
             try {
                 $id = container(OauthFeature::class)->register($params['phone']);
 
-                if ($id)
+                if ($id) {
                     $user->aud_jti = $id;
+                }
             } catch (Throwable) {
             }
         }
@@ -93,15 +98,17 @@ readonly class user extends Api
         $user->enabled = $params['enabled'];
         $user->default_route = $params['defaultRoute'];
 
-        if (array_key_exists('password', $params))
+        if (array_key_exists('password', $params)) {
             $user->password = password_hash($params['password'], PASSWORD_DEFAULT);
+        }
 
         if ($user->update()) {
             if (!$user->enabled) {
                 $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
 
-                if (count($keys) > 0)
+                if (count($keys) > 0) {
                     container(RedisService::class)->del(...$keys);
+                }
             }
 
             return self::success($user->uid);

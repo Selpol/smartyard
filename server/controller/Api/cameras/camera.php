@@ -15,8 +15,9 @@ readonly class camera extends Api
     {
         $criteria = criteria();
 
-        if (!container(AuthService::class)->checkScope('camera-hidden'))
+        if (!container(AuthService::class)->checkScope('camera-hidden')) {
             $criteria->equal('hidden', false);
+        }
 
         return self::success(DeviceCamera::findById($params['_id'], $criteria, setting()->nonNullable())->toArrayMap([
             'camera_id' => 'cameraId',
@@ -53,8 +54,9 @@ readonly class camera extends Api
         self::set($camera, $params);
 
         if ($camera->insert()) {
-            if ($camera->frs_server_id)
+            if ($camera->frs_server_id) {
                 task(new FrsAddStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
+            }
 
             return self::success($camera->camera_id);
         }
@@ -70,11 +72,13 @@ readonly class camera extends Api
 
         if ($camera->update()) {
             if (array_key_exists('frs_server_id', $params)) {
-                if ($camera->frs_server_id !== $params['frs_server_id'])
+                if ($camera->frs_server_id !== $params['frs_server_id']) {
                     task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
+                }
 
-                if ($params['frs_server_id'])
+                if ($params['frs_server_id']) {
                     task(new FrsAddStreamTask($params['frs_server_id'], $camera->camera_id))->high()->dispatch();
+                }
             }
 
             return self::success($camera->camera_id);
@@ -88,8 +92,9 @@ readonly class camera extends Api
         $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
         if ($camera->delete()) {
-            if ($camera->frs_server_id)
+            if ($camera->frs_server_id) {
                 task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
+            }
 
             return self::success();
         }
@@ -111,11 +116,13 @@ readonly class camera extends Api
     {
         $camera->enabled = $params['enabled'];
 
-        if (array_key_exists('dvr_server_id', $params))
+        if (array_key_exists('dvr_server_id', $params)) {
             $camera->dvr_server_id = $params['dvr_server_id'];
+        }
 
-        if (array_key_exists('frs_server_id', $params))
+        if (array_key_exists('frs_server_id', $params)) {
             $camera->frs_server_id = $params['frs_server_id'];
+        }
 
         $camera->model = $params['model'];
         $camera->url = $params['url'];
@@ -125,8 +132,9 @@ readonly class camera extends Api
         $camera->dvr_stream = $params['dvrStream'];
         $camera->timezone = $params['timezone'];
 
-        if (array_key_exists('screenshot', $params))
+        if (array_key_exists('screenshot', $params)) {
             $camera->screenshot = $params['screenshot'];
+        }
 
         $camera->lat = $params['lat'];
         $camera->lon = $params['lon'];
@@ -144,12 +152,14 @@ readonly class camera extends Api
 
         $camera->comment = $params['comment'];
 
-        if (array_key_exists('hidden', $params))
+        if (array_key_exists('hidden', $params)) {
             $camera->hidden = $params['hidden'];
+        }
 
         $ip = gethostbyname(parse_url($camera->url, PHP_URL_HOST));
 
-        if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
             $camera->ip = $ip;
+        }
     }
 }

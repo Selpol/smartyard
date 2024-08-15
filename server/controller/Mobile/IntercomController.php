@@ -41,7 +41,7 @@ readonly class IntercomController extends RbtController
 
         $validate = validator($body, ['flatId' => rule()->id()]);
 
-        if (@$body['settings']) {
+        if (array_key_exists('settings', $body)) {
             $params = [];
             $settings = $body['settings'];
 
@@ -68,34 +68,31 @@ readonly class IntercomController extends RbtController
 
             $disable_plog = null;
 
-            if (@$settings['disablePlog']) {
+            if (array_key_exists('disablePlog', $settings)) {
                 $disable_plog = ($settings['disablePlog'] == true);
             }
 
             $hidden_plog = null;
 
-            if (@$settings['hiddenPlog']) {
+            if (array_key_exists('hiddenPlog', $settings)) {
                 $hidden_plog = ($settings['hiddenPlog'] == true);
             }
 
             if ($disable_plog === true) {
                 $params['plog'] = PlogFeature::ACCESS_DENIED;
-            } else if ($disable_plog === false) {
-                if ($hidden_plog === false) {
-                    $params['plog'] = PlogFeature::ACCESS_ALL;
-                } else {
-                    $params['plog'] = PlogFeature::ACCESS_OWNER_ONLY;
-                }
-            } else if ($hidden_plog !== null && $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY) {
-                $params['plog'] = $hidden_plog ? PlogFeature::ACCESS_OWNER_ONLY : PlogFeature::ACCESS_ALL;
+            } elseif ($disable_plog === false) {
+                $params['plog'] = $hidden_plog === false ? PlogFeature::ACCESS_ALL : PlogFeature::ACCESS_OWNER_ONLY;
+            } elseif ($hidden_plog !== null && $flat_plog == PlogFeature::ACCESS_ALL || $flat_plog == PlogFeature::ACCESS_OWNER_ONLY) {
+                $params['plog'] = $hidden_plog === true ? PlogFeature::ACCESS_OWNER_ONLY : PlogFeature::ACCESS_ALL;
             }
 
-            if ($this->getUser()->getIdentifier() == 130)
+            if ($this->getUser()->getIdentifier() == 130) {
                 file_logger('intercom')->debug('', ['param' => $params, 'settings' => $settings]);
+            }
 
             $houseFeature->modifyFlat($validate['flatId'], $params);
 
-            if (@$settings['VoIP']) {
+            if (array_key_exists('VoIP', $settings)) {
                 $params = [];
                 $params['voipEnabled'] = $settings['VoIP'] ? 1 : 0;
                 $houseFeature->modifySubscriber($user['subscriberId'], $params);
@@ -116,7 +113,7 @@ readonly class IntercomController extends RbtController
         $result['autoOpen'] = date('Y-m-d H:i:s', $flat['autoOpen']);
         $result['whiteRabbit'] = strval($flat['whiteRabbit']);
         $result['disablePlog'] = $flat['plog'] == PlogFeature::ACCESS_DENIED;
-        $result['hiddenPlog'] = !($flat['plog'] == PlogFeature::ACCESS_ALL);
+        $result['hiddenPlog'] = $flat['plog'] != PlogFeature::ACCESS_ALL;
 
         $frsDisabled = null;
 
@@ -138,7 +135,7 @@ readonly class IntercomController extends RbtController
             $result['FRSDisabled'] = $frsDisabled;
         }
 
-        if ($result) {
+        if ($result !== []) {
             return user_response(200, $result);
         }
 

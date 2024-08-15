@@ -14,8 +14,9 @@ readonly class intercom extends Api
     {
         $criteria = criteria();
 
-        if (!container(AuthService::class)->checkScope('intercom-hidden'))
+        if (!container(AuthService::class)->checkScope('intercom-hidden')) {
             $criteria->equal('hidden', false);
+        }
 
         $intercom = DeviceIntercom::findById($params['_id'], $criteria, setting()->nonNullable())->toArrayMap([
             'house_domophone_id' => 'domophoneId',
@@ -48,8 +49,9 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->insert())
+        if ($intercom->insert()) {
             return self::success($intercom->house_domophone_id);
+        }
 
         return self::error('Не удалось создать домофон', 400);
     }
@@ -60,8 +62,9 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->update())
+        if ($intercom->update()) {
             return self::success($intercom->house_domophone_id);
+        }
 
         return self::error('Не удалось обновить домофон', 400);
     }
@@ -70,8 +73,9 @@ readonly class intercom extends Api
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($intercom->delete())
+        if ($intercom->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось далить домофон', 400);
     }
@@ -91,22 +95,26 @@ readonly class intercom extends Api
         $intercom->credentials = $params['credentials'];
         $intercom->dtmf = $params['dtmf'];
 
-        if (array_key_exists('firstTime', $params))
+        if (array_key_exists('firstTime', $params)) {
             $intercom->first_time = $params['firstTime'];
+        }
 
         $intercom->nat = $params['nat'];
 
         $intercom->comment = $params['comment'];
 
-        if (array_key_exists('sosNumber', $params))
+        if (array_key_exists('sosNumber', $params)) {
             $intercom->sos_number = $params['sosNumber'];
+        }
 
-        if (array_key_exists('hidden', $params))
+        if (array_key_exists('hidden', $params)) {
             $intercom->hidden = $params['hidden'];
+        }
 
         $ip = gethostbyname(parse_url($intercom->url, PHP_URL_HOST));
 
-        if (filter_var($ip, FILTER_VALIDATE_IP) !== false)
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
             $intercom->ip = $ip;
+        }
     }
 }

@@ -39,8 +39,9 @@ readonly class PlogController extends RbtController
     {
         $user = $this->getUser()->getOriginalValue();
 
-        if ($blockFeature->getFirstBlockForFlat($request->flatId, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]) != null)
+        if ($blockFeature->getFirstBlockForFlat($request->flatId, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]) != null) {
             return user_response();
+        }
 
         $flat_owner = false;
 
@@ -54,8 +55,9 @@ readonly class PlogController extends RbtController
         $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
-        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner)
+        if ($plog_access == PlogFeature::ACCESS_DENIED || $plog_access == PlogFeature::ACCESS_OWNER_ONLY && !$flat_owner) {
             return user_response(data: []);
+        }
 
         try {
             $date = date('Ymd', strtotime($request->day));
@@ -76,11 +78,7 @@ readonly class PlogController extends RbtController
                         $e_details['objectId'] = strval($domophone->domophone_id);
                         $e_details['objectType'] = "0";
                         $e_details['objectMechanizma'] = strval($domophone->domophone_output);
-                        if (isset($domophone->domophone_description)) {
-                            $e_details['mechanizmaDescription'] = $domophone->domophone_description;
-                        } else {
-                            $e_details['mechanizmaDescription'] = '';
-                        }
+                        $e_details['mechanizmaDescription'] = isset($domophone->domophone_description) ? $domophone->domophone_description : '';
                     }
 
                     $event_type = (int)$row[PlogFeature::COLUMN_EVENT];
@@ -92,18 +90,20 @@ readonly class PlogController extends RbtController
 
                         $face_id = null;
 
-                        if (isset($face->faceId) && $face->faceId > 0)
+                        if (isset($face->faceId) && $face->faceId > 0) {
                             $face_id = $face->faceId;
+                        }
 
                         $subscriber_id = (int)$user['subscriberId'];
 
-                        if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner))
+                        if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'] = [FrsFeature::FLAG_LIKED, FrsFeature::FLAG_CAN_DISLIKE];
-                        else $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
+                        } else {
+                            $e_details['detailX']['flags'] = [FrsFeature::FLAG_CAN_LIKE];
+                        }
                     }
 
-                    if (isset($face->faceId) && $face->faceId > 0) $e_details['detailX']['faceId'] = strval($face->faceId);
-                    else $e_details['detailX']['faceId'] = null;
+                    $e_details['detailX']['faceId'] = isset($face->faceId) && $face->faceId > 0 ? strval($face->faceId) : null;
 
                     $phones = json_decode($row[PlogFeature::COLUMN_PHONES]);
 
@@ -120,8 +120,9 @@ readonly class PlogController extends RbtController
                             break;
 
                         case PlogFeature::EVENT_OPENED_BY_APP:
-                            if ($phones->user_phone)
+                            if ($phones->user_phone) {
                                 $e_details['detailX']['phone'] = strval($phones->user_phone);
+                            }
 
                             break;
 
@@ -134,18 +135,20 @@ readonly class PlogController extends RbtController
                             break;
 
                         case PlogFeature::EVENT_OPENED_GATES_BY_CALL:
-                            if ($phones->user_phone)
+                            if ($phones->user_phone) {
                                 $e_details['detailX']['phoneFrom'] = strval($phones->user_phone);
+                            }
 
-                            if ($phones->gate_phone)
+                            if ($phones->gate_phone) {
                                 $e_details['detailX']['phoneTo'] = strval($phones->gate_phone);
+                            }
 
                             break;
                     }
 
-                    if ((int)$row[PlogFeature::COLUMN_PREVIEW]) {
+                    if ((int)$row[PlogFeature::COLUMN_PREVIEW] !== 0) {
                         $img_uuid = $row[PlogFeature::COLUMN_IMAGE_UUID];
-                        $url = config_get('api.mobile') . "/address/plogCamshot/$img_uuid";
+                        $url = config_get('api.mobile') . ('/address/plogCamshot/' . $img_uuid);
                         $e_details['preview'] = $url;
                     }
 
@@ -153,9 +156,9 @@ readonly class PlogController extends RbtController
                 }
 
                 return user_response(data: $events_details);
-            } else {
-                return user_response(data: []);
             }
+
+            return user_response(data: []);
         } catch (Throwable $throwable) {
             file_logger('plog')->debug($throwable);
 
@@ -185,17 +188,20 @@ readonly class PlogController extends RbtController
         $flat_details = $houseFeature->getFlat($request->flatId);
         $plog_access = $flat_details['plog'];
 
-        if ($plog_access == PlogFeature::ACCESS_DENIED)
+        if ($plog_access == PlogFeature::ACCESS_DENIED) {
             return user_response(data: []);
+        }
 
-        if ($plog_access == PlogFeature::ACCESS_OWNER_ONLY)
+        if ($plog_access == PlogFeature::ACCESS_OWNER_ONLY) {
             foreach ($user['flats'] as $flat)
                 if ($flat['flatId'] == $request->flatId) {
-                    if ($flat['role'] !== 0)
+                    if ($flat['role'] !== 0) {
                         return user_response(data: []);
+                    }
 
                     break;
                 }
+        }
 
         $filter_events = false;
 
@@ -208,8 +214,7 @@ readonly class PlogController extends RbtController
 
             $filter_events = [];
 
-            foreach ($t as $e => $one)
-                $filter_events[] = $e;
+            $filter_events = array_keys($t);
 
             sort($filter_events);
 
@@ -219,8 +224,9 @@ readonly class PlogController extends RbtController
         try {
             $result = $plogFeature->getEventsDays($request->flatId, $filter_events);
 
-            if ($result)
+            if ($result) {
                 return user_response(data: $result);
+            }
 
             return user_response(data: []);
         } catch (Throwable $throwable) {

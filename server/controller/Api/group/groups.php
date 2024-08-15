@@ -30,8 +30,9 @@ readonly class groups extends Api
             $validate['size']
         );
 
-        if ($result)
+        if ($result) {
             return self::success($result);
+        }
 
         return self::success([]);
     }

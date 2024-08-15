@@ -14,8 +14,9 @@ readonly class group extends Api
 
         $group = container(GroupFeature::class)->get($validate['_id']);
 
-        if ($group)
+        if ($group) {
             return self::success($group);
+        }
 
         return self::error('Не удалось найти группу', 404);
     }
@@ -58,8 +59,9 @@ readonly class group extends Api
     {
         $validate = validator($params, ['_id' => rule()->required()->string()->nonNullable()]);
 
-        if (container(GroupFeature::class)->delete($validate['_id']))
+        if (container(GroupFeature::class)->delete($validate['_id'])) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить группуп', 404);
     }

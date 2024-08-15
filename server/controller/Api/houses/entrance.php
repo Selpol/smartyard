@@ -25,20 +25,20 @@ readonly class entrance extends Api
     {
         $households = container(HouseFeature::class);
 
-        if (@$params["entranceId"]) {
+        if (array_key_exists("entranceId", $params)) {
             $success = $households->addEntrance($params["houseId"], $params["entranceId"], $params["prefix"]);
 
             return $success ? self::success($params['entranceId']) : self::error('Не удалось добавить общий вход', 400);
-        } else {
-            $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
-
-            if ($entranceId) {
-                task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->dispatch();
-                task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
-            }
-
-            return $entranceId ? self::success($entranceId) : self::error('Не удалось создать вход', 400);
         }
+
+        $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
+
+        if ($entranceId) {
+            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->dispatch();
+            task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
+        }
+
+        return $entranceId ? self::success($entranceId) : self::error('Не удалось создать вход', 400);
     }
 
     public static function PUT(array $params): ResponseInterface
@@ -68,7 +68,7 @@ readonly class entrance extends Api
     {
         $households = container(HouseFeature::class);
 
-        if (@$params["houseId"]) {
+        if (array_key_exists("houseId", $params)) {
             $success = $households->deleteEntrance($params["_id"], $params["houseId"]);
         } else {
             $success = $households->destroyEntrance($params["_id"]);

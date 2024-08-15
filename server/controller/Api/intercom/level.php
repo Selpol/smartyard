@@ -23,11 +23,16 @@ readonly class level extends Api
 
         $intercom = intercom($validate['_id']);
 
-        if ($intercom instanceof CmsInterface) {
-            if (!is_null($validate['apartment']))
-                return self::success($validate['info'] ? $intercom->getLineDialStatus($validate['apartment'], true) : ['resist' => $intercom->getLineDialStatus($validate['apartment'], false)]);
-            else if (!is_null($validate['from']) && !is_null($validate['to']))
-                return self::success($intercom->getAllLineDialStatus($validate['from'], $validate['to'], $validate['info']));
+        if (!$intercom instanceof CmsInterface) {
+            return self::error('Не достаточно данных', 400);
+        }
+
+        if (!is_null($validate['apartment'])) {
+            return self::success($validate['info'] ? $intercom->getLineDialStatus($validate['apartment'], true) : ['resist' => $intercom->getLineDialStatus($validate['apartment'], false)]);
+        }
+
+        if (!is_null($validate['from']) && !is_null($validate['to'])) {
+            return self::success($intercom->getAllLineDialStatus($validate['from'], $validate['to'], $validate['info']));
         }
 
         return self::error('Не достаточно данных', 400);
