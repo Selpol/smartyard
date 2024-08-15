@@ -27,6 +27,7 @@ class Role extends Entity
     public static string $columnIdStrategy = 'role_id_seq';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

@@ -17,6 +17,7 @@ abstract class IpDevice extends Device
     public string $password;
 
     public bool $ping = true;
+
     public int $sleep = 0;
 
     public bool $debug;
@@ -60,7 +61,9 @@ abstract class IpDevice extends Device
                     'https' => 443,
                     default => 22
                 };
-        } else $url .= ':' . $this->uri->getPort();
+        } else {
+            $url .= ':' . $this->uri->getPort();
+        }
 
         try {
             $fp = stream_socket_client($url, $code, $message, timeout: 1);
@@ -109,7 +112,7 @@ abstract class IpDevice extends Device
         }
 
         try {
-            $request = client_request('GET', $endpoint . (count($query) ? '?' . http_build_query($query) : ''));
+            $request = client_request('GET', $endpoint . ($query !== [] ? '?' . http_build_query($query) : ''));
 
             foreach ($headers as $header => $value) {
                 $request->withHeader($header, $value);

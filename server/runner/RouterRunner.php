@@ -2,6 +2,7 @@
 
 namespace Selpol\Runner;
 
+use Selpol\Framework\Router\Route\Route;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -43,7 +44,7 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
      * @throws ContainerExceptionInterface
      * @throws Exception
      */
-    function run(array $arguments): int
+    public function run(array $arguments): int
     {
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
             return $this->emit(response(204));
@@ -59,28 +60,29 @@ class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, 
 
         $route = $this->getRouterValue($request);
 
-        if ($route !== null) {
+        if ($route instanceof Route) {
             return $this->emit($this->handle($request));
         }
 
         return $this->emit(rbt_response(404));
     }
 
-    function error(Throwable $throwable): int
+    public function error(Throwable $throwable): int
     {
         try {
             if ($throwable instanceof KernelException) {
                 $response = rbt_response($throwable->getCode() ?: 500, $throwable->getLocalizedMessage());
-            } else if ($throwable instanceof ValidatorException) {
+            } elseif ($throwable instanceof ValidatorException) {
                 $response = rbt_response(400, $throwable->getValidatorMessage()->message);
-
                 file_logger('response_400')->error($throwable);
-            } else if ($throwable instanceof DatabaseException) {
+            } elseif ($throwable instanceof DatabaseException) {
                 if ($throwable->isUniqueViolation()) {
                     $response = rbt_response(400, 'Дубликат объекта');
-                } else if ($throwable->isForeignViolation()) {
+                } elseif ($throwable->isForeignViolation()) {
                     $response = rbt_response(400, 'Объект имеет дочерние зависимости');
-                } else $response = rbt_response(500);
+                } else {
+                    $response = rbt_response(500);
+                }
             } else {
                 file_logger('response')->error($throwable);
 

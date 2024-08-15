@@ -23,7 +23,15 @@ use Selpol\Device\Ip\Trait\IsTrait;
 
 class IsIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, CmsInterface, ApartmentInterface, KeyInterface, CodeInterface
 {
-    use IsTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, CmsTrait, ApartmentTrait, KeyTrait, CodeTrait;
+    use IsTrait;
+    use AudioTrait;
+    use VideoTrait;
+    use SipTrait;
+    use CommonTrait;
+    use CmsTrait;
+    use ApartmentTrait;
+    use KeyTrait;
+    use CodeTrait;
 
     public function open(int $value): void
     {

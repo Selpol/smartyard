@@ -28,6 +28,7 @@ class Contractor extends Entity
     public static string $table = 'contractor';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

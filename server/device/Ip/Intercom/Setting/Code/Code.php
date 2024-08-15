@@ -4,15 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Code;
 
 class Code
 {
-    public int $code;
-
-    public int $apartment;
-
-    public function __construct(int $code, int $apartment)
+    public function __construct(public int $code, public int $apartment)
     {
-        $this->code = $code;
-
-        $this->apartment = $apartment;
     }
 
     public function equal(Code $other): bool

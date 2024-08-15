@@ -2,7 +2,6 @@
 
 namespace Selpol\Device\Ip\Intercom\Is;
 
-use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\Setting\Common\DDns;
 use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;

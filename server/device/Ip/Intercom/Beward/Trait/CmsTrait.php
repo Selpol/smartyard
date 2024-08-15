@@ -21,7 +21,7 @@ trait CmsTrait
     {
         $result = [];
 
-        for ($i = $from; $i <= $to; $i++) {
+        for ($i = $from; $i <= $to; ++$i) {
             $result[$i] = $info ? $this->getLineDialStatus($i, true) : ['resist' => $this->getLineDialStatus($i, false)];
         }
 
@@ -31,7 +31,7 @@ trait CmsTrait
     public function getCmsModel(): string
     {
         $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
-        $lines = explode(PHP_EOL, $content);
+        $lines = explode(PHP_EOL, (string) $content);
 
         $model = $lines[0];
 
@@ -105,10 +105,11 @@ trait CmsTrait
     public function clearCms(string $cms): void
     {
         ['model' => $model, 'cmses' => $cmses] = $this->cmsExport();
+        $counter = count($cmses);
 
-        for ($index = 0; $index < count($cmses); $index++) {
-            for ($unit = 0; $unit < count($cmses[$index]); $unit++) {
-                for ($dozen = 0; $dozen < count($cmses[$index][$unit]); $dozen++) {
+        for ($index = 0; $index < $counter; ++$index) {
+            for ($unit = 0; $unit < count($cmses[$index]); ++$unit) {
+                for ($dozen = 0; $dozen < count($cmses[$index][$unit]); ++$dozen) {
                     $cmses[$index][$unit][$dozen] = 0;
                 }
             }
@@ -120,26 +121,27 @@ trait CmsTrait
     private function cmsExport(): array
     {
         $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
-        $lines = explode(PHP_EOL, $content);
+        $lines = explode(PHP_EOL, (string) $content);
 
         $model = 0;
         $cmses = [];
+        $counter = count($lines);
 
-        for ($i = 0; $i < count($lines); $i++) {
+        for ($i = 0; $i < $counter; ++$i) {
             if ($i === 0) {
                 $model = intval($lines[$i]);
-            } else if ($lines[$i] === '') {
+            } elseif ($lines[$i] === '') {
                 $cmses[] = [];
             } else {
                 $count = count(explode(',', $lines[$i]));
 
-                if ($count) {
+                if ($count !== 0) {
                     $cmses[count($cmses) - 1][] = array_fill(0, $count, 0);
                 }
             }
         }
 
-        return ['model' => $model, 'cmses' => array_filter($cmses, static fn(array $cms) => count($cms) > 0)];
+        return ['model' => $model, 'cmses' => array_filter($cmses, static fn(array $cms): bool => $cms !== [])];
     }
 
     private function cmsImport(int $model, array $cmses): void

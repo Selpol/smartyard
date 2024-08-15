@@ -14,9 +14,9 @@ trait AudioTrait
 
         if ($coreVar && $coreVar->var_value) {
             return new AudioLevels(json_decode($coreVar->var_value, true));
-        } else {
-            return new AudioLevels([110, 130, 200, 185, 230, 120]);
         }
+
+        return new AudioLevels([110, 130, 200, 185, 230, 120]);
     }
 
     public function getAudioLevels(): AudioLevels

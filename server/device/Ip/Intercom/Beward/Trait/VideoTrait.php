@@ -85,17 +85,17 @@ trait VideoTrait
             'ckalarmrecdev' => '0',
         ];
 
-        $params['nLeft1'] = $videoDetection->left ?: 0;
-        $params['nTop1'] = $videoDetection->top ?: 0;
-        $params['nWidth1'] = $videoDetection->width ?: 704;
-        $params['nHeight1'] = $videoDetection->height ?: 576;
+        $params['nLeft1'] = $videoDetection->left !== null && $videoDetection->left !== 0 ? $videoDetection->left : 0;
+        $params['nTop1'] = $videoDetection->top !== null && $videoDetection->top !== 0 ? $videoDetection->top : 0;
+        $params['nWidth1'] = $videoDetection->width !== null && $videoDetection->width !== 0 ? $videoDetection->width : 704;
+        $params['nHeight1'] = $videoDetection->height !== null && $videoDetection->height !== 0 ? $videoDetection->height : 576;
 
         $this->get('webs/motionCfgEx', $params);
     }
 
     public function setVideoDisplay(VideoDisplay $videoDisplay): void
     {
-        $this->post('/cgi-bin/display_cgi', ['action' => 'set', 'TickerEnable' => $videoDisplay->title ? 'on' : 'off', 'TickerText' => $videoDisplay->title, 'TickerTimeout' => 125, 'LineEnable1' => 'off', 'LineEnable2' => 'off', 'LineEnable3' => 'off', 'LineEnable4' => 'off', 'LineEnable5' => 'off']);
+        $this->post('/cgi-bin/display_cgi', ['action' => 'set', 'TickerEnable' => $videoDisplay->title !== null && $videoDisplay->title !== '' && $videoDisplay->title !== '0' ? 'on' : 'off', 'TickerText' => $videoDisplay->title, 'TickerTimeout' => 125, 'LineEnable1' => 'off', 'LineEnable2' => 'off', 'LineEnable3' => 'off', 'LineEnable4' => 'off', 'LineEnable5' => 'off']);
     }
 
     public function setVideoOverlay(VideoOverlay $videoOverlay): void

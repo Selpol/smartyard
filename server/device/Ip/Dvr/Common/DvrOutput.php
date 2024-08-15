@@ -6,15 +6,8 @@ use JsonSerializable;
 
 readonly class DvrOutput implements JsonSerializable
 {
-    public DvrContainer $container;
-
-    public DvrArchive|DvrStreamer|string $value;
-
-    public function __construct(DvrContainer $container, DvrArchive|DvrStreamer|string $value)
+    public function __construct(public DvrContainer $container, public DvrArchive|DvrStreamer|string $value)
     {
-        $this->container = $container;
-
-        $this->value = $value;
     }
 
     public function jsonSerialize(): array

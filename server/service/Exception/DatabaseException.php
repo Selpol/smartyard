@@ -8,15 +8,12 @@ use Throwable;
 class DatabaseException extends RuntimeException
 {
     public const UNIQUE_VIOLATION = 1 << 0;
+
     public const FOREIGN_VIOLATION = 1 << 1;
 
-    private int $flag;
-
-    public function __construct(int $flag, string $message = "", int $code = 400, ?Throwable $previous = null)
+    public function __construct(private readonly int $flag, string $message = "", int $code = 400, ?Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
-
-        $this->flag = $flag;
     }
 
     public function isUniqueViolation(): bool

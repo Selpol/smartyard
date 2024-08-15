@@ -12,17 +12,9 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
 
     public $taskUniqueIgnore = ['dbVersion', 'version'];
 
-    public int $dbVersion;
-    public ?int $version;
-    public bool $force;
-
-    public function __construct(string $title, int $dbVersion, ?int $version, bool $force)
+    public function __construct(string $title, public int $dbVersion, public ?int $version, public bool $force)
     {
         parent::__construct($title);
-
-        $this->dbVersion = $dbVersion;
-        $this->version = $version;
-        $this->force = $force;
 
         $this->setLogger(file_logger('task-migration'));
     }

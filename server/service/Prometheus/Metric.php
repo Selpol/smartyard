@@ -5,7 +5,9 @@ namespace Selpol\Service\Prometheus;
 readonly class Metric
 {
     public string $name;
+
     public string $type;
+
     public string $help;
 
     /** @var string[] */

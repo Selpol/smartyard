@@ -6,17 +6,8 @@ use SensitiveParameter;
 
 class Mifare
 {
-    public bool $enable;
-
-    public string $key;
-    public int $sector;
-
-    public function __construct(bool $enable, #[SensitiveParameter] string $key, int $sector)
+    public function __construct(public bool $enable, #[SensitiveParameter]public string $key, public int $sector)
     {
-        $this->enable = $enable;
-
-        $this->key = $key;
-        $this->sector = $sector;
     }
 
     public function equal(Mifare $other): bool

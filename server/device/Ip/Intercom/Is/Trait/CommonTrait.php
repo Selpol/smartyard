@@ -32,7 +32,7 @@ trait CommonTrait
         try {
             $response = $this->client->send(client_request('GET', $this->uri . '/system/files/rsyslogd.conf'), $this->clientOption);
             $contents = $response->getBody()->getContents();
-            $lines = explode(PHP_EOL, $contents);
+            $lines = explode(PHP_EOL, (string) $contents);
 
             if (str_starts_with($lines[count($lines) - 1], '@')) {
                 $value = explode(':', $lines[count($lines) - 1]);
@@ -116,13 +116,13 @@ trait CommonTrait
 
         foreach ($response['direct']['rules'] as $prefix => $rules) {
             foreach ($rules as $range => $address) {
-                $slice = preg_split('-', $range);
+                $slice = preg_split('-', (string) $range);
 
                 $result[] = new Gate($address, intval($prefix), intval($slice[0]), intval($slice[1]));
             }
         }
 
-        usort($result, static fn(Gate $a, Gate $b) => $a->prefix > $b->prefix ? 1 : -1);
+        usort($result, static fn(Gate $a, Gate $b): int => $a->prefix > $b->prefix ? 1 : -1);
 
         return $result;
     }
@@ -201,7 +201,7 @@ trait CommonTrait
      */
     public function setGates(array $value): void
     {
-        if (count($value) > 0) {
+        if ($value !== []) {
             $direct = ['mode' => filter_var($value[0]->address, FILTER_VALIDATE_IP) !== false];
 
             if ($direct['mode']) {
@@ -217,7 +217,7 @@ trait CommonTrait
             $direct = ['mode' => false];
         }
 
-        $this->put('/gate/settings', ['gateMode' => count($value) > 0, 'prefixHouse' => count($value) > 0, 'direct' => $direct]);
+        $this->put('/gate/settings', ['gateMode' => $value !== [], 'prefixHouse' => $value !== [], 'direct' => $direct]);
     }
 
     private function getSyslogConfigHelp(string $server, int $port): string

@@ -4,15 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Relay
 {
-    public bool $lock;
-
-    public int $openDuration;
-
-    public function __construct(bool $lock, int $openDuration)
+    public function __construct(public bool $lock, public int $openDuration)
     {
-        $this->lock = $lock;
-
-        $this->openDuration = $openDuration;
     }
 
     public function equal(Relay $other): bool

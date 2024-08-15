@@ -55,7 +55,7 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (container(MqttFeature::class)->checkUser($input['username'], $input['password'], $input['clientid'])) {
                 return $this->ok();
             }
-        } else if ($path === '/mqtt/admin') {
+        } elseif ($path === '/mqtt/admin') {
             if (!array_key_exists('username', $input)) {
                 return $this->bad();
             }
@@ -63,7 +63,7 @@ class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (container(MqttFeature::class)->checkAdmin($input['username'])) {
                 return $this->ok();
             }
-        } else if ($path === '/mqtt/acl') {
+        } elseif ($path === '/mqtt/acl') {
             if (!array_key_exists('username', $input) || !array_key_exists('clientid', $input) || !array_key_exists('topic', $input) || !array_key_exists('acc', $input)) {
                 return $this->bad();
             }

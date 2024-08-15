@@ -4,15 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Key;
 
 class Key
 {
-    public string $key;
-
-    public int $apartment;
-
-    public function __construct(string $key, int $apartment)
+    public function __construct(public string $key, public int $apartment)
     {
-        $this->key = $key;
-
-        $this->apartment = $apartment;
     }
 
     public function equal(Key $other): bool

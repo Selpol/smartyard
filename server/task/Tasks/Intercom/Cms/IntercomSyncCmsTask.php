@@ -68,7 +68,7 @@ class IntercomSyncCmsTask extends Task implements TaskUniqueInterface
 
             $this->logger?->error($throwable);
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

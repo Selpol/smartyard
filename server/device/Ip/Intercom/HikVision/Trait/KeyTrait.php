@@ -23,7 +23,7 @@ trait KeyTrait
 
         $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => 0]]);
 
-        $process = function (array $response) use (&$result) {
+        $process = function (array $response) use (&$result): void {
             $cardInfos = $response['CardInfoSearch']['CardInfo'] ?? [];
 
             foreach ($cardInfos as $cardInfo) {
@@ -35,7 +35,7 @@ trait KeyTrait
 
         $pages = (int)ceil($response['CardInfoSearch']['totalMatches'] / 30);
 
-        for ($i = 2; $i < $pages; $i++) {
+        for ($i = 2; $i < $pages; ++$i) {
             $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => ($i - 1) * 30]]);
 
             $process($response);
@@ -87,7 +87,7 @@ trait KeyTrait
 
     public function handleKey(array $flats, array $entrances): void
     {
-        $flats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id IN (' . join(', ', array_map(static fn(HouseEntrance $entrance) => $entrance->house_entrance_id, $entrances)) . ')');
+        $flats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id IN (' . implode(', ', array_map(static fn(HouseEntrance $entrance) => $entrance->house_entrance_id, $entrances)) . ')');
         $keys = HouseKey::fetchAll(criteria()->equal('access_type', 2)->in('access_to', array_map(static fn(array $flat) => $flat['house_flat_id'], $flats)));
 
         /** @var array<string, Key> $rfidKeys */
@@ -190,7 +190,7 @@ trait KeyTrait
         $result = [];
         $pages = $this->getUsersCount() / 30 + 1;
 
-        for ($i = 1; $i <= $pages; $i++) {
+        for ($i = 1; $i <= $pages; ++$i) {
             $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => ($i - 1) * 30]]);
 
             $userInfos = $response['UserInfoSearch']['UserInfo'] ?? [];

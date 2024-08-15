@@ -11,13 +11,9 @@ use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
-    public IntercomModel $model;
-
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model)
     {
         parent::__construct($uri, $password);
-
-        $this->model = $model;
 
         $this->setLogger(file_logger('intercom'));
     }
@@ -48,7 +44,7 @@ abstract class IntercomDevice extends IpDevice
 
         $value = $coreVar->var_value ? json_decode($coreVar->var_value, true) : [];
 
-        if (!is_array($value))
+        if (!is_array($value)) {
             $value = [
                 'unlockTime' => 5,
 
@@ -58,6 +54,7 @@ abstract class IntercomDevice extends IpDevice
                 'sos' => 'SOS',
                 'concierge' => '9999'
             ];
+        }
 
         return new IntercomClean(
             array_key_exists('unlockTime', $value) ? $value['unlockTime'] : 5,

@@ -85,7 +85,7 @@ trait CommonTrait
 
         $count = intval($gate['EntranceCount']);
 
-        for ($i = 1; $i < -$count; $i++) {
+        for ($i = 1; $i < -$count; ++$i) {
             $result[] = new Gate(
                 $gate['Address' . $i],
                 intval($gate['Prefix' . $i]),
@@ -94,7 +94,7 @@ trait CommonTrait
             );
         }
 
-        usort($result, static fn(Gate $a, Gate $b) => $a->prefix > $b->prefix ? 1 : -1);
+        usort($result, static fn(Gate $a, Gate $b): int => $a->prefix > $b->prefix ? 1 : -1);
 
         return $result;
     }
@@ -197,16 +197,17 @@ trait CommonTrait
         $params = [
             'action' => 'set',
             'Mode' => 1,
-            'Enable' => count($value) ? 'on' : 'off',
+            'Enable' => $value !== [] ? 'on' : 'off',
             'MainDoor' => 'on',
             'AltDoor' => 'on',
             'PowerRely' => 'on',
         ];
 
-        if (count($value)) {
+        if ($value !== []) {
             $params['EntranceCount'] = count($value);
+            $counter = count($value);
 
-            for ($i = 0; $i < count($value); $i++) {
+            for ($i = 0; $i < $counter; ++$i) {
                 $params['Address' . ($i + 1)] = $value[$i]->address;
                 $params['Prefix' . ($i + 1)] = $value[$i]->prefix;
                 $params['BegNumber' . ($i + 1)] = $value[$i]->begin;

@@ -11,18 +11,10 @@ class DvrModel
      * @var DvrModel[]
      */
     private static array $models;
+    
 
-    public readonly string $title;
-    public readonly string $vendor;
-
-    public readonly string $class;
-
-    public function __construct(string $title, string $vendor, string $class)
+    public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $class)
     {
-        $this->title = $title;
-        $this->vendor = $vendor;
-
-        $this->class = $class;
     }
 
     public function toArray(): array
@@ -37,7 +29,7 @@ class DvrModel
 
     public static function modelsToArray(): array
     {
-        return array_map(static fn(DvrModel $model) => $model->toArray(), self::models());
+        return array_map(static fn(DvrModel $model): array => $model->toArray(), self::models());
     }
 
     public static function models(): array

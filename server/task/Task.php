@@ -11,16 +11,12 @@ abstract class Task implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    public string $title;
-
     public ?int $uid = null;
 
     private mixed $progressCallback = null;
 
-    public function __construct(string $title)
+    public function __construct(public string $title)
     {
-        $this->title = $title;
-
         $this->setLogger(file_logger('task'));
     }
 
@@ -36,7 +32,7 @@ abstract class Task implements LoggerAwareInterface
 
     public function setProgressCallback(?callable $callback): void
     {
-        if ($callback) {
+        if ($callback !== null) {
             $this->progressCallback = $callback;
         } else {
             unset($this->progressCallback);
@@ -45,7 +41,7 @@ abstract class Task implements LoggerAwareInterface
 
     protected function setProgress(int|float $progress): void
     {
-        if (isset($this->progressCallback) && $this->progressCallback) {
+        if (is_callable($this->progressCallback)) {
             call_user_func($this->progressCallback, $progress);
         }
     }

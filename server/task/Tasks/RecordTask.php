@@ -16,6 +16,7 @@ class RecordTask extends Task implements TaskUniqueInterface
     public $taskUniqueIgnore = ['subscriberId'];
 
     public int $subscriberId;
+
     public int $recordId;
 
     public function __construct(int $subscriberId, int $recordId)

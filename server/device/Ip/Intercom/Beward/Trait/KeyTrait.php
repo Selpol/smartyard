@@ -23,11 +23,11 @@ trait KeyTrait
             return [];
         }
 
-        $end = intval(substr(array_key_last($response), 5));
+        $end = intval(substr((string) array_key_last($response), 5));
 
         $result = [];
 
-        for ($i = 1; $i <= $end; $i++) {
+        for ($i = 1; $i <= $end; ++$i) {
             if (!array_key_exists('Key' . $i, $response)) {
                 continue;
             }
@@ -41,7 +41,7 @@ trait KeyTrait
             $result[] = new Key($key, intval($response['Apartment' . $i]));
         }
 
-        usort($result, static fn(Key $a, Key $b) => strcmp($a->key, $b->key));
+        usort($result, static fn(Key $a, Key $b): int => strcmp($a->key, $b->key));
 
         return $result;
     }
@@ -63,12 +63,10 @@ trait KeyTrait
             } else {
                 $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
             }
+        } elseif ($this->model->mifare) {
+            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Key' => $key]);
         } else {
-            if ($this->model->mifare) {
-                $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'delete', 'Key' => $key]);
-            } else {
-                $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key]);
-            }
+            $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key]);
         }
     }
 

@@ -9,6 +9,7 @@ use Selpol\Task\Task;
 class FrsAddStreamTask extends Task
 {
     public int $frsServerId;
+
     public int $cameraId;
 
     public function __construct(int $frsServerId, int $cameraId)

@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
@@ -57,7 +58,7 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
     {
         $device = intercom($entrance['domophoneId']);
 
-        if (!$device) {
+        if (!$device instanceof IntercomDevice) {
             return;
         }
 

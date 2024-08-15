@@ -53,7 +53,7 @@ class DatabaseService implements ContainerDisposeInterface
             if ($statement->execute($params)) {
                 $count = $statement->rowCount();
 
-                for ($i = 0; $i < $count; $i++) {
+                for ($i = 0; $i < $count; ++$i) {
                     yield $statement->fetch($mode, cursorOffset: $i);
                 }
             }
@@ -80,11 +80,15 @@ class DatabaseService implements ContainerDisposeInterface
                 } catch (Exception) {
                     return -1;
                 }
-            } else return false;
+            } else {
+                return false;
+            }
         } catch (PDOException $e) {
             if ($e->getCode() == 23505) {
                 throw new DatabaseException(DatabaseException::UNIQUE_VIOLATION, 'Ключ уже существует', previous: $e);
-            } else if ($e->getCode() == 23503) {
+            }
+
+            if ($e->getCode() == 23503) {
                 throw new DatabaseException(DatabaseException::FOREIGN_VIOLATION, 'Существуют дочерние объекты', previous: $e);
             }
 
@@ -119,9 +123,9 @@ class DatabaseService implements ContainerDisposeInterface
 
             if ($sth->execute($this->remap($params))) {
                 return $sth->rowCount();
-            } else {
-                return false;
             }
+
+            return false;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
                 last_error($e->errorInfo[2] ?: $e->getMessage());
@@ -160,13 +164,12 @@ class DatabaseService implements ContainerDisposeInterface
                 if (array_key_exists($param, $params)) {
                     $sth = $this->connection->prepare(sprintf($query, $db, $db));
 
-                    if ($sth->execute($this->remap([$db => $params[$param]]))) {
-                        if ($sth->rowCount()) {
-                            $mod = true;
-                        }
+                    if ($sth->execute($this->remap([$db => $params[$param]])) && $sth->rowCount()) {
+                        $mod = true;
                     }
                 }
             }
+
             return $mod;
         } catch (PDOException $e) {
             if (!in_array("silent", $options)) {
@@ -196,7 +199,7 @@ class DatabaseService implements ContainerDisposeInterface
         }
 
         try {
-            if ($params) {
+            if ($params !== []) {
                 $sth = $this->connection->prepare($query);
 
                 if ($sth->execute($params)) {
@@ -210,7 +213,7 @@ class DatabaseService implements ContainerDisposeInterface
 
             $r = [];
 
-            if ($map) {
+            if ($map !== []) {
                 foreach ($a as $f) {
                     $x = [];
 
@@ -227,17 +230,17 @@ class DatabaseService implements ContainerDisposeInterface
             if (in_array('singlify', $options)) {
                 if (count($r) === 1) {
                     return $r[0];
-                } else {
-                    return false;
                 }
+
+                return false;
             }
 
             if (in_array('fieldlify', $options)) {
                 if (count($r) === 1) {
                     return $r[0][array_key_first($r[0])];
-                } else {
-                    return false;
                 }
+
+                return false;
             }
 
             return $r;

@@ -2,9 +2,9 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Feature\House\HouseFeature;
@@ -55,7 +55,7 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
 
         $device = intercom($domophoneId);
 
-        if (!$device) {
+        if (!$device instanceof IntercomDevice) {
             return;
         }
 
@@ -70,11 +70,9 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 
         foreach ($flats as $flat) {
-            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
-                return $entrance['domophoneId'] == $domophoneId;
-            });
+            $flat_entrances = array_filter($flat['entrances'], fn(array $entrance): bool => $entrance['domophoneId'] == $domophoneId);
 
-            if ($flat_entrances && count($flat_entrances) > 0) {
+            if ($flat_entrances && $flat_entrances !== []) {
                 $apartment = $flat['flat'];
 
                 foreach ($flat_entrances as $flat_entrance) {

@@ -18,7 +18,7 @@ trait TaskRetryTrait
         }
 
         if ($this->retry > 0) {
-            $this->retry--;
+            --$this->retry;
 
             return task($this)->delay($delay)->queue($queue)->dispatch();
         }
@@ -36,7 +36,7 @@ trait TaskRetryTrait
         }
 
         if ($this->retry > 0) {
-            $this->retry--;
+            --$this->retry;
 
             task($this)->sync();
 

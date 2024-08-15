@@ -3,11 +3,9 @@
 namespace Selpol\Device\Ip\Dvr;
 
 use Psr\Http\Message\StreamInterface;
-use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
-use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Device\Ip\Dvr\Common\DvrOutput;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\IpDevice;
@@ -18,17 +16,11 @@ use SensitiveParameter;
 
 abstract class DvrDevice extends IpDevice
 {
-    public DvrModel $model;
-    public DvrServer $server;
-
-    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server)
+    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, public DvrModel $model, public DvrServer $server)
     {
         $this->login = $login;
 
         parent::__construct($uri, $password);
-
-        $this->model = $model;
-        $this->server = $server;
 
         $this->setLogger(file_logger('dvr'));
     }

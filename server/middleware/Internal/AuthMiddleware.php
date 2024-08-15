@@ -10,11 +10,8 @@ use Selpol\Framework\Router\Route\RouteMiddleware;
 
 readonly class AuthMiddleware extends RouteMiddleware
 {
-    private array $trust;
-
-    public function __construct(array $trust)
+    public function __construct(private array $trust)
     {
-        $this->trust = $trust;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface

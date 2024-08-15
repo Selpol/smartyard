@@ -17,19 +17,13 @@ use Throwable;
 
 class IntercomSyncFlatTask extends Task
 {
-    public int $userId;
-
     public int $flatId;
-    public bool $add;
 
-    public function __construct(int $userId, int $flatId, bool $add)
+    public function __construct(public int $userId, int $flatId, public bool $add)
     {
         parent::__construct('Синхронизация квартиры (' . $flatId . ')');
 
-        $this->userId = $userId;
-
         $this->flatId = $flatId;
-        $this->add = $add;
 
         $this->setLogger(file_logger('task-intercom'));
     }
@@ -79,13 +73,13 @@ class IntercomSyncFlatTask extends Task
             $apartment = $flat['flat'];
 
             $apartment_levels = [];
-            $entrance_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $entrance['cmsLevels'] ?? ''), static fn(string $value) => $value != ''));
+            $entrance_levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance['cmsLevels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
-            $flat_entrances = array_filter($flat['entrances'], static fn($entrance) => $entrance['domophoneId'] == $id);
+            $flat_entrances = array_filter($flat['entrances'], static fn($entrance): bool => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
                 if (isset($flat_entrance['apartmentLevels'])) {
-                    $apartment_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $flat_entrance['apartmentLevels'] ?? ''), static fn(string $value) => $value != ''));
+                    $apartment_levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flat_entrance['apartmentLevels'] ?? ''), static fn(string $value): bool => $value !== ''));
                 }
 
                 if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
@@ -112,8 +106,8 @@ class IntercomSyncFlatTask extends Task
             }
 
             if ($device instanceof CodeInterface) {
-                $code = intval($flat['openCode']) ?: null;
-                $flatCode = $code ? new Code($code, $apartment->apartment) : null;
+                $code = intval($flat['openCode']) !== 0 ? intval($flat['openCode']) : null;
+                $flatCode = $code !== 0 ? new Code($code, $apartment->apartment) : null;
 
                 $codes = $device->getCodes($apartment->apartment);
 
@@ -136,7 +130,7 @@ class IntercomSyncFlatTask extends Task
                 throw $throwable;
             }
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

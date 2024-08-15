@@ -8,19 +8,15 @@ use Selpol\Service\PrometheusService;
 
 readonly class Summary extends Collector
 {
-    const TYPE = 'summary';
+    public const TYPE = 'summary';
 
     private array $quantiles;
 
-    private int $maxAgeSeconds;
-
-    public function __construct(string $namespace, string $name, string $help, array $labelNames = [], array $quantiles = null, int $maxAgeSeconds = 600)
+    public function __construct(string $namespace, string $name, string $help, array $labelNames = [], array $quantiles = null, private int $maxAgeSeconds = 600)
     {
         parent::__construct($namespace, $name, $help, $labelNames);
 
         $this->quantiles = $quantiles ?? self::getDefaultQuantiles();
-
-        $this->maxAgeSeconds = $maxAgeSeconds;
     }
 
     public function getType(): string

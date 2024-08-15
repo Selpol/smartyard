@@ -13,28 +13,15 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 {
     use TaskRetryTrait;
 
-    /** @var int Тип события */
-    public int $type;
-
-    /** @var int Выход устройства */
-    public int $door;
-
-    /** @var int Дата события */
-    public int $date;
-
-    /** @var string Информация о событие */
-    public string $detail;
-
     public int $initialRetry = 3;
 
-    public function __construct(int $id, int $type, int $door, int $date, string $detail)
+    public function __construct(int           $id, /** @var int Тип события */
+                                public int    $type, /** @var int Выход устройства */
+                                public int    $door, /** @var int Дата события */
+                                public int    $date, /** @var string Информация о событие */
+                                public string $detail)
     {
         parent::__construct($id, 'Событие открытие двери');
-
-        $this->type = $type;
-        $this->door = $door;
-        $this->date = $date;
-        $this->detail = $detail;
 
         $this->setLogger(file_logger('task-plog-open'));
     }
@@ -87,7 +74,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
             $event_data[PlogFeature::COLUMN_PHONES]['user_phone'] = $user_phone;
             $flat_list = $this->getFlatIdByUserPhone($user_phone);
 
-            if (!$flat_list || count($flat_list) == 0) {
+            if ($flat_list === false || $flat_list === [] || count($flat_list) == 0) {
                 return false;
             }
         }

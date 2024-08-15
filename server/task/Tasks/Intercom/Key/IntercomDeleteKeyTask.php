@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Throwable;
@@ -25,13 +26,13 @@ class IntercomDeleteKeyTask extends IntercomKeyTask
     {
         $flat = $this->getFlat();
 
-        if (!$flat) {
+        if (!$flat instanceof HouseFlat) {
             return false;
         }
 
         $entrances = $this->getEntrances();
 
-        if ($entrances && count($entrances) > 0) {
+        if ($entrances && $entrances !== []) {
             foreach ($entrances as $entrance) {
                 $this->delete($entrance->house_domophone_id, intval($flat->flat));
             }

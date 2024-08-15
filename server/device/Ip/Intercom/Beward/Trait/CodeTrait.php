@@ -20,11 +20,11 @@ trait CodeTrait
 
         $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
 
-        $end = intval(substr(array_key_last($response), 5, -2));
+        $end = intval(substr((string) array_key_last($response), 5, -2));
 
         $result = [];
 
-        for ($i = 1; $i <= $end; $i++) {
+        for ($i = 1; $i <= $end; ++$i) {
             if (!array_key_exists('Number' . $i, $response)) {
                 continue;
             }

@@ -16,52 +16,17 @@ class IntercomModel
      */
     private static array $models;
 
-    public readonly string $title;
-    public readonly string $vendor;
-    public readonly string $model;
-
-    public readonly string $syslog;
-    public readonly string $camera;
-
-    public readonly int $outputs;
-
-    /**
-     * @var string[]
-     */
-    public readonly array $cmses;
-
-    /**
-     * @var array<string, int|string>
-     */
-    public readonly array $cmsesMap;
-
     public readonly bool $mifare;
 
-    public readonly int $primaryBitrate;
-    public readonly int $secondaryBitrate;
-
-    public readonly string $class;
-
-    public function __construct(string $title, string $vendor, string $model, string $syslog, string $camera, int $outputs, array $cmses, array $cmsesMap, bool $mifare, int $primaryBitrate, int $secondaryBitrate, string $class)
+    public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $model, public readonly string $syslog, public readonly string $camera, public readonly int $outputs, /**
+     * @var string[]
+     */
+                                public readonly array  $cmses, /**
+         * @var array<string, int|string>
+         */
+                                public readonly array  $cmsesMap, bool $mifare, public readonly int $primaryBitrate, public readonly int $secondaryBitrate, public readonly string $class)
     {
-        $this->title = $title;
-        $this->vendor = $vendor;
-        $this->model = $model;
-
-        $this->syslog = $syslog;
-        $this->camera = $camera;
-
-        $this->outputs = $outputs;
-
-        $this->cmses = $cmses;
-        $this->cmsesMap = $cmsesMap;
-
         $this->mifare = $mifare && env('MIFARE_SECTOR', 0) > 0;
-
-        $this->primaryBitrate = $primaryBitrate;
-        $this->secondaryBitrate = $secondaryBitrate;
-
-        $this->class = $class;
     }
 
     public function toArray(): array
@@ -84,7 +49,7 @@ class IntercomModel
 
     public static function modelsToArray(): array
     {
-        return array_map(static fn(IntercomModel $model) => $model->toArray(), self::models());
+        return array_map(static fn(IntercomModel $model): array => $model->toArray(), self::models());
     }
 
     /**
@@ -92,7 +57,7 @@ class IntercomModel
      */
     public static function models(): array
     {
-        if (!isset(self::$models))
+        if (!isset(self::$models)) {
             self::$models = [
                 'iscomx1' => new IntercomModel(
                     'IS ISCOM X1',
@@ -347,14 +312,16 @@ class IntercomModel
                     DsIntercom::class
                 )
             ];
+        }
 
         return self::$models;
     }
 
     public static function model(string $value): ?IntercomModel
     {
-        if (array_key_exists($value, self::models()))
+        if (array_key_exists($value, self::models())) {
             return self::$models[$value];
+        }
 
         return null;
     }

@@ -9,13 +9,9 @@ use Selpol\Task\Task;
 
 abstract class IntercomKeyTask extends Task
 {
-    public int $flatId;
-
-    public function __construct(int $flatId, string $title)
+    public function __construct(public int $flatId, string $title)
     {
         parent::__construct($title);
-
-        $this->flatId = $flatId;
 
         $this->setLogger(file_logger('task-intercom'));
     }

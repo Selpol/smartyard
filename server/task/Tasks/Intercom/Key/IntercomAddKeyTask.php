@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Throwable;
@@ -9,6 +10,7 @@ use Throwable;
 class IntercomAddKeyTask extends IntercomKeyTask
 {
     public string $key;
+
     public int $flatId;
 
     public function __construct(string $key, int $flatId)
@@ -24,13 +26,13 @@ class IntercomAddKeyTask extends IntercomKeyTask
     {
         $flat = $this->getFlat();
 
-        if (!$flat) {
+        if (!$flat instanceof HouseFlat) {
             return false;
         }
 
         $entrances = $this->getEntrances();
 
-        if ($entrances && count($entrances) > 0) {
+        if ($entrances && $entrances !== []) {
             foreach ($entrances as $entrance) {
                 $this->add($entrance->house_domophone_id, intval($flat->flat));
             }

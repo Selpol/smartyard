@@ -11,14 +11,12 @@ use Throwable;
 
 class TaskContainer
 {
-    private Task $task;
-
     private ?string $queue = null;
+
     private ?int $start = null;
 
-    public function __construct(Task $task)
+    public function __construct(private readonly Task $task)
     {
-        $this->task = $task;
     }
 
     public function queue(?string $queue): static

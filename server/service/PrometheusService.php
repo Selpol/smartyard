@@ -15,8 +15,9 @@ use Selpol\Service\Prometheus\Metric;
 #[Singleton]
 class PrometheusService
 {
-    const PREFIX = 'prometheus';
-    const SUFFIX = 'keys';
+    public const PREFIX = 'prometheus';
+
+    public const SUFFIX = 'keys';
 
     /** @var Counter[] */
     private array $counters = [];
@@ -243,7 +244,7 @@ LUA,
                 continue;
             }
 
-            $histogram = json_decode($raw['__meta'], true);
+            $histogram = json_decode((string)$raw['__meta'], true);
 
             unset($raw['__meta']);
 
@@ -327,7 +328,7 @@ LUA,
                 continue;
             }
 
-            $gauge = json_decode($raw['__meta'], true);
+            $gauge = json_decode((string)$raw['__meta'], true);
 
             unset($raw['__meta']);
 
@@ -372,7 +373,7 @@ LUA,
                 continue;
             }
 
-            $counter = json_decode($raw['__meta'], true);
+            $counter = json_decode((string)$raw['__meta'], true);
             unset($raw['__meta']);
             $counter['samples'] = [];
             foreach ($raw as $k => $value) {
@@ -388,6 +389,7 @@ LUA,
 
             $counters[] = $counter;
         }
+
         return $counters;
     }
 
@@ -409,7 +411,7 @@ LUA,
                 continue;
             }
 
-            $summary = json_decode($rawSummary, true);
+            $summary = json_decode((string)$rawSummary, true);
             $metaData = $summary;
             $data = [
                 'name' => $metaData['name'],
@@ -431,7 +433,7 @@ LUA,
                     continue;
                 }
 
-                $value = json_decode($rawValue, true);
+                $value = json_decode((string)$rawValue, true);
                 $encodedLabelValues = $value;
                 $decodedLabelValues = $this->decodeLabelValues($encodedLabelValues);
 
@@ -443,7 +445,7 @@ LUA,
                     $samples[] = (float)$redis->get($sampleValue);
                 }
 
-                if (count($samples) === 0) {
+                if ($samples === []) {
                     $redis->del($valueKey);
 
                     continue;
@@ -477,7 +479,7 @@ LUA,
                 ];
             }
 
-            if (count($data['samples']) > 0) {
+            if ($data['samples'] !== []) {
                 $summaries[] = $data;
             } else {
                 $redis->del($metaKey);

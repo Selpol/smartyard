@@ -26,7 +26,7 @@ class IntercomLevelTask extends IntercomTask
         $deviceIntercom = DeviceIntercom::findById($this->id, setting: setting()->nonNullable());
         $deviceModel = IntercomModel::model($deviceIntercom->model);
 
-        if (!$deviceIntercom || !$deviceModel) {
+        if (!$deviceIntercom instanceof DeviceIntercom || !$deviceModel instanceof IntercomModel) {
             $this->logger?->debug('Domophone not found', ['id' => $this->id]);
 
             return false;
@@ -59,7 +59,7 @@ class IntercomLevelTask extends IntercomTask
                 return false;
             }
 
-            $cms_levels = array_map(static fn(string $value) => intval($value), array_filter(explode(',', $entrances[0]['cmsLevels'] ?? ''), static fn(string $value) => $value != ''));
+            $cms_levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrances[0]['cmsLevels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
             $device->setCmsLevels(new CmsLevels($cms_levels));
 
@@ -67,7 +67,7 @@ class IntercomLevelTask extends IntercomTask
         } catch (Throwable $throwable) {
             $this->logger?->error($throwable, ['id' => $this->id]);
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

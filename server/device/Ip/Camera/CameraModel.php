@@ -14,17 +14,8 @@ class CameraModel
      */
     private static array $models;
 
-    public readonly string $title;
-    public readonly string $vendor;
-
-    public readonly string $class;
-
-    public function __construct(string $title, string $vendor, string $class)
+    public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $class)
     {
-        $this->title = $title;
-        $this->vendor = $vendor;
-
-        $this->class = $class;
     }
 
     public function toArray(): array
@@ -42,7 +33,7 @@ class CameraModel
 
     public static function modelsToArray(): array
     {
-        return array_map(static fn(CameraModel $model) => $model->toArray(), self::models());
+        return array_map(static fn(CameraModel $model): array => $model->toArray(), self::models());
     }
 
     /**

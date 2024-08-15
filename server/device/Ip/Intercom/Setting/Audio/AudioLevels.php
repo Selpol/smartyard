@@ -4,11 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Audio;
 
 class AudioLevels
 {
-    public array $value;
-
-    public function __construct(array $value)
+    public function __construct(public array $value)
     {
-        $this->value = $value;
     }
 
     public function equal(AudioLevels $other): bool

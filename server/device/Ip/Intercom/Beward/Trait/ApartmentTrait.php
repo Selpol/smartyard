@@ -24,11 +24,11 @@ trait ApartmentTrait
             return [];
         }
 
-        $end = intval(substr(array_key_last($response), 5, -2));
+        $end = intval(substr((string) array_key_last($response), 5, -2));
 
         $result = [];
 
-        for ($i = 1; $i <= $end; $i++) {
+        for ($i = 1; $i <= $end; ++$i) {
             if (!array_key_exists('Number' . $i, $response)) {
                 continue;
             }
@@ -41,7 +41,7 @@ trait ApartmentTrait
                 $response['PhonesActive' . $i] === 'on',
                 intval($response['HandsetUpLevel' . $i]),
                 intval($response['DoorOpenLevel' . $i]),
-                array_values($response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value) => $value !== '') : [])
+                array_values($response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value): bool => $value !== '') : [])
             );
         }
 
@@ -60,7 +60,7 @@ trait ApartmentTrait
             $response['PhonesActive'] === 'on',
             intval($response['HandsetUpLevel']),
             intval($response['DoorOpenLevel']),
-            $response['PhonesActive'] ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone1', 'Phone2', 'Phone3', 'Phone4', 'Phone5']), static fn(string $value) => $value !== '') : []
+            $response['PhonesActive'] ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone1', 'Phone2', 'Phone3', 'Phone4', 'Phone5']), static fn(string $value): bool => $value !== '') : []
         );
     }
 
@@ -82,10 +82,11 @@ trait ApartmentTrait
         $params['HandsetUpLevel'] = $apartment->answer;
         $params['DoorOpenLevel'] = $apartment->quiescent;
 
-        if (count($apartment->numbers)) {
+        if ($apartment->numbers !== []) {
             $sipNumbers = array_merge([$apartment], $apartment->numbers);
+            $counter = count($sipNumbers);
 
-            for ($i = 1; $i <= count($sipNumbers); $i++) {
+            for ($i = 1; $i <= $counter; ++$i) {
                 $params['Phone' . $i] = $sipNumbers[$i - 1];
             }
         }

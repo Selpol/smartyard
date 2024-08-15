@@ -26,7 +26,15 @@ use SensitiveParameter;
 
 class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, CmsInterface, ApartmentInterface, KeyInterface, CodeInterface
 {
-    use BewardTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, CmsTrait, ApartmentTrait, KeyTrait, CodeTrait;
+    use BewardTrait;
+    use AudioTrait;
+    use VideoTrait;
+    use SipTrait;
+    use CommonTrait;
+    use CmsTrait;
+    use ApartmentTrait;
+    use KeyTrait;
+    use CodeTrait;
 
     public string $login = 'admin';
 

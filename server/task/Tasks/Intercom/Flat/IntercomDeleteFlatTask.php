@@ -10,13 +10,9 @@ use Throwable;
 
 class IntercomDeleteFlatTask extends Task
 {
-    public array $entrances;
-
-    public function __construct(int $subscriberId, array $entrances)
+    public function __construct(int $subscriberId, public array $entrances)
     {
         parent::__construct('Удаления квартиры (' . $subscriberId . ')');
-
-        $this->entrances = $entrances;
 
         $this->setLogger(file_logger('task-intercom'));
     }
@@ -49,7 +45,7 @@ class IntercomDeleteFlatTask extends Task
                 throw $throwable;
             }
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

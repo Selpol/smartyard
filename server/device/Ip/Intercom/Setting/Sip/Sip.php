@@ -6,19 +6,8 @@ use SensitiveParameter;
 
 class Sip
 {
-    public string $login;
-    public string $password;
-
-    public string $server;
-    public int $port;
-
-    public function __construct(string $login, #[SensitiveParameter] string $password, string $server, int $port)
+    public function __construct(public string $login, #[SensitiveParameter]public string $password, public string $server, public int $port)
     {
-        $this->login = $login;
-        $this->password = $password;
-
-        $this->server = $server;
-        $this->port = $port;
     }
 
     public function equal(Sip $other): bool

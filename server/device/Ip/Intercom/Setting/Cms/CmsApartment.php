@@ -4,17 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Cms;
 
 class CmsApartment
 {
-    public int $index;
-    public int $dozen;
-    public int $unit;
-    public int $apartment;
-
-    public function __construct(int $index, int $dozen, int $unit, int $apartment)
+    public function __construct(public int $index, public int $dozen, public int $unit, public int $apartment)
     {
-        $this->index = $index;
-        $this->dozen = $dozen;
-        $this->unit = $unit;
-        $this->apartment = $apartment;
     }
 
     public function equal(CmsApartment $other): bool

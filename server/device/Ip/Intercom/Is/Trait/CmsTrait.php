@@ -9,12 +9,14 @@ use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 trait CmsTrait
 {
     private bool $updateCmses = false;
+    
     private ?array $tempCmses = null;
+    
     private ?array $cmses = null;
 
     public function getLineDialStatus(int $apartment, bool $info): array|int
     {
-        $response = $this->get("/panelCode/$apartment/resist");
+        $response = $this->get(sprintf('/panelCode/%d/resist', $apartment));
 
         if (!$response || isset($response['errors'])) {
             return $info ? ['resist' => 0, 'status' => $response['errors'][0]['message']] : 0;
@@ -92,9 +94,10 @@ trait CmsTrait
             }
 
             $matrix = $this->tempCmses[$cmsApartment->index];
+            $counter = count($matrix['matrix']);
 
-            for ($j = 0; $j < count($matrix['matrix']); $j++) {
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
+            for ($j = 0; $j < $counter; ++$j) {
+                for ($k = 0; $k < count($matrix['matrix'][$j]); ++$k) {
                     $matrix['matrix'][$j][$k] = 0;
                 }
             }
@@ -121,19 +124,20 @@ trait CmsTrait
     {
         $cms = IntercomCms::model($cms);
 
-        if (!$cms) {
+        if (!$cms instanceof IntercomCms) {
             return;
         }
 
         $length = count($cms->cms);
 
-        for ($i = 1; $i <= $length; $i++) {
+        for ($i = 1; $i <= $length; ++$i) {
             $matrix = $this->get('/switch/matrix/' . $i);
 
             $matrix['capacity'] = $cms->capacity;
+            $counter = count($matrix['matrix']);
 
-            for ($j = 0; $j < count($matrix['matrix']); $j++) {
-                for ($k = 0; $k < count($matrix['matrix'][$j]); $k++) {
+            for ($j = 0; $j < $counter; ++$j) {
+                for ($k = 0; $k < count($matrix['matrix'][$j]); ++$k) {
                     $matrix['matrix'][$j][$k] = 0;
                 }
             }

@@ -9,15 +9,8 @@ use Selpol\Service\Auth\AuthTokenInterface;
  */
 readonly class CoreAuthToken implements AuthTokenInterface
 {
-    private string $value;
-
-    private ?string $audJti;
-
-    public function __construct(string $value, ?string $audJti)
+    public function __construct(private string $value, private ?string $audJti)
     {
-        $this->value = $value;
-
-        $this->audJti = $audJti;
     }
 
     public function getIdentifierName(): string

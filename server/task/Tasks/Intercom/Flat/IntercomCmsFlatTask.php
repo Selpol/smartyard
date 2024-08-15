@@ -13,6 +13,7 @@ use Throwable;
 class IntercomCmsFlatTask extends Task
 {
     public int $flatId;
+
     public bool $block;
 
     public function __construct(int $subscriberId, bool $block)
@@ -65,9 +66,7 @@ class IntercomCmsFlatTask extends Task
 
             $apartment = $flat['flat'];
 
-            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
-                return $entrance['domophoneId'] == $id;
-            });
+            $flat_entrances = array_filter($flat['entrances'], fn(array $entrance): bool => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
                 if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
@@ -83,7 +82,7 @@ class IntercomCmsFlatTask extends Task
                 throw $throwable;
             }
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

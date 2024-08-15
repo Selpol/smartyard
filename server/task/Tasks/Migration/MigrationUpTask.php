@@ -36,7 +36,7 @@ class MigrationUpTask extends MigrationTask
                 if (!$this->force) {
                     $db->getConnection()->rollBack();
 
-                    throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+                    throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
                 }
             }
 

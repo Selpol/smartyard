@@ -4,13 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Video;
 
 class VideoEncoding
 {
-    public int $primaryBitrate;
-    public int $secondaryBitrate;
-
-    public function __construct(int $primaryBitrate, int $secondaryBitrate)
+    public function __construct(public int $primaryBitrate, public int $secondaryBitrate)
     {
-        $this->primaryBitrate = $primaryBitrate;
-        $this->secondaryBitrate = $secondaryBitrate;
     }
 
     public function equal(VideoEncoding $other): bool

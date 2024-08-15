@@ -43,7 +43,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      * @throws RedisException
      * @throws InvalidArgumentException
      */
-    function run(array $arguments): int
+    public function run(array $arguments): int
     {
         $request = server_request($_SERVER['REQUEST_METHOD'], $_SERVER["REQUEST_URI"], $_SERVER);
 
@@ -57,27 +57,23 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $http_authorization = $request->getHeader('Authorization');
 
-        if (count($http_authorization) == 0) {
-            $http_authorization = false;
-        } else {
-            $http_authorization = $http_authorization[0];
-        }
+        $http_authorization = count($http_authorization) == 0 ? false : $http_authorization[0];
 
         $ip = connection_ip($request);
 
-        if (!$ip) {
+        if ($ip === null || $ip === '' || $ip === '0') {
             return $this->emit(rbt_response(401, 'Неизвестный источник запроса'));
         }
 
         $path = explode("?", $request->getRequestTarget())[0];
 
-        $server = parse_url(config_get('api.frontend'));
+        $server = parse_url((string)config_get('api.frontend'));
 
         if ($server && $server['path']) {
             $path = substr($path, strlen($server['path']));
         }
 
-        if ($path && $path[0] == '/') {
+        if ($path && $path[0] === '/') {
             $path = substr($path, 1);
         }
 
@@ -112,9 +108,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $params += $request->getQueryParams();
 
-        if (count($_POST)) {
+        if ($_POST !== []) {
             foreach ($_POST as $key => $value) {
-                $params[$key] = urldecode($value);
+                $params[$key] = urldecode((string)$value);
             }
         }
 
@@ -124,19 +120,21 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $params += $body;
         }
 
-        if ($api == 'server' && $method == 'ping') {
+        if ($api === 'server' && $method === 'ping') {
             return $this->emit(rbt_response()->withBody(stream('pong')));
-        } else if ($api == 'accounts' && $method == 'forgot') {
+        }
+
+        if ($api === 'accounts' && $method === 'forgot') {
             return $this->emit(response(204));
-        } else if ($api == 'authentication' && $method == 'login') {
+        }
+
+        if ($api === 'authentication' && $method === 'login') {
             if (!@$params['login'] || !@$params['password']) {
                 return $this->emit(rbt_response(400, 'Логин или пароль не указан'));
             }
-        } else if ($http_authorization) {
+        } elseif ($http_authorization) {
             $userAgent = $request->getHeaderLine('User-Agent');
-
             $auth = container(AuthenticationFeature::class)->auth($http_authorization, $userAgent, $ip);
-
             if (!$auth) {
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
             }
@@ -147,9 +145,9 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
         }
 
-        if (!($api == 'authentication' && $method == 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower($params['_request_method']))) {
+        if (!($api === 'authentication' && $method === 'login') && !container(AuthService::class)->checkScope($api . '-' . $method . '-' . strtolower((string)$params['_request_method']))) {
             try {
-                $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower($params['_request_method']));
+                $permission = container(PermissionRepository::class)->findByTitle($api . '-' . $method . '-' . strtolower((string)$params['_request_method']));
 
                 return $this->emit(rbt_response(403, 'Недостаточно прав для данного действия (' . ($permission?->description ?? 'Неизвестное правило') . ')'));
             } catch (Throwable) {
@@ -158,7 +156,7 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         /** @var class-string<Api> $class */
-        $class = "Selpol\\Controller\\Api\\$api\\$method";
+        $class = sprintf('Selpol\Controller\Api\%s\%s', $api, $method);
 
         if (class_exists($class)) {
             $result = $class::{$params['_request_method']}($params);
@@ -170,11 +168,11 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $code = array_key_first($result);
 
-                if ((int)$code) {
+                if ((int)$code !== 0) {
                     return $this->emit(json_response($code, body: $result[$code]));
-                } else {
-                    return $this->emit(rbt_response(500));
                 }
+
+                return $this->emit(rbt_response(500));
             }
 
             return $this->emit(response(204));
@@ -183,17 +181,17 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         return $this->emit(rbt_response(404));
     }
 
-    function error(Throwable $throwable): int
+    public function error(Throwable $throwable): int
     {
         try {
             if ($throwable instanceof KernelException) {
                 $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
-            } else if ($throwable instanceof ValidatorException) {
+            } elseif ($throwable instanceof ValidatorException) {
                 $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);
-            } else if ($throwable instanceof DatabaseException) {
+            } elseif ($throwable instanceof DatabaseException) {
                 if ($throwable->isUniqueViolation()) {
                     $response = json_response(400, body: ['success' => false, 'message' => 'Дубликат объекта']);
-                } else if ($throwable->isForeignViolation()) {
+                } elseif ($throwable->isForeignViolation()) {
                     $response = json_response(400, body: ['success' => false, 'Объект имеет дочерние зависимости']);
                 } else {
                     $response = json_response(500, body: ['success' => false, 'message' => Response::$codes[500]['message']]);

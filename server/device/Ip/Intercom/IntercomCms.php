@@ -9,28 +9,17 @@ class IntercomCms
      */
     public static array $models;
 
-    public readonly string $title;
-    public readonly string $model;
-
-    public readonly int $capacity;
-
-    public readonly int $dozenStart;
-
-    /**
-     * @var array<string, array<string, int>>
-     */
-    public readonly array $cms;
-
-    public function __construct(string $title, string $model, int $capacity, int $dozenStart, array $cms)
+    public function __construct(
+        public readonly string $title,
+        public readonly string $model,
+        public readonly int    $capacity,
+        public readonly int    $dozenStart,
+        /**
+         * @var array<string, array<string, int>>
+         */
+        public readonly array  $cms
+    )
     {
-        $this->title = $title;
-        $this->model = $model;
-
-        $this->capacity = $capacity;
-
-        $this->dozenStart = $dozenStart;
-
-        $this->cms = $cms;
     }
 
     public function toArray(): array
@@ -45,7 +34,7 @@ class IntercomCms
 
     public static function modelsToArray(): array
     {
-        return array_map(static fn(IntercomCms $cms) => $cms->toArray(), self::models());
+        return array_map(static fn(IntercomCms $cms): array => $cms->toArray(), self::models());
     }
 
     /**
@@ -53,7 +42,7 @@ class IntercomCms
      */
     public static function models(): array
     {
-        if (!isset(self::$models))
+        if (!isset(self::$models)) {
             self::$models = [
                 'bk-100' => new IntercomCms(
                     'VIZIT BK-100',
@@ -201,14 +190,16 @@ class IntercomCms
                     ]
                 )
             ];
+        }
 
         return self::$models;
     }
 
     public static function model(string $value): ?IntercomCms
     {
-        if (array_key_exists($value, self::models()))
+        if (array_key_exists($value, self::models())) {
             return self::$models[$value];
+        }
 
         return null;
     }

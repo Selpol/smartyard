@@ -7,14 +7,10 @@ use Selpol\Task\Task;
 
 abstract class PlogTask extends Task
 {
-    /** @var int Идентификатор устройства */
-    public int $id;
-
-    protected function __construct(int $id, string $title)
+    protected function __construct(/** @var int Идентификатор устройства */ public int $id,
+                                                                            string     $title)
     {
         parent::__construct($title);
-
-        $this->id = $id;
     }
 
     protected function getDomophoneDescription($domophone_output)
@@ -83,8 +79,9 @@ abstract class PlogTask extends Task
         $households = container(HouseFeature::class);
         $result = $households->getFlats('apartment', ['domophoneId' => $this->id, 'flatNumber' => $flat_number]);
 
-        if ($result && $result[0])
+        if ($result && $result[0]) {
             return intval($result[0]['flatId']);
+        }
 
         return false;
     }
@@ -114,7 +111,7 @@ abstract class PlogTask extends Task
         return 0;
     }
 
-    protected function getFlatId($item)
+    protected function getFlatId(array $item)
     {
         return $item['flatId'];
     }

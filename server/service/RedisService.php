@@ -13,7 +13,7 @@ class RedisService implements LoggerAwareInterface
 {
     use LoggerKernelTrait;
 
-    private ?Redis $redis;
+    private ?Redis $redis = null;
 
     public function __construct()
     {
@@ -71,7 +71,9 @@ class RedisService implements LoggerAwareInterface
 
         if ($database == $index) {
             return call_user_func($callback, $this);
-        } else if ($this->database($index)) {
+        }
+
+        if ($this->database($index)) {
             try {
                 return call_user_func($callback, $this);
             } finally {

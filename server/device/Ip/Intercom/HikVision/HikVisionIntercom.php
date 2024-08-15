@@ -23,7 +23,13 @@ use SensitiveParameter;
 
 class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, ApartmentInterface, KeyInterface, KeyHandlerInterface
 {
-    use HikVisionTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait, ApartmentTrait, KeyTrait;
+    use HikVisionTrait;
+    use AudioTrait;
+    use VideoTrait;
+    use SipTrait;
+    use CommonTrait;
+    use ApartmentTrait;
+    use KeyTrait;
 
     public string $login = 'admin';
 

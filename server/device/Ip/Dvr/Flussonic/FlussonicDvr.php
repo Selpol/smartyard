@@ -26,7 +26,7 @@ class FlussonicDvr extends DvrDevice
         try {
             $response = $this->get('/streamer/api/v3/streams', ['select' => 'name,title', 'limit' => 10000]);
 
-            return array_key_exists('streams', $response) ? array_map(static fn(array $stream) => ['id' => $stream['name'], 'title' => $stream['title'] ?? $stream['name']], $response['streams']) : [];
+            return array_key_exists('streams', $response) ? array_map(static fn(array $stream): array => ['id' => $stream['name'], 'title' => $stream['title'] ?? $stream['name']], $response['streams']) : [];
         } catch (Throwable) {
             return [];
         }
@@ -103,11 +103,14 @@ class FlussonicDvr extends DvrDevice
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP) {
                 return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value));
-            } else if ($container === DvrContainer::HLS) {
-                return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
-            } else if ($container === DvrContainer::RTC) {
-                $stream = new Stream(container(StreamerFeature::class)->random());
+            }
 
+            if ($container === DvrContainer::HLS) {
+                return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $identifier->value);
+            }
+
+            if ($container === DvrContainer::RTC) {
+                $stream = new Stream(container(StreamerFeature::class)->random());
                 $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $identifier->value))->input(StreamInput::RTSP)->output(StreamOutput::RTC);
 
                 container(StreamerFeature::class)->stream($stream);
@@ -117,18 +120,16 @@ class FlussonicDvr extends DvrDevice
                     new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
                 );
             }
-        } else if ($stream === DvrStream::ARCHIVE) {
+        } elseif ($stream === DvrStream::ARCHIVE) {
             $timeline = $this->timeline($identifier, $camera, ['short' => true]);
 
-            if (!$timeline) {
+            if ($timeline === null || $timeline === []) {
                 return null;
             }
 
             $from = $timeline[0][0];
             $to = $timeline[0][1];
-
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
-
             return new DvrOutput(
                 DvrContainer::HLS,
                 new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $identifier->value . '&event=true', $from, $to, $seek, $camera->timezone, null)
@@ -167,7 +168,7 @@ class FlussonicDvr extends DvrDevice
                 return null;
             }
 
-            return array_map(static fn(array $value) => [$value['from'], $value['from'] + $value['duration']], $ranges);
+            return array_map(static fn(array $value): array => [$value['from'], $value['from'] + $value['duration']], $ranges);
         }
 
         /** @var array<string, array<string, int>> $timeline */

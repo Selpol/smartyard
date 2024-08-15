@@ -4,13 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Syslog
 {
-    public string $server;
-    public int $port;
-
-    public function __construct(string $server, int $port)
+    public function __construct(public string $server, public int $port)
     {
-        $this->server = $server;
-        $this->port = $port;
     }
 
     public function equal(Syslog $other): bool

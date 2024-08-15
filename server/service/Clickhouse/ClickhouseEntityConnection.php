@@ -8,15 +8,8 @@ use Selpol\Framework\Entity\Database\EntityStatementInterface;
 
 readonly class ClickhouseEntityConnection implements EntityConnectionInterface
 {
-    private string $endpoint;
-    private string $username;
-    private string $password;
-
-    public function __construct(string $endpoint, string $username, string $password)
+    public function __construct(private string $endpoint, private string $username, private string $password)
     {
-        $this->endpoint = $endpoint;
-        $this->username = $username;
-        $this->password = $password;
     }
 
     public function statement(string $value): EntityStatementInterface

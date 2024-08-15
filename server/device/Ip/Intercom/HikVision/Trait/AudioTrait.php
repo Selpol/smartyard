@@ -31,7 +31,7 @@ trait AudioTrait
             2 => array_key_exists(2, $audio->value) ? $audio->value[2] : 7
         ];
 
-        $this->put('/ISAPI/System/Audio/AudioIn/channels/1', "<AudioIn><id>1</id><AudioInVolumelist><AudioInVlome><type>audioInput</type><volume>$levels[0]</volume></AudioInVlome></AudioInVolumelist></AudioIn>", ['Content-Type' => 'application/xml']);
-        $this->put('/ISAPI/System/Audio/AudioOut/channels/1', "<AudioOut><id>1</id><AudioOutVolumelist><AudioOutVlome><type>audioOutput</type><volume>$levels[1]</volume><talkVolume>$levels[2]</talkVolume></AudioOutVlome></AudioOutVolumelist></AudioOut>", ['Content-Type' => 'application/xml']);
+        $this->put('/ISAPI/System/Audio/AudioIn/channels/1', sprintf('<AudioIn><id>1</id><AudioInVolumelist><AudioInVlome><type>audioInput</type><volume>%s</volume></AudioInVlome></AudioInVolumelist></AudioIn>', $levels[0]), ['Content-Type' => 'application/xml']);
+        $this->put('/ISAPI/System/Audio/AudioOut/channels/1', sprintf('<AudioOut><id>1</id><AudioOutVolumelist><AudioOutVlome><type>audioOutput</type><volume>%s</volume><talkVolume>%s</talkVolume></AudioOutVlome></AudioOutVolumelist></AudioOut>', $levels[1], $levels[2]), ['Content-Type' => 'application/xml']);
     }
 }

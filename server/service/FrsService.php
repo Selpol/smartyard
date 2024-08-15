@@ -24,6 +24,7 @@ readonly class FrsService
 
                     curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($payload));
                 }
+
                 break;
             case 'PUT':
                 curl_setopt($curl, CURLOPT_PUT, 1);

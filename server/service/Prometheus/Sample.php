@@ -7,6 +7,7 @@ readonly class Sample
     public string $name;
 
     public array $labelNames;
+
     public array $labelValues;
 
     public int|float $value;

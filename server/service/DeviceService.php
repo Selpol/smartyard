@@ -19,19 +19,16 @@ use SensitiveParameter;
 class DeviceService
 {
     /** @var array<int, CameraDevice> */
-    private array $cameras;
+    private array $cameras = [];
 
     /** @var array<int, IntercomDevice> */
-    private array $intercoms;
+    private array $intercoms = [];
 
     /** @var array<int, DvrDevice> */
-    private array $dvrs;
+    private array $dvrs = [];
 
     public function __construct()
     {
-        $this->cameras = [];
-        $this->intercoms = [];
-        $this->dvrs = [];
     }
 
     public function cameraById(int $id): ?CameraDevice
@@ -40,7 +37,7 @@ class DeviceService
             return $this->cameras[$id];
         }
 
-        if ($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials'])->nonNullable())) {
+        if (($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials'])->nonNullable())) instanceof DeviceCamera) {
             return $this->cameraByEntity($camera);
         }
 
@@ -63,7 +60,7 @@ class DeviceService
 
     public function camera(string $model, string $url, #[SensitiveParameter] string $password): ?CameraDevice
     {
-        if ($model = CameraModel::model($model)) {
+        if (($model = CameraModel::model($model)) instanceof CameraModel) {
             return new $model->class(new Uri($url), $password, $model);
         }
 
@@ -76,7 +73,7 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        if ($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials'])->nonNullable())) {
+        if (($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials'])->nonNullable())) instanceof DeviceIntercom) {
             return $this->intercomByEntity($intercom);
         }
 
@@ -99,7 +96,7 @@ class DeviceService
 
     public function intercom(string $model, string $url, #[SensitiveParameter] string $password): ?IntercomDevice
     {
-        if ($model = IntercomModel::model($model)) {
+        if (($model = IntercomModel::model($model)) instanceof IntercomModel) {
             return new $model->class(new Uri($url), $password, $model);
         }
 
@@ -112,7 +109,7 @@ class DeviceService
             return $this->dvrs[$id];
         }
 
-        if ($server = DvrServer::findById($id, setting: setting()->nonNullable())) {
+        if (($server = DvrServer::findById($id, setting: setting()->nonNullable())) instanceof DvrServer) {
             return $this->dvrByEntity($server);
         }
 
@@ -141,7 +138,7 @@ class DeviceService
 
     public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password, DvrServer $server): ?DvrDevice
     {
-        if ($model = DvrModel::model($model)) {
+        if (($model = DvrModel::model($model)) instanceof DvrModel) {
             return new $model->class(new Uri($url), $login, $password, $model, $server);
         }
 

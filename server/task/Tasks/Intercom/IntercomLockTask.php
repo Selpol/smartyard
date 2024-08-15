@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
@@ -13,6 +14,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
     use TaskUniqueTrait;
 
     public bool $lock;
+
     public int $type;
 
     public function __construct(int $id, bool $lock, int $type)
@@ -27,7 +29,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
     {
         $device = intercom($this->id);
 
-        if (!$device) {
+        if (!$device instanceof IntercomDevice) {
             throw new DeviceException($device, 'Устройство не найдено');
         }
 

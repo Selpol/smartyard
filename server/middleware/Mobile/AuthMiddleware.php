@@ -47,7 +47,7 @@ readonly class AuthMiddleware extends RouteMiddleware
             if ($this->user) {
                 $ip = connection_ip($request);
 
-                if (!$ip) {
+                if ($ip === null || $ip === '' || $ip === '0') {
                     return 'Неизвестный источник запроса';
                 }
 

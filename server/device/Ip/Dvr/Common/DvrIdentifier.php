@@ -6,21 +6,8 @@ use JsonSerializable;
 
 readonly class DvrIdentifier implements JsonSerializable
 {
-    public string $value;
-
-    public int $start;
-    public int $end;
-
-    public ?int $subscriber;
-
-    public function __construct(string $value, int $start, int $end, ?int $subscriber)
+    public function __construct(public string $value, public int $start, public int $end, public ?int $subscriber)
     {
-        $this->value = $value;
-
-        $this->start = $start;
-        $this->end = $end;
-
-        $this->subscriber = $subscriber;
     }
 
     public function isNotExpired(): bool

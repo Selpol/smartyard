@@ -12,6 +12,7 @@ use Selpol\Service\Exception\AuthException;
 class AuthService
 {
     private ?AuthTokenInterface $token = null;
+
     private ?AuthUserInterface $user = null;
 
     /**
@@ -26,7 +27,7 @@ class AuthService
 
     public function getTokenOrThrow(): AuthTokenInterface
     {
-        if ($this->token === null) {
+        if (!$this->token instanceof AuthTokenInterface) {
             throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
         }
 
@@ -45,7 +46,7 @@ class AuthService
 
     public function getUserOrThrow(): AuthUserInterface
     {
-        if ($this->user === null) {
+        if (!$this->user instanceof AuthUserInterface) {
             throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
         }
 
@@ -59,7 +60,7 @@ class AuthService
 
     public function getPermissions(): array
     {
-        if ($this->user === null || !$this->user->canScope()) {
+        if (!$this->user instanceof AuthUserInterface || !$this->user->canScope()) {
             return [];
         }
 
@@ -70,7 +71,7 @@ class AuthService
 
     public function checkScope(string $value): bool
     {
-        if ($this->user === null || !$this->user->canScope()) {
+        if (!$this->user instanceof AuthUserInterface || !$this->user->canScope()) {
             return false;
         }
 

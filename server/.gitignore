@@ -8,3 +8,5 @@ vendor
 
 docker-compose-*.yaml
 !docker-compose-dev.yaml
+
+rector.php

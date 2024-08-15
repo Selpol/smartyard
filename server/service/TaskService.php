@@ -22,10 +22,13 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
     use LoggerAwareTrait;
 
     private ?AMQPStreamConnection $connection = null;
+    
     private ?AMQPChannel $channel = null;
 
     public const QUEUE_HIGH = 'high';
+    
     public const QUEUE_LOW = 'low';
+    
     public const QUEUE_DEFAULT = 'default';
 
     private static ?TaskService $instance = null;
@@ -68,7 +71,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 
         $message = new AMQPMessage(serialize($task), ['delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT]);
 
-        if ($delay) {
+        if ($delay !== null && $delay !== 0) {
             $message->set('application_headers', new AMQPTable(['x-delay' => $delay * 1000]));
         }
 
@@ -90,7 +93,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 
         $logger = $this->logger;
 
-        $this->channel->basic_consume($queue, no_ack: true, callback: static function (AMQPMessage $message) use ($callback, $logger) {
+        $this->channel->basic_consume($queue, no_ack: true, callback: static function (AMQPMessage $message) use ($callback, $logger): void {
             try {
                 $task = unserialize($message->body);
 

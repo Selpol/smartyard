@@ -26,6 +26,7 @@ class StreamerServer extends Entity
     public static string $table = 'streamer_servers';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

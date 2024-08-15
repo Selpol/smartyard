@@ -15,21 +15,18 @@ readonly class FlatMiddleware extends RouteMiddleware
     private ?int $role;
 
     private ?string $house;
+
     private ?string $flat;
 
     public function __construct(array $config)
     {
-        $this->role = array_key_exists('role', $config) ? $config['role'] : null;
+        $this->role = $config['role'] ?? null;
 
-        $this->house = array_key_exists('house', $config) ? $config['house'] : null;
+        $this->house = $config['house'] ?? null;
 
         if ($this->house) {
-            if (array_key_exists('flat', $config)) {
-                $this->flat = $config['flat'];
-            } else {
-                $this->flat = null;
-            }
-        } else if (array_key_exists('flat', $config)) {
+            $this->flat = $config['flat'] ?? null;
+        } elseif (array_key_exists('flat', $config)) {
             $this->flat = $config['flat'];
         } else {
             $this->flat = 'flat_id';
@@ -57,7 +54,6 @@ readonly class FlatMiddleware extends RouteMiddleware
 
         if ($this->flat && array_key_exists($this->flat, $value) && !is_null($value[$this->flat])) {
             $flatId = rule()->id()->onItem($this->flat, $value);
-
             if (!array_key_exists($flatId, $flats)) {
                 return json_response(403, body: ['code' => 403, 'message' => 'Нету доступа к квартире']);
             }
@@ -65,19 +61,16 @@ readonly class FlatMiddleware extends RouteMiddleware
             if (!is_null($this->role) && $flats[$flatId]['role'] !== $this->role) {
                 return json_response(403, body: ['code' => 403, 'message' => 'Неверная роль в квартире']);
             }
-        } else if ($this->house && array_key_exists($this->house, $value) && !is_null($value[$this->house])) {
+        } elseif ($this->house && array_key_exists($this->house, $value) && !is_null($value[$this->house])) {
             $houseId = rule()->id()->onItem($this->house, $value);
-
             /** @var array<int, int> $flats */
             $flatAddresses = array_reduce($flats, static function (array $previous, array $current) {
                 $previous[$current['flatId']] = $current['addressHouseId'];
 
                 return $previous;
             }, []);
-
             /** @var array<int> $findFlatIds */
             $findFlatIds = [];
-
             foreach ($flatAddresses as $flatId => $addressId) {
                 if ($houseId == $addressId) {
                     $findFlatIds[] = $flatId;

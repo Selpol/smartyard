@@ -10,13 +10,9 @@ use SensitiveParameter;
 
 abstract class CameraDevice extends IpDevice
 {
-    public CameraModel $model;
-
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, CameraModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public CameraModel $model)
     {
         parent::__construct($uri, $password);
-
-        $this->model = $model;
 
         $this->setLogger(file_logger('camera'));
     }

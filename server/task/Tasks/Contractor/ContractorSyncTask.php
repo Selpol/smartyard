@@ -20,15 +20,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
     public $taskUniqueTtl = 600;
 
-    public bool $removeSubscriber;
-    public bool $removeKey;
 
-    public function __construct(int $id, bool $removeSubscriber, bool $removeKey)
+    public function __construct(int $id, public bool $removeSubscriber, public bool $removeKey)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
-
-        $this->removeSubscriber = $removeSubscriber;
-        $this->removeKey = $removeKey;
     }
 
     public function onTask(): bool
@@ -37,7 +32,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $addressesGroup = $this->getAddressesList();
 
-        if (count($addressesGroup) === 0) {
+        if ($addressesGroup === []) {
             return true;
         }
 
@@ -46,7 +41,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $subscribersGroup = $this->getSubscribersList();
         $keysGroup = $this->getKeysList();
 
-        if (count($subscribersGroup) === 0 && count($keysGroup) === 0) {
+        if ($subscribersGroup === [] && $keysGroup === []) {
             return true;
         }
 
@@ -107,8 +102,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $flats[$flat->house_flat_id] = intval($flat->flat);
 
-        /** @var int[] $intercoms */
-        $intercoms = array_map(static fn(array $entrance) => intval($entrance['domophoneId']), container(HouseFeature::class)->getEntrances('houseId', $address));
+        $intercoms = array_map(static fn(array $entrance): int => intval($entrance['domophoneId']), container(HouseFeature::class)->getEntrances('houseId', $address));
 
         foreach ($intercoms as $intercom) {
             if (!array_key_exists($intercom, $devices)) {
@@ -137,14 +131,12 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         foreach ($subscribers as $subscriber) {
             if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                if (HouseSubscriber::findById($subscriber[0]) !== null) {
-                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
-                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
-                    }
+                if (HouseSubscriber::findById($subscriber[0]) instanceof HouseSubscriber && $subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
+                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
                 }
 
                 unset($subscribersInFlat[$subscriber[0]]);
-            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
+            } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
                 $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
             } else {
                 $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
@@ -170,7 +162,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $houseFeature = container(HouseFeature::class);
 
         /** @var IntercomDevice[] $intercoms */
-        $intercoms = array_filter(array_map(static fn(int $id) => intercom($id), array_keys($devices)), static fn(IntercomDevice $device) => $device->ping());
+        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device->ping());
 
         $progress = 50;
         $delta = (100 - 50) / count($flats);

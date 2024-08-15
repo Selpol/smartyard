@@ -16,6 +16,7 @@ readonly class RateLimitMiddleware extends RouteMiddleware
     private array $trust;
 
     private int $count;
+
     private int $ttl;
 
     private bool $request;

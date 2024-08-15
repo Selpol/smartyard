@@ -4,21 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class Gate
 {
-    public string $address;
-
-    public int $prefix;
-
-    public int $begin;
-    public int $end;
-
-    public function __construct(string $address, int $prefix, int $begin, int $end)
+    public function __construct(public string $address, public int $prefix, public int $begin, public int $end)
     {
-        $this->address = $address;
-
-        $this->prefix = $prefix;
-
-        $this->begin = $begin;
-        $this->end = $end;
     }
 
     public function equal(Gate $other): bool

@@ -10,7 +10,7 @@ trait ApartmentTrait
     {
         $response = $this->get('/panelCode');
 
-        return array_map(static fn(array $value) => new Apartment(
+        return array_map(static fn(array $value): Apartment => new Apartment(
             $value['panelCode'],
             $value['callsEnabled']['handset'],
             $value['callsEnabled']['sip'],

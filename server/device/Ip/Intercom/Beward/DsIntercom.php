@@ -18,7 +18,11 @@ use SensitiveParameter;
 
 class DsIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface
 {
-    use BewardTrait, AudioTrait, VideoTrait, SipTrait, CommonTrait;
+    use BewardTrait;
+    use AudioTrait;
+    use VideoTrait;
+    use SipTrait;
+    use CommonTrait;
 
     public string $login = 'admin';
 

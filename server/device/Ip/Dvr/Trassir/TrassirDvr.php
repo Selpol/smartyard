@@ -40,7 +40,7 @@ class TrassirDvr extends DvrDevice
             $response = $this->get('/channels', ['sid' => $this->getSid()]);
 
             if (array_key_exists('channels', $response)) {
-                return array_map(static fn(array $channel) => ['id' => $channel['guid'], 'title' => $channel['name']], $response['channels']);
+                return array_map(static fn(array $channel): array => ['id' => $channel['guid'], 'title' => $channel['name']], $response['channels']);
             }
 
             return [];
@@ -55,9 +55,9 @@ class TrassirDvr extends DvrDevice
             $response = $this->get('/channels', ['sid' => $this->getSid()]);
 
             if (array_key_exists('channels', $response)) {
-                $channels = array_values(array_filter($response['channels'], static fn(array $channel) => $channel['name'] === $query));
+                $channels = array_values(array_filter($response['channels'], static fn(array $channel): bool => $channel['name'] === $query));
 
-                if (count($channels) > 0) {
+                if ($channels !== []) {
                     return $channels[0]['guid'];
                 }
             }
@@ -88,7 +88,9 @@ class TrassirDvr extends DvrDevice
                     $cache->set('dvr:' . $this->uri . '-' . $this->login, $sid, 900);
                 } catch (InvalidArgumentException) {
                 }
-            } else throw new DeviceException($this, 'Не удалось авторизироваться');
+            } else {
+                throw new DeviceException($this, 'Не удалось авторизироваться');
+            }
         }
 
         return $sid;
@@ -149,7 +151,7 @@ class TrassirDvr extends DvrDevice
 
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
-        $request = client_request('GET', $this->uri . '/screenshot/' . $camera->dvr_stream . '?figures=0&sid=' . $this->getSid() . ($time ? ('&timestamp=' . $time) : ''));
+        $request = client_request('GET', $this->uri . '/screenshot/' . $camera->dvr_stream . '?figures=0&sid=' . $this->getSid() . ($time !== null && $time !== 0 ? ('&timestamp=' . $time) : ''));
 
         return $this->client->send($request, $this->clientOption)->getBody();
     }
@@ -169,13 +171,14 @@ class TrassirDvr extends DvrDevice
                     return new DvrOutput($container, $rtsp[0]);
                 }
             }
+
             if ($container === DvrContainer::HLS) {
                 $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success']) {
                     return new DvrOutput($container, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
                 }
-            } else if ($container === DvrContainer::RTC) {
+            } elseif ($container === DvrContainer::RTC) {
                 $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
 
                 if ($rtsp != null) {
@@ -193,7 +196,7 @@ class TrassirDvr extends DvrDevice
 
                 return null;
             }
-        } else if ($stream === DvrStream::ARCHIVE) {
+        } elseif ($stream === DvrStream::ARCHIVE) {
             $depth = $this->get('/s/archive/timeline', ['channel' => $camera->dvr_stream, 'sid' => $this->getSid()]);
 
             if (!array_key_exists('success', $depth) || !$depth['success']) {
@@ -202,9 +205,7 @@ class TrassirDvr extends DvrDevice
 
             $from = intval(time() - floor($depth['data']['depth'] * 24 * 60 * 60));
             $to = time();
-
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
-
             $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
 
             if ($rtsp != null) {
@@ -245,7 +246,7 @@ class TrassirDvr extends DvrDevice
 
         foreach ($response as $value) {
             if (array_key_exists('token', $value) && $value['token'] == $arguments['token']) {
-                $start = strtotime($value['day_start']);
+                $start = strtotime((string) $value['day_start']);
 
                 $result = [];
 
@@ -286,7 +287,7 @@ class TrassirDvr extends DvrDevice
             return [];
         }
 
-        $time = strtotime($timelineEvent['day_start']);
+        $time = strtotime((string) $timelineEvent['day_start']);
 
         /** @var string $activities */
         $activities = $timelineEvent['activities'];
@@ -296,25 +297,25 @@ class TrassirDvr extends DvrDevice
         $result = [];
         $length = 0;
 
-        for ($i = 0; $i < $count; $i++) {
+        for ($i = 0; $i < $count; ++$i) {
             if ($activities[$i] !== '0') {
                 $stamp = $time + $i;
 
                 if (!$first) {
                     $result[] = [$stamp, $stamp, -1];
-                    $length++;
+                    ++$length;
 
                     $first = true;
 
                     continue;
                 }
 
-                if ($result[$length - 1][1] == $stamp - 1)
+                if ($result[$length - 1][1] === $stamp - 1) {
                     $result[$length - 1][1] = $stamp;
-                else {
+                } else {
                     $result[] = [$stamp, $stamp, -1];
 
-                    $length++;
+                    ++$length;
                 }
             }
         }
@@ -330,40 +331,44 @@ class TrassirDvr extends DvrDevice
 
         if ($command === DvrCommand::PLAY && array_key_exists('seek', $arguments) && array_key_exists('from', $arguments) && array_key_exists('to', $arguments) && !is_null($arguments['to'])) {
             $response = $this->get('/archive_command', ['command' => 'play', 'direction' => 1, 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
-
             if (array_key_exists('success', $response) && $response['success'] == 1) {
                 if (array_key_exists('first_frame_ts', $response)) {
-                    return ['seek' => strtotime($response['first_frame_ts'])];
+                    return ['seek' => strtotime((string) $response['first_frame_ts'])];
                 }
 
                 return true;
             }
 
             return false;
-        } else if ($command === DvrCommand::PAUSE) {
+        }
+
+        if ($command === DvrCommand::PAUSE) {
             $response = $this->get('/archive_command', ['command' => 'stop', 'token' => $arguments['token'], 'sid' => $this->getSid()]);
-
             return array_key_exists('success', $response) && $response['success'] == 1;
-        } else if ($command === DvrCommand::SEEK && $arguments['seek']) {
+        }
+
+        if ($command === DvrCommand::SEEK && $arguments['seek']) {
             $response = $this->get('/archive_command', ['command' => 'seek', 'direction' => 1, 'timestamp' => $arguments['seek'], 'token' => $arguments['token'], 'sid' => $this->getSid()]);
-
             return array_key_exists('success', $response) && $response['success'] == 1;
-        } else if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
-            return $this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, $arguments);
-        } else if ($command === DvrCommand::PING) {
-            $setting = $this->getSetting();
+        }
 
-            if (!$setting) {
+        if ($command === DvrCommand::SPEED && $arguments['speed'] && in_array($arguments['speed'], $this->capabilities()['speed'])) {
+            return $this->command($identifier, $camera, $container, $stream, DvrCommand::PLAY, $arguments);
+        }
+
+        if ($command === DvrCommand::PING) {
+            $setting = $this->getSetting();
+            if ($setting === null || $setting === []) {
                 return null;
             }
 
             $rtsp = array_key_exists('rtsp', $setting) ? $setting['rtsp'] : 554;
-
             $request = client_request('GET', (string)uri($this->server->url)->withScheme('http')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
             $response = $this->client->send($request, $this->clientOption);
-
             return $response->getStatusCode() === 200;
-        } else if ($command === DvrCommand::STATUS) {
+        }
+
+        if ($command === DvrCommand::STATUS) {
             $response = $this->get('/archive_status', ['type' => 'state', 'sid' => $this->getSid()]);
 
             if (!is_array($response)) {
@@ -372,7 +377,7 @@ class TrassirDvr extends DvrDevice
 
             foreach ($response as $value) {
                 if (array_key_exists('token', $value) && $value['token'] === $arguments['token']) {
-                    return ['seek' => strtotime($value['time']), 'speed' => intval($value['speed'])];
+                    return ['seek' => strtotime((string) $value['time']), 'speed' => intval($value['speed'])];
                 }
             }
         }
@@ -392,7 +397,7 @@ class TrassirDvr extends DvrDevice
     {
         $setting = $this->getSetting();
 
-        if (!$setting) {
+        if ($setting === null || $setting === []) {
             return null;
         }
 

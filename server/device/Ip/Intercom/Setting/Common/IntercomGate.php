@@ -4,11 +4,8 @@ namespace Selpol\Device\Ip\Intercom\Setting\Common;
 
 class IntercomGate
 {
-    public array $value;
-
-    public function __construct(array $value)
+    public function __construct(public array $value)
     {
-        $this->value = $value;
     }
 
     public function equal(IntercomGate $other): bool

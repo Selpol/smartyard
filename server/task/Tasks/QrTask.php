@@ -20,14 +20,12 @@ class QrTask extends Task implements TaskUniqueInterface
     use TaskUniqueTrait;
 
     public int $houseId;
-    public bool $override;
 
-    public function __construct(int $houseId, bool $override)
+    public function __construct(int $houseId, public bool $override)
     {
         parent::__construct('Qr (' . $houseId . ')');
 
         $this->houseId = $houseId;
-        $this->override = $override;
 
         $this->setLogger(file_logger('task-qr'));
     }
@@ -44,10 +42,8 @@ class QrTask extends Task implements TaskUniqueInterface
             foreach ($uuids as $uuid) {
                 $file->deleteFile($uuid['id']);
             }
-        } else {
-            if (count($uuids) > 0) {
-                return $uuids[count($uuids) - 1]['id'];
-            }
+        } elseif (count($uuids) > 0) {
+            return $uuids[count($uuids) - 1]['id'];
         }
 
         $qr = $this->getOrCreateQr($house);
@@ -110,7 +106,7 @@ class QrTask extends Task implements TaskUniqueInterface
 
             return container(FileFeature::class)->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
         } catch (Throwable $throwable) {
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         } finally {
             unlink($file);
 
