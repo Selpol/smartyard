@@ -92,6 +92,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         if ($entrances !== []) {
             $this->setProgress(30);
 
+            if ($device instanceof CmsInterface) {
+                $this->cms($device, $entrances);
+            }
+
             if ($device instanceof ApartmentInterface) {
                 /** @var array<int, HouseFlat> $flats */
                 $flats = [];
@@ -131,10 +135,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if ($deviceIntercom->first_time == 0 && $device instanceof AudioInterface) {
             $this->audio($device);
-        }
-
-        if ($entrances !== [] && $device instanceof CmsInterface) {
-            $this->cms($device, $entrances);
         }
 
         if ($device instanceof VideoInterface) {
@@ -328,13 +328,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     $flats[intval($flat->flat)] = $flat;
                 }
 
-                $flatEntrance = container(DatabaseService::class)->get('SELECT apartment, cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
+                $flatEntrances = container(DatabaseService::class)->get('SELECT cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
 
-                if (!$flatEntrance) {
-                    throw new DeviceException($device, 'Вход к квартире не привязан');
+                if ($flatEntrances === []) {
+                    continue;
                 }
 
-                $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrance['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
+                $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrances[0]['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
                 if (!$individualLevels && $levels !== []) {
                     $individualLevels = true;
