@@ -75,12 +75,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $clean = $device->getIntercomClean();
         $ntp = $device->getIntercomNtp();
 
-        $this->setProgress(6);
-
-        if ($device instanceof VideoInterface) {
-            $this->video($device, $entrances);
-        }
-
         $this->setProgress(10);
 
         if ($device instanceof SipInterface) {
@@ -141,6 +135,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if ($entrances !== [] && $device instanceof CmsInterface) {
             $this->cms($device, $entrances);
+        }
+
+        if ($device instanceof VideoInterface) {
+            $this->video($device, $entrances);
         }
 
         if ($deviceIntercom->first_time == 0) {

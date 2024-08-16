@@ -83,7 +83,7 @@ trait ApartmentTrait
         $params['DoorOpenLevel'] = $apartment->quiescent;
 
         if ($apartment->numbers !== []) {
-            $sipNumbers = array_merge([$apartment->apartment], $apartment->numbers);
+            $sipNumbers = array_merge([(string)$apartment->apartment], $apartment->numbers);
             $counter = count($sipNumbers);
 
             for ($i = 1; $i <= $counter; ++$i) {
