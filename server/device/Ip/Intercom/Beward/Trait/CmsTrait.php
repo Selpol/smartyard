@@ -46,7 +46,7 @@ trait CmsTrait
 
     public function getCmsLevels(): CmsLevels
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
+        $response = $this->getIntercomCgi();
 
         return new CmsLevels([$response['HandsetUpLevel'], $response['DoorOpenLevel']]);
     }

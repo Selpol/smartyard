@@ -8,6 +8,17 @@ use Throwable;
 
 trait BewardTrait
 {
+    private array $intercomCgi;
+
+    public function getIntercomCgi(): array
+    {
+        if (!isset($this->intercomCgi)) {
+            $this->intercomCgi = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get'], parse: false));
+        }
+
+        return $this->intercomCgi;
+    }
+
     public function getSysInfo(): array
     {
         try {

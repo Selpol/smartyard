@@ -339,7 +339,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrance['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
-                if ($levels !== []) {
+                if (!$individualLevels && $levels !== []) {
                     $individualLevels = true;
                 }
 

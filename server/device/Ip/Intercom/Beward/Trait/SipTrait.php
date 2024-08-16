@@ -23,7 +23,7 @@ trait SipTrait
 
     public function getSipOption(): SipOption
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get'], parse: false));
+        $response = $this->getIntercomCgi();
         $sip = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'get'], parse: false));
         $audio = $this->parseParamValueHelp($this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: false));
 

@@ -46,7 +46,7 @@ trait CommonTrait
 
     public function getRoom(): Room
     {
-        $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
+        $intercom = $this->getIntercomCgi();
         $alarm = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'get']));
 
         return new Room(strval($intercom['ConciergeApartment']), strval($alarm['SOSCallNumber']));
@@ -54,7 +54,7 @@ trait CommonTrait
 
     public function getRelay(int $type): Relay
     {
-        $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
+        $intercom = $this->getIntercomCgi();
 
         if ($this == 1) {
             return new Relay($intercom['AltDoorOpenMode'] === 'off', intval($intercom['DoorOpenTime']));
@@ -106,7 +106,7 @@ trait CommonTrait
 
     public function getIndividualLevels(): bool
     {
-        $intercom = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get']));
+        $intercom = $this->getIntercomCgi();
 
         return array_key_exists('IndividualLevels', $intercom) && $intercom['IndividualLevels'] == 'on';
     }
