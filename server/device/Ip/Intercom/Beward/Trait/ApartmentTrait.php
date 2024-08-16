@@ -71,27 +71,46 @@ trait ApartmentTrait
 
     public function setApartment(Apartment $apartment): void
     {
+        $currentApartment = isset($this->apartments) && array_key_exists($apartment->apartment, $this->apartments) ? $this->apartments[$apartment->apartment] : null;
+
         $params = [
             'action' => 'set',
             'Number' => $apartment->apartment,
             'RegCodeActive' => 'off',
-            'BlockCMS' => $apartment->handset ? 'off' : 'on',
-            'PhonesActive' => $apartment->sip ? 'on' : 'off',
         ];
 
-        $params['HandsetUpLevel'] = $apartment->answer;
-        $params['DoorOpenLevel'] = $apartment->quiescent;
+        if ($currentApartment == null || $currentApartment->handset !== $apartment->handset) {
+            $params['BlockCMS'] = $apartment->handset ? 'off' : 'on';
+        }
 
-        if ($apartment->numbers !== []) {
-            $sipNumbers = array_merge([(string)$apartment->apartment], $apartment->numbers);
-            $counter = count($sipNumbers);
+        if ($currentApartment == null || $currentApartment->sip !== $apartment->sip) {
+            $params['PhonesActive'] = $apartment->sip ? 'on' : 'off';
+        }
 
-            for ($i = 1; $i <= $counter; ++$i) {
-                $params['Phone' . $i] = $sipNumbers[$i - 1];
+        if ($currentApartment == null || $currentApartment->answer !== $apartment->answer) {
+            $params['HandsetUpLevel'] = $apartment->answer;
+        }
+
+        if ($currentApartment == null || $currentApartment->quiescent !== $apartment->quiescent) {
+            $params['DoorOpenLevel'] = $apartment->quiescent;
+        }
+
+        if ($currentApartment == null || $currentApartment->numbers !== $apartment->numbers) {
+            if ($apartment->numbers !== []) {
+                $sipNumbers = array_merge([(string)$apartment->apartment], $apartment->numbers);
+                $counter = count($sipNumbers);
+
+                for ($i = 1; $i <= $counter; ++$i) {
+                    $params['Phone' . $i] = $sipNumbers[$i - 1];
+                }
             }
         }
 
         $this->get('/cgi-bin/apartment_cgi', $params);
+
+        if (!isset($this->apartments)) {
+            $this->apartments = [];
+        }
 
         $this->apartments[$apartment->apartment] = $apartment;
     }
