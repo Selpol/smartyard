@@ -489,14 +489,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newLevels = clone $levels;
 
-        if (!array_key_exists(0, $newLevels->value)) {
-            $newLevels->value[0] = 0;
-        }
-
-        if (!array_key_exists(1, $newLevels->value)) {
-            $newLevels->value[1] = 0;
-        }
-
         $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
         $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
 

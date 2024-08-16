@@ -31,7 +31,7 @@ trait CmsTrait
     public function getCmsModel(): string
     {
         $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
-        $lines = explode(PHP_EOL, (string) $content);
+        $lines = explode(PHP_EOL, (string)$content);
 
         $model = $lines[0];
 
@@ -60,10 +60,11 @@ trait CmsTrait
 
     public function setCmsLevels(CmsLevels $cmsLevels): void
     {
-        if (count($cmsLevels->value) == 2) {
-            $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'HandsetUpLevel' => $cmsLevels->value[0], 'DoorOpenLevel' => $cmsLevels->value[1]]);
-            $this->get('/cgi-bin/apartment_cgi', ['action' => 'levels', 'HandsetUpLevel' => $cmsLevels->value[0], 'DoorOpenLevel' => $cmsLevels->value[1]]);
-        }
+        $handset = array_key_exists(0, $cmsLevels->value) ? $cmsLevels->value[0] : 330;
+        $open = array_key_exists(1, $cmsLevels->value) ? $cmsLevels->value[1] : 530;
+
+        $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'HandsetUpLevel' => $handset, 'DoorOpenLevel' => $open]);
+        $this->get('/cgi-bin/apartment_cgi', ['action' => 'levels', 'HandsetUpLevel' => $handset, 'DoorOpenLevel' => $open]);
     }
 
     public function setCmsApartmentDeffer(CmsApartment $cmsApartment): void
@@ -121,7 +122,7 @@ trait CmsTrait
     private function cmsExport(): array
     {
         $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
-        $lines = explode(PHP_EOL, (string) $content);
+        $lines = explode(PHP_EOL, (string)$content);
 
         $model = 0;
         $cmses = [];
