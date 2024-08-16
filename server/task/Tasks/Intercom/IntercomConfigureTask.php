@@ -56,7 +56,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(1);
 
-        $entrances = HouseEntrance::fetchAll(criteria()->equal('house_domophone_id', $this->id)->equal('domophone_output', 0));
+        $entrance = HouseEntrance::fetch(criteria()->equal('house_domophone_id', $this->id));
 
         $this->setProgress(2);
 
@@ -86,24 +86,24 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(20);
 
         if ($device instanceof CommonInterface) {
-            $this->common($device, $entrances, $clean, $ntp);
+            $this->common($device, $entrance, $clean, $ntp);
         }
 
-        if ($entrances !== []) {
+        if ($entrance !== null) {
             $this->setProgress(30);
 
             if ($device instanceof CmsInterface) {
-                $this->cms($device, $entrances);
+                $this->cms($device, $entrance);
             }
 
             if ($device instanceof ApartmentInterface) {
                 /** @var array<int, HouseFlat> $flats */
                 $flats = [];
 
-                $this->apartment($device, $entrances, $flats, $individualLevels);
+                $this->apartment($device, $entrance, $flats, $individualLevels);
 
                 if ($device instanceof KeyHandlerInterface) {
-                    $device->handleKey($flats, $entrances);
+                    $device->handleKey($flats, $entrance);
                 } elseif (count($flats) > 0) {
                     $this->setProgress(60);
                     if ($device instanceof KeyInterface) {
@@ -119,11 +119,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     }
 
                     $this->setProgress(75);
-
-                    if ($device instanceof CommonInterface && $entrances[0]->shared) {
-                        $this->commonGates($device, $entrances[0], $flats);
-                    }
                 }
+            }
+
+            if ($device instanceof CommonInterface && $entrance->shared) {
+                $this->commonGates($device, $entrance);
             }
         }
 
@@ -138,7 +138,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
 
         if ($device instanceof VideoInterface) {
-            $this->video($device, $entrances);
+            $this->video($device, $entrance);
         }
 
         if ($deviceIntercom->first_time == 0) {
@@ -169,12 +169,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    /**
-     * @param VideoInterface&IntercomDevice $device
-     * @param HouseEntrance[] $entrances
-     * @return void
-     */
-    private function video(IntercomDevice & VideoInterface $device, array $entrances): void
+    private function video(IntercomDevice & VideoInterface $device, HouseEntrance|null $entrance): void
     {
         $videoEncoding = $device->getVideoEncoding();
 
@@ -197,11 +192,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $videoOverlay = $device->getVideoOverlay();
 
-        $newVideoOverlay = clone $videoOverlay;
-        $newVideoOverlay->title = $entrances[0]->caller_id;
+        if ($entrance !== null) {
+            $newVideoOverlay = clone $videoOverlay;
+            $newVideoOverlay->title = $entrance->caller_id;
 
-        if (!$newVideoOverlay->equal($videoOverlay)) {
-            $device->setVideoOverlay($newVideoOverlay);
+            if (!$newVideoOverlay->equal($videoOverlay)) {
+                $device->setVideoOverlay($newVideoOverlay);
+            }
         }
     }
 
@@ -234,14 +231,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    /**
-     * @param CommonInterface&IntercomDevice $device
-     * @param HouseEntrance[] $entrances
-     * @param IntercomClean $clean
-     * @param array $ntpServer
-     * @return void
-     */
-    public function common(IntercomDevice & CommonInterface $device, array $entrances, IntercomClean $clean, array $ntpServer): void
+    public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance, IntercomClean $clean, array $ntpServer): void
     {
         $ntp = $device->getNtp();
 
@@ -280,32 +270,29 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $device->setRoom($newRoom);
         }
 
-        if ($entrances !== []) {
-            foreach ($entrances as $entrance) {
-                $relay = $device->getRelay($entrance->domophone_output ?? 0);
+        if ($entrance !== null) {
+            $relay = $device->getRelay($entrance->domophone_output ?? 0);
 
-                $newRelay = clone $relay;
-                $newRelay->lock = !$entrance->locks_disabled;
-                $newRelay->openDuration = $clean->unlockTime;
+            $newRelay = clone $relay;
+            $newRelay->lock = !$entrance->locks_disabled;
+            $newRelay->openDuration = $clean->unlockTime;
 
-                if (!$newRelay->equal($relay)) {
-                    $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
-                }
+            if (!$newRelay->equal($relay)) {
+                $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
             }
         }
     }
 
     /**
      * @param ApartmentInterface&IntercomDevice $device
-     * @param HouseEntrance[] $entrances
+     * @param HouseEntrance $entrance
      * @param array<int, HouseFlat> $flats
      * @param bool &$individualLevels
      * @return void
      */
-    public function apartment(IntercomDevice & ApartmentInterface $device, array $entrances, array &$flats, bool &$individualLevels): void
+    public function apartment(IntercomDevice & ApartmentInterface $device, HouseEntrance $entrance, array &$flats, bool &$individualLevels): void
     {
-        $progress = 50;
-        $delta = (80 - 50) / count($entrances);
+        $this->setProgress(50);
 
         /** @var array<int, Apartment> $apartments */
         $apartments = array_reduce($device->getApartments(), static function (array $previous, Apartment $current) {
@@ -314,62 +301,59 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return $previous;
         }, []);
 
-        foreach ($entrances as $entrance) {
-            $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
+        $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
-            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', array_map(static fn(array $flat) => $flat['house_flat_id'], $entrancesFlats))->asc('cast(flat AS INTEGER)'));
+        $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', array_map(static fn(array $flat) => $flat['house_flat_id'], $entrancesFlats))->asc('cast(flat AS INTEGER)'));
 
-            if ($houseFlats === []) {
+        if ($houseFlats === []) {
+            return;
+        }
+
+        foreach ($houseFlats as $flat) {
+            if (!array_key_exists(intval($flat->flat), $flats)) {
+                $flats[intval($flat->flat)] = $flat;
+            }
+
+            $flatEntrances = container(DatabaseService::class)->get('SELECT cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
+
+            if ($flatEntrances === []) {
                 continue;
             }
 
-            foreach ($houseFlats as $flat) {
-                if (!array_key_exists(intval($flat->flat), $flats)) {
-                    $flats[intval($flat->flat)] = $flat;
-                }
+            $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrances[0]['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
-                $flatEntrances = container(DatabaseService::class)->get('SELECT cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
-
-                if ($flatEntrances === []) {
-                    continue;
-                }
-
-                $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrances[0]['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
-
-                if (!$individualLevels && $levels !== []) {
-                    $individualLevels = true;
-                }
-
-                $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
-                $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) != null;
-
-                $apartment = new Apartment(
-                    intval($flat->flat),
-                    $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
-                    $entrance->shared == 0 && !$blockCall,
-                    array_key_exists(0, $levels) ? $levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
-                    array_key_exists(1, $levels) ? $levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
-                    ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
-                );
-
-                if (array_key_exists($apartment->apartment, $apartments)) {
-                    if ($device->model->vendor === 'BEWARD') {
-                        if (!$apartment->equal($apartments[$apartment->apartment])) {
-                            $device->setApartment($apartment);
-                        }
-                    } elseif (!$apartment->equalWithoutNumbers($apartments[$apartment->apartment])) {
-                        $device->setApartment($apartment);
-                    }
-
-                    unset($apartments[$apartment->apartment]);
-                } else {
-                    $device->addApartment($apartment);
-                }
+            if (!$individualLevels && $levels !== []) {
+                $individualLevels = true;
             }
 
-            $progress += $delta;
-            $this->setProgress($progress);
+            $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
+            $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) != null;
+
+            $apartment = new Apartment(
+                intval($flat->flat),
+                $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
+                $entrance->shared == 0 && !$blockCall,
+                array_key_exists(0, $levels) ? $levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
+                array_key_exists(1, $levels) ? $levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
+                ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
+            );
+
+            if (array_key_exists($apartment->apartment, $apartments)) {
+                if ($device->model->vendor === 'BEWARD') {
+                    if (!$apartment->equal($apartments[$apartment->apartment])) {
+                        $device->setApartment($apartment);
+                    }
+                } elseif (!$apartment->equalWithoutNumbers($apartments[$apartment->apartment])) {
+                    $device->setApartment($apartment);
+                }
+
+                unset($apartments[$apartment->apartment]);
+            } else {
+                $device->addApartment($apartment);
+            }
         }
+
+        $this->setProgress(80);
 
         foreach ($apartments as $apartment) {
             $device->removeApartment($apartment);
@@ -471,16 +455,16 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     /**
      * @param CmsInterface&IntercomDevice $device
-     * @param HouseEntrance[] $entrances
+     * @param HouseEntrance $entrance
      * @return void
      */
-    public function cms(IntercomDevice & CmsInterface $device, array $entrances): void
+    public function cms(IntercomDevice & CmsInterface $device, HouseEntrance $entrance): void
     {
-        if ($entrances[0]->shared) {
+        if ($entrance->shared) {
             return;
         }
 
-        $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrances[0]->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
+        $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
 
         $levels = $device->getCmsLevels();
 
@@ -493,13 +477,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $device->setCmsLevels($newLevels);
         }
 
-        $cmsModel = array_key_exists(strtoupper($entrances[0]->cms), $device->model->cmsesMap) ? $device->model->cmsesMap[strtoupper($entrances[0]->cms)] : false;
+        $cmsModel = array_key_exists(strtoupper($entrance->cms), $device->model->cmsesMap) ? $device->model->cmsesMap[strtoupper($entrance->cms)] : false;
 
         if ($device->getCmsModel() != $cmsModel) {
-            $device->setCmsModel($entrances[0]->cms);
+            $device->setCmsModel($entrance->cms);
         }
 
-        $cms = container(HouseFeature::class)->getCms($entrances[0]->house_entrance_id);
+        $cms = container(HouseFeature::class)->getCms($entrance->house_entrance_id);
 
         foreach ($cms as $item) {
             $device->setCmsApartmentDeffer(new CmsApartment($item['cms'] + 1, $item['dozen'], intval($item['unit']), $item['apartment']));
@@ -511,99 +495,39 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     /**
      * @param CommonInterface&IntercomDevice $device
      * @param HouseEntrance $entrance
-     * @param array<int, HouseFlat> $flats
      * @return void
      */
-    public function commonGates(IntercomDevice & CommonInterface $device, HouseEntrance $entrance, array $flats): void
+    public function commonGates(IntercomDevice & CommonInterface $device, HouseEntrance $entrance): void
     {
-        usort($flats, static fn(HouseFlat $a, HouseFlat $b): int => $a->flat <=> $b->flat);
-
-        /**
-         * address_house_id > prefix
-         * @var array<int, int> $prefixes
-         */
-        $prefixes = [];
-
-        /**
-         * house_entrance_id -> HouseEntrance
-         * @var array<int, HouseEntrance> $entrances
-         */
-        $entrances = [];
-
-        /**
-         * house_domophone_id -> DeviceIntercom
-         * @var array<int, string> $intercoms
-         */
-        $intercoms = [];
-
         /** @var Gate[] $gates */
         $gates = [];
 
-        $pivotCriteria = criteria()->in('house_flat_id', array_map(static fn(HouseFlat $flat) => $flat->house_flat_id, $flats));
-        $pivot = container(DatabaseService::class)->get('SELECT house_entrance_id, house_flat_id FROM houses_entrances_flats' . $pivotCriteria->getSqlString(), $pivotCriteria->getSqlParams());
+        $housesEntrances = container(DatabaseService::class)->get('SELECT address_house_id, prefix FROM houses_houses_entrances WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
-        $pivot = array_reduce($pivot, static function (array $previous, array $current) {
-            if (!array_key_exists($current['house_flat_id'], $previous)) {
-                $previous[$current['house_flat_id']] = [];
-            }
+        $flatsIds = array_map(static fn(array $flatId) => $flatId['house_flat_id'], container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]));
 
-            $previous[$current['house_flat_id']][] = $current['house_entrance_id'];
+        if ($flatsIds === []) {
+            return;
+        }
 
-            return $previous;
-        }, []);
+        foreach ($housesEntrances as $housesEntrance) {
+            $firstFlat = HouseFlat::fetch(criteria()->in('house_flat_id', $flatsIds)->equal('address_house_id', $housesEntrance['address_house_id'])->asc('cast(flat AS INTEGER)')->limit(1));
+            $lastFlat = HouseFlat::fetch(criteria()->in('house_flat_id', $flatsIds)->equal('address_house_id', $housesEntrance['address_house_id'])->desc('cast(flat AS INTEGER)')->limit(1));
 
-        foreach ($flats as $flat) {
-            if (!array_key_exists($flat->house_flat_id, $pivot)) {
+            if ($firstFlat == null || $lastFlat == null) {
                 continue;
             }
 
-            if (!array_key_exists($flat->address_house_id, $prefixes)) {
-                $prefixes[$flat->address_house_id] = container(DatabaseService::class)->get('SELECT prefix FROM houses_houses_entrances WHERE address_house_id = :house_id AND house_entrance_id = :entrance_id', ['house_id' => $flat->address_house_id, 'entrance_id' => $entrance->house_entrance_id], options: ['singlify'])['prefix'];
-            }
+            $entrancesFlatIds = array_map(static fn(array $value) => $value['house_entrance_id'], container(DatabaseService::class)->get('SELECT house_entrance_id FROM houses_entrances_flats WHERE house_flat_id = :first_id OR house_flat_id = :last_id', ['first_id' => $firstFlat->house_flat_id, 'last_id' => $lastFlat->house_flat_id]));
+            $entrancesFlat = HouseEntrance::fetch(criteria()->in('house_entrance_id', $entrancesFlatIds)->equal('shared', 0)->simple('house_entrance_id', '!=', $entrance->house_entrance_id)->limit(1));
 
-            /** @var HouseEntrance|null $flatEntrance */
-            $flatEntrance = null;
-
-            foreach ($pivot[$flat->house_flat_id] as $entranceId) {
-                if (array_key_exists($entranceId, $entrances)) {
-                    $flatEntrance = $entrances[$entranceId];
-
-                    break;
-                }
-
-                $temp = HouseEntrance::findById($entranceId, criteria()->equal('shared', 0));
-
-                if (!$temp instanceof HouseEntrance) {
-                    continue;
-                }
-
-                $entrances[$entranceId] = $temp;
-                $flatEntrance = $temp;
-
-                break;
-            }
-
-            if (!$flatEntrance) {
+            if ($entrancesFlat == null) {
                 continue;
             }
 
-            if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms)) {
-                $intercom = DeviceIntercom::findById($flatEntrance->house_domophone_id, setting: setting()->columns(['ip']));
+            $intercom = DeviceIntercom::findById($entrancesFlat->house_domophone_id, setting: setting()->columns(['ip']));
 
-                if ($intercom == null) {
-                    return;
-                }
-
-                $intercoms[$flatEntrance->house_domophone_id] = $intercom->ip;
-            }
-
-            $number = intval($flat->flat);
-
-            if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $number) {
-                ++$gates[count($gates) - 1]->end;
-            } else {
-                $gates[] = new Gate($intercoms[$flatEntrance->house_domophone_id], $prefixes[$flat->address_house_id], $number, $number);
-            }
+            $gates[] = new Gate($intercom->ip, $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
         }
 
         $device->setGates($gates);

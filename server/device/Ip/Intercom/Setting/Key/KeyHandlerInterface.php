@@ -9,8 +9,8 @@ interface KeyHandlerInterface
 {
     /**
      * @param array<int, HouseFlat> $flats flat -> HouseFlat
-     * @param HouseEntrance[] $entrance
+     * @param HouseEntrance $entrance
      * @return void
      */
-    public function handleKey(array $flats, array $entrance): void;
+    public function handleKey(array $flats, HouseEntrance $entrance): void;
 }

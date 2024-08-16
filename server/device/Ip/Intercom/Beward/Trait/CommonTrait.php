@@ -199,7 +199,7 @@ trait CommonTrait
             'Mode' => 1,
             'Enable' => $value !== [] ? 'on' : 'off',
             'MainDoor' => 'on',
-            'AltDoor' => 'on',
+            'AltDoor' => 'off',
             'PowerRely' => 'on',
         ];
 
