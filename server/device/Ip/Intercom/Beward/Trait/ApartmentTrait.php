@@ -79,30 +79,28 @@ trait ApartmentTrait
             'RegCodeActive' => 'off',
         ];
 
-        if ($currentApartment == null || $currentApartment->handset !== $apartment->handset) {
+        if ($currentApartment === null || $currentApartment->handset !== $apartment->handset) {
             $params['BlockCMS'] = $apartment->handset ? 'off' : 'on';
         }
 
-        if ($currentApartment == null || $currentApartment->sip !== $apartment->sip) {
+        if ($currentApartment === null || $currentApartment->sip !== $apartment->sip) {
             $params['PhonesActive'] = $apartment->sip ? 'on' : 'off';
         }
 
-        if ($currentApartment == null || $currentApartment->answer !== $apartment->answer) {
+        if ($currentApartment === null || $currentApartment->answer !== $apartment->answer) {
             $params['HandsetUpLevel'] = $apartment->answer;
         }
 
-        if ($currentApartment == null || $currentApartment->quiescent !== $apartment->quiescent) {
+        if ($currentApartment === null || $currentApartment->quiescent !== $apartment->quiescent) {
             $params['DoorOpenLevel'] = $apartment->quiescent;
         }
 
-        if ($currentApartment == null || $currentApartment->numbers !== $apartment->numbers) {
-            if ($apartment->numbers !== []) {
-                $sipNumbers = array_merge([(string)$apartment->apartment], $apartment->numbers);
-                $counter = count($sipNumbers);
+        if (($currentApartment === null || $currentApartment->numbers !== $apartment->numbers) && $apartment->numbers !== []) {
+            $sipNumbers = array_merge([(string)$apartment->apartment], $apartment->numbers);
+            $counter = count($sipNumbers);
 
-                for ($i = 1; $i <= $counter; ++$i) {
-                    $params['Phone' . $i] = $sipNumbers[$i - 1];
-                }
+            for ($i = 1; $i <= $counter; ++$i) {
+                $params['Phone' . $i] = $sipNumbers[$i - 1];
             }
         }
 

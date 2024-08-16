@@ -10,7 +10,6 @@ use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
-use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
@@ -130,10 +129,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $this->commonOther($device, $deviceModel, $individualLevels);
         }
 
-        if ($deviceIntercom->first_time == 0) {
-            if ($device instanceof AudioInterface) {
-                $this->audio($device);
-            }
+        if ($deviceIntercom->first_time == 0 && $device instanceof AudioInterface) {
+            $this->audio($device);
         }
 
         if ($entrances !== [] && $device instanceof CmsInterface) {
@@ -625,7 +622,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newDDns = clone $dDns;
         $newDDns->enable = false;
 
-        if ($device->getIndividualLevels() != $individualLevels) {
+        if ($device->getIndividualLevels() !== $individualLevels) {
             $device->setIndividualLevels($individualLevels);
         }
 
