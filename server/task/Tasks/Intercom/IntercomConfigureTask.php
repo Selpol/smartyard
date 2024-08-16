@@ -136,7 +136,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(98);
 
         if ($device instanceof CommonInterface) {
-            $this->commonSyslog($device, $deviceModel);
+            $this->commonOther($device, $deviceModel);
         }
 
         if ($deviceIntercom->first_time == 0) {
@@ -294,19 +294,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
                 }
             }
-        }
-
-        $dDns = $device->getDDns();
-
-        $newDDns = clone $dDns;
-        $newDDns->enable = false;
-
-        if (!$newDDns->equal($dDns)) {
-            $device->setDDns($newDDns);
-        }
-
-        if ($device->getUPnP()) {
-            $device->setUPnP(false);
         }
 
         if (!$device->getIndividualLevels()) {
@@ -608,7 +595,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $device->setGates($gates);
     }
 
-    public function commonSyslog(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void
+    public function commonOther(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void
     {
         $urls = config('syslog_servers')[$deviceModel->syslog];
 
@@ -622,6 +609,19 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if (!$newSyslog->equal($syslog)) {
             $device->setSyslog($newSyslog);
+        }
+
+        $dDns = $device->getDDns();
+
+        $newDDns = clone $dDns;
+        $newDDns->enable = false;
+
+        if (!$newDDns->equal($dDns)) {
+            $device->setDDns($newDDns);
+        }
+
+        if ($device->getUPnP()) {
+            $device->setUPnP(false);
         }
     }
 }
