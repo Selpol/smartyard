@@ -30,7 +30,7 @@ readonly class flat extends Api
         $households = container(HouseFeature::class);
 
         if (strlen($params['openCode']) > 1) {
-            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
+            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->simple('flat', '!=', $params['flat'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
 
             if ($flat != null) {
                 return self::error('В квартире ' . $flat->flat . ' уже существует код ' . $params['openCode'], 400);
@@ -51,7 +51,7 @@ readonly class flat extends Api
         $households = container(HouseFeature::class);
 
         if (strlen($params['openCode']) > 1) {
-            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
+            $flat = HouseFlat::fetch(criteria()->equal('address_house_id', (int)$params['houseId'])->simple('flat', '!=', $params['flat'])->equal('open_code', $params['openCode']), setting()->columns(['flat']));
 
             if ($flat != null) {
                 return self::error('В квартире ' . $flat->flat . ' уже существует код ' . $params['openCode'], 400);

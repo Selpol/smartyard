@@ -355,16 +355,16 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
                 );
 
-                if (array_key_exists(intval($flat->flat), $apartments)) {
+                if (array_key_exists($apartment->apartment, $apartments)) {
                     if ($device->model->vendor === 'BEWARD') {
-                        if (!$apartment->equal($apartments[intval($flat->flat)])) {
+                        if (!$apartment->equal($apartments[$apartment->apartment])) {
                             $device->setApartment($apartment);
                         }
-                    } elseif (!$apartment->equalWithoutNumbers($apartments[intval($flat->flat)])) {
+                    } elseif (!$apartment->equalWithoutNumbers($apartments[$apartment->apartment])) {
                         $device->setApartment($apartment);
                     }
 
-                    unset($apartments[intval($flat->flat)]);
+                    unset($apartments[$apartment->apartment]);
                 } else {
                     $device->addApartment($apartment);
                 }
