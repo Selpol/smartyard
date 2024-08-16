@@ -588,13 +588,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             }
 
             if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms)) {
-                $intercoms[$entrance->house_domophone_id] = DeviceIntercom::findById($entrance->house_domophone_id, setting: setting()->columns(['ip']))->ip;
+                $intercom = DeviceIntercom::findById($flatEntrance->house_domophone_id, setting: setting()->columns(['ip']));
+
+                if ($intercom == null) {
+                    return;
+                }
+
+                $intercoms[$flatEntrance->house_domophone_id] = $intercom->ip;
             }
 
-            if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $flat->flat) {
+            $number = intval($flat->flat);
+
+            if (count($gates) > 0 && $gates[count($gates) - 1]->end + 1 == $number) {
                 ++$gates[count($gates) - 1]->end;
             } else {
-                $gates[] = new Gate($intercoms[$flatEntrance->house_domophone_id], $prefixes[$flat->address_house_id], $flat->flat, $flat->flat);
+                $gates[] = new Gate($intercoms[$flatEntrance->house_domophone_id], $prefixes[$flat->address_house_id], $number, $number);
             }
         }
 

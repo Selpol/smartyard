@@ -80,7 +80,7 @@ readonly class ClickhouseService
 
         curl_close($curl);
 
-        if (@$headers['x-clickhouseService-exception-code'] !== []) {
+        if (array_key_exists('x-clickhouseService-exception-code', $headers) && $headers['x-clickhouseService-exception-code'] !== []) {
             file_logger('clickhouse')->error(trim($raw));
 
             return false;
