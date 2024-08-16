@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
@@ -75,6 +76,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $clean = $device->getIntercomClean();
         $ntp = $device->getIntercomNtp();
 
+        $individualLevels = false;
+
         $this->setProgress(10);
 
         if ($device instanceof SipInterface) {
@@ -94,7 +97,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 /** @var array<int, HouseFlat> $flats */
                 $flats = [];
 
-                $this->apartment($device, $entrances, $flats);
+                $this->apartment($device, $entrances, $flats, $individualLevels);
 
                 if ($device instanceof KeyHandlerInterface) {
                     $device->handleKey($flats, $entrances);
@@ -124,7 +127,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(85);
 
         if ($device instanceof CommonInterface) {
-            $this->commonOther($device, $deviceModel);
+            $this->commonOther($device, $deviceModel, $individualLevels);
         }
 
         if ($deviceIntercom->first_time == 0) {
@@ -296,38 +299,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     }
 
     /**
-     * @param CmsInterface&IntercomDevice $device
-     * @param HouseEntrance[] $entrances
-     * @return void
-     */
-    public function cms(IntercomDevice & CmsInterface $device, array $entrances): void
-    {
-        if ($entrances[0]->shared) {
-            return;
-        }
-
-        $cmsModel = array_key_exists(strtoupper($entrances[0]->cms), $device->model->cmsesMap) ? $device->model->cmsesMap[strtoupper($entrances[0]->cms)] : false;
-
-        if ($device->getCmsModel() != $cmsModel) {
-            $device->setCmsModel($entrances[0]->cms);
-        }
-
-        $cms = container(HouseFeature::class)->getCms($entrances[0]->house_entrance_id);
-
-        foreach ($cms as $item) {
-            $device->setCmsApartmentDeffer(new CmsApartment($item['cms'] + 1, $item['dozen'], intval($item['unit']), $item['apartment']));
-        }
-
-        $device->defferCms();
-    }
-
-    /**
      * @param ApartmentInterface&IntercomDevice $device
      * @param HouseEntrance[] $entrances
      * @param array<int, HouseFlat> $flats
+     * @param bool &$individualLevels
      * @return void
      */
-    public function apartment(IntercomDevice & ApartmentInterface $device, array $entrances, array &$flats): void
+    public function apartment(IntercomDevice & ApartmentInterface $device, array $entrances, array &$flats, bool &$individualLevels): void
     {
         $progress = 50;
         $delta = (80 - 50) / count($entrances);
@@ -348,8 +326,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
             }
 
-            $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
-
             foreach ($houseFlats as $flat) {
                 if (!array_key_exists(intval($flat->flat), $flats)) {
                     $flats[intval($flat->flat)] = $flat;
@@ -363,6 +339,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 $levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $flatEntrance['cms_levels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
+                if ($levels !== []) {
+                    $individualLevels = true;
+                }
+
                 $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
                 $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) != null;
 
@@ -370,8 +350,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     intval($flat->flat),
                     $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                     $entrance->shared == 0 && !$blockCall,
-                    array_key_exists(0, $levels) ? $levels[0] : (array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null))),
-                    array_key_exists(1, $levels) ? $levels[1] : (array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null))),
+                    array_key_exists(0, $levels) ? $levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
+                    array_key_exists(1, $levels) ? $levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
                     ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
                 );
 
@@ -493,6 +473,53 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     }
 
     /**
+     * @param CmsInterface&IntercomDevice $device
+     * @param HouseEntrance[] $entrances
+     * @return void
+     */
+    public function cms(IntercomDevice & CmsInterface $device, array $entrances): void
+    {
+        if ($entrances[0]->shared) {
+            return;
+        }
+
+        $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrances[0]->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
+
+        $levels = $device->getCmsLevels();
+
+        $newLevels = clone $levels;
+
+        if (!array_key_exists(0, $newLevels->value)) {
+            $newLevels->value[0] = 0;
+        }
+
+        if (!array_key_exists(1, $newLevels->value)) {
+            $newLevels->value[1] = 0;
+        }
+
+        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
+        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
+
+        if (!$newLevels->equal($levels)) {
+            $device->setCmsLevels($newLevels);
+        }
+
+        $cmsModel = array_key_exists(strtoupper($entrances[0]->cms), $device->model->cmsesMap) ? $device->model->cmsesMap[strtoupper($entrances[0]->cms)] : false;
+
+        if ($device->getCmsModel() != $cmsModel) {
+            $device->setCmsModel($entrances[0]->cms);
+        }
+
+        $cms = container(HouseFeature::class)->getCms($entrances[0]->house_entrance_id);
+
+        foreach ($cms as $item) {
+            $device->setCmsApartmentDeffer(new CmsApartment($item['cms'] + 1, $item['dozen'], intval($item['unit']), $item['apartment']));
+        }
+
+        $device->defferCms();
+    }
+
+    /**
      * @param CommonInterface&IntercomDevice $device
      * @param HouseEntrance $entrance
      * @param array<int, HouseFlat> $flats
@@ -585,7 +612,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $device->setGates($gates);
     }
 
-    public function commonOther(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel): void
+    public function commonOther(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel, bool $individualLevels): void
     {
         $urls = config('syslog_servers')[$deviceModel->syslog];
 
@@ -606,8 +633,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newDDns = clone $dDns;
         $newDDns->enable = false;
 
-        if (!$device->getIndividualLevels()) {
-            $device->setIndividualLevels(true);
+        if ($device->getIndividualLevels() != $individualLevels) {
+            $device->setIndividualLevels($individualLevels);
         }
 
         if ($device->getAutoCollectKey()) {

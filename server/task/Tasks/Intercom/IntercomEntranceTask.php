@@ -53,7 +53,8 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
 
             foreach ($flats as $flat) {
                 $apartment = $flat['flat'];
-                $apartment_levels = array_map('intval', explode(',', (string)$entrance['cmsLevels']));
+
+                $apartment_levels = [];
 
                 $flat_entrances = array_filter($flat['entrances'], fn(array $entrance): bool => $entrance['domophoneId'] == $id);
 
@@ -71,8 +72,8 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
                     $apartment,
                     $entrance['shared'] ? false : $flat['cmsEnabled'],
                     $entrance['shared'] ? false : $flat['cmsEnabled'],
-                    $apartment_levels !== [] ? $apartment_levels[0] : null,
-                    count($apartment_levels) > 1 ? $apartment_levels[1] : null,
+                    array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
+                    array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
                     $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
                 ));
 

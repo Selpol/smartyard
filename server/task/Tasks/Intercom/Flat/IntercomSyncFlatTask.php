@@ -73,7 +73,6 @@ class IntercomSyncFlatTask extends Task
             $apartment = $flat['flat'];
 
             $apartment_levels = [];
-            $entrance_levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance['cmsLevels'] ?? ''), static fn(string $value): bool => $value !== ''));
 
             $flat_entrances = array_filter($flat['entrances'], static fn($entrance): bool => $entrance['domophoneId'] == $id);
 
@@ -94,8 +93,8 @@ class IntercomSyncFlatTask extends Task
                 $apartment,
                 !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
                 !$entrance['shared'] && !$blockCall,
-                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : (array_key_exists(0, $entrance_levels) ? $entrance_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null))),
-                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : (array_key_exists(1, $entrance_levels) ? $entrance_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null))),
+                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
+                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
                 ($entrance['shared'] || $blockCall) ? [] : [sprintf('1%09d', $flat['flatId'])],
             );
 
