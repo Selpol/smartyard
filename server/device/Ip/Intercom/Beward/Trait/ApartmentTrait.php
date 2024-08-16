@@ -24,7 +24,7 @@ trait ApartmentTrait
             return [];
         }
 
-        $end = intval(substr((string) array_key_last($response), 5, -2));
+        $end = intval(substr((string)array_key_last($response), 5, -2));
 
         $result = [];
 
@@ -83,7 +83,7 @@ trait ApartmentTrait
         $params['DoorOpenLevel'] = $apartment->quiescent;
 
         if ($apartment->numbers !== []) {
-            $sipNumbers = array_merge([$apartment], $apartment->numbers);
+            $sipNumbers = array_merge([$apartment->apartment], $apartment->numbers);
             $counter = count($sipNumbers);
 
             for ($i = 1; $i <= $counter; ++$i) {
