@@ -41,7 +41,7 @@ trait ApartmentTrait
                 $response['PhonesActive' . $i] === 'on',
                 intval($response['HandsetUpLevel' . $i]),
                 intval($response['DoorOpenLevel' . $i]),
-                array_values($response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_1', 'Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value): bool => $value !== '') : [])
+                array_values($response['PhonesActive' . $i] === 'on' ? array_filter(array_map(static fn(string $value) => $response[$value], ['Phone' . $i . '_2', 'Phone' . $i . '_3', 'Phone' . $i . '_4', 'Phone' . $i . '_5']), static fn(string $value): bool => $value !== '') : [])
             );
         }
 
