@@ -71,6 +71,8 @@ trait ApartmentTrait
 
     public function setApartment(Apartment $apartment): void
     {
+        usleep(75000);
+
         $params = [
             'action' => 'set',
             'Number' => $apartment->apartment,

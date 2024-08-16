@@ -295,14 +295,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 }
             }
         }
-
-        if (!$device->getIndividualLevels()) {
-            $device->setIndividualLevels(true);
-        }
-
-        if ($device->getAutoCollectKey()) {
-            $device->setAutoCollectKey(false);
-        }
     }
 
     /**
@@ -615,6 +607,14 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newDDns = clone $dDns;
         $newDDns->enable = false;
+
+        if (!$device->getIndividualLevels()) {
+            $device->setIndividualLevels(true);
+        }
+
+        if ($device->getAutoCollectKey()) {
+            $device->setAutoCollectKey(false);
+        }
 
         if (!$newDDns->equal($dDns)) {
             $device->setDDns($newDDns);
