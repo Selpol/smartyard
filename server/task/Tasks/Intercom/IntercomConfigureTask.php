@@ -89,7 +89,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $this->common($device, $entrance, $clean, $ntp);
         }
 
-        if ($entrance !== null) {
+        if ($entrance instanceof HouseEntrance) {
             $this->setProgress(30);
 
             if ($device instanceof CmsInterface) {
@@ -192,7 +192,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $videoOverlay = $device->getVideoOverlay();
 
-        if ($entrance !== null) {
+        if ($entrance instanceof HouseEntrance) {
             $newVideoOverlay = clone $videoOverlay;
             $newVideoOverlay->title = $entrance->caller_id;
 
@@ -270,7 +270,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $device->setRoom($newRoom);
         }
 
-        if ($entrance !== null) {
+        if ($entrance instanceof HouseEntrance) {
             $relay = $device->getRelay($entrance->domophone_output ?? 0);
 
             $newRelay = clone $relay;
@@ -312,6 +312,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         foreach ($houseFlats as $flat) {
             if (!array_key_exists(intval($flat->flat), $flats)) {
                 $flats[intval($flat->flat)] = $flat;
+            }
+
+            if ($device->model->vendor === 'BEWARD' && $entrance->shared === 1) {
+                continue;
             }
 
             $flatEntrances = container(DatabaseService::class)->get('SELECT cms_levels FROM houses_entrances_flats WHERE house_entrance_id = :entrance_id AND house_flat_id = :flat_id', ['entrance_id' => $entrance->house_entrance_id, 'flat_id' => $flat->house_flat_id]);
@@ -514,7 +518,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $firstFlat = HouseFlat::fetch(criteria()->in('house_flat_id', $flatsIds)->equal('address_house_id', $housesEntrance['address_house_id'])->asc('cast(flat AS INTEGER)')->limit(1));
             $lastFlat = HouseFlat::fetch(criteria()->in('house_flat_id', $flatsIds)->equal('address_house_id', $housesEntrance['address_house_id'])->desc('cast(flat AS INTEGER)')->limit(1));
 
-            if ($firstFlat == null || $lastFlat == null) {
+            if ($firstFlat == null) {
+                continue;
+            }
+
+            if ($lastFlat == null) {
                 continue;
             }
 
