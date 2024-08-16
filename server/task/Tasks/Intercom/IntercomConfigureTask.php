@@ -96,12 +96,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         if ($entrances !== []) {
             $this->setProgress(30);
 
-            if ($device instanceof CmsInterface) {
-                $this->cms($device, $entrances);
-            }
-
-            $this->setProgress(50);
-
             if ($device instanceof ApartmentInterface) {
                 /** @var array<int, HouseFlat> $flats */
                 $flats = [];
@@ -111,20 +105,20 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 if ($device instanceof KeyHandlerInterface) {
                     $device->handleKey($flats, $entrances);
                 } elseif (count($flats) > 0) {
-                    $this->setProgress(80);
+                    $this->setProgress(60);
                     if ($device instanceof KeyInterface) {
                         $this->key($device, $flats);
                     }
                 }
 
-                $this->setProgress(90);
+                $this->setProgress(70);
 
                 if (count($flats) > 0) {
                     if ($device instanceof CodeInterface) {
                         $this->code($device, $flats);
                     }
 
-                    $this->setProgress(95);
+                    $this->setProgress(75);
 
                     if ($device instanceof CommonInterface && $entrances[0]->shared) {
                         $this->commonGates($device, $entrances[0], $flats);
@@ -133,7 +127,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             }
         }
 
-        $this->setProgress(98);
+        $this->setProgress(85);
 
         if ($device instanceof CommonInterface) {
             $this->commonOther($device, $deviceModel);
@@ -143,7 +137,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if ($device instanceof AudioInterface) {
                 $this->audio($device);
             }
+        }
 
+        if ($entrances !== [] && $device instanceof CmsInterface) {
+            $this->cms($device, $entrances);
+        }
+
+        if ($deviceIntercom->first_time == 0) {
             $deviceIntercom->first_time = 1;
 
             $deviceIntercom->update();
@@ -344,7 +344,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         foreach ($entrances as $entrance) {
             $entrancesFlats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
-            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', array_map(static fn(array $flat) => $flat['house_flat_id'], $entrancesFlats)));
+            $houseFlats = HouseFlat::fetchAll(criteria()->in('house_flat_id', array_map(static fn(array $flat) => $flat['house_flat_id'], $entrancesFlats))->asc('cast(flat AS INTEGER)'));
 
             if ($houseFlats === []) {
                 continue;
