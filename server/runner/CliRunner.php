@@ -88,9 +88,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         } elseif ($group === 'amqp') {
             if ($command === 'check') {
                 return $this->amqpCheck();
+            } else {
+                echo $this->help('amqp');
             }
-
-            echo $this->help('amqp');
         } elseif ($group === 'admin') {
             if ($command === 'password') {
                 $this->adminPassword($arguments['admin:password']);
@@ -158,6 +158,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         } elseif ($group === 'task') {
             if ($command === 'unique') {
                 $this->taskUnique();
+            } else {
+                echo $this->help('task');
             }
         } elseif ($group === 'inbox') {
             if ($command === 'server') {
@@ -185,7 +187,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $counter = count($arguments);
 
         for ($i = 1; $i < $counter; ++$i) {
-            $a = explode('=', (string) $arguments[$i]);
+            $a = explode('=', (string)$arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }
@@ -937,8 +939,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $max = strlen($header);
 
                 foreach ($values as $value) {
-                    if (strlen((string) $value[$header]) > $max) {
-                        $max = strlen((string) $value[$header]);
+                    if (strlen((string)$value[$header]) > $max) {
+                        $max = strlen((string)$value[$header]);
                     }
                 }
 
