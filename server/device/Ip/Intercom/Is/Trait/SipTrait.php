@@ -24,7 +24,7 @@ trait SipTrait
         $response = $this->get('/sip/settings');
         $remote = $response['remote'];
 
-        return new Sip($remote['username'], $remote['password'], $remote['domain'], $remote['port']);
+        return new Sip($remote['username'] ?? '', $remote['password'] ?? '', $remote['domain'] ?? '', $remote['port'] ?? 0);
     }
 
     public function getSipOption(): SipOption
