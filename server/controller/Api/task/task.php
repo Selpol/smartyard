@@ -7,6 +7,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Task\TaskFeature;
+use Selpol\Task\Tasks\Plog\PlogCallTask;
+use Selpol\Task\Tasks\Plog\PlogOpenTask;
 
 readonly class task extends Api
 {
@@ -26,7 +28,15 @@ readonly class task extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('title', $validate['title'])->like('message', $validate['message'])->equal('class', $validate['class'])->desc('created_at');
+        $criteria = criteria()->like('title', $validate['title'])->like('message', $validate['message'])->desc('created_at');
+
+        if ($validate['class']) {
+            $criteria->equal('class', $validate['class']);
+        } else {
+            $criteria->simple('class', '!=', PlogCallTask::class);
+
+            $criteria->simple('class', '!=', PlogOpenTask::class);
+        }
 
         return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], $criteria));
     }
