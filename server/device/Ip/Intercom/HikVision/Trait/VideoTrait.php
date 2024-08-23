@@ -30,7 +30,7 @@ trait VideoTrait
     {
         $response = $this->get('/ISAPI/System/Video/inputs/channels/1');
 
-        return new VideoOverlay($response['name']);
+        return new VideoOverlay(array_key_exists('VideoInputChannel', $response) && is_string($response['VideoInputChannel']['name']) ? $response['VideoInputChannel']['name'] : null);
     }
 
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
