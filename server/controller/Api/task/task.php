@@ -33,9 +33,7 @@ readonly class task extends Api
         if ($validate['class']) {
             $criteria->equal('class', $validate['class']);
         } else {
-            $criteria->simple('class', '!=', PlogCallTask::class);
-
-            $criteria->simple('class', '!=', PlogOpenTask::class);
+            $criteria->simple('class', 'NOT IN', '(\'' . PlogCallTask::class . '\', \'' . PlogOpenTask::class . '\')');
         }
 
         return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], $criteria));
