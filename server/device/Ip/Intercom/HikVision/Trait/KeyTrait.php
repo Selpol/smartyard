@@ -87,7 +87,7 @@ trait KeyTrait
 
     public function handleKey(array $flats, HouseEntrance $entrance): void
     {
-        $flats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id IN (' . implode(', ', array_map(static fn(HouseEntrance $entrance) => $entrance->house_entrance_id, $entrances)) . ')');
+        $flats = container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
         $keys = HouseKey::fetchAll(criteria()->equal('access_type', 2)->in('access_to', array_map(static fn(array $flat) => $flat['house_flat_id'], $flats)));
 
         /** @var array<string, Key> $rfidKeys */
