@@ -123,6 +123,8 @@ trait KeyTrait
             }
 
             $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastUser['id'], 'cardNo' => sprintf("%'.010d", hexdec($key->rfid)), 'cardType' => 'normalCard']]);
+
+            $lastUser['count']++;
         }
 
         foreach ($rfidKeys as $key) {
@@ -167,7 +169,7 @@ trait KeyTrait
         try {
             $response = $this->post('/ISAPI/AccessControl/UserInfo/Search?format=json', ['UserInfoSearchCond' => ['searchID' => strval($count), 'maxResults' => 1, 'searchResultPosition' => $count - 1]]);
 
-            if (!array_key_exists('responseStatusStrg', $response) || $response['responseStatusStrg'] !== 'OK') {
+            if (!array_key_exists('responseStatusStrg', $response['UserInfoSearch']) || $response['UserInfoSearch']['responseStatusStrg'] !== 'OK') {
                 return null;
             }
 
