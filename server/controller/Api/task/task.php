@@ -28,13 +28,7 @@ readonly class task extends Api
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('title', $validate['title'])->like('message', $validate['message'])->desc('created_at');
-
-        if ($validate['class']) {
-            $criteria->equal('class', $validate['class']);
-        } else {
-            $criteria->simple('class', 'NOT IN', '(\'' . PlogCallTask::class . '\', \'' . PlogOpenTask::class . '\')');
-        }
+        $criteria = criteria()->like('title', $validate['title'])->like('message', $validate['message'])->equal('class', $validate['class'])->desc('created_at');
 
         return self::success(\Selpol\Entity\Model\Task::fetchPage($validate['page'], $validate['size'], $criteria));
     }
