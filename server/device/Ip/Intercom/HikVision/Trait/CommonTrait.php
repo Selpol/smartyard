@@ -35,7 +35,7 @@ trait CommonTrait
         $response = $this->get('/ISAPI/Event/notification/httpHosts');
         $notification = $response['HttpHostNotification'];
 
-        return new Syslog($notification['ipAddress'], intval($notification['portNo']));
+        return new Syslog($notification['ipAddress'] ?? '', intval($notification['portNo']) ?? 0);
     }
 
     public function getMifare(): Mifare
