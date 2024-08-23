@@ -99,14 +99,6 @@ trait KeyTrait
 
         $lastUser = $this->getLastUser();
 
-        if ($lastUser == null) {
-            $id = '1';
-
-            $this->addUser($id, date('Y-m-d H:i:s'));
-
-            $lastUser = ['id' => $id, 'count' => 0];
-        }
-
         foreach ($keys as $key) {
             if (array_key_exists($key->rfid, $rfidKeys)) {
                 unset($rfidKeys[$key->rfid]);
@@ -114,7 +106,13 @@ trait KeyTrait
                 continue;
             }
 
-            if ($lastUser['count'] == 5) {
+            if ($lastUser == null) {
+                $id = '1';
+
+                $this->addUser($id, date('Y-m-d H:i:s'));
+
+                $lastUser = ['id' => $id, 'count' => 0];
+            } else if ($lastUser['count'] == 5) {
                 $id = (string)(intval($lastUser['id']) + 1);
 
                 $this->addUser($id, date('Y-m-d H:i:s'));
