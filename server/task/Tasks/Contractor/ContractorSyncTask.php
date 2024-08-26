@@ -166,7 +166,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $houseFeature = container(HouseFeature::class);
 
         /** @var IntercomDevice[] $intercoms */
-        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device->ping());
+        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device->pingRaw());
 
         $progress = 50;
         $delta = (100 - 50) / count($flats);
@@ -205,7 +205,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                 foreach ($intercoms as $intercom) {
                     if ($intercom instanceof KeyInterface) {
-                        if (!$intercom->ping()) {
+                        if (!$intercom->pingRaw()) {
                             continue;
                         }
 
