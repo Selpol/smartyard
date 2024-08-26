@@ -75,11 +75,15 @@ readonly class InternalTaskFeature extends TaskFeature
     {
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
-        } else {
+        } else if (is_string($task)) {
             $unique = [$task];
+        } else {
+            $unique = null;
         }
 
-        $this->getRedis()->del('task:unique:' . $unique[0]);
+        if ($unique) {
+            $this->getRedis()->del('task:unique:' . $unique[0]);
+        }
     }
 
     public function clearUnique(): void
