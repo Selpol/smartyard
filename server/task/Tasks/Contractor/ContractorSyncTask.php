@@ -133,7 +133,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
             try {
                 if (array_key_exists($subscriber[0], $subscribersInFlat)) {
                     if (HouseSubscriber::findById($subscriber[0]) instanceof HouseSubscriber && $subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
-                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 0 : 1);
                     }
 
                     unset($subscribersInFlat[$subscriber[0]]);
