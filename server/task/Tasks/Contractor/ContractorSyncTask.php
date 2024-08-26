@@ -137,7 +137,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                     }
 
                     unset($subscribersInFlat[$subscriber[0]]);
-                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 1 : 0)) {
+                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 0 : 1)) {
                     $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
                 } else {
                     $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
@@ -165,7 +165,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
     {
         $houseFeature = container(HouseFeature::class);
 
-        /** @var KeyInterface[] $intercoms */
+        /** @var array<IntercomDevice|KeyInterface> $intercoms */
         $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device instanceof KeyInterface && $device->pingRaw());
 
         $progress = 50;
@@ -205,6 +205,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                 foreach ($intercoms as $intercom) {
                     if (!$intercom->pingRaw()) {
+                        $this->logger?->debug('Skip process intercom ' . $intercom->uri->getHost() . ' for contractor id ' . $this->id);
+
                         continue;
                     }
 
