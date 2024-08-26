@@ -130,16 +130,20 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         }, []);
 
         foreach ($subscribers as $subscriber) {
-            if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                if (HouseSubscriber::findById($subscriber[0]) instanceof HouseSubscriber && $subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
-                    $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
-                }
+            try {
+                if (array_key_exists($subscriber[0], $subscribersInFlat)) {
+                    if (HouseSubscriber::findById($subscriber[0]) instanceof HouseSubscriber && $subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
+                    }
 
-                unset($subscribersInFlat[$subscriber[0]]);
-            } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
-                $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
-            } else {
-                $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                    unset($subscribersInFlat[$subscriber[0]]);
+                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
+                    $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                } else {
+                    $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                }
+            } catch (Throwable $throwable) {
+                $this->logger?->error($throwable);
             }
         }
 

@@ -76,7 +76,7 @@ readonly class InternalTaskFeature extends TaskFeature
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
         } else {
-            $unique = $task;
+            $unique = [$task];
         }
 
         $this->getRedis()->del('task:unique:' . $unique[0]);
