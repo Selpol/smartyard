@@ -130,17 +130,22 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         }, []);
 
         foreach ($subscribers as $subscriber) {
+            $id = $subscriber[0];
+            $role = $subscriber[1] == 1 || $subscriber[1] ? 1 : 0;
+
             try {
-                if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                    if (HouseSubscriber::findById($subscriber[0]) instanceof HouseSubscriber && $subscribersInFlat[$subscriber[0]] !== $subscriber[1]) {
-                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 0 : 1);
+                if (array_key_exists($id, $subscribersInFlat)) {
+                    if (HouseSubscriber::findById($id) instanceof HouseSubscriber && $subscribersInFlat[$id] !== $role) {
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $id, $role);
                     }
 
-                    unset($subscribersInFlat[$subscriber[0]]);
-                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 0 : 1)) {
-                    $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                    unset($subscribersInFlat[$id]);
+
+                    $this->logger?->debug('Обновлен пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
+                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $id, $role)) {
+                    $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
                 } else {
-                    $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+                    $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
                 }
             } catch (Throwable $throwable) {
                 $this->logger?->error($throwable);
