@@ -165,8 +165,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
     {
         $houseFeature = container(HouseFeature::class);
 
-        /** @var IntercomDevice[] $intercoms */
-        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device->pingRaw());
+        /** @var KeyInterface[] $intercoms */
+        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device instanceof KeyInterface && $device->pingRaw());
 
         $progress = 50;
         $delta = (100 - 50) / count($flats);
@@ -204,20 +204,18 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 }
 
                 foreach ($intercoms as $intercom) {
-                    if ($intercom instanceof KeyInterface) {
-                        if (!$intercom->pingRaw()) {
-                            continue;
-                        }
+                    if (!$intercom->pingRaw()) {
+                        continue;
+                    }
 
-                        foreach ($addKeys as $key) {
-                            $intercom->addKey(new Key($key, $flat));
-                        }
+                    foreach ($addKeys as $key) {
+                        $intercom->addKey(new Key($key, $flat));
+                    }
 
-                        if ($this->removeKey) {
-                            foreach ($keysInFlat as $key => $value) {
-                                $houseFeature->deleteKey($value);
-                                $intercom->removeKey(new Key($key, $flat));
-                            }
+                    if ($this->removeKey) {
+                        foreach ($keysInFlat as $key => $value) {
+                            $houseFeature->deleteKey($value);
+                            $intercom->removeKey(new Key($key, $flat));
                         }
                     }
                 }
@@ -228,5 +226,12 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 $this->setProgress($progress);
             }
         }
+    }
+
+    protected function setProgress(float|int $progress): void
+    {
+        $this->logger?->debug('Progress ' . $progress . ' for contractor id ' . $this->id);
+
+        parent::setProgress($progress);
     }
 }
