@@ -131,7 +131,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         foreach ($subscribers as $subscriber) {
             $id = $subscriber[0];
-            $role = $subscriber[1] == 1 || $subscriber[1] ? 1 : 0;
+            $role = $subscriber[1] == 1 || $subscriber[1] ? 0 : 1;
 
             try {
                 if (array_key_exists($id, $subscribersInFlat)) {
