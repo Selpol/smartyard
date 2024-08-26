@@ -137,7 +137,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                     }
 
                     unset($subscribersInFlat[$subscriber[0]]);
-                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1])) {
+                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], ($subscriber[1] == 1 | $subscriber[1] == true) ? 1 : 0)) {
                     $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
                 } else {
                     $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
