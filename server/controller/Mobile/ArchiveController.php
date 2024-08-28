@@ -48,7 +48,7 @@ readonly class ArchiveController extends RbtController
         // проверяем, не был ли уже запрошен данный кусок из архива.
         $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
-        if (array_key_exists('id', $check)) {
+        if (is_array($check) && array_key_exists('id', $check)) {
             return user_response(200, $check['id']);
         }
 
