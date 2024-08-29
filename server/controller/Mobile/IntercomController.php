@@ -45,6 +45,10 @@ readonly class IntercomController extends RbtController
             $params = [];
             $settings = $body['settings'];
 
+            if (!is_array($settings)) {
+                $settings = [];
+            }
+
             if (array_key_exists('CMS', $settings)) {
                 $params["cmsEnabled"] = $settings['CMS'] ? 1 : 0;
             }
