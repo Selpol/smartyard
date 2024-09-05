@@ -9,6 +9,11 @@ trait CodeTrait
     public function getCodes(?int $apartment): array
     {
         $response = $this->get(is_null($apartment) ? '/openCode' : ('/openCode/' . $apartment));
+
+        if (!is_array($response)) {
+            return [];
+        }
+
         $result = array_map(static fn(array $code): Code => new Code($code['code'], $code['panelCode']), $response);
 
         usort($result, static fn(Code $a, Code $b): bool => $a->code > $b->code);

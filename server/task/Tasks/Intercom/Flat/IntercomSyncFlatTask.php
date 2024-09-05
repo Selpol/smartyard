@@ -32,7 +32,7 @@ class IntercomSyncFlatTask extends Task
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat) {
+        if (!is_array($flat)) {
             return false;
         }
 
@@ -40,10 +40,12 @@ class IntercomSyncFlatTask extends Task
 
         if ($entrances && count($entrances) > 0) {
             foreach ($entrances as $entrance) {
-                $id = $entrance['domophoneId'];
+                if (is_array($entrance)) {
+                    $id = $entrance['domophoneId'];
 
-                if ($id) {
-                    $this->apartment($id, $flat, $entrance);
+                    if ($id) {
+                        $this->apartment($id, $flat, $entrance);
+                    }
                 }
             }
 
