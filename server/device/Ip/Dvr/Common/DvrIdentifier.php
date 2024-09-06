@@ -41,9 +41,9 @@ readonly class DvrIdentifier
         }
 
         $hash = substr($segments[0], 0, 40);
-        $salt = substr($segments[0], 40, 72);
-        $start = intval(substr($segments[0], 72, 82));
-        $end = intval(substr($segments[0], 82, 92));
+        $salt = substr($segments[0], 40, 32);
+        $start = intval(substr($segments[0], 72, 10));
+        $end = intval(substr($segments[0], 82, 10));
 
         $camera = intval($segments[1]);
         $dvr = intval($segments[2]);
