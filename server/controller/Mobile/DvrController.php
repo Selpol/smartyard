@@ -5,9 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Block\SubscriberBlock;
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Cache\RedisCache;
 use Selpol\Controller\RbtController;
-use Selpol\Controller\Request\Mobile\Dvr\DvrAcquireRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrEventRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
@@ -24,6 +22,7 @@ use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\AuthMiddleware;
@@ -46,7 +45,7 @@ readonly class DvrController extends RbtController
         ],
         excludes: [RateLimitMiddleware::class]
     )]
-    public function identifier(DvrIdentifierRequest $request, BlockFeature $blockFeature, RedisCache $cache): ResponseInterface
+    public function identifier(DvrIdentifierRequest $request, BlockFeature $blockFeature): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id);
 
@@ -94,14 +93,11 @@ readonly class DvrController extends RbtController
         }
 
         try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, $this->getUser()->getIdentifier()], 360);
-
             return user_response(data: [
-                'identifier' => $identifier,
+                'identifier' => ['value' => $identifier->toToken(), 'start' => $identifier->start, 'end' => $identifier->end],
 
                 'type' => $dvr->server->type,
 
-                'acquire' => $dvr->acquire(null, null),
                 'capabilities' => $dvr->capabilities()
             ]);
         } catch (Throwable $throwable) {
@@ -111,47 +107,16 @@ readonly class DvrController extends RbtController
         return user_response(500, message: 'Ошибка состояния камеры');
     }
 
-    #[Get('/acquire/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function acquire(DvrAcquireRequest $request, RedisCache $cache): ResponseInterface
-    {
-        try {
-            $result = $this->process($cache, $request->id);
-
-            if ($result instanceof ResponseInterface) {
-                return $result;
-            }
-
-            /**
-             * @var DvrIdentifier $identifier
-             * @var DeviceCamera $camera
-             * @var DvrDevice $dvr
-             */
-            list($identifier, $camera, $dvr) = $result;
-
-            return user_response(data: $dvr->acquire($identifier, $camera));
-        } catch (Throwable $throwable) {
-            file_logger('dvr')->error($throwable);
-        }
-
-        return user_response(500, message: 'Ошибка состояния камеры');
-    }
-
     #[Get('/screenshot/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
-    public function screenshot(DvrScreenshotRequest $request, RedisCache $cache): ResponseInterface
+    public function screenshot(DvrScreenshotRequest $request): ResponseInterface
     {
         try {
-            $result = $this->process($cache, $request->id);
-
-            if ($result instanceof ResponseInterface) {
-                return $result;
-            }
-
             /**
              * @var DvrIdentifier $identifier
              * @var DeviceCamera $camera
              * @var DvrDevice $dvr
              */
-            list($identifier, $camera, $dvr) = $result;
+            list($identifier, $camera, $dvr) = $this->process($request->id);
 
             $screenshot = $dvr->screenshot($identifier, $camera, $request->time);
 
@@ -168,20 +133,14 @@ readonly class DvrController extends RbtController
     }
 
     #[Get('/preview/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
-    public function preview(DvrPreviewRequest $request, RedisCache $cache): ResponseInterface
+    public function preview(DvrPreviewRequest $request): ResponseInterface
     {
-        $result = $this->process($cache, $request->id);
-
-        if ($result instanceof ResponseInterface) {
-            return $result;
-        }
-
         /**
          * @var DvrIdentifier $identifier
          * @var DeviceCamera $camera
          * @var DvrDevice $dvr
          */
-        list($identifier, $camera, $dvr) = $result;
+        list($identifier, $camera, $dvr) = $this->process($request->id);
 
         if (!is_null($request->time) && is_null($identifier->subscriber)) {
             return user_response(403, message: 'Доступ к предпросмотру архива запрещен');
@@ -197,20 +156,14 @@ readonly class DvrController extends RbtController
     }
 
     #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
-    public function video(DvrVideoRequest $request, RedisCache $cache): ResponseInterface
+    public function video(DvrVideoRequest $request): ResponseInterface
     {
-        $result = $this->process($cache, $request->id);
-
-        if ($result instanceof ResponseInterface) {
-            return $result;
-        }
-
         /**
          * @var DvrIdentifier $identifier
          * @var DeviceCamera $camera
          * @var DvrDevice $dvr
          */
-        list($identifier, $camera, $dvr) = $result;
+        list($identifier, $camera, $dvr) = $this->process($request->id);
 
         if ($request->stream == 'archive' && is_null($identifier->subscriber)) {
             return user_response(403, message: 'Доступ к архиву запрещен');
@@ -232,9 +185,9 @@ readonly class DvrController extends RbtController
     }
 
     #[Get('/timeline/{id}')]
-    public function timeline(DvrTimelineRequest $request, RedisCache $cache): ResponseInterface
+    public function timeline(DvrTimelineRequest $request): ResponseInterface
     {
-        $result = $this->process($cache, $request->id);
+        $result = $this->process($request->id);
 
         if ($result instanceof ResponseInterface) {
             return $result;
@@ -257,20 +210,14 @@ readonly class DvrController extends RbtController
     }
 
     #[Get('/event/{id}')]
-    public function event(DvrEventRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature, RedisCache $cache): ResponseInterface
+    public function event(DvrEventRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
-        $result = $this->process($cache, $request->id);
-
-        if ($result instanceof ResponseInterface) {
-            return $result;
-        }
-
         /**
          * @var DvrIdentifier $identifier
          * @var DeviceCamera $camera
          * @var DvrDevice $dvr
          */
-        list($identifier, $camera, $dvr) = $result;
+        list($identifier, $camera, $dvr) = $this->process($request->id);
 
         $dvrEvents = $dvr->event($identifier, $camera, ['after' => $request->after, 'before' => $request->before, 'token' => $request->token]);
 
@@ -337,20 +284,14 @@ readonly class DvrController extends RbtController
     }
 
     #[Get('/command/{id}', excludes: [RateLimitMiddleware::class])]
-    public function command(DvrCommandRequest $request, RedisCache $cache): ResponseInterface
+    public function command(DvrCommandRequest $request): ResponseInterface
     {
-        $result = $this->process($cache, $request->id);
-
-        if ($result instanceof ResponseInterface) {
-            return $result;
-        }
-
         /**
          * @var DvrIdentifier $identifier
          * @var DeviceCamera $camera
          * @var DvrDevice $dvr
          */
-        list($identifier, $camera, $dvr) = $result;
+        list($identifier, $camera, $dvr) = $this->process($request->id);
 
         $command = $dvr->command(
             $identifier,
@@ -358,16 +299,9 @@ readonly class DvrController extends RbtController
             DvrContainer::from($request->container),
             DvrStream::from($request->stream),
             DvrCommand::from($request->command),
-            [
-                'seek' => $request->seek,
-                'speed' => $request->speed,
-
-                'token' => $request->token,
-
-                'from' => $request->from,
-                'to' => $request->to
-            ]
+            ['seek' => $request->seek, 'speed' => $request->speed, 'token' => $request->token, 'from' => $request->from, 'to' => $request->to]
         );
+
         if (!$command) {
             return user_response(404, message: 'Команда не доступна');
         }
@@ -379,42 +313,27 @@ readonly class DvrController extends RbtController
         return user_response(data: $command);
     }
 
-    private function process(RedisCache $cache, string $id): ResponseInterface|array
+    /**
+     * @param string $token
+     * @return array
+     * @throws KernelException
+     */
+    private function process(string $token): array
     {
-        try {
-            $value = $cache->get('dvr:' . $id);
+        $identifier = DvrIdentifier::fromToken($token);
 
-            if (!$value) {
-                return user_response(404, message: 'Идентификатор не найден');
-            }
+        $camera = DeviceCamera::findById($identifier->camera);
 
-            $camera = DeviceCamera::findById($value[2]);
-
-            if (!$camera instanceof DeviceCamera) {
-                return user_response(404, message: 'Камера не найдена');
-            }
-
-            $dvr = dvr($camera->dvr_server_id);
-
-            if (!$dvr instanceof DvrDevice) {
-                return user_response(404, message: 'Устройство не найден');
-            }
-
-            if (!$cache->set('dvr:' . $id, $value, 360)) {
-                return user_response(404, message: 'Не удалось обновить идентификатор');
-            }
-
-            $identifier = new DvrIdentifier($id, $value[0], $value[1], $value[3]);
-
-            if (!$identifier->isNotExpired()) {
-                return user_response(400, message: 'Токен доступа устарел');
-            }
-
-            return [$identifier, $camera, $dvr];
-        } catch (Throwable $throwable) {
-            file_logger('dvr')->error($throwable);
+        if (!$camera instanceof DeviceCamera) {
+            throw new KernelException('Камера не найдена');
         }
 
-        return user_response(500, message: 'Ошибка состояния камеры');
+        $dvr = dvr($identifier->dvr);
+
+        if (!$dvr instanceof DvrDevice) {
+            throw new KernelException('Устройство не найдено');
+        }
+
+        return [$identifier, $camera, $dvr];
     }
 }

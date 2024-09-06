@@ -11,7 +11,6 @@ use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Cache\RedisCache;
 use Selpol\Controller\Request\Mobile\Camera\CameraCommonDvrRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraEventsRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraIndexRequest;
@@ -104,7 +103,7 @@ readonly class CameraController extends RbtController
     }
 
     #[Get('/common/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class])]
-    public function commonDvr(CameraCommonDvrRequest $request, RedisCache $cache): ResponseInterface
+    public function commonDvr(CameraCommonDvrRequest $request): ResponseInterface
     {
         $camera = DeviceCamera::findById($request->id, criteria()->equal('common', 1));
 
@@ -125,14 +124,11 @@ readonly class CameraController extends RbtController
         }
 
         try {
-            $cache->set('dvr:' . $identifier->value, [$identifier->start, $identifier->end, $request->id, null], 360);
-
             return user_response(data: [
-                'identifier' => $identifier,
+                'identifier' => ['value' => $identifier->toToken(), 'start' => $identifier->start, 'end' => $identifier->end],
 
                 'type' => $dvr->server->type,
 
-                'acquire' => $dvr->acquire(null, null),
                 'capabilities' => [
                     'poster' => true,
                     'preview' => false,

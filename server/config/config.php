@@ -141,6 +141,10 @@ return [
 
         'group' => [
             'database' => env('FEATURE_GROUP_DB', 'rbt')
+        ],
+
+        'dvr' => [
+            'token' => env('FEATURE_DVR_TOKEN')
         ]
     ],
 

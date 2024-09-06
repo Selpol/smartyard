@@ -141,12 +141,7 @@ class TrassirDvr extends DvrDevice
         $start = $time - 3600 * 192;
         $end = $time + 3600 * 3;
 
-        return new DvrIdentifier($this->getToken($camera, $start, $end), $start, $end, $subscriberId);
-    }
-
-    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
-    {
-        return 180;
+        return new DvrIdentifier($camera->camera_id, $camera->dvr_server_id, $start, $end, $subscriberId);
     }
 
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
@@ -158,7 +153,7 @@ class TrassirDvr extends DvrDevice
 
     public function preview(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?string
     {
-        return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->value;
+        return config_get('api.mobile') . '/dvr/screenshot/' . $identifier->toToken();
     }
 
     public function video(DvrIdentifier $identifier, DeviceCamera $camera, DvrContainer $container, DvrStream $stream, array $arguments): ?DvrOutput
@@ -246,7 +241,7 @@ class TrassirDvr extends DvrDevice
 
         foreach ($response as $value) {
             if (array_key_exists('token', $value) && $value['token'] == $arguments['token']) {
-                $start = strtotime((string) $value['day_start']);
+                $start = strtotime((string)$value['day_start']);
 
                 $result = [];
 
@@ -287,7 +282,7 @@ class TrassirDvr extends DvrDevice
             return [];
         }
 
-        $time = strtotime((string) $timelineEvent['day_start']);
+        $time = strtotime((string)$timelineEvent['day_start']);
 
         /** @var string $activities */
         $activities = $timelineEvent['activities'];
@@ -333,7 +328,7 @@ class TrassirDvr extends DvrDevice
             $response = $this->get('/archive_command', ['command' => 'play', 'direction' => 1, 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
             if (array_key_exists('success', $response) && $response['success'] == 1) {
                 if (array_key_exists('first_frame_ts', $response)) {
-                    return ['seek' => strtotime((string) $response['first_frame_ts'])];
+                    return ['seek' => strtotime((string)$response['first_frame_ts'])];
                 }
 
                 return true;
@@ -377,20 +372,12 @@ class TrassirDvr extends DvrDevice
 
             foreach ($response as $value) {
                 if (array_key_exists('token', $value) && $value['token'] === $arguments['token']) {
-                    return ['seek' => strtotime((string) $value['time']), 'speed' => intval($value['speed'])];
+                    return ['seek' => strtotime((string)$value['time']), 'speed' => intval($value['speed'])];
                 }
             }
         }
 
         return null;
-    }
-
-    private function getToken(DeviceCamera $camera, int $start, int $end): string
-    {
-        $salt = bin2hex(openssl_random_pseudo_bytes(16));
-        $hash = sha1($camera->dvr_stream . $start . $end . $this->server->token . $salt);
-
-        return $hash . '-' . $salt;
     }
 
     private function getRtspStream(DeviceCamera $camera, string $stream): ?array

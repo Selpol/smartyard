@@ -35,11 +35,6 @@ abstract class DvrDevice extends IpDevice
         return null;
     }
 
-    public function acquire(?DvrIdentifier $identifier, ?DeviceCamera $camera): int
-    {
-        return 0;
-    }
-
     public function capabilities(): array
     {
         return [
