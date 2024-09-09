@@ -104,9 +104,9 @@ class FlussonicDvr extends DvrDevice
                 return new DvrOutput($container, $this->getUrl($camera) . '/index.m3u8?token=' . $this->getToken($camera, $identifier->start, $identifier->end));
             }
 
-            if ($container === DvrContainer::RTC) {
+            if ($container === DvrContainer::STREAMER_RTC || $container = DvrContainer::STREAMER_RTSP) {
                 $stream = new Stream(container(StreamerFeature::class)->random());
-                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output(StreamOutput::RTC);
+                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
@@ -125,6 +125,7 @@ class FlussonicDvr extends DvrDevice
             $from = $timeline[0][0];
             $to = $timeline[0][1];
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
+
             return new DvrOutput(
                 DvrContainer::HLS,
                 new DvrArchive($this->getUrl($camera) . '/archive-' . $seek . '-' . ($to - $seek) . '.m3u8?token=' . $this->getToken($camera, $identifier->start, $identifier->end) . '&event=true', $from, $to, $seek, $camera->timezone, null)

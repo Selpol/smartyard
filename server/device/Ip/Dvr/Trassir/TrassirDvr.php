@@ -162,9 +162,11 @@ class TrassirDvr extends DvrDevice
             if ($container === DvrContainer::RTSP) {
                 $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
 
-                if ($rtsp != null) {
-                    return new DvrOutput($container, $rtsp[0]);
+                if ($rtsp == null) {
+                    return null;
                 }
+
+                return new DvrOutput($container, $rtsp[0]);
             }
 
             if ($container === DvrContainer::HLS) {
@@ -173,23 +175,27 @@ class TrassirDvr extends DvrDevice
                 if (array_key_exists('success', $response) && $response['success']) {
                     return new DvrOutput($container, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
                 }
-            } elseif ($container === DvrContainer::RTC) {
-                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
-
-                if ($rtsp != null) {
-                    $stream = new Stream(container(StreamerFeature::class)->random());
-
-                    $stream->source($rtsp[0])->input(StreamInput::RTSP)->output(StreamOutput::RTC);
-
-                    container(StreamerFeature::class)->stream($stream);
-
-                    return new DvrOutput(
-                        $container,
-                        new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
-                    );
-                }
 
                 return null;
+            }
+
+            if ($container === DvrContainer::STREAMER_RTC || $container === DvrContainer::STREAMER_RTSP) {
+                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
+
+                if ($rtsp == null) {
+                    return null;
+                }
+
+                $stream = new Stream(container(StreamerFeature::class)->random());
+
+                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+
+                container(StreamerFeature::class)->stream($stream);
+
+                return new DvrOutput(
+                    $container,
+                    new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                );
             }
         } elseif ($stream === DvrStream::ARCHIVE) {
             $depth = $this->get('/s/archive/timeline', ['channel' => $camera->dvr_stream, 'sid' => $this->getSid()]);
@@ -211,7 +217,7 @@ class TrassirDvr extends DvrDevice
                 container(StreamerFeature::class)->stream($stream);
 
                 return new DvrOutput(
-                    DvrContainer::RTC,
+                    DvrContainer::STREAMER_RTC,
                     new DvrArchive(
                         new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput()),
                         $from,

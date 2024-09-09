@@ -5,4 +5,5 @@ namespace Selpol\Feature\Streamer;
 enum StreamOutput: string
 {
     case RTC = 'rtc';
+    case RTSP = 'rtsp';
 }
