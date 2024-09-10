@@ -136,6 +136,7 @@ readonly class CameraController extends RbtController
                     'online' => true,
                     'archive' => false,
 
+                    'command' => [],
                     'speed' => []
                 ]
             ]);

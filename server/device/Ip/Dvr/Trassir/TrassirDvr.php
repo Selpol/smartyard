@@ -212,12 +212,12 @@ class TrassirDvr extends DvrDevice
             if ($rtsp != null) {
                 $stream = new Stream(container(StreamerFeature::class)->random());
 
-                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output(StreamOutput::RTC);
+                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
                 return new DvrOutput(
-                    DvrContainer::STREAMER_RTC,
+                    $container,
                     new DvrArchive(
                         new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput()),
                         $from,
