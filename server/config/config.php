@@ -62,7 +62,9 @@ return [
     'redis' => [
         'host' => env('REDIS_HOST', '127.0.0.1'),
         'port' => intval(env('REDIS_PORT', '6379')),
-        'password' => env('REDIS_PASSWORD'),
+
+        'user' => env('REDIS_USER'),
+        'password' => env('REDIS_USER_PASSWORD'),
 
         'cache_ttl' => 3600,
         'token_idle_ttl' => 3600,
