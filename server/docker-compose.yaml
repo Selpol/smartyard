@@ -37,10 +37,12 @@ services:
     container_name: redis
     ports:
       - "6379:6379"
+    env_file:
+      - .env
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
-      - REDIS_PASSWORD=${REDIS_PASSWORD}
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD"
     networks:
       backend:
   amqp:
