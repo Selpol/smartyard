@@ -24,7 +24,7 @@ class RedisService implements LoggerAwareInterface
             $redis->connect(config_get('redis.host'), config_get('redis.port'));
 
             if ($password = config_get('redis.password')) {
-                $redis->auth($password);
+                $redis->auth(['default', $password]);
             }
 
             $this->redis = $redis;
