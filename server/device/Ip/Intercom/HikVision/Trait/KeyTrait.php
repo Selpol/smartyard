@@ -134,8 +134,8 @@ trait KeyTrait
     {
         $now = new DateTime();
 
-        $beginTime = $now->format('Y-m-dTH:i:s');
-        $endTime = $now->add(new DateInterval('P10Y'))->format('Y-m-dTH:i:s');
+        $beginTime = str_replace(' ', 'T', $now->format('Y-m-d H:i:s'));
+        $endTime = str_replace(' ', 'T', $now->add(new DateInterval('P10Y'))->format('Y-m-d H:i:s'));
 
         $this->post('/ISAPI/AccessControl/UserInfo/Record?format=json', [
             'UserInfo' => [
