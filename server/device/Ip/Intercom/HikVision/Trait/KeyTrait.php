@@ -35,7 +35,7 @@ trait KeyTrait
 
         $pages = (int)ceil($response['CardInfoSearch']['totalMatches'] / 30);
 
-        for ($i = 2; $i < $pages; ++$i) {
+        for ($i = 2; $i <= $pages; ++$i) {
             $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => ($i - 1) * 30]]);
 
             $process($response);
