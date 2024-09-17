@@ -11,9 +11,9 @@ use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, ?int $id = null)
     {
-        parent::__construct($uri, $password);
+        parent::__construct($uri, $password, $id);
 
         $this->setLogger(file_logger('intercom'));
     }

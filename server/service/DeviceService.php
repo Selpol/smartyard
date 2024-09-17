@@ -52,16 +52,16 @@ class DeviceService
             return $this->cameras[$id];
         }
 
-        $camera = $this->camera($camera->model, $camera->url, $camera->credentials);
+        $camera = $this->camera($camera->model, $camera->url, $camera->credentials, $camera->camera_id);
         $this->cameras[$id] = $camera;
 
         return $camera;
     }
 
-    public function camera(string $model, string $url, #[SensitiveParameter] string $password): ?CameraDevice
+    public function camera(string $model, string $url, #[SensitiveParameter] string $password, ?int $id = null): ?CameraDevice
     {
         if (($model = CameraModel::model($model)) instanceof CameraModel) {
-            return new $model->class(new Uri($url), $password, $model);
+            return new $model->class(new Uri($url), $password, $model, $id);
         }
 
         return null;
@@ -88,16 +88,16 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        $intercom = $this->intercom($intercom->model, $intercom->url, $intercom->credentials);
+        $intercom = $this->intercom($intercom->model, $intercom->url, $intercom->credentials, $intercom->house_domophone_id);
         $this->intercoms[$id] = $intercom;
 
         return $intercom;
     }
 
-    public function intercom(string $model, string $url, #[SensitiveParameter] string $password): ?IntercomDevice
+    public function intercom(string $model, string $url, #[SensitiveParameter] string $password, ?int $id = null): ?IntercomDevice
     {
         if (($model = IntercomModel::model($model)) instanceof IntercomModel) {
-            return new $model->class(new Uri($url), $password, $model);
+            return new $model->class(new Uri($url), $password, $model, $id);
         }
 
         return null;
@@ -139,7 +139,7 @@ class DeviceService
     public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password, DvrServer $server): ?DvrDevice
     {
         if (($model = DvrModel::model($model)) instanceof DvrModel) {
-            return new $model->class(new Uri($url), $login, $password, $model, $server);
+            return new $model->class(new Uri($url), $login, $password, $model, $server, $server->id);
         }
 
         return null;

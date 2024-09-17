@@ -24,7 +24,7 @@ abstract class IpDevice extends Device
 
     protected ClientOption $clientOption;
 
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, ?int $id = null)
     {
         parent::__construct($uri);
 
@@ -33,6 +33,14 @@ abstract class IpDevice extends Device
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
 
         $this->debug = config_get('debug', false);
+
+        if (!is_null($id) && !$this->debug) {
+            $ids = config_get('feature.intercom.debug', []);
+
+            if (in_array($id, $ids)) {
+                $this->debug = true;
+            }
+        }
 
         $this->setLogger(file_logger('ip'));
     }

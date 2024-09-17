@@ -33,9 +33,9 @@ class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoI
 
     public string $login = 'admin';
 
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model, ?int $id = null)
     {
-        parent::__construct($uri, $password, $model);
+        parent::__construct($uri, $password, $model, $id);
 
         $this->clientOption->anySafe($this->login, $this->password);
     }
