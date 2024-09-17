@@ -240,7 +240,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newNtp->port = $ntpServer[1];
 
         if ($device->model->isHikVision()) {
-            $newNtp->timezone = config('timezone', 'CST-3:00:00');
+            $newNtp->timezone = 'CST-3:00:00';
         } else {
             $newNtp->timezone = config('timezone', 'Europe/Moscow');
         }
