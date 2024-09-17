@@ -88,7 +88,7 @@ trait CommonTrait
     public function setNtp(Ntp $ntp): void
     {
         $date = new DateTimeImmutable();
-        $time = $date->format('Y-m-dTH:i:s');
+        $time = str_replace(' ', 'T', $date->format('Y-m-d H:i:s'));
 
         $this->put('/ISAPI/System/time', "<Time><timeMode>NTP</timeMode><localTime>" . $time . "</localTime>><timeZone>" . $ntp->timezone . "</timeZone></Time>", ['Content-Type' => 'application/xml']);
         $this->put('/ISAPI/System/time/ntpServers/1', "<NTPServer><id>1</id><addressingFormatType>ipaddress</addressingFormatType><ipAddress>" . $ntp->server . "</ipAddress><portNo>" . $ntp->port . "</portNo><synchronizeInterval>60</synchronizeInterval></NTPServer>", ['Content-Type' => 'application/xml']);
