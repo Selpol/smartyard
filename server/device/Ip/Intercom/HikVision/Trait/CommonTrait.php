@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Intercom\HikVision\Trait;
 
+use DateTimeImmutable;
 use Selpol\Device\Ip\Intercom\Setting\Common\DDns;
 use Selpol\Device\Ip\Intercom\Setting\Common\Gate;
 use Selpol\Device\Ip\Intercom\Setting\Common\Mifare;
@@ -86,7 +87,10 @@ trait CommonTrait
 
     public function setNtp(Ntp $ntp): void
     {
-        $this->put('/ISAPI/System/time', "<Time><timeMode>NTP</timeMode><timeZone>" . $ntp->timezone . "</timeZone></Time>", ['Content-Type' => 'application/xml']);
+        $date = new DateTimeImmutable();
+        $time = $date->format('Y-m-dTH:i:s');
+
+        $this->put('/ISAPI/System/time', "<Time><timeMode>NTP</timeMode><localTime>" . $time . "</localTime>><timeZone>" . $ntp->timezone . "</timeZone></Time>", ['Content-Type' => 'application/xml']);
         $this->put('/ISAPI/System/time/ntpServers/1', "<NTPServer><id>1</id><addressingFormatType>ipaddress</addressingFormatType><ipAddress>" . $ntp->server . "</ipAddress><portNo>" . $ntp->port . "</portNo><synchronizeInterval>60</synchronizeInterval></NTPServer>", ['Content-Type' => 'application/xml']);
     }
 
