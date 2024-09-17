@@ -247,6 +247,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if (!$newNtp->equal($ntp)) {
             $device->setNtp($newNtp);
+
+            sleep(1);
         }
 
         $key = env('MIFARE_KEY');
