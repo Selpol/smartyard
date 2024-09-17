@@ -238,7 +238,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newNtp = clone $ntp;
         $newNtp->server = $ntpServer[0];
         $newNtp->port = $ntpServer[1];
-        $newNtp->timezone = config('timezone', 'Europe/Moscow');
+
+        if ($device->model->isHikVision()) {
+            $newNtp->timezone = config('timezone', 'CST-3:00:00');
+        } else {
+            $newNtp->timezone = config('timezone', 'Europe/Moscow');
+        }
 
         if (!$newNtp->equal($ntp)) {
             $device->setNtp($newNtp);
@@ -314,7 +319,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 $flats[intval($flat->flat)] = $flat;
             }
 
-            if ($device->model->vendor === 'BEWARD' && $entrance->shared === 1) {
+            if ($device->model->isBeward() && $entrance->shared === 1) {
                 continue;
             }
 

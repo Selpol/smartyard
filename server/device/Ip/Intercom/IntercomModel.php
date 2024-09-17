@@ -47,6 +47,21 @@ class IntercomModel
         ];
     }
 
+    public function isIs(): bool
+    {
+        return $this->vendor === 'IS';
+    }
+
+    public function isBeward(): bool
+    {
+        return $this->vendor === 'BEWARD';
+    }
+
+    public function isHikVision(): bool
+    {
+        return $this->vendor === 'HIKVISION';
+    }
+
     public static function modelsToArray(): array
     {
         return array_map(static fn(IntercomModel $model): array => $model->toArray(), self::models());
