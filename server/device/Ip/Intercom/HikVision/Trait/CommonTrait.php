@@ -19,7 +19,7 @@ trait CommonTrait
         $servers = $this->get('/ISAPI/System/time/ntpServers/1');
 
         if (is_null($servers['ipAddress'])) {
-            return new Ntp('', 123, $time['timeZone']);
+            return new Ntp('', 123, $time['timeZone'] ?? '');
         }
 
         return new Ntp($servers['ipAddress'], intval($servers['port']), $time['timeZone']);
