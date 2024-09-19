@@ -109,8 +109,6 @@ trait KeyTrait
             if ($lastUser == null) {
                 $id = '1';
 
-                usleep(75000);
-
                 $this->addUser($id, date('Y-m-d H:i:s'));
 
                 usleep(75000);
@@ -118,8 +116,6 @@ trait KeyTrait
                 $lastUser = ['id' => $id, 'count' => 0];
             } else if ($lastUser['count'] == 5) {
                 $id = (string)(intval($lastUser['id']) + 1);
-
-                usleep(75000);
 
                 $this->addUser($id, date('Y-m-d H:i:s'));
 
@@ -129,6 +125,8 @@ trait KeyTrait
             }
 
             $this->post('/ISAPI/AccessControl/CardInfo/Record?format=json', ['CardInfo' => ['employeeNo' => $lastUser['id'], 'cardNo' => sprintf("%'.010d", hexdec($key->rfid)), 'cardType' => 'normalCard']]);
+
+            usleep(75000);
 
             $lastUser['count']++;
         }
