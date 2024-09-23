@@ -15,8 +15,8 @@ trait IsTrait
             $version = $this->get('/v2/system/versions');
 
             if ($version == null || !array_key_exists('opt', $version) || $version['opt'] == null) {
-                $hardwareVersion = '';
-                $softwareVersion = '';
+                $hardwareVersion = '2.5';
+                $softwareVersion = '2.2.5.14.0';
             } else {
                 $hardwareVersion = $version['opt']['versions']['hw']['name'];
                 $softwareVersion = $version['opt']['name'];
