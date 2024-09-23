@@ -15,7 +15,7 @@ trait IsTrait
             $version = $this->get('/v2/system/versions');
 
             return [
-                'DeviceID' => $info['chipId'],
+                'DeviceID' => $info['deviceID'],
                 'DeviceModel' => $info['model'],
 
                 'HardwareVersion' => $version['opt']['versions']['hw']['name'],
