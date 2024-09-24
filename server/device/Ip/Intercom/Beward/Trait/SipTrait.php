@@ -32,6 +32,10 @@ trait SipTrait
 
     public function setSip(Sip $sip): void
     {
+        $info = $this->getSysInfo();
+
+        $stream = trim($info['DeviceModel']) == 'DKS977957_rev5.5.3.9.2' ? 1 : 0;
+
         $this->get('/webs/SIP1CfgEx', [
             'cksip' => 1,
             'sipname' => $sip->login,
@@ -44,7 +48,7 @@ trait SipTrait
             'regport' => $sip->port,
             'sipserver' => $sip->server,
             'sipserverport' => $sip->port,
-            'streamtype' => 0,
+            'streamtype' => $stream,
             'packettype' => 1,
             'dtfmmod' => 0,
             'passchanged' => 1,

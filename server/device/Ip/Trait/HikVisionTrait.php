@@ -13,8 +13,10 @@ trait HikVisionTrait
         try {
             $info = $this->get('/ISAPI/System/deviceInfo');
 
+            $serial = strlen($info['serialNumber']) > 9 ? substr($info['serialNumber'], -9) : $info['serialNumber'];
+
             return [
-                'DeviceID' => $info['deviceID'],
+                'DeviceID' => $serial,
                 'DeviceModel' => $info['model'],
                 'HardwareVersion' => $info['hardwareVersion'],
                 'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
