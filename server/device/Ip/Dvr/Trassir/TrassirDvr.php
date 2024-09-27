@@ -22,12 +22,11 @@ use Selpol\Feature\Streamer\StreamerFeature;
 use Selpol\Feature\Streamer\StreamInput;
 use Selpol\Feature\Streamer\StreamOutput;
 use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
 use Throwable;
 
 class TrassirDvr extends DvrDevice
 {
-    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server, ?int $id = null)
+    public function __construct(Uri $uri, string $login, string $password, DvrModel $model, DvrServer $server, ?int $id = null)
     {
         parent::__construct($uri, $login, $password, $model, $server, $id);
 

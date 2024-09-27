@@ -24,7 +24,7 @@ abstract class IpDevice extends Device
 
     protected ClientOption $clientOption;
 
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, ?int $id = null)
+    public function __construct(Uri $uri, string $password, ?int $id = null)
     {
         parent::__construct($uri);
 
