@@ -29,10 +29,6 @@ class DsIntercom extends IntercomDevice implements AudioInterface, VideoInterfac
     public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model, ?int $id = null)
     {
         parent::__construct($uri, $password, $model, $id);
-
-        if ($model->digest) {
-            $this->clientOption->digest($this->login, $this->password);
-        }
     }
 
     public function open(int $value): void

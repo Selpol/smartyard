@@ -52,7 +52,7 @@ trait CommonTrait
 
     public function getMifare(): Mifare
     {
-        if ($this->model->mifare) {
+        if ($this->model->option->mifare) {
             $response = $this->get('/key/settings');
 
             return new Mifare($response['encryption']['enabled'] == true, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
@@ -148,7 +148,7 @@ trait CommonTrait
 
     public function setMifare(Mifare $mifare): void
     {
-        if ($this->model->mifare) {
+        if ($this->model->option->mifare) {
             $this->put('/key/settings', [
                 'encryption' => [
                     'enabled' => $mifare->enable,
