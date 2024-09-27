@@ -7,10 +7,11 @@ use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Framework\Http\Uri;
+use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
-    public function __construct(Uri $uri, string $password, public IntercomModel $model, ?int $id = null)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, ?int $id = null)
     {
         parent::__construct($uri, $password, $id);
 

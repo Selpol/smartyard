@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Stream;
 use Selpol\Framework\Http\Uri;
+use SensitiveParameter;
 use Throwable;
 
 class HikVisionCamera extends CameraDevice
@@ -16,7 +17,7 @@ class HikVisionCamera extends CameraDevice
 
     public string $login = 'admin';
 
-    public function __construct(Uri $uri, string $password, CameraModel $model, ?int $id = null)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, CameraModel $model, ?int $id = null)
     {
         parent::__construct($uri, $password, $model, $id);
 

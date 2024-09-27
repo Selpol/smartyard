@@ -12,10 +12,11 @@ use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Framework\Http\Uri;
+use SensitiveParameter;
 
 abstract class DvrDevice extends IpDevice
 {
-    public function __construct(Uri $uri, string $login, string $password, public DvrModel $model, public DvrServer $server, ?int $id = null)
+    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, public DvrModel $model, public DvrServer $server, ?int $id = null)
     {
         $this->login = $login;
 

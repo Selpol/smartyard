@@ -22,6 +22,7 @@ use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Device\Ip\Trait\BewardTrait;
 use Selpol\Framework\Http\Uri;
+use SensitiveParameter;
 
 class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, CmsInterface, ApartmentInterface, KeyInterface, CodeInterface
 {
@@ -37,11 +38,13 @@ class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterfa
 
     public string $login = 'admin';
 
-    public function __construct(Uri $uri, string $password, IntercomModel $model, ?int $id = null)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model, ?int $id = null)
     {
         parent::__construct($uri, $password, $model, $id);
 
-        $this->clientOption->digest($this->login, $this->password);
+        if ($model->digest) {
+            $this->clientOption->digest($this->login, $this->password);
+        }
     }
 
     public function open(int $value): void
