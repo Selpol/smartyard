@@ -3,6 +3,7 @@
 namespace Selpol\Runner;
 
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
@@ -167,17 +168,13 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $params['domophoneId'], 'output' => '0']);
 
                             if ($entrances && $entrances[0]) {
-                                $cameras = $households->getCameras('id', $entrances[0]['cameraId']);
+                                $camera = DeviceCamera::findById($entrances[0]['cameraId']);
 
-                                if ($cameras && $cameras[0]) {
-                                    $model = container(DeviceService::class)->camera($cameras[0]['model'], $cameras[0]['url'], $cameras[0]['credentials']);
+                                if ($camera) {
+                                    $model = container(DeviceService::class)->cameraByEntity($camera);
 
                                     $redis->setEx('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
-                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode([
-                                        'model' => $cameras[0]["model"],
-                                        'url' => $cameras[0]["url"],
-                                        'credentials' => $cameras[0]["credentials"],
-                                    ]));
+                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode(['id' => $camera->camera_id, 'model' => $camera->model, 'url' => $camera->url, 'credentials' => $camera->credentials]));
 
                                     echo $params['hash'];
                                 }
@@ -259,17 +256,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url((string) config_get('api.asterisk'));
+        $server = parse_url((string)config_get('api.asterisk'));
 
         if ($server && $server['path']) {
-            $path = substr((string) $path, strlen($server['path']));
+            $path = substr((string)$path, strlen($server['path']));
         }
 
         if ($path && $path[0] == '/') {
-            $path = substr((string) $path, 1);
+            $path = substr((string)$path, 1);
         }
 
-        return explode('/', (string) $path);
+        return explode('/', (string)$path);
     }
 
     private function getExtension(string $extension, string $section): array
@@ -462,7 +459,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = '';
 
         foreach ($params as $key => $value) {
-            $result .= urldecode($key) . '=' . urldecode((string) $value) . '&';
+            $result .= urldecode($key) . '=' . urldecode((string)$value) . '&';
         }
 
         return $result;

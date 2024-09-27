@@ -43,10 +43,10 @@ readonly class CallController extends RbtController
     {
         $this->getUser();
 
-        $json_camera = $redisService->get("live_" . $hash);
+        $json_camera = $redisService->get('live_' . $hash);
         $camera_params = json_decode($json_camera, true);
 
-        $model = $deviceService->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
+        $model = $deviceService->cameraById($camera_params['id']);
 
         if (!$model instanceof CameraDevice) {
             return user_response(404, message: 'Камера не найдена');

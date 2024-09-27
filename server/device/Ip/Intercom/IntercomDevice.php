@@ -2,26 +2,99 @@
 
 namespace Selpol\Device\Ip\Intercom;
 
-use Selpol\Device\Ip\Intercom\Setting\IntercomClean;
 use Selpol\Device\Ip\IpDevice;
-use Selpol\Entity\Model\Core\CoreVar;
-use Selpol\Entity\Repository\Core\CoreVarRepository;
+use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\Config;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, ?int $id = null)
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, private readonly DeviceIntercom $intercom, private readonly Config $config)
     {
-        parent::__construct($uri, $password, $id);
+        parent::__construct($uri, $password);
 
-        match ($this->model->option->auth) {
-            IntercomAuth::ANY_SAFE => $this->clientOption->anySafe($this->login, $password),
-            IntercomAuth::BASIC => $this->clientOption->basic($this->login, $password),
-            IntercomAuth::DIGEST => $this->clientOption->digest($this->login, $password),
+        match ($this->resolveString('auth', 'basic')) {
+            "any_safe" => $this->clientOption->anySafe($this->login, $password),
+            "basic" => $this->clientOption->basic($this->login, $password),
+            "digest" => $this->clientOption->digest($this->login, $password),
         };
 
+        if (!$this->debug) {
+            $this->debug = $this->resolveBool('debug', false);
+        }
+
         $this->setLogger(file_logger('intercom'));
+    }
+
+    public function resolveString(string $key, ?string $default = null): ?string
+    {
+        $default = $this->config->resolve($key, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
+        $default = $this->config->resolve('intercom.' . $this->intercom->house_domophone_id . '.' . $key, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
+        if ($this->intercom->device_model) {
+            $default = $this->config->resolve('intercom.' . $this->intercom->device_model . '.' . $key, $default);
+
+            if ($default != null) {
+                return $default;
+            }
+        }
+
+        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
+        $default = $this->config->resolve('intercom.' . $this->model->title . '.' . $key, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
+        return $this->config->resolve('intercom.' . $key, $default);
+    }
+
+    public function resolveBool(string $key, ?bool $default = null): ?bool
+    {
+        $value = $this->resolveString($key);
+
+        if ($value == null) {
+            return $default;
+        }
+
+        return $value == '1' || $value == 'true';
+    }
+
+    public function resolveInt(string $key, ?int $default = null): ?int
+    {
+        $value = $this->resolveString($key);
+
+        if ($value == null) {
+            return $default;
+        }
+
+        return intval($value);
+    }
+
+    public function resolveFloat(string $key, ?float $default = null): ?float
+    {
+        $value = $this->resolveString($key);
+
+        if ($value == null) {
+            return $default;
+        }
+
+        return floatval($value);
     }
 
     public function open(int $value): void
@@ -42,45 +115,5 @@ abstract class IntercomDevice extends IpDevice
 
     public function reset(): void
     {
-    }
-
-    public function getIntercomClean(): IntercomClean
-    {
-        $coreVar = container(CoreVarRepository::class)->findByName('intercom.clean');
-
-        $value = $coreVar->var_value ? json_decode($coreVar->var_value, true) : [];
-
-        if (!is_array($value)) {
-            $value = [
-                'unlockTime' => 5,
-
-                'callTimeout' => 45,
-                'talkTimeout' => 90,
-
-                'sos' => 'SOS',
-                'concierge' => '9999'
-            ];
-        }
-
-        return new IntercomClean(
-            array_key_exists('unlockTime', $value) ? $value['unlockTime'] : 5,
-
-            array_key_exists('callTimeout', $value) ? $value['callTimeout'] : 45,
-            array_key_exists('talkTimeout', $value) ? $value['talkTimeout'] : 90,
-
-            array_key_exists('sos', $value) ? strval($value['sos']) : 'SOS',
-            array_key_exists('concierge', $value) ? strval($value['concierge']) : '9999'
-        );
-    }
-
-    public function getIntercomNtp(): array
-    {
-        $coreVar = CoreVar::getRepository()->findByName('intercom.ntp');
-        $servers = json_decode($coreVar->var_value, true);
-
-        $server = $servers[array_rand($servers)];
-        $ntp = uri($server);
-
-        return [$ntp->getHost(), $ntp->getPort() ?? 123];
     }
 }

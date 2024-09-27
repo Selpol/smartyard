@@ -8,7 +8,7 @@ trait AudioTrait
 {
     public function getDefaultAudioLevels(): AudioLevels
     {
-        return new AudioLevels([]);
+        return new AudioLevels(array_map('intval', explode(',', $this->resolveString('audio', ''))));
     }
 
     public function getAudioLevels(): AudioLevels

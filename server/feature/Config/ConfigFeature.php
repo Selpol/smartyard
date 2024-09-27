@@ -2,9 +2,17 @@
 
 namespace Selpol\Feature\Config;
 
+use Selpol\Feature\Config\Internal\InternalConfigFeature;
 use Selpol\Feature\Feature;
+use Selpol\Framework\Container\Attribute\Singleton;
 
+#[Singleton(InternalConfigFeature::class)]
 readonly abstract class ConfigFeature extends Feature
 {
-    public abstract function getDefaultConfigForIntercom(): Config;
+    /**
+     * @return ConfigItem[]
+     */
+    public abstract function getConfigForIntercomArray(): array;
+
+    public abstract function getConfigForIntercom(): Config;
 }

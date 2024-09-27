@@ -51,6 +51,19 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
+        if ($audio = $this->resolveString('audio.' . $apartment->apartment)) {
+            $audios = array_map('intval', explode(',', $audio));
+
+            $body['volumes'] = [
+                'thCall' => count($audios) > 0 ? $audios[0] : null,
+                'thTalk' => count($audios) > 1 ? $audios[1] : null,
+                'uartFrom' => count($audios) > 2 ? $audios[2] : null,
+                'uartTo' => count($audios) > 3 ? $audios[3] : null,
+                'panelCall' => count($audios) > 4 ? $audios[4] : null,
+                'panelTalk' => count($audios) > 5 ? $audios[5] : null
+            ];
+        }
+
         $this->post('/panelCode', $body);
     }
 
@@ -65,6 +78,19 @@ trait ApartmentTrait
             $body['soundOpenTh'] = null;
             $body['typeSound'] = 3;
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
+        }
+
+        if ($audio = $this->resolveString('audio.' . $apartment->apartment)) {
+            $audios = array_map('intval', explode(',', $audio));
+
+            $body['volumes'] = [
+                'thCall' => count($audios) > 0 ? $audios[0] : null,
+                'thTalk' => count($audios) > 1 ? $audios[1] : null,
+                'uartFrom' => count($audios) > 2 ? $audios[2] : null,
+                'uartTo' => count($audios) > 3 ? $audios[3] : null,
+                'panelCall' => count($audios) > 4 ? $audios[4] : null,
+                'panelTalk' => count($audios) > 5 ? $audios[5] : null
+            ];
         }
 
         $this->put('/panelCode/' . $apartment->apartment, $body);

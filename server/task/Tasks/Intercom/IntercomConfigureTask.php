@@ -14,7 +14,6 @@ use Selpol\Device\Ip\Intercom\Setting\Code\Code;
 use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Gate;
-use Selpol\Device\Ip\Intercom\Setting\IntercomClean;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyHandlerInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
@@ -72,21 +71,18 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $this->setProgress(5);
 
-        $clean = $device->getIntercomClean();
-        $ntp = $device->getIntercomNtp();
-
         $individualLevels = false;
 
         $this->setProgress(10);
 
         if ($device instanceof SipInterface) {
-            $this->sip($device, $deviceIntercom, $clean);
+            $this->sip($device, $deviceIntercom);
         }
 
         $this->setProgress(20);
 
         if ($device instanceof CommonInterface) {
-            $this->common($device, $entrance, $clean, $ntp);
+            $this->common($device, $entrance);
         }
 
         if ($entrance instanceof HouseEntrance) {
@@ -174,8 +170,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $videoEncoding = $device->getVideoEncoding();
 
         $newVideoEncoding = clone $videoEncoding;
-        $newVideoEncoding->primaryBitrate = $device->model->option->primaryBitrate;
-        $newVideoEncoding->secondaryBitrate = $device->model->option->secondaryBitrate;
+        $newVideoEncoding->primaryBitrate = $device->resolveInt('video.primary_bitrate', 1024);
+        $newVideoEncoding->secondaryBitrate = $device->resolveInt('video.secondary_bitrate', 512);
 
         if (!$newVideoEncoding->equal($videoEncoding)) {
             $device->setVideoEncoding($newVideoEncoding);
@@ -202,7 +198,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom, IntercomClean $clean): void
+    private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom): void
     {
         $server = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
 
@@ -221,8 +217,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $sipOption = $device->getSipOption();
 
         $newSipOption = clone $sipOption;
-        $newSipOption->callTimeout = $clean->callTimeout;
-        $newSipOption->talkTimeout = $clean->talkTimeout;
+        $newSipOption->callTimeout = $device->resolveInt('clean.call_timeout', 30);
+        $newSipOption->talkTimeout = $device->resolveInt('clean.talk_timeout', 60);
         $newSipOption->dtmf = [$deviceIntercom->dtmf, '2'];
         $newSipOption->echo = false;
 
@@ -231,24 +227,30 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance, IntercomClean $clean, array $ntpServer): void
+    public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance): void
     {
-        $ntp = $device->getNtp();
+        $ntpServer = $device->resolveString('clean.ntp');
 
-        $newNtp = clone $ntp;
-        $newNtp->server = $ntpServer[0];
-        $newNtp->port = $ntpServer[1];
+        if ($ntpServer != null) {
+            $ntpServer = uri($ntpServer);
 
-        if ($device->model->isHikVision()) {
-            $newNtp->timezone = 'CST-3:00:00';
-        } else {
-            $newNtp->timezone = config('timezone', 'Europe/Moscow');
-        }
+            $ntp = $device->getNtp();
 
-        if (!$newNtp->equal($ntp)) {
-            $device->setNtp($newNtp);
+            $newNtp = clone $ntp;
+            $newNtp->server = $ntpServer->getHost();
+            $newNtp->port = $ntpServer->getPort() ?? 123;
 
-            sleep(1);
+            if ($device->model->isHikVision()) {
+                $newNtp->timezone = 'CST-3:00:00';
+            } else {
+                $newNtp->timezone = config('timezone', 'Europe/Moscow');
+            }
+
+            if (!$newNtp->equal($ntp)) {
+                $device->setNtp($newNtp);
+
+                sleep(1);
+            }
         }
 
         $key = env('MIFARE_KEY');
@@ -270,8 +272,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $room = $device->getRoom();
 
         $newRoom = clone $room;
-        $newRoom->concierge = $clean->concierge;
-        $newRoom->sos = $clean->sos;
+        $newRoom->concierge = $device->resolveString('clean.concierge', '9999');
+        $newRoom->sos = $device->resolveString('clean.sos', 'SOS');
 
         if (!$newRoom->equal($room)) {
             $device->setRoom($newRoom);
@@ -282,7 +284,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $newRelay = clone $relay;
             $newRelay->lock = !$entrance->locks_disabled;
-            $newRelay->openDuration = $clean->unlockTime;
+            $newRelay->openDuration = $device->resolveInt('clean.unlock_time', 5);
 
             if (!$newRelay->equal($relay)) {
                 $device->setRelay($newRelay, $entrance->domophone_output ?? 0);

@@ -10,13 +10,7 @@ trait AudioTrait
 {
     public function getDefaultAudioLevels(): AudioLevels
     {
-        $coreVar = container(CoreVarRepository::class)->findByName('intercom.is.audio');
-
-        if ($coreVar && $coreVar->var_value) {
-            return new AudioLevels(json_decode($coreVar->var_value, true));
-        }
-
-        return new AudioLevels([110, 130, 200, 185, 230, 120]);
+        return new AudioLevels(array_map('intval', explode(',', $this->resolveString('audio', '110,130,200,185,230,120'))));
     }
 
     public function getAudioLevels(): AudioLevels

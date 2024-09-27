@@ -9,7 +9,6 @@ use Selpol\Device\Ip\Intercom\HikVision\Trait\KeyTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\SipTrait;
 use Selpol\Device\Ip\Intercom\HikVision\Trait\VideoTrait;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
@@ -18,8 +17,6 @@ use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Device\Ip\Trait\HikVisionTrait;
-use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
 
 class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, ApartmentInterface, KeyInterface, KeyHandlerInterface
 {
@@ -32,11 +29,6 @@ class HikVisionIntercom extends IntercomDevice implements AudioInterface, VideoI
     use KeyTrait;
 
     public string $login = 'admin';
-
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model, ?int $id = null)
-    {
-        parent::__construct($uri, $password, $model, $id);
-    }
 
     public function open(int $value): void
     {

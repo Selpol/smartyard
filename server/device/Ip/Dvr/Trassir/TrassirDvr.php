@@ -27,9 +27,9 @@ use Throwable;
 
 class TrassirDvr extends DvrDevice
 {
-    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server, ?int $id = null)
+    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server)
     {
-        parent::__construct($uri, $login, $password, $model, $server, $id);
+        parent::__construct($uri, $login, $password, $model, $server);
 
         $this->clientOption->raw(CURLOPT_SSL_VERIFYHOST, 0)->raw(CURLOPT_SSL_VERIFYPEER, 0);
     }
