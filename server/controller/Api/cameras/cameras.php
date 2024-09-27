@@ -21,8 +21,9 @@ readonly class cameras extends Api
 
         $criteria = criteria()->like('comment', $validate['comment'])->asc('camera_id');
 
-        if (!container(AuthService::class)->checkScope('camera-hidden'))
+        if (!container(AuthService::class)->checkScope('camera-hidden')) {
             $criteria->equal('hidden', false);
+        }
 
         $page = DeviceCamera::fetchPage($validate['page'], $validate['size'], $criteria);
 

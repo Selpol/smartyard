@@ -17,11 +17,12 @@ readonly class sync extends Api
             setting: setting()->columns(['house_domophone_id'])
         );
 
-        if ($deviceIntercom) {
+        if ($deviceIntercom instanceof DeviceIntercom) {
             task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->high()->dispatch();
 
-            if (container(AuditFeature::class)->canAudit())
+            if (container(AuditFeature::class)->canAudit()) {
                 container(AuditFeature::class)->audit(strval($deviceIntercom->house_domophone_id), DeviceIntercom::class, 'sync', 'Синхронизация домофона');
+            }
 
             return self::success();
         }

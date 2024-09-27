@@ -11,29 +11,34 @@ use Selpol\Framework\Entity\Exception\EntityException;
 
 readonly class PDOEntityStatement implements EntityStatementInterface
 {
-    private PDOStatement $statement;
-
-    public function __construct(PDOStatement $statement)
+    public function __construct(private PDOStatement $statement)
     {
-        $this->statement = $statement;
     }
 
     public function execute(?array $value = null): bool
     {
-        if ($value)
+        if ($value !== null && $value !== []) {
             foreach ($value as $key => $item) {
-                if (is_bool($item)) $this->statement->bindValue($key, $item, PDO::PARAM_BOOL);
-                else if (is_int($item)) $this->statement->bindValue($key, $item, PDO::PARAM_INT);
-                else $this->statement->bindValue($key, $item);
+                if (is_bool($item)) {
+                    $this->statement->bindValue($key, $item, PDO::PARAM_BOOL);
+                } elseif (is_int($item)) {
+                    $this->statement->bindValue($key, $item, PDO::PARAM_INT);
+                } else {
+                    $this->statement->bindValue($key, $item);
+                }
             }
+        }
 
         try {
             return $this->statement->execute();
-        } catch (PDOException $throwable) {
-            if ($throwable->getCode() == 23505)
-                throw new EntityException([new EntityMessage(23505, $throwable->getMessage())], 'Повторяющийся идентификатор', $throwable->getMessage(), 400);
-            else if ($throwable->getCode() == 23503)
-                throw new EntityException([new EntityMessage(23503, $throwable->getMessage())], 'Существуют дочерние зависимости', $throwable->getMessage(), 400);
+        } catch (PDOException $pdoException) {
+            if ($pdoException->getCode() == 23505) {
+                throw new EntityException([new EntityMessage(23505, $pdoException->getMessage())], 'Повторяющийся идентификатор', $pdoException->getMessage(), 400);
+            }
+
+            if ($pdoException->getCode() == 23503) {
+                throw new EntityException([new EntityMessage(23503, $pdoException->getMessage())], 'Существуют дочерние зависимости', $pdoException->getMessage(), 400);
+            }
 
             return false;
         }
@@ -67,8 +72,9 @@ readonly class PDOEntityStatement implements EntityStatementInterface
     {
         $result = [];
 
-        foreach ($this->statement->errorInfo() as $error)
+        foreach ($this->statement->errorInfo() as $error) {
             $result[] = new EntityMessage($error[1], $error[2]);
+        }
 
         return $result;
     }

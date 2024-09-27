@@ -8,7 +8,7 @@ use Selpol\Service\PrometheusService;
 
 readonly class Histogram extends Collector
 {
-    const TYPE = 'histogram';
+    public const TYPE = 'histogram';
 
     private array $buckets;
 

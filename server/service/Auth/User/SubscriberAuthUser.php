@@ -9,11 +9,8 @@ use Selpol\Service\Auth\AuthUserInterface;
  */
 readonly class SubscriberAuthUser implements AuthUserInterface
 {
-    private array $value;
-
-    public function __construct(array $value)
+    public function __construct(private array $value)
     {
-        $this->value = $value;
     }
 
     public function getIdentifier(): string|int

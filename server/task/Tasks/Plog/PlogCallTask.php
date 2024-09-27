@@ -11,25 +11,16 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 {
     use TaskRetryTrait;
 
-    /** @var string IP-адресс устройства */
-    public string $ip;
-
-    /** @var int Дата события */
-    public int $date;
-
-    /** @var int|null Идентификатор звонка */
-    public ?int $call;
-
     public int $initialRetry = 3;
 
-    public function __construct(int $id, string $ip, int $date, ?int $call)
+    public function __construct(int           $id, /** @var string IP-адресс устройства */
+                                public string $ip, /** @var int Дата события */
+                                public int    $date, /** @var int|null Идентификатор звонка */
+                                public ?int   $call)
     {
         parent::__construct($id, 'Событие звонка');
 
-        $this->ip = $ip;
-
-        $this->date = $date;
-        $this->call = $call;
+        $this->setLogger(file_logger('task-plog-call'));
     }
 
     public function onTask(): bool
@@ -51,8 +42,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
         $call_id = $this->call;
 
-        if ($call_id == 0)
+        if ($call_id == 0) {
             $call_id = null;
+        }
 
         $flat_id = null;
         $prefix = null;
@@ -61,47 +53,58 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         foreach ($logs as $item) {
             $unit = $item['unit'];
 
-            if ($unit == 'beward')
+            if ($unit == 'beward') {
                 $this->beward($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            else if ($unit == 'is')
+            } elseif ($unit == 'is') {
                 $this->is($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            else if ($unit == 'qtech')
+            } elseif ($unit == 'qtech') {
                 $this->qtech($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            else if ($unit == 'akuvox')
+            } elseif ($unit == 'akuvox') {
                 $this->akuvox($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+            }
 
-            if ($call_start_found || $call_from_panel < 0)
+            if ($call_start_found || $call_from_panel < 0) {
                 break;
+            }
         }
 
-        if ($call_from_panel < 0)
+        if ($call_from_panel < 0) {
             return false;
+        }
 
-        if ($flat_id != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $flat_id;
-        else if ($prefix != null && $flat_number != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByPrefixAndNumber($prefix, $flat_number);
-        else if ($flat_number != null) $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByNumber($flat_number);
-        else $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByDomophoneId();
+        if ($flat_id !== null) {
+            $event_data[PlogFeature::COLUMN_FLAT_ID] = $flat_id;
+        } elseif ($prefix != null && $flat_number != null) {
+            $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByPrefixAndNumber($prefix, $flat_number);
+        } elseif ($flat_number != null) {
+            $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByNumber($flat_number);
+        } else {
+            $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByDomophoneId();
+        }
 
         //не удалось получить flat_id - игнорируем звонок
-        if (!isset($event_data[PlogFeature::COLUMN_FLAT_ID]))
+        if (!isset($event_data[PlogFeature::COLUMN_FLAT_ID])) {
             return false;
+        }
 
         if ($call_from_panel == 0) {
             //нет точных данных о том, что начало звонка было с этой панели
             //проверяем, мог ли звонок идти с другой панели
             $entrance_count = $this->getEntranceCount($event_data[PlogFeature::COLUMN_FLAT_ID]);
 
-            if ($entrance_count > 1)
+            if ($entrance_count > 1) {
                 //в квартиру можно позвонить с нескольких домофонов,
                 //в данном случае считаем, что начальный звонок был с другого домофона - игнорируем звонок
                 return false;
+            }
         }
 
         $image_data = $plog->getCamshot($this->id, 0, $event_data[PlogFeature::COLUMN_DATE]);
 
         if ($image_data) {
-            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID]))
+            if (isset($image_data[PlogFeature::COLUMN_IMAGE_UUID])) {
                 $event_data[PlogFeature::COLUMN_IMAGE_UUID] = $image_data[PlogFeature::COLUMN_IMAGE_UUID];
+            }
 
             $event_data[PlogFeature::COLUMN_PREVIEW] = $image_data[PlogFeature::COLUMN_PREVIEW];
         }
@@ -113,12 +116,12 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
     public function onError(Throwable $throwable): void
     {
-        file_logger('task')->debug('PlogCallTask error' . PHP_EOL . $throwable);
+        $this->logger?->debug('PlogCallTask error' . PHP_EOL . $throwable);
 
         $this->retry(300);
     }
 
-    private function beward(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)
+    private function beward(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg): void
     {
         $patterns_call = [
             //pattern start  talk  open   call_from_panel
@@ -151,8 +154,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                 $matched = $matched && (str_contains($msg, $p));
 
             if ($matched) {
-                if ($now_call_from_panel > 0) $call_from_panel = 1;
-                elseif ($now_call_from_panel < 0) {
+                if ($now_call_from_panel > 0) {
+                    $call_from_panel = 1;
+                } elseif ($now_call_from_panel < 0) {
                     $call_from_panel = -1;
 
                     break;
@@ -169,9 +173,13 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     //парсим номер квартиры
                     $p1 = strpos($msg, $pattern);
                     $p2 = strpos($msg, ".", $p1 + strlen($pattern));
+                    if ($p2 === 0 || $p2 === false) {
+                        $p2 = strpos($msg, ",", $p1 + strlen($pattern));
+                    }
 
-                    if (!$p2) $p2 = strpos($msg, ",", $p1 + strlen($pattern));
-                    if (!$p2) $p2 = strlen($msg);
+                    if ($p2 === 0 || $p2 === false) {
+                        $p2 = strlen($msg);
+                    }
 
                     $now_flat_number = intval(substr($msg, $p1 + strlen($pattern), $p2 - $p1 - strlen($pattern)));
                 }
@@ -181,7 +189,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     $p2 = strpos($msg, "@", $p1 + strlen($pattern));
 
                     $sip = substr($msg, $p1 + strlen($pattern), $p2 - $p1 - strlen($pattern));
-                    if ($sip[0] == "1") {
+                    if ($sip[0] === "1") {
                         //звонок с панели, имеющей КМС, доп. панели или калитки без префикса
                         //парсим flat_id
                         $p1 = strpos($msg, $pattern);
@@ -204,20 +212,37 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
                 $call_start_lost = isset($now_flat_id) && $flat_id != null && $now_flat_id != $flat_id
                     || isset($now_flat_number) && $flat_number != null && $now_flat_number != $flat_number
-                    || isset($now_sip_call_id) && isset($sip_call_id) && $now_sip_call_id != $sip_call_id
+                    || isset($now_sip_call_id) && isset($sip_call_id) && $now_sip_call_id !== $sip_call_id
                     || isset($now_call_id) && $call_id != null && $now_call_id != $call_id;
 
-                if ($call_start_lost)
+                if ($call_start_lost) {
                     break;
+                }
 
                 $event_data[PlogFeature::COLUMN_DATE] = $item['date'];
+                if (isset($now_call_id) && $call_id == null) {
+                    $call_id = $now_call_id;
+                }
 
-                if (isset($now_call_id) && $call_id == null) $call_id = $now_call_id;
-                if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
-                if (isset($now_flat_number) && $flat_number == null) $flat_number = $now_flat_number;
-                if (isset($now_flat_id) && $flat_id == null) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                if (isset($now_sip_call_id) && !isset($sip_call_id)) {
+                    $sip_call_id = $now_sip_call_id;
+                }
+
+                if (isset($now_flat_number) && $flat_number == null) {
+                    $flat_number = $now_flat_number;
+                }
+
+                if (isset($now_flat_id) && $flat_id == null) {
+                    $flat_id = $now_flat_id;
+                }
+
+                if ($flag_talk_started) {
+                    $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                }
+
+                if ($flag_door_opened) {
+                    $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                }
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -228,7 +253,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         }
     }
 
-    private function is(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)
+    private function is(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg): void
     {
         $patterns_call = [
             // pattern         start  talk  open   call_from_panel
@@ -260,9 +285,8 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                 // Check if call started from this panel
                 if ($now_call_from_panel > 0) {
                     $call_from_panel = 1;
-                } else if ($now_call_from_panel < 0) {
+                } elseif ($now_call_from_panel < 0) {
                     $call_from_panel = -1;
-
                     break;
                 }
 
@@ -286,17 +310,34 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     || isset($now_sip_call_id) && isset($sip_call_id) && $now_sip_call_id != $sip_call_id
                     || isset($now_call_id) && $call_id != null && $now_call_id != $call_id;
 
-                if ($call_start_lost)
+                if ($call_start_lost) {
                     break;
+                }
 
                 $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
+                if (isset($now_call_id) && $call_id == null) {
+                    $call_id = $now_call_id;
+                }
 
-                if (isset($now_call_id) && $call_id == null) $call_id = $now_call_id;
-                if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
-                if (isset($now_flat_number) && $flat_number == null) $flat_number = $now_flat_number;
-                if (isset($now_flat_id) && $flat_id == null) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                if (isset($now_sip_call_id) && !isset($sip_call_id)) {
+                    $sip_call_id = $now_sip_call_id;
+                }
+
+                if (isset($now_flat_number) && $flat_number == null) {
+                    $flat_number = $now_flat_number;
+                }
+
+                if (isset($now_flat_id) && $flat_id == null) {
+                    $flat_id = $now_flat_id;
+                }
+
+                if ($flag_talk_started) {
+                    $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                }
+
+                if ($flag_door_opened) {
+                    $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                }
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -307,7 +348,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         }
     }
 
-    private function qtech(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)
+    private function qtech(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg): void
     {
         $patterns_call = [
             // pattern         start  talk  open   call_from_panel
@@ -326,8 +367,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
             if (preg_match($pattern, $msg) !== 0) {
                 // Check if call started from this panel
-                if ($now_call_from_panel > 0)
+                if ($now_call_from_panel > 0) {
                     $call_from_panel = 1;
+                }
 
                 // Get message parts separated by ":" and ","
                 $msg_parts = array_map("trim", preg_split("/[:,]/", $msg));
@@ -383,17 +425,34 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     || isset($now_sip_call_id) && isset($sip_call_id) && $now_sip_call_id != $sip_call_id
                     || isset($now_call_id) && isset($call_id) && $now_call_id != $call_id;
 
-                if ($call_start_lost)
+                if ($call_start_lost) {
                     break;
+                }
 
                 $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
+                if (isset($now_call_id) && !isset($call_id)) {
+                    $call_id = $now_call_id;
+                }
 
-                if (isset($now_call_id) && !isset($call_id)) $call_id = $now_call_id;
-                if (isset($now_sip_call_id) && !isset($sip_call_id)) $sip_call_id = $now_sip_call_id;
-                if (isset($now_flat_number) && !isset($flat_number)) $flat_number = $now_flat_number;
-                if (isset($now_flat_id) && !isset($flat_id)) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                if (isset($now_sip_call_id) && !isset($sip_call_id)) {
+                    $sip_call_id = $now_sip_call_id;
+                }
+
+                if (isset($now_flat_number) && !isset($flat_number)) {
+                    $flat_number = $now_flat_number;
+                }
+
+                if (isset($now_flat_id) && !isset($flat_id)) {
+                    $flat_id = $now_flat_id;
+                }
+
+                if ($flag_talk_started) {
+                    $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                }
+
+                if ($flag_door_opened) {
+                    $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                }
 
                 if ($flag_start) {
                     $call_start_found = true;
@@ -404,7 +463,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         }
     }
 
-    private function akuvox(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg)
+    private function akuvox(array &$event_data, int &$call_from_panel, bool &$call_start_found, ?int $call_id, ?int $flat_id, ?string &$prefix, ?int &$flat_number, array $item, string $msg): void
     {
         $patterns_call = [
             // pattern         start  talk  open   call_from_panel
@@ -439,15 +498,26 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                 $call_start_lost = isset($now_flat_id) && isset($flat_id) && $now_flat_id != $flat_id
                     || isset($now_call_id) && isset($call_id) && $now_call_id != $call_id;
 
-                if ($call_start_lost)
+                if ($call_start_lost) {
                     break;
+                }
 
                 $event_data[PlogFeature::COLUMN_DATE] = $item["date"];
+                if (isset($now_call_id) && !isset($call_id)) {
+                    $call_id = $now_call_id;
+                }
 
-                if (isset($now_call_id) && !isset($call_id)) $call_id = $now_call_id;
-                if (isset($now_flat_id) && !isset($flat_id)) $flat_id = $now_flat_id;
-                if ($flag_talk_started) $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
-                if ($flag_door_opened) $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                if (isset($now_flat_id) && !isset($flat_id)) {
+                    $flat_id = $now_flat_id;
+                }
+
+                if ($flag_talk_started) {
+                    $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+                }
+
+                if ($flag_door_opened) {
+                    $event_data[PlogFeature::COLUMN_OPENED] = 1;
+                }
 
                 if ($flag_start) {
                     $call_start_found = true;

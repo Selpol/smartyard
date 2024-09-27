@@ -8,7 +8,7 @@ use Selpol\Service\PrometheusService;
 
 readonly class Counter extends Collector
 {
-    const TYPE = 'counter';
+    public const TYPE = 'counter';
 
     public function getType(): string
     {

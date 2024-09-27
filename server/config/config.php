@@ -5,6 +5,8 @@ use Selpol\Feature\Oauth\Resource\ResourceOauthFeature;
 return [
     'language' => env('LANGUAGE', 'ru'),
 
+    'debug' => boolval(env('DEBUG', '0')),
+
     'timezone' => 'Europe/Moscow',
 
     'api' => [
@@ -60,6 +62,9 @@ return [
     'redis' => [
         'host' => env('REDIS_HOST', '127.0.0.1'),
         'port' => intval(env('REDIS_PORT', '6379')),
+
+        'user' => env('REDIS_USER'),
+        'password' => env('REDIS_USER_PASSWORD'),
 
         'cache_ttl' => 3600,
         'token_idle_ttl' => 3600,
@@ -139,6 +144,14 @@ return [
 
         'group' => [
             'database' => env('FEATURE_GROUP_DB', 'rbt')
+        ],
+
+        'dvr' => [
+            'token' => env('FEATURE_DVR_TOKEN')
+        ],
+
+        'intercom' => [
+            'debug' => array_map('intval', array_map('trim', explode(',', env('FEATURE_INTERCOM_DEBUG', ''))))
         ]
     ],
 

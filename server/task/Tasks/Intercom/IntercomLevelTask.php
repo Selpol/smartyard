@@ -5,6 +5,8 @@ namespace Selpol\Task\Tasks\Intercom;
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\DeviceService;
@@ -24,8 +26,8 @@ class IntercomLevelTask extends IntercomTask
         $deviceIntercom = DeviceIntercom::findById($this->id, setting: setting()->nonNullable());
         $deviceModel = IntercomModel::model($deviceIntercom->model);
 
-        if (!$deviceIntercom || !$deviceModel) {
-            file_logger('intercom')->debug('Domophone not found', ['id' => $this->id]);
+        if (!$deviceIntercom instanceof DeviceIntercom || !$deviceModel instanceof IntercomModel) {
+            $this->logger?->debug('Domophone not found', ['id' => $this->id]);
 
             return false;
         }
@@ -35,7 +37,7 @@ class IntercomLevelTask extends IntercomTask
         $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $this->id, 'output' => '0']);
 
         if (!$entrances) {
-            file_logger('intercom')->debug('This domophone is not linked with any entrance', ['id' => $this->id]);
+            $this->logger?->debug('This domophone is not linked with any entrance', ['id' => $this->id]);
 
             return false;
         }
@@ -45,21 +47,27 @@ class IntercomLevelTask extends IntercomTask
         try {
             $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
-            if (!$device)
+            if (!$device) {
                 return false;
+            }
 
-            if (!$device->ping())
+            if (!$device->ping()) {
                 throw new DeviceException($device, 'Устройство не доступно');
+            }
 
-            $cms_levels = array_map('intval', explode(',', $entrances[0]['cmsLevels']));
+            if (!$device instanceof CmsInterface) {
+                return false;
+            }
 
-            $device->setCmsLevels($cms_levels);
+            $cms_levels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrances[0]['cmsLevels'] ?? ''), static fn(string $value): bool => $value !== ''));
+
+            $device->setCmsLevels(new CmsLevels($cms_levels));
 
             return true;
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable, ['id' => $this->id]);
+            $this->logger?->error($throwable, ['id' => $this->id]);
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

@@ -30,6 +30,7 @@ class SubscriberBlock extends Entity
     public static string $table = 'subscriber_block';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

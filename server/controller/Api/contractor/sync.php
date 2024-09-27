@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\contractor;
 
+use Selpol\Entity\Model\Contractor;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Framework\Http\Response;
@@ -18,9 +19,9 @@ readonly class sync extends Api
             'remove_key' => [filter()->default(false), rule()->bool()]
         ]);
 
-        $contactor = \Selpol\Entity\Model\Contractor::findById($validate['_id'], setting: setting()->columns(['id']));
+        $contactor = Contractor::findById($validate['_id'], setting: setting()->columns(['id']));
 
-        if ($contactor) {
+        if ($contactor instanceof Contractor) {
             task(new ContractorSyncTask(
                 $contactor->id,
                 $validate['remove_subscriber'] ?: false,

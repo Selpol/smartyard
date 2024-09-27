@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Entity\Model\Block\FlatBlock;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
@@ -59,22 +60,26 @@ readonly class FrsController extends RbtController
 
         $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
 
-        if ($eventData === false)
+        if ($eventData === false) {
             return user_response(404, message: 'Событие не найдено');
+        }
 
-        if ($eventData[PlogFeature::COLUMN_PREVIEW] == PlogFeature::PREVIEW_NONE)
+        if ($eventData[PlogFeature::COLUMN_PREVIEW] == PlogFeature::PREVIEW_NONE) {
             return user_response(404, message: 'Нет кадра события');
+        }
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
 
         $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
         $f = in_array($flat_id, $flat_ids);
 
-        if (!$f)
+        if (!$f) {
             return user_response(404, message: 'Квартира не найдена');
+        }
 
-        if (($block = $blockFeature->getFirstBlockForFlat($flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS])) !== null)
+        if (($block = $blockFeature->getFirstBlockForFlat($flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS])) instanceof FlatBlock) {
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+        }
 
         $households = container(HouseFeature::class);
         $domophone = json_decode($eventData[PlogFeature::COLUMN_DOMOPHONE], false);
@@ -87,8 +92,9 @@ readonly class FrsController extends RbtController
                 $face = json_decode($eventData[PlogFeature::COLUMN_FACE], true);
                 $result = $frsFeature->registerFace($cameras[0], $validate['eventId'], $face['left'] ?? 0, $face['top'] ?? 0, $face['width'] ?? 0, $face['height'] ?? 0);
 
-                if (!isset($result[FrsFeature::P_FACE_ID]))
+                if (!isset($result[FrsFeature::P_FACE_ID])) {
                     return user_response(400, message: $result[FrsFeature::P_MESSAGE]);
+                }
 
                 $face_id = (int)$result[FrsFeature::P_FACE_ID];
                 $subscriber_id = (int)$user['subscriberId'];
@@ -116,33 +122,38 @@ readonly class FrsController extends RbtController
         if ($request->eventId) {
             $eventData = container(PlogFeature::class)->getEventDetails($request->eventId);
 
-            if (!$eventData)
+            if (!$eventData) {
                 return user_response(404, message: 'Событие не найдено');
+            }
 
             $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
 
             $face = json_decode($eventData[PlogFeature::COLUMN_FACE]);
 
-            if (isset($face->faceId) && $face->faceId > 0)
+            if (isset($face->faceId) && $face->faceId > 0) {
                 $face_id = (int)$face->faceId;
+            }
 
             $face_id2 = $frsFeature->getRegisteredFaceId($request->eventId);
 
-            if ($face_id2 === false)
+            if ($face_id2 === false) {
                 $face_id2 = null;
+            }
         } else {
             $flat_id = $request->flat_id ?? $request->flatId;
             $face_id = $request->face_id ?? $request->faceId;
         }
 
-        if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0))
+        if (($face_id === null || $face_id <= 0) && ($face_id2 === null || $face_id2 <= 0)) {
             return user_response(404, message: 'Лицо не указано');
+        }
 
         $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
         $f = in_array($flat_id, $flat_ids);
 
-        if (!$f)
+        if (!$f) {
             return user_response(404, message: 'Квартира не найдена');
+        }
 
         $flat_owner = false;
 
@@ -154,13 +165,23 @@ readonly class FrsController extends RbtController
             }
 
         if ($flat_owner) {
-            if ($face_id > 0) $frsFeature->detachFaceIdFromFlat($face_id, $flat_id);
-            if ($face_id2 > 0) $frsFeature->detachFaceIdFromFlat($face_id2, $flat_id);
+            if ($face_id > 0) {
+                $frsFeature->detachFaceIdFromFlat($face_id, $flat_id);
+            }
+            
+            if ($face_id2 > 0) {
+                $frsFeature->detachFaceIdFromFlat($face_id2, $flat_id);
+            }
         } else {
             $subscriber_id = (int)$user['subscriberId'];
 
-            if ($face_id > 0) $frsFeature->detachFaceId($face_id, $subscriber_id);
-            if ($face_id2 > 0) $frsFeature->detachFaceId($face_id2, $subscriber_id);
+            if ($face_id > 0) {
+                $frsFeature->detachFaceId($face_id, $subscriber_id);
+            }
+
+            if ($face_id2 > 0) {
+                $frsFeature->detachFaceId($face_id2, $subscriber_id);
+            }
         }
 
         return user_response();

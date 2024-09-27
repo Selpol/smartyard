@@ -12,32 +12,22 @@ use Throwable;
 
 class ClickhouseEntityStatement implements EntityStatementInterface
 {
-    private readonly ClientOption $option;
-
-    private readonly RequestInterface $request;
-
-    private readonly string $value;
-
     private array $data = [];
+
     private array $error = [];
 
-    public function __construct(ClientOption $option, RequestInterface $request, string $value)
+    public function __construct(private readonly ClientOption $option, private readonly RequestInterface $request, private readonly string $value)
     {
-        $this->option = $option;
-
-        $this->request = $request;
-
-        $this->value = $value;
     }
 
     public function execute(?array $value = null): bool
     {
         $query = $this->value;
 
-        if ($value) {
+        if ($value !== null && $value !== []) {
             foreach ($value as $key => $item) {
                 if (is_string($item)) {
-                    $item = '\'' . str_replace("'", "\'", $item) . '\'';
+                    $item = "'" . str_replace("'", "\'", $item) . "'";
                 }
 
                 $query = str_replace(':' . $key, (string)$item, $query);
@@ -67,8 +57,9 @@ class ClickhouseEntityStatement implements EntityStatementInterface
                 $message = $response->getBody()->getContents();
                 $error = 'Code: ' . $code . '. ';
 
-                if (str_starts_with($message, $error))
+                if (str_starts_with($message, $error)) {
                     $message = substr($message, strlen($error));
+                }
 
                 $this->error[] = new EntityMessage(intval($code), $message);
             }
@@ -81,12 +72,12 @@ class ClickhouseEntityStatement implements EntityStatementInterface
 
     public function fetch(): ?array
     {
-        return count($this->data) > 0 ? $this->data[0] : null;
+        return $this->data !== [] ? $this->data[0] : null;
     }
 
     public function fetchColumn(int $index): mixed
     {
-        return count($this->data) > 0 ? $this->data[0][$index] : null;
+        return $this->data !== [] ? $this->data[0][$index] : null;
     }
 
     public function fetchAll(): array

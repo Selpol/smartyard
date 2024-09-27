@@ -25,8 +25,9 @@ readonly class streamer extends Api
             'url' => rule()->required()->string()->url()->nonNullable()
         ]));
 
-        if ($sipServer->insert())
+        if ($sipServer->insert()) {
             return self::success($sipServer->id);
+        }
 
         return self::error('Не удалось создать стример сервер', 400);
     }
@@ -45,8 +46,9 @@ readonly class streamer extends Api
         $sipServer->title = $validate['title'];
         $sipServer->url = $validate['url'];
 
-        if ($sipServer->update())
+        if ($sipServer->update()) {
             return self::success($sipServer->id);
+        }
 
         return self::error('Не удалось обновить стример сервер', 400);
     }
@@ -55,8 +57,9 @@ readonly class streamer extends Api
     {
         $sipServer = StreamerServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($sipServer->delete())
+        if ($sipServer->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить стример сервер', 400);
     }

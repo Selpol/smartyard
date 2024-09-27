@@ -26,7 +26,7 @@ readonly class key extends Api
     {
         $key = HouseKey::fetch(criteria()->equal('rfid', $params['rfId'])->equal('access_type', $params['accessType'])->equal('access_to', $params['accessTo']));
 
-        if ($key) {
+        if ($key instanceof HouseKey) {
             task(new IntercomAddKeyTask($key->rfid, $key->access_to))->sync();
 
             return self::success($key->house_rfid_id);
@@ -56,8 +56,9 @@ readonly class key extends Api
 
         $key->comments = $params['comments'];
 
-        if ($key->update())
+        if ($key->update()) {
             return self::success($key->house_rfid_id);
+        }
 
         return self::error('Не удалось обновить ключ', 400);
     }
@@ -66,7 +67,7 @@ readonly class key extends Api
     {
         $key = HouseKey::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($key?->delete()) {
+        if ($key?->delete() === true) {
             task(new IntercomDeleteKeyTask($key->rfid, $key->access_to))->sync();
 
             return self::success();

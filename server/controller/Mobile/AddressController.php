@@ -52,8 +52,9 @@ readonly class AddressController extends RbtController
             if (array_key_exists($houseId, $houses)) {
                 $house = &$houses[$houseId];
 
-                if (!$house['hasPlog'])
+                if (!$house['hasPlog']) {
                     $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
+                }
             } else {
                 $houses[$houseId] = [];
                 $house = &$houses[$houseId];
@@ -62,8 +63,9 @@ readonly class AddressController extends RbtController
 
                 $segments = explode(', ', $flat['house']['houseFull']);
 
-                if (str_starts_with($segments[0], 'г ') || str_ends_with($segments[0], ' обл'))
+                if (str_starts_with($segments[0], 'г ') || str_ends_with($segments[0], ' обл')) {
                     unset($segments[0]);
+                }
 
                 $house['address'] = implode(', ', $segments);
 
@@ -75,17 +77,19 @@ readonly class AddressController extends RbtController
                 $house['doors'] = [];
             }
 
-            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
+            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'cms' => $flat['cmsEnabled'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
 
-            if (!$cctvBlock)
+            if (!$cctvBlock) {
                 $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
+            }
 
             $house['cctv'] = count($house['cameras']);
 
-            if (!$intercomBlock)
+            if (!$intercomBlock) {
                 foreach ($flatDetail['entrances'] as $entrance) {
-                    if (array_key_exists($entrance['entranceId'], $house['doors']))
+                    if (array_key_exists($entrance['entranceId'], $house['doors'])) {
                         continue;
+                    }
 
                     $e = $houseFeature->getEntrance($entrance['entranceId']);
 
@@ -102,13 +106,14 @@ readonly class AddressController extends RbtController
                         $cam = $cameraFeature->getCamera($e["cameraId"]);
 
                         $house['cameras'][] = $cam;
-                        $house['cctv']++;
+                        ++$house['cctv'];
                     }
 
                     $door['block'] = $block;
 
                     $house['doors'][$entrance['entranceId']] = $door;
                 }
+            }
         }
 
         foreach ($houses as $house_key => $h) {
@@ -119,12 +124,12 @@ readonly class AddressController extends RbtController
 
         $result = array_values($houses);
 
-        if (count($result)) {
-            for ($i = 0; $i < count($result); $i++)
-                usort($result[$i]['doors'], static fn(array $a, array $b) => strcmp($a['name'], $b['name']));
+        if ($result !== []) {
+            $counter = count($result);
+            for ($i = 0; $i < $counter; ++$i)
+                usort($result[$i]['doors'], static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
 
-            usort($result, static fn(array $a, array $b) => strcmp($a['address'], $b['address']));
-
+            usort($result, static fn(array $a, array $b): int => strcmp($a['address'], $b['address']));
             return user_response(data: $result);
         }
 
@@ -144,67 +149,86 @@ readonly class AddressController extends RbtController
         $hash = '';
 
         for ($i = strlen($request->QR) - 1; $i >= 0; --$i) {
-            if (!in_array($request->QR[$i], ['/', '=', "_"]))
+            if (!in_array($request->QR[$i], ['/', '=', "_"])) {
                 $hash = $request->QR[$i] . $hash;
-            else
+            } else {
                 break;
+            }
         }
 
-        if ($hash == '')
+        if ($hash === '') {
             return user_response(200, "QR-код не является кодом для доступа к квартире");
+        }
 
         $flat = HouseFlat::getRepository()->findByCode($hash);
 
-        if (!$flat)
+        if (!$flat) {
             return user_response(200, "QR-код не является кодом для доступа к квартире");
+        }
 
         $subscribers = $houseFeature->getSubscribers('aud_jti', $audJti);
 
-        if (!$subscribers || count($subscribers) === 0) {
+        if ($subscribers === false || $subscribers === [] || count($subscribers) === 0) {
             $mobile = $request->mobile;
 
             $name = $request->name;
             $patronymic = $request->patronymic;
-
-            if (strlen($mobile) !== 11)
+            if (strlen($mobile) !== 11) {
                 return user_response(400, false, message: 'Неверный формат номера телефона');
+            }
 
-            if (!$name) return user_response(400, message: 'Имя обязательно для заполнения');
-            if (!$patronymic) return user_response(400, message: 'Отчество обязательно для заполнения');
+            if (!$name) {
+                return user_response(400, message: 'Имя обязательно для заполнения');
+            }
+
+            if (!$patronymic) {
+                return user_response(400, message: 'Отчество обязательно для заполнения');
+            }
 
             if ($houseFeature->addSubscriber($mobile, $name, $patronymic)) {
                 $subscribers = $houseFeature->getSubscribers('mobile', $mobile);
 
-                if (count($subscribers) > 0)
+                if (count($subscribers) > 0) {
                     $houseFeature->modifySubscriber($subscribers[0]['subscriberId'], ['audJti' => $audJti]);
-            } else return user_response(422, 'Не удалось зарегестрироваться');
+                }
+            } else {
+                return user_response(422, 'Не удалось зарегестрироваться');
+            }
         }
 
         if ($subscribers && count($subscribers) > 0) {
             $subscriber = $subscribers[0];
 
             foreach ($subscriber['flats'] as $item)
-                if ((int)$item['flatId'] == $flat->house_flat_id)
+                if ((int)$item['flatId'] == $flat->house_flat_id) {
                     return user_response(200, "У вас уже есть доступ к данной квартире");
+                }
 
             if ($houseFeature->addSubscriber($subscriber["mobile"], flatId: $flat->house_flat_id)) {
                 $house = AddressHouse::findById($flat->address_house_id, setting: setting()->nonNullable());
 
                 $fio = $request->name;
 
-                if (trim($request->patronymic) !== 'Отчество')
+                if (trim($request->patronymic) !== 'Отчество') {
                     $fio .= ' ' . $request->patronymic;
+                }
 
                 $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $fio, connection_ip($request->getRequest()));
 
-                if (is_string($result))
+                if (is_string($result)) {
                     return user_response(400, message: $result);
+                }
 
-                if ($result)
+                if ($result) {
                     return user_response(200, "Квартира успешно привязана");
+                }
 
                 return user_response(400, message: 'Не удалось полностью выполнить запрос, пользователь не привязан полностью');
-            } else return user_response(422, message: 'Неудалось добавиться в квартиру');
-        } else return user_response(404, message: 'Абонент не найден');
+            }
+
+            return user_response(422, message: 'Неудалось добавиться в квартиру');
+        }
+
+        return user_response(404, message: 'Абонент не найден');
     }
 }

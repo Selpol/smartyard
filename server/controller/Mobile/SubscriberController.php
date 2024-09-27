@@ -40,7 +40,7 @@ readonly class SubscriberController extends RbtController
 
         return user_response(
             data: array_map(
-                fn(array $subscriber) => [
+                fn(array $subscriber): array => [
                     'subscriberId' => $subscriber['subscriberId'],
                     'name' => $subscriber['subscriberName'] . ' ' . $subscriber['subscriberPatronymic'],
                     'mobile' => substr($subscriber['mobile'], -4),
@@ -67,11 +67,12 @@ readonly class SubscriberController extends RbtController
     {
         $subscribers = $houseFeature->getSubscribers('mobile', $request->mobile);
 
-        if (!$subscribers || count($subscribers) === 0) {
+        if ($subscribers === [] || $subscribers === false || count($subscribers) === 0) {
             $id = $houseFeature->addSubscriber($request->mobile, 'Имя', 'Отчество', flatId: $flatId);
 
-            if (!$id)
+            if ($id === 0 || $id === false) {
                 return user_response(400, message: 'Неудалось зарегестрировать жителя');
+            }
 
             $subscribers = $houseFeature->getSubscribers('id', $id);
         }
@@ -80,11 +81,13 @@ readonly class SubscriberController extends RbtController
 
         $subscriberFlat = $this->getFlat($subscriber['flats'], $flatId);
 
-        if ($subscriberFlat)
+        if ($subscriberFlat !== null && $subscriberFlat !== []) {
             return user_response(400, message: 'Житель уже добавлен');
+        }
 
-        if (!$houseFeature->addSubscriberToFlat($flatId, $subscriber['subscriberId'], 1))
+        if (!$houseFeature->addSubscriberToFlat($flatId, $subscriber['subscriberId'], 1)) {
             return user_response(400, message: 'Житель не был добавлен');
+        }
 
         return user_response();
     }
@@ -105,21 +108,25 @@ readonly class SubscriberController extends RbtController
     {
         $subscribers = $houseFeature->getSubscribers('id', $request->subscriberId);
 
-        if (!$subscribers || count($subscribers) === 0)
+        if ($subscribers === [] || $subscribers === false || count($subscribers) === 0) {
             return user_response(404, message: 'Житель не зарегестрирован');
+        }
 
         $subscriber = $subscribers[0];
 
         $subscriberFlat = $this->getFlat($subscriber['flats'], $flatId);
 
-        if (!$subscriberFlat)
+        if ($subscriberFlat === null || $subscriberFlat === []) {
             return user_response(400, message: 'Житель не заселен в данной квартире');
+        }
 
-        if ($subscriberFlat['role'] == 0)
+        if ($subscriberFlat['role'] == 0) {
             return user_response(403, message: 'Житель является владельцем квартиры');
+        }
 
-        if (!$houseFeature->removeSubscriberFromFlat($flatId, $subscriber['subscriberId']))
+        if ($houseFeature->removeSubscriberFromFlat($flatId, $subscriber['subscriberId']) === false || $houseFeature->removeSubscriberFromFlat($flatId, $subscriber['subscriberId']) === 0) {
             return user_response(400, message: 'Житель не был удален');
+        }
 
         return user_response();
     }
@@ -127,8 +134,9 @@ readonly class SubscriberController extends RbtController
     private function getFlat(array $value, int $id): ?array
     {
         foreach ($value as $item)
-            if ($item['flatId'] === $id)
+            if ($item['flatId'] === $id) {
                 return $item;
+            }
 
         return null;
     }

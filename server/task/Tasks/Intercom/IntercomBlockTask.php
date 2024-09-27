@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Block\BlockFeature;
@@ -16,6 +17,8 @@ class IntercomBlockTask extends Task
     public function __construct()
     {
         parent::__construct('Синхронизация блокировок домофона');
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool
@@ -42,8 +45,9 @@ class IntercomBlockTask extends Task
                         $intercom = container(DeviceService::class)->intercomById($intercomId);
 
                         try {
-                            if ($intercom->ping())
+                            if ($intercom->ping()) {
                                 $intercoms[$intercomId] = $intercom;
+                            }
                         } catch (Throwable) {
                             $intercoms[$intercomId] = false;
                         }
@@ -53,14 +57,16 @@ class IntercomBlockTask extends Task
                         continue;
                     }
 
-                    $intercoms[$intercomId]->setApartmentCms(intval($flat), false);
+                    if ($intercoms[$intercomId] instanceof ApartmentInterface) {
+                        $intercoms[$intercomId]->setApartmentHandset(intval($flat), false);
+                    }
                 }
 
                 $progress += $delta;
 
                 $this->setProgress($progress);
             } catch (Throwable $throwable) {
-                file_logger('intercom')->error($throwable);
+                $this->logger?->error($throwable);
             }
         }
 

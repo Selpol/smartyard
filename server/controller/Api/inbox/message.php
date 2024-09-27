@@ -10,7 +10,7 @@ readonly class message extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
-        if (@$params["messageId"]) {
+        if (array_key_exists("messageId", $params)) {
             $messages = container(InboxFeature::class)->getMessages($params["_id"], "id", $params["messageId"]);
         } else {
             $messages = container(InboxFeature::class)->getMessages($params["_id"], "dates", ["dateFrom" => 0, "dateTo" => time()]);
@@ -23,8 +23,9 @@ readonly class message extends Api
     {
         $msgId = container(InboxFeature::class)->sendMessage($params["_id"], $params["title"], $params["body"], $params["action"]);
 
-        if ($msgId)
+        if ($msgId) {
             return self::success($msgId);
+        }
 
         return self::error('Не удалось отправить сообщения', 400);
     }

@@ -3,6 +3,8 @@
 namespace Selpol\Controller\Api\intercom;
 
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
@@ -18,14 +20,15 @@ readonly class password extends Api
     {
         $deviceIntercom = DeviceIntercom::findById(rule()->id()->onItem('_id', $params));
 
-        if ($deviceIntercom) {
+        if ($deviceIntercom instanceof DeviceIntercom) {
             $deviceCamera = DeviceCamera::fetch(criteria()->equal('url', $deviceIntercom->url));
 
             $intercom = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
 
             if ($intercom) {
-                if (!$intercom->ping())
+                if (!$intercom->ping()) {
                     return self::error('Устройство не доступно', 404);
+                }
 
                 $password = array_key_exists('password', $params) ? rule()->string()->clamp(8, 8)->onItem('password', $params) : generate_password();
 
@@ -36,7 +39,9 @@ readonly class password extends Api
 
                     $username = sprintf('1%05d', $deviceIntercom->house_domophone_id);
 
-                    $intercom->setSip($username, $password, $sipServer->internal_ip, $sipServer->internal_port);
+                    if ($intercom instanceof SipInterface) {
+                        $intercom->setSip(new Sip($username, $password, $sipServer->internal_ip, $sipServer->internal_port));
+                    }
                 } catch (Throwable $throwable) {
                     file_logger('intercom')->error($throwable);
 
@@ -54,11 +59,12 @@ readonly class password extends Api
                     return self::error('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')', 400);
                 }
 
-                if ($deviceCamera) {
+                if ($deviceCamera instanceof DeviceCamera) {
                     $oldCameraPassword = $deviceIntercom->credentials;
 
-                    if ($deviceCamera->stream && trim($deviceCamera->stream) !== '')
+                    if ($deviceCamera->stream && trim($deviceCamera->stream) !== '') {
                         $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($intercom->login, $password);
+                    }
 
                     $deviceCamera->credentials = $password;
 
@@ -69,8 +75,9 @@ readonly class password extends Api
                     }
                 }
 
-                if (container(AuditFeature::class)->canAudit())
+                if (container(AuditFeature::class)->canAudit()) {
                     container(AuditFeature::class)->audit(strval($deviceIntercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
+                }
 
                 return self::success();
             }

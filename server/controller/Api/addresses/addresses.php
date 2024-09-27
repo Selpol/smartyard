@@ -24,31 +24,19 @@ readonly class addresses extends Api
         $r = [];
 
         if (str_contains($include, "regions")) {
-            if ($regionId) {
-                $r["regions"] = [$addresses->getRegion($regionId)];
-            } else {
-                $r["regions"] = $addresses->getRegions();
-            }
+            $r["regions"] = $regionId !== 0 ? [$addresses->getRegion($regionId)] : $addresses->getRegions();
         }
 
         if (str_contains($include, "areas")) {
-            if ($areaId) {
-                $r["areas"] = [$addresses->getArea($areaId)];
-            } else {
-                $r["areas"] = $addresses->getAreas($regionId);
-            }
+            $r["areas"] = $areaId !== 0 ? [$addresses->getArea($areaId)] : $addresses->getAreas($regionId);
         }
 
         if (str_contains($include, "cities")) {
-            if ($cityId) {
-                $r["cities"] = [$addresses->getCity($cityId)];
-            } else {
-                $r["cities"] = $addresses->getCities($regionId, $areaId);
-            }
+            $r["cities"] = $cityId !== 0 ? [$addresses->getCity($cityId)] : $addresses->getCities($regionId, $areaId);
         }
 
         if (str_contains($include, "settlements")) {
-            if ($settlementId) {
+            if ($settlementId !== 0) {
                 $r["settlements"] = [$addresses->getSettlement($settlementId)];
             } else {
                 $r["settlements"] = $addresses->getSettlements($areaId, $cityId);
@@ -56,23 +44,16 @@ readonly class addresses extends Api
         }
 
         if (str_contains($include, "streets")) {
-            if ($streetId) {
-                $r["streets"] = [$addresses->getStreet($streetId)];
-            } else {
-                $r["streets"] = $addresses->getStreets($cityId, $settlementId);
-            }
+            $r["streets"] = $streetId !== 0 ? [$addresses->getStreet($streetId)] : $addresses->getStreets($cityId, $settlementId);
         }
 
         if (str_contains($include, "houses")) {
-            if ($houseId) {
-                $r["houses"] = [$addresses->getHouse($houseId)];
-            } else {
-                $r["houses"] = $addresses->getHouses($settlementId, $streetId);
-            }
+            $r["houses"] = $houseId !== 0 ? [$addresses->getHouse($houseId)] : $addresses->getHouses($settlementId, $streetId);
         }
 
-        if (count($r))
+        if ($r !== []) {
             return self::success($r);
+        }
 
         return self::error('Не удалось получить адреса', 404);
     }

@@ -2,34 +2,66 @@
 
 namespace Selpol\Device\Ip\Dvr\Common;
 
-use JsonSerializable;
+use Psr\Http\Message\ServerRequestInterface;
+use Selpol\Framework\Kernel\Exception\KernelException;
 
-readonly class DvrIdentifier implements JsonSerializable
+readonly class DvrIdentifier
 {
-    public string $value;
-
-    public int $start;
-    public int $end;
-
-    public ?int $subscriber;
-
-    public function __construct(string $value, int $start, int $end, ?int $subscriber)
+    public function __construct(public int $camera, public int $dvr, public int $start, public int $end, public ?int $subscriber)
     {
-        $this->value = $value;
-
-        $this->start = $start;
-        $this->end = $end;
-
-        $this->subscriber = $subscriber;
     }
 
-    public function isNotExpired(): bool
+    public function toToken(): string
     {
-        return time() >= $this->start && time() <= $this->end;
+        $subscriber = (is_null($this->subscriber) ? 'null' : $this->subscriber);
+
+        $ip = connection_ip(container(ServerRequestInterface::class));
+        $token = config_get('features.dvr.token');
+
+        $salt = bin2hex(openssl_random_pseudo_bytes(16));
+        $hash = sha1($this->camera . $this->dvr . $this->start . $this->end . $subscriber . $ip . $token . $salt);
+
+        return $hash . $salt . $this->start . $this->end . '-' . $this->camera . '-' . $this->dvr . '-' . $subscriber;
     }
 
-    public function jsonSerialize(): array
+    public static function fromToken(string $value): DvrIdentifier
     {
-        return ['value' => $this->value, 'start' => $this->start, 'end' => $this->end];
+        if (strlen($value) < 98 || strlen($value) > 184) {
+            throw new KernelException('Не верная длина идентификатора');
+        }
+
+        $segments = explode('-', $value);
+
+        if (count($segments) != 4) {
+            throw new KernelException('Не верный токен доступа');
+        }
+
+        if (strlen($segments[0]) != 92) {
+            throw new KernelException('Не верная длина токена');
+        }
+
+        $hash = substr($segments[0], 0, 40);
+        $salt = substr($segments[0], 40, 32);
+        $start = intval(substr($segments[0], 72, 10));
+        $end = intval(substr($segments[0], 82, 10));
+
+        $camera = intval($segments[1]);
+        $dvr = intval($segments[2]);
+        $subscriber = $segments[3];
+
+        $ip = connection_ip(container(ServerRequestInterface::class));
+        $token = config_get('features.dvr.token');
+
+        if ($hash != sha1($camera . $dvr . $start . $end . $subscriber . $ip . $token . $salt)) {
+            throw new KernelException('Не верный токен');
+        }
+
+        $time = time();
+
+        if ($time < $start || $time > $end) {
+            throw new KernelException('Время действия токена истекло');
+        }
+
+        return new DvrIdentifier($camera, $dvr, $start, $end, $subscriber == 'null' ? null : intval($subscriber));
     }
 }

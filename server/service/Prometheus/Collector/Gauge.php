@@ -8,7 +8,7 @@ use Selpol\Service\PrometheusService;
 
 readonly class Gauge extends Collector
 {
-    const TYPE = 'gauge';
+    public const TYPE = 'gauge';
 
     public function getType(): string
     {

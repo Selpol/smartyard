@@ -12,17 +12,11 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
 
     public $taskUniqueIgnore = ['dbVersion', 'version'];
 
-    public int $dbVersion;
-    public ?int $version;
-    public bool $force;
-
-    public function __construct(string $title, int $dbVersion, ?int $version, bool $force)
+    public function __construct(string $title, public int $dbVersion, public ?int $version, public bool $force)
     {
         parent::__construct($title);
 
-        $this->dbVersion = $dbVersion;
-        $this->version = $version;
-        $this->force = $force;
+        $this->setLogger(file_logger('task-migration'));
     }
 
     protected function getMigration(string $path, ?int $min = null, ?int $max = null): array
@@ -30,25 +24,30 @@ abstract class MigrationTask extends Task implements TaskUniqueInterface
         $files = scandir(path('migration/pgsql/' . $path . '/'));
 
         $result = array_reduce($files, static function (array $previous, string $file) use ($min, $max) {
-            if (!str_starts_with($file, 'v') || !str_ends_with($file, '.sql'))
+            if (!str_starts_with($file, 'v') || !str_ends_with($file, '.sql')) {
                 return $previous;
+            }
 
             $segments = explode('_', $file);
 
-            if (count($segments) < 3)
+            if (count($segments) < 3) {
                 return $previous;
+            }
 
             $version = (int)substr($segments[0], 1);
             $step = (int)$segments[1];
 
-            if ($min && $version <= $min)
+            if ($min && $version <= $min) {
                 return $previous;
+            }
 
-            if ($max && $version >= $max)
+            if ($max && $version >= $max) {
                 return $previous;
+            }
 
-            if (!array_key_exists($version, $previous))
+            if (!array_key_exists($version, $previous)) {
                 $previous[$version] = [];
+            }
 
             $previous[$version][$step] = $file;
 

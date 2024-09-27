@@ -13,11 +13,12 @@ trait TaskRetryTrait
 
     public function retry(?int $delay = null, string $queue = 'low'): bool
     {
-        if ($this->retry == -1)
+        if ($this->retry == -1) {
             $this->retry = $this->initialRetry ?? 3;
+        }
 
         if ($this->retry > 0) {
-            $this->retry--;
+            --$this->retry;
 
             return task($this)->delay($delay)->queue($queue)->dispatch();
         }
@@ -30,11 +31,12 @@ trait TaskRetryTrait
      */
     public function retrySync(): bool
     {
-        if ($this->retry == -1)
+        if ($this->retry == -1) {
             $this->retry = $this->initialRetry ?? 3;
+        }
 
         if ($this->retry > 0) {
-            $this->retry--;
+            --$this->retry;
 
             task($this)->sync();
 

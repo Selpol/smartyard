@@ -8,6 +8,17 @@ use Throwable;
 
 trait BewardTrait
 {
+    private array $intercomCgi;
+
+    public function getIntercomCgi(): array
+    {
+        if (!isset($this->intercomCgi)) {
+            $this->intercomCgi = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get'], parse: false));
+        }
+
+        return $this->intercomCgi;
+    }
+
     public function getSysInfo(): array
     {
         try {
@@ -22,21 +33,6 @@ trait BewardTrait
     public function setLoginPassword(#[SensitiveParameter] string $password): static
     {
         $this->get('/cgi-bin/pwdgrp_cgi', ['action' => 'update', 'username' => $this->login, 'password' => $password, 'blockdoors' => 1]);
-
-        return $this;
-    }
-
-    public function setDDns(bool $value, array $options = []): static
-    {
-        if (!$value)
-            $this->get('/webs/netDDNSCfgEx', ['provider' => 0]);
-
-        return $this;
-    }
-
-    public function setUPnP(bool $value): static
-    {
-        $this->get('/webs/netUPNPCfgEx', ['cksearch' => $value ? 1 : 0]);
 
         return $this;
     }
@@ -61,16 +57,22 @@ trait BewardTrait
         $this->get('/cgi-bin/factorydefault_cgi');
     }
 
-    protected function parseParamValueHelp(string $response): array
+    protected function parseParamValueHelp(?string $response): array
     {
+        if (is_null($response)) {
+            return [];
+        }
+
         $return = [];
 
         $result = explode(PHP_EOL, $response);
 
         foreach ($result as $item) {
-            $value = explode('=', trim($item));
+            $value = array_map('trim', explode('=', trim($item)));
 
-            $return[trim($value[0])] = array_key_exists(1, $value) ? trim($value[1]) : true;
+            if ($value[0] != '') {
+                $return[$value[0]] = array_key_exists(1, $value) ? $value[1] : true;
+            }
         }
 
         return $return;

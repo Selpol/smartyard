@@ -9,6 +9,7 @@ use Selpol\Task\Task;
 class FrsRemoveStreamTask extends Task
 {
     public int $frsServerId;
+
     public int $cameraId;
 
     public function __construct(int $frsServerId, int $cameraId)
@@ -17,6 +18,8 @@ class FrsRemoveStreamTask extends Task
 
         $this->frsServerId = $frsServerId;
         $this->cameraId = $cameraId;
+
+        $this->setLogger(file_logger('task-frs'));
     }
 
     public function onTask(): bool

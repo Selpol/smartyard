@@ -13,8 +13,10 @@ trait HikVisionTrait
         try {
             $info = $this->get('/ISAPI/System/deviceInfo');
 
+            $serial = strlen($info['serialNumber']) > 9 ? substr($info['serialNumber'], -9) : $info['serialNumber'];
+
             return [
-                'DeviceID' => $info['deviceID'],
+                'DeviceID' => $serial,
                 'DeviceModel' => $info['model'],
                 'HardwareVersion' => $info['hardwareVersion'],
                 'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
@@ -26,7 +28,7 @@ trait HikVisionTrait
 
     public function setLoginPassword(#[SensitiveParameter] string $password): static
     {
-        $this->put('/Security/users/1', "<User><id>1</id><userName>$this->login</userName><password>$password</password><userLevel>Administrator</userLevel><loginPassword>$this->password</loginPassword></User>", ['Content-Type' => 'application/xml']);
+        $this->put('/Security/users/1', sprintf('<User><id>1</id><userName>%s</userName><password>%s</password><userLevel>Administrator</userLevel><loginPassword>%s</loginPassword></User>', $this->login, $password, $this->password), ['Content-Type' => 'application/xml']);
 
         return $this;
     }

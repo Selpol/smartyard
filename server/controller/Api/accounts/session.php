@@ -28,7 +28,7 @@ readonly class session extends Api
     {
         $coreAuth = CoreAuth::findById(rule()->id()->onItem('_id', $params));
 
-        if ($coreAuth) {
+        if ($coreAuth instanceof CoreAuth) {
             $coreAuth->status = 0;
 
             return $coreAuth->update() ? self::success() : self::error('Не удалось обновить сессию', 400);

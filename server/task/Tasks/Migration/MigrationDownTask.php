@@ -15,8 +15,9 @@ class MigrationDownTask extends MigrationTask
 
     public function onTask(): bool
     {
-        if ($this->version && $this->dbVersion <= $this->version)
+        if ($this->version && $this->dbVersion <= $this->version) {
             return true;
+        }
 
         $migrations = array_reverse($this->getMigration('down', $this->version, $this->dbVersion + 1), true);
 
@@ -37,7 +38,7 @@ class MigrationDownTask extends MigrationTask
                 if (!$this->force) {
                     $db->getConnection()->rollBack();
 
-                    throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+                    throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
                 }
             }
 

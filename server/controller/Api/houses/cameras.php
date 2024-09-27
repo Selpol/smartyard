@@ -14,8 +14,9 @@ readonly class cameras extends Api
 
         $success = $households->addCamera('house', $params['houseId'], $params['cameraId']);
 
-        if ($success !== false)
+        if ($success !== false) {
             return self::success();
+        }
 
         return self::error('Не удалось привязать камеру к дому', 400);
     }
@@ -26,8 +27,9 @@ readonly class cameras extends Api
 
         $success = $households->unlinkCamera('house', $params['houseId'], $params['cameraId']);
 
-        if ($success)
+        if ($success) {
             return self::success();
+        }
 
         return self::error('Не удалось отвязать камеру от дома', 400);
     }

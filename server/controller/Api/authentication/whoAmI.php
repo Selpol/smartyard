@@ -16,15 +16,17 @@ readonly class whoAmI extends Api
         $userId = container(AuthService::class)->getUserOrThrow()->getIdentifier();
         $user = container(UserFeature::class)->getUser($userId);
 
-        if (!$user)
+        if (!$user) {
             return self::error('Пользователь не найден', 404);
+        }
 
         $redis = container(RedisService::class);
 
         $password = $redis->get('user:' . $userId . ':ws');
 
-        if (!$password)
+        if (!$password) {
             $password = md5(guid_v4());
+        }
 
         $redis->setEx('user:' . $userId . ':ws', 24 * 60 * 60, $password);
 

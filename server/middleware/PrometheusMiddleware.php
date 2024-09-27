@@ -30,8 +30,11 @@ readonly class PrometheusMiddleware extends RouteMiddleware
         /** @var Route|null $route */
         $route = $request->getAttribute('route');
 
-        if ($route && array_key_exists('class', $route->route)) $class = $route->route['class'][0] . '@' . $route->route['class'][1];
-        else $class = '_@_';
+        if ($route && array_key_exists('class', $route->route)) {
+            $class = $route->route['class'][0] . '@' . $route->route['class'][1];
+        } else {
+            $class = '_@_';
+        }
 
         $method = $request->getMethod();
 

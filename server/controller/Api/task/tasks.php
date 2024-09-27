@@ -20,7 +20,7 @@ use Selpol\Task\Tasks\Intercom\IntercomBlockTask;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
 use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
-use Selpol\Task\Tasks\Intercom\IntercomUnlockTask;
+use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
@@ -63,7 +63,7 @@ readonly class tasks extends Api
 
                 IntercomEntranceTask::class => '[Домофон] Синхронизация входа',
                 IntercomLevelTask::class => '[Домофон] Синхронизация уровней домофона',
-                IntercomUnlockTask::class => '[Домофон] Синхронизация замка',
+                IntercomLockTask::class => '[Домофон] Синхронизация замка',
 
                 IntercomSetCmsTask::class => '[Домофон] Установка CMS',
                 IntercomSyncCmsTask::class => '[Домофон] Синхронизация CMS',

@@ -31,7 +31,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     /**
      * @throws ValidatorException
      */
-    function run(array $arguments): int
+    public function run(array $arguments): int
     {
         $asterisk = config('asterisk');
 
@@ -60,15 +60,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             case 'aors':
             case 'auths':
             case 'endpoints':
-                if (@$_POST['id'])
+                if (array_key_exists('id', $_POST)) {
                     echo $this->response($this->getExtension($_POST['id'], $path[0]));
+                }
 
                 break;
             case 'extensions':
                 $params = json_decode(file_get_contents('php://input'), true);
 
-                if (is_array($params))
+                if (is_array($params)) {
                     ksort($params);
+                }
 
                 switch ($path[1]) {
                     case 'autoopen':
@@ -89,18 +91,20 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $flat = $households->getFlat(intval($params));
                         $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
 
-                        if ($block == null)
+                        if ($block == null) {
                             echo json_encode($flat);
+                        }
 
                         break;
 
                     case 'flatIdByPrefix':
                         $households = container(HouseFeature::class);
 
-                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat) => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
+                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat): bool => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
-                        if (count($apartments) > 0)
+                        if ($apartments !== []) {
                             echo json_encode($apartments);
+                        }
 
                         break;
 
@@ -108,17 +112,18 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $households = container(HouseFeature::class);
 
                         $apartments = $households->getFlats('apartment', $params);
-                        $filterApartments = array_filter($apartments, static fn(array $flat) => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
+                        $filterApartments = array_filter($apartments, static fn(array $flat): bool => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
-                        if (count($filterApartments) > 0)
+                        if ($filterApartments !== []) {
                             echo json_encode($filterApartments);
+                        }
 
                         break;
 
                     case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber) => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
 
                         echo json_encode($subscribers);
 
@@ -190,12 +195,13 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         try {
                             $segments = explode(', ', $house->house_full);
 
-                            if (str_starts_with($segments[0], 'г'))
+                            if (str_starts_with($segments[0], 'г')) {
                                 $address = implode(', ', array_slice($segments, 1));
-                            else if (str_ends_with($segments[0], 'обл'))
+                            } elseif (str_ends_with($segments[0], 'обл')) {
                                 $address = implode(', ', array_slice($segments, 2));
-                            else
+                            } else {
                                 $address = $house->house_full;
+                            }
                         } catch (Throwable) {
                             $address = $house->house_full;
                         }
@@ -211,7 +217,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'dtmf' => $params['dtmf'],
                             'timestamp' => time(),
                             'ttl' => 30,
-                            'platform' => (int)$params['platform'] ? 'ios' : 'android',
+                            'platform' => (int)$params['platform'] !== 0 ? 'ios' : 'android',
                             'callerId' => $params['callerId'] ?: 'WebRTC',
                             'domophoneId' => $params['domophoneId'],
                             'flatId' => $params['flatId'],
@@ -253,15 +259,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url(config_get('api.asterisk'));
+        $server = parse_url((string) config_get('api.asterisk'));
 
-        if ($server && $server['path'])
-            $path = substr($path, strlen($server['path']));
+        if ($server && $server['path']) {
+            $path = substr((string) $path, strlen($server['path']));
+        }
 
-        if ($path && $path[0] == '/')
-            $path = substr($path, 1);
+        if ($path && $path[0] == '/') {
+            $path = substr((string) $path, 1);
+        }
 
-        return explode('/', $path);
+        return explode('/', (string) $path);
     }
 
     private function getExtension(string $extension, string $section): array
@@ -271,7 +279,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($extension[0] === '1' && strlen($extension) === 6) {
             $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials']));
 
-            if ($intercom && $intercom->credentials) {
+            if ($intercom instanceof DeviceIntercom && $intercom->credentials) {
                 switch ($section) {
                     case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
@@ -341,7 +349,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($extension[0] === '4' && strlen($extension) === 10) {
             $flat = HouseFlat::findById((int)substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
 
-            if ($flat && $flat->sip_password) {
+            if ($flat instanceof HouseFlat && $flat->sip_password) {
                 switch ($section) {
                     case 'aors':
                         return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
@@ -453,8 +461,9 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $result = '';
 
-        foreach ($params as $key => $value)
-            $result .= urldecode($key) . '=' . urldecode($value) . '&';
+        foreach ($params as $key => $value) {
+            $result .= urldecode($key) . '=' . urldecode((string) $value) . '&';
+        }
 
         return $result;
     }

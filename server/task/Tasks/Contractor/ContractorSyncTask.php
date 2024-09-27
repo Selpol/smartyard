@@ -3,6 +3,8 @@
 namespace Selpol\Task\Tasks\Contractor;
 
 use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
@@ -18,15 +20,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
     public $taskUniqueTtl = 600;
 
-    public bool $removeSubscriber;
-    public bool $removeKey;
 
-    public function __construct(int $id, bool $removeSubscriber, bool $removeKey)
+    public function __construct(int $id, public bool $removeSubscriber, public bool $removeKey)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
-
-        $this->removeSubscriber = $removeSubscriber;
-        $this->removeKey = $removeKey;
     }
 
     public function onTask(): bool
@@ -35,16 +32,18 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $addressesGroup = $this->getAddressesList();
 
-        if (count($addressesGroup) === 0)
+        if ($addressesGroup === []) {
             return true;
+        }
 
         $this->setProgress(5);
 
         $subscribersGroup = $this->getSubscribersList();
         $keysGroup = $this->getKeysList();
 
-        if (count($subscribersGroup) === 0 && count($keysGroup) === 0)
+        if ($subscribersGroup === [] && $keysGroup === []) {
             return true;
+        }
 
         $this->setProgress(10);
 
@@ -63,22 +62,23 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $progress = 15;
         $delta = (50 - $progress) / count($addresses);
 
-        foreach ($addresses as $address)
+        foreach ($addresses as $address) {
             try {
                 $this->address($contractor, $address, $subscribers, $devices, $flats);
 
                 $progress += $delta;
                 $this->setProgress($progress);
             } catch (Throwable $throwable) {
-                file_logger('contract')->error($throwable);
+                $this->logger?->error($throwable);
             }
+        }
 
         $this->setProgress(50);
 
         try {
             $this->keys($contractor, $devices, $flats, $keys);
         } catch (Throwable $throwable) {
-            file_logger('contract')->error($throwable);
+            $this->logger?->error($throwable);
         }
 
         return true;
@@ -102,12 +102,13 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         $flats[$flat->house_flat_id] = intval($flat->flat);
 
-        /** @var int[] $intercoms */
-        $intercoms = array_map(static fn(array $entrance) => intval($entrance['domophoneId']), container(HouseFeature::class)->getEntrances('houseId', $address));
+        $intercoms = array_map(static fn(array $entrance): int => intval($entrance['domophoneId']), container(HouseFeature::class)->getEntrances('houseId', $address));
 
-        foreach ($intercoms as $intercom)
-            if (!array_key_exists($intercom, $devices))
+        foreach ($intercoms as $intercom) {
+            if (!array_key_exists($intercom, $devices)) {
                 $devices[$intercom] = true;
+            }
+        }
 
         $this->subscriber($flat, $subscribers);
     }
@@ -129,22 +130,33 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         }, []);
 
         foreach ($subscribers as $subscriber) {
-            if (array_key_exists($subscriber[0], $subscribersInFlat)) {
-                if (HouseSubscriber::findById($subscriber[0]) !== null) {
-                    if ($subscribersInFlat[$subscriber[0]] !== $subscriber[1])
-                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]);
-                }
+            $id = $subscriber[0];
+            $role = $subscriber[1] == 1 || $subscriber[1] ? 0 : 1;
 
-                unset($subscribersInFlat[$subscriber[0]]);
-            } else if ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $subscriber[0], $subscriber[1]))
-                file_logger('contract')->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
-            else
-                file_logger('contract')->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $subscriber[0], 'role' => $subscriber[1]]);
+            try {
+                if (array_key_exists($id, $subscribersInFlat)) {
+                    if (HouseSubscriber::findById($id) instanceof HouseSubscriber && $subscribersInFlat[$id] !== $role) {
+                        $houseFeature->updateSubscriberRoleInFlat($flat->house_flat_id, $id, $role);
+                    }
+
+                    unset($subscribersInFlat[$id]);
+
+                    $this->logger?->debug('Обновлен пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
+                } elseif ($houseFeature->addSubscriberToFlat($flat->house_flat_id, $id, $role)) {
+                    $this->logger?->debug('Добавлен новый пользователь', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
+                } else {
+                    $this->logger?->debug('Не удалось добавить абонента', ['flat_id' => $flat->house_flat_id, 'subscriber' => $id, 'role' => $role]);
+                }
+            } catch (Throwable $throwable) {
+                $this->logger?->error($throwable);
+            }
         }
 
-        if ($this->removeSubscriber)
-            foreach ($subscribersInFlat as $key => $_)
+        if ($this->removeSubscriber) {
+            foreach ($subscribersInFlat as $key => $_) {
                 $houseFeature->removeSubscriberFromFlat($flat->house_flat_id, $key);
+            }
+        }
     }
 
     /**
@@ -158,8 +170,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
     {
         $houseFeature = container(HouseFeature::class);
 
-        /** @var IntercomDevice[] $intercoms */
-        $intercoms = array_filter(array_map(static fn(int $id) => intercom($id), array_keys($devices)), static fn(IntercomDevice $device) => $device->ping());
+        /** @var array<IntercomDevice|KeyInterface> $intercoms */
+        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device instanceof KeyInterface && $device->pingRaw());
 
         $progress = 50;
         $delta = (100 - 50) / count($flats);
@@ -176,8 +188,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 $addKeys = [];
 
                 foreach ($keys as $key) {
-                    if (array_key_exists($key, $keysInFlat)) unset($keysInFlat[$key]);
-                    else {
+                    if (array_key_exists($key, $keysInFlat)) {
+                        unset($keysInFlat[$key]);
+                    } else {
                         try {
                             (new HouseKey([
                                 'rfid' => $key,
@@ -190,31 +203,42 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                             $addKeys[] = $key;
                         } catch (Throwable $throwable) {
-                            file_logger('contractor')->error($throwable);
+                            $this->logger?->error($throwable);
                         }
                     }
                 }
 
-                foreach ($addKeys as $key)
-                    foreach ($intercoms as $intercom)
-                        $intercom->addRfidDeffer($key, $flat);
+                foreach ($intercoms as $intercom) {
+                    if (!$intercom->pingRaw()) {
+                        $this->logger?->debug('Skip process intercom ' . $intercom->uri->getHost() . ' for contractor id ' . $this->id);
 
-                if ($this->removeKey)
-                    foreach ($keysInFlat as $key => $value) {
-                        $houseFeature->deleteKey($value);
-
-                        foreach ($intercoms as $intercom)
-                            $intercom->removeRfidDeffer($key, $flat);
+                        continue;
                     }
+
+                    foreach ($addKeys as $key) {
+                        $intercom->addKey(new Key($key, $flat));
+                    }
+
+                    if ($this->removeKey) {
+                        foreach ($keysInFlat as $key => $value) {
+                            $houseFeature->deleteKey($value);
+                            $intercom->removeKey(new Key($key, $flat));
+                        }
+                    }
+                }
             } catch (Throwable $throwable) {
-                file_logger('contractor')->error($throwable);
+                $this->logger?->error($throwable);
             } finally {
                 $progress += $delta;
                 $this->setProgress($progress);
             }
         }
+    }
 
-        foreach ($intercoms as $intercom)
-            $intercom->defferRfids();
+    protected function setProgress(float|int $progress): void
+    {
+        $this->logger?->debug('Progress ' . $progress . ' for contractor id ' . $this->id);
+
+        parent::setProgress($progress);
     }
 }

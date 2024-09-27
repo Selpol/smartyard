@@ -49,8 +49,9 @@ readonly class MqttService implements ContainerDisposeInterface
      */
     public function dispose(): void
     {
-        if ($this->client->isConnected())
+        if ($this->client->isConnected()) {
             $this->client->disconnect();
+        }
     }
 
     /**

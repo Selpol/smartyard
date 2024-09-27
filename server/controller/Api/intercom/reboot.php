@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\intercom;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceIntercom;
@@ -14,13 +15,14 @@ readonly class reboot extends Api
     {
         $intercom = intercom(intval(rule()->id()->onItem('_id', $params)));
 
-        if ($intercom) {
+        if ($intercom instanceof IntercomDevice) {
             file_logger('intercom')->debug('Перезапуск домофона', ['id' => $params['_id'], 'user' => container(AuthService::class)->getUserOrThrow()->getIdentifier()]);
 
             $intercom->reboot();
 
-            if (container(AuditFeature::class)->canAudit())
+            if (container(AuditFeature::class)->canAudit()) {
                 container(AuditFeature::class)->audit(strval($params['_id']), DeviceIntercom::class, 'reboot', 'Перезапуск домофона');
+            }
 
             return self::success();
         }

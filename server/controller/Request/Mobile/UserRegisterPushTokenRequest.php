@@ -24,7 +24,7 @@ readonly class UserRegisterPushTokenRequest extends RouteRequest
 
             'production' => [filter()->default(true), rule()->bool()],
 
-            'platform' => rule()->required()->in(['ios', 'android', 'huawei'])->nonNullable(),
+            'platform' => rule()->required()->in(['ios', 'android', 'huawei', 'rustore'])->nonNullable(),
 
             'voipEnabled' => [filter()->default(true), rule()->bool()]
         ];

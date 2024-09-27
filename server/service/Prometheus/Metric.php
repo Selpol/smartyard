@@ -5,7 +5,9 @@ namespace Selpol\Service\Prometheus;
 readonly class Metric
 {
     public string $name;
+
     public string $type;
+
     public string $help;
 
     /** @var string[] */
@@ -24,8 +26,9 @@ readonly class Metric
 
         $result = [];
 
-        foreach ($value['samples'] as $sample)
+        foreach ($value['samples'] as $sample) {
             $result[] = new Sample($sample);
+        }
 
         $this->samples = $result;
     }

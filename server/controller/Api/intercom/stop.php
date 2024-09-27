@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Api\intercom;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 
@@ -11,9 +12,10 @@ readonly class stop extends Api
     {
         $device = intercom(rule()->id()->onItem('_id', $params));
 
-        if ($device) {
-            if (!$device->ping())
+        if ($device instanceof IntercomDevice) {
+            if (!$device->ping()) {
                 return self::error('Устройство не доступно', 404);
+            }
 
             $device->callStop();
 

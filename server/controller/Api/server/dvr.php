@@ -30,8 +30,9 @@ readonly class dvr extends Api
             'credentials' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
 
-        if ($dvrServer->insert())
+        if ($dvrServer->insert()) {
             return self::success($dvrServer->id);
+        }
 
         return self::error('Не удалось создать Dvr сервер', 400);
     }
@@ -59,11 +60,13 @@ readonly class dvr extends Api
 
         $dvrServer->token = $validate['token'];
 
-        if ($validate['credentials'] && !str_contains($validate['credentials'], '*'))
+        if ($validate['credentials'] && !str_contains($validate['credentials'], '*')) {
             $dvrServer->credentials = $validate['credentials'];
+        }
 
-        if ($dvrServer->update())
+        if ($dvrServer->update()) {
             return self::success($dvrServer->id);
+        }
 
         return self::error('Не удалось обновить Dvr сервер', 400);
     }
@@ -72,8 +75,9 @@ readonly class dvr extends Api
     {
         $dvrServer = DvrServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($dvrServer->delete())
+        if ($dvrServer->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить Dvr сервер', 400);
     }

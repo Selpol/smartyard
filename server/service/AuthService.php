@@ -12,6 +12,7 @@ use Selpol\Service\Exception\AuthException;
 class AuthService
 {
     private ?AuthTokenInterface $token = null;
+
     private ?AuthUserInterface $user = null;
 
     /**
@@ -26,8 +27,9 @@ class AuthService
 
     public function getTokenOrThrow(): AuthTokenInterface
     {
-        if ($this->token === null)
+        if (!$this->token instanceof AuthTokenInterface) {
             throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
+        }
 
         return $this->token;
     }
@@ -44,8 +46,9 @@ class AuthService
 
     public function getUserOrThrow(): AuthUserInterface
     {
-        if ($this->user === null)
+        if (!$this->user instanceof AuthUserInterface) {
             throw new AuthException(localizedMessage: 'Запрос не авторизирован', code: 401);
+        }
 
         return $this->user;
     }
@@ -57,8 +60,9 @@ class AuthService
 
     public function getPermissions(): array
     {
-        if ($this->user === null || !$this->user->canScope())
+        if (!$this->user instanceof AuthUserInterface || !$this->user->canScope()) {
             return [];
+        }
 
         $identifier = intval($this->user->getIdentifier());
 
@@ -67,8 +71,9 @@ class AuthService
 
     public function checkScope(string $value): bool
     {
-        if ($this->user === null || !$this->user->canScope())
+        if (!$this->user instanceof AuthUserInterface || !$this->user->canScope()) {
             return false;
+        }
 
         return $this->checkUserScope(intval($this->user->getIdentifier()), $value);
     }
@@ -79,11 +84,13 @@ class AuthService
 
         $defaultPermissions = $role->getDefaultPermissions();
 
-        if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions))
+        if (in_array('*', $defaultPermissions) || in_array($value, $defaultPermissions)) {
             return true;
+        }
 
-        if (!array_key_exists($id, $this->scopes))
+        if (!array_key_exists($id, $this->scopes)) {
             $this->scopes[$id] = $role->getAllPermissionsForUser($id);
+        }
 
         $permissions = $this->scopes[$id];
 
