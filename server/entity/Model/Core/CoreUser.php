@@ -40,8 +40,9 @@ class CoreUser extends Entity
     {
         $value = $this->getValue();
 
-        if (array_key_exists('password', $value))
+        if (array_key_exists('password', $value)) {
             unset($value['password']);
+        }
 
         return $value;
     }

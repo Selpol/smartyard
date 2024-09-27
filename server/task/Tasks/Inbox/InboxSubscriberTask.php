@@ -9,20 +9,13 @@ class InboxSubscriberTask extends Task
 {
     public int $subscriberId;
 
-    public string $title;
-    public string $message;
-
-    public string $action;
-
-    public function __construct(int $subscriberId, string $title, string $message, string $action)
+    public function __construct(int $subscriberId, public string $title, public string $message, public string $action)
     {
         parent::__construct('Отправка сообщений для абонента (' . $subscriberId . ')');
 
         $this->subscriberId = $subscriberId;
 
-        $this->title = $title;
-        $this->message = $message;
-        $this->action = $action;
+        $this->setLogger(file_logger('task-inbox'));
     }
 
     public function onTask(): bool

@@ -14,8 +14,9 @@ readonly class flatCameras extends Api
 
         $cameraId = $households->addCamera('flat', $params['flatId'], $params['cameraId']);
 
-        if ($cameraId)
+        if ($cameraId) {
             return self::success($cameraId);
+        }
 
         return self::error('Не удалось добавить камеру в квартиру', 400);
     }
@@ -26,8 +27,9 @@ readonly class flatCameras extends Api
 
         $success = $households->unlinkCamera('flat', $params['flatId'], $params['cameraId']);
 
-        if ($success)
+        if ($success) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить камеру из квартиры', 400);
     }

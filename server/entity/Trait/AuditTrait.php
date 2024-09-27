@@ -20,11 +20,13 @@ trait AuditTrait
     {
         $result = parent::insert($entity);
 
-        if (!$this->canAudit())
+        if (!$this->canAudit()) {
             return $result;
+        }
 
-        if ($result)
+        if ($result) {
             $this->audit($entity, 'insert', $this->getAuditMessageInsert($entity));
+        }
 
         return $result;
     }
@@ -37,11 +39,13 @@ trait AuditTrait
     {
         $result = parent::update($entity);
 
-        if (!$this->canAudit())
+        if (!$this->canAudit()) {
             return $result;
+        }
 
-        if ($result)
+        if ($result) {
             $this->audit($entity, 'update', $this->getAuditMessageUpdate($entity));
+        }
 
         return $result;
     }
@@ -54,11 +58,13 @@ trait AuditTrait
     {
         $result = parent::delete($entity);
 
-        if (!$this->canAudit())
+        if (!$this->canAudit()) {
             return $result;
+        }
 
-        if ($result)
+        if ($result) {
             $this->audit($entity, 'delete', $this->getAuditMessageDelete($entity));
+        }
 
         return $result;
     }

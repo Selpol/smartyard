@@ -13,7 +13,7 @@ class RedisService implements LoggerAwareInterface
 {
     use LoggerKernelTrait;
 
-    private ?Redis $redis;
+    private ?Redis $redis = null;
 
     public function __construct()
     {
@@ -23,8 +23,12 @@ class RedisService implements LoggerAwareInterface
             $redis = new Redis();
             $redis->connect(config_get('redis.host'), config_get('redis.port'));
 
-            if ($password = config_get('redis.password'))
-                $redis->auth($password);
+            $user = config_get('redis.user');
+            $password = config_get('redis.password');
+
+            if ($user && $password) {
+                $redis->auth([$user, $password]);
+            }
 
             $this->redis = $redis;
         } catch (Throwable $throwable) {
@@ -42,8 +46,9 @@ class RedisService implements LoggerAwareInterface
     public function database(int $index): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->select($index);
         } catch (Throwable) {
@@ -54,20 +59,24 @@ class RedisService implements LoggerAwareInterface
     public function use(int $index, callable $callback): mixed
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             $database = $this->redis->getDbNum();
 
-            if ($database === false)
+            if ($database === false) {
                 $database = 0;
+            }
         } catch (Throwable) {
             $database = 0;
         }
 
-        if ($database == $index)
+        if ($database == $index) {
             return call_user_func($callback, $this);
-        else if ($this->database($index)) {
+        }
+
+        if ($this->database($index)) {
             try {
                 return call_user_func($callback, $this);
             } finally {
@@ -81,8 +90,9 @@ class RedisService implements LoggerAwareInterface
     public function keys(string $pattern): array
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return [];
+            }
 
             return $this->redis->keys($pattern);
         } catch (Throwable $throwable) {
@@ -99,8 +109,9 @@ class RedisService implements LoggerAwareInterface
     public function get(string $key): mixed
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->get($key);
         } catch (Throwable $throwable) {
@@ -113,8 +124,9 @@ class RedisService implements LoggerAwareInterface
     public function set(string $key, mixed $value, mixed $options = null): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->set($key, $value, $options);
         } catch (Throwable $throwable) {
@@ -127,8 +139,9 @@ class RedisService implements LoggerAwareInterface
     public function setEx(string $key, int $expire, mixed $value): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->setex($key, $expire, $value);
         } catch (Throwable $throwable) {
@@ -141,8 +154,9 @@ class RedisService implements LoggerAwareInterface
     public function setNx(string $key, mixed $value): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->setnx($key, $value);
         } catch (Throwable $throwable) {
@@ -155,8 +169,9 @@ class RedisService implements LoggerAwareInterface
     public function exist(string $key, array ...$keys): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             $exist = $this->redis->exists($key, ...$keys);
 
@@ -171,8 +186,9 @@ class RedisService implements LoggerAwareInterface
     public function del(string $key, array ...$keys): bool
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->del($key, ...$keys) > 0;
         } catch (Throwable $throwable) {
@@ -185,8 +201,9 @@ class RedisService implements LoggerAwareInterface
     public function eval(string $script, array $args = [], int $numKeys = 0): mixed
     {
         try {
-            if (is_null($this->redis))
+            if (is_null($this->redis)) {
                 return false;
+            }
 
             return $this->redis->eval($script, $args, $numKeys);
         } catch (Throwable $throwable) {

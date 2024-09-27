@@ -11,14 +11,10 @@ abstract class Device implements LoggerAwareInterface
 {
     use LoggerAwareTrait;
 
-    public readonly Uri $uri;
-
     protected readonly Client $client;
 
-    protected function __construct(Uri $uri)
+    protected function __construct(public readonly Uri $uri)
     {
-        $this->uri = $uri;
-
         $this->client = container(Client::class);
 
         $this->logger = file_logger('device');

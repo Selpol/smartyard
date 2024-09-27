@@ -17,6 +17,7 @@ readonly class BlockMiddleware extends RouteMiddleware
     private array $services;
 
     private int $code;
+
     private ?array $body;
 
     public function __construct(array $config)
@@ -24,13 +25,14 @@ readonly class BlockMiddleware extends RouteMiddleware
         $this->services = array_key_exists('services', $config) ? $config['services'] : $config;
 
         $this->code = array_key_exists('code', $config) ? $config['code'] : 403;
-        $this->body = array_key_exists('body', $config) ? $config['body'] : null;
+        $this->body = $config['body'] ?? null;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($block = container(BlockFeature::class)->getFirstBlockForSubscriber(container(AuthService::class)->getUserOrThrow()->getIdentifier(), $this->services))
-            return json_response($this->code, body: $this->body ?: ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
+        if ($block = container(BlockFeature::class)->getFirstBlockForSubscriber(container(AuthService::class)->getUserOrThrow()->getIdentifier(), $this->services)) {
+            return json_response($this->code, body: $this->body !== null && $this->body !== [] ? $this->body : ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
+        }
 
         return $handler->handle($request);
     }

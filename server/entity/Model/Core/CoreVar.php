@@ -32,6 +32,7 @@ class CoreVar extends Entity
     public static string $columnId = 'var_id';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

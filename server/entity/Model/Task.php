@@ -33,6 +33,7 @@ class Task extends Entity
     public static string $columnIdStrategy = 'task_id_seq';
 
     public static ?string $columnCreatedAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public static function getColumns(): array

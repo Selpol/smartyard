@@ -4,6 +4,7 @@ namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -12,6 +13,7 @@ use Throwable;
 class IntercomCmsFlatTask extends Task
 {
     public int $flatId;
+
     public bool $block;
 
     public function __construct(int $subscriberId, bool $block)
@@ -20,14 +22,17 @@ class IntercomCmsFlatTask extends Task
 
         $this->flatId = $subscriberId;
         $this->block = $block;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool
     {
         $flat = container(HouseFeature::class)->getFlat($this->flatId);
 
-        if (!$flat)
+        if (!$flat) {
             return false;
+        }
 
         $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
 
@@ -35,8 +40,9 @@ class IntercomCmsFlatTask extends Task
             foreach ($entrances as $entrance) {
                 $id = $entrance['domophoneId'];
 
-                if ($id)
+                if ($id) {
                     $this->apartment($id, $flat, $entrance);
+                }
             }
 
             return true;
@@ -48,16 +54,19 @@ class IntercomCmsFlatTask extends Task
     private function apartment(int $id, array $flat, array $entrance): void
     {
         try {
-            $device = intercom($id);
+            $intercom = intercom($id);
 
-            if (!$device->ping())
-                throw new DeviceException($device, 'Устройство не доступно');
+            if (!$intercom instanceof ApartmentInterface) {
+                return;
+            }
+
+            if (!$intercom->ping()) {
+                throw new DeviceException($intercom, 'Устройство не доступно');
+            }
 
             $apartment = $flat['flat'];
 
-            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($id) {
-                return $entrance['domophoneId'] == $id;
-            });
+            $flat_entrances = array_filter($flat['entrances'], fn(array $entrance): bool => $entrance['domophoneId'] == $id);
 
             foreach ($flat_entrances as $flat_entrance) {
                 if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
@@ -65,14 +74,15 @@ class IntercomCmsFlatTask extends Task
                 }
             }
 
-            $device->setApartmentCms(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
+            $intercom->setApartmentHandset(intval($apartment), !$entrance['shared'] && ((!$this->block && $flat['cmsEnabled'] == 1)));
         } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
+            $this->logger?->error($throwable);
 
-            if ($throwable instanceof KernelException)
+            if ($throwable instanceof KernelException) {
                 throw $throwable;
+            }
 
-            throw new RuntimeException($throwable->getMessage(), previous: $throwable);
+            throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         }
     }
 }

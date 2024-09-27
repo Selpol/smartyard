@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Internal;
 
+use Selpol\Device\Ip\Camera\CameraDevice;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -30,18 +31,21 @@ readonly class FrsController extends RbtController
     {
         $frs_key = "frs_key_" . $request->stream_id;
 
-        if ($redisService->get($frs_key) != null)
+        if ($redisService->get($frs_key) != null) {
             return response(204);
+        }
 
         $entrance = $frsFeature->getEntranceByCameraId($request->stream_id);
 
-        if (!$entrance)
+        if ($entrance === false || $entrance === []) {
             return response(204);
+        }
 
         $flats = $frsFeature->getFlatsDetailByFaceId($request->faceId, $entrance["entranceId"]);
 
-        if (count($flats) == 0)
+        if (count($flats) == 0) {
             return response(204);
+        }
 
         $find = false;
 
@@ -50,16 +54,18 @@ readonly class FrsController extends RbtController
                 if ($flatEntrance['entranceId'] === $entrance['entranceId']) {
                     $find = true;
 
-                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) != null)
+                    if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]) != null) {
                         return response(204);
+                    }
 
                     break;
                 }
             }
         }
 
-        if (!$find)
+        if (!$find) {
             return response(204);
+        }
 
         $domophone_id = $entrance["domophoneId"];
         $domophone_output = $entrance["domophoneOutput"];
@@ -88,8 +94,9 @@ readonly class FrsController extends RbtController
     {
         $camera = camera($id);
 
-        if (!$camera)
+        if (!$camera instanceof CameraDevice) {
             return response(204);
+        }
 
         return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($camera->getScreenshot());
     }

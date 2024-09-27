@@ -9,20 +9,13 @@ class InboxFlatTask extends Task
 {
     public int $flatId;
 
-    public string $title;
-    public string $message;
-
-    public string $action;
-
-    public function __construct(int $flatId, string $title, string $message, string $action)
+    public function __construct(int $flatId, public string $title, public string $message, public string $action)
     {
         parent::__construct('Отправка сообщений для квартиры (' . $flatId . ')');
 
         $this->flatId = $flatId;
 
-        $this->title = $title;
-        $this->message = $message;
-        $this->action = $action;
+        $this->setLogger(file_logger('task-inbox'));
     }
 
     public function onTask(): bool

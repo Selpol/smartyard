@@ -12,8 +12,9 @@ readonly class contractor extends Api
     {
         $contractor = \Selpol\Entity\Model\Contractor::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($contractor)
+        if ($contractor instanceof \Selpol\Entity\Model\Contractor) {
             return self::success($contractor);
+        }
 
         return self::error('Не удалось найти подрядчика');
     }
@@ -26,8 +27,9 @@ readonly class contractor extends Api
             'code' => rule()->string()
         ]));
 
-        if ($contractor->insert())
+        if ($contractor->insert()) {
             return self::success($contractor->id);
+        }
 
         return self::error('Не удалось создать подрядчика', 400);
     }
@@ -48,8 +50,9 @@ readonly class contractor extends Api
         $contractor->flat = $validate['flat'];
         $contractor->code = $validate['code'];
 
-        if ($contractor->update())
+        if ($contractor->update()) {
             return self::success($contractor->id);
+        }
 
         return self::error('Не удалось обновить подрядчика', 400);
     }
@@ -60,8 +63,9 @@ readonly class contractor extends Api
 
         container(GroupFeature::class)->deleteFor(GroupFeature::FOR_CONTRACTOR, $contractor->id);
 
-        if ($contractor->delete())
+        if ($contractor->delete()) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить подрядчика', 400);
     }

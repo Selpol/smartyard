@@ -2,6 +2,7 @@
 
 namespace Selpol\Runner;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -49,13 +50,13 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    function run(array $arguments): int
+    public function run(array $arguments): int
     {
         chdir(path(''));
 
         $arguments = $this->getArguments($arguments);
 
-        if (count($arguments) === 0) {
+        if ($arguments === []) {
             echo $this->help();
 
             return 0;
@@ -73,53 +74,102 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $command = $line[1];
 
         if ($group === 'db') {
-            if ($command === 'init') $this->dbInit($arguments);
-            else if ($command === 'check') return $this->dbCheck();
-            else if ($command === 'backup') return $this->dbBackup($arguments['db:backup']);
-            else if ($command === 'restore') return $this->dbRestore($arguments['db:restore']);
-            else echo $this->help('db');
-        } else if ($group === 'amqp') {
-            if ($command === 'check') return $this->amqpCheck();
-            else echo $this->help('amqp');
-        } else if ($group === 'admin') {
-            if ($command === 'password') $this->adminPassword($arguments['admin:password']);
-            else echo $this->help('admin');
-        } else if ($group === 'user') {
-            if ($command === 'password') $this->userPassword(intval($arguments['user:password']), $arguments['--password']);
-            else echo $this->help('user');
-        } else if ($group === 'cron') {
-            if ($command === 'run') $this->cronRun($arguments);
-            else if ($command === 'install') $this->cronInstall();
-            else if ($command === 'uninstall') $this->cronUninstall();
-            else echo $this->help('cron');
-        } else if ($group === 'kernel') {
-            if ($command === 'container') $this->kernelContainer();
-            else if ($command === 'optimize') $this->kernelOptimize();
-            else if ($command === 'clear') $this->kernelClear();
-            else if ($command === 'wipe') $this->kernelWipe();
-            else echo $this->help('kernel');
-        } else if ($group === 'audit') {
-            if ($command === 'clear') $this->auditClear();
-            else echo $this->help('audit');
-        } else if ($group === 'role') {
-            if ($command === 'init') $this->roleInit();
-            else if ($command === 'clear') $this->roleClear();
-            else echo $this->help('role');
-        } else if ($group === 'device') {
-            if ($command === 'info') $this->deviceInfo();
-            else if ($command === 'bitrate') $this->deviceBitrate(array_key_exists('vendor', $arguments) ? $arguments['vendor'] : null);
-            else if ($command === 'sync') $this->deviceSync(intval($arguments['device:sync']));
-            else if ($command === 'block') $this->deviceBlock();
-            else if ($command === 'call') $this->deviceCall(intval($arguments['device:call']));
-            else if ($command === 'reboot') $this->deviceReboot(intval($arguments['device:reboot']));
-            else if ($command === 'reset') $this->deviceReset(intval($arguments['device:reset']));
-            else echo $this->help('device');
-        } else if ($group === 'task') {
-            if ($command === 'unique') $this->taskUnique();
-        } else if ($group === 'inbox') {
-            if ($command === 'server') $this->inboxServer($arguments['inbox:server'], intval($arguments['--subscriber']));
-            else echo $this->help('inbox');
-        } else echo $this->help();
+            if ($command === 'init') {
+                $this->dbInit($arguments);
+            } elseif ($command === 'check') {
+                return $this->dbCheck();
+            } elseif ($command === 'backup') {
+                return $this->dbBackup($arguments['db:backup']);
+            } elseif ($command === 'restore') {
+                return $this->dbRestore($arguments['db:restore']);
+            } else {
+                echo $this->help('db');
+            }
+        } elseif ($group === 'amqp') {
+            if ($command === 'check') {
+                return $this->amqpCheck();
+            } else {
+                echo $this->help('amqp');
+            }
+        } elseif ($group === 'admin') {
+            if ($command === 'password') {
+                $this->adminPassword($arguments['admin:password']);
+            } else {
+                echo $this->help('admin');
+            }
+        } elseif ($group === 'user') {
+            if ($command === 'password') {
+                $this->userPassword(intval($arguments['user:password']), $arguments['--password']);
+            } else {
+                echo $this->help('user');
+            }
+        } elseif ($group === 'cron') {
+            if ($command === 'run') {
+                $this->cronRun($arguments);
+            } elseif ($command === 'install') {
+                $this->cronInstall();
+            } elseif ($command === 'uninstall') {
+                $this->cronUninstall();
+            } else {
+                echo $this->help('cron');
+            }
+        } elseif ($group === 'kernel') {
+            if ($command === 'container') {
+                $this->kernelContainer();
+            } elseif ($command === 'optimize') {
+                $this->kernelOptimize();
+            } elseif ($command === 'clear') {
+                $this->kernelClear();
+            } elseif ($command === 'wipe') {
+                $this->kernelWipe();
+            } else {
+                echo $this->help('kernel');
+            }
+        } elseif ($group === 'audit') {
+            if ($command === 'clear') {
+                $this->auditClear();
+            } else {
+                echo $this->help('audit');
+            }
+        } elseif ($group === 'role') {
+            if ($command === 'init') {
+                $this->roleInit();
+            } elseif ($command === 'clear') {
+                $this->roleClear();
+            } else {
+                echo $this->help('role');
+            }
+        } elseif ($group === 'device') {
+            if ($command === 'info') {
+                $this->deviceInfo();
+            } elseif ($command === 'sync') {
+                $this->deviceSync(intval($arguments['device:sync']));
+            } elseif ($command === 'block') {
+                $this->deviceBlock();
+            } elseif ($command === 'call') {
+                $this->deviceCall(intval($arguments['device:call']));
+            } elseif ($command === 'reboot') {
+                $this->deviceReboot(intval($arguments['device:reboot']));
+            } elseif ($command === 'reset') {
+                $this->deviceReset(intval($arguments['device:reset']));
+            } else {
+                echo $this->help('device');
+            }
+        } elseif ($group === 'task') {
+            if ($command === 'unique') {
+                $this->taskUnique();
+            } else {
+                echo $this->help('task');
+            }
+        } elseif ($group === 'inbox') {
+            if ($command === 'server') {
+                $this->inboxServer($arguments['inbox:server'], intval($arguments['--subscriber']));
+            } else {
+                echo $this->help('inbox');
+            }
+        } else {
+            echo $this->help();
+        }
 
         return 0;
     }
@@ -134,9 +184,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private function getArguments(array $arguments): array
     {
         $args = [];
+        $counter = count($arguments);
 
-        for ($i = 1; $i < count($arguments); $i++) {
-            $a = explode('=', $arguments[$i]);
+        for ($i = 1; $i < $counter; ++$i) {
+            $a = explode('=', (string)$arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }
@@ -149,7 +200,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function dbInit(array $arguments): void
     {
-        $initDbVersion = array_key_exists('--version', $arguments) ? $arguments['--version'] : null;
+        $initDbVersion = $arguments['--version'] ?? null;
         $force = array_key_exists('--force', $arguments);
 
         try {
@@ -163,20 +214,21 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if ($initDbVersion !== null) {
             if ($initDbVersion > $version) {
                 $this->logger->debug('Start upgrading migration from ' . $version . ' to ' . $initDbVersion);
-
-                if (task(new MigrationUpTask($version, $initDbVersion, $force))->sync())
+                if (task(new MigrationUpTask($version, $initDbVersion, $force))->sync()) {
                     $this->logger->debug('Upgrade migration from ' . $version . ' to ' . $initDbVersion);
-            } else if ($initDbVersion < $version) {
+                }
+            } elseif ($initDbVersion < $version) {
                 $this->logger->debug('Start downgrading migration from ' . $version . ' to ' . $initDbVersion);
-
-                if (task(new MigrationDownTask($version, $initDbVersion, $force))->sync())
+                if (task(new MigrationDownTask($version, $initDbVersion, $force))->sync()) {
                     $this->logger->debug('Downgrade migration from ' . $version . ' to ' . $initDbVersion);
+                }
             }
         } else {
             $this->logger->debug('Start upgrading migration from ' . $version . ' to latest');
 
-            if (task(new MigrationUpTask($version, null, $force))->sync())
+            if (task(new MigrationUpTask($version, null, $force))->sync()) {
                 $this->logger->debug('Upgrade migration from ' . $version . ' to latest');
+            }
         }
     }
 
@@ -273,12 +325,13 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $parts = ["minutely", "5min", "hourly", "daily", "monthly"];
         $part = false;
 
-        foreach ($parts as $p)
+        foreach ($parts as $p) {
             if (in_array($p, $arguments)) {
                 $part = $p;
 
                 break;
             }
+        }
 
         if ($part) {
             $start = microtime(true) * 1000;
@@ -288,22 +341,26 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $features = [FrsFeature::class, FileFeature::class];
 
                 foreach ($features as $feature) {
-                    if (container($feature)->cron($part))
+                    if (container($feature)->cron($part)) {
                         $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
-                    else
+                    } else {
                         $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+                    }
                 }
 
-                if (container(FrsFeature::class)->cron($part))
+                if (container(FrsFeature::class)->cron($part)) {
                     $this->logger->debug('Success', ['feature' => FrsFeature::class, 'part' => $part]);
-                else
+                } else {
                     $this->logger->error('Fail', ['feature' => FrsFeature::class, 'part' => $part]);
+                }
             } catch (Throwable $throwable) {
                 $this->logger->error('Error cron' . PHP_EOL . $throwable, ['feature' => FrsFeature::class, 'part' => $part]);
             }
 
             $this->logger->debug('Cron done', ['ellapsed_ms' => microtime(true) * 1000 - $start]);
-        } else echo $this->help();
+        } else {
+            echo $this->help();
+        }
     }
 
     private function cronInstall(): void
@@ -320,14 +377,17 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $lines = 0;
 
         foreach ($crontab as $line) {
-            if ($line === "## RBT crons start, dont touch!!!")
+            if ($line === "## RBT crons start, dont touch!!!") {
                 $skip = true;
+            }
 
-            if (!$skip)
+            if (!$skip) {
                 $clean[] = $line;
+            }
 
-            if ($line === "## RBT crons end, dont touch!!!")
+            if ($line === "## RBT crons end, dont touch!!!") {
                 $skip = false;
+            }
         }
 
         $clean = explode("\n", trim(implode("\n", $clean)));
@@ -335,25 +395,26 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $clean[] = "";
 
         $clean[] = "## RBT crons start, dont touch!!!";
-        $lines++;
-        $clean[] = "*/1 * * * * $cli=minutely";
-        $lines++;
-        $clean[] = "*/5 * * * * $cli=5min";
-        $lines++;
-        $clean[] = "1 */1 * * * $cli=hourly";
-        $lines++;
-        $clean[] = "1 1 */1 * * $cli=daily";
-        $lines++;
-        $clean[] = "1 1 1 */1 * $cli=monthly";
-        $lines++;
+        ++$lines;
+        $clean[] = sprintf('*/1 * * * * %s=minutely', $cli);
+        ++$lines;
+        $clean[] = sprintf('*/5 * * * * %s=5min', $cli);
+        ++$lines;
+        $clean[] = sprintf('1 */1 * * * %s=hourly', $cli);
+        ++$lines;
+        $clean[] = sprintf('1 1 */1 * * %s=daily', $cli);
+        ++$lines;
+        $clean[] = sprintf('1 1 1 */1 * %s=monthly', $cli);
+        ++$lines;
         $clean[] = "## RBT crons end, dont touch!!!";
-        $lines++;
+        ++$lines;
 
         file_put_contents(sys_get_temp_dir() . "/rbt_crontab", trim(implode("\n", $clean)));
 
         system("crontab " . sys_get_temp_dir() . "/rbt_crontab");
 
-        echo "$lines crontabs lines added\n";
+        echo $lines . ' crontabs lines added
+';
 
         $this->logger->debug('Install crontabs', ['lines' => $lines]);
     }
@@ -370,14 +431,19 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $lines = 0;
 
         foreach ($crontab as $line) {
-            if ($line === "## RBT crons start, dont touch!!!")
+            if ($line === "## RBT crons start, dont touch!!!") {
                 $skip = true;
+            }
 
-            if (!$skip) $clean[] = $line;
-            else $lines++;
+            if (!$skip) {
+                $clean[] = $line;
+            } else {
+                ++$lines;
+            }
 
-            if ($line === "## RBT crons end, dont touch!!!")
+            if ($line === "## RBT crons end, dont touch!!!") {
                 $skip = false;
+            }
         }
 
         $clean = explode("\n", trim(implode("\n", $clean)));
@@ -386,7 +452,8 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         system("crontab " . sys_get_temp_dir() . "/rbt_crontab");
 
-        echo "$lines crontabs lines removed\n";
+        echo $lines . ' crontabs lines removed
+';
 
         $this->logger->debug('Uninstall crontabs', ['lines' => $lines]);
     }
@@ -408,8 +475,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $headers = ['TYPE', 'ID', 'FACTORY'];
             $result = [];
 
-            foreach ($factories as $id => $factory)
+            foreach ($factories as $id => $factory) {
                 $result[] = ['TYPE' => $factory[0] ? 'SINGLETON' : 'FACTORY', 'ID' => $id, 'FACTORY' => $factory[1] ?: ''];
+            }
 
             $this->logger->debug('CONTAINER TABLE:');
             $this->logger->debug($this->table($headers, $result));
@@ -568,9 +636,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
 
             $segments = explode('-', $title);
+            $counter = count($segments);
 
-            for ($i = 0; $i + 1 < count($segments); $i++) {
-                $item = join('-', array_slice($segments, 0, $i + 1));
+            for ($i = 0; $i + 1 < $counter; ++$i) {
+                $item = implode('-', array_slice($segments, 0, $i + 1));
 
                 if (in_array($item . '-*', $filter)) {
                     return true;
@@ -581,17 +650,17 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
 
         foreach ($apis as $api) {
-            if ($api != "." && $api != ".." && is_dir($dir . "/$api")) {
-                $methods = scandir($dir . "/$api");
+            if ($api !== "." && $api !== ".." && is_dir($dir . ('/' . $api))) {
+                $methods = scandir($dir . ('/' . $api));
 
                 foreach ($methods as $method) {
-                    if ($method != "." && $method != ".." && str_ends_with($method, ".php") && is_file($dir . "/$api/$method")) {
+                    if ($method !== "." && $method !== ".." && str_ends_with($method, ".php") && is_file($dir . sprintf('/%s/%s', $api, $method))) {
                         $method = substr($method, 0, -4);
 
-                        require_once $dir . "/$api/$method.php";
+                        require_once $dir . sprintf('/%s/%s.php', $api, $method);
 
                         /** @var class-string<Api> $class */
-                        $class = "Selpol\\Controller\\Api\\$api\\$method";
+                        $class = sprintf('Selpol\Controller\Api\%s\%s', $api, $method);
 
                         if (class_exists($class)) {
                             $request_methods = $class::index();
@@ -606,12 +675,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     if (check($title, $filter)) {
                                         if (!array_key_exists($title, $titlePermissions)) {
                                             $permission = new Permission();
-
                                             $permission->title = $title;
                                             $permission->description = $description;
-
                                             $permission->insert();
-                                        } else if ($titlePermissions[$title]->description != $description) {
+                                        } elseif ($titlePermissions[$title]->description != $description) {
                                             $titlePermissions[$title]->description = $description;
                                             $titlePermissions[$title]->update();
                                         }
@@ -647,12 +714,10 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             if (check($title, $filter)) {
                 if (!array_key_exists($title, $titlePermissions)) {
                     $permission = new Permission();
-
                     $permission->title = $title;
                     $permission->description = $description;
-
                     $permission->insert();
-                } else if ($titlePermissions[$title]->description != $description) {
+                } elseif ($titlePermissions[$title]->description != $description) {
                     $titlePermissions[$title]->description = $description;
                     $titlePermissions[$title]->update();
                 }
@@ -661,8 +726,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             }
         }
 
-        foreach ($titlePermissions as $permission)
+        foreach ($titlePermissions as $permission) {
             $permission->delete();
+        }
     }
 
     /**
@@ -681,8 +747,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         foreach ($deviceIntercoms as $deviceIntercom) {
             $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
-            if (!$intercom->ping())
+            if (!$intercom->ping()) {
                 continue;
+            }
 
             $info = $intercom->getSysInfo();
 
@@ -695,32 +762,16 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         }
     }
 
-    private function deviceBitrate(?string $vendor): void
-    {
-        $deviceIntercoms = DeviceIntercom::fetchAll();
-
-        foreach ($deviceIntercoms as $deviceIntercom) {
-            $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
-
-            try {
-                if ($vendor && $intercom->model->vendor !== $vendor || !$intercom->ping())
-                    continue;
-
-                $intercom->setVideoEncodingDefault();
-            } catch (Throwable $throwable) {
-                echo $throwable->getMessage() . PHP_EOL;
-            }
-        }
-    }
-
     private function deviceSync(int $id): void
     {
         try {
             $deviceIntercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id']));
 
-            if ($deviceIntercom)
+            if ($deviceIntercom instanceof DeviceIntercom) {
                 task(new IntercomConfigureTask($deviceIntercom->house_domophone_id))->sync();
-            else echo 'Домофон не найден' . PHP_EOL;
+            } else {
+                echo 'Домофон не найден' . PHP_EOL;
+            }
         } catch (Throwable $throwable) {
             echo 'Ошибка синхронизации. ' . $throwable . PHP_EOL;
         }
@@ -731,7 +782,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $task = new IntercomBlockTask();
 
         try {
-            $task->setProgressCallback(function (int|float $value) {
+            $task->setProgressCallback(function (int|float $value): void {
                 $this->getLogger()?->debug('Device block task process: ' . $value);
             });
 
@@ -743,20 +794,29 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     private function deviceReboot(int $id): void
     {
-        if ($device = intercom($id)) $device->reboot();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if (($device = intercom($id)) instanceof IntercomDevice) {
+            $device->reboot();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     private function deviceReset(int $id): void
     {
-        if ($device = intercom($id)) $device->reset();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if (($device = intercom($id)) instanceof IntercomDevice) {
+            $device->reset();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     private function deviceCall(int $id): void
     {
-        if ($device = intercom($id)) $device->callStop();
-        else echo 'Домофон не найден' . PHP_EOL;
+        if (($device = intercom($id)) instanceof IntercomDevice) {
+            $device->callStop();
+        } else {
+            echo 'Домофон не найден' . PHP_EOL;
+        }
     }
 
     public function taskUnique(): void
@@ -776,40 +836,45 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $result = [];
 
-        if ($group === null || $group === 'db')
+        if ($group === null || $group === 'db') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'db:init [--version=<version>]                  - Инициализация базы данных',
                 'db:check                                       - Проверка доступности базы данных'
             ]);
+        }
 
-        if ($group === null || $group === 'amqp')
+        if ($group === null || $group === 'amqp') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'amqp:check                                     - Проверка доступности AMQP'
             ]);
+        }
 
-        if ($group === null || $group === 'admin')
+        if ($group === null || $group === 'admin') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'admin:password=<password>                      - Обновить пароль администратора'
             ]);
+        }
 
-        if ($group === null || $group === 'user')
+        if ($group === null || $group === 'user') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'user:password=<id> --password=<password>       - Обновить пароль пользователя'
             ]);
+        }
 
-        if ($group === null || $group === 'cron')
+        if ($group === null || $group === 'cron') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'cron:run=<type>                                - Выполнить задачи по времени',
                 'cron:install                                   - Установить задачи по времени',
                 'cron:uninstall                                 - Удалить задачи по времени'
             ]);
+        }
 
-        if ($group === null || $group === 'kernel')
+        if ($group === null || $group === 'kernel') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'kernel:container                               - Показать зависимости приложения',
@@ -817,43 +882,48 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 'kernel:clear                                   - Очистить приложение',
                 'kernel:wipe                                    - Очистить метрики приложения'
             ]);
+        }
 
-        if ($group === null || $group === 'audit')
+        if ($group === null || $group === 'audit') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'audit:clear                                    - Очистить данные аудита'
             ]);
+        }
 
-        if ($group === null || $group === 'role')
+        if ($group === null || $group === 'role') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'role:init                                      - Инициализация групп',
                 'role:clear                                     - Удалить группы'
             ]);
+        }
 
-        if ($group === null || $group === 'device')
+        if ($group === null || $group === 'device') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'device:info                                    - Обновить информацию об домофонах',
-                'device:bitrate --vendor=<VENDOR>               - Обновить битрейт на камерах',
                 'device:sync=<id>                               - Синхронизация домофона',
                 'device:block                                   - Синхронизация блокировок КМС Трубок',
                 'device:call=<id>                               - Остановить звонки на домофоне',
                 'device:reboot=<id>                             - Перезапуск домофона',
                 'device:reset=<id>                              - Сбросить домофон'
             ]);
+        }
 
-        if ($group === null || $group === 'task')
+        if ($group === null || $group === 'task') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'task:unique                                    - Очистить данные об уникальности задач'
             ]);
+        }
 
-        if ($group === null || $group === 'inbox')
+        if ($group === null || $group === 'inbox') {
             $result[] = implode(PHP_EOL, [
                 '',
                 'inbox:server=<value> --subscriber=<subscriber> - Обновить сервер абоненту'
             ]);
+        }
 
         return trim(implode(PHP_EOL, $result)) . PHP_EOL;
     }
@@ -865,12 +935,13 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     private function table(array $headers, array $values): string
     {
-        $mask = array_reduce($headers, static function (string $previous, string $header) use ($values) {
+        $mask = array_reduce($headers, static function (string $previous, string $header) use ($values): string {
                 $max = strlen($header);
 
                 foreach ($values as $value) {
-                    if (strlen($value[$header]) > $max)
-                        $max = strlen($value[$header]);
+                    if (strlen((string)$value[$header]) > $max) {
+                        $max = strlen((string)$value[$header]);
+                    }
                 }
 
                 return $previous . ' | %' . $max . '.' . $max . 's';
@@ -879,8 +950,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = sprintf($mask, ...$headers);
         $result .= PHP_EOL . str_repeat('-', strlen($result)) . PHP_EOL;
 
-        foreach ($values as $value)
+        foreach ($values as $value) {
             $result .= sprintf($mask, ...array_map(static fn(string $header) => $value[$header], $headers)) . PHP_EOL;
+        }
 
         return $result;
     }

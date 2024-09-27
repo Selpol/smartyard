@@ -22,14 +22,16 @@ readonly class variable extends Api
     {
         $coreVar = CoreVar::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($coreVar) {
-            if (!$coreVar->editable)
+        if ($coreVar instanceof CoreVar) {
+            if (!$coreVar->editable) {
                 return self::error('Переменную нельзя изменить', 400);
+            }
 
             $coreVar->var_value = rule()->string()->onItem('var_value', $params);
 
-            if ($coreVar->update())
+            if ($coreVar->update()) {
                 return self::success($coreVar->var_id);
+            }
 
             return self::error('Не удалось обновить переменную', 400);
         }

@@ -14,8 +14,9 @@ readonly class subscriberCameras extends Api
 
         $cameraId = $households->addCamera('subscriber', $params['subscriberId'], $params['cameraId']);
 
-        if ($cameraId)
+        if ($cameraId) {
             return self::success($cameraId);
+        }
 
         return self::error('Не удалось добавить камеру абоненту', 400);
     }
@@ -26,8 +27,9 @@ readonly class subscriberCameras extends Api
 
         $success = $households->unlinkCamera('subscriber', $params['subscriberId'], $params['cameraId']);
 
-        if ($success)
+        if ($success) {
             return self::success();
+        }
 
         return self::error('Не удалось удалить камеру у абонента', 400);
     }

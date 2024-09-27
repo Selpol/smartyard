@@ -15,8 +15,9 @@ use Selpol\Service\Prometheus\Metric;
 #[Singleton]
 class PrometheusService
 {
-    const PREFIX = 'prometheus';
-    const SUFFIX = 'keys';
+    public const PREFIX = 'prometheus';
+
+    public const SUFFIX = 'keys';
 
     /** @var Counter[] */
     private array $counters = [];
@@ -49,8 +50,9 @@ class PrometheusService
 
     public function getCounter(string $namespace, string $name, string $help, array $labels = []): Counter
     {
-        if (!array_key_exists($namespace . $name, $this->counters))
+        if (!array_key_exists($namespace . $name, $this->counters)) {
             $this->counters[$namespace . $name] = new Counter($namespace, $name, $help, $labels);
+        }
 
         return $this->counters[$namespace . $name];
     }
@@ -85,8 +87,9 @@ LUA
 
     public function getGauge(string $namespace, string $name, string $help, array $labels = []): Gauge
     {
-        if (!array_key_exists($namespace . $name, $this->gauges))
+        if (!array_key_exists($namespace . $name, $this->gauges)) {
             $this->gauges[$namespace . $name] = new Gauge($namespace, $name, $help, $labels);
+        }
 
         return $this->gauges[$namespace . $name];
     }
@@ -125,8 +128,9 @@ LUA,
 
     public function getHistogram(string $namespace, string $name, string $help, array $labels = [], ?array $buckets = null): Histogram
     {
-        if (!array_key_exists($namespace . $name, $this->histograms))
+        if (!array_key_exists($namespace . $name, $this->histograms)) {
             $this->histograms[$namespace . $name] = new Histogram($namespace, $name, $help, $labels, $buckets);
+        }
 
         return $this->histograms[$namespace . $name];
     }
@@ -170,8 +174,9 @@ LUA,
 
     public function getSummary(string $namespace, string $name, string $help, array $labels = [], array $quantiles = null, int $maxAgeSeconds = 600): Summary
     {
-        if (!array_key_exists($namespace . $name, $this->summaries))
+        if (!array_key_exists($namespace . $name, $this->summaries)) {
             $this->summaries[$namespace . $name] = new Summary($namespace, $name, $help, $labels, $quantiles, $maxAgeSeconds);
+        }
 
         return $this->summaries[$namespace . $name];
     }
@@ -195,6 +200,7 @@ LUA,
 
         // trick to handle uniqid collision
         $done = false;
+
         while (!$done) {
             $sampleKey = $valueKey . ':' . uniqid('', true);
             $done = $redis->set($sampleKey, $value['value'], ['NX', 'EX' => $value['maxAgeSeconds']]);
@@ -207,9 +213,11 @@ LUA,
 
         $keys = $redis->keys(self::PREFIX . ':*');
 
-        if ($keys && count($keys))
-            foreach ($keys as $key)
+        if ($keys && count($keys)) {
+            foreach ($keys as $key) {
                 $redis->del($key);
+            }
+        }
     }
 
     /**
@@ -219,8 +227,9 @@ LUA,
     {
         $redis = container(RedisService::class)->getConnection();
 
-        if (is_null($redis))
+        if (is_null($redis)) {
             return [];
+        }
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Histogram::TYPE, self::SUFFIX]));
 
@@ -231,10 +240,11 @@ LUA,
         foreach ($keys as $key) {
             $raw = $redis->hGetAll(str_replace($redis->_prefix(''), '', $key));
 
-            if (!isset($raw['__meta']))
+            if (!isset($raw['__meta'])) {
                 continue;
+            }
 
-            $histogram = json_decode($raw['__meta'], true);
+            $histogram = json_decode((string)$raw['__meta'], true);
 
             unset($raw['__meta']);
 
@@ -246,8 +256,9 @@ LUA,
             foreach (array_keys($raw) as $k) {
                 $d = json_decode($k, true);
 
-                if ($d['b'] == 'sum')
+                if ($d['b'] == 'sum') {
                     continue;
+                }
 
                 $allLabelValues[] = $d['labelValues'];
             }
@@ -262,8 +273,9 @@ LUA,
                 foreach ($histogram['buckets'] as $bucket) {
                     $bucketKey = json_encode(['b' => $bucket, 'labelValues' => $labelValues]);
 
-                    if (isset($raw[$bucketKey]))
+                    if (isset($raw[$bucketKey])) {
                         $acc += $raw[$bucketKey];
+                    }
 
                     $histogram['samples'][] = [
                         'name' => $histogram['name'] . '_bucket',
@@ -301,8 +313,9 @@ LUA,
     {
         $redis = container(RedisService::class)->getConnection();
 
-        if (is_null($redis))
+        if (is_null($redis)) {
             return [];
+        }
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Gauge::TYPE, self::SUFFIX]));
         sort($keys);
@@ -311,10 +324,11 @@ LUA,
         foreach ($keys as $key) {
             $raw = $redis->hGetAll(str_replace($redis->_prefix(''), '', $key));
 
-            if (!isset($raw['__meta']))
+            if (!isset($raw['__meta'])) {
                 continue;
+            }
 
-            $gauge = json_decode($raw['__meta'], true);
+            $gauge = json_decode((string)$raw['__meta'], true);
 
             unset($raw['__meta']);
 
@@ -344,8 +358,9 @@ LUA,
     {
         $redis = container(RedisService::class)->getConnection();
 
-        if (is_null($redis))
+        if (is_null($redis)) {
             return [];
+        }
 
         $keys = $redis->sMembers(implode(':', [self::PREFIX, Counter::TYPE, self::SUFFIX]));
         sort($keys);
@@ -354,10 +369,11 @@ LUA,
         foreach ($keys as $key) {
             $raw = $redis->hGetAll(str_replace($redis->_prefix(''), '', $key));
 
-            if (!isset($raw['__meta']))
+            if (!isset($raw['__meta'])) {
                 continue;
+            }
 
-            $counter = json_decode($raw['__meta'], true);
+            $counter = json_decode((string)$raw['__meta'], true);
             unset($raw['__meta']);
             $counter['samples'] = [];
             foreach ($raw as $k => $value) {
@@ -373,12 +389,10 @@ LUA,
 
             $counters[] = $counter;
         }
+
         return $counters;
     }
 
-    /**
-     * @throws RedisException
-     */
     private function collectSummaries(): array
     {
         $redis = container(RedisService::class);
@@ -388,13 +402,16 @@ LUA,
         $keys = $redis->keys($summaryKey . ':*:meta');
 
         $summaries = [];
+
         foreach ($keys as $metaKeyWithPrefix) {
             $metaKey = $metaKeyWithPrefix;
             $rawSummary = $redis->get($metaKey);
+
             if ($rawSummary === false) {
                 continue;
             }
-            $summary = json_decode($rawSummary, true);
+
+            $summary = json_decode((string)$rawSummary, true);
             $metaData = $summary;
             $data = [
                 'name' => $metaData['name'],
@@ -407,25 +424,30 @@ LUA,
             ];
 
             $values = $redis->keys($summaryKey . ':' . $metaData['name'] . ':*:value');
+
             foreach ($values as $valueKeyWithPrefix) {
                 $valueKey = $valueKeyWithPrefix;
                 $rawValue = $redis->get($valueKey);
+
                 if ($rawValue === false) {
                     continue;
                 }
-                $value = json_decode($rawValue, true);
+
+                $value = json_decode((string)$rawValue, true);
                 $encodedLabelValues = $value;
                 $decodedLabelValues = $this->decodeLabelValues($encodedLabelValues);
 
                 $samples = [];
                 $sampleValues = $redis->keys($summaryKey . ':' . $metaData['name'] . ':' . $encodedLabelValues . ':value:*');
+
                 foreach ($sampleValues as $sampleValueWithPrefix) {
                     $sampleValue = $sampleValueWithPrefix;
                     $samples[] = (float)$redis->get($sampleValue);
                 }
 
-                if (count($samples) === 0) {
+                if ($samples === []) {
                     $redis->del($valueKey);
+
                     continue;
                 }
 
@@ -457,7 +479,7 @@ LUA,
                 ];
             }
 
-            if (count($data['samples']) > 0) {
+            if ($data['samples'] !== []) {
                 $summaries[] = $data;
             } else {
                 $redis->del($metaKey);
@@ -470,15 +492,18 @@ LUA,
     private function quantile(array $arr, float $q): float
     {
         $count = count($arr);
+
         if ($count === 0) {
             return 0;
         }
 
         $j = floor($count * $q);
         $r = $count * $q - $j;
+
         if (0.0 === $r) {
             return $arr[$j - 1];
         }
+
         return $arr[$j];
     }
 

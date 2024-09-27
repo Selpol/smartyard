@@ -25,14 +25,15 @@ readonly class event extends Api
         $result = container(PlogFeature::class)->getEventsByFlat($flat->house_flat_id, $validate['type'], $validate['opened'], $validate['page'], $validate['size']);
 
         if ($result) {
-            if (!container(AuthService::class)->checkScope('mobile-mask'))
-                return self::success(array_map(static function (array $item) {
-                    if (array_key_exists('phones', $item) && is_array($item['phones']))
-                        if (array_key_exists('user_phone', $item['phones']) && $item['phones']['user_phone'])
-                            $item['phones']['user_phone'] = mobile_mask($item['phones']['user_phone']);
+            if (!container(AuthService::class)->checkScope('mobile-mask')) {
+                return self::success(array_map(static function (array $item): array {
+                    if (array_key_exists('phones', $item) && is_array($item['phones']) && (array_key_exists('user_phone', $item['phones']) && $item['phones']['user_phone'])) {
+                        $item['phones']['user_phone'] = mobile_mask($item['phones']['user_phone']);
+                    }
 
                     return $item;
                 }, $result));
+            }
 
             return self::success($result);
         }

@@ -9,7 +9,6 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\AuthService;
-use Selpol\Service\DatabaseService;
 use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
 use Throwable;
 
@@ -21,8 +20,9 @@ readonly class house extends Api
 
         $flats = $households->getFlats("houseId", $params["_id"], true);
 
-        if ($flats)
-            usort($flats, static fn(array $a, array $b) => $a['flat'] > $b['flat'] ? 1 : -1);
+        if ($flats) {
+            usort($flats, static fn(array $a, array $b): int => $a['flat'] > $b['flat'] ? 1 : -1);
+        }
 
         $house = ["flats" => $flats];
 
@@ -44,8 +44,9 @@ readonly class house extends Api
             $house['cmses'] = IntercomCms::modelsToArray();
         }
 
-        if ($house['flats'])
+        if ($house['flats']) {
             return self::success($house);
+        }
 
         return self::error('Не удалось найти дом', 404);
     }
@@ -72,8 +73,11 @@ readonly class house extends Api
 
         $task = task(new IntercomKeysKeyTask($houseId, $keys));
 
-        if (count($keys) < 25) $task->sync();
-        else $task->high()->dispatch();
+        if (count($keys) < 25) {
+            $task->sync();
+        } else {
+            $task->high()->dispatch();
+        }
 
         return self::success();
     }

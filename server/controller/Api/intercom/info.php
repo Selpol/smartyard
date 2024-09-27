@@ -14,8 +14,9 @@ readonly class info extends Api
     {
         $deviceIntercom = DeviceIntercom::findById(rule()->id()->onItem('_id', $params));
 
-        if (!$deviceIntercom)
+        if (!$deviceIntercom instanceof DeviceIntercom) {
             return self::error('Не удалось найти домофон', 404);
+        }
 
         $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 

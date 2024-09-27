@@ -26,7 +26,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     /**
      * @throws Exception
      */
-    function run(array $arguments): int
+    public function run(array $arguments): int
     {
         $arguments = $this->getArguments($arguments);
 
@@ -48,9 +48,10 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     private function getArguments(array $arguments): array
     {
         $args = [];
+        $counter = count($arguments);
 
-        for ($i = 1; $i < count($arguments); $i++) {
-            $a = explode('=', $arguments[$i]);
+        for ($i = 1; $i < $counter; ++$i) {
+            $a = explode('=', (string)$arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }
@@ -60,12 +61,13 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     private function registerSignal(): void
     {
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
-            sapi_windows_set_ctrl_handler(static function (int $event) {
-                if ($event == PHP_WINDOWS_EVENT_CTRL_C)
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            sapi_windows_set_ctrl_handler(static function (int $event): void {
+                if ($event == PHP_WINDOWS_EVENT_CTRL_C) {
                     exit(0);
+                }
             });
-        else {
+        } else {
             pcntl_async_signals(true);
 
             pcntl_signal(SIGINT, static fn() => exit(0));
@@ -83,7 +85,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $logger = file_logger('task-' . $queue);
 
-        $service->dequeue($queue, static function (Task $task) use ($queue, $logger) {
+        $service->dequeue($queue, static function (Task $task) use ($queue, $logger): void {
             $feature = container(TaskFeature::class);
             $service = container(MqttService::class);
             $prometheus = container(PrometheusService::class);
@@ -100,15 +102,17 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
 
-                $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title]);
+                $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => $task::class, 'title' => $task->title]);
 
                 $task->onTask();
 
-                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'elapsed' => (microtime(true) - $time) / 1000]);
+                $elapsed = (microtime(true) * 1000 - $time);
+
+                $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => $task::class, 'title' => $task->title, 'elapsed' => $elapsed]);
 
                 $task->setProgressCallback(null);
 
-                $feature->add($task, 'OK', 1);
+                $feature->add($task, 'OK (' . round($elapsed / 1000, 2) . 's)', 1);
 
                 $counter->incBy(1, [$task::class, true]);
                 $histogram->observe(microtime(true) * 1000 - $time, [$task::class, true]);
@@ -117,12 +121,13 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             } catch (Throwable $throwable) {
                 $message = $throwable instanceof KernelException ? $throwable->getLocalizedMessage() : $throwable->getMessage();
 
-                if ($message == '')
+                if ($message === '') {
                     $message = $throwable->getMessage();
+                }
 
                 $service->task($uuid, $task->title, 'done', $task->uid, $message);
 
-                $logger->info('Dequeue error task', ['queue' => $queue, 'class' => get_class($task), 'title' => $task->title, 'message' => $message]);
+                $logger->info('Dequeue error task' . PHP_EOL . $throwable, ['queue' => $queue, 'class' => $task::class, 'title' => $task->title, 'message' => $message]);
 
                 $task->setProgressCallback(null);
 

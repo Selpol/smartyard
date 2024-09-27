@@ -48,10 +48,11 @@ readonly class house extends Api
 
     public static function POST(array $params): ResponseInterface
     {
-        if (array_key_exists('magic', $params))
+        if (array_key_exists('magic', $params)) {
             $houseId = container(AddressFeature::class)->addHouseByMagic($params["magic"]);
-        else
+        } else {
             $houseId = container(AddressFeature::class)->addHouse($params["settlementId"], $params["streetId"], $params["houseUuid"], $params["houseType"], $params["houseTypeFull"], $params["houseFull"], $params["house"]);
+        }
 
         return $houseId ? self::success($houseId) : self::error('Не удалось создать дом', 400);
     }

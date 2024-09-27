@@ -17,8 +17,9 @@ readonly class open extends Api
 
         $device = intercom($validate['_id']);
 
-        if (!$device->ping())
+        if (!$device->ping()) {
             return self::error('Устройство не доступно', 400);
+        }
 
         $device->open($validate['output']);
 

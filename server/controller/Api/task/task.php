@@ -7,6 +7,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Task\TaskFeature;
+use Selpol\Task\Tasks\Plog\PlogCallTask;
+use Selpol\Task\Tasks\Plog\PlogOpenTask;
 
 readonly class task extends Api
 {
@@ -39,8 +41,9 @@ readonly class task extends Api
     {
         $result = container(TaskFeature::class)->dispatch($params['_id']);
 
-        if ($result)
+        if ($result) {
             return self::success($params['_id']);
+        }
 
         return self::error('Не удалось перезапустить задачу', 400);
     }

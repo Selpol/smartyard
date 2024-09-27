@@ -44,7 +44,11 @@ readonly class UserController extends RbtController
         } elseif ($request->platform == 'huawei') {
             $platform = 0;
 
-            $type = 3; // huawei
+            $type = 3;
+        } else if ($request->platform == 'rustore') {
+            $platform = 0;
+
+            $type = 4;
         } else {
             $platform = 0;
 
@@ -53,13 +57,15 @@ readonly class UserController extends RbtController
 
         $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "voipEnabled" => $request->voipEnabled, "platform" => $platform]);
 
-        if (!$request->pushToken)
+        if (!$request->pushToken) {
             $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
-        else if ($old_push && $old_push != $request->pushToken)
+        } elseif ($old_push && $old_push != $request->pushToken) {
             $externalFeature->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
+        }
 
-        if (!$request->voipToken)
+        if (!$request->voipToken) {
             $houseFeature->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
+        }
 
         return user_response();
     }
@@ -73,8 +79,11 @@ readonly class UserController extends RbtController
     {
         $userId = $this->getUser()->getIdentifier();
 
-        if ($request->patronymic) $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
-        else $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name]);
+        if ($request->patronymic) {
+            $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
+        } else {
+            $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name]);
+        }
 
         return user_response();
     }

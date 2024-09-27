@@ -71,11 +71,17 @@ readonly class InternalTaskFeature extends TaskFeature
         return false;
     }
 
-    public function releaseUnique(Task $task): void
+    public function releaseUnique(Task|string $task): void
     {
         if ($task instanceof TaskUniqueInterface) {
             $unique = $task->unique();
+        } else if (is_string($task)) {
+            $unique = [$task];
+        } else {
+            $unique = null;
+        }
 
+        if ($unique) {
             $this->getRedis()->del('task:unique:' . $unique[0]);
         }
     }

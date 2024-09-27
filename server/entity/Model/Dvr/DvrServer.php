@@ -33,14 +33,16 @@ class DvrServer extends Entity
     public static string $columnIdStrategy = 'dvr_servers_id_seq';
 
     public static ?string $columnCreateAt = 'created_at';
+
     public static ?string $columnUpdateAt = 'updated_at';
 
     public function jsonSerialize(): array
     {
         $value = $this->getValue();
 
-        if (array_key_exists('credentials', $value))
+        if (array_key_exists('credentials', $value)) {
             unset($value['credentials']);
+        }
 
         return $value;
     }

@@ -9,6 +9,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\SimpleCache\InvalidArgumentException;
 use Selpol\Controller\Api\Api;
 use Selpol\Feature\Monitor\MonitorFeature;
+use Throwable;
 
 readonly class id extends Api
 {
@@ -33,7 +34,7 @@ readonly class id extends Api
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws \Throwable
+     * @throws Throwable
      */
     public static function POST(array $params): ResponseInterface
     {
@@ -54,27 +55,32 @@ readonly class id extends Api
             $fibers = [];
             $count = count($params['ids']);
 
-            for ($i = 0; $i < $count; $i++)
-                $fibers[$i] = new Fiber(static function (string $url) {
+            for ($i = 0; $i < $count; ++$i)
+                $fibers[$i] = new Fiber(static function (string $url): bool {
                     $timeout = microtime(true);
 
                     $socket = stream_socket_client($url, $errno, $errstr, flags: STREAM_CLIENT_ASYNC_CONNECT);
 
-                    if (!$socket)
+                    if (!$socket) {
                         return false;
+                    }
 
                     stream_set_blocking($socket, false);
 
                     while (true) {
                         $w = [$socket];
-                        $r = $e = [];
+                        $r = [];
+                        $e = [];
 
                         if (stream_select($r, $w, $e, 0, 100000)) {
-                            if (microtime(true) - $timeout > 1)
+                            if (microtime(true) - $timeout > 1) {
                                 return false;
+                            }
 
                             Fiber::suspend();
-                        } else return true;
+                        } else {
+                            return true;
+                        }
                     }
                 });
 
@@ -82,9 +88,7 @@ readonly class id extends Api
                 foreach ($fibers as $i => $fiber) {
                     if (!$fiber->isStarted()) {
                         $id = rule()->id()->onItem('id', ['id' => $params['ids'][$i]]);
-
                         $intercom = intercom($id);
-
                         $url = $intercom->uri->getHost();
 
                         if ($intercom->uri->getPort() === null) {
@@ -93,15 +97,17 @@ readonly class id extends Api
                                     'https' => 443,
                                     default => 22
                                 };
-                        } else $url .= ':' . $intercom->uri->getPort();
-
+                        } else {
+                            $url .= ':' . $intercom->uri->getPort();
+                        }
+                        
                         $fiber->start($url);
-                    } else if ($fiber->isTerminated()) {
+                    } elseif ($fiber->isTerminated()) {
                         $result[$params['ids'][$i]] = !$fiber->getReturn();
-
                         unset($fibers[$i]);
-                    } else if ($fiber->isSuspended())
+                    } elseif ($fiber->isSuspended()) {
                         $fiber->resume();
+                    }
                 }
             }
         }

@@ -14,12 +14,20 @@ trait IsTrait
             $info = $this->get('/system/info');
             $version = $this->get('/v2/system/versions');
 
+            if ($version == null || !array_key_exists('opt', $version) || $version['opt'] == null) {
+                $hardwareVersion = '2.5';
+                $softwareVersion = '2.2.5.14.0';
+            } else {
+                $hardwareVersion = $version['opt']['versions']['hw']['name'];
+                $softwareVersion = $version['opt']['name'];
+            }
+
             return [
-                'DeviceID' => $info['chipId'],
+                'DeviceID' => $info['deviceID'],
                 'DeviceModel' => $info['model'],
 
-                'HardwareVersion' => $version['opt']['versions']['hw']['name'],
-                'SoftwareVersion' => $version['opt']['name']
+                'HardwareVersion' => $hardwareVersion,
+                'SoftwareVersion' => $softwareVersion
             ];
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);

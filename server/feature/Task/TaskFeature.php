@@ -20,7 +20,7 @@ readonly abstract class TaskFeature extends Feature
 
     public abstract function hasUnique(Task $task): bool;
 
-    public abstract function releaseUnique(Task $task): void;
+    public abstract function releaseUnique(Task|string $task): void;
 
     public abstract function clearUnique(): void;
 }

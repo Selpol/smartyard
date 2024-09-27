@@ -2,8 +2,11 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
@@ -32,13 +35,15 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
     {
         $entrances = container(HouseFeature::class)->getEntrances('houseId', $this->id);
 
-        if (!$entrances || count($entrances) === 0)
+        if (!$entrances || count($entrances) === 0) {
             return false;
+        }
 
         foreach ($entrances as $entrance) {
             try {
                 $this->entrance($entrance);
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                $this->logger?->error($throwable);
             }
         }
 
@@ -53,22 +58,27 @@ class IntercomKeysKeyTask extends IntercomTask implements TaskUniqueInterface
     {
         $device = intercom($entrance['domophoneId']);
 
-        if (!$device)
+        if (!$device instanceof IntercomDevice) {
             return;
+        }
 
-        if (!$device->ping())
+        if (!$device instanceof KeyInterface) {
             return;
+        }
+
+        if (!$device->ping()) {
+            return;
+        }
 
         /** @var array<int, int> $flats */
         $flats = [];
 
         foreach ($this->keys as $key) {
-            if (!array_key_exists($key['accessTo'], $flats))
+            if (!array_key_exists($key['accessTo'], $flats)) {
                 $flats[$key['accessTo']] = HouseFlat::findById($key['accessTo'], setting: setting()->columns(['flat'])->nonNullable())->flat;
+            }
 
-            $device->addRfidDeffer($key['rfId'], $flats[$key['accessTo']]);
+            $device->addKey(new Key($key['rfId'], $flats[$key['accessTo']]));
         }
-
-        $device->deffer();
     }
 }

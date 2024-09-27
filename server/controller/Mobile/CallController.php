@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Device\Ip\Camera\CameraDevice;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Feature\Block\BlockFeature;
@@ -25,10 +26,11 @@ readonly class CallController extends RbtController
 
         $image = $redisService->get('shot_' . $hash);
 
-        if ($image !== false)
+        if ($image !== false) {
             return response()
                 ->withHeader('Content-Type', 'image/jpeg')
                 ->withBody(stream($image));
+        }
 
         return user_response(404, message: 'Скриншот не найден');
     }
@@ -46,8 +48,9 @@ readonly class CallController extends RbtController
 
         $model = $deviceService->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
 
-        if (!$model)
+        if (!$model instanceof CameraDevice) {
             return user_response(404, message: 'Камера не найдена');
+        }
 
         return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($model->getScreenshot());
     }

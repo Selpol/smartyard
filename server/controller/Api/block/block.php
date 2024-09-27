@@ -19,6 +19,7 @@ readonly class block extends Api
         BlockFeature::SUB_SERVICE_FRS,
         BlockFeature::SUB_SERVICE_CMS
     ];
+
     public const SERVICES_SUBSCRIBER = [
         BlockFeature::SERVICE_INTERCOM,
         BlockFeature::SERVICE_CCTV,

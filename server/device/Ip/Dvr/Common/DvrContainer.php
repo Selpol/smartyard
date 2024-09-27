@@ -6,5 +6,6 @@ enum DvrContainer: string
 {
     case RTSP = 'rtsp';
     case HLS = 'hls';
-    case RTC = 'rtc';
+    case STREAMER_RTC = 'streamer_rtc';
+    case STREAMER_RTSP = 'streamer_rtsp';
 }

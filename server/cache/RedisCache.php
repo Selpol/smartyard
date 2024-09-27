@@ -27,10 +27,11 @@ readonly class RedisCache implements CacheInterface
     {
         $value = $this->service->get('cache:' . $key);
 
-        if ($value === false)
+        if ($value === false) {
             return $default;
+        }
 
-        return json_decode($value, true);
+        return json_decode((string) $value, true);
     }
 
     public function set(string $key, mixed $value, DateInterval|int|null $ttl = null): bool
@@ -43,8 +44,9 @@ readonly class RedisCache implements CacheInterface
         }
 
         if ($ttl) {
-            if ($ttl < 0)
+            if ($ttl < 0) {
                 throw new InvalidArgumentException('Внутренняя ошибка');
+            }
 
             return $this->service->setEx('cache:' . $key, $ttl, json_encode($value));
         }
@@ -72,6 +74,6 @@ readonly class RedisCache implements CacheInterface
     {
         $result = $this->service->exist($key);
 
-        return $result !== false && $result > 0;
+        return $result && $result > 0;
     }
 }

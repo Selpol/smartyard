@@ -64,7 +64,7 @@ readonly class PrometheusController extends RbtController
     {
         $labelNames = $metric->labelNames;
 
-        if (count($metric->labelNames) > 0 || count($sample->labelNames) > 0) {
+        if ($metric->labelNames !== [] || $sample->labelNames !== []) {
             $escapedLabels = $this->escapeAllLabels($labelNames, $sample);
 
             return 'smartyard_' . $sample->name . '{' . implode(',', $escapedLabels) . '} ' . $sample->value;
@@ -75,7 +75,7 @@ readonly class PrometheusController extends RbtController
 
     private function escapeLabelValue(string $v): string
     {
-        return str_replace(["\\", "\n", "\""], ["\\\\", "\\n", "\\\""], $v);
+        return str_replace(["\\", "\n", '"'], ["\\\\", "\\n", "\\\""], $v);
     }
 
     private function escapeAllLabels(array $labelNames, Sample $sample): array
@@ -84,8 +84,9 @@ readonly class PrometheusController extends RbtController
 
         $labels = array_combine(array_merge($labelNames, $sample->labelNames), $sample->labelValues);
 
-        if ($labels === false)
+        if ($labels === false) {
             throw new RuntimeException('Unable to combine labels.');
+        }
 
         foreach ($labels as $labelName => $labelValue)
             $escapedLabels[] = $labelName . '="' . $this->escapeLabelValue((string)$labelValue) . '"';

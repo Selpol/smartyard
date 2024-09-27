@@ -2,39 +2,39 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
-use Selpol\Device\Exception\DeviceException;
-use Selpol\Feature\House\HouseFeature;
-use Selpol\Task\Task;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Throwable;
 
-class IntercomAddKeyTask extends Task
+class IntercomAddKeyTask extends IntercomKeyTask
 {
     public string $key;
+
     public int $flatId;
 
     public function __construct(string $key, int $flatId)
     {
-        parent::__construct('Добавить ключ (' . $key . ', ' . $flatId . ')');
+        parent::__construct($flatId, 'Добавить ключ (' . $key . ', ' . $flatId . ')');
 
         $this->key = $key;
-        $this->flatId = $flatId;
+
+        $this->setLogger(file_logger('task-intercom'));
     }
 
     public function onTask(): bool
     {
-        $flat = container(HouseFeature::class)->getFlat($this->flatId);
+        $flat = $this->getFlat();
 
-        if (!$flat)
+        if (!$flat instanceof HouseFlat) {
             return false;
+        }
 
-        $entrances = container(HouseFeature::class)->getEntrances('flatId', $this->flatId);
+        $entrances = $this->getEntrances();
 
-        if ($entrances && count($entrances) > 0) {
+        if ($entrances && $entrances !== []) {
             foreach ($entrances as $entrance) {
-                $id = $entrance['domophoneId'];
-
-                if ($id)
-                    $this->add($id, $flat['flat']);
+                $this->add($entrance->house_domophone_id, intval($flat->flat));
             }
 
             return true;
@@ -48,11 +48,15 @@ class IntercomAddKeyTask extends Task
         try {
             $device = intercom($id);
 
-            if (!$device->ping())
-                throw new DeviceException($device, 'Устройство не доступно');
+            if ($device instanceof KeyInterface) {
+                if (!$device->ping()) {
+                    return;
+                }
 
-            $device->addRfid($this->key, $flat);
-        } catch (Throwable) {
+                $device->addKey(new Key($this->key, $flat));
+            }
+        } catch (Throwable $throwable) {
+            $this->logger?->error($throwable);
         }
     }
 }

@@ -35,8 +35,9 @@ readonly class intercoms extends Api
             ->like('device_hardware_version', $validate['device_hardware_version'])
             ->asc('house_domophone_id');
 
-        if (!container(AuthService::class)->checkScope('intercom-hidden'))
+        if (!container(AuthService::class)->checkScope('intercom-hidden')) {
             $criteria->equal('hidden', false);
+        }
 
         $page = DeviceIntercom::fetchPage($validate['page'], $validate['size'], $criteria);
 

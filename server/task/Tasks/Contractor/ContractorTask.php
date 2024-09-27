@@ -14,13 +14,11 @@ use Selpol\Task\Task;
 
 abstract class ContractorTask extends Task
 {
-    public int $id;
-
-    public function __construct(string $title, int $id)
+    public function __construct(string $title, public int $id)
     {
         parent::__construct($title);
 
-        $this->id = $id;
+        $this->setLogger(file_logger('task-contractor'));
     }
 
     protected function getContractor(): Contractor
@@ -58,7 +56,7 @@ abstract class ContractorTask extends Task
      */
     protected function getUniqueAddressesIds(array $value): array
     {
-        return array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $value), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
+        return array_values(array_unique(array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
     }
 
     /**
@@ -67,7 +65,7 @@ abstract class ContractorTask extends Task
      */
     protected function getUniqueSubscribersIdsAndRoles(array $value): array
     {
-        return array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $value), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), []);
+        return array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), []);
     }
 
     /**
@@ -76,7 +74,7 @@ abstract class ContractorTask extends Task
      */
     protected function getUniqueKeys(array $value): array
     {
-        return array_values(array_unique(array_reduce(array_map(static fn(Group $group) => $group->jsonSerialize(), $value), static fn(array $previous, array $current) => array_merge($previous, (array)$current['value']), [])));
+        return array_values(array_unique(array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), [])));
     }
 
     protected function getOrCreateFlat(Contractor $contractor, int $address): ?HouseFlat
@@ -87,7 +85,7 @@ abstract class ContractorTask extends Task
 
         $flat = HouseFlat::fetch(criteria()->equal('address_house_id', $address)->equal('flat', $contractor->flat), setting: setting()->columns(['house_flat_id', 'flat']));
 
-        if (!$flat) {
+        if (!$flat instanceof HouseFlat) {
             $houseFeature = container(HouseFeature::class);
 
             $entrances = array_map(static fn(array $entrance) => $entrance['entranceId'], $houseFeature->getEntrances('houseId', $address));

@@ -2,7 +2,6 @@
 
 namespace Selpol\Controller\Api\block;
 
-use Exception;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Block\FlatBlock;
@@ -33,11 +32,13 @@ readonly class flat extends Api
         $flatBlock->status = BlockFeature::STATUS_ADMIN;
 
         if ($flatBlock->insert()) {
-            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
+            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+            }
 
-            if (array_key_exists('notify', $params) && $params['notify'])
+            if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($flatBlock, true);
+            }
 
             return self::success($flatBlock->id);
         }
@@ -60,11 +61,13 @@ readonly class flat extends Api
         $flatBlock->comment = $validate['comment'];
 
         if ($flatBlock->update()) {
-            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
+            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+            }
 
-            if (array_key_exists('notify', $params) && $params['notify'])
+            if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($flatBlock, true);
+            }
 
             return self::success($flatBlock->id);
         }
@@ -76,15 +79,18 @@ readonly class flat extends Api
     {
         $flatBlock = FlatBlock::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($flatBlock->status == BlockFeature::STATUS_BILLING && !container(AuthService::class)->checkScope('block-flat-billing-delete'))
+        if ($flatBlock->status == BlockFeature::STATUS_BILLING && !container(AuthService::class)->checkScope('block-flat-billing-delete')) {
             return self::error('Не удалось удалить блокировку квартиры', 400);
+        }
 
         if ($flatBlock->delete()) {
-            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS)
+            if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+            }
 
-            if (array_key_exists('notify', $params) && $params['notify'])
+            if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($flatBlock, false);
+            }
 
             return self::success();
         }
@@ -102,9 +108,6 @@ readonly class flat extends Api
         ];
     }
 
-    /**
-     * @throws Exception
-     */
     private static function notify(FlatBlock $block, bool $status): void
     {
         task(new InboxFlatTask(
@@ -114,6 +117,6 @@ readonly class flat extends Api
                 ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
                 : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
             'inbox'
-        ))->sync();
+        ))->default()->dispatch();
     }
 }

@@ -13,8 +13,9 @@ readonly class login extends Api
     {
         $auth = container(AuthenticationFeature::class)->login($params["login"], $params["password"], $params["rememberMe"] && $params["ua"] && $params["did"], trim($params["ua"]), trim($params["did"]), connection_ip(container(ServerRequestInterface::class)));
 
-        if ($auth['result'])
+        if ($auth['result']) {
             return self::success($auth['token']);
+        }
 
         return self::error(array_key_exists('message', $auth) ? $auth['message'] : 'Не удалось войти', 401);
     }

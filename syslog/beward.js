@@ -83,7 +83,7 @@ syslog.on("message", async ({date, host, message}) => {
     }
 
     // Opening door by personal code
-    if (bwMsg.indexOf("Opening door by code") >= 0) {
+    if (bwMsg.includes("Opening door by code")) {
         const code = parseInt(bwMsg.split("code")[1].split(",")[0]);
 
         await API.openDoor({date: now, ip: host, detail: code, by: "code"});

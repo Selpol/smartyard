@@ -14,8 +14,9 @@ readonly class logout extends Api
     {
         $token = container(AuthService::class)->getTokenOrThrow();
 
-        if ($token instanceof CoreAuthToken)
+        if ($token instanceof CoreAuthToken) {
             container(AuthenticationFeature::class)->logout($token->getOriginalValue());
+        }
 
         return self::success();
     }

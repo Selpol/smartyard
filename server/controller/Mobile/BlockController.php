@@ -18,8 +18,9 @@ readonly class BlockController extends RbtController
     {
         $query = $request->getQueryParams();
 
-        if (array_key_exists('services', $query))
+        if (array_key_exists('services', $query)) {
             return user_response(data: $blockFeature->getBlocksForSubscriber($this->getUser()->getIdentifier(), $query['services']));
+        }
 
         return user_response(data: $blockFeature->getBlocksForSubscriber($this->getUser()->getIdentifier(), null));
     }
@@ -29,8 +30,9 @@ readonly class BlockController extends RbtController
     {
         $query = $request->getQueryParams();
 
-        if (array_key_exists('services', $query))
+        if (array_key_exists('services', $query)) {
             return user_response(data: $blockFeature->getBlocksForFlat($id, $query['services']));
+        }
 
         return user_response(data: $blockFeature->getBlocksForFlat($id, null));
     }

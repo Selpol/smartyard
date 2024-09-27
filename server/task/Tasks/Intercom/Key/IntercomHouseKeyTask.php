@@ -2,9 +2,11 @@
 
 namespace Selpol\Task\Tasks\Intercom\Key;
 
+use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
@@ -28,13 +30,15 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
     {
         $entrances = container(HouseFeature::class)->getEntrances('houseId', $this->id);
 
-        if (!$entrances || count($entrances) === 0)
+        if (!$entrances || count($entrances) === 0) {
             return false;
+        }
 
         foreach ($entrances as $entrance) {
             try {
                 $this->entrance($entrance);
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                $this->logger?->error($throwable);
             }
         }
 
@@ -51,33 +55,38 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
 
         $device = intercom($domophoneId);
 
-        if (!$device)
+        if (!$device instanceof IntercomDevice) {
             return;
+        }
 
-        if (!$device->ping())
-            throw new DeviceException($device, 'Устройство не доступно');
+        if (!$device instanceof KeyInterface) {
+            return;
+        }
+
+        if (!$device->ping()) {
+            return;
+        }
 
         $flats = container(HouseFeature::class)->getFlats('houseId', $entrance['houseId']);
 
         foreach ($flats as $flat) {
-            $flat_entrances = array_filter($flat['entrances'], function ($entrance) use ($domophoneId) {
-                return $entrance['domophoneId'] == $domophoneId;
-            });
+            $flat_entrances = array_filter($flat['entrances'], fn(array $entrance): bool => $entrance['domophoneId'] == $domophoneId);
 
-            if ($flat_entrances && count($flat_entrances) > 0) {
+            if ($flat_entrances && $flat_entrances !== []) {
                 $apartment = $flat['flat'];
 
-                foreach ($flat_entrances as $flat_entrance)
-                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment)
+                foreach ($flat_entrances as $flat_entrance) {
+                    if ($flat_entrance['apartment'] != 0 && $flat_entrance['apartment'] != $apartment) {
                         $apartment = $flat_entrance['apartment'];
+                    }
+                }
 
                 $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
 
-                foreach ($keys as $key)
-                    $device->addRfidDeffer($key['rfId'], $apartment);
+                foreach ($keys as $key) {
+                    $device->addKey(new Key($key['rfId'], $apartment));
+                }
             }
         }
-
-        $device->deffer();
     }
 }

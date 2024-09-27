@@ -372,6 +372,7 @@ readonly class InternalHouseFeature extends HouseFeature
     {
         if (array_key_exists("code", $params) && !check_string($params["code"])) {
             last_error("invalidParams");
+
             return false;
         }
 
@@ -384,7 +385,23 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         if (@$params["openCode"] == "!") {
+            $flat = HouseFlat::findById($flatId, setting: setting()->columns(['address_house_id']));
+
             $params["openCode"] = 11000 + rand(0, 88999);
+
+            $count = 10;
+
+            while (HouseFlat::fetch(criteria()->equal('address_house_id', $flat->address_house_id)->equal('open_code', $params["openCode"]), setting()->columns([])) != null) {
+                $params["openCode"] = 11000 + rand(0, 88999);
+
+                $count--;
+
+                if ($count <= 0) {
+                    $params['openCode'] = '';
+
+                    break;
+                }
+            }
         }
 
         $mod = $this->getDatabase()->modifyEx("update houses_flats set %s = :%s where house_flat_id = $flatId", [
@@ -416,8 +433,9 @@ readonly class InternalHouseFeature extends HouseFeature
                 if ($apartmentsAndLevels && @$apartmentsAndLevels[$entrances[$i]]) {
                     $ap = (int)$apartmentsAndLevels[$entrances[$i]]["apartment"];
 
-                    if (!$ap || $ap <= 0 || $ap > 9999)
+                    if (!$ap || $ap <= 0 || $ap > 9999) {
                         $ap = $params["flat"];
+                    }
 
                     $lv = @$apartmentsAndLevels[$entrances[$i]]["apartmentLevels"];
                 }
@@ -685,9 +703,9 @@ readonly class InternalHouseFeature extends HouseFeature
         $addresses = container(AddressFeature::class);
 
         foreach ($subscribers as &$subscriber) {
-            $flats = $this->getDatabase()->get("select house_flat_id, role, flat, address_house_id from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
+            $flats = $this->getDatabase()->get("select house_flat_id, role, flat, address_house_id, cms_enabled from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
                 ["house_subscriber_id" => $subscriber["subscriberId"]],
-                ["house_flat_id" => "flatId", "role" => "role", "flat" => "flat", "address_house_id" => "addressHouseId"]
+                ["house_flat_id" => "flatId", "role" => "role", "flat" => "flat", "address_house_id" => "addressHouseId", "cms_enabled" => "cmsEnabled"]
             );
 
             foreach ($flats as &$flat)
