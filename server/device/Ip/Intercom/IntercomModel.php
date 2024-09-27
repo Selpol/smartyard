@@ -48,8 +48,6 @@ class IntercomModel
 
             'cmses' => $this->cmses,
 
-            'option' => $this->option->toArray(),
-
             'class' => $this->class
         ];
     }
