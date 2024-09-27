@@ -11,7 +11,7 @@ readonly class model extends Api
 {
     public static function GET(array $params): array|Response|ResponseInterface
     {
-        return self::success(IntercomModel::models());
+        return self::success(IntercomModel::modelsToArray());
     }
 
     public static function index(): array|bool
