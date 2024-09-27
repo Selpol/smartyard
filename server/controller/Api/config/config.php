@@ -19,6 +19,6 @@ readonly class config extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Подрядчики] Получить параметры конфигурации'];
+        return ['GET' => '[Конфигурация] Получить параметры конфигурации'];
     }
 }
