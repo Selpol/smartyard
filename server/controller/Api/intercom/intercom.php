@@ -35,6 +35,7 @@ readonly class intercom extends Api
             'device_model' => 'deviceModel',
             'device_software_version' => 'deviceSoftwareVersion',
             'device_hardware_version' => 'deviceHardwareVersion',
+            'config' => 'config',
             'hidden' => 'hidden'
         ]);
 
@@ -105,6 +106,10 @@ readonly class intercom extends Api
 
         if (array_key_exists('sosNumber', $params)) {
             $intercom->sos_number = $params['sosNumber'];
+        }
+
+        if (array_key_exists('config', $params)) {
+            $intercom->config = $params['config'];
         }
 
         if (array_key_exists('hidden', $params)) {
