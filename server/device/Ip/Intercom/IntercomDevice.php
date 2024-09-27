@@ -10,6 +10,8 @@ use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
+    public readonly bool $mifare;
+
     public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, private readonly DeviceIntercom $intercom, private readonly Config $config)
     {
         parent::__construct($uri, $password);
@@ -22,6 +24,23 @@ abstract class IntercomDevice extends IpDevice
 
         if (!$this->debug) {
             $this->debug = $this->resolveBool('debug', false);
+        }
+
+        if ($this->resolveBool('mifare', false)) {
+            $key = $this->resolveString('mifare_key');
+            $sector = $this->resolveString('mifare_sector');
+
+            if (str_starts_with($key, 'ENV_')) {
+                $key = env(substr($key, 4));
+            }
+
+            if (str_starts_with($sector, 'ENV_')) {
+                $sector = env(substr($sector, 4));
+            }
+
+            $this->mifare = $key && $sector;
+        } else {
+            $this->mifare = false;
         }
 
         $this->setLogger(file_logger('intercom'));

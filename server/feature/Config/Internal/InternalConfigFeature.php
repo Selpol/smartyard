@@ -25,6 +25,10 @@ readonly class InternalConfigFeature extends ConfigFeature
             new ConfigItem('audio', 'Аудио', '', 'intercom', ['Идентификатор', 'Модель', 'Производитель', 'Название']),
             new ConfigItem('audio', 'Аудио', '', null, ['Квартира']),
 
+            new ConfigItem('mifare', 'MIFARE', 'true', 'intercom', []),
+            new ConfigItem('mifare_key', 'MIFARE Ключ', 'ENV_MIFARE_KEY', 'intercom', []),
+            new ConfigItem('mifare_sector', 'MIFARE Сектор', 'ENV_MIFARE_SECTOR', 'intercom', []),
+
             new ConfigItem('auth', 'Авторизация', 'basic', 'intercom', ['Идентификатор', 'Модель', 'Производитель', 'Название']),
         ];
     }

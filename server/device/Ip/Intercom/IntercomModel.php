@@ -16,8 +16,6 @@ class IntercomModel
      */
     private static array $models;
 
-    public readonly bool $mifare;
-
     public function __construct(
         public readonly string $title,
         public readonly string $vendor,
@@ -29,11 +27,9 @@ class IntercomModel
         public readonly array  $cmses,
         /**@var array<string, int|string> */
         public readonly array  $cmsesMap,
-        public readonly string $class,
-        bool                   $mifare
+        public readonly string $class
     )
     {
-        $this->mifare = $mifare && env('MIFARE_SECTOR', 0) > 0;
     }
 
     public function toArray(): array
@@ -90,8 +86,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['BK-100' => 'VISIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'],
-                    IsIntercom::class,
-                    true
+                    IsIntercom::class
                 ),
                 'iscomx1_2' => new IntercomModel(
                     'IS ISCOM X1 2.2.5.10.5',
@@ -102,8 +97,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'],
-                    IsIntercom::class,
-                    true
+                    IsIntercom::class
                 ),
                 'iscomx5' => new IntercomModel(
                     'IS ISCOM X5',
@@ -114,8 +108,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'],
-                    Is5Intercom::class,
-                    true
+                    Is5Intercom::class
                 ),
                 'iscomx5_rfid' => new IntercomModel(
                     'IS ISCOM X5 RFID',
@@ -126,8 +119,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-100u', 'com-220u', 'factorial_8x8', 'kkm-100s2', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'],
-                    Is5Intercom::class,
-                    false
+                    Is5Intercom::class
                 ),
                 'dks15102' => new IntercomModel(
                     'BEWARD DKS15102',
@@ -138,8 +130,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kkm-100s2', 'kkm-105'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
-                    DksIntercom::class,
-                    false
+                    DksIntercom::class
                 ),
                 'dks15103' => new IntercomModel(
                     'BEWARD DKS15103',
@@ -150,8 +141,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kkm-100s2', 'kkm-105'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
-                    DksIntercom::class,
-                    false
+                    DksIntercom::class
                 ),
                 'dsk15103_52701' => new IntercomModel(
                     'BEWARD DKS15103_rev5.2.7.0.1',
@@ -162,8 +152,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kkm-100s2', 'kkm-105'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks15104' => new IntercomModel(
                     'BEWARD DKS15104',
@@ -174,8 +163,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kkm-100s2', 'kkm-105', 'kkm-108'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2, 'KKM-108' => 19],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks15105' => new IntercomModel(
                     'BEWARD DKS15105',
@@ -186,8 +174,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kad2502', 'kkm-100s2', 'kkm-105', 'kkm-108'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KKM-108' => 3, 'KAD2501' => 2, 'KAD2502' => 4],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks15122' => new IntercomModel(
                     'BEWARD DKS15122',
@@ -198,8 +185,7 @@ class IntercomModel
                     3,
                     ['kad2501', 'kkm-100s2', 'kkm-105'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
-                    DksIntercom::class,
-                    false
+                    DksIntercom::class
                 ),
                 'dks15374' => new IntercomModel(
                     'BEWARD DKS15374',
@@ -210,8 +196,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks15374_rev5.2.8.2.1' => new IntercomModel(
                     'BEWARD DKS15374_rev5.2.8.2.1',
@@ -222,8 +207,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks15374_rfid' => new IntercomModel(
                     'BEWARD DKS15374 RFID',
@@ -234,8 +218,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
-                    DksIntercom::class,
-                    false
+                    DksIntercom::class
                 ),
                 'dks15374_is10' => new IntercomModel(
                     'BEWARD DKS15374 IS10',
@@ -246,8 +229,7 @@ class IntercomModel
                     2,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks20210' => new IntercomModel(
                     'BEWARD DKS20210',
@@ -258,8 +240,7 @@ class IntercomModel
                     1,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['KKM-100S2' => 0, 'KKM-105' => 1, 'KAD2501' => 2],
-                    DksIntercom::class,
-                    true
+                    DksIntercom::class
                 ),
                 'dks977957' => new IntercomModel(
                     'BEWARD DKS977957',
@@ -270,8 +251,7 @@ class IntercomModel
                     2,
                     ['bk-100', 'com-25u', 'com-100u', 'com-220u', 'kad2501', 'kkm-100s2', 'kkm-105', 'km100-7.1', 'km100-7.5', 'kmg-100'],
                     ['COM-25U' => 0, 'COM-80U' => 1, 'COM-100U' => 2, 'COM-160U' => 3, 'COM-220U' => 4, 'BK-30' => 5, 'BK-100' => 6, 'BK-400' => 7, 'KMG-100' => 8, 'KMG-100I' => 9, 'KM20-1' => 10, 'KM100-7.1' => 11, 'KM100-7.2' => 12, 'KM100-7.3' => 13, 'KM100-7.5' => 14, 'KKM-100S2' => 15, 'KKM-105' => 16, 'KKM-108' => 19, 'Factorial8x8' => 17, 'KAD2501' => 18],
-                    MifareDksIntercom::class,
-                    true
+                    MifareDksIntercom::class
                 ),
                 'kv6113' => new IntercomModel(
                     'HikVision DS-KV6113',
@@ -282,8 +262,7 @@ class IntercomModel
                     1,
                     [],
                     [],
-                    HikVisionIntercom::class,
-                    true
+                    HikVisionIntercom::class
                 ),
                 'ds06ap' => new IntercomModel(
                     'BEWARD DS06A(P)',
@@ -294,8 +273,7 @@ class IntercomModel
                     3,
                     [],
                     [],
-                    DsIntercom::class,
-                    true
+                    DsIntercom::class
                 ),
                 'ds06m' => new IntercomModel(
                     'BEWARD DS06M',
@@ -306,8 +284,7 @@ class IntercomModel
                     3,
                     [],
                     [],
-                    DsIntercom::class,
-                    true
+                    DsIntercom::class
                 )
             ];
         }
