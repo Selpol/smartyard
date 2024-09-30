@@ -10,7 +10,7 @@ use Selpol\Feature\Config\ConfigValue;
 
 readonly class InternalConfigFeature extends ConfigFeature
 {
-    public function getConfigForIntercomDescription(): array
+    public function getDescriptionForIntercomConfig(): array
     {
         return [
             new ConfigItem('debug', '[Устройство] Дебаг', 'intercom', new ConfigValue('false', 'bool'), ['id', 'device_model', 'model_vendor', 'model_title']),

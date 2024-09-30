@@ -124,7 +124,7 @@ abstract class IntercomDevice extends IpDevice
 
     public static function template(string $value, array $values): string
     {
-        if (preg_match_all('({\w+})', $value, $matches)) {
+        if (preg_match_all('(%\w+%)', $value, $matches)) {
             foreach ($matches as $match) {
                 foreach ($match as $item) {
                     $value = str_replace($item, $values[substr($item, 1, -1)], $value);

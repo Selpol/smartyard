@@ -11,7 +11,7 @@ readonly class config extends Api
     public static function GET(array $params): ResponseInterface
     {
         if ($params['_id'] == 'intercom') {
-            return self::success(container(ConfigFeature::class)->getConfigForIntercomDescription());
+            return self::success(container(ConfigFeature::class)->getDescriptionForIntercomConfig());
         }
 
         return self::error('Не удалось найти параметры конфигурации');

@@ -12,7 +12,7 @@ readonly abstract class ConfigFeature extends Feature
     /**
      * @return ConfigItem[]
      */
-    public abstract function getConfigForIntercomDescription(): array;
+    public abstract function getDescriptionForIntercomConfig(): array;
 
     public abstract function getConfigForIntercom(): Config;
 }
