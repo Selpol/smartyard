@@ -170,6 +170,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $videoEncoding = $device->getVideoEncoding();
 
         $newVideoEncoding = clone $videoEncoding;
+
+        $newVideoEncoding->quality = $device->resolveString('video.quality');
         $newVideoEncoding->primaryBitrate = $device->resolveInt('video.primary_bitrate', 1024);
         $newVideoEncoding->secondaryBitrate = $device->resolveInt('video.secondary_bitrate', 512);
 
@@ -190,7 +192,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if ($entrance instanceof HouseEntrance) {
             $newVideoOverlay = clone $videoOverlay;
-            $newVideoOverlay->title = $entrance->caller_id;
+            $newVideoOverlay->title = $device::template($device->resolveString('display.title', $entrance->caller_id), ['entrance' => $entrance->caller_id]);
 
             if (!$newVideoOverlay->equal($videoOverlay)) {
                 $device->setVideoOverlay($newVideoOverlay);

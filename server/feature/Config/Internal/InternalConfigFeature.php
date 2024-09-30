@@ -28,8 +28,12 @@ readonly class InternalConfigFeature extends ConfigFeature
             new ConfigItem('audio.volume', '[Аудио] Звук домофона', 'intercom', new ConfigValue(type: 'array:int'), ['id', 'device_model', 'model_vendor', 'model_title']),
             new ConfigItem('audio.volume', '[Аудио] Звук домофона на квартире', null, new ConfigValue(type: 'array:int'), ['flat']),
 
+            new ConfigItem('video.quality', '[Видео] Разрешение', 'intercom', new ConfigValue(example: '1920x1080,1'), ['id', 'device_model', 'model_vendor', 'model_title']),
+
             new ConfigItem('video.primary_bitrate', '[Видео] Основной битрейт', 'intercom', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048'), ['id', 'device_model', 'model_vendor', 'model_title']),
             new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', 'intercom', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048'), ['id', 'device_model', 'model_vendor', 'model_title']),
+
+            new ConfigItem('display.title', '[Дисплей] Текст', 'intercom', new ConfigValue('${entrance}'), ['id', 'device_model', 'model_vendor', 'model_title']),
 
             new ConfigItem('mifare', '[Ключи] MIFARE', 'intercom', new ConfigValue('true', 'bool'), ['id', 'device_model', 'model_vendor', 'model_title']),
             new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', 'intercom', new ConfigValue('ENV_MIFARE_KEY', 'env,string'), ['id', 'device_model', 'model_vendor', 'model_title']),

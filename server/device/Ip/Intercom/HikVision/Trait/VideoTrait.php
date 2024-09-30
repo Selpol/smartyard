@@ -13,7 +13,7 @@ trait VideoTrait
     {
         $response = $this->get('/ISAPI/Streaming/channels/101');
 
-        return new VideoEncoding(intval($response['Video']['constantBitRate']), 512);
+        return new VideoEncoding('1920x1080', intval($response['Video']['constantBitRate']), 512);
     }
 
     public function getVideoDetection(): VideoDetection
@@ -35,7 +35,9 @@ trait VideoTrait
 
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
-        $this->put('/ISAPI/Streaming/channels/101', '<StreamingChannel><id>101</id><channelName>Camera 01</channelName><enabled>true</enabled><Transport><ControlProtocolList><ControlProtocol><streamingTransport>RTSP</streamingTransport></ControlProtocol><ControlProtocol><streamingTransport>HTTP</streamingTransport></ControlProtocol></ControlProtocolList><Security><enabled>true</enabled></Security></Transport><Video><enabled>true</enabled><videoInputChannelID>1</videoInputChannelID><videoCodecType>H.264</videoCodecType><videoScanType>progressive</videoScanType><videoResolutionWidth>1920</videoResolutionWidth><videoResolutionHeight>1080</videoResolutionHeight><videoQualityControlType>CBR</videoQualityControlType><constantBitRate>' . $videoEncoding->primaryBitrate . '</constantBitRate><fixedQuality>60</fixedQuality><maxFrameRate>2500</maxFrameRate><keyFrameInterval>2000</keyFrameInterval><snapShotImageType>JPEG</snapShotImageType><GovLength>50</GovLength></Video><AudioLevels><enabled>true</enabled><audioInputChannelID>1</audioInputChannelID><audioCompressionType>G.711ulaw</audioCompressionType></AudioLevels></StreamingChannel>', ['Content-Type' => 'application/xml']);
+        list($width, $height) = explode('x', $videoEncoding->quality ?? '1920x1080');
+
+        $this->put('/ISAPI/Streaming/channels/101', "<StreamingChannel><id>101</id><channelName>Camera 01</channelName><enabled>true</enabled><Transport><ControlProtocolList><ControlProtocol><streamingTransport>RTSP</streamingTransport></ControlProtocol><ControlProtocol><streamingTransport>HTTP</streamingTransport></ControlProtocol></ControlProtocolList><Security><enabled>true</enabled></Security></Transport><Video><enabled>true</enabled><videoInputChannelID>1</videoInputChannelID><videoCodecType>H.264</videoCodecType><videoScanType>progressive</videoScanType><videoResolutionWidth>" . $width . "</videoResolutionWidth><videoResolutionHeight>" . $height . "</videoResolutionHeight><videoQualityControlType>CBR</videoQualityControlType><constantBitRate>" . $videoEncoding->primaryBitrate . '</constantBitRate><fixedQuality>60</fixedQuality><maxFrameRate>2500</maxFrameRate><keyFrameInterval>2000</keyFrameInterval><snapShotImageType>JPEG</snapShotImageType><GovLength>50</GovLength></Video><AudioLevels><enabled>true</enabled><audioInputChannelID>1</audioInputChannelID><audioCompressionType>G.711ulaw</audioCompressionType></AudioLevels></StreamingChannel>', ['Content-Type' => 'application/xml']);
     }
 
     public function setVideoDetection(VideoDetection $videoDetection): void
