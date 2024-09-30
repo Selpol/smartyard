@@ -10,9 +10,10 @@ use Selpol\Feature\Config\ConfigValue;
 
 readonly class InternalConfigFeature extends ConfigFeature
 {
-    public function getConfigForIntercomArray(): array
+    public function getConfigForIntercomDescription(): array
     {
         return [
+            new ConfigItem('debug', '[Устройство] Дебаг', 'intercom', new ConfigValue('false', 'bool'), ['id', 'device_model', 'model_vendor', 'model_title']),
             new ConfigItem('auth', '[Устройство] Авторизация', 'intercom', new ConfigValue('basic', condition: 'in:basic,digest,any_safe'), ['id', 'device_model', 'model_vendor', 'model_title']),
 
             new ConfigItem('clean.unlock_time', '[Очистка] Время открытия', 'intercom', new ConfigValue('5', 'int', condition: 'between:5,30'), ['id', 'device_model', 'model_vendor', 'model_title']),
