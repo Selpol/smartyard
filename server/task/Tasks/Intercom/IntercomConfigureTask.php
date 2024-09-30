@@ -261,8 +261,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $newMifare = clone $mifare;
             $newMifare->enable = true;
-            $newMifare->key = $key;
-            $newMifare->sector = intval($sector);
+            $newMifare->key = $device->mifareKey;
+            $newMifare->sector = $device->mifareSector;
 
             if (!$newMifare->equal($mifare)) {
                 $device->setMifare($newMifare);

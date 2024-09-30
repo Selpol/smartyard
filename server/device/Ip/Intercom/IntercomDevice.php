@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Device\Ip\IpDevice;
+use Selpol\Device\Ip\Trait\ConfigTrait;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Config;
 use Selpol\Framework\Http\Uri;
@@ -10,11 +11,18 @@ use SensitiveParameter;
 
 abstract class IntercomDevice extends IpDevice
 {
+    use ConfigTrait;
+
     public readonly bool $mifare;
 
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, private readonly DeviceIntercom $intercom, private readonly Config $config)
+    public readonly ?string $mifareKey;
+    public readonly ?int $mifareSector;
+
+    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, private readonly DeviceIntercom $intercom, Config $config)
     {
         parent::__construct($uri, $password);
+
+        $this->config = $config;
 
         match ($this->resolveString('auth', 'basic')) {
             "any_safe" => $this->clientOption->anySafe($this->login, $password),
@@ -27,8 +35,8 @@ abstract class IntercomDevice extends IpDevice
         }
 
         if ($this->resolveBool('mifare', false)) {
-            $key = $this->resolveString('mifare_key');
-            $sector = $this->resolveString('mifare_sector');
+            $key = $this->resolveString('mifare.key');
+            $sector = $this->resolveString('mifare.sector');
 
             if (str_starts_with($key, 'ENV_')) {
                 $key = env(substr($key, 4));
@@ -39,8 +47,14 @@ abstract class IntercomDevice extends IpDevice
             }
 
             $this->mifare = $key && $sector;
+
+            $this->mifareKey = $key;
+            $this->mifareSector = intval($sector);
         } else {
             $this->mifare = false;
+
+            $this->mifareKey = null;
+            $this->mifareSector = null;
         }
 
         $this->setLogger(file_logger('intercom'));
@@ -54,12 +68,14 @@ abstract class IntercomDevice extends IpDevice
             return $default;
         }
 
+        // Глобальная конфигурация по идентификатору домофона
         $default = $this->config->resolve('intercom.' . $this->intercom->house_domophone_id . '.' . $key, $default);
 
         if ($default != null) {
             return $default;
         }
 
+        // Глобальная конфигурация по модели устройства
         if ($this->intercom->device_model) {
             $default = $this->config->resolve('intercom.' . $this->intercom->device_model . '.' . $key, $default);
 
@@ -68,52 +84,22 @@ abstract class IntercomDevice extends IpDevice
             }
         }
 
+        // Глобальная конфигураця по производителю модели устройства
         $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key, $default);
 
         if ($default != null) {
             return $default;
         }
 
+        // Глобальная конфигурация по названию модели устройства
         $default = $this->config->resolve('intercom.' . $this->model->title . '.' . $key, $default);
 
         if ($default != null) {
             return $default;
         }
 
+        // Общая глобальная конфигурация
         return $this->config->resolve('intercom.' . $key, $default);
-    }
-
-    public function resolveBool(string $key, ?bool $default = null): ?bool
-    {
-        $value = $this->resolveString($key);
-
-        if ($value == null) {
-            return $default;
-        }
-
-        return $value == '1' || $value == 'true';
-    }
-
-    public function resolveInt(string $key, ?int $default = null): ?int
-    {
-        $value = $this->resolveString($key);
-
-        if ($value == null) {
-            return $default;
-        }
-
-        return intval($value);
-    }
-
-    public function resolveFloat(string $key, ?float $default = null): ?float
-    {
-        $value = $this->resolveString($key);
-
-        if ($value == null) {
-            return $default;
-        }
-
-        return floatval($value);
     }
 
     public function open(int $value): void
