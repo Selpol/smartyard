@@ -38,11 +38,11 @@ abstract class IntercomDevice extends IpDevice
             $key = $this->resolveString('mifare.key');
             $sector = $this->resolveString('mifare.sector');
 
-            if (str_starts_with($key, 'ENV_')) {
+            if ($key && str_starts_with($key, 'ENV_')) {
                 $key = env(substr($key, 4));
             }
 
-            if (str_starts_with($sector, 'ENV_')) {
+            if ($sector && str_starts_with($sector, 'ENV_')) {
                 $sector = env(substr($sector, 4));
             }
 
