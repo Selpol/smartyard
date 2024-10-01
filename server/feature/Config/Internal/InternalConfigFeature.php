@@ -13,32 +13,31 @@ readonly class InternalConfigFeature extends ConfigFeature
     public function getDescriptionForIntercomConfig(): array
     {
         return [
-            new ConfigItem('debug', '[Устройство] Дебаг', 'intercom', new ConfigValue('false', 'bool'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('auth', '[Устройство] Авторизация', 'intercom', new ConfigValue('basic', condition: 'in:basic,digest,any_safe'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('debug', '[Устройство] Дебаг', new ConfigValue('false', 'bool')),
+            new ConfigItem('auth', '[Устройство] Авторизация', new ConfigValue('basic', condition: 'in:basic,digest,any_safe')),
 
-            new ConfigItem('clean.unlock_time', '[Очистка] Время открытия', 'intercom', new ConfigValue('5', 'int', condition: 'between:5,30'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('clean.unlock_time', '[Очистка] Время открытия', new ConfigValue('5', 'int', condition: 'between:5,30')),
 
-            new ConfigItem('clean.call_timeout', '[Очистка] Таймаут вызова', 'intercom', new ConfigValue('30', 'int', condition: 'between:15,120'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('clean.talk_timeout', '[Очистка] Таймаут разговора', 'intercom', new ConfigValue('60', 'int', condition: 'between:15,120'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('clean.call_timeout', '[Очистка] Таймаут вызова', new ConfigValue('30', 'int', condition: 'between:15,120')),
+            new ConfigItem('clean.talk_timeout', '[Очистка] Таймаут разговора', new ConfigValue('60', 'int', condition: 'between:15,120')),
 
-            new ConfigItem('clean.sos', '[Очистка] SOS', 'intercom', new ConfigValue('SOS'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('clean.concierge', '[Очистка] Консьерж', 'intercom', new ConfigValue('9999', 'int'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('clean.sos', '[Очистка] SOS', new ConfigValue('SOS')),
+            new ConfigItem('clean.concierge', '[Очистка] Консьерж', new ConfigValue('9999', 'int')),
 
-            new ConfigItem('clean.ntp', '[Очистка] Сервер времени', 'intercom', new ConfigValue(), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('clean.ntp', '[Очистка] Сервер времени', new ConfigValue()),
 
-            new ConfigItem('audio.volume', '[Аудио] Звук домофона', 'intercom', new ConfigValue(type: 'array:int'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('audio.volume', '[Аудио] Звук домофона на квартире', null, new ConfigValue(type: 'array:int'), ['flat']),
+            new ConfigItem('audio.volume', '[Аудио] Звук домофона', new ConfigValue(type: 'array:int'), ['flat']),
 
-            new ConfigItem('video.quality', '[Видео] Разрешение', 'intercom', new ConfigValue(example: '1920x1080,1'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('video.quality', '[Видео] Разрешение', new ConfigValue(example: '1920x1080,1')),
 
-            new ConfigItem('video.primary_bitrate', '[Видео] Основной битрейт', 'intercom', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', 'intercom', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('video.primary_bitrate', '[Видео] Основной битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
+            new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
 
-            new ConfigItem('display.title', '[Дисплей] Текст', 'intercom', new ConfigValue('${entrance}'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('display.title', '[Дисплей] Текст', new ConfigValue('${entrance}')),
 
-            new ConfigItem('mifare', '[Ключи] MIFARE', 'intercom', new ConfigValue('true', 'bool'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', 'intercom', new ConfigValue('ENV_MIFARE_KEY', 'env,string'), ['id', 'device_model', 'model_vendor', 'model_title']),
-            new ConfigItem('mifare.sector', '[Ключи] MIFARE Сектор', 'intercom', new ConfigValue('ENV_MIFARE_SECTOR', 'env,int'), ['id', 'device_model', 'model_vendor', 'model_title']),
+            new ConfigItem('mifare', '[Ключи] MIFARE', new ConfigValue('true', 'bool')),
+            new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', new ConfigValue('ENV_MIFARE_KEY', 'env,string')),
+            new ConfigItem('mifare.sector', '[Ключи] MIFARE Сектор', new ConfigValue('ENV_MIFARE_SECTOR', 'env,int')),
         ];
     }
 

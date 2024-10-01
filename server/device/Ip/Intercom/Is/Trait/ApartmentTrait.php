@@ -51,7 +51,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolveString('audio.' . $apartment->apartment)) {
+        if ($audio = $this->resolveString('audio.volume.' . $apartment->apartment)) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [

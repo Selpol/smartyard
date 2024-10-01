@@ -18,10 +18,22 @@ class Config
     {
         $lines = explode(PHP_EOL, $values);
 
+        $group = '';
+
         foreach ($lines as $line) {
             $line = trim($line);
 
             if ($line == '' || str_starts_with($line, '#')) {
+                continue;
+            }
+
+            if (str_starts_with($line, '[') && str_ends_with($line, ']')) {
+                $group = trim(substr($line, 1, -1));
+
+                if ($group != '') {
+                    $group .= '.';
+                }
+
                 continue;
             }
 
@@ -32,7 +44,7 @@ class Config
                 $value = trim($segments[1]);
 
                 if ($key != '' && $value != '') {
-                    $this->values[$key] = $value;
+                    $this->values[$group . $key] = $value;
                 }
             }
         }

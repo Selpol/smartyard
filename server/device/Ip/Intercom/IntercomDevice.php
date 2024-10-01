@@ -68,7 +68,7 @@ abstract class IntercomDevice extends IpDevice
             return $default;
         }
 
-        // Глобальная конфигурация по идентификатору домофона
+        // Глобальная конфигурация по идентификатору устройства
         $default = $this->config->resolve('intercom.' . $this->intercom->house_domophone_id . '.' . $key, $default);
 
         if ($default != null) {
@@ -77,28 +77,28 @@ abstract class IntercomDevice extends IpDevice
 
         // Глобальная конфигурация по модели устройства
         if ($this->intercom->device_model) {
-            $default = $this->config->resolve('intercom.' . $this->intercom->device_model . '.' . $key, $default);
+            $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $this->intercom->device_model . '.' . $key, $default);
 
             if ($default != null) {
                 return $default;
             }
         }
 
-        // Глобальная конфигураця по производителю модели устройства
+        // Глобальная конфигурация по названию модели устройства
+        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $this->model->title . '.' . $key, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
+        // Глобальная конфигурация по производителю модели устройства
         $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key, $default);
 
         if ($default != null) {
             return $default;
         }
 
-        // Глобальная конфигурация по названию модели устройства
-        $default = $this->config->resolve('intercom.' . $this->model->title . '.' . $key, $default);
-
-        if ($default != null) {
-            return $default;
-        }
-
-        // Общая глобальная конфигурация
+        // Глобальная конфигурация устройства
         return $this->config->resolve('intercom.' . $key, $default);
     }
 
