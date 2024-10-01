@@ -126,7 +126,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(85);
 
         if ($device instanceof CommonInterface) {
-            $this->commonOther($device, $deviceModel, $individualLevels);
+            $this->commonOther($device, $individualLevels);
         }
 
         if ($deviceIntercom->first_time == 0 && $device instanceof AudioInterface) {
@@ -552,11 +552,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $device->setGates($gates);
     }
 
-    public function commonOther(IntercomDevice & CommonInterface $device, IntercomModel $deviceModel, bool $individualLevels): void
+    public function commonOther(IntercomDevice & CommonInterface $device, bool $individualLevels): void
     {
-        $urls = config('syslog_servers')[$deviceModel->syslog];
-
-        $server = uri($urls[array_rand($urls)]);
+        $server = uri($device->resolveString('clean.syslog', 'syslog://127.0.0.1:514'));
 
         $syslog = $device->getSyslog();
 
