@@ -10,10 +10,11 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\BlockMiddleware;
+use Selpol\Middleware\RateLimitMiddleware;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
-#[Controller('/mobile/call', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]])]
+#[Controller('/mobile/call', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]], excludes: [RateLimitMiddleware::class])]
 readonly class CallController extends RbtController
 {
     /**

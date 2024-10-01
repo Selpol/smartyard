@@ -71,18 +71,17 @@ readonly class RateLimitMiddleware extends RouteMiddleware
             $key .= ':' . str_replace('/', '-', $request->getRequestTarget());
         }
 
-        if (!$redis->exists($key)) {
-            $redis->incr($key);
+        $value = $redis->incr($key);
+
+        if ($value <= 1) {
             $redis->expire($key, $this->ttl);
-        } else {
-            $value = $redis->incr($key);
+        }
 
-            if ($value > $this->count) {
-                $ttl = $redis->ttl($key);
+        if ($value > $this->count) {
+            $ttl = $redis->ttl($key);
 
-                return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
-                    ->withHeader('Retry-After', $ttl);
-            }
+            return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
+                ->withHeader('Retry-After', $ttl);
         }
 
         return $handler->handle($request);
