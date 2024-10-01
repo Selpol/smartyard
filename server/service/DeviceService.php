@@ -91,7 +91,7 @@ class DeviceService
         }
 
         if (($model = IntercomModel::model($intercom->model)) instanceof IntercomModel) {
-            $config = container(ConfigFeature::class)->getConfigForIntercom($intercom, $this->cache);
+            $config = container(ConfigFeature::class)->getConfigForIntercom($model, $intercom, $this->cache);
             $intercom = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $config);
 
             if ($this->cache) {
