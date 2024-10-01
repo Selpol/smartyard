@@ -68,13 +68,6 @@ abstract class IntercomDevice extends IpDevice
             return $default;
         }
 
-        // Глобальная конфигурация по идентификатору устройства
-        $default = $this->config->resolve('intercom.' . $this->intercom->house_domophone_id . '.' . $key, $default);
-
-        if ($default != null) {
-            return $default;
-        }
-
         // Глобальная конфигурация по модели устройства
         if ($this->intercom->device_model) {
             $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace(' ', '_', $this->intercom->device_model) . '.' . $key, $default);
@@ -82,13 +75,18 @@ abstract class IntercomDevice extends IpDevice
             if ($default != null) {
                 return $default;
             }
-        }
 
-        // Глобальная конфигурация по названию модели устройства
-        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace(' ', '_', $this->model->title) . '.' . $key, $default);
+            if (str_contains($this->intercom->device_model, '_rev')) {
+                $segments = explode('_rev', $this->intercom->device_model);
 
-        if ($default != null) {
-            return $default;
+                if (count($segments) > 1) {
+                    $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace(' ', '_', $segments[0]) . '.' . $key, $default);
+
+                    if ($default != null) {
+                        return $default;
+                    }
+                }
+            }
         }
 
         // Глобальная конфигурация по производителю модели устройства
