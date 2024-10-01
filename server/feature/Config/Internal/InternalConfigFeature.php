@@ -13,6 +13,31 @@ use Throwable;
 
 readonly class InternalConfigFeature extends ConfigFeature
 {
+    public function clearConfigForIntercom(?int $id = null): void
+    {
+        try {
+            $cache = container(FileCache::class);
+
+            if ($id !== null) {
+                $cache->delete('intercom.config.' . $id);
+
+                return;
+            }
+
+            $files = scandir(path('var/cache'));
+
+            if ($files) {
+                foreach ($files as $file) {
+                    if (str_starts_with($file, 'intercom.config.') && str_ends_with($file, '.php')) {
+                        $cache->delete(substr($file, 0, -4));
+                    }
+                }
+            }
+        } catch (Throwable) {
+
+        }
+    }
+
     public function getDescriptionForIntercomConfig(): array
     {
         return [

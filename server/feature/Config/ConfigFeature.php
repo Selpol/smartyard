@@ -10,6 +10,8 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(InternalConfigFeature::class)]
 readonly abstract class ConfigFeature extends Feature
 {
+    public abstract function clearConfigForIntercom(?int $id = null): void;
+
     /**
      * @return ConfigItem[]
      */
