@@ -492,7 +492,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $device->setCmsLevels($newLevels);
         }
 
-        $cmsModel = array_key_exists(strtoupper($entrance->cms), $device->model->cmsesMap) ? $device->model->cmsesMap[strtoupper($entrance->cms)] : false;
+        $models = $device->getCmsModels();
+        $cmsModel = array_key_exists(strtoupper($entrance->cms), $models) ? $models[strtoupper($entrance->cms)] : false;
 
         if ($device->getCmsModel() != $cmsModel) {
             $device->setCmsModel($entrance->cms);

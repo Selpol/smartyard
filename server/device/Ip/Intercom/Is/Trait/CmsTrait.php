@@ -9,9 +9,9 @@ use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 trait CmsTrait
 {
     private bool $updateCmses = false;
-    
+
     private ?array $tempCmses = null;
-    
+
     private ?array $cmses = null;
 
     public function getLineDialStatus(int $apartment, bool $info): array|int
@@ -40,6 +40,11 @@ trait CmsTrait
         return $this->post('/panelCode/diag', range($from, $to));
     }
 
+    public function getCmsModels(): array
+    {
+        return ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'];
+    }
+
     public function getCmsModel(): string
     {
         $response = $this->get('/switch/settings');
@@ -57,8 +62,10 @@ trait CmsTrait
 
     public function setCmsModel(string $cms): void
     {
-        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap)) {
-            $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($cms)], 'usingCom3' => true]);
+        $models = $this->getCmsModels();
+
+        if (array_key_exists(strtoupper($cms), $models)) {
+            $this->put('/switch/settings', ['modelId' => $models[strtoupper($cms)], 'usingCom3' => true]);
         }
     }
 

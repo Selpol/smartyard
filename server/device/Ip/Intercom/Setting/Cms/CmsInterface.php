@@ -8,6 +8,8 @@ interface CmsInterface
 
     public function getAllLineDialStatus(int $from, int $to, bool $info): array;
 
+    public function getCmsModels(): array;
+
     public function getCmsModel(): string;
 
     public function getCmsLevels(): CmsLevels;
