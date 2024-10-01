@@ -7,11 +7,19 @@ class Config
     /**
      * @var array<string, string>
      */
-    private array $values = [];
+    private array $values;
 
-    public function getKeys(): array
+    public function __construct(array $values = [])
     {
-        return array_keys($this->values);
+        $this->values = $values;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function getValues(): array
+    {
+        return $this->values;
     }
 
     public function load(string $values): void
