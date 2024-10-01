@@ -16,6 +16,8 @@ readonly abstract class ConfigFeature extends Feature
             new ConfigItem('debug', '[Устройство] Дебаг', new ConfigValue('false', 'bool')),
             new ConfigItem('auth', '[Устройство] Авторизация', new ConfigValue('basic', condition: 'in:basic,digest,any_safe')),
 
+            new ConfigItem('output', '[Устройство] Количество выходов', new ConfigValue('1')),
+
             new ConfigItem('clean.unlock_time', '[Очистка] Время открытия', new ConfigValue('5', 'int', condition: 'between:5,30')),
 
             new ConfigItem('clean.call_timeout', '[Очистка] Таймаут вызова', new ConfigValue('30', 'int', condition: 'between:15,120')),
@@ -35,6 +37,8 @@ readonly abstract class ConfigFeature extends Feature
             new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
 
             new ConfigItem('display.title', '[Дисплей] Текст', new ConfigValue('${entrance}')),
+
+            new ConfigItem('cms.value', '[КМС] Список КМС моделей', new ConfigValue('', example: 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100')),
 
             new ConfigItem('mifare', '[Ключи] MIFARE', new ConfigValue('true', 'bool')),
             new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', new ConfigValue('ENV_MIFARE_KEY', 'env,string')),
