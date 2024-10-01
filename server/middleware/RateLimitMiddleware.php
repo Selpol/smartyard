@@ -5,7 +5,6 @@ namespace Selpol\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RedisException;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\AuthService;
@@ -35,47 +34,45 @@ readonly class RateLimitMiddleware extends RouteMiddleware
         $this->request = $config['request'] ?? false;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $redis = container(RedisService::class)->getConnection();
+        return container(RedisService::class)->use(1, static function (RedisService $service) use ($request, $handler) {
+            $redis = $service->getConnection();
 
-        if (is_null($redis)) {
-            if (!$this->null) {
-                $ttl = 5;
+            if (is_null($redis)) {
+                if (!$this->null) {
+                    $ttl = 5;
 
-                return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
-                    ->withHeader('Retry-After', $ttl);
-            }
+                    return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
+                        ->withHeader('Retry-After', $ttl);
+                }
 
-            return $handler->handle($request);
-        }
-
-        $ip = connection_ip($request);
-
-        foreach ($this->trust as $item) {
-            if (ip_in_range($ip, $item)) {
                 return $handler->handle($request);
             }
-        }
 
-        $key = 'rate:' . $ip;
+            $ip = connection_ip($request);
 
-        if ($token = container(AuthService::class)->getToken()) {
-            $key .= ':' . $token->getIdentifierName() . '-' . $token->getIdentifier();
-        }
+            foreach ($this->trust as $item) {
+                if (ip_in_range($ip, $item)) {
+                    return $handler->handle($request);
+                }
+            }
 
-        if ($this->request) {
-            $key .= ':' . str_replace('/', '-', $request->getRequestTarget());
-        }
+            $key = 'rate:' . $ip;
 
-        if (!$redis->exists($key)) {
-            $redis->incr($key);
-            $redis->expire($key, $this->ttl);
-        } else {
+            if ($token = container(AuthService::class)->getToken()) {
+                $key .= ':' . $token->getIdentifierName() . '-' . $token->getIdentifier();
+            }
+
+            if ($this->request) {
+                $key .= ':' . str_replace('/', '-', $request->getRequestTarget());
+            }
+
             $value = $redis->incr($key);
+
+            if ($value <= 1) {
+                $redis->expire($key, $this->ttl);
+            }
 
             if ($value > $this->count) {
                 $ttl = $redis->ttl($key);
@@ -83,8 +80,8 @@ readonly class RateLimitMiddleware extends RouteMiddleware
                 return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
                     ->withHeader('Retry-After', $ttl);
             }
-        }
 
-        return $handler->handle($request);
+            return $handler->handle($request);
+        });
     }
 }
