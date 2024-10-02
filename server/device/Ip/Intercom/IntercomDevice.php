@@ -89,6 +89,12 @@ abstract class IntercomDevice extends IpDevice
             }
         }
 
+        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $this->model->title, $default);
+
+        if ($default != null) {
+            return $default;
+        }
+
         // Глобальная конфигурация по производителю модели устройства
         $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key, $default);
 
