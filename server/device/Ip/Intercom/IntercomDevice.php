@@ -125,7 +125,11 @@ abstract class IntercomDevice extends IpDevice
         if (preg_match_all('(%\w+%)', $value, $matches)) {
             foreach ($matches as $match) {
                 foreach ($match as $item) {
-                    $value = str_replace($item, $values[substr($item, 1, -1)], $value);
+                    $key = substr($item, 1, -1);
+
+                    if (array_key_exists($key, $values)) {
+                        $value = str_replace($item, $values[$key], $value);
+                    }
                 }
             }
         }
