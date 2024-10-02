@@ -19,7 +19,7 @@ readonly class config extends Api
 
             return self::success([
                 'ids' => array_map(static fn(DeviceIntercom $intercom) => $intercom->house_domophone_id, $intercoms),
-                'models' => array_values(array_unique(array_filter(array_map(static fn(DeviceIntercom $intercom) => $intercom->device_model, $intercoms), static fn(string $value) => $value != ''))),
+                'models' => array_values(array_unique(array_filter(array_map(static fn(DeviceIntercom $intercom) => $intercom->device_model, $intercoms), static fn(?string $value) => $value !== null && $value != ''))),
 
                 'titles' => array_map(static fn(IntercomModel $model) => $model->title, $models),
                 'vendors' => array_map(static fn(IntercomModel $model) => $model->vendor, $models),
