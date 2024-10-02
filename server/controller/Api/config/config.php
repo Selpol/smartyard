@@ -19,10 +19,22 @@ readonly class config extends Api
 
             return self::success([
                 'ids' => array_map(static fn(DeviceIntercom $intercom) => $intercom->house_domophone_id, $intercoms),
-                'models' => array_values(array_unique(array_filter(array_map(static fn(DeviceIntercom $intercom) => $intercom->device_model, $intercoms), static fn(?string $value) => $value !== null && $value != ''))),
+                'models' => array_reduce(array_values(array_unique(array_filter(array_map(static fn(DeviceIntercom $intercom) => $intercom->device_model, $intercoms), static fn(?string $value) => $value !== null && $value != ''))), static function (array $previous, string $current) {
+                    if (str_contains($current, '_rev')) {
+                        $segments = explode('_rev', $current);
 
-                'titles' => array_map(static fn(IntercomModel $model) => $model->title, $models),
-                'vendors' => array_map(static fn(IntercomModel $model) => $model->vendor, $models),
+                        if (count($segments) > 1) {
+                            $previous[] = $segments[0];
+                        }
+                    }
+
+                    $previous[] = $current;
+
+                    return $previous;
+                }, []),
+
+                'titles' => array_values(array_unique(array_values(array_map(static fn(IntercomModel $model) => $model->title, $models)))),
+                'vendors' => array_values(array_unique(array_values(array_map(static fn(IntercomModel $model) => $model->vendor, $models)))),
 
                 'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig()
             ]);
