@@ -5,7 +5,6 @@ namespace Selpol\Controller\Api\config;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
-use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Service\DatabaseService;
 
@@ -14,27 +13,47 @@ readonly class config extends Api
     public static function GET(array $params): ResponseInterface
     {
         if ($params['_id'] == 'intercom') {
-            $intercoms = container(DatabaseService::class)->get('SELECT DISTINCT device_model FROM houses_domophones');
             $models = IntercomModel::models();
 
-            return self::success([
-                'models' => array_reduce(array_values(array_unique(array_filter(array_map('trim', array_map(static fn(array $intercom) => $intercom['device_model'], $intercoms)), static fn(?string $value) => $value !== null && $value != ''))), static function (array $previous, string $current) {
-                    if (str_contains($current, '_rev')) {
-                        $segments = explode('_rev', $current);
+            /** @var array<string, string> $intercoms */
+            $intercoms = array_reduce(container(DatabaseService::class)->get('SELECT model, device_model FROM houses_domophones GROUP BY model, device_model'), static function (array $previous, array $current): array {
+                $previous[$current['model']] = $current['device_model'];
 
-                        if (count($segments) > 1) {
-                            $previous[] = $segments[0];
-                        }
+                return $previous;
+            }, []);
+
+            $values = [];
+
+            foreach ($models as $key => $model) {
+                if (!array_key_exists($model->vendor, $values)) {
+                    $values[$model->vendor] = [];
+                }
+
+                if (!array_key_exists($model->title, $values[$model->vendor])) {
+                    $values[$model->vendor][$model->title] = [];
+                }
+
+                if (array_key_exists($key, $intercoms)) {
+                    $value = $intercoms[$key];
+
+                    if ($value == null || $value == '') {
+                        continue;
                     }
 
-                    $previous[] = $current;
+                    $values[$model->vendor][$model->title][] = $value;
 
-                    return $previous;
-                }, []),
+                    if (str_contains($value, '_rev')) {
+                        $segments = explode('_rev', $value);
 
-                'titles' => array_values(array_unique(array_values(array_map(static fn(IntercomModel $model) => $model->title, $models)))),
-                'vendors' => array_values(array_unique(array_values(array_map(static fn(IntercomModel $model) => $model->vendor, $models)))),
+                        if (count($segments) > 1) {
+                            $values[$model->vendor][$model->title][] = $segments[0];
+                        }
+                    }
+                }
+            }
 
+            return self::success([
+                'values' => $values,
                 'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig()
             ]);
         }
