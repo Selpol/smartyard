@@ -41,6 +41,8 @@ readonly abstract class ConfigFeature extends Feature
 
             new ConfigItem('cms.value', '[КМС] Список КМС моделей', new ConfigValue('', example: 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100')),
 
+            new ConfigItem('sip.stream', '[SIP] Видеопоток', new ConfigValue('0', condition: 'in:0,1')),
+
             new ConfigItem('mifare', '[Ключи] MIFARE', new ConfigValue('true', 'bool')),
             new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', new ConfigValue('ENV_MIFARE_KEY', 'env,string')),
             new ConfigItem('mifare.sector', '[Ключи] MIFARE Сектор', new ConfigValue('ENV_MIFARE_SECTOR', 'env,int')),
