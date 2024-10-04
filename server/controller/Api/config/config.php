@@ -30,7 +30,7 @@ readonly class config extends Api
                 }
 
                 if (!array_key_exists($model->title, $values[$model->vendor])) {
-                    $values[$model->vendor][] = $model->title;
+                    $values[$model->vendor][] = ['type' => 'title', 'value' => $model->title];
                 }
 
                 if (array_key_exists($key, $intercoms)) {
@@ -40,13 +40,13 @@ readonly class config extends Api
                         continue;
                     }
 
-                    $values[$model->vendor][] = $value;
+                    $values[$model->vendor][] = ['type' => 'model', 'value' => $value];
 
                     if (str_contains($value, '_rev')) {
                         $segments = explode('_rev', $value);
 
                         if (count($segments) > 1) {
-                            $values[$model->vendor][] = $segments[0];
+                            $values[$model->vendor][] = ['type' => 'model', 'value' => $segments[0]];
                         }
                     }
                 }
