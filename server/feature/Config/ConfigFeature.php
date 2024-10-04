@@ -32,7 +32,7 @@ readonly abstract class ConfigFeature extends Feature
 
             new ConfigItem('audio.volume', '[Аудио] Звук домофона', new ConfigValue(type: 'array:int'), ['flat']),
 
-            new ConfigItem('video.quality', '[Видео] Разрешение', new ConfigValue(example: '1920x1080,1')),
+            new ConfigItem('video.quality', '[Видео] Разрешение', new ConfigValue(example: '1280x720,1920x1080,1')),
 
             new ConfigItem('video.primary_bitrate', '[Видео] Основной битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
             new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
