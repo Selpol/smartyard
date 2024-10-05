@@ -58,7 +58,12 @@ readonly class config extends Api
             return self::success([
                 'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig(),
 
-                'container_suggestions' => array_values($values)
+                'container_suggestions' => [
+                    'value' => 'intercom',
+                    'title' => 'Домофон',
+
+                    'suggestions' => array_values($values)
+                ]
             ]);
         }
 
