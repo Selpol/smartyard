@@ -43,7 +43,7 @@ readonly class config extends Api
                         continue;
                     }
 
-                    $values[$model->vendor]['suggestions'][] = ['value' => $values, 'title' => 'Ревизия'];
+                    $values[$model->vendor]['suggestions'][] = ['value' => $value, 'title' => 'Ревизия'];
 
                     if (str_contains($value, '_rev')) {
                         $segments = explode('_rev', $value);
