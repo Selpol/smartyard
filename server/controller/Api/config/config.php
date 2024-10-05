@@ -26,12 +26,15 @@ readonly class config extends Api
 
             foreach ($models as $key => $model) {
                 if (!array_key_exists($model->vendor, $values)) {
-                    $values[$model->vendor] = [];
+                    $values[$model->vendor] = [
+                        'value' => $model->vendor,
+                        'title' => 'Производитель домофона',
+
+                        'suggestions' => []
+                    ];
                 }
 
-                if (!array_key_exists($model->title, $values[$model->vendor])) {
-                    $values[$model->vendor][] = ['type' => 'title', 'value' => $model->title];
-                }
+                $values[$model->vendor]['suggestions'][] = ['value' => $model->title, 'title' => 'Модель'];
 
                 if (array_key_exists($key, $intercoms)) {
                     $value = $intercoms[$key];
@@ -40,21 +43,22 @@ readonly class config extends Api
                         continue;
                     }
 
-                    $values[$model->vendor][] = ['type' => 'model', 'value' => $value];
+                    $values[$model->vendor]['suggestions'][] = ['value' => $values, 'title' => 'Ревизия'];
 
                     if (str_contains($value, '_rev')) {
                         $segments = explode('_rev', $value);
 
                         if (count($segments) > 1) {
-                            $values[$model->vendor][] = ['type' => 'model', 'value' => $segments[0]];
+                            $values[$model->vendor]['suggestions'][] = ['value' => $segments[0], 'title' => 'Ревизия'];
                         }
                     }
                 }
             }
 
             return self::success([
-                'values' => $values,
-                'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig()
+                'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig(),
+
+                'container_suggestions' => array_values($values)
             ]);
         }
 
