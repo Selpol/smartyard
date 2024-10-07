@@ -454,7 +454,7 @@ readonly class InternalFrsFeature extends FrsFeature
 
     public function getEntranceByCameraId(int $camera_id): array|bool
     {
-        $r = $this->getDatabase()->get("select he.house_entrance_id from houses_entrances he where he.camera_id = " . $camera_id . " limit 1", [], ["house_entrance_id" => "entranceId"]);
+        $r = $this->getDatabase()->get("select he.house_entrance_id from houses_entrances he where he.entrance_type != 'gate' and he.camera_id = " . $camera_id . " limit 1", [], ["house_entrance_id" => "entranceId"]);
 
         if (count($r) == 1) {
             $households = container(HouseFeature::class);
