@@ -11,41 +11,99 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(InternalConfigFeature::class)]
 readonly abstract class ConfigFeature extends Feature
 {
-    public function getDescriptionForIntercomConfig(): array
+    public function getSuggestionsForIntercomConfig(): array
     {
         return [
-            new ConfigItem('debug', '[Устройство] Дебаг', new ConfigValue('false', 'bool')),
-            new ConfigItem('auth', '[Устройство] Авторизация', new ConfigValue('basic', condition: 'in:basic,digest,any_safe')),
+            ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => 'auth', 'title' => 'Авторизация', 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe']],
+            ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
 
-            new ConfigItem('output', '[Устройство] Количество выходов', new ConfigValue('1')),
+            [
+                'type' => 'namespace',
+                'value' => 'clean',
+                'title' => 'Очистка',
 
-            new ConfigItem('clean.unlock_time', '[Очистка] Время открытия', new ConfigValue('5', 'int', condition: 'between:5,30')),
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'unlock_time', 'title' => 'Время открытия', 'assign' => ['default' => '5', 'type' => 'int', 'condition' => 'between:5,30']],
 
-            new ConfigItem('clean.call_timeout', '[Очистка] Таймаут вызова', new ConfigValue('30', 'int', condition: 'between:15,120')),
-            new ConfigItem('clean.talk_timeout', '[Очистка] Таймаут разговора', new ConfigValue('60', 'int', condition: 'between:15,120')),
+                    ['type' => 'value', 'value' => 'call_timeout', 'title' => 'Таймаут вызова', 'assign' => ['default' => '30', 'type' => 'int', 'condition' => 'between:15,120']],
+                    ['type' => 'value', 'value' => 'talk_timeout', 'title' => 'Таймаут разговора', 'assign' => ['default' => '60', 'type' => 'int', 'condition' => 'between:15,120']],
 
-            new ConfigItem('clean.sos', '[Очистка] SOS', new ConfigValue('SOS')),
-            new ConfigItem('clean.concierge', '[Очистка] Консьерж', new ConfigValue('9999', 'int')),
+                    ['type' => 'value', 'value' => 'sos', 'title' => 'SOS', 'assign' => ['default' => 'SOS']],
+                    ['type' => 'value', 'value' => 'concierge', 'title' => 'Консьерж', 'assign' => ['default' => '9999']],
 
-            new ConfigItem('clean.ntp', '[Очистка] Сервер времени', new ConfigValue()),
-            new ConfigItem('clean.syslog', '[Очистка] Сервер логов', new ConfigValue('syslog://127.0.0.1:514')),
+                    ['type' => 'value', 'value' => 'ntp', 'title' => 'Сервер времени', 'assign' => ['default' => '9999', 'type' => 'string:url']],
+                    ['type' => 'value', 'value' => 'syslog', 'title' => 'Сервер логов', 'assign' => ['default' => 'syslog://127.0.0.1:514', 'type' => 'string:url']],
+                ]
+            ],
 
-            new ConfigItem('audio.volume', '[Аудио] Звук домофона', new ConfigValue(type: 'array:int'), ['flat']),
+            [
+                'type' => 'namespace',
+                'value' => 'audio',
+                'title' => 'Аудио',
 
-            new ConfigItem('video.quality', '[Видео] Разрешение', new ConfigValue(example: '1280x720,1920x1080,1')),
+                'suggestions' => [
+                    [
+                        'type' => 'value',
+                        'value' => 'volume',
+                        'title' => 'Звук домофона',
 
-            new ConfigItem('video.primary_bitrate', '[Видео] Основной битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
-            new ConfigItem('video.secondary_bitrate', '[Видео] Дополнительный битрейт', new ConfigValue(type: 'int', condition: 'in:512,1024,1536,2048')),
+                        'assign' => ['type' => 'array:int'],
 
-            new ConfigItem('display.title', '[Дисплей] Текст', new ConfigValue('${entrance}')),
+                        'suggestions' => [['type' => 'variable', 'value' => 'flat', 'title' => 'Звук квартиры', 'assign' => ['type' => 'array:int']]]
+                    ]
+                ]
+            ],
 
-            new ConfigItem('cms.value', '[КМС] Список КМС моделей', new ConfigValue('', example: 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100')),
+            [
+                'type' => 'namespace',
+                'value' => 'video',
+                'title' => 'Видео',
 
-            new ConfigItem('sip.stream', '[SIP] Видеопоток', new ConfigValue('0', condition: 'in:0,1')),
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'quality', 'title' => 'Разрешение', 'assign' => ['example' => '1280x720,1920x1080,1']],
 
-            new ConfigItem('mifare', '[Ключи] MIFARE', new ConfigValue('true', 'bool')),
-            new ConfigItem('mifare.key', '[Ключи] MIFARE Ключ', new ConfigValue('ENV_MIFARE_KEY', 'env,string')),
-            new ConfigItem('mifare.sector', '[Ключи] MIFARE Сектор', new ConfigValue('ENV_MIFARE_SECTOR', 'env,int')),
+                    ['type' => 'value', 'value' => 'primary_bitrate', 'title' => 'Основной битрейт', 'assign' => ['condition' => 'in:512,1024,1536,2048']],
+                    ['type' => 'value', 'value' => 'secondary_bitrate', 'title' => 'Дополнительный битрейт', 'assign' => ['condition' => 'in:512,1024,1536,2048']],
+                ]
+            ],
+
+            [
+                'type' => 'namespace',
+                'value' => 'display',
+                'title' => 'Дисплей',
+
+                'suggestions' => [['type' => 'value', 'value' => 'title', 'title' => 'Текст', 'assign' => ['default' => '%entrance%']]]
+            ],
+
+            [
+                'type' => 'namespace',
+                'value' => 'cms',
+                'title' => 'КМС',
+
+                'suggestions' => [['type' => 'value', 'value' => 'value', 'title' => 'Список КМС моделей', 'assign' => ['type' => 'array:string', 'example' => 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100']]]
+            ],
+
+            [
+                'type' => 'namespace',
+                'value' => 'sip',
+                'title' => 'SIP',
+
+                'suggestions' => [['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']]]
+            ],
+
+            [
+                'type' => 'value',
+                'value' => 'mifare',
+                'title' => 'MIFARE',
+
+                'assign' => ['type' => 'bool'],
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'key', 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
+                    ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']]
+                ]
+            ]
         ];
     }
 

@@ -56,7 +56,7 @@ readonly class config extends Api
             }
 
             return self::success([
-                'items' => container(ConfigFeature::class)->getDescriptionForIntercomConfig(),
+                'suggestions' => container(ConfigFeature::class)->getSuggestionsForIntercomConfig(),
 
                 'container_suggestions' => [
                     [
