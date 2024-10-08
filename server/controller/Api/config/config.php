@@ -34,7 +34,7 @@ readonly class config extends Api
                     ];
                 }
 
-                $values[$model->vendor]['suggestions'][] = ['value' => $model->title, 'title' => 'Модель'];
+                $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $model->title), 'title' => 'Модель'];
 
                 if (array_key_exists($key, $intercoms)) {
                     $value = $intercoms[$key];
@@ -43,13 +43,13 @@ readonly class config extends Api
                         continue;
                     }
 
-                    $values[$model->vendor]['suggestions'][] = ['value' => $value, 'title' => 'Ревизия'];
+                    $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $value), 'title' => 'Ревизия'];
 
                     if (str_contains($value, '_rev')) {
                         $segments = explode('_rev', $value);
 
                         if (count($segments) > 1) {
-                            $values[$model->vendor]['suggestions'][] = ['value' => $segments[0], 'title' => 'Ревизия'];
+                            $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $segments[0]), 'title' => 'Ревизия'];
                         }
                     }
                 }
