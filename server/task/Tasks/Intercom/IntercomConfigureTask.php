@@ -344,13 +344,25 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $blockCms = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CMS]) != null;
             $blockCall = container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) != null;
 
+            if ($entrance->shared || $blockCall) {
+                $numbers = [];
+            } else {
+                $numbers = [sprintf('1%09d', $flat->house_flat_id)];
+
+                $additional = explode(',', $device->resolveString('sip.number.' . $flat->flat, ''));
+
+                foreach ($additional as $number) {
+                    $numbers[] = $number;
+                }
+            }
+
             $apartment = new Apartment(
                 intval($flat->flat),
                 $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                 $entrance->shared == 0 && !$blockCall,
                 array_key_exists(0, $levels) ? $levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
                 array_key_exists(1, $levels) ? $levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
-                ($entrance->shared == 1 || $blockCall) ? [] : [sprintf('1%09d', $flat->house_flat_id)]
+                $numbers
             );
 
             if (array_key_exists($apartment->apartment, $apartments)) {

@@ -89,7 +89,19 @@ readonly abstract class ConfigFeature extends Feature
                 'value' => 'sip',
                 'title' => 'SIP',
 
-                'suggestions' => [['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']]]
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']],
+
+                    [
+                        'type' => 'namespace',
+                        'value' => 'number',
+                        'title' => 'Дополнительные номера телефонов',
+
+                        'suggestions' => [
+                            ['type' => 'variable', 'value' => 'flat', 'title' => 'Квартира', 'assign' => ['example' => '1000000001,1000000002']]
+                        ]
+                    ]
+                ]
             ],
 
             [

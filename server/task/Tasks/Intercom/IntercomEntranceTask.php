@@ -68,13 +68,25 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
                     }
                 }
 
+                if ($entrance['shared']) {
+                    $numbers = [];
+                } else {
+                    $numbers = [sprintf('1%09d', $flat['flatId'])];
+
+                    $additional = explode(',', $device->resolveString('sip.number.' . $apartment, ''));
+
+                    foreach ($additional as $number) {
+                        $numbers[] = $number;
+                    }
+                }
+
                 $device->setApartment(new Apartment(
                     $apartment,
                     $entrance['shared'] ? false : $flat['cmsEnabled'],
                     $entrance['shared'] ? false : $flat['cmsEnabled'],
                     array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
                     array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
-                    $entrance['shared'] ? [] : [sprintf('1%09d', $flat['flatId'])],
+                    $numbers,
                 ));
 
                 if ($device instanceof CodeInterface) {
