@@ -108,3 +108,5 @@ networks:
 volumes:
   smartyard-log:
     external: true
+    driver_opts:
+      device: ${SMARTYARD_LOG_DEVICE}
