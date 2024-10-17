@@ -83,7 +83,7 @@ services:
     restart: always
     volumes:
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
-      - smartyard-log:/srv/app/var/log
+      - ${SMARTYARD_LOG_DEVICE}:/srv/app/var/log
     environment:
       - DB_HOST=database
       - DB_PORT=5432
@@ -104,11 +104,3 @@ services:
 networks:
   frontend:
   backend:
-
-volumes:
-  smartyard-log:
-    driver: local
-    driver_opts:
-      type: none
-      device: ${SMARTYARD_LOG_DEVICE}
-      o: bing
