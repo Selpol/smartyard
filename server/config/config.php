@@ -49,7 +49,7 @@ return [
         'user' => env('MOBILE_USER', '0') == '1',
 
         'rate_limit' => [
-            'enable' => env('MOBILE_RATE_LIMIT_ENABLE', '1') == '1',
+            'enable' => env('MOBILE_RATE_LIMIT_ENABLE', 'true') == 'true',
 
             'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
 
