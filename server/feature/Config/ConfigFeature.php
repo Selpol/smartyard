@@ -63,8 +63,8 @@ readonly abstract class ConfigFeature extends Feature
                 'suggestions' => [
                     ['type' => 'value', 'value' => 'quality', 'title' => 'Разрешение', 'assign' => ['example' => '1280x720,1920x1080,1']],
 
-                    ['type' => 'value', 'value' => 'primary_bitrate', 'title' => 'Основной битрейт', 'assign' => ['condition' => 'in:512,1024,1536,2048']],
-                    ['type' => 'value', 'value' => 'secondary_bitrate', 'title' => 'Дополнительный битрейт', 'assign' => ['condition' => 'in:512,1024,1536,2048']],
+                    ['type' => 'value', 'value' => 'primary_bitrate', 'title' => 'Основной битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
+                    ['type' => 'value', 'value' => 'secondary_bitrate', 'title' => 'Дополнительный битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
                 ]
             ],
 
