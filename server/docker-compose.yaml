@@ -107,6 +107,8 @@ networks:
 
 volumes:
   smartyard-log:
-    external: true
+    driver: local
     driver_opts:
+      type: none
       device: ${SMARTYARD_LOG_DEVICE}
+      o: bing
