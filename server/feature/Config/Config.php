@@ -26,7 +26,8 @@ class Config
     {
         $lines = explode(PHP_EOL, $values);
 
-        $group = '';
+        $groups = [];
+        $reset = false;
 
         foreach ($lines as $line) {
             $line = trim($line);
@@ -36,10 +37,16 @@ class Config
             }
 
             if (str_starts_with($line, '[') && str_ends_with($line, ']')) {
+                if ($reset) {
+                    $groups = [];
+                }
+
+                $reset = false;
+
                 $group = trim(substr($line, 1, -1));
 
                 if ($group != '') {
-                    $group .= '.';
+                    $groups[] = $group;
                 }
 
                 continue;
@@ -48,11 +55,19 @@ class Config
             $segments = explode('=', $line, 2);
 
             if (count($segments) == 2) {
+                $reset = true;
+
                 $key = trim($segments[0]);
                 $value = trim($segments[1]);
 
                 if ($key != '' && $value != '') {
-                    $this->values[$group . $key] = $value;
+                    if (count($groups) > 0) {
+                        foreach ($groups as $group) {
+                            $this->values[$group . $key] = $value;
+                        }
+                    } else {
+                        $this->values[$key] = $value;
+                    }
                 }
             }
         }
