@@ -2,8 +2,6 @@
 
 namespace Selpol\Feature\Config;
 
-use Selpol\Device\Ip\Intercom\IntercomModel;
-use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Internal\InternalConfigFeature;
 use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
@@ -132,5 +130,5 @@ readonly abstract class ConfigFeature extends Feature
 
     public abstract function clearConfigForIntercom(?int $id = null): void;
 
-    public abstract function getConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom, bool $cache = true): Config;
+    public abstract function getConfigForIntercom(string $model, ?string $intercom): Config;
 }

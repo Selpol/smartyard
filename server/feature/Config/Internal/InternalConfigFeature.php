@@ -2,8 +2,6 @@
 
 namespace Selpol\Feature\Config\Internal;
 
-use Selpol\Device\Ip\Intercom\IntercomModel;
-use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Core\CoreVarRepository;
 use Selpol\Feature\Config\Config;
 use Selpol\Feature\Config\ConfigFeature;
@@ -37,30 +35,7 @@ readonly class InternalConfigFeature extends ConfigFeature
         }
     }
 
-    public function getConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom, bool $cache = true): Config
-    {
-        if ($cache) {
-            try {
-                $values = container(FileCache::class)->get('intercom.config.' . $intercom->house_domophone_id);
-
-                if ($values !== null) {
-                    return new Config($values);
-                }
-
-                $value = $this->getConfigForIntercomConfig($model->config, $intercom->config);
-
-                container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $value->getValues());
-
-                return $value;
-            } catch (Throwable) {
-
-            }
-        }
-
-        return $this->getConfigForIntercomConfig($model->config, $intercom->config);
-    }
-
-    private function getConfigForIntercomConfig(string $model, ?string $intercom): Config
+    public function getConfigForIntercom(string $model, ?string $intercom): Config
     {
         $value = new Config();
 
