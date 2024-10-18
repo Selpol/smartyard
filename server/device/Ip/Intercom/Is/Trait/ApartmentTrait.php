@@ -20,12 +20,15 @@ trait ApartmentTrait
     {
         $response = $this->get('/panelCode');
 
+        $answer = $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel());
+        $quiescent = $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel());
+
         return array_map(static fn(array $value): Apartment => new Apartment(
             $value['panelCode'],
             $value['callsEnabled']['handset'],
             $value['callsEnabled']['sip'],
-            $value['resistances']['answer'] ?? $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel()),
-            $value['resistances']['quiescent'] ?? $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel()),
+            $value['resistances']['answer'] ?? $answer,
+            $value['resistances']['quiescent'] ?? $quiescent,
             $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
         ), $response);
     }
@@ -38,12 +41,15 @@ trait ApartmentTrait
             return null;
         }
 
+        $answer = $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel());
+        $quiescent = $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel());
+
         return new Apartment(
             $response['panelCode'],
             $response['callsEnabled']['handset'],
             $response['callsEnabled']['sip'],
-            $response['resistances']['answer'] ?? $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel()),
-            $response['resistances']['quiescent'] ?? $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel()),
+            $response['resistances']['answer'] ?? $answer,
+            $response['resistances']['quiescent'] ?? $quiescent,
             $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
         );
     }
