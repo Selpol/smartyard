@@ -255,10 +255,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             }
         }
 
-        $key = env('MIFARE_KEY');
-        $sector = env('MIFARE_SECTOR');
-
-        if ($key && $sector) {
+        if ($device->mifareKey && $device->mifareSector) {
             $mifare = $device->getMifare();
 
             $newMifare = clone $mifare;
