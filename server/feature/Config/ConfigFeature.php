@@ -39,6 +39,17 @@ readonly abstract class ConfigFeature extends Feature
 
             [
                 'type' => 'namespace',
+                'value' => 'apartment',
+                'title' => 'Квартира',
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'answer', 'title' => 'Уровень поднятия', ['type' => 'int']],
+                    ['type' => 'value', 'value' => 'quiescent', 'title' => 'Уровень ответа', ['type' => 'int']]
+                ]
+            ],
+
+            [
+                'type' => 'namespace',
                 'value' => 'audio',
                 'title' => 'Аудио',
 

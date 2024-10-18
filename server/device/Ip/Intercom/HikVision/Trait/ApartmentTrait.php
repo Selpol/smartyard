@@ -6,6 +6,16 @@ use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
 
 trait ApartmentTrait
 {
+    public function getDefaultAnswerLevel(): int
+    {
+        return 0;
+    }
+
+    public function getDefaultQuiescentLevel(): int
+    {
+        return 0;
+    }
+
     /**
      * @return Apartment[]
      */

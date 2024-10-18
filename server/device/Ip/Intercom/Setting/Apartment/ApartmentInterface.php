@@ -4,6 +4,10 @@ namespace Selpol\Device\Ip\Intercom\Setting\Apartment;
 
 interface ApartmentInterface
 {
+    public function getDefaultAnswerLevel(): int;
+
+    public function getDefaultQuiescentLevel(): int;
+
     /**
      * @return Apartment[]
      */

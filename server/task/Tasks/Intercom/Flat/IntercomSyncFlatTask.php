@@ -103,13 +103,12 @@ class IntercomSyncFlatTask extends Task
                 }
             }
 
-
             $apartment = new Apartment(
                 $apartment,
                 !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
                 !$entrance['shared'] && !$blockCall,
-                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
-                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
+                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : $device->resolveInt('apartment.answer', $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel()),
                 $numbers,
             );
 

@@ -6,6 +6,16 @@ use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
 
 trait ApartmentTrait
 {
+    public function getDefaultAnswerLevel(): int
+    {
+        return 255;
+    }
+
+    public function getDefaultQuiescentLevel(): int
+    {
+        return 255;
+    }
+
     public function getApartments(): array
     {
         $response = $this->get('/panelCode');
@@ -14,8 +24,8 @@ trait ApartmentTrait
             $value['panelCode'],
             $value['callsEnabled']['handset'],
             $value['callsEnabled']['sip'],
-            $value['resistances']['answer'] ?? 255,
-            $value['resistances']['quiescent'] ?? 255,
+            $value['resistances']['answer'] ?? $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel()),
+            $value['resistances']['quiescent'] ?? $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel()),
             $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
         ), $response);
     }
@@ -32,8 +42,8 @@ trait ApartmentTrait
             $response['panelCode'],
             $response['callsEnabled']['handset'],
             $response['callsEnabled']['sip'],
-            $response['resistances']['answer'] ?? 255,
-            $response['resistances']['quiescent'] ?? 255,
+            $response['resistances']['answer'] ?? $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel()),
+            $response['resistances']['quiescent'] ?? $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel()),
             $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
         );
     }

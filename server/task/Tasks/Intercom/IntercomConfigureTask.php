@@ -360,8 +360,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 intval($flat->flat),
                 $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                 $entrance->shared == 0 && !$blockCall,
-                array_key_exists(0, $levels) ? $levels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null)),
-                array_key_exists(1, $levels) ? $levels[1] : ($device->model->vendor === 'BEWARD' ? 530 : ($device->model->vendor === 'IS' ? 255 : null)),
+                array_key_exists(0, $levels) ? $levels[0] : $device->resolveInt('apartment.answer', $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $levels) ? $levels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel()),
                 $numbers
             );
 
@@ -481,11 +481,11 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     }
 
     /**
-     * @param CmsInterface&IntercomDevice $device
+     * @param ApartmentInterface&CmsInterface&IntercomDevice $device
      * @param HouseEntrance $entrance
      * @return void
      */
-    public function cms(IntercomDevice & CmsInterface $device, HouseEntrance $entrance): void
+    public function cms(IntercomDevice & ApartmentInterface & CmsInterface $device, HouseEntrance $entrance): void
     {
         if ($entrance->shared) {
             return;
@@ -497,8 +497,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newLevels = clone $levels;
 
-        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
-        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : ($device->model->vendor === 'BEWARD' ? 330 : ($device->model->vendor === 'IS' ? 255 : null));
+        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel());
+        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel());
 
         if (!$newLevels->equal($levels)) {
             $device->setCmsLevels($newLevels);
