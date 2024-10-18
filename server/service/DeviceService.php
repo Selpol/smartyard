@@ -6,14 +6,18 @@ use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
+use Selpol\Device\Ip\Intercom\IntercomConfigResolver;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Feature\Config\Config;
 use Selpol\Feature\Config\ConfigFeature;
+use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
+use Throwable;
 
 #[Singleton]
 class DeviceService
@@ -92,7 +96,9 @@ class DeviceService
 
         if (($model = IntercomModel::model($intercom->model)) instanceof IntercomModel) {
             $config = container(ConfigFeature::class)->getConfigForIntercom($model, $intercom, $this->cache);
-            $intercom = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $config);
+            $resolver = new IntercomConfigResolver($config, $model, $intercom);
+
+            $intercom = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $resolver);
 
             if ($this->cache) {
                 $this->intercoms[$id] = $intercom;

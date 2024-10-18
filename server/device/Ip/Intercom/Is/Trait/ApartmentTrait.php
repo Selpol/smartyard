@@ -20,8 +20,8 @@ trait ApartmentTrait
     {
         $response = $this->get('/panelCode');
 
-        $answer = $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel());
-        $quiescent = $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel());
+        $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
+        $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
 
         return array_map(static fn(array $value): Apartment => new Apartment(
             $value['panelCode'],
@@ -41,8 +41,8 @@ trait ApartmentTrait
             return null;
         }
 
-        $answer = $this->resolveInt('apartment.answer', $this->getDefaultAnswerLevel());
-        $quiescent = $this->resolveInt('apartment.quiescent', $this->getDefaultQuiescentLevel());
+        $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
+        $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
 
         return new Apartment(
             $response['panelCode'],
@@ -67,7 +67,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolveString('audio.volume.' . $apartment->apartment)) {
+        if ($audio = $this->resolver->string('audio.volume.' . $apartment->apartment)) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
@@ -96,7 +96,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolveString('audio.' . $apartment->apartment)) {
+        if ($audio = $this->resolver->string('audio.' . $apartment->apartment)) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [

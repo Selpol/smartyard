@@ -42,7 +42,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(50);
 
         if ($device instanceof CommonInterface) {
-            $unlockTime = $device->resolveInt('clean.unlock_time', 5);
+            $unlockTime = $device->resolver->int('clean.unlock_time', 5);
 
             $device->setRelay(new Relay($this->lock, $unlockTime), $this->type);
         }

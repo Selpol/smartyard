@@ -44,7 +44,7 @@ trait SipTrait
             'regport' => $sip->port,
             'sipserver' => $sip->server,
             'sipserverport' => $sip->port,
-            'streamtype' => $this->resolveInt('sip.stream', 0),
+            'streamtype' => $this->resolver->int('sip.stream', 0),
             'packettype' => 1,
             'dtfmmod' => 0,
             'passchanged' => 1,

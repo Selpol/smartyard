@@ -96,7 +96,7 @@ class IntercomSyncFlatTask extends Task
             } else {
                 $numbers = [sprintf('1%09d', $flat['flatId'])];
 
-                $additional = explode(',', $device->resolveString('sip.number.' . $apartment, ''));
+                $additional = explode(',', $device->resolver->string('sip.number.' . $apartment, ''));
 
                 foreach ($additional as $number) {
                     $numbers[] = $number;
@@ -107,8 +107,8 @@ class IntercomSyncFlatTask extends Task
                 $apartment,
                 !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
                 !$entrance['shared'] && !$blockCall,
-                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : $device->resolveInt('apartment.answer', $device->getDefaultAnswerLevel()),
-                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel()),
+                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel()),
                 $numbers,
             );
 

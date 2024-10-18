@@ -63,7 +63,7 @@ class Config
                 if ($key != '' && $value != '') {
                     if (count($groups) > 0) {
                         foreach ($groups as $group) {
-                            $this->values[$group . $key] = $value;
+                            $this->values[$group . '.' . $key] = $value;
                         }
                     } else {
                         $this->values[$key] = $value;

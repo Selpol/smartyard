@@ -171,9 +171,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newVideoEncoding = clone $videoEncoding;
 
-        $newVideoEncoding->quality = $device->resolveString('video.quality');
-        $newVideoEncoding->primaryBitrate = $device->resolveInt('video.primary_bitrate', 1024);
-        $newVideoEncoding->secondaryBitrate = $device->resolveInt('video.secondary_bitrate', 512);
+        $newVideoEncoding->quality = $device->resolver->string('video.quality');
+        $newVideoEncoding->primaryBitrate = $device->resolver->int('video.primary_bitrate', 1024);
+        $newVideoEncoding->secondaryBitrate = $device->resolver->int('video.secondary_bitrate', 512);
 
         if (!$newVideoEncoding->equal($videoEncoding)) {
             $device->setVideoEncoding($newVideoEncoding);
@@ -192,7 +192,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if ($entrance instanceof HouseEntrance) {
             $newVideoOverlay = clone $videoOverlay;
-            $newVideoOverlay->title = $device::template($device->resolveString('display.title', $entrance->caller_id), ['entrance' => $entrance->caller_id]);
+            $newVideoOverlay->title = $device::template($device->resolver->string('display.title', $entrance->caller_id), ['entrance' => $entrance->caller_id]);
 
             if (!$newVideoOverlay->equal($videoOverlay)) {
                 $device->setVideoOverlay($newVideoOverlay);
@@ -219,8 +219,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $sipOption = $device->getSipOption();
 
         $newSipOption = clone $sipOption;
-        $newSipOption->callTimeout = $device->resolveInt('clean.call_timeout', 30);
-        $newSipOption->talkTimeout = $device->resolveInt('clean.talk_timeout', 60);
+        $newSipOption->callTimeout = $device->resolver->int('clean.call_timeout', 30);
+        $newSipOption->talkTimeout = $device->resolver->int('clean.talk_timeout', 60);
         $newSipOption->dtmf = [$deviceIntercom->dtmf, '2'];
         $newSipOption->echo = false;
 
@@ -231,7 +231,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance): void
     {
-        $ntpServer = $device->resolveString('clean.ntp');
+        $ntpServer = $device->resolver->string('clean.ntp');
 
         if ($ntpServer != null) {
             $ntpServer = uri($ntpServer);
@@ -271,8 +271,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $room = $device->getRoom();
 
         $newRoom = clone $room;
-        $newRoom->concierge = $device->resolveString('clean.concierge', '9999');
-        $newRoom->sos = $device->resolveString('clean.sos', 'SOS');
+        $newRoom->concierge = $device->resolver->string('clean.concierge', '9999');
+        $newRoom->sos = $device->resolver->string('clean.sos', 'SOS');
 
         if (!$newRoom->equal($room)) {
             $device->setRoom($newRoom);
@@ -283,7 +283,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $newRelay = clone $relay;
             $newRelay->lock = !$entrance->locks_disabled;
-            $newRelay->openDuration = $device->resolveInt('clean.unlock_time', 5);
+            $newRelay->openDuration = $device->resolver->int('clean.unlock_time', 5);
 
             if (!$newRelay->equal($relay)) {
                 $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
@@ -346,7 +346,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             } else {
                 $numbers = [sprintf('1%09d', $flat->house_flat_id)];
 
-                $additional = explode(',', $device->resolveString('sip.number.' . $flat->flat, ''));
+                $additional = explode(',', $device->resolver->string('sip.number.' . $flat->flat, ''));
 
                 foreach ($additional as $number) {
                     $numbers[] = $number;
@@ -357,8 +357,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 intval($flat->flat),
                 $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                 $entrance->shared == 0 && !$blockCall,
-                array_key_exists(0, $levels) ? $levels[0] : $device->resolveInt('apartment.answer', $device->getDefaultAnswerLevel()),
-                array_key_exists(1, $levels) ? $levels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel()),
+                array_key_exists(0, $levels) ? $levels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $levels) ? $levels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel()),
                 $numbers
             );
 
@@ -494,8 +494,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newLevels = clone $levels;
 
-        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel());
-        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolveInt('apartment.quiescent', $device->getDefaultQuiescentLevel());
+        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel());
+        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel());
 
         if (!$newLevels->equal($levels)) {
             $device->setCmsLevels($newLevels);
@@ -564,7 +564,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function commonOther(IntercomDevice & CommonInterface $device, bool $individualLevels): void
     {
-        $server = uri($device->resolveString('clean.syslog', 'syslog://127.0.0.1:514'));
+        $server = uri($device->resolver->string('clean.syslog', 'syslog://127.0.0.1:514'));
 
         $syslog = $device->getSyslog();
 
