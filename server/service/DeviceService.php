@@ -96,8 +96,6 @@ class DeviceService
         }
 
         if (($model = IntercomModel::model($intercom->model)) instanceof IntercomModel) {
-            $optimize = false;
-
             if ($this->cache) {
                 try {
                     $values = container(FileCache::class)->get('intercom.config.' . $intercom->house_domophone_id);
@@ -106,41 +104,6 @@ class DeviceService
                         $config = new Config($values);
                     } else {
                         $config = container(ConfigFeature::class)->getConfigForIntercom($model->config, $intercom->config);
-
-                        $values = $config->getValues();
-                        $keys = array_keys($values);
-
-                        $result = [];
-
-                        $filter = function (string $value) use (&$result, $values, &$keys) {
-                            $length = strlen($value);
-
-                            foreach ($keys as $key) {
-                                if (!str_starts_with($value, $key)) {
-                                    continue;
-                                }
-
-                                $result[substr($key, $length)] = $values[$key];
-
-                                unset($keys[$key]);
-                            }
-                        };
-
-                        $filter('intercom.' . $model->vendor . '.' . str_replace('.', '', $intercom->device_model) . '.');
-
-                        if (str_contains($intercom->device_model, '_rev')) {
-                            $segments = explode('_rev', $intercom->device_model);
-
-                            $filter('intercom.' . $model->vendor . '.' . str_replace('.', '', $segments[0]) . '.');
-                        }
-
-                        $filter('intercom.' . $model->vendor . '.' . str_replace('.', '', $model->title) . '.');
-                        $filter('intercom.' . $model->vendor . '.');
-                        $filter('intercom.');
-
-                        $config = new Config($result);
-
-                        $optimize = true;
                     }
 
                     $resolver = new ConfigResolver($config);
@@ -158,12 +121,10 @@ class DeviceService
             $device = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $resolver);
 
             if ($this->cache) {
-                if ($optimize) {
-                    try {
-                        container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $device->resolver->config->getValues());
-                    } catch (Throwable $throwable) {
-                        file_logger('intercom')->error($throwable);
-                    }
+                try {
+                    container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $device->resolver->config->getValues());
+                } catch (Throwable $throwable) {
+                    file_logger('intercom')->error($throwable);
                 }
 
                 $this->intercoms[$id] = $device;
