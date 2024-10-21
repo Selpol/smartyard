@@ -10,7 +10,7 @@ use Throwable;
 
 readonly class InternalConfigFeature extends ConfigFeature
 {
-    public function clearConfigForIntercom(?int $id = null): void
+    public function clearCacheConfigForIntercom(?int $id = null): void
     {
         try {
             $cache = container(FileCache::class);

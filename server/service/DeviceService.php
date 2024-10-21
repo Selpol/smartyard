@@ -188,9 +188,13 @@ class DeviceService
         foreach ($keys as $key) {
             $segments = explode('.', $key);
 
-            if (count($segments) == 1 || $segments[0] !== 'intercom') {
+            if ($segments[0] !== 'intercom') {
                 $locals[$key] = $values[$key];
 
+                continue;
+            }
+
+            if (count($segments) == 1) {
                 continue;
             }
 
@@ -200,7 +204,7 @@ class DeviceService
                 continue;
             }
 
-            if ($segments[1] !== $model->vendor || count($segments) < 2) {
+            if ($segments[1] !== $model->vendor || count($segments) <= 2) {
                 continue;
             }
 

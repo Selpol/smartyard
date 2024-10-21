@@ -62,12 +62,10 @@ readonly class intercom extends Api
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
-        $config = self::set($intercom, $params);
+        self::set($intercom, $params);
 
         if ($intercom->update()) {
-            if ($config) {
-                container(ConfigFeature::class)->clearConfigForIntercom($intercom->house_domophone_id);
-            }
+            container(ConfigFeature::class)->clearCacheConfigForIntercom($intercom->house_domophone_id);
 
             return self::success($intercom->house_domophone_id);
         }
@@ -91,10 +89,8 @@ readonly class intercom extends Api
         return ['GET' => '[Домофон] Получить домофон', 'PUT' => '[Домофон] Обновить домофон', 'POST' => '[Домофон] Создать домофон', 'DELETE' => '[Домофон] Удалить домофон'];
     }
 
-    private static function set(DeviceIntercom $intercom, array $params): bool
+    private static function set(DeviceIntercom $intercom, array $params): void
     {
-        $config = false;
-
         $intercom->enabled = $params['enabled'];
 
         $intercom->model = $params['model'];
@@ -116,10 +112,6 @@ readonly class intercom extends Api
         }
 
         if (array_key_exists('config', $params)) {
-            if ($intercom->config != $params['config']) {
-                $config = true;
-            }
-
             $intercom->config = $params['config'];
         }
 
@@ -132,7 +124,5 @@ readonly class intercom extends Api
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
             $intercom->ip = $ip;
         }
-
-        return $config;
     }
 }
