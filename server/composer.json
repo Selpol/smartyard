@@ -55,5 +55,8 @@
     "psr/http-server-middleware": "^1.0",
     "selpol/framework": "^1.0",
     "php-mqtt/client": "^1.8"
+  },
+  "require-dev": {
+    "rector/rector": "^1.2"
   }
 }

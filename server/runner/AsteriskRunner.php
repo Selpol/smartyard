@@ -170,7 +170,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             if ($entrances && $entrances[0]) {
                                 $camera = DeviceCamera::findById($entrances[0]['cameraId']);
 
-                                if ($camera) {
+                                if ($camera instanceof DeviceCamera) {
                                     $model = container(DeviceService::class)->cameraByEntity($camera);
 
                                     $redis->setEx('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());

@@ -15,6 +15,7 @@ abstract class IntercomDevice extends IpDevice
     public readonly bool $mifare;
 
     public readonly ?string $mifareKey;
+    
     public readonly ?int $mifareSector;
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, public DeviceIntercom $intercom, ConfigResolver $resolver)
@@ -33,7 +34,7 @@ abstract class IntercomDevice extends IpDevice
             $this->debug = $this->resolver->bool('debug', false);
         }
 
-        if ($this->resolver->bool('mifare', false)) {
+        if ($this->resolver->bool('mifare', false) === true) {
             $key = $this->resolver->string('mifare.key');
             $sector = $this->resolver->string('mifare.sector');
 

@@ -4,7 +4,6 @@ namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioLevels;
-use Selpol\Entity\Repository\Core\CoreVarRepository;
 
 trait AudioTrait
 {

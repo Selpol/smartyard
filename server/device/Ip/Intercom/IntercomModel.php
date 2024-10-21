@@ -35,17 +35,17 @@ class IntercomModel
 
     public function isIs(): bool
     {
-        return $this->vendor == 'IS';
+        return $this->vendor === 'IS';
     }
 
     public function isBeward(): bool
     {
-        return $this->vendor == 'BEWARD';
+        return $this->vendor === 'BEWARD';
     }
 
     public function isHikVision(): bool
     {
-        return $this->vendor == 'HIKVISION';
+        return $this->vendor === 'HIKVISION';
     }
 
     public static function modelsToArray(): array

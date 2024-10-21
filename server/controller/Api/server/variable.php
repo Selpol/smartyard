@@ -6,7 +6,6 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Feature\Config\ConfigFeature;
-use Selpol\Framework\Cache\FileCache;
 
 readonly class variable extends Api
 {

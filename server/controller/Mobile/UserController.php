@@ -45,9 +45,8 @@ readonly class UserController extends RbtController
             $platform = 0;
 
             $type = 3;
-        } else if ($request->platform == 'rustore') {
+        } elseif ($request->platform == 'rustore') {
             $platform = 0;
-
             $type = 4;
         } else {
             $platform = 0;

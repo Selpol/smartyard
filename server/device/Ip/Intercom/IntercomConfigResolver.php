@@ -9,6 +9,7 @@ use Selpol\Feature\Config\ConfigResolver;
 class IntercomConfigResolver extends ConfigResolver
 {
     private IntercomModel $model;
+
     private DeviceIntercom $intercom;
 
     public function __construct(Config $config, IntercomModel $model, DeviceIntercom $intercom)

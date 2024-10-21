@@ -71,7 +71,7 @@ trait ApartmentTrait
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
-                'thCall' => count($audios) > 0 ? $audios[0] : null,
+                'thCall' => $audios !== [] ? $audios[0] : null,
                 'thTalk' => count($audios) > 1 ? $audios[1] : null,
                 'uartFrom' => count($audios) > 2 ? $audios[2] : null,
                 'uartTo' => count($audios) > 3 ? $audios[3] : null,
@@ -100,7 +100,7 @@ trait ApartmentTrait
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
-                'thCall' => count($audios) > 0 ? $audios[0] : null,
+                'thCall' => $audios !== [] ? $audios[0] : null,
                 'thTalk' => count($audios) > 1 ? $audios[1] : null,
                 'uartFrom' => count($audios) > 2 ? $audios[2] : null,
                 'uartTo' => count($audios) > 3 ? $audios[3] : null,

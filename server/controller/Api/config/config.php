@@ -39,7 +39,11 @@ readonly class config extends Api
                 if (array_key_exists($key, $intercoms)) {
                     $value = $intercoms[$key];
 
-                    if ($value == null || $value == '') {
+                    if ($value === null) {
+                        continue;
+                    }
+
+                    if ($value === '') {
                         continue;
                     }
 
