@@ -17,7 +17,7 @@ readonly class intercom extends Api
         $intercom = intercom($id);
 
         if ($intercom instanceof IntercomDevice) {
-            $values = $optimize ? container(ConfigFeature::class)->getOptimizeConfigForIntercom($intercom->model, $intercom->intercom) : container(ConfigFeature::class)->getConfigForIntercom($intercom->model, $intercom->intercom);
+            $values = ($optimize ? container(ConfigFeature::class)->getOptimizeConfigForIntercom($intercom->model, $intercom->intercom) : container(ConfigFeature::class)->getConfigForIntercom($intercom->model, $intercom->intercom))->getValues();
 
             return self::success(array_reduce(array_keys($values), static function (string $previous, string $key) use ($values): string {
                 return $previous . $key . '=' . $values[$key] . PHP_EOL;
