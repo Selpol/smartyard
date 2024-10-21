@@ -28,6 +28,10 @@ readonly class AddressController extends RbtController
     {
         $user = $this->getUser()->getOriginalValue();
 
+        if ($blockFeature->getFirstBlockForFlat($this->getUser()->getIdentifier(), [BlockFeature::SUB_SERVICE_APP]) != null) {
+            return user_response();
+        }
+
         $subscriberIntercomBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]) != null;
         $subscriberCctvBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV]) != null;
         $subscriberBlock = $subscriberIntercomBlock && $subscriberCctvBlock;
@@ -37,6 +41,10 @@ readonly class AddressController extends RbtController
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_APP])) {
+                continue;
+            }
+
             $houseId = $flat['addressHouseId'];
 
             $flatDetail = $houseFeature->getFlat($flat["flatId"]);

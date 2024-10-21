@@ -17,7 +17,9 @@ readonly class block extends Api
         BlockFeature::SUB_SERVICE_EVENT,
         BlockFeature::SUB_SERVICE_ARCHIVE,
         BlockFeature::SUB_SERVICE_FRS,
-        BlockFeature::SUB_SERVICE_CMS
+        BlockFeature::SUB_SERVICE_CMS,
+
+        BlockFeature::SUB_SERVICE_APP
     ];
 
     public const SERVICES_SUBSCRIBER = [
@@ -29,7 +31,9 @@ readonly class block extends Api
         BlockFeature::SUB_SERVICE_EVENT,
         BlockFeature::SUB_SERVICE_ARCHIVE,
         BlockFeature::SUB_SERVICE_FRS,
-        BlockFeature::SUB_SERVICE_INBOX
+        BlockFeature::SUB_SERVICE_INBOX,
+
+        BlockFeature::SUB_SERVICE_APP
     ];
 
     public static function GET(array $params): ResponseInterface
@@ -45,7 +49,9 @@ readonly class block extends Api
                 BlockFeature::SUB_SERVICE_ARCHIVE => 'Архив',
                 BlockFeature::SUB_SERVICE_FRS => 'Распозвонания лиц',
                 BlockFeature::SUB_SERVICE_CMS => 'Трубка домофона',
-                BlockFeature::SUB_SERVICE_INBOX => 'Сообщения'
+                BlockFeature::SUB_SERVICE_INBOX => 'Сообщения',
+
+                BlockFeature::SUB_SERVICE_APP => 'Приложение'
             ],
 
             'services_flat' => self::SERVICES_FLAT,
@@ -71,6 +77,8 @@ readonly class block extends Api
             BlockFeature::SUB_SERVICE_ARCHIVE => 'архива',
             BlockFeature::SUB_SERVICE_FRS => 'распознования лиц',
             BlockFeature::SUB_SERVICE_CMS => 'звонков в квартиру',
+
+            BlockFeature::SUB_SERVICE_APP => 'приложения',
 
             default => '',
         };

@@ -90,7 +90,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat(intval($params));
-                        $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
+                        $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL, BlockFeature::SUB_SERVICE_APP]);
 
                         if ($block == null) {
                             echo json_encode($flat);
@@ -124,7 +124,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL, BlockFeature::SUB_SERVICE_APP]) == null);
 
                         echo json_encode($subscribers);
 
