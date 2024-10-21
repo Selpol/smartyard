@@ -183,8 +183,6 @@ class DeviceService
         $revs = [];
         $locals = [];
 
-        $vendorLength = 10 + strlen($model->vendor);
-
         foreach ($keys as $key) {
             $segments = explode('.', $key);
 
@@ -199,7 +197,7 @@ class DeviceService
             }
 
             if (strtoupper($segments[1]) !== $segments[1]) {
-                $intercoms[substr($key, 9)] = $values[$key];
+                $intercoms[implode('.', array_slice($segments, 1))] = $values[$key];
 
                 continue;
             }
@@ -209,12 +207,20 @@ class DeviceService
             }
 
             if (strtoupper($segments[2]) !== $segments[2]) {
-                $vendors[substr($key, $vendorLength)] = $values[$key];
+                $vendors[implode('.', array_slice($segments, 2))] = $values[$key];
 
                 continue;
             }
 
-            $revs[substr($key, $vendorLength + strlen($segments[2]) + 1)] = $values[$key];
+            if ($segments[2] == $model->title) {
+                $titles[implode('.', array_slice($segments, 2))] = $values[$key];
+
+                continue;
+            }
+
+            if ($segments[2] == $intercom->device_model) {
+                $revs[implode('.', array_slice($segments, 2))] = $values[$key];
+            }
         }
 
         return new Config(array_merge($intercoms, $vendors, $titles, $revs, $locals));
