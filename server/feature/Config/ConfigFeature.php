@@ -130,6 +130,10 @@ readonly abstract class ConfigFeature extends Feature
         ];
     }
 
+    public abstract function getCacheConfigForIntercom(int $id): ?Config;
+
+    public abstract function setCacheConfigForIntercom(Config $config, int $id): void;
+
     public abstract function clearCacheConfigForIntercom(?int $id = null): void;
 
     public abstract function getConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom): Config;

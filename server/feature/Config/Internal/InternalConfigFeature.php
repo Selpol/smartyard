@@ -12,6 +12,30 @@ use Throwable;
 
 readonly class InternalConfigFeature extends ConfigFeature
 {
+    public function getCacheConfigForIntercom(int $id): ?Config
+    {
+        try {
+            $values = container(FileCache::class)->get('intercom.config.' . $id);
+
+            if ($values) {
+                return new Config($values);
+            }
+        } catch (Throwable $throwable) {
+            file_logger('config')->error($throwable);
+        }
+
+        return null;
+    }
+
+    public function setCacheConfigForIntercom(Config $config, int $id): void
+    {
+        try {
+            container(FileCache::class)->set('intercom.config' . $id, $config->getValues());
+        } catch (Throwable $throwable) {
+            file_logger('config')->error($throwable);
+        }
+    }
+
     public function clearCacheConfigForIntercom(?int $id = null): void
     {
         try {
@@ -32,8 +56,8 @@ readonly class InternalConfigFeature extends ConfigFeature
                     }
                 }
             }
-        } catch (Throwable) {
-
+        } catch (Throwable $throwable) {
+            file_logger('config')->error($throwable);
         }
     }
 

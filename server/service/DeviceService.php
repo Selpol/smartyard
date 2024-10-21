@@ -12,10 +12,8 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Feature\Config\Config;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigResolver;
-use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
 use Throwable;
@@ -96,16 +94,15 @@ class DeviceService
         }
 
         if (($model = IntercomModel::model($intercom->model)) instanceof IntercomModel) {
+            $feature = container(ConfigFeature::class);
+
             if ($this->cache) {
                 try {
-                    $values = container(FileCache::class)->get('intercom.config.' . $intercom->house_domophone_id);
+                    $config = $feature->getCacheConfigForIntercom($intercom->house_domophone_id);
 
-                    if ($values) {
-                        $config = new Config($values);
-                    } else {
-                        $config = container(ConfigFeature::class)->getOptimizeConfigForIntercom($model, $intercom);
-
-                        container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $config->getValues());
+                    if ($config === null) {
+                        $config = $feature->getOptimizeConfigForIntercom($model, $intercom);
+                        $feature->setCacheConfigForIntercom($config, $intercom->house_domophone_id);
                     }
 
                     $resolver = new ConfigResolver($config);
@@ -115,7 +112,7 @@ class DeviceService
             }
 
             if (!isset($resolver)) {
-                $config = container(ConfigFeature::class)->getConfigForIntercom($model, $intercom);
+                $config = $feature->getConfigForIntercom($model, $intercom);
                 $resolver = new IntercomConfigResolver($config, $model, $intercom);
             }
 
