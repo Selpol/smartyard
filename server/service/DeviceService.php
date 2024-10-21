@@ -103,7 +103,9 @@ class DeviceService
                     if ($values) {
                         $config = new Config($values);
                     } else {
-                        $config = container(ConfigFeature::class)->getConfigForIntercom($model->config, $intercom->config);
+                        $config = $this->optimizeConfig(container(ConfigFeature::class)->getConfigForIntercom($model->config, $intercom->config), $model, $intercom);
+
+                        container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $config->getValues());
                     }
 
                     $resolver = new ConfigResolver($config);
@@ -121,12 +123,6 @@ class DeviceService
             $device = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $resolver);
 
             if ($this->cache) {
-                try {
-                    container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $device->resolver->config->getValues());
-                } catch (Throwable $throwable) {
-                    file_logger('intercom')->error($throwable);
-                }
-
                 $this->intercoms[$id] = $device;
             }
 
@@ -174,5 +170,49 @@ class DeviceService
         }
 
         return null;
+    }
+
+    private function optimizeConfig(Config $config, IntercomModel $model, DeviceIntercom $intercom): Config
+    {
+        $values = $config->getValues();
+        $keys = array_keys($values);
+
+        $intercoms = [];
+        $vendors = [];
+        $titles = [];
+        $revs = [];
+        $locals = [];
+
+        $vendorLength = 10 + strlen($model->vendor);
+
+        foreach ($keys as $key) {
+            $segments = explode('.', $key);
+
+            if (count($segments) == 1 || $segments[0] !== 'intercom') {
+                $locals[$key] = $values[$key];
+
+                continue;
+            }
+
+            if (strtoupper($segments[1]) !== $segments[1]) {
+                $intercoms[substr($key, 9)] = $values[$key];
+
+                continue;
+            }
+
+            if ($segments[1] !== $model->vendor || count($segments) < 2) {
+                continue;
+            }
+
+            if (strtoupper($segments[2]) !== $segments[2]) {
+                $vendors[substr($key, $vendorLength)] = $values[$key];
+
+                continue;
+            }
+
+            $revs[substr($key, $vendorLength + strlen($segments[2]) + 1)] = $values[$key];
+        }
+
+        return new Config(array_merge($intercoms, $vendors, $titles, $revs, $locals));
     }
 }

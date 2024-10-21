@@ -30,7 +30,7 @@ class IntercomConfigResolver extends ConfigResolver
 
         // Глобальная конфигурация по модели устройства
         if ($this->intercom->device_model) {
-            $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace('.', '', $this->intercom->device_model) . '.' . $key, $default);
+            $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $this->intercom->device_model)) . '.' . $key, $default);
 
             if ($default != null) {
                 return $default;
@@ -40,7 +40,7 @@ class IntercomConfigResolver extends ConfigResolver
                 $segments = explode('_rev', $this->intercom->device_model);
 
                 if (count($segments) > 1) {
-                    $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace('.', '', $segments[0]) . '.' . $key, $default);
+                    $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $segments[0])) . '.' . $key, $default);
 
                     if ($default != null) {
                         return $default;

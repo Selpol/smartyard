@@ -47,13 +47,13 @@ readonly class config extends Api
                         continue;
                     }
 
-                    $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $value), 'title' => 'Ревизия'];
+                    $values[$model->vendor]['suggestions'][] = ['value' => strtoupper(str_replace('.', '', $value)), 'title' => 'Ревизия'];
 
                     if (str_contains($value, '_rev')) {
                         $segments = explode('_rev', $value);
 
                         if (count($segments) > 1) {
-                            $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $segments[0]), 'title' => 'Ревизия'];
+                            $values[$model->vendor]['suggestions'][] = ['value' => strtoupper(str_replace('.', '', $segments[0])), 'title' => 'Ревизия'];
                         }
                     }
                 }
