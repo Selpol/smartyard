@@ -103,7 +103,7 @@ class DeviceService
                     if ($values) {
                         $config = new Config($values);
                     } else {
-                        $config = $this->optimizeConfig(container(ConfigFeature::class)->getConfigForIntercom($model->config, $intercom->config), $model, $intercom);
+                        $config = container(ConfigFeature::class)->getOptimizeConfigForIntercom($model, $intercom);
 
                         container(FileCache::class)->set('intercom.config.' . $intercom->house_domophone_id, $config->getValues());
                     }
@@ -115,7 +115,7 @@ class DeviceService
             }
 
             if (!isset($resolver)) {
-                $config = container(ConfigFeature::class)->getConfigForIntercom($model->config, $intercom->config);
+                $config = container(ConfigFeature::class)->getConfigForIntercom($model, $intercom);
                 $resolver = new IntercomConfigResolver($config, $model, $intercom);
             }
 
@@ -170,59 +170,5 @@ class DeviceService
         }
 
         return null;
-    }
-
-    private function optimizeConfig(Config $config, IntercomModel $model, DeviceIntercom $intercom): Config
-    {
-        $values = $config->getValues();
-        $keys = array_keys($values);
-
-        $intercoms = [];
-        $vendors = [];
-        $titles = [];
-        $revs = [];
-        $locals = [];
-
-        foreach ($keys as $key) {
-            $segments = explode('.', $key);
-
-            if ($segments[0] !== 'intercom') {
-                $locals[$key] = $values[$key];
-
-                continue;
-            }
-
-            if (count($segments) == 1) {
-                continue;
-            }
-
-            if (strtoupper($segments[1]) !== $segments[1]) {
-                $intercoms[implode('.', array_slice($segments, 1))] = $values[$key];
-
-                continue;
-            }
-
-            if ($segments[1] !== $model->vendor || count($segments) <= 2) {
-                continue;
-            }
-
-            if (strtoupper($segments[2]) !== $segments[2]) {
-                $vendors[implode('.', array_slice($segments, 2))] = $values[$key];
-
-                continue;
-            }
-
-            if ($segments[2] == $model->title) {
-                $titles[implode('.', array_slice($segments, 2))] = $values[$key];
-
-                continue;
-            }
-
-            if ($segments[2] == $intercom->device_model) {
-                $revs[implode('.', array_slice($segments, 2))] = $values[$key];
-            }
-        }
-
-        return new Config(array_merge($intercoms, $vendors, $titles, $revs, $locals));
     }
 }

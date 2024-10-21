@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Entity\Model\Block\FlatBlock;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
@@ -41,7 +42,7 @@ readonly class AddressController extends RbtController
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
-            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_APP])) {
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_APP]) instanceof FlatBlock) {
                 continue;
             }
 
