@@ -44,6 +44,9 @@ readonly class PrometheusController extends RbtController
         $this->disk_free_space($result, path(''));
         $this->disk_free_space($result, path('var/log'));
 
+        $this->disk_total_space($result, path(''));
+        $this->disk_total_space($result, path('var/log'));
+
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
             ->withBody(stream(implode(PHP_EOL, $result) . PHP_EOL));
@@ -71,6 +74,17 @@ readonly class PrometheusController extends RbtController
             $result[] = '# HELP smartyard_disk_free_space Disk free space';
             $result[] = '# TYPE smartyard_disk_free_space gauge';
             $result[] = 'smartyard_disk_free_space{directory="' . $directory . '"} ' . $value;
+        }
+    }
+
+    private function disk_total_space(array &$result, string $directory): void
+    {
+        $value = disk_total_space($directory);
+
+        if (!is_float($value)) {
+            $result[] = '# HELP smartyard_disk_total_space Disk total space';
+            $result[] = '# TYPE smartyard_disk_total_space gauge';
+            $result[] = 'smartyard_disk_total_space{directory="' . $directory . '"} ' . $value;
         }
     }
 
