@@ -70,7 +70,7 @@ readonly class PrometheusController extends RbtController
     {
         $value = disk_free_space($directory);
 
-        if (!is_float($value)) {
+        if (is_float($value)) {
             $result[] = '# HELP smartyard_disk_free_space Disk free space';
             $result[] = '# TYPE smartyard_disk_free_space gauge';
             $result[] = 'smartyard_disk_free_space{directory="' . $directory . '"} ' . $value;
@@ -81,7 +81,7 @@ readonly class PrometheusController extends RbtController
     {
         $value = disk_total_space($directory);
 
-        if (!is_float($value)) {
+        if (is_float($value)) {
             $result[] = '# HELP smartyard_disk_total_space Disk total space';
             $result[] = '# TYPE smartyard_disk_total_space gauge';
             $result[] = 'smartyard_disk_total_space{directory="' . $directory . '"} ' . $value;
