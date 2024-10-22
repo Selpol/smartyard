@@ -41,11 +41,11 @@ readonly class PrometheusController extends RbtController
         $this->memory($result);
         $this->memory_peak($result);
 
-        $this->disk_free_space($result, path('./'));
-        $this->disk_free_space($result, path('./var/log'));
+        $this->disk_free_space($result, '/srv/app');
+        $this->disk_free_space($result, '/srv/app/var/log');
 
-        $this->disk_total_space($result, path('./'));
-        $this->disk_total_space($result, path('./var/log'));
+        $this->disk_total_space($result, '/srv/app');
+        $this->disk_total_space($result, '/srv/app/var/log');
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
