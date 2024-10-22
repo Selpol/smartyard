@@ -58,9 +58,9 @@ readonly class PrometheusController extends RbtController
 
     private function memory_peak(array &$result): void
     {
-        $result[] = '# HELP smartyard_disk_free_space Disk free space';
-        $result[] = '# TYPE smartyard_disk_free_space gauge';
-        $result[] = 'smartyard_disk_free_space{} ' . memory_get_peak_usage();
+        $result[] = '# HELP smartyard_php_memory_peak PHP Memory peak usage';
+        $result[] = '# TYPE smartyard_php_memory_peak gauge';
+        $result[] = 'smartyard_php_memory_peak{} ' . memory_get_peak_usage();
     }
 
     private function disk_free_space(array &$result, string $directory): void
@@ -68,9 +68,9 @@ readonly class PrometheusController extends RbtController
         $value = disk_free_space($directory);
 
         if (!is_float($value)) {
-            $result[] = '# HELP smartyard_php_memory_peak PHP Memory peak usage';
-            $result[] = '# TYPE smartyard_php_memory_peak gauge';
-            $result[] = 'smartyard_php_memory_peak{directory="' . $directory . '"} ' . $value;
+            $result[] = '# HELP smartyard_disk_free_space Disk free space';
+            $result[] = '# TYPE smartyard_disk_free_space gauge';
+            $result[] = 'smartyard_disk_free_space{directory="' . $directory . '"} ' . $value;
         }
     }
 
