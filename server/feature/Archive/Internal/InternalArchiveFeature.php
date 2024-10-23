@@ -95,10 +95,6 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                     $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 1]);
 
-                    $counter = container(PrometheusService::class)->getCounter('record', 'size', 'Record download size', ['camera', 'subscriber']);
-
-                    $counter->incBy(container(FileFeature::class)->getFileSize($fileId), [$task['cameraId'], $task['subscriberId']]);
-
                     return $fileId;
                 } else {
                     $this->getDatabase()->modify("update camera_records set state = 3 where record_id = $recordId");
