@@ -97,47 +97,47 @@ readonly class PrometheusController extends RbtController
 
     private function houseCount(array &$result): void
     {
-        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM addresses_houses');
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM addresses_houses');
 
         $result[] = '# HELP smartyard_house_count House count';
         $result[] = '# TYPE smartyard_house_count gauge';
-        $result[] = 'smartyard_house_count{} ' . $value;
+        $result[] = 'smartyard_house_count{} ' . $value['COUNT'];
     }
 
     private function flatCount(array &$result): void
     {
-        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_flats');
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_flats');
 
         $result[] = '# HELP smartyard_flat_count Flat count';
         $result[] = '# TYPE smartyard_flat_count gauge';
-        $result[] = 'smartyard_flat_count{} ' . $value;
+        $result[] = 'smartyard_flat_count{} ' . $value['COUNT'];
     }
 
     private function subscriberCount(array &$result): void
     {
-        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_subscribers_mobile');
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_subscribers_mobile');
 
         $result[] = '# HELP smartyard_subscriber_count Subscriber count';
         $result[] = '# TYPE smartyard_subscriber_count gauge';
-        $result[] = 'smartyard_subscriber_count{} ' . $value;
+        $result[] = 'smartyard_subscriber_count{} ' . $value['COUNT'];
     }
 
     private function intercomCount(array &$result): void
     {
-        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_domophones');
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_domophones');
 
         $result[] = '# HELP smartyard_intercom_count Intercom count';
         $result[] = '# TYPE smartyard_intercom_count gauge';
-        $result[] = 'smartyard_intercom_count{} ' . $value;
+        $result[] = 'smartyard_intercom_count{} ' . $value['COUNT'];
     }
 
     private function cameraCount(array &$result): void
     {
-        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM cameras');
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM cameras');
 
         $result[] = '# HELP smartyard_camera_count Camera count';
         $result[] = '# TYPE smartyard_camera_count gauge';
-        $result[] = 'smartyard_camera_count{} ' . $value;
+        $result[] = 'smartyard_camera_count{} ' . $value['COUNT'];
     }
 
     private function renderSample(Metric $metric, Sample $sample): string
