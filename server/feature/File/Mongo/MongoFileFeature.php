@@ -4,6 +4,7 @@ namespace Selpol\Feature\File\Mongo;
 
 use Exception;
 use MongoDB\BSON\ObjectId;
+use MongoDB\Model\BSONDocument;
 use MongoDB\UpdateResult;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Service\MongoService;
@@ -50,6 +51,21 @@ readonly class MongoFileFeature extends FileFeature
         $stream = $bucket->openDownloadStream($fileId);
 
         return ["fileInfo" => $bucket->getFileDocumentForStream($stream), "stream" => $stream];
+    }
+
+    public function getFileSize(string $uuid): int
+    {
+        $value = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
+
+        if ($value) {
+            if ($value instanceof BSONDocument) {
+                return $value->offsetGet('length') ?? 0;
+            } else if (array_key_exists('length', $value)) {
+                return $value['length'];
+            }
+        }
+
+        return 0;
     }
 
     public function getFileBytes(string $uuid): string
