@@ -53,6 +53,9 @@ readonly class PrometheusController extends RbtController
         $this->subscriberCount($result);
         $this->intercomCount($result);
         $this->cameraCount($result);
+        $this->keyCount($result);
+        $this->flatBlock($result);
+        $this->subscriberBlock($result);
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
@@ -147,6 +150,39 @@ readonly class PrometheusController extends RbtController
             $result[] = '# HELP smartyard_camera_count Camera count';
             $result[] = '# TYPE smartyard_camera_count gauge';
             $result[] = 'smartyard_camera_count{} ' . $value[0]['count'];
+        }
+    }
+
+    private function keyCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_rfids');
+
+        if ($value) {
+            $result[] = '# HELP smartyard_key_count Key count';
+            $result[] = '# TYPE smartyard_key_count gauge';
+            $result[] = 'smartyard_key_count{} ' . $value[0]['count'];
+        }
+    }
+
+    private function flatBlock(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM flat_block');
+
+        if ($value) {
+            $result[] = '# HELP smartyard_flat_block_count Flat block count';
+            $result[] = '# TYPE smartyard_flat_block_count gauge';
+            $result[] = 'smartyard_flat_block_count{} ' . $value[0]['count'];
+        }
+    }
+
+    private function subscriberBlock(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM subscriber_block');
+
+        if ($value) {
+            $result[] = '# HELP smartyard_subscriber_block_count Subscriber block count';
+            $result[] = '# TYPE smartyard_subscriber_block_count gauge';
+            $result[] = 'smartyard_subscriber_block_count{} ' . $value[0]['count'];
         }
     }
 
