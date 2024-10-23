@@ -45,15 +45,19 @@ readonly class PrometheusMiddleware extends RouteMiddleware
 
         $requestCount->incBy(1, [$class, $method, $code]);
 
-        $size = $request->getBody()->getSize();
+        if (array_key_exists('CONTENT_LENGTH', $_SERVER)) {
+            $requestBodySizeByte->incBy($_SERVER['CONTENT_LENGTH'], [$class, $method, $code]);
+        } else {
+            $size = $request->getBody()->getSize();
 
-        if ($size === null) {
-            $request->getBody()->rewind();
+            if ($size === null) {
+                $request->getBody()->rewind();
 
-            $size = strlen($request->getBody()->getContents());
+                $size = strlen($request->getBody()->getContents());
+            }
+
+            $requestBodySizeByte->incBy($size, [$class, $method, $code]);
         }
-
-        $requestBodySizeByte->incBy($size, [$class, $method, $code]);
 
         if ($response->getStatusCode() !== 204) {
             $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['class', 'method', 'code']);
