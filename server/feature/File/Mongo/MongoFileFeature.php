@@ -52,6 +52,17 @@ readonly class MongoFileFeature extends FileFeature
         return ["fileInfo" => $bucket->getFileDocumentForStream($stream), "stream" => $stream];
     }
 
+    public function getFileSize(string $uuid): int
+    {
+        $value = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
+
+        if ($value && array_key_exists('length', $value)) {
+            return $value['length'];
+        }
+
+        return 0;
+    }
+
     public function getFileBytes(string $uuid): string
     {
         $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();

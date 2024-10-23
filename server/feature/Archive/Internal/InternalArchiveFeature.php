@@ -6,6 +6,7 @@ use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Service\PrometheusService;
 use Throwable;
 
 readonly class InternalArchiveFeature extends ArchiveFeature
@@ -84,16 +85,27 @@ readonly class InternalArchiveFeature extends ArchiveFeature
                     "expire" => $task['expire']
                 ]);
 
+                $time = container(PrometheusService::class)->getCounter('record', 'time', 'Record download time', ['camera', 'subscriber', 'status']);
+
                 if ($file) {
                     $this->getDatabase()->modify("update camera_records set state = 2 where record_id = $recordId");
                     echo "Record download task with id = $recordId was successfully finished!\n";
+
                     fclose($file);
+
+                    $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 1]);
+
+                    $counter = container(PrometheusService::class)->getCounter('record', 'size', 'Record download size', ['camera', 'subscriber']);
+
+                    $counter->incBy(container(FileFeature::class)->getFileSize($fileId), [$task['cameraId'], $task['subscriberId']]);
 
                     return $fileId;
                 } else {
                     $this->getDatabase()->modify("update camera_records set state = 3 where record_id = $recordId");
 
                     echo "Record download task with id = $recordId was finished with error!\n";
+
+                    $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 0]);
 
                     return false;
                 }
