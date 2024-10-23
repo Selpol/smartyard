@@ -9,6 +9,7 @@ use Selpol\Controller\RbtController;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Service\DatabaseService;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
@@ -46,6 +47,12 @@ readonly class PrometheusController extends RbtController
 
         $this->disk_total_space($result, '/srv/app');
         $this->disk_total_space($result, '/srv/app/var/log');
+
+        $this->houseCount($result);
+        $this->flatCount($result);
+        $this->subscriberCount($result);
+        $this->intercomCount($result);
+        $this->cameraCount($result);
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
@@ -86,6 +93,51 @@ readonly class PrometheusController extends RbtController
             $result[] = '# TYPE smartyard_disk_total_space gauge';
             $result[] = 'smartyard_disk_total_space{directory="' . $directory . '"} ' . $value;
         }
+    }
+
+    private function houseCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM addresses_houses');
+
+        $result[] = '# HELP smartyard_house_count House count';
+        $result[] = '# TYPE smartyard_house_count gauge';
+        $result[] = 'smartyard_house_count{} ' . $value;
+    }
+
+    private function flatCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_flats');
+
+        $result[] = '# HELP smartyard_flat_count Flat count';
+        $result[] = '# TYPE smartyard_flat_count gauge';
+        $result[] = 'smartyard_flat_count{} ' . $value;
+    }
+
+    private function subscriberCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_subscribers_mobile');
+
+        $result[] = '# HELP smartyard_subscriber_count Subscriber count';
+        $result[] = '# TYPE smartyard_subscriber_count gauge';
+        $result[] = 'smartyard_subscriber_count{} ' . $value;
+    }
+
+    private function intercomCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM houses_domophones');
+
+        $result[] = '# HELP smartyard_intercom_count Intercom count';
+        $result[] = '# TYPE smartyard_intercom_count gauge';
+        $result[] = 'smartyard_intercom_count{} ' . $value;
+    }
+
+    private function cameraCount(array &$result): void
+    {
+        $value = container(DatabaseService::class)->get('SELECT COUNT(*) FROM cameras');
+
+        $result[] = '# HELP smartyard_camera_count Camera count';
+        $result[] = '# TYPE smartyard_camera_count gauge';
+        $result[] = 'smartyard_camera_count{} ' . $value;
     }
 
     private function renderSample(Metric $metric, Sample $sample): string
