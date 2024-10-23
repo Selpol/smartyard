@@ -102,7 +102,7 @@ readonly class PrometheusController extends RbtController
         if ($value) {
             $result[] = '# HELP smartyard_house_count House count';
             $result[] = '# TYPE smartyard_house_count gauge';
-            $result[] = 'smartyard_house_count{} ' . $value[0]['COUNT'];
+            $result[] = 'smartyard_house_count{} ' . $value[0]['count'];
         }
     }
 
@@ -111,9 +111,9 @@ readonly class PrometheusController extends RbtController
         $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_flats');
 
         if ($value) {
-            $result[] = '# HELP smartyard_flat_count Flat count';
+            $result[] = '# HELP smartyard_flat_count Flat count ' . json_encode($value);
             $result[] = '# TYPE smartyard_flat_count gauge';
-            $result[] = 'smartyard_flat_count{} ' . $value[0]['COUNT'];
+            $result[] = 'smartyard_flat_count{} ' . $value[0]['count'];
         }
     }
 
@@ -124,7 +124,7 @@ readonly class PrometheusController extends RbtController
         if ($value) {
             $result[] = '# HELP smartyard_subscriber_count Subscriber count';
             $result[] = '# TYPE smartyard_subscriber_count gauge';
-            $result[] = 'smartyard_subscriber_count{} ' . $value[0]['COUNT'];
+            $result[] = 'smartyard_subscriber_count{} ' . $value[0]['count'];
         }
     }
 
@@ -135,7 +135,7 @@ readonly class PrometheusController extends RbtController
         if ($value) {
             $result[] = '# HELP smartyard_intercom_count Intercom count';
             $result[] = '# TYPE smartyard_intercom_count gauge';
-            $result[] = 'smartyard_intercom_count{} ' . $value[0]['COUNT'];
+            $result[] = 'smartyard_intercom_count{} ' . $value[0]['count'];
         }
     }
 
@@ -146,7 +146,7 @@ readonly class PrometheusController extends RbtController
         if ($value) {
             $result[] = '# HELP smartyard_camera_count Camera count';
             $result[] = '# TYPE smartyard_camera_count gauge';
-            $result[] = 'smartyard_camera_count{} ' . $value[0]['COUNT'];
+            $result[] = 'smartyard_camera_count{} ' . $value[0]['count'];
         }
     }
 
