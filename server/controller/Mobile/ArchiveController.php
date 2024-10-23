@@ -3,7 +3,7 @@
 namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
@@ -20,7 +20,7 @@ use Selpol\Task\Tasks\RecordTask;
 use Throwable;
 
 #[Controller('/mobile/cctv', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV, BlockFeature::SUB_SERVICE_ARCHIVE]])]
-readonly class ArchiveController extends RbtController
+readonly class ArchiveController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface

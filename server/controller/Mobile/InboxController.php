@@ -5,7 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Inbox\InboxIndexRequest;
 use Selpol\Controller\Request\Mobile\Inbox\InboxReadRequest;
 use Selpol\Entity\Model\Inbox\InboxMessage;
@@ -18,7 +18,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\BlockMiddleware;
 
 #[Controller('/mobile/inbox', includes: [BlockMiddleware::class => [BlockFeature::SUB_SERVICE_INBOX]])]
-readonly class InboxController extends RbtController
+readonly class InboxController extends MobileRbtController
 {
     #[Get]
     public function index(InboxIndexRequest $request): ResponseInterface

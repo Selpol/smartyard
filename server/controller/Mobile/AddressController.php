@@ -4,7 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Selpol\Entity\Model\Block\FlatBlock;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseFlat;
@@ -19,7 +19,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 
 #[Controller('/mobile/address')]
-readonly class AddressController extends RbtController
+readonly class AddressController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface

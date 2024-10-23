@@ -5,7 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Block\SubscriberBlock;
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Dvr\DvrCommandRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrEventRequest;
 use Selpol\Controller\Request\Mobile\Dvr\DvrIdentifierRequest;
@@ -34,7 +34,7 @@ use Selpol\Middleware\RateLimitMiddleware;
 use Throwable;
 
 #[Controller('/mobile/dvr')]
-readonly class DvrController extends RbtController
+readonly class DvrController extends MobileRbtController
 {
     #[Get(
         '/{id}',

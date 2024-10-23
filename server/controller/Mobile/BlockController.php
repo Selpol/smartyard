@@ -4,14 +4,14 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 
 #[Controller('/mobile/block')]
-readonly class BlockController extends RbtController
+readonly class BlockController extends MobileRbtController
 {
     #[Get]
     public function index(ServerRequestInterface $request, BlockFeature $blockFeature): ResponseInterface

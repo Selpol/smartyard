@@ -6,7 +6,6 @@ use Selpol\Device\Ip\Camera\CameraDevice;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
@@ -16,12 +15,13 @@ use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\PrometheusService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/internal/frs')]
-readonly class FrsController extends RbtController
+readonly class FrsController extends RouteController
 {
     /**
      * @throws NotFoundExceptionInterface
