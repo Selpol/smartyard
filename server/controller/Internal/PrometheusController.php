@@ -111,7 +111,7 @@ readonly class PrometheusController extends RbtController
         $value = container(DatabaseService::class)->get('SELECT COUNT(*) AS COUNT FROM houses_flats');
 
         if ($value) {
-            $result[] = '# HELP smartyard_flat_count Flat count ' . json_encode($value);
+            $result[] = '# HELP smartyard_flat_count Flat count';
             $result[] = '# TYPE smartyard_flat_count gauge';
             $result[] = 'smartyard_flat_count{} ' . $value[0]['count'];
         }
