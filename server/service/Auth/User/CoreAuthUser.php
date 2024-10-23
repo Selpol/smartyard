@@ -2,28 +2,29 @@
 
 namespace Selpol\Service\Auth\User;
 
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Service\Auth\AuthUserInterface;
 
 /**
- * @implements AuthUserInterface<array>
+ * @implements AuthUserInterface<CoreUser>
  */
 readonly class CoreAuthUser implements AuthUserInterface
 {
-    public function __construct(private array $value)
+    public function __construct(private CoreUser $value)
     {
     }
 
     public function getIdentifier(): string|int
     {
-        return $this->value['uid'];
+        return $this->value->uid;
     }
 
     public function getUsername(): ?string
     {
-        return $this->value['login'];
+        return $this->value->login;
     }
 
-    public function getOriginalValue(): array
+    public function getOriginalValue(): CoreUser
     {
         return $this->value;
     }

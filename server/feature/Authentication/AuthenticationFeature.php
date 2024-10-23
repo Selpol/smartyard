@@ -45,35 +45,29 @@ readonly abstract class AuthenticationFeature extends Feature
         return ["result" => false, "code" => 403, "error" => "forbidden", "message" => $uid];
     }
 
-    public function auth(string $authorization, string $ua = "", string $ip = ""): array|bool
+    public function auth(string $token, string $ua = "", string $ip = ""): ?CoreUser
     {
-        $authorization = explode(' ', $authorization);
+        $auth = CoreAuth::fetch(criteria()->equal('token', $token)->equal('status', 1));
 
-        if ($authorization[0] === 'Bearer') {
-            $token = $authorization[1];
+        if ($auth) {
+            if ($auth->remember_me && $auth->user_agent != $ua && $auth->user_ip != $ip) {
+                $auth->status = 0;
+                $auth->update();
 
-            $auth = CoreAuth::fetch(criteria()->equal('token', $token)->equal('status', 1));
+                return null;
+            }
 
-            if ($auth) {
-                if ($auth->remember_me && $auth->user_agent != $ua && $auth->user_ip != $ip) {
-                    $auth->status = 0;
-                    $auth->update();
+            $user = CoreUser::findById($auth->user_id);
 
-                    return false;
-                }
+            if ($user) {
+                $auth->last_access_to = date('Y-m-d H:i:s');
+                $auth->update();
 
-                $user = CoreUser::findById($auth->user_id);
-
-                if ($user) {
-                    $auth->last_access_to = date('Y-m-d H:i:s');
-                    $auth->update();
-
-                    return ['token' => $token, 'user' => $user->jsonSerialize()];
-                }
+                return $user;
             }
         }
 
-        return false;
+        return null;
     }
 
     public function logout(string $token): bool

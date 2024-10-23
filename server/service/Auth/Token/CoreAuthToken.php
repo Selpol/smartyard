@@ -15,7 +15,7 @@ readonly class CoreAuthToken implements AuthTokenInterface
 
     public function getIdentifierName(): string
     {
-        return 'redis';
+        return 'database';
     }
 
     public function getIdentifier(): string|int
@@ -28,7 +28,7 @@ readonly class CoreAuthToken implements AuthTokenInterface
         return $this->audJti;
     }
 
-    public function getOriginalValue(): mixed
+    public function getOriginalValue(): string
     {
         return $this->value;
     }
