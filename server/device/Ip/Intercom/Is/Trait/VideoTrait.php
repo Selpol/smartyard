@@ -6,21 +6,30 @@ use Selpol\Device\Ip\Intercom\Setting\Video\VideoDetection;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoDisplay;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoOverlay;
+use Throwable;
 
 trait VideoTrait
 {
     public function getVideoEncoding(): VideoEncoding
     {
-        $response = $this->get('/camera/codec');
+        try {
+            $response = $this->get('/camera/codec');
 
-        return new VideoEncoding($response['Channels'][0]['Width'] . 'x' . $response['Channels'][0]['Height'], $response['Channels'][0]['MaxBitrate'] ?? 0, $response['Channels'][1]['MaxBitrate'] ?? 0);
+            return new VideoEncoding($response['Channels'][0]['Width'] . 'x' . $response['Channels'][0]['Height'], $response['Channels'][0]['MaxBitrate'] ?? 0, $response['Channels'][1]['MaxBitrate'] ?? 0);
+        } catch (Throwable) {
+            return new VideoEncoding(null, 0, 0);
+        }
     }
 
     public function getVideoDetection(): VideoDetection
     {
-        $response = $this->get('/camera/md');
+        try {
+            $response = $this->get('/camera/md');
 
-        return new VideoDetection($response['md_enable'], null, null, null, null);
+            return new VideoDetection($response['md_enable'], null, null, null, null);
+        } catch (Throwable) {
+            return new VideoDetection(false, null, null, null, null);
+        }
     }
 
     public function getVideoDisplay(): VideoDisplay
@@ -30,9 +39,13 @@ trait VideoTrait
 
     public function getVideoOverlay(): VideoOverlay
     {
-        $response = $this->get('/v2/camera/osd');
+        try {
+            $response = $this->get('/v2/camera/osd');
 
-        return new VideoOverlay($response[1]['text']);
+            return new VideoOverlay($response[1]['text']);
+        } catch (Throwable) {
+            return new VideoOverlay(null);
+        }
     }
 
     public function setVideoEncoding(VideoEncoding $videoEncoding): void

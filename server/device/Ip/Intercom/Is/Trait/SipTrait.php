@@ -21,10 +21,14 @@ trait SipTrait
 
     public function getSip(): Sip
     {
-        $response = $this->get('/sip/settings');
-        $remote = $response['remote'];
+        try {
+            $response = $this->get('/sip/settings');
+            $remote = $response['remote'];
 
-        return new Sip($remote['username'] ?? '', $remote['password'] ?? '', $remote['domain'] ?? '', $remote['port'] ?? 0);
+            return new Sip($remote['username'] ?? '', $remote['password'] ?? '', $remote['domain'] ?? '', $remote['port'] ?? 0);
+        } catch (Throwable) {
+            return new Sip('', '', '', 0);
+        }
     }
 
     public function getSipOption(): SipOption

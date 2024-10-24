@@ -17,9 +17,13 @@ trait CommonTrait
 
     public function getNtp(): Ntp
     {
-        $response = $this->get('/system/settings');
+        try {
+            $response = $this->get('/system/settings');
 
-        return new Ntp(count($response['ntp']) > 0 ? $response['ntp'][0] : '127.0.0.1', 123, $response['tz']);
+            return new Ntp(count($response['ntp']) > 0 ? $response['ntp'][0] : '127.0.0.1', 123, $response['tz']);
+        } catch (Throwable) {
+            return new Ntp('127.0.0.1', 123, 'UTC-0');
+        }
     }
 
     public function getStun(): Stun
@@ -32,7 +36,7 @@ trait CommonTrait
         try {
             $response = $this->client->send(client_request('GET', $this->uri . '/system/files/rsyslogd.conf'), $this->clientOption);
             $contents = $response->getBody()->getContents();
-            $lines = explode(PHP_EOL, (string) $contents);
+            $lines = explode(PHP_EOL, (string)$contents);
 
             if (str_starts_with($lines[count($lines) - 1], '@')) {
                 $value = explode(':', $lines[count($lines) - 1]);
@@ -116,7 +120,7 @@ trait CommonTrait
 
         foreach ($response['direct']['rules'] as $prefix => $rules) {
             foreach ($rules as $range => $address) {
-                $slice = preg_split('-', (string) $range);
+                $slice = preg_split('-', (string)$range);
 
                 $result[] = new Gate($address, intval($prefix), intval($slice[0]), intval($slice[1]));
             }
