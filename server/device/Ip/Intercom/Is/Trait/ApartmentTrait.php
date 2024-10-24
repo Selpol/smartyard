@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
+use Throwable;
 
 trait ApartmentTrait
 {
@@ -18,40 +19,48 @@ trait ApartmentTrait
 
     public function getApartments(): array
     {
-        $response = $this->get('/panelCode');
+        try {
+            $response = $this->get('/panelCode');
 
-        $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
-        $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
+            $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
+            $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
 
-        return array_map(static fn(array $value): Apartment => new Apartment(
-            $value['panelCode'],
-            $value['callsEnabled']['handset'],
-            $value['callsEnabled']['sip'],
-            $value['resistances']['answer'] ?? $answer,
-            $value['resistances']['quiescent'] ?? $quiescent,
-            $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
-        ), $response);
+            return array_map(static fn(array $value): Apartment => new Apartment(
+                $value['panelCode'],
+                $value['callsEnabled']['handset'],
+                $value['callsEnabled']['sip'],
+                $value['resistances']['answer'] ?? $answer,
+                $value['resistances']['quiescent'] ?? $quiescent,
+                $value['callsEnabled']['sip'] ? [sprintf('1%09d', $value['panelCode'])] : []
+            ), $response);
+        } catch (Throwable) {
+            return [];
+        }
     }
 
     public function getApartment(int $apartment): ?Apartment
     {
-        $response = $this->get('/panelCode/' . $apartment);
+        try {
+            $response = $this->get('/panelCode/' . $apartment);
 
-        if (!array_key_exists('panelCode', $response)) {
+            if (!array_key_exists('panelCode', $response)) {
+                return null;
+            }
+
+            $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
+            $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
+
+            return new Apartment(
+                $response['panelCode'],
+                $response['callsEnabled']['handset'],
+                $response['callsEnabled']['sip'],
+                $response['resistances']['answer'] ?? $answer,
+                $response['resistances']['quiescent'] ?? $quiescent,
+                $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
+            );
+        } catch (Throwable) {
             return null;
         }
-
-        $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
-        $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
-
-        return new Apartment(
-            $response['panelCode'],
-            $response['callsEnabled']['handset'],
-            $response['callsEnabled']['sip'],
-            $response['resistances']['answer'] ?? $answer,
-            $response['resistances']['quiescent'] ?? $quiescent,
-            $response['callsEnabled']['sip'] ? [sprintf('1%09d', $response['panelCode'])] : []
-        );
     }
 
     public function addApartment(Apartment $apartment): void
