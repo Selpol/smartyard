@@ -27,13 +27,20 @@ class DeviceService
     /** @var array<int, DvrDevice> */
     private array $dvrs = [];
 
+    private bool $cache = true;
+
     public function __construct()
     {
     }
 
+    public function disableCache(): void
+    {
+        $this->cache = false;
+    }
+
     public function cameraById(int $id): ?CameraDevice
     {
-        if (array_key_exists($id, $this->cameras)) {
+        if ($this->cache && array_key_exists($id, $this->cameras)) {
             return $this->cameras[$id];
         }
 
@@ -48,12 +55,15 @@ class DeviceService
     {
         $id = $camera->camera_id;
 
-        if (array_key_exists($id, $this->cameras)) {
+        if ($this->cache && array_key_exists($id, $this->cameras)) {
             return $this->cameras[$id];
         }
 
         $camera = $this->camera($camera->model, $camera->url, $camera->credentials, $camera->camera_id);
-        $this->cameras[$id] = $camera;
+
+        if ($this->cache) {
+            $this->cameras[$id] = $camera;
+        }
 
         return $camera;
     }
@@ -69,7 +79,7 @@ class DeviceService
 
     public function intercomById(int $id): ?IntercomDevice
     {
-        if (array_key_exists($id, $this->intercoms)) {
+        if ($this->cache && array_key_exists($id, $this->intercoms)) {
             return $this->intercoms[$id];
         }
 
@@ -84,12 +94,15 @@ class DeviceService
     {
         $id = $intercom->house_domophone_id;
 
-        if (array_key_exists($id, $this->intercoms)) {
+        if ($this->cache && array_key_exists($id, $this->intercoms)) {
             return $this->intercoms[$id];
         }
 
         $intercom = $this->intercom($intercom->model, $intercom->url, $intercom->credentials, $intercom->house_domophone_id);
-        $this->intercoms[$id] = $intercom;
+
+        if ($this->cache) {
+            $this->intercoms[$id] = $intercom;
+        }
 
         return $intercom;
     }
@@ -105,7 +118,7 @@ class DeviceService
 
     public function dvrById(int $id): ?DvrDevice
     {
-        if (array_key_exists($id, $this->dvrs)) {
+        if ($this->cache && array_key_exists($id, $this->dvrs)) {
             return $this->dvrs[$id];
         }
 
@@ -120,7 +133,7 @@ class DeviceService
     {
         $id = $server->id;
 
-        if (array_key_exists($id, $this->dvrs)) {
+        if ($this->cache && array_key_exists($id, $this->dvrs)) {
             return $this->dvrs[$id];
         }
 
@@ -131,7 +144,10 @@ class DeviceService
         $credentials = $server->credentials();
 
         $dvr = $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password'], $server);
-        $this->dvrs[$id] = $dvr;
+
+        if ($this->cache) {
+            $this->dvrs[$id] = $dvr;
+        }
 
         return $dvr;
     }

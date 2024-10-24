@@ -174,8 +174,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $videoEncoding = $device->getVideoEncoding();
 
         $newVideoEncoding = clone $videoEncoding;
-        $newVideoEncoding->primaryBitrate = $device->model->primaryBitrate;
-        $newVideoEncoding->secondaryBitrate = $device->model->secondaryBitrate;
+        $newVideoEncoding->primaryBitrate = $device->model->option->primaryBitrate;
+        $newVideoEncoding->secondaryBitrate = $device->model->option->secondaryBitrate;
 
         if (!$newVideoEncoding->equal($videoEncoding)) {
             $device->setVideoEncoding($newVideoEncoding);

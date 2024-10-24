@@ -6,11 +6,10 @@ use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Framework\Http\Stream;
 use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
 
 abstract class CameraDevice extends IpDevice
 {
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, public CameraModel $model, ?int $id = null)
+    public function __construct(Uri $uri, string $password, public CameraModel $model, ?int $id = null)
     {
         parent::__construct($uri, $password, $id);
 

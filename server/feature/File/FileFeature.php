@@ -24,6 +24,8 @@ readonly abstract class FileFeature extends Feature
 
     abstract public function getFile(string $uuid): array;
 
+    abstract public function getFileSize(string $uuid): int;
+
     abstract public function getFileBytes(string $uuid): string;
 
     /**

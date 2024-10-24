@@ -39,6 +39,10 @@ readonly class ArchiveController extends RbtController
             return user_response(400, message: 'Неверный формат данных');
         }
 
+        if ($to - $from > 1800) {
+            return user_response(400, message: 'Нельзя выгрузить отрезок из архива длинее 30 минут');
+        }
+
         $camera = DeviceCamera::findById($request->id);
 
         if (!$camera instanceof DeviceCamera || !$camera->checkAllAccessForSubscriber($this->getUser()->getOriginalValue())) {

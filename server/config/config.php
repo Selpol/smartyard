@@ -46,10 +46,18 @@ return [
         'web_server_base_path' => env('MOBILE_STATIC', 'http://127.0.0.1/static'),
         'time_zone' => env('MOBILE_TIMEZONE', 'Europe/Moscow'),
 
-        'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
-
         'user' => env('MOBILE_USER', '0') == '1',
-        'null' => env('MOBILE_NULL', '0') == '1',
+
+        'rate_limit' => [
+            'enable' => env('MOBILE_RATE_LIMIT_ENABLE', 'true') == 'true',
+
+            'trust' => explode(',', env('MOBILE_TRUST', '127.0.0.1/32')),
+
+            'count' => intval(env('MOBILE_RATE_LIMIT_COUNT', '120')),
+            'ttl' => intval(env('MOBILE_RATE_LIMIT_TTL', '30')),
+
+            'null' => env('MOBILE_NULL', '0') == '1',
+        ],
     ],
 
     'db' => [

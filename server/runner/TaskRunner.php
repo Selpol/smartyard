@@ -8,6 +8,7 @@ use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Service\DeviceService;
 use Selpol\Service\MqttService;
 use Selpol\Service\PrometheusService;
 use Selpol\Service\TaskService;
@@ -82,6 +83,8 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $service = container(TaskService::class);
         $service->setLogger(file_logger('task'));
+
+        container(DeviceService::class)->disableCache();
 
         $logger = file_logger('task-' . $queue);
 

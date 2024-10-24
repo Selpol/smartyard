@@ -15,6 +15,12 @@ abstract class IntercomDevice extends IpDevice
     {
         parent::__construct($uri, $password, $id);
 
+        match ($this->model->option->auth) {
+            IntercomAuth::ANY_SAFE => $this->clientOption->anySafe($this->login, $password),
+            IntercomAuth::BASIC => $this->clientOption->basic($this->login, $password),
+            IntercomAuth::DIGEST => $this->clientOption->digest($this->login, $password),
+        };
+
         $this->setLogger(file_logger('intercom'));
     }
 
