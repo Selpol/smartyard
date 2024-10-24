@@ -111,24 +111,20 @@ abstract class IpDevice extends Device
             $endpoint = $this->uri . $endpoint;
         }
 
-        try {
-            $request = client_request('GET', $endpoint . ($query !== [] ? '?' . http_build_query($query) : ''));
+        $request = client_request('GET', $endpoint . ($query !== [] ? '?' . http_build_query($query) : ''));
 
-            foreach ($headers as $header => $value) {
-                $request->withHeader($header, $value);
-            }
-
-            $response = $this->client->send($request, $this->clientOption);
-            $response = $this->response($response, $parse);
-
-            if ($this->debug) {
-                $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
-            }
-
-            return $response;
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
+        foreach ($headers as $header => $value) {
+            $request->withHeader($header, $value);
         }
+
+        $response = $this->client->send($request, $this->clientOption);
+        $response = $this->response($response, $parse);
+
+        if ($this->debug) {
+            $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
+        }
+
+        return $response;
     }
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
@@ -143,32 +139,28 @@ abstract class IpDevice extends Device
             $endpoint = $this->uri . $endpoint;
         }
 
-        try {
-            $request = client_request('POST', $endpoint);
+        $request = client_request('POST', $endpoint);
 
-            foreach ($headers as $header => $value) {
-                $request->withHeader($header, $value);
-            }
-
-            if ($body) {
-                if (is_string($body)) {
-                    $request->withBody(stream($body));
-                } else {
-                    $request->withBody(stream(json_encode($body)));
-                }
-            }
-
-            $response = $this->client->send($request, $this->clientOption);
-            $response = $this->response($response, $parse);
-
-            if ($this->debug) {
-                $this->logger?->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
-            }
-
-            return $response;
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
+        foreach ($headers as $header => $value) {
+            $request->withHeader($header, $value);
         }
+
+        if ($body) {
+            if (is_string($body)) {
+                $request->withBody(stream($body));
+            } else {
+                $request->withBody(stream(json_encode($body)));
+            }
+        }
+
+        $response = $this->client->send($request, $this->clientOption);
+        $response = $this->response($response, $parse);
+
+        if ($this->debug) {
+            $this->logger?->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
+        }
+
+        return $response;
     }
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
@@ -183,32 +175,28 @@ abstract class IpDevice extends Device
             $endpoint = $this->uri . $endpoint;
         }
 
-        try {
-            $request = client_request('PUT', $endpoint);
+        $request = client_request('PUT', $endpoint);
 
-            foreach ($headers as $header => $value) {
-                $request->withHeader($header, $value);
-            }
-
-            if ($body) {
-                if (is_string($body)) {
-                    $request->withBody(stream($body));
-                } else {
-                    $request->withBody(stream(json_encode($body)));
-                }
-            }
-
-            $response = $this->client->send($request, $this->clientOption);
-            $response = $this->response($response, $parse);
-
-            if ($this->debug) {
-                $this->logger?->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
-            }
-
-            return $response;
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
+        foreach ($headers as $header => $value) {
+            $request->withHeader($header, $value);
         }
+
+        if ($body) {
+            if (is_string($body)) {
+                $request->withBody(stream($body));
+            } else {
+                $request->withBody(stream(json_encode($body)));
+            }
+        }
+
+        $response = $this->client->send($request, $this->clientOption);
+        $response = $this->response($response, $parse);
+
+        if ($this->debug) {
+            $this->logger?->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
+        }
+
+        return $response;
     }
 
     public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
@@ -223,24 +211,20 @@ abstract class IpDevice extends Device
             $endpoint = $this->uri . $endpoint;
         }
 
-        try {
-            $request = client_request('DELETE', $endpoint);
+        $request = client_request('DELETE', $endpoint);
 
-            foreach ($headers as $header => $value) {
-                $request->withHeader($header, $value);
-            }
-
-            $response = $this->client->send($request, $this->clientOption);
-            $response = $this->response($response, $parse);
-
-            if ($this->debug) {
-                $this->logger?->debug('DELETE/' . $endpoint, ['response' => $response]);
-            }
-
-            return $response;
-        } catch (Throwable $throwable) {
-            throw new DeviceException($this, 'Неверный запрос', $throwable->getMessage(), previous: $throwable);
+        foreach ($headers as $header => $value) {
+            $request->withHeader($header, $value);
         }
+
+        $response = $this->client->send($request, $this->clientOption);
+        $response = $this->response($response, $parse);
+
+        if ($this->debug) {
+            $this->logger?->debug('DELETE/' . $endpoint, ['response' => $response]);
+        }
+
+        return $response;
     }
 
     /**
@@ -260,6 +244,10 @@ abstract class IpDevice extends Device
 
     private function response(ResponseInterface $response, bool $parse): mixed
     {
+        if ($response->getStatusCode() === 401) {
+            throw new DeviceException($this, 'Ошибка авторизации', 'Authorization error', 401);
+        }
+
         if ($parse) {
             return parse_body($response);
         }
