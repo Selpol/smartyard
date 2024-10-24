@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Service\AuthService;
+use Selpol\Service\DeviceService;
 
 readonly class intercom extends Api
 {
@@ -123,6 +124,17 @@ readonly class intercom extends Api
 
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
             $intercom->ip = $ip;
+        }
+
+        $device = container(DeviceService::class)->intercomByEntity($intercom);
+
+        if ($device) {
+            $info = $device->getSysInfo();
+
+            $intercom->device_id = $info['DeviceID'];
+            $intercom->device_model = $info['DeviceModel'];
+            $intercom->device_software_version = $info['SoftwareVersion'];
+            $intercom->device_hardware_version = $info['HardwareVersion'];
         }
     }
 }

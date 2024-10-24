@@ -16,10 +16,6 @@ abstract class IpDevice extends Device
 
     public string $password;
 
-    public bool $ping = true;
-
-    public int $sleep = 0;
-
     public bool $debug;
 
     protected ClientOption $clientOption;
@@ -233,12 +229,8 @@ abstract class IpDevice extends Device
      */
     private function prepare(): void
     {
-        if ($this->ping && !$this->pingRaw()) {
+        if (!$this->pingRaw()) {
             throw new DeviceException($this, 'Устройство не доступно');
-        }
-
-        if ($this->sleep > 0) {
-            usleep($this->sleep);
         }
     }
 
