@@ -133,14 +133,21 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 return $this->emit(rbt_response(400, 'Логин или пароль не указан'));
             }
         } elseif ($http_authorization) {
+            $authorization = explode(' ', $http_authorization);
+
+            if (count($authorization) !== 2 || $authorization[0] !== 'Bearer') {
+                return $this->emit(rbt_response(401, 'Не верные данные авторизации'));
+            }
+
             $userAgent = $request->getHeaderLine('User-Agent');
-            $auth = container(AuthenticationFeature::class)->auth($http_authorization, $userAgent, $ip);
-            if (!$auth) {
+            $user = container(AuthenticationFeature::class)->auth($authorization[1], $userAgent, $ip);
+
+            if (!$user) {
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
             }
 
-            container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], null));
-            container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
+            container(AuthService::class)->setToken(new CoreAuthToken($authorization[1], $user->aud_jti));
+            container(AuthService::class)->setUser(new CoreAuthUser($user));
         } else {
             return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
         }

@@ -33,6 +33,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $device_software_version
  * @property string|null $device_hardware_version
  *
+ * @property string|null $config
+ *
  * @property bool $hidden
  */
 class DeviceIntercom extends Entity
@@ -68,6 +70,8 @@ class DeviceIntercom extends Entity
             'comment' => rule()->string(),
 
             'sos_number' => rule()->string(),
+
+            'config' => rule()->string(),
 
             'device_id' => rule()->string()->clamp(0, 128),
             'device_model' => rule()->string()->clamp(0, 64),

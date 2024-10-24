@@ -2,8 +2,9 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Entity\Model\Block\FlatBlock;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseFlat;
@@ -18,7 +19,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 
 #[Controller('/mobile/address')]
-readonly class AddressController extends RbtController
+readonly class AddressController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -27,6 +28,10 @@ readonly class AddressController extends RbtController
     public function getAddressList(HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
+
+        if ($blockFeature->getFirstBlockForFlat($this->getUser()->getIdentifier(), [BlockFeature::SUB_SERVICE_APP]) != null) {
+            return user_response();
+        }
 
         $subscriberIntercomBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]) != null;
         $subscriberCctvBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV]) != null;
@@ -37,6 +42,10 @@ readonly class AddressController extends RbtController
         $houses = [];
 
         foreach ($user['flats'] as $flat) {
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_APP]) instanceof FlatBlock) {
+                continue;
+            }
+
             $houseId = $flat['addressHouseId'];
 
             $flatDetail = $houseFeature->getFlat($flat["flatId"]);

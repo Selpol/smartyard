@@ -35,13 +35,13 @@ readonly class AuthMiddleware extends RouteMiddleware
 
     private function setJwtFromRequest(ServerRequest $request): ?string
     {
-        $token = $request->getHeaderLine('Authorization');
+        $authorization = $request->getHeaderLine('Authorization');
 
-        if (!str_starts_with($token, 'Bearer ')) {
+        if (!str_starts_with($authorization, 'Bearer ')) {
             return 'Запрос не авторизирован';
         }
 
-        $bearer = substr($token, 7);
+        $bearer = substr($authorization, 7);
 
         if (substr_count($bearer, '.') !== 2) {
             if ($this->user) {
@@ -51,10 +51,10 @@ readonly class AuthMiddleware extends RouteMiddleware
                     return 'Неизвестный источник запроса';
                 }
 
-                $auth = container(AuthenticationFeature::class)->auth($token, $request->getHeaderLine('User-Agent'), $ip);
+                $user = container(AuthenticationFeature::class)->auth($bearer, $request->getHeaderLine('User-Agent'), $ip);
 
-                if ($auth && $auth['user']['aud_jti']) {
-                    container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], $auth['user']['aud_jti']));
+                if ($user && $user->aud_jti) {
+                    container(AuthService::class)->setToken(new CoreAuthToken($bearer, $user->aud_jti));
 
                     return null;
                 }

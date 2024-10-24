@@ -16,11 +16,11 @@ use SensitiveParameter;
 
 abstract class DvrDevice extends IpDevice
 {
-    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, public DvrModel $model, public DvrServer $server, ?int $id = null)
+    public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, public DvrModel $model, public DvrServer $server)
     {
         $this->login = $login;
 
-        parent::__construct($uri, $password, $id);
+        parent::__construct($uri, $password);
 
         $this->setLogger(file_logger('dvr'));
     }

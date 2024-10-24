@@ -108,19 +108,13 @@ trait KeyTrait
 
             if ($lastUser == null) {
                 $id = '1';
-
                 $this->addUser($id, date('Y-m-d H:i:s'));
-
                 usleep(75000);
-
                 $lastUser = ['id' => $id, 'count' => 0];
-            } else if ($lastUser['count'] == 5) {
+            } elseif ($lastUser['count'] == 5) {
                 $id = (string)(intval($lastUser['id']) + 1);
-
                 $this->addUser($id, date('Y-m-d H:i:s'));
-
                 usleep(75000);
-
                 $lastUser = ['id' => $id, 'count' => 0];
             }
 

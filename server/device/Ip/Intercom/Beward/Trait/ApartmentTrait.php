@@ -9,6 +9,16 @@ trait ApartmentTrait
     /** @var array<int, Apartment> */
     private array $apartments;
 
+    public function getDefaultAnswerLevel(): int
+    {
+        return 330;
+    }
+
+    public function getDefaultQuiescentLevel(): int
+    {
+        return 530;
+    }
+
     /**
      * @return Apartment[]
      */

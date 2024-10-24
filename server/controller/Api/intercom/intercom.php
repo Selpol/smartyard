@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Service\AuthService;
 
 readonly class intercom extends Api
@@ -35,6 +36,7 @@ readonly class intercom extends Api
             'device_model' => 'deviceModel',
             'device_software_version' => 'deviceSoftwareVersion',
             'device_hardware_version' => 'deviceHardwareVersion',
+            'config' => 'config',
             'hidden' => 'hidden'
         ]);
 
@@ -63,6 +65,8 @@ readonly class intercom extends Api
         self::set($intercom, $params);
 
         if ($intercom->update()) {
+            container(ConfigFeature::class)->clearCacheConfigForIntercom($intercom->house_domophone_id);
+
             return self::success($intercom->house_domophone_id);
         }
 
@@ -105,6 +109,10 @@ readonly class intercom extends Api
 
         if (array_key_exists('sosNumber', $params)) {
             $intercom->sos_number = $params['sosNumber'];
+        }
+
+        if (array_key_exists('config', $params)) {
+            $intercom->config = $params['config'];
         }
 
         if (array_key_exists('hidden', $params)) {

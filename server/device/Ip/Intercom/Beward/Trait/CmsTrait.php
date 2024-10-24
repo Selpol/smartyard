@@ -8,6 +8,8 @@ use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
 
 trait CmsTrait
 {
+    private ?array $models = null;
+
     private ?array $cmses = null;
 
     public function getLineDialStatus(int $apartment, bool $info): array|int
@@ -28,6 +30,48 @@ trait CmsTrait
         return $result;
     }
 
+    public function getCmsModels(): array
+    {
+        if ($this->models != null) {
+            return $this->models;
+        }
+
+        $resources = $this->get('/xml/kmnducfg.xml');
+
+        if ($resources == null) {
+            return [];
+        }
+
+        if (array_key_exists('html', $resources)) {
+            $resources = $resources['html'];
+        }
+
+        if (!is_array($resources)) {
+            return [];
+        }
+
+        foreach ($resources as $resource) {
+            if ($resource['name'] == 'English') {
+                $resources = $resource['Page'];
+
+                break;
+            }
+        }
+
+        $keys = array_keys($resources);
+        $result = [];
+
+        foreach ($keys as $key) {
+            if (str_starts_with($key, 'opkmntype')) {
+                $result[$resources[$key]] = intval(substr($key, 9));
+            }
+        }
+
+        $this->models = $result;
+
+        return $result;
+    }
+
     public function getCmsModel(): string
     {
         $content = $this->get('/cgi-bin/intercomdu_cgi', ['action' => 'export'], parse: false);
@@ -35,7 +79,9 @@ trait CmsTrait
 
         $model = $lines[0];
 
-        foreach ($this->model->cmsesMap as $cms => $value) {
+        $models = $this->getCmsModels();
+
+        foreach ($models as $cms => $value) {
             if ($value === $model) {
                 return $cms;
             }
@@ -53,8 +99,10 @@ trait CmsTrait
 
     public function setCmsModel(string $cms): void
     {
-        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap)) {
-            $this->get('/webs/kmnDUCfgEx', ['kmntype' => $this->model->cmsesMap[strtoupper($cms)]]);
+        $models = $this->getCmsModels();
+
+        if (array_key_exists(strtoupper($cms), $models)) {
+            $this->get('/webs/kmnDUCfgEx', ['kmntype' => $models[strtoupper($cms)]]);
         }
     }
 

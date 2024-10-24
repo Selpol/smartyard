@@ -6,14 +6,17 @@ use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
+use Selpol\Device\Ip\Intercom\IntercomConfigResolver;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Feature\Config\ConfigFeature;
+use Selpol\Feature\Config\ConfigResolver;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
+use Throwable;
 
 #[Singleton]
 class DeviceService
@@ -59,19 +62,11 @@ class DeviceService
             return $this->cameras[$id];
         }
 
-        $camera = $this->camera($camera->model, $camera->url, $camera->credentials, $camera->camera_id);
-
-        if ($this->cache) {
+        if (($model = CameraModel::model($camera->model)) instanceof CameraModel) {
+            $camera = new $model->class(new Uri($camera->url), $camera->credentials, $model);
             $this->cameras[$id] = $camera;
-        }
 
-        return $camera;
-    }
-
-    public function camera(string $model, string $url, #[SensitiveParameter] string $password, ?int $id = null): ?CameraDevice
-    {
-        if (($model = CameraModel::model($model)) instanceof CameraModel) {
-            return new $model->class(new Uri($url), $password, $model, $id);
+            return $camera;
         }
 
         return null;
@@ -83,7 +78,7 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        if (($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials'])->nonNullable())) instanceof DeviceIntercom) {
+        if (($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials', 'config'])->nonNullable())) instanceof DeviceIntercom) {
             return $this->intercomByEntity($intercom);
         }
 
@@ -98,19 +93,37 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        $intercom = $this->intercom($intercom->model, $intercom->url, $intercom->credentials, $intercom->house_domophone_id);
+        if (($model = IntercomModel::model($intercom->model)) instanceof IntercomModel) {
+            $feature = container(ConfigFeature::class);
 
-        if ($this->cache) {
-            $this->intercoms[$id] = $intercom;
-        }
+            if ($this->cache) {
+                try {
+                    $config = $feature->getCacheConfigForIntercom($intercom->house_domophone_id);
 
-        return $intercom;
-    }
+                    if ($config === null) {
+                        $config = $feature->getOptimizeConfigForIntercom($model, $intercom);
+                        $feature->setCacheConfigForIntercom($config, $intercom->house_domophone_id);
+                    }
 
-    public function intercom(string $model, string $url, #[SensitiveParameter] string $password, ?int $id = null): ?IntercomDevice
-    {
-        if (($model = IntercomModel::model($model)) instanceof IntercomModel) {
-            return new $model->class(new Uri($url), $password, $model, $id);
+                    $resolver = new ConfigResolver($config);
+                } catch (Throwable $throwable) {
+                    file_logger('intercom')->error($throwable);
+                }
+            }
+
+            if (!isset($resolver)) {
+                $config = $feature->getConfigForIntercom($model, $intercom);
+                $resolver = new IntercomConfigResolver($config, $model, $intercom);
+            }
+
+            /** @var IntercomDevice $device */
+            $device = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $resolver);
+
+            if ($this->cache) {
+                $this->intercoms[$id] = $device;
+            }
+
+            return $device;
         }
 
         return null;
@@ -143,19 +156,14 @@ class DeviceService
 
         $credentials = $server->credentials();
 
-        $dvr = $this->dvr($server->type, $server->url, $credentials['username'], $credentials['password'], $server);
+        if (($model = DvrModel::model($server->type)) instanceof DvrModel) {
+            $dvr = new $model->class(new Uri($server->url), $credentials['username'], $credentials['password'], $model, $server);
 
-        if ($this->cache) {
-            $this->dvrs[$id] = $dvr;
-        }
+            if ($this->cache) {
+                $this->dvrs[$id] = $dvr;
+            }
 
-        return $dvr;
-    }
-
-    public function dvr(string $model, string $url, string $login, #[SensitiveParameter] string $password, DvrServer $server): ?DvrDevice
-    {
-        if (($model = DvrModel::model($model)) instanceof DvrModel) {
-            return new $model->class(new Uri($url), $login, $password, $model, $server, $server->id);
+            return $dvr;
         }
 
         return null;

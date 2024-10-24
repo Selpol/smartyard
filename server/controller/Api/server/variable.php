@@ -5,6 +5,7 @@ namespace Selpol\Controller\Api\server;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Core\CoreVar;
+use Selpol\Feature\Config\ConfigFeature;
 
 readonly class variable extends Api
 {
@@ -30,6 +31,10 @@ readonly class variable extends Api
             $coreVar->var_value = rule()->string()->onItem('var_value', $params);
 
             if ($coreVar->update()) {
+                if ($coreVar->var_name == 'intercom.config') {
+                    container(ConfigFeature::class)->clearCacheConfigForIntercom();
+                }
+
                 return self::success($coreVar->var_id);
             }
 

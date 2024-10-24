@@ -5,17 +5,17 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use RuntimeException;
-use Selpol\Controller\RbtController;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
 #[Controller('/internal/prometheus')]
-readonly class PrometheusController extends RbtController
+readonly class PrometheusController extends RouteController
 {
     /**
      * @throws NotFoundExceptionInterface

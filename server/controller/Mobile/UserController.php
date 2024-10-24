@@ -4,7 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\UserRegisterPushTokenRequest;
 use Selpol\Controller\Request\Mobile\UserSendNameRequest;
 use Selpol\Feature\House\HouseFeature;
@@ -14,7 +14,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
 
 #[Controller('/mobile/user')]
-readonly class UserController extends RbtController
+readonly class UserController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -45,9 +45,8 @@ readonly class UserController extends RbtController
             $platform = 0;
 
             $type = 3;
-        } else if ($request->platform == 'rustore') {
+        } elseif ($request->platform == 'rustore') {
             $platform = 0;
-
             $type = 4;
         } else {
             $platform = 0;

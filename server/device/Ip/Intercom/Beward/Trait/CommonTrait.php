@@ -34,7 +34,7 @@ trait CommonTrait
 
     public function getMifare(): Mifare
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $cipher = $this->parseParamValueHelp($this->get('/cgi-bin/cipher_cgi', ['action' => 'list']));
             $mifare = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get']));
 
@@ -113,7 +113,7 @@ trait CommonTrait
 
     public function getAutoCollectKey(): bool
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $response = $this->parseParamValueHelp($this->get('/cgi-bin/mifare_cgi', ['action' => 'get']));
 
             return $response['AutoCollectKeys'] === 'on';
@@ -139,7 +139,7 @@ trait CommonTrait
 
     public function setMifare(Mifare $mifare): void
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $this->get('/cgi-bin/cipher_cgi', ['action' => 'add', 'Value' => $mifare->key, 'Type' => 1, 'Index' => 1]);
             $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
         }
@@ -183,7 +183,7 @@ trait CommonTrait
 
     public function setAutoCollectKey(bool $value): void
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
         }
     }

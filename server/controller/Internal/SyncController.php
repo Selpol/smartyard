@@ -5,7 +5,6 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selpol\Controller\RbtController;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\Block\BlockFeature;
@@ -15,6 +14,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Framework\Router\Attribute\Method\Put;
+use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
@@ -22,7 +22,7 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
 #[Controller('/internal/sync')]
-readonly class SyncController extends RbtController
+readonly class SyncController extends RouteController
 {
     /**
      * @throws NotFoundExceptionInterface

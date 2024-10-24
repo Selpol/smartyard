@@ -13,7 +13,7 @@ trait VideoTrait
     {
         $response = $this->get('/camera/codec');
 
-        return new VideoEncoding($response['Channels'][0]['MaxBitrate'] ?? 0, $response['Channels'][1]['MaxBitrate'] ?? 0);
+        return new VideoEncoding($response['Channels'][0]['Width'] . 'x' . $response['Channels'][0]['Height'], $response['Channels'][0]['MaxBitrate'] ?? 0, $response['Channels'][1]['MaxBitrate'] ?? 0);
     }
 
     public function getVideoDetection(): VideoDetection
@@ -37,6 +37,8 @@ trait VideoTrait
 
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
+        list($width, $height) = explode('x', $videoEncoding->quality ?? '1280x720');
+
         $this->put('/camera/codec', [
             'Channels' => [
                 [
@@ -44,8 +46,8 @@ trait VideoTrait
                     "Type" => "H264",
                     "Profile" => 0,
                     "ByFrame" => true,
-                    "Width" => 1280,
-                    "Height" => 720,
+                    "Width" => intval($width),
+                    "Height" => intval($height),
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",

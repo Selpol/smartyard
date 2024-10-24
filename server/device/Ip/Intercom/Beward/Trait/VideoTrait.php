@@ -11,7 +11,7 @@ trait VideoTrait
 {
     public function getVideoEncoding(): VideoEncoding
     {
-        return new VideoEncoding(0, 0);
+        return new VideoEncoding('1', 0, 0);
     }
 
     public function getVideoDetection(): VideoDetection
@@ -41,7 +41,7 @@ trait VideoTrait
             'sys_cif' => '0',
             'advanced' => '1',
             'ratectrl' => '0',
-            'quality' => '1',
+            'quality' => $videoEncoding->quality ?? '1',
             'iq' => '1',
             'rc' => '1',
             'bitrate' => $videoEncoding->primaryBitrate,

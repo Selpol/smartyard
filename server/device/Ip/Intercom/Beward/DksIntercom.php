@@ -11,7 +11,6 @@ use Selpol\Device\Ip\Intercom\Beward\Trait\KeyTrait;
 use Selpol\Device\Ip\Intercom\Beward\Trait\SipTrait;
 use Selpol\Device\Ip\Intercom\Beward\Trait\VideoTrait;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
-use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioInterface;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
@@ -21,8 +20,6 @@ use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoInterface;
 use Selpol\Device\Ip\Trait\BewardTrait;
-use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
 
 class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterface, SipInterface, CommonInterface, CmsInterface, ApartmentInterface, KeyInterface, CodeInterface
 {
@@ -37,11 +34,6 @@ class DksIntercom extends IntercomDevice implements AudioInterface, VideoInterfa
     use CodeTrait;
 
     public string $login = 'admin';
-
-    public function __construct(Uri $uri, #[SensitiveParameter] string $password, IntercomModel $model, ?int $id = null)
-    {
-        parent::__construct($uri, $password, $model, $id);
-    }
 
     public function open(int $value): void
     {

@@ -88,9 +88,9 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         } elseif ($group === 'amqp') {
             if ($command === 'check') {
                 return $this->amqpCheck();
-            } else {
-                echo $this->help('amqp');
             }
+
+            echo $this->help('amqp');
         } elseif ($group === 'admin') {
             if ($command === 'password') {
                 $this->adminPassword($arguments['admin:password']);

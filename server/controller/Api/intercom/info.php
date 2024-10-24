@@ -18,10 +18,10 @@ readonly class info extends Api
             return self::error('Не удалось найти домофон', 404);
         }
 
-        $intercom = container(DeviceService::class)->intercomByEntity($deviceIntercom);
+        $device = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
-        if ($intercom) {
-            $info = $intercom->getSysInfo();
+        if ($device) {
+            $info = $device->getSysInfo();
 
             $deviceIntercom->device_id = $info['DeviceID'];
             $deviceIntercom->device_model = $info['DeviceModel'];
@@ -29,6 +29,9 @@ readonly class info extends Api
             $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
 
             $deviceIntercom->update();
+
+            $info['cms'] = explode(',', $device->resolver->string('cms.value', ''));
+            $info['output'] = $device->resolver->int('output', 1);
 
             return self::success($info);
         }
