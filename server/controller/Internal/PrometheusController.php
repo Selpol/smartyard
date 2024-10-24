@@ -194,9 +194,9 @@ readonly class PrometheusController extends RbtController
         if ($statement->execute()) {
             $value = $statement->fetchColumn(0);
 
-            $result[] = '# HELP smartyard_task_count Task block count';
-            $result[] = '# TYPE smartyard_task_count gauge';
-            $result[] = 'smartyard_task_count{} ' . $value;
+            $result[] = '# HELP smartyard_task_total_count Task total block count';
+            $result[] = '# TYPE smartyard_task_total_count gauge';
+            $result[] = 'smartyard_task_total_count{} ' . $value;
         }
     }
 
