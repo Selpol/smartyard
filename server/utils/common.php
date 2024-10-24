@@ -158,7 +158,7 @@ if (!function_exists('rbt_response')) {
         return json_response($code, body: [
             'code' => $code,
             'name' => Response::$codes[$code]['name'],
-            'message' => $message ?: Response::$codes[$code]['message']
+            'message' => $message ?: Response::$codes[$code]['name']
         ]);
     }
 }

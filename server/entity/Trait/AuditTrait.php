@@ -4,6 +4,7 @@ namespace Selpol\Entity\Trait;
 
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Entity\Entity;
+use Throwable;
 
 /**
  * @template T of Entity
@@ -12,61 +13,31 @@ trait AuditTrait
 {
     protected readonly string $auditName;
 
-    /**
-     * @psalm-param T $entity
-     * @psalm-return bool
-     */
-    public function insert(Entity $entity): bool
+    public function insert(Entity $entity): void
     {
-        $result = parent::insert($entity);
+        parent::insert($entity);
 
-        if (!$this->canAudit()) {
-            return $result;
-        }
-
-        if ($result) {
+        if ($this->canAudit()) {
             $this->audit($entity, 'insert', $this->getAuditMessageInsert($entity));
         }
-
-        return $result;
     }
 
-    /**
-     * @psalm-param T $entity
-     * @psalm-return bool
-     */
-    public function update(Entity $entity): bool
+    public function update(Entity $entity): void
     {
-        $result = parent::update($entity);
+        parent::update($entity);
 
-        if (!$this->canAudit()) {
-            return $result;
-        }
-
-        if ($result) {
+        if ($this->canAudit()) {
             $this->audit($entity, 'update', $this->getAuditMessageUpdate($entity));
         }
-
-        return $result;
     }
 
-    /**
-     * @psalm-param T $entity
-     * @psalm-return bool
-     */
-    public function delete(Entity $entity): bool
+    public function delete(Entity $entity): void
     {
-        $result = parent::delete($entity);
+        parent::delete($entity);
 
-        if (!$this->canAudit()) {
-            return $result;
+        if ($this->canAudit()) {
+            $this->audit($entity, 'update', $this->getAuditMessageDelete($entity));
         }
-
-        if ($result) {
-            $this->audit($entity, 'delete', $this->getAuditMessageDelete($entity));
-        }
-
-        return $result;
     }
 
     private function canAudit(): bool
