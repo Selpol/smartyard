@@ -4,14 +4,14 @@ namespace Selpol\Runner;
 
 use Selpol\Feature\Mqtt\MqttFeature;
 use Selpol\Framework\Http\Uri;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Throwable;
 
 class MqttRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     public function __construct()
     {

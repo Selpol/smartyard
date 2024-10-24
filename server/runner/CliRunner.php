@@ -20,10 +20,10 @@ use Selpol\Framework\Cache\FileCache;
 use Selpol\Framework\Container\Trait\ContainerTrait;
 use Selpol\Framework\Kernel\Trait\ConfigTrait;
 use Selpol\Framework\Kernel\Trait\EnvTrait;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\DeviceService;
 use Selpol\Service\PrometheusService;
@@ -37,7 +37,7 @@ use Throwable;
 
 class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     public function __construct()
     {

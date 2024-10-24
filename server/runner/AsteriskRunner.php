@@ -12,9 +12,9 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
@@ -22,7 +22,7 @@ use Throwable;
 
 class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     public function __construct()
     {

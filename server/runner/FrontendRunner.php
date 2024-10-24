@@ -13,10 +13,10 @@ use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Kernel\Exception\KernelException;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\Auth\Token\CoreAuthToken;
 use Selpol\Service\Auth\User\CoreAuthUser;
 use Selpol\Service\AuthService;
@@ -26,7 +26,7 @@ use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     use EmitTrait {
         emit as frontendEmit;
