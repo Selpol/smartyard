@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2a1c933c60a390a2695db35d2238cd6c",
+    "content-hash": "1bf28ec62e119117d5dfdfe708421a0f",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.46",
+            "version": "1.1.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "294e79f77986af9c8a39d5cc1adc492be9a732b9"
+                "reference": "d818d1a2572c84db53e3bfde7addd54497792dff"
             },
             "require": {
                 "ext-curl": "*",
@@ -1264,7 +1264,10 @@
                 "psr/http-server-middleware": "^1.0",
                 "psr/log": "^3.0",
                 "psr/simple-cache": "^3.0",
-                "selpol/validator": "^1.0"
+                "selpol/validator": "^1.1"
+            },
+            "require-dev": {
+                "rector/rector": "^1.0"
             },
             "type": "library",
             "autoload": {
@@ -1282,18 +1285,22 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2024-03-22T11:00:17+00:00"
+            "time": "2024-10-24T06:40:01+00:00"
         },
         {
             "name": "selpol/validator",
-            "version": "1.0.14",
+            "version": "1.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/validator.git",
-                "reference": "3fd482a5abb4c9da5e51c321ca5602e93c30f1d5"
+                "reference": "8ce7d394d3196eef50997822cad297f42b0eb162"
             },
             "require": {
                 "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.1",
+                "rector/rector": "^1.1"
             },
             "type": "library",
             "autoload": {
@@ -1311,7 +1318,7 @@
                 }
             ],
             "description": "Selpol validator library",
-            "time": "2024-03-22T10:53:42+00:00"
+            "time": "2024-05-21T06:23:36+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
