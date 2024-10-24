@@ -56,6 +56,7 @@ readonly class PrometheusController extends RbtController
         $this->keyCount($result);
         $this->flatBlock($result);
         $this->subscriberBlock($result);
+        $this->taskCount($result);
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
@@ -183,6 +184,19 @@ readonly class PrometheusController extends RbtController
             $result[] = '# HELP smartyard_subscriber_block_count Subscriber block count';
             $result[] = '# TYPE smartyard_subscriber_block_count gauge';
             $result[] = 'smartyard_subscriber_block_count{} ' . $value[0]['count'];
+        }
+    }
+
+    private function taskCount(array &$result): void
+    {
+        $statement = container(DatabaseService::class)->statement("SELECT CURRVAL('task_id_seq')");
+
+        if ($statement->execute()) {
+            $value = $statement->fetchColumn(0);
+
+            $result[] = '# HELP smartyard_task_count Task block count';
+            $result[] = '# TYPE smartyard_task_count gauge';
+            $result[] = 'smartyard_task_count{} ' . $value;
         }
     }
 
