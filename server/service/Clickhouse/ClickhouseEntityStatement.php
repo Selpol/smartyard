@@ -66,11 +66,11 @@ class ClickhouseEntityStatement implements EntityStatementInterface
 
             return false;
         } catch (Throwable $throwable) {
-            throw new EntityException($this->error, previous: $throwable);
+            throw new EntityException($this->error, throwable: $throwable);
         }
     }
 
-    public function fetch(): ?array
+    public function fetch(int $flags = self::FETCH_ASSOC): ?array
     {
         return $this->data !== [] ? $this->data[0] : null;
     }
@@ -80,7 +80,7 @@ class ClickhouseEntityStatement implements EntityStatementInterface
         return $this->data !== [] ? $this->data[0][$index] : null;
     }
 
-    public function fetchAll(): array
+    public function fetchAll(int $flags = self::FETCH_ASSOC): array
     {
         return $this->data;
     }
