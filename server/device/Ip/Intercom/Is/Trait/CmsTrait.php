@@ -5,6 +5,7 @@ namespace Selpol\Device\Ip\Intercom\Is\Trait;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
+use Throwable;
 
 trait CmsTrait
 {
@@ -47,17 +48,25 @@ trait CmsTrait
 
     public function getCmsModel(): string
     {
-        $response = $this->get('/switch/settings');
+        try {
+            $response = $this->get('/switch/settings');
 
-        return $response['modelId'];
+            return $response['modelId'];
+        } catch (Throwable) {
+            return '';
+        }
     }
 
     public function getCmsLevels(): CmsLevels
     {
-        $response = $this->get('/levels');
-        $resistances = $response['resistances'];
+        try {
+            $response = $this->get('/levels');
+            $resistances = $response['resistances'];
 
-        return new CmsLevels([$response['error'], $resistances['break'], $resistances['quiescent'], $resistances['answer']]);
+            return new CmsLevels([$response['error'], $resistances['break'], $resistances['quiescent'], $resistances['answer']]);
+        } catch (Throwable) {
+            return new CmsLevels([]);
+        }
     }
 
     public function setCmsModel(string $cms): void
