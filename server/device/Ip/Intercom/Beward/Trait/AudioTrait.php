@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom\Beward\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioLevels;
+use Throwable;
 
 trait AudioTrait
 {
@@ -13,27 +14,31 @@ trait AudioTrait
 
     public function getAudioLevels(): AudioLevels
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: false));
+        try {
+            $response = $this->parseParamValueHelp($this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: false));
 
-        return new AudioLevels([
-            0 => $response['AudioInVol'],
-            1 => $response['AudioOutVol'],
-            2 => $response['SystemVol'],
-            3 => $response['AHSVol'],
-            4 => $response['AHSSens'],
-            5 => $response['GateInVol'],
-            6 => $response['GateOutVol'],
-            7 => $response['GateAHSVol'],
-            8 => $response['GateAHSSens'],
-            9 => $response['MicInSensitivity'],
-            10 => $response['MicOutSensitivity'],
-            11 => $response['SpeakerInVolume'],
-            12 => $response['SpeakerOutVolume'],
-            13 => $response['KmnMicInSensitivity'],
-            14 => $response['KmnMicOutSensitivity'],
-            15 => $response['KmnSpeakerInVolume'],
-            16 => $response['KmnSpeakerOutVolume'],
-        ]);
+            return new AudioLevels([
+                0 => $response['AudioInVol'],
+                1 => $response['AudioOutVol'],
+                2 => $response['SystemVol'],
+                3 => $response['AHSVol'],
+                4 => $response['AHSSens'],
+                5 => $response['GateInVol'],
+                6 => $response['GateOutVol'],
+                7 => $response['GateAHSVol'],
+                8 => $response['GateAHSSens'],
+                9 => $response['MicInSensitivity'],
+                10 => $response['MicOutSensitivity'],
+                11 => $response['SpeakerInVolume'],
+                12 => $response['SpeakerOutVolume'],
+                13 => $response['KmnMicInSensitivity'],
+                14 => $response['KmnMicOutSensitivity'],
+                15 => $response['KmnSpeakerInVolume'],
+                16 => $response['KmnSpeakerOutVolume'],
+            ]);
+        } catch (Throwable) {
+            return new AudioLevels([]);
+        }
     }
 
     public function setAudioLevels(AudioLevels $audio): void
