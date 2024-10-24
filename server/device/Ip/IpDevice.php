@@ -33,20 +33,6 @@ abstract class IpDevice extends Device
         $this->setLogger(file_logger('ip'));
     }
 
-    public function withTimeout(int $value): static
-    {
-        $this->clientOption->raw(CURLOPT_TIMEOUT_MS, $value);
-
-        return $this;
-    }
-
-    public function withConnectionTimeout(int $value): static
-    {
-        $this->clientOption->raw(CURLOPT_CONNECTTIMEOUT_MS, $value);
-
-        return $this;
-    }
-
     public function pingRaw(): bool
     {
         $url = $this->uri->getHost();
