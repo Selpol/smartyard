@@ -78,7 +78,7 @@ class DeviceService
             return $this->intercoms[$id];
         }
 
-        if (($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials', 'config'])->nonNullable())) instanceof DeviceIntercom) {
+        if (($intercom = DeviceIntercom::findById($id, setting: setting()->columns(['house_domophone_id', 'model', 'url', 'credentials', 'config', 'device_model'])->nonNullable())) instanceof DeviceIntercom) {
             return $this->intercomByEntity($intercom);
         }
 
