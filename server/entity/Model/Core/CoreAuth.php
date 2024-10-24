@@ -19,8 +19,6 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property bool|int $status
  *
- * @property string $last_access_to
- *
  * @property string $created_at
  * @property string $updated_at
  */
@@ -62,8 +60,6 @@ class CoreAuth extends Entity
             'remember_me' => rule()->required()->int()->nonNullable(),
 
             'status' => rule()->required()->int()->nonNullable(),
-
-            'last_access_to' => rule()->string(),
 
             'created_at' => rule()->string(),
             'updated_at' => rule()->string()

@@ -60,9 +60,6 @@ readonly abstract class AuthenticationFeature extends Feature
             $user = CoreUser::findById($auth->user_id);
 
             if ($user) {
-                $auth->last_access_to = date('Y-m-d H:i:s');
-                $auth->update();
-
                 return $user;
             }
         }
