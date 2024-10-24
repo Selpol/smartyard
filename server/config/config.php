@@ -3,7 +3,7 @@
 use Selpol\Feature\Oauth\Resource\ResourceOauthFeature;
 
 return [
-    'language' => env('LANGUAGE', 'ru'),
+    'language' => env('LANGUAGE', path('var/locale/ru.json')),
 
     'debug' => boolval(env('DEBUG', '0')),
 
