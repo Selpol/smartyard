@@ -192,6 +192,8 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         try {
             if ($throwable instanceof KernelException) {
+                file_logger('response')->error($throwable);
+
                 $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
             } elseif ($throwable instanceof ValidatorException) {
                 $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);
