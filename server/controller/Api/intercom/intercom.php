@@ -9,6 +9,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Service\AuthService;
 use Selpol\Service\DeviceService;
+use Throwable;
 
 readonly class intercom extends Api
 {
@@ -126,15 +127,19 @@ readonly class intercom extends Api
             $intercom->ip = $ip;
         }
 
-        $device = container(DeviceService::class)->intercomByEntity($intercom);
+        try {
+            $device = container(DeviceService::class)->intercomByEntity($intercom);
 
-        if ($device) {
-            $info = $device->getSysInfo();
+            if ($device) {
+                $info = $device->getSysInfo();
 
-            $intercom->device_id = $info['DeviceID'];
-            $intercom->device_model = $info['DeviceModel'];
-            $intercom->device_software_version = $info['SoftwareVersion'];
-            $intercom->device_hardware_version = $info['HardwareVersion'];
+                $intercom->device_id = $info['DeviceID'];
+                $intercom->device_model = $info['DeviceModel'];
+                $intercom->device_software_version = $info['SoftwareVersion'];
+                $intercom->device_hardware_version = $info['HardwareVersion'];
+            }
+        } catch (Throwable) {
+
         }
     }
 }
