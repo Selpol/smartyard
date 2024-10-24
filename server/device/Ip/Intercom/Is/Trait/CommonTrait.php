@@ -113,7 +113,7 @@ trait CommonTrait
     {
         $response = $this->get('/key/settings');
 
-        return $response['autocollect']['enabled'];
+        return $response['autocollect']['enabled'] ?? false;
     }
 
     public function getGates(): array

@@ -57,7 +57,7 @@ abstract class IntercomDevice extends IpDevice
             $this->mifareSector = null;
         }
 
-        $this->setLogger(file_logger('intercom'));
+        $this->setLogger(file_logger($this->resolver->string('log', 'intercom')));
     }
 
     public function open(int $value): void

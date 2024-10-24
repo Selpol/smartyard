@@ -15,6 +15,7 @@ readonly abstract class ConfigFeature extends Feature
     {
         return [
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
             ['type' => 'value', 'value' => 'auth', 'title' => 'Авторизация', 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe']],
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
 
