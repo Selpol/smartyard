@@ -15,7 +15,7 @@ abstract class IntercomDevice extends IpDevice
     public readonly bool $mifare;
 
     public readonly ?string $mifareKey;
-    
+
     public readonly ?int $mifareSector;
 
     public function __construct(Uri $uri, #[SensitiveParameter] string $password, public IntercomModel $model, public DeviceIntercom $intercom, ConfigResolver $resolver)
@@ -57,7 +57,14 @@ abstract class IntercomDevice extends IpDevice
             $this->mifareSector = null;
         }
 
-        $this->setLogger(file_logger($this->resolver->string('log', 'intercom')));
+        $log = self::template($this->resolver->string('log', 'intercom'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string)$this->intercom->house_domophone_id]);
+        $dir = dirname(path('var/log/' . $log));
+
+        if (!is_dir($dir)) {
+            mkdir($dir, recursive: true);
+        }
+
+        $this->setLogger(new IntercomLogger(path('var/log/' . $log . '.log')));
     }
 
     public function open(int $value): void
