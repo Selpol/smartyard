@@ -27,7 +27,7 @@ readonly class contractor extends Api
             'code' => rule()->string()
         ]));
 
-        if ($contractor->insert()) {
+        if ($contractor->safeInsert()) {
             return self::success($contractor->id);
         }
 
@@ -50,7 +50,7 @@ readonly class contractor extends Api
         $contractor->flat = $validate['flat'];
         $contractor->code = $validate['code'];
 
-        if ($contractor->update()) {
+        if ($contractor->safeUpdate()) {
             return self::success($contractor->id);
         }
 
@@ -63,7 +63,7 @@ readonly class contractor extends Api
 
         container(GroupFeature::class)->deleteFor(GroupFeature::FOR_CONTRACTOR, $contractor->id);
 
-        if ($contractor->delete()) {
+        if ($contractor->safeDelete()) {
             return self::success();
         }
 

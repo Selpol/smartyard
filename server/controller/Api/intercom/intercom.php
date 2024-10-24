@@ -51,7 +51,7 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->insert()) {
+        if ($intercom->safeInsert()) {
             return self::success($intercom->house_domophone_id);
         }
 
@@ -64,7 +64,7 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->update()) {
+        if ($intercom->safeUpdate()) {
             container(ConfigFeature::class)->clearCacheConfigForIntercom($intercom->house_domophone_id);
 
             return self::success($intercom->house_domophone_id);
@@ -77,7 +77,7 @@ readonly class intercom extends Api
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($intercom->delete()) {
+        if ($intercom->safeDelete()) {
             return self::success();
         }
 

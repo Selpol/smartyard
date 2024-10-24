@@ -30,7 +30,7 @@ readonly class variable extends Api
 
             $coreVar->var_value = rule()->string()->onItem('var_value', $params);
 
-            if ($coreVar->update()) {
+            if ($coreVar->safeUpdate()) {
                 if ($coreVar->var_name == 'intercom.config') {
                     container(ConfigFeature::class)->clearCacheConfigForIntercom();
                 }

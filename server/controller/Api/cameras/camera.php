@@ -53,7 +53,7 @@ readonly class camera extends Api
 
         self::set($camera, $params);
 
-        if ($camera->insert()) {
+        if ($camera->safeInsert()) {
             if ($camera->frs_server_id) {
                 task(new FrsAddStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
             }
@@ -70,7 +70,7 @@ readonly class camera extends Api
 
         self::set($camera, $params);
 
-        if ($camera->update()) {
+        if ($camera->safeUpdate()) {
             if (array_key_exists('frs_server_id', $params)) {
                 if ($camera->frs_server_id !== $params['frs_server_id']) {
                     task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
@@ -91,7 +91,7 @@ readonly class camera extends Api
     {
         $camera = DeviceCamera::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($camera->delete()) {
+        if ($camera->safeDelete()) {
             if ($camera->frs_server_id) {
                 task(new FrsRemoveStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();
             }

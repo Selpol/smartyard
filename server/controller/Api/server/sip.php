@@ -33,7 +33,7 @@ readonly class sip extends Api
             'internal_port' => rule()->required()->int()->clamp(0, 65535)->nonNullable()
         ]));
 
-        if ($sipServer->insert()) {
+        if ($sipServer->safeInsert()) {
             return self::success($sipServer->id);
         }
 
@@ -70,7 +70,7 @@ readonly class sip extends Api
         $sipServer->external_port = $validate['external_port'];
         $sipServer->internal_port = $validate['internal_port'];
 
-        if ($sipServer->update()) {
+        if ($sipServer->safeUpdate()) {
             return self::success($sipServer->id);
         }
 
@@ -81,7 +81,7 @@ readonly class sip extends Api
     {
         $sipServer = SipServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($sipServer->delete()) {
+        if ($sipServer->safeDelete()) {
             return self::success();
         }
 

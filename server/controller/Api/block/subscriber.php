@@ -30,7 +30,7 @@ readonly class subscriber extends Api
 
         $subscriberBlock->status = BlockFeature::STATUS_ADMIN;
 
-        if ($subscriberBlock->insert()) {
+        if ($subscriberBlock->safeInsert()) {
             if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($subscriberBlock, true);
             }
@@ -55,7 +55,7 @@ readonly class subscriber extends Api
         $subscriberBlock->cause = $validate['cause'];
         $subscriberBlock->comment = $validate['comment'];
 
-        if ($subscriberBlock->update()) {
+        if ($subscriberBlock->safeUpdate()) {
             if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($subscriberBlock, true);
             }
@@ -74,7 +74,7 @@ readonly class subscriber extends Api
             return self::error('Не удалось удалить блокировку абонента', 400);
         }
 
-        if ($subscriberBlock->delete()) {
+        if ($subscriberBlock->safeDelete()) {
             if (array_key_exists('notify', $params) && $params['notify']) {
                 self::notify($subscriberBlock, false);
             }

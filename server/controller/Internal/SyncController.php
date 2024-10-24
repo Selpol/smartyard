@@ -131,7 +131,7 @@ readonly class SyncController extends RouteController
 
         foreach ($body as $item)
             try {
-                if (HouseSubscriber::findById($item, setting: setting()->nonNullable())->delete()) {
+                if (HouseSubscriber::findById($item, setting: setting()->nonNullable())->safeDelete()) {
                     $result[$item] = true;
                 }
             } catch (Throwable) {

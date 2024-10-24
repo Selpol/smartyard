@@ -31,7 +31,7 @@ readonly class flat extends Api
 
         $flatBlock->status = BlockFeature::STATUS_ADMIN;
 
-        if ($flatBlock->insert()) {
+        if ($flatBlock->safeInsert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
             }
@@ -60,7 +60,7 @@ readonly class flat extends Api
         $flatBlock->cause = $validate['cause'];
         $flatBlock->comment = $validate['comment'];
 
-        if ($flatBlock->update()) {
+        if ($flatBlock->safeUpdate()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
             }
@@ -83,7 +83,7 @@ readonly class flat extends Api
             return self::error('Не удалось удалить блокировку квартиры', 400);
         }
 
-        if ($flatBlock->delete()) {
+        if ($flatBlock->safeDelete()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
                 task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
             }

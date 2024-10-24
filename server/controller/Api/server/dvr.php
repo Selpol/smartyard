@@ -30,7 +30,7 @@ readonly class dvr extends Api
             'credentials' => rule()->required()->string()->max(1024)->nonNullable()
         ]));
 
-        if ($dvrServer->insert()) {
+        if ($dvrServer->safeInsert()) {
             return self::success($dvrServer->id);
         }
 
@@ -64,7 +64,7 @@ readonly class dvr extends Api
             $dvrServer->credentials = $validate['credentials'];
         }
 
-        if ($dvrServer->update()) {
+        if ($dvrServer->safeUpdate()) {
             return self::success($dvrServer->id);
         }
 
@@ -75,7 +75,7 @@ readonly class dvr extends Api
     {
         $dvrServer = DvrServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($dvrServer->delete()) {
+        if ($dvrServer->safeDelete()) {
             return self::success();
         }
 

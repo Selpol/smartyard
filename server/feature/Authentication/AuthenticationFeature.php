@@ -33,7 +33,7 @@ readonly abstract class AuthenticationFeature extends Feature
                 'status' => 1
             ]);
 
-            if ($auth->insert()) {
+            if ($auth->safeInsert()) {
                 container(DatabaseService::class)->modify("update core_users set last_login = " . time() . " where uid = " . $uid, false, ["silent"]);
 
                 return ["result" => true, "token" => $auth->token];
@@ -77,7 +77,7 @@ readonly abstract class AuthenticationFeature extends Feature
         if ($auth) {
             $auth->status = 0;
 
-            return $auth->update();
+            return $auth->safeUpdate();
         }
 
         return false;

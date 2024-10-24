@@ -48,7 +48,7 @@ readonly class user extends Api
         } catch (Throwable) {
         }
 
-        if ($user->insert()) {
+        if ($user->safeInsert()) {
             return self::success($user->uid);
         }
 
@@ -62,7 +62,7 @@ readonly class user extends Api
         if (!array_key_exists('realName', $params) && array_key_exists('enabled', $params)) {
             $user->enabled = $params['enabled'];
 
-            if ($user->update()) {
+            if ($user->safeUpdate()) {
                 if (!$user->enabled) {
                     $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
 
@@ -102,7 +102,7 @@ readonly class user extends Api
             $user->password = password_hash($params['password'], PASSWORD_DEFAULT);
         }
 
-        if ($user->update()) {
+        if ($user->safeUpdate()) {
             if (!$user->enabled) {
                 $keys = container(RedisService::class)->keys('user:' . $user->uid . ':token:*');
 
@@ -121,7 +121,7 @@ readonly class user extends Api
     {
         $user = CoreUser::findById($params['_id'], setting: setting()->nonNullable());
 
-        return $user->delete() ? self::success() : self::error('Не удалось удалить пользователя', 400);
+        return $user->safeDelete() ? self::success() : self::error('Не удалось удалить пользователя', 400);
     }
 
     public static function index(): array

@@ -53,7 +53,7 @@ readonly class password extends Api
                 $oldIntercomPassword = $deviceIntercom->credentials;
                 $deviceIntercom->credentials = $password;
 
-                if (!$deviceIntercom->update()) {
+                if (!$deviceIntercom->safeUpdate()) {
                     file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
 
                     return self::error('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')', 400);
@@ -68,7 +68,7 @@ readonly class password extends Api
 
                     $deviceCamera->credentials = $password;
 
-                    if (!$deviceCamera->update()) {
+                    if (!$deviceCamera->safeUpdate()) {
                         file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
 
                         return self::error('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')', 400);
