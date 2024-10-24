@@ -189,7 +189,7 @@ readonly class PrometheusController extends RbtController
 
     private function taskCount(array &$result): void
     {
-        $statement = container(DatabaseService::class)->statement("SELECT CURRVAL('task_id_seq')");
+        $statement = container(DatabaseService::class)->statement("SELECT last_value FROM task_id_seq");
 
         if ($statement->execute()) {
             $value = $statement->fetchColumn(0);
