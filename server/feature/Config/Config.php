@@ -73,6 +73,14 @@ class Config
         }
     }
 
+    public function scope(string $value): Config
+    {
+        $config = clone $this;
+        $config->load($value);
+
+        return $config;
+    }
+
     public function resolve(string $key, ?string $default = null): ?string
     {
         if (array_key_exists($key, $this->values)) {
