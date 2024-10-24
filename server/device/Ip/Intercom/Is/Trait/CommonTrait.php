@@ -67,24 +67,36 @@ trait CommonTrait
 
     public function getRoom(): Room
     {
-        $response = $this->get('/panelCode/settings');
+        try {
+            $response = $this->get('/panelCode/settings');
 
-        return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
+            return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
+        } catch (Throwable) {
+            return new Room('', 0);
+        }
     }
 
     public function getRelay(int $type): Relay
     {
-        $settings = $this->get('/relay/settings');
-        $relay = $this->get('/relay/1/settings');
+        try {
+            $settings = $this->get('/relay/settings');
+            $relay = $this->get('/relay/1/settings');
 
-        return new Relay(!$settings['alwaysOpen'], $relay['switchTime']);
+            return new Relay(!$settings['alwaysOpen'], $relay['switchTime']);
+        } catch (Throwable) {
+            return new Relay(false, 0);
+        }
     }
 
     public function getDDns(): DDns
     {
-        $response = $this->get('/v1/ddns');
+        try {
+            $response = $this->get('/v1/ddns');
 
-        return new DDns($response['enabled'], $response['server']['address'], $response['server']['port']);
+            return new DDns($response['enabled'], $response['server']['address'], $response['server']['port']);
+        } catch (Throwable) {
+            return new DDns(false, '', 0);
+        }
     }
 
     public function getUPnP(): bool
