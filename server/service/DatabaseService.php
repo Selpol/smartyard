@@ -7,6 +7,8 @@ use PDO;
 use PDOException;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Container\ContainerDisposeInterface;
+use Selpol\Framework\Entity\Database\EntityConnectionInterface;
+use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\Exception\DatabaseException;
 
 #[Singleton]
@@ -35,6 +37,11 @@ class DatabaseService implements ContainerDisposeInterface
     public function quote(string $value): string
     {
         return $this->connection->quote($value);
+    }
+
+    public function statement(string $query): EntityStatementInterface
+    {
+        return container(EntityConnectionInterface::class)->statement($query);
     }
 
     /**
