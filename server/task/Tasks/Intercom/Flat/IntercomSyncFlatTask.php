@@ -120,7 +120,7 @@ class IntercomSyncFlatTask extends Task
 
             if ($device instanceof CodeInterface) {
                 $code = intval($flat['openCode']) !== 0 ? intval($flat['openCode']) : null;
-                $flatCode = $code !== 0 ? new Code($code, $apartment->apartment) : null;
+                $flatCode = ($code !== null && $code !== 0) ? new Code($code, $apartment->apartment) : null;
 
                 $codes = $device->getCodes($apartment->apartment);
 
