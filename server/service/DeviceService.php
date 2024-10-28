@@ -116,8 +116,7 @@ class DeviceService
                 $resolver = new IntercomConfigResolver($config, $model, $intercom);
             }
 
-            /** @var IntercomDevice $device */
-            $device = new $model->class(new Uri($intercom->url), $intercom->credentials, $model, $intercom, $resolver);
+            $device = $model->instance($intercom, $resolver);
 
             if ($this->cache) {
                 $this->intercoms[$id] = $device;
