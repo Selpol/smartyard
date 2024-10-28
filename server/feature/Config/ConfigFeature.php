@@ -128,7 +128,7 @@ readonly abstract class ConfigFeature extends Feature
                 'suggestions' => [
                     ['type' => 'value', 'value' => 'key', 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
                     ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
-                    ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'type' => 'in:mifareusr_cgi,mifare_cgi']]
+                    ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'condition' => 'in:mifareusr_cgi,mifare_cgi']]
                 ]
             ]
         ];
