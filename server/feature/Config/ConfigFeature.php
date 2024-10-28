@@ -19,7 +19,7 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => 'auth', 'title' => 'Авторизация', 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe']],
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
 
-            ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:MifareDksBeward,DksBeward,DsBeward,HikVision,Is,Is5']],
+            ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:DksBeward,DsBeward,HikVision,Is,Is5']],
 
             [
                 'type' => 'namespace',
@@ -127,7 +127,8 @@ readonly abstract class ConfigFeature extends Feature
 
                 'suggestions' => [
                     ['type' => 'value', 'value' => 'key', 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
-                    ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']]
+                    ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
+                    ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'type' => 'in:mifareusr_cgi,mifare_cgi']]
                 ]
             ]
         ];
