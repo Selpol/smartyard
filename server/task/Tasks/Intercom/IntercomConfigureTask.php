@@ -118,8 +118,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 }
             }
 
-            if ($device instanceof CommonInterface && $entrance->shared) {
-                $this->commonGates($device, $entrance);
+            if ($device instanceof CommonInterface) {
+                if ($entrance->shared) {
+                    $this->commonGates($device, $entrance);
+                }
+
+                $device->setGatesMode($device->resolver->int('wicket.mode', 1));
             }
         }
 

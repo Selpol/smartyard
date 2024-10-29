@@ -196,7 +196,7 @@ trait CommonTrait
     {
         $params = [
             'action' => 'set',
-            'Mode' => 1,
+            'Mode' => $this->resolver->int('wicket.mode', 1),
             'Enable' => $value !== [] ? 'on' : 'off',
             'MainDoor' => 'on',
             'AltDoor' => 'off',
@@ -216,5 +216,10 @@ trait CommonTrait
         }
 
         $this->get('/cgi-bin/gate_cgi', $params);
+    }
+
+    public function setGatesMode(int $value): void
+    {
+        $this->get('/cgi-bin/gate_cgi', ['action' => 'set', 'Mode' => $value]);
     }
 }

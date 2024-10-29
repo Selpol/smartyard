@@ -236,6 +236,11 @@ trait CommonTrait
         $this->put('/gate/settings', ['gateMode' => $value !== [], 'prefixHouse' => $value !== [], 'direct' => $direct]);
     }
 
+    public function setGatesMode(int $value): void
+    {
+
+    }
+
     private function getSyslogConfigHelp(string $server, int $port): string
     {
         return '### TEMPLATES ###

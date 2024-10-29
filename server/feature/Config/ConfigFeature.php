@@ -119,6 +119,16 @@ readonly abstract class ConfigFeature extends Feature
             ],
 
             [
+                'type' => 'namespace',
+                'value' => 'wicket',
+                'title' => 'Калитка',
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'mode', 'title' => 'Режим калитки для BEWARD', 'assign' => ['default' => '1', 'type' => 'int', 'in:1,2']]
+                ]
+            ],
+
+            [
                 'type' => 'value',
                 'value' => 'mifare',
                 'title' => 'MIFARE',

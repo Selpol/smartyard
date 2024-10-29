@@ -147,4 +147,9 @@ trait CommonTrait
     {
 
     }
+
+    public function setGatesMode(int $value): void
+    {
+
+    }
 }
