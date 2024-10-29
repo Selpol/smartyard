@@ -48,7 +48,15 @@ readonly class InternalTaskFeature extends TaskFeature
     {
         $keys = $this->getRedis()->keys('task:unique:*');
 
-        return array_map(fn(string $key) => $this->getRedis()->get($key), $keys);
+        if (count($keys) === 0) {
+            return [];
+        }
+
+        return array_reduce($keys, function (array $previous, string $current) {
+            $previous[$current] = $this->getRedis()->get($current);
+
+            return $previous;
+        }, []);
     }
 
     public function setUnique(Task $task): void

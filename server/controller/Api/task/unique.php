@@ -16,9 +16,15 @@ readonly class unique extends Api
 
     public static function DELETE(array $params): array|Response|ResponseInterface
     {
-        container(TaskFeature::class)->clearUnique();
+        $key = rule()->required()->string()->nonNullable()->onItem('key', $params);
 
-        return self::success();
+        if (strlen($key) > 12) {
+            container(TaskFeature::class)->releaseUnique(substr($key, 12));
+
+            return self::success();
+        }
+
+        return self::error('Не верный ключ');
     }
 
     public static function index(): array
