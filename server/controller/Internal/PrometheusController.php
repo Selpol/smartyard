@@ -206,9 +206,11 @@ readonly class PrometheusController extends RbtController
     {
         $value = container(FileFeature::class)->getCount();
 
-        $result[] = '# HELP smartyard_file_count File count';
-        $result[] = '# TYPE smartyard_file_count gauge';
-        $result[] = 'smartyard_file_count{} ' . $value;
+        if ($value) {
+            $result[] = '# HELP smartyard_file_count File count';
+            $result[] = '# TYPE smartyard_file_count gauge';
+            $result[] = 'smartyard_file_count{} ' . $value;
+        }
     }
 
     private function renderSample(Metric $metric, Sample $sample): string
