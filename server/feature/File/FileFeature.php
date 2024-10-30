@@ -14,6 +14,8 @@ readonly abstract class FileFeature extends Feature
 
     abstract public function cron(string $part): bool;
 
+    abstract public function getCount(): int;
+
     /**
      * @param string $realFileName
      * @param resource $stream

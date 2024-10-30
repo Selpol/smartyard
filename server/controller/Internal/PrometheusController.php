@@ -6,6 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use RuntimeException;
 use Selpol\Controller\RbtController;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -57,6 +58,7 @@ readonly class PrometheusController extends RbtController
         $this->flatBlock($result);
         $this->subscriberBlock($result);
         $this->taskCount($result);
+        $this->fileCount($result);
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
@@ -198,6 +200,15 @@ readonly class PrometheusController extends RbtController
             $result[] = '# TYPE smartyard_task_total_count gauge';
             $result[] = 'smartyard_task_total_count{} ' . $value;
         }
+    }
+
+    private function fileCount(array &$result): void
+    {
+        $value = container(FileFeature::class)->getCount();
+
+        $result[] = '# HELP smartyard_file_count File count';
+        $result[] = '# TYPE smartyard_file_count gauge';
+        $result[] = 'smartyard_file_count{} ' . $value;
     }
 
     private function renderSample(Metric $metric, Sample $sample): string
