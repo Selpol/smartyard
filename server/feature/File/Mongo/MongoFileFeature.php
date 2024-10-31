@@ -30,6 +30,14 @@ readonly class MongoFileFeature extends FileFeature
         return true;
     }
 
+    public function getCount(): ?int
+    {
+        $cursor = container(MongoService::class)->getDatabase($this->database)->command(['dbStats' => 1]);
+        $value = iterator_to_array($cursor);
+
+        return $value[0]['objects'];
+    }
+
     public function addFile(string $realFileName, $stream, array $metadata = []): string
     {
         $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();

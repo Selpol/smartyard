@@ -5,17 +5,18 @@ namespace Selpol\Controller\Internal;
 use Psr\Container\NotFoundExceptionInterface;
 use RedisException;
 use RuntimeException;
+use Selpol\Controller\RbtController;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
-use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
 #[Controller('/internal/prometheus')]
-readonly class PrometheusController extends RouteController
+readonly class PrometheusController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -57,6 +58,7 @@ readonly class PrometheusController extends RouteController
         $this->flatBlock($result);
         $this->subscriberBlock($result);
         $this->taskCount($result);
+        $this->fileCount($result);
 
         return response()
             ->withHeader('Content-Type', 'text/plain; version=0.0.4')
@@ -197,6 +199,17 @@ readonly class PrometheusController extends RouteController
             $result[] = '# HELP smartyard_task_total_count Task total block count';
             $result[] = '# TYPE smartyard_task_total_count gauge';
             $result[] = 'smartyard_task_total_count{} ' . $value;
+        }
+    }
+
+    private function fileCount(array &$result): void
+    {
+        $value = container(FileFeature::class)->getCount();
+
+        if ($value) {
+            $result[] = '# HELP smartyard_file_count File count';
+            $result[] = '# TYPE smartyard_file_count gauge';
+            $result[] = 'smartyard_file_count{} ' . $value;
         }
     }
 
