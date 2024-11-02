@@ -31,7 +31,7 @@ trait SipTrait
     {
         $response = $this->get('/sip/options');
 
-        return new SipOption($response['ringDuration'], $response['talkDuration'], array_values($response['dtmf'] ?? []), $response['echoD']);
+        return new SipOption($response['ringDuration'], $response['talkDuration'], array_values($response['dtmf'] ?? []), $response['echoD'] ?? false);
     }
 
     public function setSip(Sip $sip): void
