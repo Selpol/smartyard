@@ -44,7 +44,7 @@ trait CmsTrait
     {
         $response = $this->get('/switch/settings');
 
-        return $response['modelId'];
+        return $response['modelId'] ?? '';
     }
 
     public function getCmsLevels(): CmsLevels
