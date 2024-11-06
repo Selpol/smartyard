@@ -155,7 +155,7 @@ readonly class SyncController extends RouteController
                 $validate = validator($item, ['id' => rule()->id(), 'intercom' => rule()->bool(), 'cctv' => rule()->bool(), 'autoBlock' => rule()->bool()]);
 
                 $intercom = $validate['autoBlock'] !== null ? $validate['autoBlock'] : $validate['intercom'];
-                $cctv = $validate['autoBlock'] !== null ? $validate['autoBlock'] : $validate['cctv'];
+                $cctv = $validate['cctv'];
 
                 if ($intercom !== null) {
                     $block = $blockFeature->getFirstBlockForFlat($validate['id'], [BlockFeature::SERVICE_INTERCOM]);
