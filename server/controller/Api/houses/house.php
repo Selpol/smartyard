@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\AuthService;
@@ -16,9 +17,15 @@ readonly class house extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
+        $id = rule()->id()->onItem('_id', $params);
+
+        if (AddressHouse::findById($id, setting: setting()->columns(['address_house_id'])) === null) {
+            return self::error('Не удалось найти дом', 404);
+        }
+
         $households = container(HouseFeature::class);
 
-        $flats = $households->getFlats("houseId", $params["_id"], true);
+        $flats = $households->getFlats("houseId", $id, true);
 
         if ($flats) {
             usort($flats, static fn(array $a, array $b): int => $a['flat'] > $b['flat'] ? 1 : -1);
@@ -44,17 +51,13 @@ readonly class house extends Api
             $house['cmses'] = IntercomCms::modelsToArray();
         }
 
-        if ($house['flats']) {
-            return self::success($house);
-        }
-
-        return self::error('Не удалось найти дом', 404);
+        return self::success($house);
     }
 
     public static function POST(array $params): ResponseInterface
     {
-        $houseId = $params['_id'];
-        $keys = $params['keys'];
+        $id = rule()->id()->onItem('_id', $params);
+        $keys = rule()->required()->array()->nonNullable()->onItem('keys', $params);
 
         foreach ($keys as $key) {
             try {
@@ -71,7 +74,7 @@ readonly class house extends Api
             }
         }
 
-        $task = task(new IntercomKeysKeyTask($houseId, $keys));
+        $task = task(new IntercomKeysKeyTask($id, $keys));
 
         if (count($keys) < 25) {
             $task->sync();
