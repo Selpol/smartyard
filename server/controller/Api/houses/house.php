@@ -53,8 +53,8 @@ readonly class house extends Api
 
     public static function POST(array $params): ResponseInterface
     {
-        $houseId = $params['_id'];
-        $keys = $params['keys'];
+        $id = rule()->id()->onItem('_id', $params);
+        $keys = rule()->required()->array()->nonNullable()->onItem('keys', $params);
 
         foreach ($keys as $key) {
             try {
@@ -71,7 +71,7 @@ readonly class house extends Api
             }
         }
 
-        $task = task(new IntercomKeysKeyTask($houseId, $keys));
+        $task = task(new IntercomKeysKeyTask($id, $keys));
 
         if (count($keys) < 25) {
             $task->sync();
