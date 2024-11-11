@@ -18,7 +18,7 @@ trait AuditTrait
         parent::insert($entity);
 
         if ($this->canAudit()) {
-            $this->audit($entity, 'insert', $this->getAuditMessageInsert($entity));
+            $this->audit($entity, 'insert', $this->getAuditMessage($entity, 0));
         }
     }
 
@@ -27,7 +27,7 @@ trait AuditTrait
         parent::update($entity);
 
         if ($this->canAudit()) {
-            $this->audit($entity, 'update', $this->getAuditMessageUpdate($entity));
+            $this->audit($entity, 'update', $this->getAuditMessage($entity, 1));
         }
     }
 
@@ -36,7 +36,7 @@ trait AuditTrait
         parent::delete($entity);
 
         if ($this->canAudit()) {
-            $this->audit($entity, 'update', $this->getAuditMessageDelete($entity));
+            $this->audit($entity, 'update', $this->getAuditMessage($entity, 2));
         }
     }
 
@@ -55,30 +55,14 @@ trait AuditTrait
         return '[' . ($this->auditName ?? 'Сущность') . ']';
     }
 
-    /**
-     * @psalm-param T $entity
-     * @psalm-return string
-     */
-    protected function getAuditMessageInsert(Entity $entity): string
+    protected function getAuditMessage(Entity $entity, int $type): string
     {
-        return $this->getAuditName() . ' Добавление новой сущности';
-    }
+        return match ($type) {
+            0 => $this->getAuditName() . ' Добавление новой сущности',
+            1 => $this->getAuditName() . ' Обновление сущности',
+            2 => $this->getAuditName() . ' Удаление сущности',
 
-    /**
-     * @psalm-param T $entity
-     * @psalm-return string
-     */
-    protected function getAuditMessageUpdate(Entity $entity): string
-    {
-        return $this->getAuditName() . ' Обновление сущности';
-    }
-
-    /**
-     * @psalm-param T $entity
-     * @psalm-return string
-     */
-    protected function getAuditMessageDelete(Entity $entity): string
-    {
-        return $this->getAuditName() . ' Удаление сущности';
+            default => 'Неизвестный тип операции'
+        };
     }
 }
