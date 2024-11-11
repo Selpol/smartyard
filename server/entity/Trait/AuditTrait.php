@@ -4,7 +4,6 @@ namespace Selpol\Entity\Trait;
 
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Entity\Entity;
-use Throwable;
 
 /**
  * @template T of Entity
@@ -52,7 +51,7 @@ trait AuditTrait
 
     protected function getAuditName(): string
     {
-        return '[' . ($this->auditName ?? 'Сущность') . ']';
+        return '[' . ($this->auditName ?? $this->meta->table) . ']';
     }
 
     protected function getAuditMessage(Entity $entity, int $type): string
