@@ -75,6 +75,12 @@ class IntercomModel
     {
         if (!isset(self::$models)) {
             self::$models = [
+                'is' => new IntercomModel('IS ISCOM X1', 'IS', 'class=Is'),
+                'is_2' => new IntercomModel('IS ISCOM X5', 'IS', 'class=Is5'),
+                'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=DsBeward'),
+                'beward_dks' => new IntercomModel('BEWARD DKS', 'BEWARD', 'class=DksBeward'),
+                'hikvision' => new IntercomModel('HikVision', 'HIKVISION', 'class=HikVision'),
+
                 'iscomx1' => new IntercomModel('IS ISCOM X1', 'IS', 'class=Is'),
                 'iscomx1_2' => new IntercomModel('IS ISCOM X1 2.2.5.10.5', 'IS', 'class=Is'),
                 'iscomx5' => new IntercomModel('IS ISCOM X5', 'IS', 'class=Is5'),
