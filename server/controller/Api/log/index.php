@@ -9,6 +9,16 @@ readonly class index extends Api
 {
     public static function GET(array $params): ResponseInterface
     {
+        if (array_key_exists('file', $params)) {
+            $path = str_replace('..', '', path('var/log/' . $params['file']));
+
+            if (is_file($path)) {
+                return self::success(file_get_contents($path));
+            }
+
+            return self::error('Файл не найден', 404);
+        }
+
         $path = path('/var/log/');
 
         return self::success(self::walk($path));
@@ -16,7 +26,7 @@ readonly class index extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Логи] Получить список логов'];
+        return ['GET' => '[Логи] Получить логи'];
     }
 
     private static function walk(string $path): array
