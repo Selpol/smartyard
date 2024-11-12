@@ -10,7 +10,11 @@ readonly class index extends Api
     public static function GET(array $params): ResponseInterface
     {
         if (array_key_exists('file', $params)) {
-            $path = str_replace('..', '', path('var/log/' . $params['file']));
+            $path = realpath(path('var/log/' . $params['file']));
+
+            if ($path !== path('var/log/' . $params['file'])) {
+                return self::error('Путь ' . $path . ' не является достоверным', 400);
+            }
 
             if (is_file($path)) {
                 return self::success(file_get_contents($path));
