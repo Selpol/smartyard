@@ -171,6 +171,10 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         if (!class_exists($class)) {
             if ($method === 'index') {
                 $method = $api;
+            } else if (filter_var($method, FILTER_VALIDATE_INT)) {
+                $params["_id"] = urldecode($method);
+
+                $method = $api;
             } else {
                 return $this->emit(rbt_response(404));
             }
