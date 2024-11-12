@@ -103,7 +103,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug(PHP_EOL . '--GET  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'QUERY: ' . json_encode($query) . PHP_EOL . '--GET RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
+            $this->logger?->debug(PHP_EOL . '--GET  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'QUERY: ' . json_encode($query) . PHP_EOL . '--GET RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -139,7 +139,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug(PHP_EOL . '--POST  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--POST RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
+            $this->logger?->debug(PHP_EOL . '--POST  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--POST RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -175,7 +175,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug(PHP_EOL . '--PUT  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--PUT RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
+            $this->logger?->debug(PHP_EOL . '--PUT  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--PUT RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -203,7 +203,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug(PHP_EOL . '--DELETE  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . '--DELETE RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
+            $this->logger?->debug(PHP_EOL . '--DELETE  REQUEST--' . PHP_EOL . 'ENDPOINT: ' . $endpoint . PHP_EOL . '--DELETE RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
