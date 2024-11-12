@@ -31,6 +31,20 @@ if (!function_exists('parse_body')) {
                 } else if (str_starts_with($contents, '{') && str_ends_with($contents, '}')) {
                     return json_decode($contents, true);
                 }
+            } else if (array_key_exists('type', $options) && $options['type'] === 'param') {
+                $return = [];
+
+                $result = explode(PHP_EOL, $contents);
+
+                foreach ($result as $item) {
+                    $value = array_map('trim', explode('=', trim($item)));
+
+                    if ($value[0] != '') {
+                        $return[$value[0]] = array_key_exists(1, $value) ? $value[1] : true;
+                    }
+                }
+
+                return $return;
             } else {
                 return json_decode($contents, true);
             }

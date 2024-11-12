@@ -14,9 +14,9 @@ trait KeyTrait
     public function getKeys(?int $apartment): array
     {
         if ($this->mifare) {
-            $response = $this->parseParamValueHelp($this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'list'], parse: false));
+            $response = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'list'], parse: ['type' => 'param']);
         } else {
-            $response = $this->parseParamValueHelp($this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: false));
+            $response = $this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: ['type' => 'param']);
         }
 
         if (count($response) == 0) {

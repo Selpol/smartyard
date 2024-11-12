@@ -28,7 +28,7 @@ trait ApartmentTrait
             return $this->apartments;
         }
 
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
+        $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: ['type' => 'param']);
 
         if (count($response) == 0) {
             return [];
@@ -62,7 +62,7 @@ trait ApartmentTrait
 
     public function getApartment(int $apartment): ?Apartment
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
+        $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: ['type' => 'param']);
 
         return new Apartment(
             intval($response['Number']),

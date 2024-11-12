@@ -15,7 +15,7 @@ trait AudioTrait
     public function getAudioLevels(): AudioLevels
     {
         try {
-            $response = $this->parseParamValueHelp($this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: false));
+            $response = $this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
             return new AudioLevels([
                 0 => $response['AudioInVol'],

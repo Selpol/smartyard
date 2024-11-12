@@ -9,7 +9,7 @@ trait CodeTrait
     public function getCodes(?int $apartment): array
     {
         if (!is_null($apartment)) {
-            $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
+            $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: ['type' => 'param']);
 
             if ($response['DoorCodeActive'] === 'on' && $response['DoorCode'] !== '0') {
                 return [new Code(intval($response['DoorCode']), $apartment)];
@@ -18,7 +18,7 @@ trait CodeTrait
             return [];
         }
 
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
+        $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: ['type' => 'param']);
 
         $end = intval(substr((string) array_key_last($response), 5, -2));
 

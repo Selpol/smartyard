@@ -21,14 +21,14 @@ trait VideoTrait
 
     public function getVideoDisplay(): VideoDisplay
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/display_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/display_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new VideoDisplay($response['TickerText']);
     }
 
     public function getVideoOverlay(): VideoOverlay
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/textoverlay_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/textoverlay_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new VideoOverlay($response['Title']);
     }
