@@ -168,6 +168,17 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         /** @var class-string<Api> $class */
         $class = sprintf('Selpol\Controller\Api\%s\%s', $api, $method);
 
+        if (!class_exists($class)) {
+            if ($method === 'index') {
+                $method = $api;
+            } else {
+                return $this->emit(rbt_response(404));
+            }
+
+            /** @var class-string<Api> $class */
+            $class = sprintf('Selpol\Controller\Api\%s\%s', $api, $method);
+        }
+
         if (class_exists($class)) {
             $result = $class::{$params['_request_method']}($params);
 
