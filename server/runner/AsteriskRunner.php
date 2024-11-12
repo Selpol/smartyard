@@ -74,14 +74,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 switch ($path[1]) {
                     case 'autoopen':
-                        $households = container(HouseFeature::class);
+                        try {
+                            $flat = HouseFlat::findById(intval($params), setting: setting()->columns(['auto_open', 'white_rabbit', 'last_opened']));
 
-                        $flat = $households->getFlat(intval($params));
+                            $result = ($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time());
 
-                        $rabbit = (int)$flat['whiteRabbit'];
-                        $result = $flat['autoOpen'] > time() || ($rabbit && $flat['lastOpened'] + $rabbit * 60 > time());
-
-                        echo json_encode($result);
+                            echo json_encode($result);
+                        } catch (Throwable) {
+                            echo json_encode(false);
+                        }
 
                         break;
 
@@ -259,17 +260,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url((string) config_get('api.asterisk'));
+        $server = parse_url((string)config_get('api.asterisk'));
 
         if ($server && $server['path']) {
-            $path = substr((string) $path, strlen($server['path']));
+            $path = substr((string)$path, strlen($server['path']));
         }
 
         if ($path && $path[0] == '/') {
-            $path = substr((string) $path, 1);
+            $path = substr((string)$path, 1);
         }
 
-        return explode('/', (string) $path);
+        return explode('/', (string)$path);
     }
 
     private function getExtension(string $extension, string $section): array
@@ -462,7 +463,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = '';
 
         foreach ($params as $key => $value) {
-            $result .= urldecode($key) . '=' . urldecode((string) $value) . '&';
+            $result .= urldecode($key) . '=' . urldecode((string)$value) . '&';
         }
 
         return $result;
