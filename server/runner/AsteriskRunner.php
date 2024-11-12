@@ -75,14 +75,15 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 switch ($path[1]) {
                     case 'autoopen':
-                        $households = container(HouseFeature::class);
+                        try {
+                            $flat = HouseFlat::findById(intval($params), setting: setting()->columns(['auto_open', 'white_rabbit', 'last_opened']));
 
-                        $flat = $households->getFlat(intval($params));
+                            $result = ($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time());
 
-                        $rabbit = (int)$flat['whiteRabbit'];
-                        $result = $flat['autoOpen'] > time() || ($rabbit && $flat['lastOpened'] + $rabbit * 60 > time());
-
-                        echo json_encode($result);
+                            echo json_encode($result);
+                        } catch (Throwable) {
+                            echo json_encode(false);
+                        }
 
                         break;
 
