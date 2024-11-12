@@ -79,12 +79,15 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $m = explode('/', $path);
 
-        if (count($m) < 2) {
+        if (count($m) == 0) {
             return $this->emit(rbt_response(404));
+        } else if (count($m) == 1) {
+            $api = $m[0];
+            $method = 'index';
+        } else {
+            $api = $m[0];
+            $method = $m[1];
         }
-
-        $api = $m[0];
-        $method = $m[1];
 
         $params = [];
 
