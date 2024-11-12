@@ -103,7 +103,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'result' => $result, 'headers' => $response->getHeaders()]);
+            $this->logger?->debug(PHP_EOL . '--GET  REQUEST--' . PHP_EOL . $endpoint . PHP_EOL . json_encode($query) . PHP_EOL . '--GET RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
         }
 
         return $result;
@@ -136,13 +136,13 @@ abstract class IpDevice extends Device
         }
 
         $response = $this->client->send($request, $this->clientOption);
-        $response = $this->response($response, $parse);
+        $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug('POST/' . $endpoint, ['body' => $body, 'response' => $response]);
+            $this->logger?->debug(PHP_EOL . '--POST  REQUEST--' . PHP_EOL . $endpoint . PHP_EOL . json_encode($body) . PHP_EOL . '--POST RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
         }
 
-        return $response;
+        return $result;
     }
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
@@ -172,13 +172,13 @@ abstract class IpDevice extends Device
         }
 
         $response = $this->client->send($request, $this->clientOption);
-        $response = $this->response($response, $parse);
+        $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug('PUT/' . $endpoint, ['body' => $body, 'response' => $response]);
+            $this->logger?->debug(PHP_EOL . '--PUT  REQUEST--' . PHP_EOL . $endpoint . PHP_EOL . json_encode($body) . PHP_EOL . '--PUT RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
         }
 
-        return $response;
+        return $result;
     }
 
     public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
@@ -200,13 +200,13 @@ abstract class IpDevice extends Device
         }
 
         $response = $this->client->send($request, $this->clientOption);
-        $response = $this->response($response, $parse);
+        $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug('DELETE/' . $endpoint, ['response' => $response]);
+            $this->logger?->debug(PHP_EOL . '--DELETE  REQUEST--' . PHP_EOL . $endpoint . PHP_EOL . '--DELETE RESPONSE--' . PHP_EOL . $response->getStatusCode() . PHP_EOL . json_encode($result));
         }
 
-        return $response;
+        return $result;
     }
 
     /**

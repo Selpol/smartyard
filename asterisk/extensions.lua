@@ -73,19 +73,6 @@ function log_debug(v)
     log.debug(m)
 end
 
-function has_value(tab, val)
-    for index, value in ipairs(tab) do
-        if value == val then
-            return true
-        end
-    end
-    return false
-end
-
-function replace_char(str, pos, r)
-    return str:sub(1, pos - 1) .. r .. str:sub(pos + 1)
-end
-
 function checkin()
     local src = channel.CALLERID("num"):get()
     if src:len() == 10 then
@@ -112,26 +99,6 @@ function autoopen(flatId, domophoneId)
     end
 
     log_debug("autoopen: no")
-
-    return false
-end
-
-function blacklist(flatId)
---    local flat = dm("flat", flatId)
-
---    if flat.autoBlock > 0 or flat.manualBlock > 0 or flat.adminBlock > 0 then
---        log_debug("blacklist: yes")
-
---        app.Answer()
---        app.Wait(2)
---        app.Playback(lang .. "/sorry")
---        app.Playback(lang .. "/feature-not-avail-line")
---        app.Wait(1)
-
---        return true
---    end
-
---    log_debug("blacklist: no")
 
     return false
 end
@@ -498,7 +465,7 @@ extensions = {
 
                     channel.CALLERID("name"):set(entrance.callerId .. ", " .. math.floor(flatNumber))
 
-                    if not blacklist(flatId) and not autoopen(flatId, domophoneId) then
+                    if not autoopen(flatId, domophoneId) then
                         local dest = ""
 
                         local cmsConnected = false
