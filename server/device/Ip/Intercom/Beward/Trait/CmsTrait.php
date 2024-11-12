@@ -36,14 +36,14 @@ trait CmsTrait
             return $this->models;
         }
 
-        $resources = $this->get('/xml/kmnducfg.xml');
+        $resources = $this->get('/xml/kmnducfg.xml', parse: ['type' => 'xml']);
 
         if ($resources == null) {
             return [];
         }
 
-        if (array_key_exists('html', $resources)) {
-            $resources = $resources['html'];
+        if (array_key_exists('Resources', $resources)) {
+            $resources = $resources['Resources'];
         }
 
         if (!is_array($resources)) {
@@ -51,7 +51,7 @@ trait CmsTrait
         }
 
         foreach ($resources as $resource) {
-            if ($resource['name'] == 'English') {
+            if ($resource['@attributes']['lan'] == 'en') {
                 $resources = $resource['Page'];
 
                 break;

@@ -81,7 +81,7 @@ abstract class IpDevice extends Device
         return $this;
     }
 
-    public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
         $this->prepare();
 
@@ -100,16 +100,16 @@ abstract class IpDevice extends Device
         }
 
         $response = $this->client->send($request, $this->clientOption);
-        $response = $this->response($response, $parse);
+        $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'response' => $response]);
+            $this->logger?->debug('GET/' . $endpoint, ['query' => $query, 'result' => $result, 'headers' => $response->getHeaders()]);
         }
 
-        return $response;
+        return $result;
     }
 
-    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
         $this->prepare();
 
@@ -145,7 +145,7 @@ abstract class IpDevice extends Device
         return $response;
     }
 
-    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
         $this->prepare();
 
@@ -181,7 +181,7 @@ abstract class IpDevice extends Device
         return $response;
     }
 
-    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool $parse = true): mixed
+    public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
         $this->prepare();
 
@@ -220,13 +220,17 @@ abstract class IpDevice extends Device
         }
     }
 
-    private function response(ResponseInterface $response, bool $parse): mixed
+    private function response(ResponseInterface $response, bool|array $parse): mixed
     {
         if ($response->getStatusCode() === 401) {
             throw new DeviceException($this, 'Ошибка авторизации', 'Authorization error', 401);
         }
 
         if ($parse) {
+            if (is_array($parse)) {
+                return parse_body($response, $parse);
+            }
+
             return parse_body($response);
         }
 
