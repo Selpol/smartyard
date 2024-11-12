@@ -57,7 +57,7 @@ trait VideoTrait
                 [
                     "Channel" => 0,
                     "Type" => "H264",
-                    "Profile" => 0,
+                    "Profile" => 1,
                     "ByFrame" => true,
                     "Width" => intval($width),
                     "Height" => intval($height),
@@ -65,12 +65,13 @@ trait VideoTrait
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
                 ],
                 [
                     "Channel" => 1,
                     "Type" => "H264",
-                    "Profile" => 0,
+                    "Profile" => 1,
                     "ByFrame" => true,
                     "Width" => 640,
                     "Height" => 480,
@@ -78,6 +79,7 @@ trait VideoTrait
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate
                 ]
             ]

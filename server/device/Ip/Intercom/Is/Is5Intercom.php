@@ -25,6 +25,7 @@ class Is5Intercom extends IsIntercom
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
                 ],
                 [
@@ -38,6 +39,7 @@ class Is5Intercom extends IsIntercom
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate
                 ]
             ]
