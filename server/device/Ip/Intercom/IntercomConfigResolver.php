@@ -22,45 +22,45 @@ class IntercomConfigResolver extends ConfigResolver
 
     public function string(string $key, ?string $default = null): ?string
     {
-        $default = $this->config->resolve($key, $default);
+        $value = $this->config->resolve($key);
 
-        if ($default != null) {
-            return $default;
+        if ($value != null) {
+            return $value;
         }
 
         // Глобальная конфигурация по модели устройства
         if ($this->intercom->device_model) {
-            $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $this->intercom->device_model)) . '.' . $key, $default);
+            $value = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $this->intercom->device_model)) . '.' . $key);
 
-            if ($default != null) {
-                return $default;
+            if ($value != null) {
+                return $value;
             }
 
             if (str_contains($this->intercom->device_model, '_rev')) {
                 $segments = explode('_rev', $this->intercom->device_model);
 
                 if (count($segments) > 1) {
-                    $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $segments[0])) . '.' . $key, $default);
+                    $value = $this->config->resolve('intercom.' . $this->model->vendor . '.' . strtoupper(str_replace('.', '', $segments[0])) . '.' . $key);
 
-                    if ($default != null) {
-                        return $default;
+                    if ($value != null) {
+                        return $value;
                     }
                 }
             }
         }
 
         // Глобальная конфигурация по производителю модели устройства и названию модели
-        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace('.', '', $this->model->title), $default);
+        $value = $this->config->resolve('intercom.' . $this->model->vendor . '.' . str_replace('.', '', $this->model->title));
 
-        if ($default != null) {
-            return $default;
+        if ($value != null) {
+            return $value;
         }
 
         // Глобальная конфигурация по производителю модели устройства
-        $default = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key, $default);
+        $value = $this->config->resolve('intercom.' . $this->model->vendor . '.' . $key);
 
-        if ($default != null) {
-            return $default;
+        if ($value != null) {
+            return $value;
         }
 
         // Глобальная конфигурация устройства
