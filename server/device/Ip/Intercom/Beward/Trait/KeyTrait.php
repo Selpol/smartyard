@@ -19,7 +19,7 @@ trait KeyTrait
             $response = $this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: ['type' => 'param']);
         }
 
-        if (count($response) == 0) {
+        if (!is_array($response) || count($response) == 0) {
             return [];
         }
 
@@ -49,7 +49,13 @@ trait KeyTrait
     public function addKey(Key $key): void
     {
         if ($this->mifare) {
-            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'CipherIndex' => 1]);
+            $cgi = $this->resolver->string('mifare.cgi', 'mifareusr_cgi');
+
+            if ($cgi === 'mifareusr_cgi') {
+                $this->get('/cgi-bin/' . $cgi, ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'CipherIndex' => 1]);
+            } else {
+                $this->get('/cgi-bin/' . $cgi, ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'Type' => 1, 'ProtectedMode' => 'on', 'CipherIndex' => 1, 'Sector' => 3]);
+            }
         } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment]);
         }

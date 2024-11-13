@@ -139,7 +139,7 @@ readonly class InternalConfigFeature extends ConfigFeature
                     $models = explode('_rev', $intercom->device_model);
 
                     if ($segments[2] == strtoupper($models[0])) {
-                        $revs[implode('.', array_slice($segments, 2))] = $values[$key];
+                        $revs[implode('.', array_slice($segments, 3))] = $values[$key];
                     }
                 }
             }
