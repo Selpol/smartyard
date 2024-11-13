@@ -18,22 +18,11 @@ class CronRunCommand implements LoggerAwareInterface
     use LoggerRunnerTrait;
 
     #[Execute]
-    public function execute(CliIO $io, array $arguments): void
+    public function execute(CliIO $io, string $value): void
     {
-        $parts = array_map(static fn(\UnitEnum $value) => $value->name, CronEnum::cases());
-        $part = false;
-
-        foreach ($parts as $p) {
-            if (array_key_exists($p, $arguments)) {
-                $part = $p;
-
-                break;
-            }
-        }
+        $part = CronEnum::from($value);
 
         if ($part) {
-            $part = CronEnum::from($part);
-
             $start = microtime(true) * 1000;
             $io->writeLine('Processing cron ' . $part->name);
 
@@ -61,8 +50,8 @@ class CronRunCommand implements LoggerAwareInterface
 
             $elapsed = microtime(true) * 1000 - $start;
 
-            $this->logger?->debug('Cron done ' . $elapsed);
-            $io->writeLine('Cron done ' . $elapsed);
+            $this->logger?->debug('Cron done ' . $elapsed . 'ms');
+            $io->writeLine('Cron done ' . $elapsed . 'ms');
         } else {
             $io->writeLine('Cron skip');
         }
