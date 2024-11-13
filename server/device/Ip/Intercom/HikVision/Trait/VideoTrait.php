@@ -13,7 +13,9 @@ trait VideoTrait
     {
         $response = $this->get('/ISAPI/Streaming/channels/101');
 
-        return new VideoEncoding('1920x1080', intval($response['Video']['constantBitRate']), 512);
+        $video = $response['Video'];
+
+        return new VideoEncoding($video['videoResolutionWidth'] . 'x' . $video['videoResolutionHeight'], intval($video['constantBitRate']), 512);
     }
 
     public function getVideoDetection(): VideoDetection
