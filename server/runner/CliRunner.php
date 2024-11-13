@@ -44,7 +44,13 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             return 0;
         }
 
-        $this->handle($command);
+        $this->logger?->debug('Handle command', ['title' => $command->title, 'class' => $command->class]);
+
+        $result = $this->handle($command);
+
+        if (gettype($result) != "NULL") {
+            $this->logger?->debug('Handle command complete', ['title' => $command->title, 'class' => $command->class, 'result' => $result]);
+        }
 
         return 0;
     }
