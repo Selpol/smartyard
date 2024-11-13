@@ -71,6 +71,13 @@ abstract class IpDevice extends Device
         }
     }
 
+    public function pingOrThrow(): void
+    {
+        if (!array_key_exists('DeviceID', $this->getSysInfo())) {
+            throw new DeviceException($this, 'Не удалось узнать информацию об устройстве');
+        }
+    }
+
     public function getSysInfo(): array
     {
         throw new DeviceException($this, 'Не удалось получить информацию об устройстве');

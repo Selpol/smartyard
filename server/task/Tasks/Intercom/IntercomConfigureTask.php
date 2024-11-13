@@ -65,9 +65,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             throw new KernelException('Не удалось получить устройство');
         }
 
-        if (!$device->ping()) {
-            throw new DeviceException($device, 'Устройство не доступно');
-        }
+        $device->pingOrThrow();
 
         $this->setProgress(5);
 
