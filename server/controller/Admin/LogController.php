@@ -1,18 +1,23 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Controller\Api\log;
+namespace Selpol\Controller\Admin;
 
-use Psr\Http\Message\ResponseInterface;
-use Selpol\Controller\Api\Api;
+use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\LogIndexRequest;
+use Selpol\Framework\Http\Response;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
 
-readonly class index extends Api
+#[Controller('/admin/log')]
+readonly class LogController extends AdminRbtController
 {
-    public static function GET(array $params): ResponseInterface
+    #[Get]
+    public function index(LogIndexRequest $request): Response
     {
-        if (array_key_exists('file', $params)) {
-            $path = realpath(path('var/log/' . $params['file']));
+        if ($request->file) {
+            $path = realpath(path('var/log/' . $request->file));
 
-            if ($path !== path('var/log/' . $params['file'])) {
+            if ($path !== path('var/log/' . $request->file)) {
                 return self::error('Путь ' . $path . ' не является достоверным', 400);
             }
 
@@ -28,9 +33,11 @@ readonly class index extends Api
         return self::success(self::walk($path));
     }
 
-    public static function index(): array
+    public static function scopes(): array
     {
-        return ['GET' => '[Логи] Получить логи'];
+        return [
+            'log-index-get' => '[Логи] Получить логи'
+        ];
     }
 
     private static function walk(string $path): array

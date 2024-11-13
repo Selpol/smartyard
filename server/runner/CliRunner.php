@@ -2,6 +2,7 @@
 
 namespace Selpol\Runner;
 
+use Selpol\Controller\AdminRbtController;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
@@ -563,17 +564,17 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $cache->set('internal', $router->getRouter()->getRoutes());
         }
 
-        if (file_exists(path('config/frontend.php'))) {
+        if (file_exists(path('config/admin.php'))) {
             $router = new class {
                 use RouterTrait;
 
                 public function __construct()
                 {
-                    $this->loadRouter(false, 'frontend');
+                    $this->loadRouter(false, 'admin');
                 }
             };
 
-            $cache->set('frontend', $router->getRouter()->getRoutes());
+            $cache->set('admin', $router->getRouter()->getRoutes());
         }
 
         kernel()->setEnv($kernelEnv);
@@ -690,6 +691,52 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         }
                     }
                 }
+            }
+        }
+
+        if (file_exists(path('config/admin.php'))) {
+            $router = new class {
+                use RouterTrait;
+
+                public function __construct()
+                {
+                    $this->loadRouter(false, 'admin');
+                }
+            };
+
+            function walk(string $method, array $routes, array &$permissions, array $filter): void
+            {
+                foreach ($routes as $childRoutes) {
+                    if (array_key_exists('class', $childRoutes)) {
+                        /** @var class-string<AdminRbtController> $class */
+                        $class = $childRoutes['class'][0];
+                        $scopes = $class::scopes();
+
+                        foreach ($scopes as $title => $description) {
+                            if (check($title, $filter)) {
+                                if (!array_key_exists($title, $permissions)) {
+                                    $permission = new Permission();
+                                    $permission->title = $title;
+                                    $permission->description = $description;
+                                    $permission->insert();
+                                } elseif ($permissions[$title]->description != $description) {
+                                    $permissions[$title]->description = $description;
+                                    $permissions[$title]->update();
+                                }
+
+                                unset($permissions[$title]);
+                            }
+                        }
+                    } else {
+                        walk($method, $childRoutes, $permissions, $filter);
+                    }
+                }
+            }
+
+            $routes = $router->getRouter()->getRoutes();
+
+            foreach ($routes as $method => $childRoutes) {
+                walk($method, $childRoutes, $titlePermissions, $filter);
             }
         }
 
