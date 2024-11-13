@@ -21,10 +21,7 @@ readonly abstract class ConfigFeature extends Feature
                 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
 
                 'suggestions' => [
-                    'type' => 'value',
-                    'value' => 'login',
-                    'title' => 'Логин',
-                    'assign' => ['default' => 'admin', 'type' => 'string']
+                    ['type' => 'value', 'value' => 'login', 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
                 ]
             ],
 
