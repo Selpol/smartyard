@@ -14,9 +14,22 @@ readonly abstract class ConfigFeature extends Feature
     public function getSuggestionsForIntercomConfig(): array
     {
         return [
+            [
+                'type' => 'value',
+                'value' => 'auth',
+                'title' => 'Авторизация',
+                'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
+
+                'suggestions' => [
+                    'type' => 'value',
+                    'value' => 'login',
+                    'title' => 'Логин',
+                    'assign' => ['default' => 'admin', 'type' => 'string']
+                ]
+            ],
+
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
             ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
-            ['type' => 'value', 'value' => 'auth', 'title' => 'Авторизация', 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe']],
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
 
             ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:DksBeward,DsBeward,HikVision,Is,Is5']],
