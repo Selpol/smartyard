@@ -2,6 +2,8 @@
 
 namespace Selpol\Service;
 
+use Selpol\Cli\Cron\CronEnum;
+use Selpol\Cli\Cron\CronInterface;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Dvr\DvrDevice;
@@ -19,7 +21,7 @@ use Selpol\Framework\Http\Uri;
 use Throwable;
 
 #[Singleton]
-class DeviceService
+class DeviceService implements CronInterface
 {
     /** @var array<int, CameraDevice> */
     private array $cameras = [];
@@ -34,6 +36,32 @@ class DeviceService
 
     public function __construct()
     {
+    }
+
+    public function cron(CronEnum $value): bool
+    {
+        if ($value == CronEnum::daily) {
+            $deviceIntercoms = DeviceIntercom::fetchAll();
+
+            foreach ($deviceIntercoms as $deviceIntercom) {
+                $intercom = $this->intercomByEntity($deviceIntercom);
+
+                if (!$intercom->ping()) {
+                    continue;
+                }
+
+                $info = $intercom->getSysInfo();
+
+                $deviceIntercom->device_id = $info['DeviceID'];
+                $deviceIntercom->device_model = $info['DeviceModel'];
+                $deviceIntercom->device_software_version = $info['SoftwareVersion'];
+                $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+
+                $deviceIntercom->update();
+            }
+        }
+
+        return true;
     }
 
     public function disableCache(): void

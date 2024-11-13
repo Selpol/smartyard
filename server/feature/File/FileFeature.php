@@ -3,16 +3,15 @@
 namespace Selpol\Feature\File;
 
 use MongoDB\UpdateResult;
+use Selpol\Cli\Cron\CronInterface;
 use Selpol\Feature\Feature;
 use Selpol\Feature\File\Mongo\MongoFileFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(MongoFileFeature::class)]
-readonly abstract class FileFeature extends Feature
+readonly abstract class FileFeature extends Feature implements CronInterface
 {
     const DEFAULT_DATABASE = 'rbt';
-
-    abstract public function cron(string $part): bool;
 
     abstract public function getCount(): ?int;
 
