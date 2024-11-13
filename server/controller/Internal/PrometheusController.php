@@ -52,15 +52,15 @@ readonly class PrometheusController extends RbtController
         $counts = container(DatabaseService::class)->get('SELECT (SELECT COUNT(*) FROM addresses_houses) AS HOUSES, (SELECT COUNT(*) FROM houses_flats) AS FLATS, (SELECT COUNT(*) FROM houses_subscribers_mobile) AS SUBSCRIBERS, (SELECT COUNT(*) FROM houses_domophones) AS INTERCOMS, (SELECT COUNT(*) FROM cameras) AS CAMERAS, (SELECT COUNT(*) FROM houses_rfids) AS KEYS, (SELECT COUNT(*) FROM flat_block) AS FLAT_BLOCKS, (SELECT COUNT(*) FROM subscriber_block) AS SUBSCRIBER_BLOCKS, (SELECT last_value FROM task_id_seq) AS TASKS');
 
         if ($counts && count($counts) == 1) {
-            $this->houseCount($result, $counts[0]['HOUSES']);
-            $this->flatCount($result, $counts[0]['FLATS']);
-            $this->subscriberCount($result, $counts[0]['SUBSCRIBERS']);
-            $this->intercomCount($result, $counts[0]['INTERCOMS']);
-            $this->cameraCount($result, $counts[0]['CAMERAS']);
-            $this->keyCount($result, $counts[0]['KEYS']);
-            $this->flatBlock($result, $counts[0]['FLAT_BLOCKS']);
-            $this->subscriberBlock($result, $counts[0]['SUBSCRIBER_BLOCKS']);
-            $this->taskCount($result, $counts[0]['TASKS']);
+            $this->houseCount($result, $counts[0]['houses']);
+            $this->flatCount($result, $counts[0]['flats']);
+            $this->subscriberCount($result, $counts[0]['subscribers']);
+            $this->intercomCount($result, $counts[0]['intercoms']);
+            $this->cameraCount($result, $counts[0]['cameras']);
+            $this->keyCount($result, $counts[0]['keys']);
+            $this->flatBlock($result, $counts[0]['flat_blocks']);
+            $this->subscriberBlock($result, $counts[0]['subscriber_blocks']);
+            $this->taskCount($result, $counts[0]['tasks']);
         }
 
         return response()
