@@ -2,17 +2,21 @@
 
 namespace Selpol\Cli\Cron;
 
+use Psr\Log\LoggerAwareInterface;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DeviceService;
 use Throwable;
 
 #[Executable('cron:run', 'Запуск cron задач')]
-class CronRunCommand
+class CronRunCommand implements LoggerAwareInterface
 {
+    use LoggerRunnerTrait;
+
     #[Execute]
     public function execute(CliIO $io, array $arguments): void
     {
@@ -55,7 +59,10 @@ class CronRunCommand
                 }
             }
 
-            $io->writeLine('Cron done ' . (microtime(true) * 1000 - $start));
+            $elapsed = microtime(true) * 1000 - $start;
+
+            $this->logger?->debug('Cron done ' . $elapsed);
+            $io->writeLine('Cron done ' . $elapsed);
         } else {
             $io->writeLine('Cron skip');
         }
