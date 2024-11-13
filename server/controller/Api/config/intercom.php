@@ -29,6 +29,6 @@ readonly class intercom extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Конфигурация] Получить конфигурацию домофона'];
+        return ['GET' => '[Deprecated] (Конфигурация) Получить конфигурацию домофона'];
     }
 }
