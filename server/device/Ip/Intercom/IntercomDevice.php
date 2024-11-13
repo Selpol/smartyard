@@ -65,6 +65,10 @@ abstract class IntercomDevice extends IpDevice
         }
 
         $this->setLogger(new IntercomLogger(path('var/log/' . $log . '.log')));
+
+        if ($this->debug) {
+            $this->logger->debug($this->resolver->string('auth', 'basic'), $this->clientOption->getCredential());
+        }
     }
 
     public function open(int $value): void

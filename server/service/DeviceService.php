@@ -134,14 +134,11 @@ class DeviceService implements CronInterface
                     }
 
                     $resolver = new ConfigResolver($config);
-                } catch (Throwable $throwable) {
-                    file_logger('intercom')->error($throwable);
+                } catch (Throwable) {
+                    $resolver = new IntercomConfigResolver($feature->getConfigForIntercom($model, $intercom), $model, $intercom);
                 }
-            }
-
-            if (!isset($resolver)) {
-                $config = $feature->getConfigForIntercom($model, $intercom);
-                $resolver = new IntercomConfigResolver($config, $model, $intercom);
+            } else {
+                $resolver = new IntercomConfigResolver($feature->getConfigForIntercom($model, $intercom), $model, $intercom);
             }
 
             $device = $model->instance($intercom, $resolver);
