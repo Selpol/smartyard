@@ -49,6 +49,6 @@ trait SipTrait
 
     public function setSipOption(SipOption $sipOption): void
     {
-        $this->put('/ISAPI/VideoIntercom/operationTime', '<OperationTime><maxRingTime>' . $sipOption->callTimeout . '</maxRingTime><talkTime>' . $sipOption->talkTimeout . '</talkTime></OperationTime>', ['Content-Type' => 'application/xml']);
+        $this->put('/ISAPI/VideoIntercom/operationTime', '<OperationTime><messageTime>30</messageTime><maxRingTime>' . $sipOption->callTimeout . '</maxRingTime><talkTime>' . $sipOption->talkTimeout . '</talkTime></OperationTime>', ['Content-Type' => 'application/xml']);
     }
 }
