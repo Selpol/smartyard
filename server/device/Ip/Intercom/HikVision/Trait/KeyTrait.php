@@ -23,6 +23,10 @@ trait KeyTrait
 
         $response = $this->post('/ISAPI/AccessControl/CardInfo/Search?format=json', ['CardInfoSearchCond' => ['searchID' => '1', 'maxResults' => 30, 'searchResultPosition' => 0]]);
 
+        if (!is_array($response)) {
+            return [];
+        }
+
         $process = function (array $response) use (&$result): void {
             $cardInfos = $response['CardInfoSearch']['CardInfo'] ?? [];
 

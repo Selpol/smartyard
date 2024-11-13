@@ -22,6 +22,10 @@ trait HikVisionTrait
                 'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
             ];
         } catch (Throwable $throwable) {
+            if ($throwable instanceof DeviceException) {
+                throw $throwable;
+            }
+
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
     }
