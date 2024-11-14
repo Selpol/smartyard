@@ -222,14 +222,7 @@ readonly class CameraController extends MobileRbtController
             "timezone" => "timezone",
             "lat" => "lat",
             "lon" => "lon",
-            "direction" => "direction",
-            "angle" => "angle",
-            "distance" => "distance",
             "frs" => "frs",
-            "md_left" => "mdLeft",
-            "md_top" => "mdTop",
-            "md_width" => "mdWidth",
-            "md_height" => "mdHeight",
             "common" => "common",
             "comment" => "comment"
         ]), $user));
