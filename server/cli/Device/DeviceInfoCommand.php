@@ -25,7 +25,7 @@ class DeviceInfoCommand
 
         $count = count($deviceIntercoms) + count($deviceCameras);
         $value = 0;
-        $step = 1 / $count;
+        $step = (1 / $count) * 100;
 
         foreach ($deviceIntercoms as $deviceIntercom) {
             try {
@@ -36,6 +36,10 @@ class DeviceInfoCommand
                 }
 
                 $info = $intercom->getSysInfo();
+
+                if (!$info) {
+                    continue;
+                }
 
                 $deviceIntercom->device_id = $info['DeviceID'];
                 $deviceIntercom->device_model = $info['DeviceModel'];
@@ -60,6 +64,10 @@ class DeviceInfoCommand
                 }
 
                 $info = $camera->getSysInfo();
+
+                if (!$info) {
+                    continue;
+                }
 
                 $deviceCamera->device_id = $info['DeviceID'];
                 $deviceCamera->device_model = $info['DeviceModel'];
