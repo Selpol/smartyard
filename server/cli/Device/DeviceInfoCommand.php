@@ -8,8 +8,9 @@ use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
 use Selpol\Service\DeviceService;
+use Throwable;
 
-#[Executable('device:info', 'Очиста данных аудита')]
+#[Executable('device:info', 'Обновление информации об устройствах')]
 class DeviceInfoCommand
 {
     #[Execute]
@@ -27,43 +28,51 @@ class DeviceInfoCommand
         $step = 1 / $count;
 
         foreach ($deviceIntercoms as $deviceIntercom) {
-            $intercom = $service->intercomByEntity($deviceIntercom);
+            try {
+                $intercom = $service->intercomByEntity($deviceIntercom);
 
-            if (!$intercom->pingRaw()) {
-                continue;
+                if (!$intercom->pingRaw()) {
+                    continue;
+                }
+
+                $info = $intercom->getSysInfo();
+
+                $deviceIntercom->device_id = $info['DeviceID'];
+                $deviceIntercom->device_model = $info['DeviceModel'];
+                $deviceIntercom->device_software_version = $info['SoftwareVersion'];
+                $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+
+                $deviceIntercom->update();
+
+                $value += $step;
+                $progress->set((int)floor($value));
+            } catch (Throwable $throwable) {
+                $io->writeLine($throwable->getMessage());
             }
-
-            $info = $intercom->getSysInfo();
-
-            $deviceIntercom->device_id = $info['DeviceID'];
-            $deviceIntercom->device_model = $info['DeviceModel'];
-            $deviceIntercom->device_software_version = $info['SoftwareVersion'];
-            $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
-
-            $deviceIntercom->update();
-
-            $value += $step;
-            $progress->set((int)floor($value));
         }
 
         foreach ($deviceCameras as $deviceCamera) {
-            $camera = $service->cameraByEntity($deviceCamera);
+            try {
+                $camera = $service->cameraByEntity($deviceCamera);
 
-            if (!$camera->pingRaw()) {
-                continue;
+                if (!$camera->pingRaw()) {
+                    continue;
+                }
+
+                $info = $camera->getSysInfo();
+
+                $deviceCamera->device_id = $info['DeviceID'];
+                $deviceCamera->device_model = $info['DeviceModel'];
+                $deviceCamera->device_software_version = $info['SoftwareVersion'];
+                $deviceCamera->device_hardware_version = $info['HardwareVersion'];
+
+                $deviceCamera->update();
+
+                $value += $step;
+                $progress->set((int)floor($value));
+            } catch (Throwable $throwable) {
+                $io->writeLine($throwable->getMessage());
             }
-
-            $info = $camera->getSysInfo();
-
-            $deviceCamera->device_id = $info['DeviceID'];
-            $deviceCamera->device_model = $info['DeviceModel'];
-            $deviceCamera->device_software_version = $info['SoftwareVersion'];
-            $deviceCamera->device_hardware_version = $info['HardwareVersion'];
-
-            $deviceCamera->update();
-
-            $value += $step;
-            $progress->set((int)floor($value));
         }
 
         $progress->hide();
