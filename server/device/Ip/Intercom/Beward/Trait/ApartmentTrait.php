@@ -30,7 +30,7 @@ trait ApartmentTrait
 
         $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: ['type' => 'param']);
 
-        if (count($response) == 0) {
+        if (!is_array($response) || count($response) == 0) {
             return [];
         }
 

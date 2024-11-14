@@ -15,7 +15,9 @@ readonly class camera extends Api
             'query' => rule()->required()->string()->nonNullable()
         ]);
 
-        if (($id = dvr($validate['_id'])?->getCameraId($validate['query'])) !== null && ($id = dvr($validate['_id'])?->getCameraId($validate['query'])) !== '' && ($id = dvr($validate['_id'])?->getCameraId($validate['query'])) !== '0') {
+        $id = dvr($validate['_id'])?->getCameraId($validate['query']);
+
+        if ($id != null) {
             return self::success($id);
         }
 
