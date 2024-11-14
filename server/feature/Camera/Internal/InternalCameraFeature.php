@@ -135,6 +135,6 @@ readonly class InternalCameraFeature extends CameraFeature
 
     public function deleteCamera(int $cameraId): bool
     {
-        return DeviceCamera::findById($cameraId, setting: setting()->columns(['camera_id']))->delete();
+        return DeviceCamera::findById($cameraId, setting: setting()->columns(['camera_id']))->safeDelete();
     }
 }

@@ -4,7 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\PlogDaysRequest;
 use Selpol\Controller\Request\Mobile\PlogIndexRequest;
 use Selpol\Feature\Block\BlockFeature;
@@ -22,7 +22,7 @@ use Selpol\Middleware\Mobile\FlatMiddleware;
 use Throwable;
 
 #[Controller('/mobile/address', includes: [BlockMiddleware::class => ['code' => 200, 'body' => ['code' => 200, 'name' => 'OK', 'data' => []], 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]])]
-readonly class PlogController extends RbtController
+readonly class PlogController extends MobileRbtController
 {
     /**
      * @throws ContainerExceptionInterface

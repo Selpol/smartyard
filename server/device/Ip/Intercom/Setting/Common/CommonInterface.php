@@ -54,4 +54,6 @@ interface CommonInterface
      * @return void
      */
     public function setGates(array $value): void;
+
+    public function setGatesMode(int $value): void;
 }

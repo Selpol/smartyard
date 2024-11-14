@@ -15,7 +15,7 @@ trait CommonTrait
 {
     public function getNtp(): Ntp
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/ntp_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/ntp_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new Ntp($response['ServerAddress'], intval($response['ServerPort']), '21');
     }
@@ -27,16 +27,16 @@ trait CommonTrait
 
     public function getSyslog(): Syslog
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/rsyslog_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/rsyslog_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new Syslog($response['ServerAddress'], intval($response['ServerPort']));
     }
 
     public function getMifare(): Mifare
     {
-        if ($this->model->option->mifare) {
-            $cipher = $this->parseParamValueHelp($this->get('/cgi-bin/cipher_cgi', ['action' => 'list']));
-            $mifare = $this->parseParamValueHelp($this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get']));
+        if ($this->mifare) {
+            $cipher = $this->get('/cgi-bin/cipher_cgi', ['action' => 'list'], parse: ['type' => 'param']);
+            $mifare = $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
             return new Mifare(true, array_key_exists('Value1', $cipher) ? $cipher['Value1'] : '', intval($mifare['Sector']));
         }
@@ -47,7 +47,7 @@ trait CommonTrait
     public function getRoom(): Room
     {
         $intercom = $this->getIntercomCgi();
-        $alarm = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'get']));
+        $alarm = $this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new Room(strval($intercom['ConciergeApartment']), strval($alarm['SOSCallNumber']));
     }
@@ -75,7 +75,7 @@ trait CommonTrait
      */
     public function getGates(): array
     {
-        $gate = $this->parseParamValueHelp($this->get('/cgi-bin/gate_cgi', ['action' => 'get']));
+        $gate = $this->get('/cgi-bin/gate_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         if ($gate['Enable'] === 'off') {
             return [];
@@ -113,8 +113,8 @@ trait CommonTrait
 
     public function getAutoCollectKey(): bool
     {
-        if ($this->model->option->mifare) {
-            $response = $this->parseParamValueHelp($this->get('/cgi-bin/mifare_cgi', ['action' => 'get']));
+        if ($this->mifare) {
+            $response = $this->get('/cgi-bin/mifare_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
             return $response['AutoCollectKeys'] === 'on';
         }
@@ -139,7 +139,7 @@ trait CommonTrait
 
     public function setMifare(Mifare $mifare): void
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $this->get('/cgi-bin/cipher_cgi', ['action' => 'add', 'Value' => $mifare->key, 'Type' => 1, 'Index' => 1]);
             $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
         }
@@ -183,7 +183,7 @@ trait CommonTrait
 
     public function setAutoCollectKey(bool $value): void
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
         }
     }
@@ -196,7 +196,7 @@ trait CommonTrait
     {
         $params = [
             'action' => 'set',
-            'Mode' => 1,
+            'Mode' => $this->resolver->int('wicket.mode', 1),
             'Enable' => $value !== [] ? 'on' : 'off',
             'MainDoor' => 'on',
             'AltDoor' => 'off',
@@ -216,5 +216,10 @@ trait CommonTrait
         }
 
         $this->get('/cgi-bin/gate_cgi', $params);
+    }
+
+    public function setGatesMode(int $value): void
+    {
+        $this->get('/cgi-bin/gate_cgi', ['action' => 'set', 'Mode' => $value]);
     }
 }

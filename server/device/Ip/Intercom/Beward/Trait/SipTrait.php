@@ -9,14 +9,14 @@ trait SipTrait
 {
     public function getSipStatus(): bool
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'regstatus'], parse: false));
+        $response = $this->get('/cgi-bin/sip_cgi', ['action' => 'regstatus'], parse: ['type' => 'param']);
 
         return array_key_exists('AccountReg1', $response) && $response['AccountReg1'] == true || array_key_exists('AccountReg2', $response) && $response['AccountReg2'] == true;
     }
 
     public function getSip(): Sip
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/sip_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new Sip($response['AccUser1'], $response['AccPassword1'], $response['RegServerUrl1'], intval($response['RegServerPort1']));
     }
@@ -24,18 +24,14 @@ trait SipTrait
     public function getSipOption(): SipOption
     {
         $response = $this->getIntercomCgi();
-        $sip = $this->parseParamValueHelp($this->get('/cgi-bin/sip_cgi', ['action' => 'get'], parse: false));
-        $audio = $this->parseParamValueHelp($this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: false));
+        $sip = $this->get('/cgi-bin/sip_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+        $audio = $this->get('/cgi-bin/audio_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new SipOption(intval($response['CallTimeout']), intval($response['TalkTimeout']), [$sip['DtmfSignal1'], $sip['DtmfSignal2'], $sip['DtmfSignal3']], $audio['EchoCancellation'] === 'open');
     }
 
     public function setSip(Sip $sip): void
     {
-        $info = $this->getSysInfo();
-
-        $stream = trim($info['DeviceModel']) == 'DKS977957_rev5.5.3.9.2' ? 1 : 0;
-
         $this->get('/webs/SIP1CfgEx', [
             'cksip' => 1,
             'sipname' => $sip->login,
@@ -48,7 +44,7 @@ trait SipTrait
             'regport' => $sip->port,
             'sipserver' => $sip->server,
             'sipserverport' => $sip->port,
-            'streamtype' => $stream,
+            'streamtype' => $this->resolver->int('sip.stream', 0),
             'packettype' => 1,
             'dtfmmod' => 0,
             'passchanged' => 1,

@@ -10,19 +10,19 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Framework\Kernel\Exception\KernelException;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Router\Trait\HandlerTrait;
 use Selpol\Framework\Router\Trait\RouterTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     use RouterTrait;
     use HandlerTrait;

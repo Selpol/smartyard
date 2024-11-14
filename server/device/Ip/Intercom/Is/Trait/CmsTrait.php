@@ -5,13 +5,14 @@ namespace Selpol\Device\Ip\Intercom\Is\Trait;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsApartment;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsLevels;
+use Throwable;
 
 trait CmsTrait
 {
     private bool $updateCmses = false;
-    
+
     private ?array $tempCmses = null;
-    
+
     private ?array $cmses = null;
 
     public function getLineDialStatus(int $apartment, bool $info): array|int
@@ -40,25 +41,40 @@ trait CmsTrait
         return $this->post('/panelCode/diag', range($from, $to));
     }
 
+    public function getCmsModels(): array
+    {
+        return ['BK-100' => 'VIZIT', 'KMG-100' => 'CYFRAL', 'KKM-100S2' => 'CYFRAL', 'KM100-7.1' => 'ELTIS', 'KM100-7.5' => 'ELTIS', 'COM-100U' => 'METAKOM', 'COM-220U' => 'METAKOM', 'FACTORIAL_8X8' => 'FACTORIAL'];
+    }
+
     public function getCmsModel(): string
     {
-        $response = $this->get('/switch/settings');
+        try {
+            $response = $this->get('/switch/settings');
 
-        return $response['modelId'] ?? '';
+            return $response['modelId'];
+        } catch (Throwable) {
+            return '';
+        }
     }
 
     public function getCmsLevels(): CmsLevels
     {
-        $response = $this->get('/levels');
-        $resistances = $response['resistances'];
+        try {
+            $response = $this->get('/levels');
+            $resistances = $response['resistances'];
 
-        return new CmsLevels([$response['error'], $resistances['break'], $resistances['quiescent'], $resistances['answer']]);
+            return new CmsLevels([$response['error'], $resistances['break'], $resistances['quiescent'], $resistances['answer']]);
+        } catch (Throwable) {
+            return new CmsLevels([]);
+        }
     }
 
     public function setCmsModel(string $cms): void
     {
-        if (array_key_exists(strtoupper($cms), $this->model->cmsesMap)) {
-            $this->put('/switch/settings', ['modelId' => $this->model->cmsesMap[strtoupper($cms)], 'usingCom3' => true]);
+        $models = $this->getCmsModels();
+
+        if (array_key_exists(strtoupper($cms), $models)) {
+            $this->put('/switch/settings', ['modelId' => $models[strtoupper($cms)], 'usingCom3' => true]);
         }
     }
 

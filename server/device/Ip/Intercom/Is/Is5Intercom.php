@@ -10,6 +10,8 @@ class Is5Intercom extends IsIntercom
 {
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
+        list($width, $height) = explode('x', $videoEncoding->quality ?? '1920x1080');
+
         $this->put('/camera/codec', [
             'Channels' => [
                 [
@@ -17,12 +19,13 @@ class Is5Intercom extends IsIntercom
                     "Type" => "H264",
                     "Profile" => 2,
                     "ByFrame" => true,
-                    "Width" => 1920,
-                    "Height" => 1080,
+                    "Width" => intval($width),
+                    "Height" => intval($height),
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
                 ],
                 [
@@ -36,6 +39,7 @@ class Is5Intercom extends IsIntercom
                     "IPQpDelta" => 2,
                     "RcMode" => "AVBR",
                     "IFrameInterval" => 30,
+                    "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate
                 ]
             ]

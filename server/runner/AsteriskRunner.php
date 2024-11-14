@@ -3,6 +3,7 @@
 namespace Selpol\Runner;
 
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\Sip\SipUser;
@@ -11,9 +12,9 @@ use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Feature\User\UserFeature;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 use Selpol\Validator\Exception\ValidatorException;
@@ -21,7 +22,7 @@ use Throwable;
 
 class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     public function __construct()
     {
@@ -90,7 +91,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         $households = container(HouseFeature::class);
 
                         $flat = $households->getFlat(intval($params));
-                        $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]);
+                        $block = container(BlockFeature::class)->getFirstBlockForFlat(intval($params), [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL, BlockFeature::SUB_SERVICE_APP]);
 
                         if ($block == null) {
                             echo json_encode($flat);
@@ -124,7 +125,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'subscribers':
                         $households = container(HouseFeature::class);
 
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
+                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL, BlockFeature::SUB_SERVICE_APP]) == null);
 
                         echo json_encode($subscribers);
 
@@ -168,17 +169,13 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $params['domophoneId'], 'output' => '0']);
 
                             if ($entrances && $entrances[0]) {
-                                $cameras = $households->getCameras('id', $entrances[0]['cameraId']);
+                                $camera = DeviceCamera::findById($entrances[0]['cameraId']);
 
-                                if ($cameras && $cameras[0]) {
-                                    $model = container(DeviceService::class)->camera($cameras[0]['model'], $cameras[0]['url'], $cameras[0]['credentials']);
+                                if ($camera instanceof DeviceCamera) {
+                                    $model = container(DeviceService::class)->cameraByEntity($camera);
 
                                     $redis->setEx('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
-                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode([
-                                        'model' => $cameras[0]["model"],
-                                        'url' => $cameras[0]["url"],
-                                        'credentials' => $cameras[0]["credentials"],
-                                    ]));
+                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode(['id' => $camera->camera_id, 'model' => $camera->model, 'url' => $camera->url, 'credentials' => $camera->credentials]));
 
                                     echo $params['hash'];
                                 }

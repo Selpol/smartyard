@@ -21,17 +21,25 @@ trait SipTrait
 
     public function getSip(): Sip
     {
-        $response = $this->get('/sip/settings');
-        $remote = $response['remote'];
+        try {
+            $response = $this->get('/sip/settings');
+            $remote = $response['remote'];
 
-        return new Sip($remote['username'] ?? '', $remote['password'] ?? '', $remote['domain'] ?? '', $remote['port'] ?? 0);
+            return new Sip($remote['username'] ?? '', $remote['password'] ?? '', $remote['domain'] ?? '', $remote['port'] ?? 0);
+        } catch (Throwable) {
+            return new Sip('', '', '', 0);
+        }
     }
 
     public function getSipOption(): SipOption
     {
-        $response = $this->get('/sip/options');
+        try {
+            $response = $this->get('/sip/options');
 
-        return new SipOption($response['ringDuration'], $response['talkDuration'], array_values($response['dtmf'] ?? []), $response['echoD'] ?? false);
+            return new SipOption($response['ringDuration'], $response['talkDuration'], array_values($response['dtmf'] ?? []), $response['echoD']);
+        } catch (Throwable) {
+            return new SipOption(0, 0, [], true);
+        }
     }
 
     public function setSip(Sip $sip): void

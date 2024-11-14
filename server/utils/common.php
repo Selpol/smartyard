@@ -18,21 +18,26 @@ if (!function_exists('check_string')) {
         if (array_key_exists("validChars", $options)) {
             $t = "";
 
-            for ($i = 0; $i < mb_strlen($str); $i++)
-                if (in_array(mb_substr($str, $i, 1), $options["validChars"]))
+            for ($i = 0; $i < mb_strlen($str); $i++) {
+                if (in_array(mb_substr($str, $i, 1), $options["validChars"])) {
                     $t .= mb_substr($str, $i, 1);
+                }
+            }
 
             $str = $t;
         }
 
-        if (!in_array("dontStrip", $options))
+        if (!in_array("dontStrip", $options)) {
             $str = preg_replace('/\s+/', ' ', $str);
+        }
 
-        if (array_key_exists("minLength", $options) && mb_strlen($str) < $options["minLength"])
+        if (array_key_exists("minLength", $options) && mb_strlen($str) < $options["minLength"]) {
             return false;
+        }
 
-        if (array_key_exists("maxLength", $options) && mb_strlen($str) > $options["maxLength"])
+        if (array_key_exists("maxLength", $options) && mb_strlen($str) > $options["maxLength"]) {
             return false;
+        }
 
         return true;
     }
@@ -43,8 +48,9 @@ if (!function_exists('last_error')) {
     {
         global $lastError;
 
-        if (!is_null($error))
+        if (!is_null($error)) {
             $lastError = $error;
+        }
 
         return $lastError;
     }
@@ -81,18 +87,21 @@ if (!function_exists('connection_ip')) {
     {
         $ip = $request->getHeader('X-Real-Ip');
 
-        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
+        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP)) {
             return $ip[0];
+        }
 
         $ip = $request->getHeader('X-Forwarded-For');
 
-        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP))
+        if (count($ip) > 0 && filter_var($ip[0], FILTER_VALIDATE_IP)) {
             return $ip[0];
+        }
 
         $ip = @$request->getServerParams()['REMOTE_ADDR'];
 
-        if ($ip && filter_var($ip, FILTER_VALIDATE_IP))
+        if ($ip && filter_var($ip, FILTER_VALIDATE_IP)) {
             return $ip;
+        }
 
         return null;
     }
@@ -101,8 +110,9 @@ if (!function_exists('connection_ip')) {
 if (!function_exists('ip_in_range')) {
     function ip_in_range(string $ip, string $range): bool
     {
-        if (!strpos($range, '/'))
+        if (!strpos($range, '/')) {
             $range .= '/32';
+        }
 
         list($range, $netmask) = explode('/', $range, 2);
 
@@ -158,7 +168,7 @@ if (!function_exists('rbt_response')) {
         return json_response($code, body: [
             'code' => $code,
             'name' => Response::$codes[$code]['name'],
-            'message' => $message ?: Response::$codes[$code]['message']
+            'message' => $message ?: Response::$codes[$code]['name']
         ]);
     }
 }
@@ -170,19 +180,28 @@ if (!function_exists('user_response')) {
             $body = ['code' => $code];
 
             if ($message === null) {
-                if ($name)
+                if ($name) {
                     $message = $name;
-                else if (array_key_exists($code, Response::$codes))
-                    $message = Response::$codes[$code]['message'];
+                } else if (array_key_exists($code, Response::$codes)) {
+                    $message = Response::$codes[$code]['name'];
+                }
             }
 
             if ($name === null) {
-                if (array_key_exists($code, Response::$codes))
+                if (array_key_exists($code, Response::$codes)) {
                     $body['name'] = Response::$codes[$code]['name'];
-            } else $body['name'] = $name;
+                }
+            } else {
+                $body['name'] = $name;
+            }
 
-            if ($message !== null) $body['message'] = $message;
-            if ($data !== null) $body['data'] = $data;
+            if ($message !== null) {
+                $body['message'] = $message;
+            }
+
+            if ($data !== null) {
+                $body['data'] = $data;
+            }
 
             return json_response($code, body: $body);
         }
@@ -194,8 +213,9 @@ if (!function_exists('user_response')) {
 if (!function_exists('mobile_mask')) {
     function mobile_mask(?string $value): string
     {
-        if (is_null($value) || $value === '' || strlen($value) !== 11)
+        if (is_null($value) || $value === '' || strlen($value) !== 11) {
             return '7**********';
+        }
 
         return $value[0] . '******' . substr($value, 7);
     }

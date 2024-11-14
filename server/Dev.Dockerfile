@@ -19,7 +19,6 @@ RUN apk update && apk add --update --no-cache \
 
 RUN set -eux; \
     install-php-extensions \
-		apcu \
 		intl \
 		opcache \
 		zip \

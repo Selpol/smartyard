@@ -35,7 +35,7 @@ readonly class user extends Api
             'password' => rule()->required()->string()->nonNullable()
         ]));
 
-        if ($sipUser->insert()) {
+        if ($sipUser->safeInsert()) {
             return self::success($sipUser->id);
         }
 
@@ -61,7 +61,7 @@ readonly class user extends Api
 
         $sipUser->password = $validate['password'];
 
-        if ($sipUser->update()) {
+        if ($sipUser->safeUpdate()) {
             return self::success($sipUser->id);
         }
 
@@ -72,7 +72,7 @@ readonly class user extends Api
     {
         $sipUser = SipUser::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($sipUser->delete()) {
+        if ($sipUser->safeDelete()) {
             return self::success();
         }
 

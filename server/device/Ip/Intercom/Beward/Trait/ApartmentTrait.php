@@ -9,6 +9,16 @@ trait ApartmentTrait
     /** @var array<int, Apartment> */
     private array $apartments;
 
+    public function getDefaultAnswerLevel(): int
+    {
+        return 330;
+    }
+
+    public function getDefaultQuiescentLevel(): int
+    {
+        return 530;
+    }
+
     /**
      * @return Apartment[]
      */
@@ -18,7 +28,7 @@ trait ApartmentTrait
             return $this->apartments;
         }
 
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: false));
+        $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'list'], parse: ['type' => 'param']);
 
         if (count($response) == 0) {
             return [];
@@ -52,7 +62,7 @@ trait ApartmentTrait
 
     public function getApartment(int $apartment): ?Apartment
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: false));
+        $response = $this->get('/cgi-bin/apartment_cgi', ['action' => 'get', 'Number' => $apartment], parse: ['type' => 'param']);
 
         return new Apartment(
             intval($response['Number']),

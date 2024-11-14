@@ -4,15 +4,15 @@ namespace Selpol\Controller\Internal;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Cache\RedisCache;
-use Selpol\Controller\RbtController;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\TaskService;
 use Throwable;
 
 #[Controller('/internal/status')]
-readonly class StatusController extends RbtController
+readonly class StatusController extends RouteController
 {
     #[Get]
     public function index(RedisCache $cache, TaskService $task): ResponseInterface

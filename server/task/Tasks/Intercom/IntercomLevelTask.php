@@ -45,7 +45,7 @@ class IntercomLevelTask extends IntercomTask
         $this->setProgress(2);
 
         try {
-            $device = container(DeviceService::class)->intercom($deviceIntercom->model, $deviceIntercom->url, $deviceIntercom->credentials);
+            $device = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
             if (!$device) {
                 return false;

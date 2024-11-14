@@ -5,7 +5,7 @@ namespace Selpol\Controller\Mobile;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -20,7 +20,7 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Throwable;
 
 #[Controller('/mobile/address', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
-readonly class IntercomController extends RbtController
+readonly class IntercomController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface

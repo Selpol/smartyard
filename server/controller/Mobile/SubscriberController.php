@@ -4,7 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\SubscriberDeleteRequest;
 use Selpol\Controller\Request\Mobile\SubscriberStoreRequest;
 use Selpol\Feature\Block\BlockFeature;
@@ -20,7 +20,7 @@ use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/subscriber', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
-readonly class SubscriberController extends RbtController
+readonly class SubscriberController extends MobileRbtController
 {
     /**
      * @throws ContainerExceptionInterface

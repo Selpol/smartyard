@@ -13,10 +13,10 @@ use Selpol\Entity\Repository\PermissionRepository;
 use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Kernel\Exception\KernelException;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Router\Trait\EmitTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\Auth\Token\CoreAuthToken;
 use Selpol\Service\Auth\User\CoreAuthUser;
 use Selpol\Service\AuthService;
@@ -26,7 +26,7 @@ use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     use EmitTrait {
         emit as frontendEmit;
@@ -79,12 +79,15 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         $m = explode('/', $path);
 
-        if (count($m) < 2) {
+        if (count($m) == 0) {
             return $this->emit(rbt_response(404));
+        } else if (count($m) == 1) {
+            $api = $m[0];
+            $method = 'index';
+        } else {
+            $api = $m[0];
+            $method = $m[1];
         }
-
-        $api = $m[0];
-        $method = $m[1];
 
         $params = [];
 
@@ -133,14 +136,21 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 return $this->emit(rbt_response(400, 'Логин или пароль не указан'));
             }
         } elseif ($http_authorization) {
+            $authorization = explode(' ', $http_authorization);
+
+            if (count($authorization) !== 2 || $authorization[0] !== 'Bearer') {
+                return $this->emit(rbt_response(401, 'Не верные данные авторизации'));
+            }
+
             $userAgent = $request->getHeaderLine('User-Agent');
-            $auth = container(AuthenticationFeature::class)->auth($http_authorization, $userAgent, $ip);
-            if (!$auth) {
+            $user = container(AuthenticationFeature::class)->auth($authorization[1], $userAgent, $ip);
+
+            if (!$user) {
                 return $this->emit(rbt_response(401, 'Пользователь не авторизирован'));
             }
 
-            container(AuthService::class)->setToken(new CoreAuthToken($auth['token'], null));
-            container(AuthService::class)->setUser(new CoreAuthUser($auth['user']));
+            container(AuthService::class)->setToken(new CoreAuthToken($authorization[1], $user->aud_jti));
+            container(AuthService::class)->setUser(new CoreAuthUser($user));
         } else {
             return $this->emit(rbt_response(401, 'Данные авторизации не переданны'));
         }
@@ -185,6 +195,8 @@ class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         try {
             if ($throwable instanceof KernelException) {
+                file_logger('response')->error($throwable);
+
                 $response = json_response($throwable->getCode() ?: 500, body: ['success' => false, 'message' => $throwable->getLocalizedMessage()]);
             } elseif ($throwable instanceof ValidatorException) {
                 $response = json_response(400, body: ['success' => false, 'message' => $throwable->getValidatorMessage()->message]);

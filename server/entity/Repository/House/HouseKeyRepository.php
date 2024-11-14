@@ -6,7 +6,6 @@ use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Entity\Trait\AuditTrait;
 use Selpol\Framework\Container\Attribute\Singleton;
-use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\EntityCriteria;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Framework\Entity\EntityRepository;
@@ -36,19 +35,15 @@ readonly class HouseKeyRepository extends EntityRepository
         $this->auditName = 'Дом-Ключ';
     }
 
-    protected function getAuditMessageInsert(Entity $entity): string
+    protected function getAuditMessage(HouseKey $entity, int $type): string
     {
-        return $this->getAuditName() . ' Добавление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to);
-    }
+        return match ($type) {
+            0 => $this->getAuditName() . ' Добавление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to),
+            1 => $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to) . ' -' . $entity->comments,
+            2 => $this->getAuditName() . ' Удаление ключа ' . $entity->rfid . ' из ' . $this->getFlatApartment($entity->access_to),
 
-    protected function getAuditMessageUpdate(Entity $entity): string
-    {
-        return $this->getAuditName() . ' Обновление ключа ' . $entity->rfid . ' в ' . $this->getFlatApartment($entity->access_to) . ' -' . $entity->comments;
-    }
-
-    protected function getAuditMessageDelete(Entity $entity): string
-    {
-        return $this->getAuditName() . ' Удаление ключа ' . $entity->rfid . ' из ' . $this->getFlatApartment($entity->access_to);
+            default => 'Неизвестный тип операции'
+        };
     }
 
     private function getFlatApartment(int $value): string

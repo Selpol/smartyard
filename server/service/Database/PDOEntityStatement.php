@@ -44,7 +44,7 @@ readonly class PDOEntityStatement implements EntityStatementInterface
         }
     }
 
-    public function fetch(): ?array
+    public function fetch(int $flags = self::FETCH_ASSOC): ?array
     {
         $result = $this->statement->fetch(PDO::FETCH_ASSOC);
 
@@ -56,7 +56,7 @@ readonly class PDOEntityStatement implements EntityStatementInterface
         return $this->statement->fetchColumn($index);
     }
 
-    public function fetchAll(): array
+    public function fetchAll(int $flags = self::FETCH_ASSOC): array
     {
         $result = $this->statement->fetchAll(PDO::FETCH_ASSOC);
 

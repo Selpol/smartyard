@@ -5,9 +5,9 @@ namespace Selpol\Runner;
 use Exception;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
-use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
+use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DeviceService;
 use Selpol\Service\MqttService;
 use Selpol\Service\PrometheusService;
@@ -17,7 +17,7 @@ use Throwable;
 
 class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 {
-    use LoggerKernelTrait;
+    use LoggerRunnerTrait;
 
     public function __construct()
     {

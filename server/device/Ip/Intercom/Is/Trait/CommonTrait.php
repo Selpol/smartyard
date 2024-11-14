@@ -17,9 +17,13 @@ trait CommonTrait
 
     public function getNtp(): Ntp
     {
-        $response = $this->get('/system/settings');
+        try {
+            $response = $this->get('/system/settings');
 
-        return new Ntp(count($response['ntp']) > 0 ? $response['ntp'][0] : '127.0.0.1', 123, $response['tz']);
+            return new Ntp(count($response['ntp']) > 0 ? $response['ntp'][0] : '127.0.0.1', 123, $response['tz']);
+        } catch (Throwable) {
+            return new Ntp('127.0.0.1', 123, 'UTC-0');
+        }
     }
 
     public function getStun(): Stun
@@ -32,7 +36,7 @@ trait CommonTrait
         try {
             $response = $this->client->send(client_request('GET', $this->uri . '/system/files/rsyslogd.conf'), $this->clientOption);
             $contents = $response->getBody()->getContents();
-            $lines = explode(PHP_EOL, (string) $contents);
+            $lines = explode(PHP_EOL, (string)$contents);
 
             if (str_starts_with($lines[count($lines) - 1], '@')) {
                 $value = explode(':', $lines[count($lines) - 1]);
@@ -52,7 +56,7 @@ trait CommonTrait
 
     public function getMifare(): Mifare
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $response = $this->get('/key/settings');
 
             return new Mifare($response['encryption']['enabled'] == true, $response['encryption']['key_auth'] ?? '', intval($response['encryption']['sector']) ?? 0);
@@ -63,24 +67,36 @@ trait CommonTrait
 
     public function getRoom(): Room
     {
-        $response = $this->get('/panelCode/settings');
+        try {
+            $response = $this->get('/panelCode/settings');
 
-        return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
+            return new Room(strval($response['consiergeRoom']), strval($response['sosRoom']));
+        } catch (Throwable) {
+            return new Room('', 0);
+        }
     }
 
     public function getRelay(int $type): Relay
     {
-        $settings = $this->get('/relay/settings');
-        $relay = $this->get('/relay/1/settings');
+        try {
+            $settings = $this->get('/relay/settings');
+            $relay = $this->get('/relay/1/settings');
 
-        return new Relay(!$settings['alwaysOpen'], $relay['switchTime']);
+            return new Relay(!$settings['alwaysOpen'], $relay['switchTime']);
+        } catch (Throwable) {
+            return new Relay(false, 0);
+        }
     }
 
     public function getDDns(): DDns
     {
-        $response = $this->get('/v1/ddns');
+        try {
+            $response = $this->get('/v1/ddns');
 
-        return new DDns($response['enabled'], $response['server']['address'], $response['server']['port']);
+            return new DDns($response['enabled'], $response['server']['address'], $response['server']['port']);
+        } catch (Throwable) {
+            return new DDns(false, '', 0);
+        }
     }
 
     public function getUPnP(): bool
@@ -97,7 +113,7 @@ trait CommonTrait
     {
         $response = $this->get('/key/settings');
 
-        return $response['autocollect']['enabled'];
+        return $response['autocollect']['enabled'] ?? false;
     }
 
     public function getGates(): array
@@ -116,7 +132,7 @@ trait CommonTrait
 
         foreach ($response['direct']['rules'] as $prefix => $rules) {
             foreach ($rules as $range => $address) {
-                $slice = preg_split('-', (string) $range);
+                $slice = preg_split('-', (string)$range);
 
                 $result[] = new Gate($address, intval($prefix), intval($slice[0]), intval($slice[1]));
             }
@@ -148,7 +164,7 @@ trait CommonTrait
 
     public function setMifare(Mifare $mifare): void
     {
-        if ($this->model->option->mifare) {
+        if ($this->mifare) {
             $this->put('/key/settings', [
                 'encryption' => [
                     'enabled' => $mifare->enable,
@@ -218,6 +234,11 @@ trait CommonTrait
         }
 
         $this->put('/gate/settings', ['gateMode' => $value !== [], 'prefixHouse' => $value !== [], 'direct' => $direct]);
+    }
+
+    public function setGatesMode(int $value): void
+    {
+
     }
 
     private function getSyslogConfigHelp(string $server, int $port): string

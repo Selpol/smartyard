@@ -12,7 +12,8 @@
       "Selpol\\Middleware\\": "./middleware/",
       "Selpol\\Controller\\": "./controller/",
       "Selpol\\Feature\\": "./feature/",
-      "Selpol\\Device\\": "./device/"
+      "Selpol\\Device\\": "./device/",
+      "Selpol\\Cli\\": "./cli/"
     },
     "files": [
       "utils/kernel.php",
@@ -53,7 +54,10 @@
     "php-amqplib/php-amqplib": "^3.5",
     "psr/http-server-handler": "^1.0",
     "psr/http-server-middleware": "^1.0",
-    "selpol/framework": "^1.0",
-    "php-mqtt/client": "^1.8"
+    "php-mqtt/client": "^1.8",
+    "selpol/framework": "^1.1"
+  },
+  "require-dev": {
+    "rector/rector": "^1.2"
   }
 }

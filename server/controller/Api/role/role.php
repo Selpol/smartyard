@@ -24,7 +24,7 @@ readonly class role extends Api
         $role->title = $validate['title'];
         $role->description = $validate['description'];
 
-        if ($role->insert()) {
+        if ($role->safeInsert()) {
             return self::success($role->id);
         }
 
@@ -48,7 +48,7 @@ readonly class role extends Api
         $role->title = $validate['title'];
         $role->description = $validate['description'];
 
-        if ($role->update()) {
+        if ($role->safeUpdate()) {
             return self::success($role->id);
         }
 
@@ -64,7 +64,7 @@ readonly class role extends Api
             return self::error('Группа не найдена', 404);
         }
 
-        if ($role->delete()) {
+        if ($role->safeDelete()) {
             return self::success();
         }
 

@@ -11,7 +11,7 @@ trait VideoTrait
 {
     public function getVideoEncoding(): VideoEncoding
     {
-        return new VideoEncoding(0, 0);
+        return new VideoEncoding('1', 0, 0);
     }
 
     public function getVideoDetection(): VideoDetection
@@ -21,14 +21,14 @@ trait VideoTrait
 
     public function getVideoDisplay(): VideoDisplay
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/display_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/display_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new VideoDisplay($response['TickerText']);
     }
 
     public function getVideoOverlay(): VideoOverlay
     {
-        $response = $this->parseParamValueHelp($this->get('/cgi-bin/textoverlay_cgi', ['action' => 'get'], parse: false));
+        $response = $this->get('/cgi-bin/textoverlay_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
         return new VideoOverlay($response['Title']);
     }
@@ -41,7 +41,7 @@ trait VideoTrait
             'sys_cif' => '0',
             'advanced' => '1',
             'ratectrl' => '0',
-            'quality' => '1',
+            'quality' => $videoEncoding->quality ?? '1',
             'iq' => '1',
             'rc' => '1',
             'bitrate' => $videoEncoding->primaryBitrate,

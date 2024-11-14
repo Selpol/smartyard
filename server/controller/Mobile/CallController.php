@@ -4,7 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -15,7 +15,7 @@ use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
 
 #[Controller('/mobile/call', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]], excludes: [RateLimitMiddleware::class])]
-readonly class CallController extends RbtController
+readonly class CallController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface
@@ -44,10 +44,10 @@ readonly class CallController extends RbtController
     {
         $this->getUser();
 
-        $json_camera = $redisService->get("live_" . $hash);
+        $json_camera = $redisService->get('live_' . $hash);
         $camera_params = json_decode($json_camera, true);
 
-        $model = $deviceService->camera($camera_params["model"], $camera_params["url"], $camera_params["credentials"]);
+        $model = $deviceService->cameraById($camera_params['id']);
 
         if (!$model instanceof CameraDevice) {
             return user_response(404, message: 'Камера не найдена');

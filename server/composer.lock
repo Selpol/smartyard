@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "67205155edb3204e94458238a233d5b4",
+    "content-hash": "1bf28ec62e119117d5dfdfe708421a0f",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.0.46",
+            "version": "1.1.11",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "294e79f77986af9c8a39d5cc1adc492be9a732b9"
+                "reference": "e05b31aa34761d3beb3a73fdb0a4d476f76f4c4d"
             },
             "require": {
                 "ext-curl": "*",
@@ -1264,7 +1264,10 @@
                 "psr/http-server-middleware": "^1.0",
                 "psr/log": "^3.0",
                 "psr/simple-cache": "^3.0",
-                "selpol/validator": "^1.0"
+                "selpol/validator": "^1.1"
+            },
+            "require-dev": {
+                "rector/rector": "^1.0"
             },
             "type": "library",
             "autoload": {
@@ -1282,18 +1285,22 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2024-03-22T11:00:17+00:00"
+            "time": "2024-11-13T10:41:36+00:00"
         },
         {
             "name": "selpol/validator",
-            "version": "1.0.14",
+            "version": "1.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/validator.git",
-                "reference": "3fd482a5abb4c9da5e51c321ca5602e93c30f1d5"
+                "reference": "46348a1f2f5ce381f646458411b049939e29df54"
             },
             "require": {
                 "php": ">=8.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^11.1",
+                "rector/rector": "^1.1"
             },
             "type": "library",
             "autoload": {
@@ -1311,7 +1318,7 @@
                 }
             ],
             "description": "Selpol validator library",
-            "time": "2024-03-22T10:53:42+00:00"
+            "time": "2024-10-24T07:30:56+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
@@ -1397,7 +1404,125 @@
             "time": "2023-01-26T09:26:14+00:00"
         }
     ],
-    "packages-dev": [],
+    "packages-dev": [
+        {
+            "name": "phpstan/phpstan",
+            "version": "1.12.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/phpstan/phpstan.git",
+                "reference": "dc2b9976bd8b0f84ec9b0e50cc35378551de7af0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/dc2b9976bd8b0f84ec9b0e50cc35378551de7af0",
+                "reference": "dc2b9976bd8b0f84ec9b0e50cc35378551de7af0",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2|^8.0"
+            },
+            "conflict": {
+                "phpstan/phpstan-shim": "*"
+            },
+            "bin": [
+                "phpstan",
+                "phpstan.phar"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "PHPStan - PHP Static Analysis Tool",
+            "keywords": [
+                "dev",
+                "static analysis"
+            ],
+            "support": {
+                "docs": "https://phpstan.org/user-guide/getting-started",
+                "forum": "https://github.com/phpstan/phpstan/discussions",
+                "issues": "https://github.com/phpstan/phpstan/issues",
+                "security": "https://github.com/phpstan/phpstan/security/policy",
+                "source": "https://github.com/phpstan/phpstan-src"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/ondrejmirtes",
+                    "type": "github"
+                },
+                {
+                    "url": "https://github.com/phpstan",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-18T11:12:07+00:00"
+        },
+        {
+            "name": "rector/rector",
+            "version": "1.2.8",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rectorphp/rector.git",
+                "reference": "05755bf43617449c08ee8e50fb840c85ad3b1240"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rectorphp/rector/zipball/05755bf43617449c08ee8e50fb840c85ad3b1240",
+                "reference": "05755bf43617449c08ee8e50fb840c85ad3b1240",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.2|^8.0",
+                "phpstan/phpstan": "^1.12.5"
+            },
+            "conflict": {
+                "rector/rector-doctrine": "*",
+                "rector/rector-downgrade-php": "*",
+                "rector/rector-phpunit": "*",
+                "rector/rector-symfony": "*"
+            },
+            "suggest": {
+                "ext-dom": "To manipulate phpunit.xml via the custom-rule command"
+            },
+            "bin": [
+                "bin/rector"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Instant Upgrade and Automated Refactoring of any PHP code",
+            "keywords": [
+                "automation",
+                "dev",
+                "migration",
+                "refactoring"
+            ],
+            "support": {
+                "issues": "https://github.com/rectorphp/rector/issues",
+                "source": "https://github.com/rectorphp/rector/tree/1.2.8"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/tomasvotruba",
+                    "type": "github"
+                }
+            ],
+            "time": "2024-10-18T11:54:27+00:00"
+        }
+    ],
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": [],

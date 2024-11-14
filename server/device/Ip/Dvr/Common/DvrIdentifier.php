@@ -52,7 +52,7 @@ readonly class DvrIdentifier
         $ip = connection_ip(container(ServerRequestInterface::class));
         $token = config_get('features.dvr.token');
 
-        if ($hash != sha1($camera . $dvr . $start . $end . $subscriber . $ip . $token . $salt)) {
+        if ($hash !== sha1($camera . $dvr . $start . $end . $subscriber . $ip . $token . $salt)) {
             throw new KernelException('Не верный токен');
         }
 
@@ -62,6 +62,6 @@ readonly class DvrIdentifier
             throw new KernelException('Время действия токена истекло');
         }
 
-        return new DvrIdentifier($camera, $dvr, $start, $end, $subscriber == 'null' ? null : intval($subscriber));
+        return new DvrIdentifier($camera, $dvr, $start, $end, $subscriber === 'null' ? null : intval($subscriber));
     }
 }

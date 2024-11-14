@@ -13,7 +13,7 @@ trait BewardTrait
     public function getIntercomCgi(): array
     {
         if (!isset($this->intercomCgi)) {
-            $this->intercomCgi = $this->parseParamValueHelp($this->get('/cgi-bin/intercom_cgi', ['action' => 'get'], parse: false));
+            $this->intercomCgi = $this->get('/cgi-bin/intercom_cgi', ['action' => 'get'], parse: ['type' => 'param']);
         }
 
         return $this->intercomCgi;
@@ -22,9 +22,7 @@ trait BewardTrait
     public function getSysInfo(): array
     {
         try {
-            $response = $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: false);
-
-            return $this->parseParamValueHelp($response);
+            return $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: ['type' => 'param']);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
@@ -55,26 +53,5 @@ trait BewardTrait
     public function reset(): void
     {
         $this->get('/cgi-bin/factorydefault_cgi');
-    }
-
-    protected function parseParamValueHelp(?string $response): array
-    {
-        if (is_null($response)) {
-            return [];
-        }
-
-        $return = [];
-
-        $result = explode(PHP_EOL, $response);
-
-        foreach ($result as $item) {
-            $value = array_map('trim', explode('=', trim($item)));
-
-            if ($value[0] != '') {
-                $return[$value[0]] = array_key_exists(1, $value) ? $value[1] : true;
-            }
-        }
-
-        return $return;
     }
 }

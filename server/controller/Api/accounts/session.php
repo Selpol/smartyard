@@ -31,7 +31,7 @@ readonly class session extends Api
         if ($coreAuth instanceof CoreAuth) {
             $coreAuth->status = 0;
 
-            return $coreAuth->update() ? self::success() : self::error('Не удалось обновить сессию', 400);
+            return $coreAuth->safeUpdate() ? self::success() : self::error('Не удалось обновить сессию', 400);
         }
 
         return self::error('Сессия не найдена', 404);

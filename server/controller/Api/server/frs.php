@@ -25,7 +25,7 @@ readonly class frs extends Api
             'url' => rule()->required()->url()->nonNullable()
         ]));
 
-        if ($frsServer->insert()) {
+        if ($frsServer->safeInsert()) {
             return self::success($frsServer->id);
         }
 
@@ -46,7 +46,7 @@ readonly class frs extends Api
         $frsServer->title = $validate['title'];
         $frsServer->url = $validate['url'];
 
-        if ($frsServer->update()) {
+        if ($frsServer->safeUpdate()) {
             return self::success($frsServer->id);
         }
 
@@ -57,7 +57,7 @@ readonly class frs extends Api
     {
         $frsServer = FrsServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($frsServer?->delete() === true) {
+        if ($frsServer->safeDelete()) {
             return self::success();
         }
 

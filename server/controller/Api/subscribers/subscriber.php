@@ -59,7 +59,7 @@ readonly class subscriber extends Api
     public static function DELETE(array $params): ResponseInterface
     {
         if (array_key_exists('force', $params) && $params['force']) {
-            if (HouseSubscriber::findById($params['subscriberId'], setting: setting()->nonNullable())->delete()) {
+            if (HouseSubscriber::findById($params['subscriberId'], setting: setting()->nonNullable())->safeDelete()) {
                 return self::success();
             }
 

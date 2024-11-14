@@ -25,7 +25,7 @@ readonly class streamer extends Api
             'url' => rule()->required()->string()->url()->nonNullable()
         ]));
 
-        if ($sipServer->insert()) {
+        if ($sipServer->safeInsert()) {
             return self::success($sipServer->id);
         }
 
@@ -46,7 +46,7 @@ readonly class streamer extends Api
         $sipServer->title = $validate['title'];
         $sipServer->url = $validate['url'];
 
-        if ($sipServer->update()) {
+        if ($sipServer->safeUpdate()) {
             return self::success($sipServer->id);
         }
 
@@ -57,7 +57,7 @@ readonly class streamer extends Api
     {
         $sipServer = StreamerServer::findById(rule()->id()->onItem('_id', $params), setting: setting()->nonNullable());
 
-        if ($sipServer->delete()) {
+        if ($sipServer->safeDelete()) {
             return self::success();
         }
 

@@ -2,13 +2,14 @@
 
 namespace Selpol\Feature\Frs;
 
+use Selpol\Cli\Cron\CronInterface;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Frs\Internal\InternalFrsFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(InternalFrsFeature::class)]
-readonly abstract class FrsFeature extends Feature
+readonly abstract class FrsFeature extends Feature implements CronInterface
 {
     //FRS params names
     const P_CODE = "code";
@@ -55,8 +56,6 @@ readonly abstract class FrsFeature extends Feature
     const FLAG_CAN_LIKE = "canLike";
     const FLAG_CAN_DISLIKE = "canDislike";
     const FLAG_LIKED = "liked";
-
-    abstract public function cron(string $part): bool;
 
     /**
      * @return FrsServer[]

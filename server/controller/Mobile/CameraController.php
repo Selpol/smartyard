@@ -6,7 +6,7 @@ use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use PDO;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
+use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
@@ -33,7 +33,7 @@ use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 #[Controller('/mobile/cctv')]
-readonly class CameraController extends RbtController
+readonly class CameraController extends MobileRbtController
 {
     /**
      * @throws NotFoundExceptionInterface

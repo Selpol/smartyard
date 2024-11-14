@@ -6,6 +6,7 @@ use Exception;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Model\BSONDocument;
 use MongoDB\UpdateResult;
+use Selpol\Cli\Cron\CronEnum;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Service\MongoService;
 
@@ -18,13 +19,14 @@ readonly class MongoFileFeature extends FileFeature
         $this->database = config_get('feature.file.database', self::DEFAULT_DATABASE);
     }
 
-    public function cron(string $part): bool
+    public function cron(CronEnum $value): bool
     {
-        if ($part === config_get('feature.file.cron_sync_data_scheduler')) {
+        if ($value->name === config_get('feature.file.cron_sync_data_scheduler')) {
             $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
 
-            foreach ($cursor as $document)
+            foreach ($cursor as $document) {
                 $this->deleteFile($document->_id);
+            }
         }
 
         return true;
@@ -44,8 +46,9 @@ readonly class MongoFileFeature extends FileFeature
 
         $id = $bucket->uploadFromStream($realFileName, $stream);
 
-        if ($metadata)
+        if ($metadata) {
             $this->setFileMetadata($id, $metadata);
+        }
 
         return (string)$id;
     }

@@ -6,7 +6,10 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Service\AuthService;
+use Selpol\Service\DeviceService;
+use Throwable;
 
 readonly class intercom extends Api
 {
@@ -35,6 +38,7 @@ readonly class intercom extends Api
             'device_model' => 'deviceModel',
             'device_software_version' => 'deviceSoftwareVersion',
             'device_hardware_version' => 'deviceHardwareVersion',
+            'config' => 'config',
             'hidden' => 'hidden'
         ]);
 
@@ -49,7 +53,7 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->insert()) {
+        if ($intercom->safeInsert()) {
             return self::success($intercom->house_domophone_id);
         }
 
@@ -62,7 +66,9 @@ readonly class intercom extends Api
 
         self::set($intercom, $params);
 
-        if ($intercom->update()) {
+        if ($intercom->safeUpdate()) {
+            container(ConfigFeature::class)->clearCacheConfigForIntercom($intercom->house_domophone_id);
+
             return self::success($intercom->house_domophone_id);
         }
 
@@ -73,7 +79,7 @@ readonly class intercom extends Api
     {
         $intercom = DeviceIntercom::findById($params['_id'], setting: setting()->nonNullable());
 
-        if ($intercom->delete()) {
+        if ($intercom->safeDelete()) {
             return self::success();
         }
 
@@ -107,6 +113,10 @@ readonly class intercom extends Api
             $intercom->sos_number = $params['sosNumber'];
         }
 
+        if (array_key_exists('config', $params)) {
+            $intercom->config = $params['config'];
+        }
+
         if (array_key_exists('hidden', $params)) {
             $intercom->hidden = $params['hidden'];
         }
@@ -115,6 +125,21 @@ readonly class intercom extends Api
 
         if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
             $intercom->ip = $ip;
+        }
+
+        try {
+            $device = container(DeviceService::class)->intercomByEntity($intercom);
+
+            if ($device) {
+                $info = $device->getSysInfo();
+
+                $intercom->device_id = $info['DeviceID'];
+                $intercom->device_model = $info['DeviceModel'];
+                $intercom->device_software_version = $info['SoftwareVersion'];
+                $intercom->device_hardware_version = $info['HardwareVersion'];
+            }
+        } catch (Throwable) {
+
         }
     }
 }

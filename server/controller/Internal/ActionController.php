@@ -3,7 +3,6 @@
 namespace Selpol\Controller\Internal;
 
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Controller\RbtController;
 use Selpol\Controller\Request\Internal\ActionCallFinishedRequest;
 use Selpol\Controller\Request\Internal\ActionMotionDetectionRequest;
 use Selpol\Controller\Request\Internal\ActionOpenDoorRequest;
@@ -15,11 +14,12 @@ use Selpol\Framework\Entity\EntitySetting;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
 #[Controller('/internal/actions')]
-readonly class ActionController extends RbtController
+readonly class ActionController extends RouteController
 {
     /**
      * @throws NotFoundExceptionInterface

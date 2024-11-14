@@ -72,7 +72,7 @@ class RedisService implements LoggerAwareInterface
             $database = 0;
         }
 
-        if ($database == $index) {
+        if ($database === $index) {
             return call_user_func($callback, $this);
         }
 
