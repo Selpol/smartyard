@@ -41,7 +41,7 @@ readonly class AuthMiddleware extends RouteMiddleware
             return AdminRbtController::error('Запрос не авторизирован', 401);
         }
 
-        container(AuthService::class)->setToken(new CoreAuthToken($authorization[1], $user->aud_jti));
+        container(AuthService::class)->setToken(new CoreAuthToken($segments[1], $user->aud_jti));
         container(AuthService::class)->setUser(new CoreAuthUser($user));
 
         return $handler->handle($request);
