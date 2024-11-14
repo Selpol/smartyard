@@ -223,7 +223,7 @@ readonly class InternalConfigFeature extends ConfigFeature
         $values = $config->getValues();
         $keys = array_keys($values);
 
-        $intercoms = [];
+        $cameras = [];
         $vendors = [];
         $titles = [];
         $revs = [];
@@ -243,7 +243,7 @@ readonly class InternalConfigFeature extends ConfigFeature
             }
 
             if (strtoupper($segments[1]) !== $segments[1]) {
-                $intercoms[implode('.', array_slice($segments, 1))] = $values[$key];
+                $cameras[implode('.', array_slice($segments, 1))] = $values[$key];
 
                 continue;
             }
@@ -265,6 +265,6 @@ readonly class InternalConfigFeature extends ConfigFeature
             }
         }
 
-        return new Config(array_merge($intercoms, $vendors, $titles, $revs, $locals));
+        return new Config(array_merge($cameras, $vendors, $titles, $revs, $locals));
     }
 }
