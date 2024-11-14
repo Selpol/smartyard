@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\intercom;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Service\AuthService;
@@ -15,6 +16,7 @@ readonly class intercoms extends Api
         $validate = validator($params, [
             'comment' => rule()->string()->clamp(0, 1000),
 
+            'model' => rule()->string()->in(array_keys(IntercomModel::models())),
             'ip' => rule()->string()->clamp(0, 15),
 
             'device_id' => rule()->string()->clamp(0, 128),
@@ -28,6 +30,7 @@ readonly class intercoms extends Api
 
         $criteria = criteria()
             ->like('comment', $validate['comment'])
+            ->equal('model', $validate['model'])
             ->like('ip', $validate['ip'])
             ->like('device_id', $validate['device_id'])
             ->like('device_model', $validate['device_model'])
