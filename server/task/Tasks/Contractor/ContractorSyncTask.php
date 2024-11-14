@@ -60,16 +60,19 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $flats = [];
 
         $progress = 15;
-        $delta = (50 - $progress) / count($addresses);
 
-        foreach ($addresses as $address) {
-            try {
-                $this->address($contractor, $address, $subscribers, $devices, $flats);
+        if (count($addresses) > 0) {
+            $delta = (50 - $progress) / count($addresses);
 
-                $progress += $delta;
-                $this->setProgress($progress);
-            } catch (Throwable $throwable) {
-                $this->logger?->error($throwable);
+            foreach ($addresses as $address) {
+                try {
+                    $this->address($contractor, $address, $subscribers, $devices, $flats);
+
+                    $progress += $delta;
+                    $this->setProgress($progress);
+                } catch (Throwable $throwable) {
+                    $this->logger?->error($throwable);
+                }
             }
         }
 
