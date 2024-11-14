@@ -194,6 +194,13 @@ class DeviceCamera extends Entity
 
             'comment' => rule()->string(),
 
+            'config' => rule()->string(),
+
+            'device_id' => rule()->string()->clamp(0, 128),
+            'device_model' => rule()->string()->clamp(0, 64),
+            'device_software_version' => rule()->string()->clamp(0, 64),
+            'device_hardware_version' => rule()->string()->clamp(0, 64),
+
             'hidden' => rule()->bool()
         ];
     }
