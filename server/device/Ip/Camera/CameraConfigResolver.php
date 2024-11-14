@@ -28,6 +28,29 @@ class CameraConfigResolver extends ConfigResolver
             return $value;
         }
 
+        // Глобальная конфигурация по модели устройства
+        if ($this->camera->device_model) {
+            $model = strtoupper(str_replace('.', '', $this->camera->device_model));
+
+            $value = $this->config->resolve('camera.' . $this->model->vendor . '.' . $model . '.' . $key);
+
+            if ($value != null) {
+                return $value;
+            }
+
+            if (str_contains($model, '_REV')) {
+                $segments = explode('_REV', $model);
+
+                if (count($segments) > 1) {
+                    $value = $this->config->resolve('camera.' . $this->model->vendor . '.' . $segments[0] . '.' . $key);
+
+                    if ($value != null) {
+                        return $value;
+                    }
+                }
+            }
+        }
+
         // Глобальная конфигурация по производителю модели устройства и названию модели
         $value = $this->config->resolve('camera.' . $this->model->vendor . '.' . str_replace('.', '', $this->model->title));
 

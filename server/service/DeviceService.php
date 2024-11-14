@@ -76,7 +76,7 @@ class DeviceService implements CronInterface
             return $this->cameras[$id];
         }
 
-        if (($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials'])->nonNullable())) instanceof DeviceCamera) {
+        if (($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials', 'config', 'device_model'])->nonNullable())) instanceof DeviceCamera) {
             return $this->cameraByEntity($camera);
         }
 

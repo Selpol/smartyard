@@ -147,6 +147,10 @@ readonly class InternalConfigFeature extends ConfigFeature
             $value->load($model->config);
         }
 
+        if ($camera->config) {
+            $value->load($camera->config);
+        }
+
         return $value;
     }
 
@@ -262,6 +266,20 @@ readonly class InternalConfigFeature extends ConfigFeature
                 $titles[implode('.', array_slice($segments, 2))] = $values[$key];
 
                 continue;
+            }
+
+            if ($camera->device_model) {
+                if ($segments[2] == strtoupper($camera->device_model)) {
+                    $revs[implode('.', array_slice($segments, 2))] = $values[$key];
+                }
+
+                if (str_contains($camera->device_model, '_rev')) {
+                    $models = explode('_rev', $camera->device_model);
+
+                    if ($segments[2] == strtoupper($models[0])) {
+                        $revs[implode('.', array_slice($segments, 3))] = $values[$key];
+                    }
+                }
             }
         }
 
