@@ -25,7 +25,7 @@ readonly class ScopeMiddleware extends RouteMiddleware
             return AdminRbtController::error('Не удалось проверить права', 403);
         }
 
-        $scope = substr($target, 7) . '-' . $route->route['class'][1] . '-' . $method;
+        $scope = str_replace('/', '-', substr($target, 7)) . '-' . $route->route['class'][1] . '-' . $method;
 
         if (!container(AuthService::class)->checkScope($scope)) {
             try {
