@@ -51,7 +51,7 @@ class DeviceInfoCommand
                 $value += $step;
                 $progress->set((int)floor($value));
             } catch (Throwable $throwable) {
-                $io->writeLine($throwable->getMessage());
+                $io->writeLine($deviceIntercom->house_domophone_id . ' - ' . $deviceIntercom->ip . ' - ' . $throwable->getMessage());
             }
         }
 
@@ -79,7 +79,7 @@ class DeviceInfoCommand
                 $value += $step;
                 $progress->set((int)floor($value));
             } catch (Throwable $throwable) {
-                $io->writeLine($throwable->getMessage());
+                $io->writeLine($deviceCamera->camera_id . ' - ' . $deviceCamera->ip . ' - ' . $throwable->getMessage());
             }
         }
 

@@ -47,7 +47,11 @@ abstract class IpDevice extends Device
             $url .= ':' . $this->uri->getPort();
         }
 
+        $reporting = error_reporting();
+
         try {
+            error_reporting($reporting ^ E_WARNING);
+
             $fp = stream_socket_client($url, $code, $message, timeout: 1);
 
             if ($fp) {
@@ -56,8 +60,12 @@ abstract class IpDevice extends Device
                 return true;
             }
 
+            error_reporting($reporting);
+
             return false;
         } catch (Throwable) {
+            error_reporting($reporting);
+
             return false;
         }
     }
