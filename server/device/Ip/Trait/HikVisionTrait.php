@@ -13,6 +13,10 @@ trait HikVisionTrait
         try {
             $info = $this->get('/ISAPI/System/deviceInfo');
 
+            if ($info === null) {
+                throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
+            }
+
             $serial = strlen($info['serialNumber']) > 9 ? substr($info['serialNumber'], -9) : $info['serialNumber'];
 
             return [
