@@ -171,7 +171,9 @@ readonly abstract class ConfigFeature extends Feature
             ],
 
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
-            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
+            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
+
+            ['type' => 'value', 'value' => 'screenshot', 'title' => 'Скриншот', 'assign' => ['type' => 'string']]
         ];
     }
 

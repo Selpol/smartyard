@@ -2,7 +2,7 @@
 
 namespace Selpol\Device\Ip\Camera;
 
-use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\DeviceLogger;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Config\ConfigResolver;
@@ -35,11 +35,28 @@ abstract class CameraDevice extends IpDevice
             $this->debug = $this->resolver->bool('debug', false);
         }
 
-        $this->setLogger(file_logger('camera'));
+        $log = self::template($this->resolver->string('log', 'camera'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string)$this->camera->camera_id]);
+        $dir = dirname(path('var/log/' . $log));
+
+        if (!is_dir($dir)) {
+            mkdir($dir, recursive: true);
+        }
+
+        $this->setLogger(new DeviceLogger(path('var/log/' . $log . '.log')));
     }
 
     public function getScreenshot(): Stream
     {
-        throw new DeviceException($this, 'Не удалось получить скриншот');
+        $screenshot = $this->resolver->string('screenshot');
+
+        if ($screenshot) {
+            $screenshot = self::template($screenshot, ['url' => $this->camera->url, 'ip' => $this->camera->ip]);
+
+            return $this->client->send(client_request('GET', $screenshot), $this->clientOption)->getBody();
+        }
+
+        return $this->getScreenshotInternal();
     }
+
+    protected abstract function getScreenshotInternal(): Stream;
 }

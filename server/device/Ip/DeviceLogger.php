@@ -1,11 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Device\Ip\Intercom;
+namespace Selpol\Device\Ip;
 
 use Psr\Log\LoggerInterface;
 use Psr\Log\LoggerTrait;
 
-class IntercomLogger implements LoggerInterface
+class DeviceLogger implements LoggerInterface
 {
     use LoggerTrait;
 

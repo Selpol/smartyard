@@ -2,6 +2,7 @@
 
 namespace Selpol\Device\Ip\Intercom;
 
+use Selpol\Device\Ip\DeviceLogger;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigResolver;
@@ -70,11 +71,7 @@ abstract class IntercomDevice extends IpDevice
             mkdir($dir, recursive: true);
         }
 
-        $this->setLogger(new IntercomLogger(path('var/log/' . $log . '.log')));
-
-        if ($this->debug) {
-            $this->logger->debug($this->resolver->string('auth', 'basic'), $this->clientOption->getCredential());
-        }
+        $this->setLogger(new DeviceLogger(path('var/log/' . $log . '.log')));
     }
 
     public function open(int $value): void
@@ -95,22 +92,5 @@ abstract class IntercomDevice extends IpDevice
 
     public function reset(): void
     {
-    }
-
-    public static function template(string $value, array $values): string
-    {
-        if (preg_match_all('(%\w+%)', $value, $matches)) {
-            foreach ($matches as $match) {
-                foreach ($match as $item) {
-                    $key = substr($item, 1, -1);
-
-                    if (array_key_exists($key, $values)) {
-                        $value = str_replace($item, $values[$key], $value);
-                    }
-                }
-            }
-        }
-
-        return $value;
     }
 }

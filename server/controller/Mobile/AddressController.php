@@ -7,9 +7,9 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\AddressRegisterQrRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Block\BlockFeature;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -25,7 +25,7 @@ readonly class AddressController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/getAddressList')]
-    public function getAddressList(HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): Response
+    public function getAddressList(HouseFeature $houseFeature, BlockFeature $blockFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -112,9 +112,8 @@ readonly class AddressController extends MobileRbtController
                     $door['name'] = $e['entrance'];
 
                     if ($e['cameraId']) {
-                        $cam = $cameraFeature->getCamera($e["cameraId"]);
+                        $house['cameras'][] = DeviceCamera::findById($e['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
-                        $house['cameras'][] = $cam;
                         ++$house['cctv'];
                     }
 

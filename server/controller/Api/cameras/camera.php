@@ -31,16 +31,8 @@ readonly class camera extends Api
             'name' => 'name',
             'dvr_stream' => 'dvrStream',
             'timezone' => 'timezone',
-            'screenshot' => 'screenshot',
             'lat' => 'lat',
             'lon' => 'lon',
-            'direction' => 'direction',
-            'angle' => 'angle',
-            'distance' => 'distance',
-            'md_left' => 'mdLeft',
-            'md_top' => 'mdTop',
-            'md_width' => 'mdWidth',
-            'md_height' => 'mdHeight',
             'common' => 'common',
             'comment' => 'comment',
             'hidden' => 'hidden'
@@ -132,21 +124,8 @@ readonly class camera extends Api
         $camera->dvr_stream = $params['dvrStream'];
         $camera->timezone = $params['timezone'];
 
-        if (array_key_exists('screenshot', $params)) {
-            $camera->screenshot = $params['screenshot'];
-        }
-
         $camera->lat = $params['lat'];
         $camera->lon = $params['lon'];
-
-        $camera->direction = $params['direction'];
-        $camera->angle = $params['angle'];
-        $camera->distance = $params['distance'];
-
-        $camera->md_left = $params['mdLeft'];
-        $camera->md_top = $params['mdTop'];
-        $camera->md_width = $params['mdWidth'];
-        $camera->md_height = $params['mdHeight'];
 
         $camera->common = $params['common'];
 

@@ -4,11 +4,8 @@ namespace Selpol\Device\Ip\Camera\HikVision;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Camera\CameraDevice;
-use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Trait\HikVisionTrait;
 use Selpol\Framework\Http\Stream;
-use Selpol\Framework\Http\Uri;
-use SensitiveParameter;
 use Throwable;
 
 class HikVisionCamera extends CameraDevice
@@ -17,7 +14,7 @@ class HikVisionCamera extends CameraDevice
 
     public string $login = 'admin';
 
-    public function getScreenshot(): Stream
+    protected function getScreenshotInternal(): Stream
     {
         try {
             return $this->client->send(client_request('GET', $this->uri . '/Streaming/channels/101/picture?snapShotImageType=JPEG'), $this->clientOption)->getBody();

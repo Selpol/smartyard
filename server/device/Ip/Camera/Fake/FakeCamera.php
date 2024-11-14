@@ -2,7 +2,9 @@
 
 namespace Selpol\Device\Ip\Camera\Fake;
 
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Framework\Http\Stream;
 
 class FakeCamera extends CameraDevice
 {
@@ -20,5 +22,10 @@ class FakeCamera extends CameraDevice
     public function ping(): bool
     {
         return true;
+    }
+
+    protected function getScreenshotInternal(): Stream
+    {
+        throw new DeviceException($this, '[Fake] Не удалось получить скриншот');
     }
 }

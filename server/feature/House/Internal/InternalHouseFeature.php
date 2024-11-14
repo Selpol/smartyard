@@ -4,9 +4,9 @@ namespace Selpol\Feature\House\Internal;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Block\FlatBlock;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Address\AddressFeature;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Inbox\InboxFeature;
 use Selpol\Feature\Oauth\OauthFeature;
@@ -1156,7 +1156,7 @@ readonly class InternalHouseFeature extends HouseFeature
             $ids = $this->getDatabase()->get($query, map: ["camera_id" => "cameraId"]);
 
             foreach ($ids as $id) {
-                $cam = container(CameraFeature::class)->getCamera($id["cameraId"]);
+                $cam = DeviceCamera::findById($id['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
                 $list[] = $cam;
             }
