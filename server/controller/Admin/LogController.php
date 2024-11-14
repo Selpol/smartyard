@@ -2,9 +2,9 @@
 
 namespace Selpol\Controller\Admin;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\LogIndexRequest;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
@@ -12,7 +12,7 @@ use Selpol\Framework\Router\Attribute\Method\Get;
 readonly class LogController extends AdminRbtController
 {
     #[Get]
-    public function index(LogIndexRequest $request): Response
+    public function index(LogIndexRequest $request): ResponseInterface
     {
         if ($request->file) {
             $path = realpath(path('var/log/' . $request->file));

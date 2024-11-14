@@ -2,13 +2,13 @@
 
 namespace Selpol\Controller\Admin;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\ConfigIndexRequest;
 use Selpol\Controller\Request\Admin\ConfigIntercomRequest;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\Config\ConfigFeature;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\DatabaseService;
@@ -17,7 +17,7 @@ use Selpol\Service\DatabaseService;
 readonly class ConfigController extends AdminRbtController
 {
     #[Get('/{type}')]
-    public function index(ConfigIndexRequest $request, DatabaseService $database, ConfigFeature $configFeature): Response
+    public function index(ConfigIndexRequest $request, DatabaseService $database, ConfigFeature $configFeature): ResponseInterface
     {
         if ($request->type == 'intercom') {
             $models = IntercomModel::models();
@@ -83,7 +83,7 @@ readonly class ConfigController extends AdminRbtController
         return self::error('Не удалось найти параметры конфигурации');
     }
 
-    public function intercom(ConfigIntercomRequest $request, ConfigFeature $feature): Response
+    public function intercom(ConfigIntercomRequest $request, ConfigFeature $feature): ResponseInterface
     {
         $intercom = intercom($request->id);
 
