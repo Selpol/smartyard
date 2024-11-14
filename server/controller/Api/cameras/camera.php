@@ -35,6 +35,11 @@ readonly class camera extends Api
             'lon' => 'lon',
             'common' => 'common',
             'comment' => 'comment',
+            'device_id' => 'deviceId',
+            'device_model' => 'deviceModel',
+            'device_software_version' => 'deviceSoftwareVersion',
+            'device_hardware_version' => 'deviceHardwareVersion',
+            'config' => 'config',
             'hidden' => 'hidden'
         ]));
     }
@@ -130,6 +135,10 @@ readonly class camera extends Api
         $camera->common = $params['common'];
 
         $camera->comment = $params['comment'];
+
+        if (array_key_exists('config', $params)) {
+            $camera->config = $params['config'];
+        }
 
         if (array_key_exists('hidden', $params)) {
             $camera->hidden = $params['hidden'];

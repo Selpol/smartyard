@@ -46,6 +46,11 @@ readonly class cameras extends Api
                 'lon' => 'lon',
                 'common' => 'common',
                 'comment' => 'comment',
+                'device_id' => 'deviceId',
+                'device_model' => 'deviceModel',
+                'device_software_version' => 'deviceSoftwareVersion',
+                'device_hardware_version' => 'deviceHardwareVersion',
+                'config' => 'config',
                 'hidden' => 'hidden'
             ]);
 

@@ -36,6 +36,13 @@ use Selpol\Service\DatabaseService;
  *
  * @property string|null $comment
  *
+ * @property string|null $device_id
+ * @property string|null $device_model
+ * @property string|null $device_software_version
+ * @property string|null $device_hardware_version
+ *
+ * @property string|null $config
+ *
  * @property bool $hidden
  */
 class DeviceCamera extends Entity
