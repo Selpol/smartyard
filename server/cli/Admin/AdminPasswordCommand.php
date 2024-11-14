@@ -12,7 +12,7 @@ use Selpol\Service\DatabaseService;
 class AdminPasswordCommand
 {
     #[Execute]
-    public function execute(CliIO $io, DatabaseService $service): void
+    public function execute(CliIO $io, DatabaseService $service, string $value): void
     {
         $connection = $service->getConnection();
 
@@ -23,7 +23,7 @@ class AdminPasswordCommand
 
         try {
             $sth = $connection->prepare("update core_users set password = :password, login = 'admin', enabled = 1 where uid = 0");
-            $sth->execute([":password" => password_hash($password, PASSWORD_DEFAULT)]);
+            $sth->execute([":password" => password_hash($value, PASSWORD_DEFAULT)]);
 
             $io->writeLine('Admin account update successes');
         } catch (Exception) {
