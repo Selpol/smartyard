@@ -7,6 +7,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Service\DeviceService;
 use Throwable;
 
@@ -50,6 +51,8 @@ class DeviceInfoCommand
 
                 $value += $step;
                 $progress->set((int)floor($value));
+            } catch (KernelException $exception) {
+                $io->writeLine($deviceIntercom->house_domophone_id . ' - ' . $deviceIntercom->ip . ' - ' . $exception->getLocalizedMessage());
             } catch (Throwable $throwable) {
                 $io->writeLine($deviceIntercom->house_domophone_id . ' - ' . $deviceIntercom->ip . ' - ' . $throwable->getMessage());
             }
@@ -78,6 +81,8 @@ class DeviceInfoCommand
 
                 $value += $step;
                 $progress->set((int)floor($value));
+            } catch (KernelException $exception) {
+                $io->writeLine($deviceCamera->camera_id . ' - ' . $deviceCamera->ip . ' - ' . $exception->getLocalizedMessage());
             } catch (Throwable $throwable) {
                 $io->writeLine($deviceCamera->camera_id . ' - ' . $deviceCamera->ip . ' - ' . $throwable->getMessage());
             }
