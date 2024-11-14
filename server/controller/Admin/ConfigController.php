@@ -5,7 +5,9 @@ namespace Selpol\Controller\Admin;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\ConfigIndexRequest;
-use Selpol\Controller\Request\Admin\ConfigIntercomRequest;
+use Selpol\Controller\Request\Admin\ConfigOptimizeRequest;
+use Selpol\Device\Ip\Camera\CameraDevice;
+use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Feature\Config\ConfigFeature;
@@ -78,12 +80,43 @@ readonly class ConfigController extends AdminRbtController
                     ]
                 ]
             ]);
+        } else if ($request->type === 'camera') {
+            $models = CameraModel::models();
+
+            $values = [];
+
+            foreach ($models as $model) {
+                if (!array_key_exists($model->vendor, $values)) {
+                    $values[$model->vendor] = [
+                        'value' => $model->vendor,
+                        'title' => 'Производитель камеры',
+
+                        'suggestions' => []
+                    ];
+                }
+
+                $values[$model->vendor]['suggestions'][] = ['value' => str_replace('.', '', $model->title), 'title' => 'Модель'];
+            }
+
+            return self::success([
+                'suggestions' => $configFeature->getSuggestionsForCameraConfig(),
+
+                'container_suggestions' => [
+                    [
+                        'value' => 'camera',
+                        'title' => 'Камера',
+
+                        'suggestions' => array_values($values)
+                    ]
+                ]
+            ]);
         }
 
         return self::error('Не удалось найти параметры конфигурации');
     }
 
-    public function intercom(ConfigIntercomRequest $request, ConfigFeature $feature): ResponseInterface
+    #[Get('/intercom/{id}')]
+    public function intercom(ConfigOptimizeRequest $request, ConfigFeature $feature): ResponseInterface
     {
         $intercom = intercom($request->id);
 
@@ -98,11 +131,28 @@ readonly class ConfigController extends AdminRbtController
         return self::error('Не удалось найти параметры конфигурации');
     }
 
+    #[Get('/camera/{id}')]
+    public function camera(ConfigOptimizeRequest $request, ConfigFeature $feature): ResponseInterface
+    {
+        $camera = camera($request->id);
+
+        if ($camera instanceof CameraDevice) {
+            $values = ($request->optimize ? $feature->getOptimizeConfigForCamera($camera->model, $camera->camera) : $feature->getConfigForCamera($camera->model, $camera->camera))->getValues();
+
+            return self::success(array_reduce(array_keys($values), static function (string $previous, string $key) use ($values): string {
+                return $previous . $key . '=' . $values[$key] . PHP_EOL;
+            }, ''));
+        }
+
+        return self::error('Не удалось найти параметры конфигурации');
+    }
+
     public static function scopes(): array
     {
         return [
             'config-index-get' => '[Конфигурация] Получить параметры конфигурации',
             'config-intercom-get' => '[Конфигурация] Получить конфигурацию домофона',
+            'config-camera-get' => '[Конфигурация] Получить конфигурацию камеры'
         ];
     }
 }

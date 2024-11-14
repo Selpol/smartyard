@@ -6,6 +6,8 @@ use Selpol\Device\Ip\Camera\Beward\BewardCamera;
 use Selpol\Device\Ip\Camera\Fake\FakeCamera;
 use Selpol\Device\Ip\Camera\HikVision\HikVisionCamera;
 use Selpol\Device\Ip\Camera\Is\IsCamera;
+use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Feature\Config\ConfigResolver;
 
 class CameraModel
 {
@@ -14,7 +16,7 @@ class CameraModel
      */
     private static array $models;
 
-    public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $class)
+    public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $config)
     {
     }
 
@@ -22,13 +24,21 @@ class CameraModel
     {
         return [
             'title' => $this->title,
-            'vendor' => $this->vendor,
-
-            'model' => false,
-            'version' => false,
-
-            'class' => $this->class
+            'vendor' => $this->vendor
         ];
+    }
+
+    public function instance(DeviceCamera $camera, ConfigResolver $resolver): CameraDevice
+    {
+        $class = $resolver->string('class');
+        $class = match ($class) {
+            'Is' => IsCamera::class,
+            'Beward' => BewardCamera::class,
+            'HikVision' => HikVisionCamera::class,
+            'Fake' => FakeCamera::class
+        };
+
+        return new $class(uri($camera->url), $camera->credentials, $this, $camera, $resolver);
     }
 
     public static function modelsToArray(): array
@@ -43,11 +53,11 @@ class CameraModel
     {
         if (!isset(self::$models)) {
             self::$models = [
-                'is' => new CameraModel('Sokol', 'IS', IsCamera::class),
-                'beward' => new CameraModel('Beward', 'BEWARD', BewardCamera::class),
-                'hikVision' => new CameraModel('HikVision', 'HIKVISION', HikVisionCamera::class),
+                'is' => new CameraModel('IS', 'IS', 'class=Is'),
+                'beward' => new CameraModel('BEWARD', 'BEWARD', 'class=Beward'),
+                'hikVision' => new CameraModel('HikVision', 'HIKVISION', 'class=HikVision'),
 
-                'fake' => new CameraModel('Fake', 'FAKE', FakeCamera::class)
+                'fake' => new CameraModel('FAKE', 'FAKE', 'class=Fake')
             ];
         }
 

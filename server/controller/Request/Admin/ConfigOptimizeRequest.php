@@ -9,7 +9,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  *
  * @property-read bool $optimize
  */
-readonly class ConfigIntercomRequest extends RouteRequest
+readonly class ConfigOptimizeRequest extends RouteRequest
 {
     public static function getValidate(): array
     {

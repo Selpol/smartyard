@@ -12,7 +12,7 @@ readonly class ConfigIndexRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'type' => rule()->required()->string()->in(['intercom'])->nonNullable(),
+            'type' => rule()->required()->string()->in(['intercom', 'camera'])->nonNullable(),
         ];
     }
 }

@@ -24,7 +24,7 @@ abstract class IntercomDevice extends IpDevice
 
         $this->resolver = $resolver;
 
-        $login = $this->resolver->string('auth.login',);
+        $login = $this->resolver->string('auth.login');
 
         if ($login !== null) {
             $this->login = $login;

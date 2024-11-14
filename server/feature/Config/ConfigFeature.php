@@ -2,7 +2,9 @@
 
 namespace Selpol\Feature\Config;
 
+use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Internal\InternalConfigFeature;
 use Selpol\Feature\Feature;
@@ -154,13 +156,42 @@ readonly abstract class ConfigFeature extends Feature
         ];
     }
 
+    public function getSuggestionsForCameraConfig(): array
+    {
+        return [
+            [
+                'type' => 'value',
+                'value' => 'auth',
+                'title' => 'Авторизация',
+                'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'login', 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
+                ]
+            ],
+
+            ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
+        ];
+    }
+
     public abstract function getCacheConfigForIntercom(int $id): ?Config;
+
+    public abstract function getCacheConfigForCamera(int $id): ?Config;
 
     public abstract function setCacheConfigForIntercom(Config $config, int $id): void;
 
+    public abstract function setCacheConfigForCamera(Config $config, int $id): void;
+
     public abstract function clearCacheConfigForIntercom(?int $id = null): void;
+
+    public abstract function clearCacheConfigForCamera(?int $id = null): void;
 
     public abstract function getConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom): Config;
 
+    public abstract function getConfigForCamera(CameraModel $model, DeviceCamera $camera): Config;
+
     public abstract function getOptimizeConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom): Config;
+
+    public abstract function getOptimizeConfigForCamera(CameraModel $model, DeviceCamera $camera): Config;
 }
