@@ -6,8 +6,10 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Service\AuthService;
+use Selpol\Service\DeviceService;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
+use Throwable;
 
 readonly class camera extends Api
 {
@@ -138,6 +140,21 @@ readonly class camera extends Api
 
         if (array_key_exists('config', $params)) {
             $camera->config = $params['config'];
+        }
+
+        try {
+            $device = container(DeviceService::class)->cameraByEntity($camera);
+
+            if ($device) {
+                $info = $device->getSysInfo();
+
+                $camera->device_id = $info['DeviceID'];
+                $camera->device_model = $info['DeviceModel'];
+                $camera->device_software_version = $info['SoftwareVersion'];
+                $camera->device_hardware_version = $info['HardwareVersion'];
+            }
+        } catch (Throwable) {
+
         }
 
         if (array_key_exists('hidden', $params)) {

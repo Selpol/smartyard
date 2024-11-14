@@ -15,11 +15,25 @@ readonly class cameras extends Api
         $validate = validator($params, [
             'comment' => rule()->string()->clamp(0, 1000),
 
+            'ip' => rule()->string()->clamp(0, 15),
+
+            'device_id' => rule()->string()->clamp(0, 128),
+            'device_model' => rule()->string()->clamp(0, 64),
+            'device_software_version' => rule()->string()->clamp(0, 64),
+            'device_hardware_version' => rule()->string()->clamp(0, 64),
+
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('comment', $validate['comment'])->asc('camera_id');
+        $criteria = criteria()
+            ->like('comment', $validate['comment'])
+            ->like('ip', $validate['ip'])
+            ->like('device_id', $validate['device_id'])
+            ->like('device_model', $validate['device_model'])
+            ->like('device_software_version', $validate['device_software_version'])
+            ->like('device_hardware_version', $validate['device_hardware_version'])
+            ->asc('camera_id');
 
         if (!container(AuthService::class)->checkScope('camera-hidden')) {
             $criteria->equal('hidden', false);
