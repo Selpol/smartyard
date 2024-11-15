@@ -19,7 +19,7 @@ use Selpol\Service\DatabaseService;
 readonly class ConfigController extends AdminRbtController
 {
     #[Get('/suggestion/{type}')]
-    public function index(ConfigIndexRequest $request, DatabaseService $database, ConfigFeature $configFeature): ResponseInterface
+    public function suggestion(ConfigIndexRequest $request, DatabaseService $database, ConfigFeature $configFeature): ResponseInterface
     {
         if ($request->type == 'intercom') {
             $models = IntercomModel::models();
