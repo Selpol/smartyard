@@ -551,16 +551,16 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
             }
 
-            $segments = explode(', ', $housesEntrance['house_full']);
+            $segments = array_map('trim', explode(',', $housesEntrance['house_full']));
 
             if (count($segments) > 1) {
                 if (str_ends_with($segments[0], ' обл')) {
-                    array_unshift($segments);
+                    unset($segments[0]);
                 }
 
                 if (count($segments) > 1) {
                     if (str_starts_with($segments[0], ' г')) {
-                        array_unshift($segments);
+                        unset($segments[0]);
                     }
                 }
             }
