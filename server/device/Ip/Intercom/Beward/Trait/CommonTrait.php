@@ -36,7 +36,11 @@ trait CommonTrait
     {
         if ($this->mifare) {
             $cipher = $this->get('/cgi-bin/cipher_cgi', ['action' => 'list'], parse: ['type' => 'param']);
-            $mifare = $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+            $mifare = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
+
+            if (!$cipher || !$mifare) {
+                return new Mifare(false, '', 0);
+            }
 
             return new Mifare(true, array_key_exists('Value1', $cipher) ? $cipher['Value1'] : '', intval($mifare['Sector']));
         }
