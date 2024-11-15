@@ -525,7 +525,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         /** @var Gate[] $gates */
         $gates = [];
 
-        $housesEntrances = container(DatabaseService::class)->get('SELECT address_house_id, prefix FROM houses_houses_entrances WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
+        $housesEntrances = container(DatabaseService::class)->get('SELECT addresses_houses.house_full, houses_houses_entrances.address_house_id, prefix FROM houses_houses_entrances JOIN public.addresses_houses ON addresses_houses.address_house_id = houses_houses_entrances.address_house_id WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
         $flatsIds = array_map(static fn(array $flatId) => $flatId['house_flat_id'], container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]));
 
@@ -552,9 +552,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
             }
 
-            $intercom = DeviceIntercom::findById($entrancesFlat->house_domophone_id, setting: setting()->columns(['ip']));
-
-            $gates[] = new Gate($intercom->ip, $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
+            $gates[] = new Gate($housesEntrance['house_full'], $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
         }
 
         $device->setGates($gates);
