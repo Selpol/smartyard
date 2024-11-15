@@ -4,7 +4,6 @@ namespace Selpol\Controller\Admin\Block;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Api\block\block;
 use Selpol\Controller\Request\Admin\Block\BlockDeleteRequest;
 use Selpol\Controller\Request\Admin\Block\BlockFlatStoreRequest;
 use Selpol\Controller\Request\Admin\Block\BlockUpdateRequest;
@@ -110,8 +109,8 @@ readonly class BlockFlatController extends AdminRbtController
             $block->flat_id,
             'Обновление статуса квартиры',
             $status
-                ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
-                : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
+                ? ('Услуга ' . BlockController::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
+                : ('Услуга ' . BlockController::translate($block->service) . ' разблокирована'),
             'inbox'
         ))->default()->dispatch();
     }

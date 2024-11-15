@@ -4,7 +4,6 @@ namespace Selpol\Controller\Admin\Block;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Api\block\block;
 use Selpol\Controller\Request\Admin\Block\BlockDeleteRequest;
 use Selpol\Controller\Request\Admin\Block\BlockSubscriberStoreRequest;
 use Selpol\Controller\Request\Admin\Block\BlockUpdateRequest;
@@ -97,8 +96,8 @@ readonly class BlockSubscriberController extends AdminRbtController
             $block->subscriber_id,
             'Обновление статуса абонента',
             $status
-                ? ('Услуга ' . block::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
-                : ('Услуга ' . block::translate($block->service) . ' разблокирована'),
+                ? ('Услуга ' . BlockController::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
+                : ('Услуга ' . BlockController::translate($block->service) . ' разблокирована'),
             'inbox'
         ))->default()->dispatch();
     }
