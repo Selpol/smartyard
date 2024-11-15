@@ -16,8 +16,6 @@ readonly class AuthMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        return $handler->handle($request);
-
         $ip = connection_ip($request);
 
         if ($ip === null || $ip === '' || $ip === '0') {
