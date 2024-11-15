@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Client\ClientOption;
@@ -31,6 +32,11 @@ abstract class IpDevice extends Device
         $this->debug = config_get('debug', false);
 
         $this->setLogger(file_logger('ip'));
+    }
+
+    public function getLogger(): ?LoggerInterface
+    {
+        return $this->logger;
     }
 
     public function pingRaw(): bool

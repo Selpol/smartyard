@@ -80,7 +80,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(20);
 
         if ($entrance instanceof HouseEntrance) {
-            if ($device instanceof CmsInterface) {
+            if (!$entrance->shared && $device instanceof CmsInterface) {
                 $this->cms($device, $entrance);
             }
 
@@ -401,6 +401,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         foreach ($flats as $apartment => $flat) {
             $flatKeys = HouseKey::fetchAll(criteria()->equal('access_to', $flat->house_flat_id)->equal('access_type', 2));
 
+            if ($device->debug) {
+                $device->getLogger()?->debug('Update flat keys', ['flat' => $flat, 'count' => count($flatKeys)]);
+            }
+
             foreach ($flatKeys as $index => $flatKey) {
                 if (array_key_exists($flat->flat . $flatKey->rfid, $keys)) {
                     unset($keys[$flat->flat . $flatKey->rfid]);
@@ -481,10 +485,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      */
     public function cms(IntercomDevice & ApartmentInterface & CmsInterface $device, HouseEntrance $entrance): void
     {
-        if ($entrance->shared) {
-            return;
-        }
-
         $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
 
         $levels = $device->getCmsLevels();
