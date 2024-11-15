@@ -12,7 +12,7 @@ readonly class PlogCamshotRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'uuid' => rule()->required()->uuid()->nonNullable()
+            'uuid' => rule()->required()->nonNullable()
         ];
     }
 }
