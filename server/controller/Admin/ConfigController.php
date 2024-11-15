@@ -146,13 +146,4 @@ readonly class ConfigController extends AdminRbtController
 
         return self::error('Не удалось найти параметры конфигурации');
     }
-
-    public static function scopes(): array
-    {
-        return [
-            'config-index-get' => '[Конфигурация] Получить параметры конфигурации',
-            'config-intercom-get' => '[Конфигурация] Получить конфигурацию домофона',
-            'config-camera-get' => '[Конфигурация] Получить конфигурацию камеры'
-        ];
-    }
 }

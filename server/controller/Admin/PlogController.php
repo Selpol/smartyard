@@ -46,12 +46,4 @@ readonly class PlogController extends AdminRbtController
             ->withHeader('Content-Type', 'image/jpeg')
             ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($request->uuid))));
     }
-
-    public static function scopes(): array
-    {
-        return [
-            'plog-index-get' => '[События] Получить список',
-            'plog-camshot-get' => '[События] Получить скриншот'
-        ];
-    }
 }

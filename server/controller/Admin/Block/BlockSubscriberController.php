@@ -91,16 +91,6 @@ readonly class BlockSubscriberController extends AdminRbtController
         return self::error('Не удалось удалить блокировку абонента', 400);
     }
 
-    public static function scopes(): array
-    {
-        return [
-            'block-subscriber-index-get' => '[Блокировка-Абонент] Получить список',
-            'block-subscriber-store-get' => '[Блокировка-Абонент] Добавить блокировку',
-            'block-subscriber-update-get' => '[Блокировка-Абонент] Обновить блокировку',
-            'block-subscriber-delete-get' => '[Блокировка-Абонент] Удалить блокировку'
-        ];
-    }
-
     private static function notify(SubscriberBlock $block, bool $status): void
     {
         task(new InboxSubscriberTask(

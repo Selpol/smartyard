@@ -35,6 +35,4 @@ readonly abstract class AdminRbtController extends RbtController
             ]
         );
     }
-
-    public static abstract function scopes(): array;
 }

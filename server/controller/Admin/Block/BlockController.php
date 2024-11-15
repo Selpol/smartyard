@@ -87,11 +87,4 @@ readonly class BlockController extends AdminRbtController
             default => '',
         };
     }
-
-    public static function scopes(): array
-    {
-        return [
-            'block-index-get' => '[Блокировка] Получить список'
-        ];
-    }
 }

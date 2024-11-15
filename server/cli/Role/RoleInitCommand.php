@@ -2,12 +2,10 @@
 
 namespace Selpol\Cli\Role;
 
-use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Permission;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
-use Selpol\Framework\Router\Trait\RouterTrait;
 
 #[Executable('role:init', 'Обновление ролей и прав')]
 class RoleInitCommand
@@ -15,6 +13,51 @@ class RoleInitCommand
     #[Execute]
     public function execute(): void
     {
+        $requirePermissions = [
+            'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
+            'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
+
+            'addresses-location-get' => '[Адрес] Локации',
+
+            'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
+            'camera-hidden' => '[Камера] Доступ к скрытым устройствам',
+
+            'mqtt-access' => '[MQTT] Доступ к MQTT',
+
+            'mobile-mask' => '[Телефон] Возможность видеть телефон',
+
+            'intercom-web-call' => '[Веб-Домофон] Сделать звонок с браузера',
+            'device-web-redirect' => '[Веб-Устройство] Перейти на устройство с браузера',
+
+            'block-index-get' => '[Блокировка] Получить список',
+
+            'block-flat-index-get' => '[Блокировка-Квартира] Получить список',
+            'block-flat-store-get' => '[Блокировка-Квартира] Добавить блокировку',
+            'block-flat-update-get' => '[Блокировка-Квартира] Обновить блокировку',
+            'block-flat-delete-get' => '[Блокировка-Квартира] Удалить блокировку',
+
+            'block-subscriber-index-get' => '[Блокировка-Абонент] Получить список',
+            'block-subscriber-store-get' => '[Блокировка-Абонент] Добавить блокировку',
+            'block-subscriber-update-get' => '[Блокировка-Абонент] Обновить блокировку',
+            'block-subscriber-delete-get' => '[Блокировка-Абонент] Удалить блокировку',
+
+            'config-index-get' => '[Конфигурация] Получить параметры конфигурации',
+            'config-intercom-get' => '[Конфигурация] Получить конфигурацию домофона',
+            'config-camera-get' => '[Конфигурация] Получить конфигурацию камеры',
+
+            'dvr-index-get' => '[Dvr] Получить список камер на сервере',
+            'dvr-show-get' => '[Dvr] Найти идентификатор камеры',
+
+            'geo-index-get' => '[Гео] Получить список адресов',
+
+            'log-index-get' => '[Логи] Получить логи',
+
+            'monitor-index-get' => '[Мониторинг] Запросить статус устройств',
+
+            'plog-index-get' => '[События] Получить список',
+            'plog-camshot-get' => '[События] Получить скриншот'
+        ];
+
         /** @var array<string, Permission> $titlePermissions */
         $titlePermissions = array_reduce(Permission::fetchAll(), static function (array $previous, Permission $current) {
             $previous[$current->title] = $current;
@@ -84,12 +127,18 @@ class RoleInitCommand
                                             $permission->title = $title;
                                             $permission->description = $description;
                                             $permission->insert();
+
+                                            continue;
                                         } elseif ($titlePermissions[$title]->description != $description) {
                                             $titlePermissions[$title]->description = $description;
                                             $titlePermissions[$title]->update();
                                         }
 
                                         unset($titlePermissions[$title]);
+
+                                        if (array_key_exists($title, $requirePermissions)) {
+                                            unset($requirePermissions[$title]);
+                                        }
                                     }
                                 }
                             }
@@ -99,69 +148,6 @@ class RoleInitCommand
             }
         }
 
-        if (file_exists(path('config/admin.php'))) {
-            $router = new class {
-                use RouterTrait;
-
-                public function __construct()
-                {
-                    $this->loadRouter(false, 'admin');
-                }
-            };
-
-            function walk(string $method, array $routes, array &$permissions, array $filter): void
-            {
-                foreach ($routes as $childRoutes) {
-                    if (array_key_exists('class', $childRoutes)) {
-                        /** @var class-string<AdminRbtController> $class */
-                        $class = $childRoutes['class'][0];
-                        $scopes = $class::scopes();
-
-                        foreach ($scopes as $title => $description) {
-                            if (check($title, $filter)) {
-                                if (!array_key_exists($title, $permissions)) {
-                                    $permission = new Permission();
-                                    $permission->title = $title;
-                                    $permission->description = $description;
-                                    $permission->insert();
-                                } elseif ($permissions[$title]->description != $description) {
-                                    $permissions[$title]->description = $description;
-                                    $permissions[$title]->update();
-                                }
-
-                                unset($permissions[$title]);
-                            }
-                        }
-                    } else {
-                        walk($method, $childRoutes, $permissions, $filter);
-                    }
-                }
-            }
-
-            $routes = $router->getRouter()->getRoutes();
-
-            foreach ($routes as $method => $childRoutes) {
-                walk($method, $childRoutes, $titlePermissions, $filter);
-            }
-        }
-
-        $requirePermissions = [
-            'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
-            'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
-
-            'addresses-location-get' => '[Адрес] Локации',
-
-            'intercom-hidden' => '[Домофон] Доступ к скрытым устройствам',
-            'camera-hidden' => '[Камера] Доступ к скрытым устройствам',
-
-            'mqtt-access' => '[MQTT] Доступ к MQTT',
-
-            'mobile-mask' => '[Телефон] Возможность видеть телефон',
-
-            'intercom-web-call' => '[Веб-Домофон] Сделать звонок с браузера',
-            'device-web-redirect' => '[Веб-Устройство] Перейти на устройство с браузера'
-        ];
-
         foreach ($requirePermissions as $title => $description) {
             if (check($title, $filter)) {
                 if (!array_key_exists($title, $titlePermissions)) {
@@ -169,12 +155,15 @@ class RoleInitCommand
                     $permission->title = $title;
                     $permission->description = $description;
                     $permission->insert();
+
+                    continue;
                 } elseif ($titlePermissions[$title]->description != $description) {
                     $titlePermissions[$title]->description = $description;
                     $titlePermissions[$title]->update();
                 }
 
                 unset($titlePermissions[$title]);
+
             }
         }
 

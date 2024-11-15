@@ -33,13 +33,6 @@ readonly class LogController extends AdminRbtController
         return self::success(self::walk($path));
     }
 
-    public static function scopes(): array
-    {
-        return [
-            'log-index-get' => '[Логи] Получить логи'
-        ];
-    }
-
     private static function walk(string $path): array
     {
         $files = scandir($path);

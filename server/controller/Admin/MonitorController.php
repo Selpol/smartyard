@@ -88,11 +88,4 @@ readonly class MonitorController extends AdminRbtController
 
         return self::success($result);
     }
-
-    public static function scopes(): array
-    {
-        return [
-            'monitor-index-get' => '[Мониторинг] Запросить статус устройств'
-        ];
-    }
 }

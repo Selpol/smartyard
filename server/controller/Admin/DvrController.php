@@ -37,14 +37,6 @@ readonly class DvrController extends AdminRbtController
         return self::error('Камера не найдена', 404);
     }
 
-    public static function scopes(): array
-    {
-        return [
-            'dvr-index-get' => '[Dvr] Получить список камер на сервере',
-            'dvr-show-get' => '[Dvr] Найти идентификатор камеры',
-        ];
-    }
-
     private static function sort(array $a, array $b): int
     {
         return strcmp($a['title'], $b['title']);

@@ -41,11 +41,4 @@ readonly class GeoController extends AdminRbtController
 
         return self::error('Адрес не найден', 404);
     }
-
-    public static function scopes(): array
-    {
-        return [
-            'geo-index-get' => '[Гео] Получить список адресов'
-        ];
-    }
 }

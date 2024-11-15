@@ -104,16 +104,6 @@ readonly class BlockFlatController extends AdminRbtController
         return self::error('Не удалось удалить блокировку квартиры', 400);
     }
 
-    public static function scopes(): array
-    {
-        return [
-            'block-flat-index-get' => '[Блокировка-Квартира] Получить список',
-            'block-flat-store-get' => '[Блокировка-Квартира] Добавить блокировку',
-            'block-flat-update-get' => '[Блокировка-Квартира] Обновить блокировку',
-            'block-flat-delete-get' => '[Блокировка-Квартира] Удалить блокировку'
-        ];
-    }
-
     private static function notify(FlatBlock $block, bool $status): void
     {
         task(new InboxFlatTask(
