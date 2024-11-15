@@ -16,6 +16,7 @@ readonly class ScopeMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $target = $request->getUri()->getPath();
         $method = strtolower($request->getMethod());
 
         $route = $request->getAttribute('route');
@@ -36,7 +37,13 @@ readonly class ScopeMiddleware extends RouteMiddleware
             $result[] = $route->paths[$i];
         }
 
-        $scope = implode('-', $result) . '-' . $route->route['class'][1] . '-' . $method;
+        $scope = implode('-', $result);
+
+        if ($result[count($result) - 1] !== $route->route['class'][1]) {
+            $scope .= '-' . $route->route['class'][1];
+        }
+
+        $scope .= '-' . $method;
 
         if (!container(AuthService::class)->checkScope($scope)) {
             try {
