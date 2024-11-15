@@ -289,8 +289,14 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      */
     public function apartment(IntercomDevice & ApartmentInterface $device, HouseEntrance $entrance, array &$flats, bool &$individualLevels): void
     {
+        $count = count($flats);
+
+        if ($count === 0) {
+            $count = 1;
+        }
+
         $progress = 40;
-        $delta = (80 - $progress) / (count($flats) ?? 1);
+        $delta = (80 - $progress) / $count;
 
         /** @var array<int, Apartment> $apartments */
         $apartments = array_reduce($device->getApartments(), static function (array $previous, Apartment $current) {
