@@ -551,21 +551,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
             }
 
-            $segments = array_map('trim', explode(',', $housesEntrance['house_full']));
+            $segments = explode(', ', $housesEntrance['house_full']);
 
-            if (count($segments) > 1) {
-                if (str_ends_with($segments[0], ' обл')) {
-                    unset($segments[0]);
-                }
-
-                if (count($segments) > 1) {
-                    if (str_starts_with($segments[0], ' г')) {
-                        unset($segments[0]);
-                    }
-                }
+            if (str_starts_with($segments[0], 'г ') || str_ends_with($segments[0], ' обл')) {
+                unset($segments[0]);
             }
 
-            $gates[] = new Gate(join(', ', $segments), $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
+            $gates[] = new Gate(implode(', ', $segments), $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
         }
 
         $device->setGates($gates);
