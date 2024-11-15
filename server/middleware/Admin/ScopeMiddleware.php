@@ -16,7 +16,6 @@ readonly class ScopeMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $target = $request->getUri()->getPath();
         $method = strtolower($request->getMethod());
 
         $route = $request->getAttribute('route');
@@ -25,19 +24,16 @@ readonly class ScopeMiddleware extends RouteMiddleware
             return AdminRbtController::error('Не удалось проверить права', 403);
         }
 
-        $paths = $route->paths;
-
-        array_shift($paths);
-
-        $segments = explode('/', substr($target, 7));
         $result = [];
 
-        for ($i = 0; $i < count($paths); $i++) {
-            if (str_starts_with($paths[$i], '{') && str_ends_with($paths[$i], '}')) {
+        $i = count($route->paths) > 1 ? 1 : 0;
+
+        for (; $i < count($route->paths); $i++) {
+            if (str_starts_with($route->paths[$i], '{') && str_ends_with($route->paths[$i], '}')) {
                 continue;
             }
 
-            $result[] = $segments[$i];
+            $result[] = $route->paths[$i];
         }
 
         $scope = implode('-', $result) . '-' . $route->route['class'][1] . '-' . $method;
