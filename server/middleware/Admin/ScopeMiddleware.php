@@ -16,7 +16,7 @@ readonly class ScopeMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $target = $request->getRequestTarget();
+        $target = $request->getUri()->getPath();
         $method = strtolower($request->getMethod());
 
         $route = $request->getAttribute('route');
