@@ -8,6 +8,7 @@
 - [ConfigController](./ConfigController.md)
 - [DvrController](./DvrController.md)
 - [GeoController](./GeoController.md)
+- [InboxController](./InboxController.md)
 - [LogController](./LogController.md)
 - [MonitorController](./MonitorController.md)
 - [PlogController](./PlogController.md)

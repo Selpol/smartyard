@@ -63,6 +63,24 @@
 - `string` *search* - Строка поиска
 - `null|string` *bound* - Ограничение поиска
 
+## InboxIndexRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор абонента
+- `string|null` *message_id* - Идентификатор сообщения
+- `int|null` *from* - Дата начала
+- `int|null` *to* - Дата окончания
+
+## InboxStoreRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор абонента
+- `string` *title* - Заголовок
+- `string` *body* - Описание
+- `string` *action* - Тип действия
+
 ## LogIndexRequest
 
 Поля: 
