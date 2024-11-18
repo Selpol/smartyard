@@ -5,13 +5,13 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read int $id Идентификатор квартиры
  *
- * @property-read null|int $type
- * @property-read null|bool $opened
+ * @property-read null|int $type Тип события
+ * @property-read null|bool $opened Было ли открытие во время звонка
  *
- * @property-read int $page
- * @property-read int $size
+ * @property-read int $page Страница
+ * @property-read int $size Размер страницы
  */
 readonly class PlogIndexRequest extends RouteRequest
 {

@@ -5,9 +5,9 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read int $id Идентификатор устройства
  *
- * @property-read bool $optimize
+ * @property-read bool $optimize Оптимизация конфигурации
  */
 readonly class ConfigOptimizeRequest extends RouteRequest
 {

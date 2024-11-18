@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read string $type
+ * @property-read string $type Тип подсказки для конфигурации
  */
 readonly class ConfigIndexRequest extends RouteRequest
 {

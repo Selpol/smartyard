@@ -8,9 +8,15 @@ use Selpol\Controller\Request\Admin\DvrShowRequest;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
+/**
+ * Управление DVR серверами
+ */
 #[Controller('/admin/dvr')]
 readonly class DvrController extends AdminRbtController
 {
+    /**
+     * Получить камеры с DVR сервера
+     */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface
     {
@@ -25,6 +31,9 @@ readonly class DvrController extends AdminRbtController
         return self::success([]);
     }
 
+    /**
+     * Найти камеру на DVR сервере
+     */
     #[Get('/show/{id}')]
     public function show(DvrShowRequest $request): ResponseInterface
     {

@@ -13,9 +13,15 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\AuthService;
 
+/**
+ * События домофона
+ */
 #[Controller('/admin/plog')]
 readonly class PlogController extends AdminRbtController
 {
+    /**
+     * Получить список события на квартире
+     */
     #[Get('/{id}')]
     public function index(PlogIndexRequest $request, PlogFeature $feature, AuthService $service): ResponseInterface
     {
@@ -39,6 +45,9 @@ readonly class PlogController extends AdminRbtController
         return self::success([]);
     }
 
+    /**
+     * Получить скриншот с события
+     */
     #[Get('/camshot/{uuid}')]
     public function camshot(PlogCamshotRequest $request, FileFeature $feature): ResponseInterface
     {

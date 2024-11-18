@@ -9,12 +9,17 @@ use Selpol\Controller\Request\Admin\MonitorIntercomRequest;
 use Selpol\Feature\Monitor\MonitorFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Throwable;
 
+/**
+ * Мониторинг устройств
+ */
 #[Controller('/admin/monitor')]
 readonly class MonitorController extends AdminRbtController
 {
     /**
-     * @throws \Throwable
+     * Получить статус устройств
+     * @throws Throwable
      */
     #[Get]
     public function index(MonitorIntercomRequest $request, MonitorFeature $feature): ResponseInterface

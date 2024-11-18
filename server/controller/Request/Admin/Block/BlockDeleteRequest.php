@@ -5,9 +5,9 @@ namespace Selpol\Controller\Request\Admin\Block;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read int $id Идентификатор блокировки
  *
- * @property-read null|bool $notify
+ * @property-read null|bool $notify Уведомить абонентов
  */
 readonly class BlockDeleteRequest extends RouteRequest
 {

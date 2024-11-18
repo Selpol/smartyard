@@ -5,12 +5,12 @@ namespace Selpol\Controller\Request\Admin\Block;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read int $id Идентификатор блокировки
  *
- * @property-read null|bool $notify
+ * @property-read null|bool $notify Уведомить абонентов
  *
- * @property-read null|string $cause
- * @property-read null|string $comment
+ * @property-read null|string $cause Официальная причина
+ * @property-read null|string $comment Комментарий
  */
 readonly class BlockUpdateRequest extends RouteRequest
 {

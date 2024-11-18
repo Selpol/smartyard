@@ -8,9 +8,15 @@ use Selpol\Controller\Request\Admin\LogIndexRequest;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
+/**
+ * Логи сервера
+ */
 #[Controller('/admin/log')]
 readonly class LogController extends AdminRbtController
 {
+    /**
+     * Получить файл логов или дерево логов
+     */
     #[Get]
     public function index(LogIndexRequest $request): ResponseInterface
     {

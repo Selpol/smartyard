@@ -5,9 +5,9 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id
+ * @property-read int $id Идентификатор DVR сервера
  *
- * @property-read string $search
+ * @property-read string $search Строка поиска камеры
  */
 readonly class DvrShowRequest extends RouteRequest
 {

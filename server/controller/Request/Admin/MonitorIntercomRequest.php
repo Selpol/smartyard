@@ -5,9 +5,9 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read null|string $type
+ * @property-read null|string $type Тип мониторинга
  *
- * @property-read int[] $ids
+ * @property-read int[] $ids Список идентификаторов устройств
  */
 readonly class MonitorIntercomRequest extends RouteRequest
 {

@@ -9,9 +9,15 @@ use Selpol\Feature\Geo\GeoFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
+/**
+ * Геоадресация
+ */
 #[Controller('/admin/geo')]
 readonly class GeoController extends AdminRbtController
 {
+    /**
+     * Найти адрес по поиску
+     */
     #[Get]
     public function index(GeoIndexRequest $request, GeoFeature $feature): ResponseInterface
     {

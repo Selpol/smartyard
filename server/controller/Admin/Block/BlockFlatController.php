@@ -18,15 +18,24 @@ use Selpol\Service\AuthService;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 
+/**
+ * Блокировки квартир
+ */
 #[Controller('/admin/block/flat')]
 readonly class BlockFlatController extends AdminRbtController
 {
+    /**
+     * Получить блокировки квартиры
+     */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface
     {
         return self::success(FlatBlock::getRepository()->findByFlatId($id));
     }
 
+    /**
+     * Добавить блокировку
+     */
     #[Post]
     public function store(BlockFlatStoreRequest $request): ResponseInterface
     {
@@ -56,6 +65,9 @@ readonly class BlockFlatController extends AdminRbtController
         return self::error('Не удалось создать блокировку квартиры', 400);
     }
 
+    /**
+     * Обновить блокировку
+     */
     #[Put('/{id}')]
     public function update(BlockUpdateRequest $request): ResponseInterface
     {
@@ -79,6 +91,9 @@ readonly class BlockFlatController extends AdminRbtController
         return self::error('Не удалось обновить блокировку квартиры', 400);
     }
 
+    /**
+     * Удалить блокировку
+     */
     #[Delete('/{id}')]
     public function delete(BlockDeleteRequest $request): ResponseInterface
     {

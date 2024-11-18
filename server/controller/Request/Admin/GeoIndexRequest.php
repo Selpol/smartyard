@@ -5,8 +5,8 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read string $search
- * @property-read null|string $bound
+ * @property-read string $search Строка поиска
+ * @property-read null|string $bound Ограничение поиска
  */
 readonly class GeoIndexRequest extends RouteRequest
 {

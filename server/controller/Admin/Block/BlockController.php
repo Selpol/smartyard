@@ -8,6 +8,9 @@ use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
+/**
+ * Блокировки
+ */
 #[Controller('/admin/block')]
 readonly class BlockController extends AdminRbtController
 {
@@ -39,6 +42,9 @@ readonly class BlockController extends AdminRbtController
         BlockFeature::SUB_SERVICE_APP
     ];
 
+    /**
+     * Получить список блокировок
+     */
     #[Get]
     public function index(): ResponseInterface
     {

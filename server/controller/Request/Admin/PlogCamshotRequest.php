@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read string $uuid
+ * @property-read string $uuid Идентификатор картинки
  */
 readonly class PlogCamshotRequest extends RouteRequest
 {

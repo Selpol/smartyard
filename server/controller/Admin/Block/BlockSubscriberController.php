@@ -17,15 +17,24 @@ use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\AuthService;
 use Selpol\Task\Tasks\Inbox\InboxSubscriberTask;
 
+/**
+ * Блокировки абонентов
+ */
 #[Controller('/admin/block/subscriber')]
 readonly class BlockSubscriberController extends AdminRbtController
 {
+    /**
+     * Получить список блокировок абонента
+     */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface
     {
         return self::success(SubscriberBlock::getRepository()->findBySubscriberId($id));
     }
 
+    /**
+     * Добавить блокировку
+     */
     #[Post]
     public function store(BlockSubscriberStoreRequest $request): ResponseInterface
     {
@@ -51,6 +60,9 @@ readonly class BlockSubscriberController extends AdminRbtController
         return self::error('Не удалось создать блокировку абонента', 400);
     }
 
+    /**
+     * Обновить блокировку
+     */
     #[Put('/{id}')]
     public function update(BlockUpdateRequest $request): ResponseInterface
     {
@@ -70,6 +82,9 @@ readonly class BlockSubscriberController extends AdminRbtController
         return self::error('Не удалось обновить блокировку абонента', 400);
     }
 
+    /**
+     * Удалить блокировку
+     */
     #[Delete('/{id}')]
     public function delete(BlockDeleteRequest $request): ResponseInterface
     {

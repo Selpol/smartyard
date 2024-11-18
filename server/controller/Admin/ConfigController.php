@@ -15,9 +15,15 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\DatabaseService;
 
+/**
+ * Динамическая конфигурация
+ */
 #[Controller('/admin/config')]
 readonly class ConfigController extends AdminRbtController
 {
+    /**
+     * Получить подсказки для конфигурации
+     */
     #[Get('/suggestion/{type}')]
     public function suggestion(ConfigIndexRequest $request, DatabaseService $database, ConfigFeature $configFeature): ResponseInterface
     {
@@ -115,6 +121,9 @@ readonly class ConfigController extends AdminRbtController
         return self::error('Не удалось найти параметры конфигурации');
     }
 
+    /**
+     * Получить конфигурацию для домофона
+     */
     #[Get('/intercom/{id}')]
     public function intercom(ConfigOptimizeRequest $request, ConfigFeature $feature): ResponseInterface
     {
@@ -131,6 +140,9 @@ readonly class ConfigController extends AdminRbtController
         return self::error('Не удалось найти параметры конфигурации');
     }
 
+    /**
+     * Получить конфигурацию для камеры
+     */
     #[Get('/camera/{id}')]
     public function camera(ConfigOptimizeRequest $request, ConfigFeature $feature): ResponseInterface
     {
