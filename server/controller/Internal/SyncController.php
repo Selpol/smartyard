@@ -21,10 +21,14 @@ use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
 use Throwable;
 
+/**
+ * Синхронизация
+ */
 #[Controller('/internal/sync')]
 readonly class SyncController extends RouteController
 {
     /**
+     * Получить список домов
      * @throws NotFoundExceptionInterface
      */
     #[Post('/house')]
@@ -51,6 +55,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Добавить абонентов
      * @throws NotFoundExceptionInterface
      */
     #[Post('/subscriber')]
@@ -91,6 +96,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Обновить абонентов
      * @throws NotFoundExceptionInterface
      */
     #[Put('/subscriber')]
@@ -119,6 +125,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Удалить абонентов
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
      */
@@ -141,6 +148,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Обновить квартиру
      * @throws NotFoundExceptionInterface
      */
     #[Put('/flat')]
@@ -220,6 +228,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Добавить абонентов в квартиру
      * @throws NotFoundExceptionInterface
      */
     #[Post('/link')]
@@ -251,6 +260,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Обновить абонентов в квартире
      * @throws NotFoundExceptionInterface
      */
     #[Put('/link')]
@@ -282,6 +292,7 @@ readonly class SyncController extends RouteController
     }
 
     /**
+     * Удалить абонентов из квартиры
      * @throws NotFoundExceptionInterface
      */
     #[Delete('/link')]

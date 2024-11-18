@@ -112,44 +112,44 @@
 
 Поля: 
 
-- `int` *date;*
-- `string` *ip*
-- `null|int` *callId*
+- `int` *date* - Дата события
+- `string` *ip* - IP-Адрес устройства
+- `null|int` *callId* - Номер звонящего
 
 ## ActionMotionDetectionRequest
 
 Поля: 
 
-- `string` *ip*
-- `bool` *motionActive*
+- `string` *ip* - IP-адрес устройства
+- `bool` *motionActive* - Статус детекции
 
 ## ActionOpenDoorRequest
 
 Поля: 
 
-- `int` *date*
-- `string` *ip*
-- `int` *event*
-- `int` *door*
-- `string` *detail*
+- `int` *date* - Дата события
+- `string` *ip* - IP-адрес устройства
+- `int` *event* - Тип события
+- `int` *door* - Номер входа на устройстве
+- `string` *detail* - Дополнительные детали события
 
 ## ActionSetRabbitGatesRequest
 
 Поля: 
 
-- `string` *ip*
-- `int` *prefix*
-- `int` *apartmentNumber*
-- `int` *apartmentId*
-- `int` *date*
+- `string` *ip* - IP-адрес устройства
+- `int` *prefix* - Префикс устройства
+- `int` *apartmentNumber* - Номер квартиры
+- `int` *apartmentId* - Идентификатор квартиры
+- `int` *date* - Дата события
 
 ## FrsCallbackRequest
 
 Поля: 
 
-- `int` *stream_id*
-- `int` *eventId*
-- `int` *faceId*
+- `int` *stream_id* - Идентификатор потока
+- `int` *eventId* - Идентификатор события
+- `int` *faceId* - Идентификатор лица
 
 ## AddressRegisterQrRequest
 

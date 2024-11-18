@@ -5,8 +5,8 @@ namespace Selpol\Controller\Request\Internal;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read string $ip
- * @property-read bool $motionActive
+ * @property-read string $ip IP-адрес устройства
+ * @property-read bool $motionActive Статус детекции
  */
 readonly class ActionMotionDetectionRequest extends RouteRequest
 {

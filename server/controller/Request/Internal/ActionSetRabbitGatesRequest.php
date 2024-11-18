@@ -5,11 +5,11 @@ namespace Selpol\Controller\Request\Internal;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read string $ip
- * @property-read int $prefix
- * @property-read int $apartmentNumber
- * @property-read int $apartmentId
- * @property-read int $date
+ * @property-read string $ip IP-адрес устройства
+ * @property-read int $prefix Префикс устройства
+ * @property-read int $apartmentNumber Номер квартиры
+ * @property-read int $apartmentId Идентификатор квартиры
+ * @property-read int $date Дата события
  */
 readonly class ActionSetRabbitGatesRequest extends RouteRequest
 {

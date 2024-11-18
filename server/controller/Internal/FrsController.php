@@ -5,7 +5,6 @@ namespace Selpol\Controller\Internal;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Exception;
 use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
@@ -18,13 +17,15 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\PrometheusService;
 use Selpol\Service\RedisService;
-use Selpol\Validator\Exception\ValidatorException;
 
+/**
+ * FRS События
+ */
 #[Controller('/internal/frs')]
 readonly class FrsController extends RouteController
 {
     /**
-     * @throws NotFoundExceptionInterface
+     * Лицо распознанно
      * @throws ContainerExceptionInterface
      */
     #[Post('/callback')]
@@ -100,9 +101,7 @@ readonly class FrsController extends RouteController
     }
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
+     * Скриншот с камеры
      */
     #[Get('/camshot/{id}')]
     public function camshot(PrometheusService $service, int $id): Response

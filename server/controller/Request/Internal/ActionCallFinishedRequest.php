@@ -5,10 +5,10 @@ namespace Selpol\Controller\Request\Internal;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $date;
- * @property-read string $ip
+ * @property-read int $date Дата события
+ * @property-read string $ip IP-Адрес устройства
  *
- * @property-read null|int $callId
+ * @property-read null|int $callId Номер звонящего
  */
 readonly class ActionCallFinishedRequest extends RouteRequest
 {

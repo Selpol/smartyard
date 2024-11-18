@@ -1,26 +1,28 @@
 # Контроллер ActionController `/internal/actions`
 
+Действия для syslog
+
 ## Методы
 
-### [POST/callFinished]  `/internal/actions/callFinished`
+### [POST/callFinished] Звонок завершен `/internal/actions/callFinished`
 
 Параметры: 
 
 - [ActionCallFinishedRequest](../OBJECT.md#ActionCallFinishedRequest) *request*
 
-### [POST/motionDetection]  `/internal/actions/motionDetection`
+### [POST/motionDetection] Детекция движения `/internal/actions/motionDetection`
 
 Параметры: 
 
 - [ActionMotionDetectionRequest](../OBJECT.md#ActionMotionDetectionRequest) *request*
 
-### [POST/openDoor]  `/internal/actions/openDoor`
+### [POST/openDoor] Открытие двери `/internal/actions/openDoor`
 
 Параметры: 
 
 - [ActionOpenDoorRequest](../OBJECT.md#ActionOpenDoorRequest) *request*
 
-### [POST/setRabbitGates]  `/internal/actions/setRabbitGates`
+### [POST/setRabbitGates] Белый кролик `/internal/actions/setRabbitGates`
 
 Параметры: 
 

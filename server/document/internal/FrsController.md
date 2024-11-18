@@ -1,14 +1,16 @@
 # Контроллер FrsController `/internal/frs`
 
+FRS События
+
 ## Методы
 
-### [POST/callback]  `/internal/frs/callback`
+### [POST/callback] Лицо распознанно `/internal/frs/callback`
 
 Параметры: 
 
 - [FrsCallbackRequest](../OBJECT.md#FrsCallbackRequest) *request*
 
-### [GET/camshot]  `/internal/frs/camshot/{id}`
+### [GET/camshot] Скриншот с камеры `/internal/frs/camshot/{id}`
 
 Параметры: 
 

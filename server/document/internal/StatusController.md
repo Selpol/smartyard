@@ -1,5 +1,7 @@
 # Контроллер StatusController `/internal/status`
 
+Статус
+
 ## Методы
 
-### [GET/index]  `/internal/status`
+### [GET/index] Получить статус сервера `/internal/status`

@@ -18,11 +18,14 @@ use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\DatabaseService;
 use Selpol\Service\FrsService;
 
+/**
+ * Действия для syslog
+ */
 #[Controller('/internal/actions')]
 readonly class ActionController extends RouteController
 {
     /**
-     * @throws NotFoundExceptionInterface
+     * Звонок завершен
      */
     #[Post('/callFinished')]
     public function callFinished(ActionCallFinishedRequest $request, PlogFeature $plogFeature): Response
@@ -33,7 +36,7 @@ readonly class ActionController extends RouteController
     }
 
     /**
-     * @throws NotFoundExceptionInterface
+     * Детекция движения
      */
     #[Post('/motionDetection')]
     public function motionDetection(ActionMotionDetectionRequest $request, FrsService $frsService): Response
@@ -59,7 +62,7 @@ readonly class ActionController extends RouteController
     }
 
     /**
-     * @throws NotFoundExceptionInterface
+     * Открытие двери
      */
     #[Post('/openDoor')]
     public function openDoor(ActionOpenDoorRequest $request, PlogFeature $plogFeature, FrsService $frsService, DatabaseService $databaseService): Response
@@ -100,7 +103,7 @@ readonly class ActionController extends RouteController
     }
 
     /**
-     * @throws NotFoundExceptionInterface
+     * Белый кролик
      */
     #[Post('/setRabbitGates')]
     public function setRabbitGates(ActionSetRabbitGatesRequest $request, DatabaseService $databaseService): Response

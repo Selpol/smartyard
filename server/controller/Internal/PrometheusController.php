@@ -15,6 +15,9 @@ use Selpol\Service\Prometheus\Metric;
 use Selpol\Service\Prometheus\Sample;
 use Selpol\Service\PrometheusService;
 
+/**
+ * Метрики
+ */
 #[Controller('/internal/prometheus')]
 readonly class PrometheusController extends RbtController
 {
