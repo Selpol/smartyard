@@ -32,14 +32,14 @@ class RoleInitCommand
             'block-index-get' => '[Блокировка] Получить список',
 
             'block-flat-index-get' => '[Блокировка-Квартира] Получить список',
-            'block-flat-store-get' => '[Блокировка-Квартира] Добавить блокировку',
-            'block-flat-update-get' => '[Блокировка-Квартира] Обновить блокировку',
-            'block-flat-delete-get' => '[Блокировка-Квартира] Удалить блокировку',
+            'block-flat-store-post' => '[Блокировка-Квартира] Добавить блокировку',
+            'block-flat-update-put' => '[Блокировка-Квартира] Обновить блокировку',
+            'block-flat-delete-delete' => '[Блокировка-Квартира] Удалить блокировку',
 
             'block-subscriber-index-get' => '[Блокировка-Абонент] Получить список',
-            'block-subscriber-store-get' => '[Блокировка-Абонент] Добавить блокировку',
-            'block-subscriber-update-get' => '[Блокировка-Абонент] Обновить блокировку',
-            'block-subscriber-delete-get' => '[Блокировка-Абонент] Удалить блокировку',
+            'block-subscriber-store-post' => '[Блокировка-Абонент] Добавить блокировку',
+            'block-subscriber-update-put' => '[Блокировка-Абонент] Обновить блокировку',
+            'block-subscriber-delete-delete' => '[Блокировка-Абонент] Удалить блокировку',
 
             'config-suggestion-get' => '[Конфигурация] Получить параметры конфигурации',
             'config-intercom-get' => '[Конфигурация] Получить конфигурацию домофона',
