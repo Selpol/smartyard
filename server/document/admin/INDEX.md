@@ -2,6 +2,7 @@
 
 ## Контроллеры
 
+- [AccountAuditController](./AccountAuditController.md)
 - [BlockController](./BlockController.md)
 - [BlockFlatController](./BlockFlatController.md)
 - [BlockSubscriberController](./BlockSubscriberController.md)

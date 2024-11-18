@@ -76,7 +76,9 @@ class RoleInitCommand
             'sip-user-index-get' => '[SipUser] Получить список',
             'sip-user-store-post' => '[SipUser] Добавить пользователя',
             'sip-user-update-put' => '[SipUser] Обновить пользователя',
-            'sip-user-delete-delete' => '[SipUser] Удалить пользователя'
+            'sip-user-delete-delete' => '[SipUser] Удалить пользователя',
+
+            'account-audit-index-get' => '[Аудит] Получить список действий'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

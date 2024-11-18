@@ -43,6 +43,6 @@ readonly class audit extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Пользователь] Получить список действий'];
+        return ['GET' => '[Deprecated] [Пользователь] Получить список действий'];
     }
 }

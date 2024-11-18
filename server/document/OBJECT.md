@@ -1,5 +1,20 @@
 # Объекты
 
+## AccountAuditIndexRequest
+
+Поля: 
+
+- `null|int` *user_id* - Идентификатор пользователя
+- `null|string` *auditable_id* - Идентификатор сущности
+- `null|string` *auditable_type* - Тип сущности
+- `null|string` *event_ip* - IP-адрес с которого произошел аудит
+- `null|string` *event_type* - Тип аудита
+- `null|string` *event_target* - Адрес аудита
+- `null|string` *event_code* - Код аудита
+- `null|string` *event_message* - Сообщение аудита
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## BlockFlatStoreRequest
 
 Поля: 
