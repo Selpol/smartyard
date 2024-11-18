@@ -25,6 +25,8 @@ readonly class BlockSubscriberController extends AdminRbtController
 {
     /**
      * Получить список блокировок абонента
+     *
+     * @param int $id Идентификатор абонента
      */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface

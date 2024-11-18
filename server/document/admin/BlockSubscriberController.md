@@ -8,7 +8,7 @@
 
 Параметры: 
 
-- `int` *id*
+- `int` *id* Идентификатор абонента
 
 ### [POST/store `block-subscriber-store-post`] Добавить блокировку `/admin/block/subscriber`
 

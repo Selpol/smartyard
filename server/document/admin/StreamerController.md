@@ -8,7 +8,7 @@
 
 Параметры: 
 
-- `int` *id*
+- `int` *id* Идентификатор стримера
 
 ### [POST/store `streamer-store-post`] Добавить поток на стример `/admin/streamer/{id}`
 

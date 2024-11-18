@@ -23,6 +23,8 @@ readonly class StreamerController extends AdminRbtController
 {
     /**
      * Получить потоки со стримера
+     *
+     * @param int $id Идентификатор стримера
      */
     #[Get('/{id}')]
     public function index(int $id, StreamerFeature $feature): ResponseInterface

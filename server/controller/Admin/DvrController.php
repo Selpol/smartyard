@@ -16,6 +16,8 @@ readonly class DvrController extends AdminRbtController
 {
     /**
      * Получить камеры с DVR сервера
+     *
+     * @param int $id Идентификатор DVR сервера
      */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface
