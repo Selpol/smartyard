@@ -8,10 +8,10 @@
 
 Параметры: 
 
-- [UserRegisterPushTokenRequest](../OBJECT.md#UserRegisterPushTokenRequest) request
+- [UserRegisterPushTokenRequest](../OBJECT.md#UserRegisterPushTokenRequest) *request*
 
 ### [POST/sendName]  `/mobile/user/sendName`
 
 Параметры: 
 
-- [UserSendNameRequest](../OBJECT.md#UserSendNameRequest) request
+- [UserSendNameRequest](../OBJECT.md#UserSendNameRequest) *request*

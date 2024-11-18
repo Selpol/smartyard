@@ -4,4 +4,4 @@
 
 ## Методы
 
-### [GET/index] Получить список блокировок `/admin/block`
+### [GET/index `block-index-get`] Получить список блокировок `/admin/block`

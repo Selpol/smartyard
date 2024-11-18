@@ -10,6 +10,8 @@ readonly class GenerateMethod
 
     public string $path;
 
+    public string $scope;
+
     /**
      * @var GenerateParameter[]
      */
@@ -17,13 +19,15 @@ readonly class GenerateMethod
 
     public GenerateDocument|bool $document;
 
-    public function __construct(string $name, string $method, string $path, array $parameters, GenerateDocument|bool $document)
+    public function __construct(string $name, string $method, string $path, string $scope, array $parameters, GenerateDocument|bool $document)
     {
         $this->name = $name;
 
         $this->method = $method;
 
         $this->path = $path;
+
+        $this->scope = $scope;
 
         $this->parameters = $parameters;
 

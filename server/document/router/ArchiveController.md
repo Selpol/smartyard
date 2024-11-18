@@ -6,10 +6,10 @@
 
 Параметры: 
 
-- [ArchivePrepareRequest](../OBJECT.md#ArchivePrepareRequest) request
+- [ArchivePrepareRequest](../OBJECT.md#ArchivePrepareRequest) *request*
 
 ### [GET/download]  `/mobile/cctv/download/{uuid}`
 
 Параметры: 
 
-- `string` uuid
+- `string` *uuid*

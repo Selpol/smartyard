@@ -6,10 +6,10 @@
 
 Параметры: 
 
-- `string` hash
+- `string` *hash*
 
 ### [GET/live]  `/mobile/call/live/{hash}`
 
 Параметры: 
 
-- `string` hash
+- `string` *hash*

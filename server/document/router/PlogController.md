@@ -6,16 +6,16 @@
 
 Параметры: 
 
-- [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) request
+- [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) *request*
 
 ### [GET/camshot]  `/mobile/address/plogCamshot/{uuid}`
 
 Параметры: 
 
-- `string` uuid
+- `string` *uuid*
 
 ### [POST/days]  `/mobile/address/plogDays`
 
 Параметры: 
 
-- [PlogDaysRequest](../OBJECT.md#PlogDaysRequest) request
+- [PlogDaysRequest](../OBJECT.md#PlogDaysRequest) *request*

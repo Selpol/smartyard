@@ -4,26 +4,26 @@
 
 ## Методы
 
-### [GET/index] Получить список блокировок абонента `/admin/block/subscriber/{id}`
+### [GET/index `block-subscriber-index-get`] Получить список блокировок абонента `/admin/block/subscriber/{id}`
 
 Параметры: 
 
-- `int` id
+- `int` *id*
 
-### [POST/store] Добавить блокировку `/admin/block/subscriber`
-
-Параметры: 
-
-- [BlockSubscriberStoreRequest](../OBJECT.md#BlockSubscriberStoreRequest) request
-
-### [PUT/update] Обновить блокировку `/admin/block/subscriber/{id}`
+### [POST/store `block-subscriber-store-post`] Добавить блокировку `/admin/block/subscriber`
 
 Параметры: 
 
-- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) request
+- [BlockSubscriberStoreRequest](../OBJECT.md#BlockSubscriberStoreRequest) *request*
 
-### [DELETE/delete] Удалить блокировку `/admin/block/subscriber/{id}`
+### [PUT/update `block-subscriber-update-put`] Обновить блокировку `/admin/block/subscriber/{id}`
 
 Параметры: 
 
-- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) request
+- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) *request*
+
+### [DELETE/delete `block-subscriber-delete-delete`] Удалить блокировку `/admin/block/subscriber/{id}`
+
+Параметры: 
+
+- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) *request*

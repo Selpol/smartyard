@@ -4,14 +4,14 @@
 
 ## Методы
 
-### [GET/index] Получить камеры с DVR сервера `/admin/dvr/{id}`
+### [GET/index `dvr-index-get`] Получить камеры с DVR сервера `/admin/dvr/{id}`
 
 Параметры: 
 
-- `int` id
+- `int` *id*
 
-### [GET/show] Найти камеру на DVR сервере `/admin/dvr/show/{id}`
+### [GET/show `dvr-show-get`] Найти камеру на DVR сервере `/admin/dvr/show/{id}`
 
 Параметры: 
 
-- [DvrShowRequest](../OBJECT.md#DvrShowRequest) request
+- [DvrShowRequest](../OBJECT.md#DvrShowRequest) *request*

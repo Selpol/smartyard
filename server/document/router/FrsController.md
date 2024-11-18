@@ -6,16 +6,16 @@
 
 Параметры: 
 
-- `int` flatId
+- `int` *flatId*
 
 ### [POST/store]  `/mobile/frs/{eventId}`
 
 Параметры: 
 
-- `string` eventId
+- `string` *eventId*
 
 ### [DELETE/delete]  `/mobile/frs`
 
 Параметры: 
 
-- [FrsDeleteRequest](../OBJECT.md#FrsDeleteRequest) request
+- [FrsDeleteRequest](../OBJECT.md#FrsDeleteRequest) *request*

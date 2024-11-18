@@ -6,16 +6,16 @@
 
 Параметры: 
 
-- [FrsCallbackRequest](../OBJECT.md#FrsCallbackRequest) request
+- [FrsCallbackRequest](../OBJECT.md#FrsCallbackRequest) *request*
 
 ### [GET/camshot]  `/internal/frs/camshot/{id}`
 
 Параметры: 
 
-- `int` id
+- `int` *id*
 
 ### [GET/face]  `/internal/frs/face/{uuid}`
 
 Параметры: 
 
-- `string` uuid
+- `string` *uuid*

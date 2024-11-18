@@ -8,4 +8,4 @@
 
 Параметры: 
 
-- [AddressRegisterQrRequest](../OBJECT.md#AddressRegisterQrRequest) request
+- [AddressRegisterQrRequest](../OBJECT.md#AddressRegisterQrRequest) *request*

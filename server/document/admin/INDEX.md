@@ -11,3 +11,4 @@
 - [LogController](./LogController.md)
 - [MonitorController](./MonitorController.md)
 - [PlogController](./PlogController.md)
+- [TaskController](./TaskController.md)

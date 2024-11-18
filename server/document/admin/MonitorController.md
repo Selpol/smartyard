@@ -4,8 +4,8 @@
 
 ## Методы
 
-### [GET/index] Получить статус устройств `/admin/monitor`
+### [GET/index `monitor-index-get`] Получить статус устройств `/admin/monitor`
 
 Параметры: 
 
-- [MonitorIntercomRequest](../OBJECT.md#MonitorIntercomRequest) request
+- [MonitorIntercomRequest](../OBJECT.md#MonitorIntercomRequest) *request*

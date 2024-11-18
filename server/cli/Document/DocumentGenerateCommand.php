@@ -23,7 +23,7 @@ use Throwable;
 #[Executable('document:generate', 'Генерация документации')]
 class DocumentGenerateCommand
 {
-    private array $configs = ['admin', 'internal', 'router'];
+    private array $configs = [[true, 'admin'], [false, 'internal'], [false, 'router']];
 
     /**
      * @var array<string, GenerateClass[]>
@@ -58,9 +58,9 @@ class DocumentGenerateCommand
         ];
 
         foreach ($this->configs as $config) {
-            $index[] = '- [' . strtoupper($config) . '](./' . $config . '/INDEX.md)';
+            $index[] = '- [' . strtoupper($config[1]) . '](./' . $config[1] . '/INDEX.md)';
 
-            $subPath = $path . '/' . $config;
+            $subPath = $path . '/' . $config[1];
 
             $this->generateConfig($subPath, $config);
         }
@@ -70,10 +70,10 @@ class DocumentGenerateCommand
         $this->generateObject($path);
     }
 
-    private function generateConfig(string $path, string $config): void
+    private function generateConfig(string $path, array $config): void
     {
         $index = [
-            '# Документация ' . strtoupper($config),
+            '# Документация ' . strtoupper($config[1]),
             '',
             '## Контроллеры',
             ''
@@ -83,7 +83,7 @@ class DocumentGenerateCommand
             mkdir($path, recursive: true);
         }
 
-        foreach ($this->values[$config] as $value) {
+        foreach ($this->values[$config[1]] as $value) {
             $index[] = '- [' . $value->name . '](./' . $value->name . '.md)';
 
             $this->generateClass($path, $value);
@@ -109,7 +109,7 @@ class DocumentGenerateCommand
         $value[] = '';
 
         foreach ($class->methods as $method) {
-            $value[] = '### [' . $method->method . '/' . $method->name . '] ' . ($method->document ? $method->document->getLine() : '') . ' `' . $method->path . '`';
+            $value[] = '### [' . $method->method . '/' . $method->name . ($method->scope ? ' `' . $method->scope . '`' : '') . '] ' . ($method->document ? $method->document->getLine() : '') . ' `' . $method->path . '`';
             $value[] = '';
 
             if (count($method->parameters) > 0) {
@@ -120,9 +120,9 @@ class DocumentGenerateCommand
                     if (str_contains($parameter->type, '\\')) {
                         $segments = explode('\\', $parameter->type);
 
-                        $value[] = '- [' . $segments[count($segments) - 1] . '](../OBJECT.md#' . $segments[count($segments) - 1] . ') ' . $parameter->name;
+                        $value[] = '- [' . $segments[count($segments) - 1] . '](../OBJECT.md#' . $segments[count($segments) - 1] . ') *' . $parameter->name . '*';
                     } else {
-                        $value[] = '- `' . $parameter->type . '` ' . $parameter->name;
+                        $value[] = '- `' . $parameter->type . '` *' . $parameter->name . '*';
                     }
                 }
 
@@ -155,7 +155,7 @@ class DocumentGenerateCommand
                 $object[] = '';
 
                 foreach ($request->properties as $property) {
-                    $object[] = '- `' . $property->type . '` ' . substr($property->name, 1) . ($property->document ? ' - ' . $property->document : '');
+                    $object[] = '- `' . $property->type . '` *' . substr($property->name, 1) . ($property->document ? '* - ' . $property->document : '*');
                 }
 
                 $object[] = '';
@@ -168,17 +168,17 @@ class DocumentGenerateCommand
     private function process(): void
     {
         foreach ($this->configs as $config) {
-            if (file_exists(path('config/' . $config . '.php'))) {
-                $this->values[$config] = [];
+            if (file_exists(path('config/' . $config[1] . '.php'))) {
+                $this->values[$config[1]] = [];
 
                 $this->processConfig($config);
             }
         }
     }
 
-    private function processConfig(string $config): void
+    private function processConfig(array $config): void
     {
-        $callback = require path('config/' . $config . '.php');
+        $callback = require path('config/' . $config[1] . '.php');
         $configurator = new RouterConfigurator();
         $callback($configurator);
         $paths = $configurator->getPaths();
@@ -193,7 +193,7 @@ class DocumentGenerateCommand
         }
     }
 
-    private function processNamespace(string $config, string $namespace, ?string $path = null): void
+    private function processNamespace(array $config, string $namespace, ?string $path = null): void
     {
         /** @var Scanner<Controller, Method> $scanner */
         $scanner = $path !== null && $path !== '' && $path !== '0'
@@ -205,7 +205,7 @@ class DocumentGenerateCommand
         }
     }
 
-    private function processClass(string $config, ScannerClass $value): void
+    private function processClass(array $config, ScannerClass $value): void
     {
         /** @var Controller $instance */
         $instance = $value->getAttributeInstance();
@@ -219,13 +219,13 @@ class DocumentGenerateCommand
         $methods = [];
 
         foreach ($value->methods as $method) {
-            $methods[] = $this->processMethod($instance->path, $method);
+            $methods[] = $this->processMethod($config, $instance->path, $method);
         }
 
-        $this->values[$config][] = new GenerateClass($value->reflectionClass->getShortName(), $value->class, $instance->path, $methods, $document);
+        $this->values[$config[1]][] = new GenerateClass($value->reflectionClass->getShortName(), $value->class, $instance->path, $methods, $document);
     }
 
-    private function processMethod(string $path, ScannerMethod $method): GenerateMethod
+    private function processMethod(array $config, string $path, ScannerMethod $method): GenerateMethod
     {
         /** @var Method $instance */
         $instance = $method->getAttributeInstance();
@@ -248,7 +248,28 @@ class DocumentGenerateCommand
             }
         }
 
-        return new GenerateMethod($method->method, $instance->type, $path . $instance->path, $parameters, $document);
+        if ($config[0]) {
+            $segments = explode('/', substr($path . $instance->path, strlen($config[1]) + 1));
+            $result = [];
+
+            foreach ($segments as $segment) {
+                if (str_starts_with($segment, '{') && str_ends_with($segment, '}')) {
+                    continue;
+                }
+
+                if ($segment != '') {
+                    $result[] = $segment;
+                }
+            }
+
+            if ($result[count($result) - 1] !== $method->method) {
+                $result[] = $method->method;
+            }
+
+            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, implode('-', $result) . '-' . strtolower($instance->type), $parameters, $document);
+        } else {
+            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, '', $parameters, $document);
+        }
     }
 
     /**

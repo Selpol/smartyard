@@ -4,26 +4,26 @@
 
 ## Методы
 
-### [GET/index] Получить блокировки квартиры `/admin/block/flat/{id}`
+### [GET/index `block-flat-index-get`] Получить блокировки квартиры `/admin/block/flat/{id}`
 
 Параметры: 
 
-- `int` id
+- `int` *id*
 
-### [POST/store] Добавить блокировку `/admin/block/flat`
-
-Параметры: 
-
-- [BlockFlatStoreRequest](../OBJECT.md#BlockFlatStoreRequest) request
-
-### [PUT/update] Обновить блокировку `/admin/block/flat/{id}`
+### [POST/store `block-flat-store-post`] Добавить блокировку `/admin/block/flat`
 
 Параметры: 
 
-- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) request
+- [BlockFlatStoreRequest](../OBJECT.md#BlockFlatStoreRequest) *request*
 
-### [DELETE/delete] Удалить блокировку `/admin/block/flat/{id}`
+### [PUT/update `block-flat-update-put`] Обновить блокировку `/admin/block/flat/{id}`
 
 Параметры: 
 
-- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) request
+- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) *request*
+
+### [DELETE/delete `block-flat-delete-delete`] Удалить блокировку `/admin/block/flat/{id}`
+
+Параметры: 
+
+- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) *request*

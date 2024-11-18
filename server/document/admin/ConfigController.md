@@ -4,20 +4,20 @@
 
 ## Методы
 
-### [GET/suggestion] Получить подсказки для конфигурации `/admin/config/suggestion/{type}`
+### [GET/suggestion `config-suggestion-get`] Получить подсказки для конфигурации `/admin/config/suggestion/{type}`
 
 Параметры: 
 
-- [ConfigIndexRequest](../OBJECT.md#ConfigIndexRequest) request
+- [ConfigIndexRequest](../OBJECT.md#ConfigIndexRequest) *request*
 
-### [GET/intercom] Получить конфигурацию для домофона `/admin/config/intercom/{id}`
-
-Параметры: 
-
-- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) request
-
-### [GET/camera] Получить конфигурацию для камеры `/admin/config/camera/{id}`
+### [GET/intercom `config-intercom-get`] Получить конфигурацию для домофона `/admin/config/intercom/{id}`
 
 Параметры: 
 
-- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) request
+- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) *request*
+
+### [GET/camera `config-camera-get`] Получить конфигурацию для камеры `/admin/config/camera/{id}`
+
+Параметры: 
+
+- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) *request*

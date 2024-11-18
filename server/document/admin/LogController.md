@@ -4,8 +4,8 @@
 
 ## Методы
 
-### [GET/index] Получить файл логов или дерево логов `/admin/log`
+### [GET/index `log-index-get`] Получить файл логов или дерево логов `/admin/log`
 
 Параметры: 
 
-- [LogIndexRequest](../OBJECT.md#LogIndexRequest) request
+- [LogIndexRequest](../OBJECT.md#LogIndexRequest) *request*

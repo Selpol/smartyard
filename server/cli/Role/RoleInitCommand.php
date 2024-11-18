@@ -55,7 +55,13 @@ class RoleInitCommand
             'monitor-index-get' => '[Мониторинг] Запросить статус устройств',
 
             'plog-index-get' => '[События] Получить список',
-            'plog-camshot-get' => '[События] Получить скриншот'
+            'plog-camshot-get' => '[События] Получить скриншот',
+
+            'task-index-get' => '[Задачи] Получить список задач',
+            'task-search-get' => '[Задачи] Поиск по списку задач',
+
+            'task-unique-get' => '[Задачи] Получить список уникальных задач',
+            'task-unique-delete-delete' => '[Задачи] Удалить из списка уникальную задачу'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

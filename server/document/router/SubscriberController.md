@@ -6,18 +6,18 @@
 
 Параметры: 
 
-- `int` flatId
+- `int` *flatId*
 
 ### [POST/store]  `/mobile/subscriber/{flatId}`
 
 Параметры: 
 
-- [SubscriberStoreRequest](../OBJECT.md#SubscriberStoreRequest) request
-- `int` flatId
+- [SubscriberStoreRequest](../OBJECT.md#SubscriberStoreRequest) *request*
+- `int` *flatId*
 
 ### [DELETE/delete]  `/mobile/subscriber/{flatId}`
 
 Параметры: 
 
-- [SubscriberDeleteRequest](../OBJECT.md#SubscriberDeleteRequest) request
-- `int` flatId
+- [SubscriberDeleteRequest](../OBJECT.md#SubscriberDeleteRequest) *request*
+- `int` *flatId*
