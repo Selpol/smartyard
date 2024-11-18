@@ -6,13 +6,13 @@
 
 Параметры: 
 
-- [CameraIndexRequest](../OBJECT.md#CameraIndexRequest) *request*
+- [CameraIndexRequest](../OBJECT.md#CameraIndexRequest) 
 
 ### [GET/get]  `/mobile/cctv/show/{id}`
 
 Параметры: 
 
-- [CameraGetRequest](../OBJECT.md#CameraGetRequest) *request*
+- [CameraGetRequest](../OBJECT.md#CameraGetRequest) 
 - `int` *id*
 
 ### [GET/common]  `/mobile/cctv/common`
@@ -21,17 +21,17 @@
 
 Параметры: 
 
-- [CameraCommonDvrRequest](../OBJECT.md#CameraCommonDvrRequest) *request*
+- [CameraCommonDvrRequest](../OBJECT.md#CameraCommonDvrRequest) 
 
 ### [GET/show]  `/mobile/cctv/{cameraId}`
 
 Параметры: 
 
-- [CameraShowRequest](../OBJECT.md#CameraShowRequest) *request*
+- [CameraShowRequest](../OBJECT.md#CameraShowRequest) 
 - `int` *cameraId*
 
 ### [POST/events]  `/mobile/cctv/events`
 
 Параметры: 
 
-- [CameraEventsRequest](../OBJECT.md#CameraEventsRequest) *request*
+- [CameraEventsRequest](../OBJECT.md#CameraEventsRequest) 

@@ -12,12 +12,12 @@
 
 Параметры: 
 
-- [SubscriberStoreRequest](../OBJECT.md#SubscriberStoreRequest) *request*
+- [SubscriberStoreRequest](../OBJECT.md#SubscriberStoreRequest) 
 - `int` *flatId*
 
 ### [DELETE/delete]  `/mobile/subscriber/{flatId}`
 
 Параметры: 
 
-- [SubscriberDeleteRequest](../OBJECT.md#SubscriberDeleteRequest) *request*
+- [SubscriberDeleteRequest](../OBJECT.md#SubscriberDeleteRequest) 
 - `int` *flatId*

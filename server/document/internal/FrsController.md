@@ -8,7 +8,7 @@ FRS События
 
 Параметры: 
 
-- [FrsCallbackRequest](../OBJECT.md#FrsCallbackRequest) *request*
+- [FrsCallbackRequest](../OBJECT.md#FrsCallbackRequest) 
 
 ### [GET/camshot] Скриншот с камеры `/internal/frs/camshot/{id}`
 

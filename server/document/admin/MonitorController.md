@@ -8,4 +8,4 @@
 
 Параметры: 
 
-- [MonitorIntercomRequest](../OBJECT.md#MonitorIntercomRequest) *request*
+- [MonitorIntercomRequest](../OBJECT.md#MonitorIntercomRequest) 

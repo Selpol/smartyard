@@ -17,9 +17,9 @@ readonly class GenerateMethod
      */
     public array $parameters;
 
-    public GenerateDocument|bool $document;
+    public GenerateComment|bool $comment;
 
-    public function __construct(string $name, string $method, string $path, string $scope, array $parameters, GenerateDocument|bool $document)
+    public function __construct(string $name, string $method, string $path, string $scope, array $parameters, GenerateComment|bool $comment)
     {
         $this->name = $name;
 
@@ -31,6 +31,6 @@ readonly class GenerateMethod
 
         $this->parameters = $parameters;
 
-        $this->document = $document;
+        $this->comment = $comment;
     }
 }

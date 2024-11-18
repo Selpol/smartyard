@@ -8,10 +8,10 @@
 
 Параметры: 
 
-- [InboxIndexRequest](../OBJECT.md#InboxIndexRequest) *request*
+- [InboxIndexRequest](../OBJECT.md#InboxIndexRequest) 
 
 ### [POST/store `inbox-store-post`] Отправить сообщение абоненту `/admin/inbox/{id}`
 
 Параметры: 
 
-- [InboxStoreRequest](../OBJECT.md#InboxStoreRequest) *request*
+- [InboxStoreRequest](../OBJECT.md#InboxStoreRequest) 

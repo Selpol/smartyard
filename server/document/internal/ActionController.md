@@ -8,22 +8,22 @@
 
 Параметры: 
 
-- [ActionCallFinishedRequest](../OBJECT.md#ActionCallFinishedRequest) *request*
+- [ActionCallFinishedRequest](../OBJECT.md#ActionCallFinishedRequest) 
 
 ### [POST/motionDetection] Детекция движения `/internal/actions/motionDetection`
 
 Параметры: 
 
-- [ActionMotionDetectionRequest](../OBJECT.md#ActionMotionDetectionRequest) *request*
+- [ActionMotionDetectionRequest](../OBJECT.md#ActionMotionDetectionRequest) 
 
 ### [POST/openDoor] Открытие двери `/internal/actions/openDoor`
 
 Параметры: 
 
-- [ActionOpenDoorRequest](../OBJECT.md#ActionOpenDoorRequest) *request*
+- [ActionOpenDoorRequest](../OBJECT.md#ActionOpenDoorRequest) 
 
 ### [POST/setRabbitGates] Белый кролик `/internal/actions/setRabbitGates`
 
 Параметры: 
 
-- [ActionSetRabbitGatesRequest](../OBJECT.md#ActionSetRabbitGatesRequest) *request*
+- [ActionSetRabbitGatesRequest](../OBJECT.md#ActionSetRabbitGatesRequest) 

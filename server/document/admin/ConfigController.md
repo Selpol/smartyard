@@ -8,16 +8,16 @@
 
 Параметры: 
 
-- [ConfigIndexRequest](../OBJECT.md#ConfigIndexRequest) *request*
+- [ConfigIndexRequest](../OBJECT.md#ConfigIndexRequest) 
 
 ### [GET/intercom `config-intercom-get`] Получить конфигурацию для домофона `/admin/config/intercom/{id}`
 
 Параметры: 
 
-- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) *request*
+- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) 
 
 ### [GET/camera `config-camera-get`] Получить конфигурацию для камеры `/admin/config/camera/{id}`
 
 Параметры: 
 
-- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) *request*
+- [ConfigOptimizeRequest](../OBJECT.md#ConfigOptimizeRequest) 

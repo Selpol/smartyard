@@ -6,40 +6,40 @@
 
 Параметры: 
 
-- [DvrIdentifierRequest](../OBJECT.md#DvrIdentifierRequest) *request*
+- [DvrIdentifierRequest](../OBJECT.md#DvrIdentifierRequest) 
 
 ### [GET/screenshot]  `/mobile/dvr/screenshot/{id}`
 
 Параметры: 
 
-- [DvrScreenshotRequest](../OBJECT.md#DvrScreenshotRequest) *request*
+- [DvrScreenshotRequest](../OBJECT.md#DvrScreenshotRequest) 
 
 ### [GET/preview]  `/mobile/dvr/preview/{id}`
 
 Параметры: 
 
-- [DvrPreviewRequest](../OBJECT.md#DvrPreviewRequest) *request*
+- [DvrPreviewRequest](../OBJECT.md#DvrPreviewRequest) 
 
 ### [GET/video]  `/mobile/dvr/video/{id}`
 
 Параметры: 
 
-- [DvrVideoRequest](../OBJECT.md#DvrVideoRequest) *request*
+- [DvrVideoRequest](../OBJECT.md#DvrVideoRequest) 
 
 ### [GET/timeline]  `/mobile/dvr/timeline/{id}`
 
 Параметры: 
 
-- [DvrTimelineRequest](../OBJECT.md#DvrTimelineRequest) *request*
+- [DvrTimelineRequest](../OBJECT.md#DvrTimelineRequest) 
 
 ### [GET/event]  `/mobile/dvr/event/{id}`
 
 Параметры: 
 
-- [DvrEventRequest](../OBJECT.md#DvrEventRequest) *request*
+- [DvrEventRequest](../OBJECT.md#DvrEventRequest) 
 
 ### [GET/command]  `/mobile/dvr/command/{id}`
 
 Параметры: 
 
-- [DvrCommandRequest](../OBJECT.md#DvrCommandRequest) *request*
+- [DvrCommandRequest](../OBJECT.md#DvrCommandRequest) 

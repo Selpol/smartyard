@@ -10,7 +10,7 @@
 
 Параметры: 
 
-- [TaskSearchRequest](../OBJECT.md#TaskSearchRequest) *request*
+- [TaskSearchRequest](../OBJECT.md#TaskSearchRequest) 
 
 ### [GET/unique `task-unique-get`] Получить список всех уникальных задач `/admin/task/unique`
 
@@ -18,4 +18,4 @@
 
 Параметры: 
 
-- [TaskDeleteRequest](../OBJECT.md#TaskDeleteRequest) *request*
+- [TaskDeleteRequest](../OBJECT.md#TaskDeleteRequest) 

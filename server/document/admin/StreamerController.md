@@ -14,16 +14,16 @@
 
 Параметры: 
 
-- [StreamerRequest](../OBJECT.md#StreamerRequest) *request*
+- [StreamerRequest](../OBJECT.md#StreamerRequest) 
 
 ### [PUT/update `streamer-update-put`] Обновить поток на стримере `/admin/streamer/{id}`
 
 Параметры: 
 
-- [StreamerRequest](../OBJECT.md#StreamerRequest) *request*
+- [StreamerRequest](../OBJECT.md#StreamerRequest) 
 
 ### [DELETE/delete `streamer-delete-delete`] Удалить поток на стримере `/admin/streamer/{id}`
 
 Параметры: 
 
-- [StreamerDeleteRequest](../OBJECT.md#StreamerDeleteRequest) *request*
+- [StreamerDeleteRequest](../OBJECT.md#StreamerDeleteRequest) 

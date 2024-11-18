@@ -6,7 +6,7 @@
 
 Параметры: 
 
-- [ArchivePrepareRequest](../OBJECT.md#ArchivePrepareRequest) *request*
+- [ArchivePrepareRequest](../OBJECT.md#ArchivePrepareRequest) 
 
 ### [GET/download]  `/mobile/cctv/download/{uuid}`
 

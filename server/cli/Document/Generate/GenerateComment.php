@@ -2,7 +2,7 @@
 
 namespace Selpol\Cli\Document\Generate;
 
-readonly class GenerateDocument
+readonly class GenerateComment
 {
     /**
      * @var string[]
@@ -10,15 +10,22 @@ readonly class GenerateDocument
     public array $lines;
 
     /**
+     * @var array<string, string>
+     */
+    public array $params;
+
+    /**
      * @param string[] $lines
      */
-    public function __construct(array $lines)
+    public function __construct(array $lines, array $params)
     {
         $this->lines = $lines;
+
+        $this->params = $params;
     }
 
     public function getLine(): string
     {
-        return implode(PHP_EOL, $this->lines);
+        return trim(implode(PHP_EOL, $this->lines));
     }
 }

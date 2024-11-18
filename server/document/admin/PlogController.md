@@ -8,10 +8,10 @@
 
 Параметры: 
 
-- [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) *request*
+- [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) 
 
 ### [GET/camshot `plog-camshot-get`] Получить скриншот с события `/admin/plog/camshot/{uuid}`
 
 Параметры: 
 
-- [PlogCamshotRequest](../OBJECT.md#PlogCamshotRequest) *request*
+- [PlogCamshotRequest](../OBJECT.md#PlogCamshotRequest) 

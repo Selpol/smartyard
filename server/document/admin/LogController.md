@@ -8,4 +8,4 @@
 
 Параметры: 
 
-- [LogIndexRequest](../OBJECT.md#LogIndexRequest) *request*
+- [LogIndexRequest](../OBJECT.md#LogIndexRequest) 

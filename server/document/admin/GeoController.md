@@ -8,4 +8,4 @@
 
 Параметры: 
 
-- [GeoIndexRequest](../OBJECT.md#GeoIndexRequest) *request*
+- [GeoIndexRequest](../OBJECT.md#GeoIndexRequest) 

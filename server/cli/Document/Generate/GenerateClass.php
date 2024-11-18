@@ -14,9 +14,9 @@ readonly class GenerateClass
      */
     public array $methods;
 
-    public GenerateDocument|bool $document;
+    public GenerateComment|bool $comment;
 
-    public function __construct(string $name, string $class, string $path, array $methods, GenerateDocument|bool $document)
+    public function __construct(string $name, string $class, string $path, array $methods, GenerateComment|bool $comment)
     {
         $this->name = $name;
         $this->class = $class;
@@ -25,6 +25,6 @@ readonly class GenerateClass
 
         $this->methods = $methods;
 
-        $this->document = $document;
+        $this->comment = $comment;
     }
 }

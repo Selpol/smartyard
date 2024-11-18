@@ -26,6 +26,8 @@ readonly class BlockFlatController extends AdminRbtController
 {
     /**
      * Получить блокировки квартиры
+     *
+     * @param int $id Идентификатор квартиры
      */
     #[Get('/{id}')]
     public function index(int $id): ResponseInterface

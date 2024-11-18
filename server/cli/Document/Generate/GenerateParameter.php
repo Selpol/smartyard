@@ -7,9 +7,9 @@ readonly class GenerateParameter
     public string $name;
     public string $type;
 
-    public GenerateDocument|bool $document;
+    public GenerateComment|bool $document;
 
-    public function __construct(string $name, string $type, GenerateDocument|bool $document)
+    public function __construct(string $name, string $type, GenerateComment|bool $document)
     {
         $this->name = $name;
         $this->type = $type;

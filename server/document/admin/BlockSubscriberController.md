@@ -14,16 +14,16 @@
 
 Параметры: 
 
-- [BlockSubscriberStoreRequest](../OBJECT.md#BlockSubscriberStoreRequest) *request*
+- [BlockSubscriberStoreRequest](../OBJECT.md#BlockSubscriberStoreRequest) 
 
 ### [PUT/update `block-subscriber-update-put`] Обновить блокировку `/admin/block/subscriber/{id}`
 
 Параметры: 
 
-- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) *request*
+- [BlockUpdateRequest](../OBJECT.md#BlockUpdateRequest) 
 
 ### [DELETE/delete `block-subscriber-delete-delete`] Удалить блокировку `/admin/block/subscriber/{id}`
 
 Параметры: 
 
-- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) *request*
+- [BlockDeleteRequest](../OBJECT.md#BlockDeleteRequest) 

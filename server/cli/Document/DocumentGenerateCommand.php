@@ -4,7 +4,7 @@ namespace Selpol\Cli\Document;
 
 use ReflectionClass;
 use Selpol\Cli\Document\Generate\GenerateClass;
-use Selpol\Cli\Document\Generate\GenerateDocument;
+use Selpol\Cli\Document\Generate\GenerateComment;
 use Selpol\Cli\Document\Generate\GenerateMethod;
 use Selpol\Cli\Document\Generate\GenerateParameter;
 use Selpol\Cli\Document\Generate\GenerateProperty;
@@ -100,8 +100,8 @@ class DocumentGenerateCommand
 
         $value = ['# Контроллер ' . $class->name . ' `' . $class->path . '`', ''];
 
-        if ($class->document) {
-            $value[] = $class->document->getLine();
+        if ($class->comment) {
+            $value[] = $class->comment->getLine();
             $value[] = '';
         }
 
@@ -109,7 +109,7 @@ class DocumentGenerateCommand
         $value[] = '';
 
         foreach ($class->methods as $method) {
-            $value[] = '### [' . $method->method . '/' . $method->name . ($method->scope ? ' `' . $method->scope . '`' : '') . '] ' . ($method->document ? $method->document->getLine() : '') . ' `' . $method->path . '`';
+            $value[] = '### [' . $method->method . '/' . $method->name . ($method->scope ? ' `' . $method->scope . '`' : '') . '] ' . ($method->comment ? $method->comment->getLine() : '') . ' `' . $method->path . '`';
             $value[] = '';
 
             if (count($method->parameters) > 0) {
@@ -120,9 +120,9 @@ class DocumentGenerateCommand
                     if (str_contains($parameter->type, '\\')) {
                         $segments = explode('\\', $parameter->type);
 
-                        $value[] = '- [' . $segments[count($segments) - 1] . '](../OBJECT.md#' . $segments[count($segments) - 1] . ') *' . $parameter->name . '*';
+                        $value[] = '- [' . $segments[count($segments) - 1] . '](../OBJECT.md#' . $segments[count($segments) - 1] . ') ' . ($parameter->name !== 'request' ? '*' . $parameter->name . '*' : '') . ($parameter->document ? ' ' . $parameter->document->getLine() : '');
                     } else {
-                        $value[] = '- `' . $parameter->type . '` *' . $parameter->name . '*';
+                        $value[] = '- `' . $parameter->type . '` *' . $parameter->name . '*' . ($parameter->document ? ' ' . $parameter->document->getLine() : '');
                     }
                 }
 
@@ -210,10 +210,10 @@ class DocumentGenerateCommand
         /** @var Controller $instance */
         $instance = $value->getAttributeInstance();
 
-        $document = $value->reflectionClass->getDocComment();
+        $comment = $value->reflectionClass->getDocComment();
 
-        if ($document) {
-            $document = $this->parseDocument($document);
+        if ($comment) {
+            $comment = $this->parseComment($comment);
         }
 
         $methods = [];
@@ -222,7 +222,7 @@ class DocumentGenerateCommand
             $methods[] = $this->processMethod($config, $instance->path, $method);
         }
 
-        $this->values[$config[1]][] = new GenerateClass($value->reflectionClass->getShortName(), $value->class, $instance->path, $methods, $document);
+        $this->values[$config[1]][] = new GenerateClass($value->reflectionClass->getShortName(), $value->class, $instance->path, $methods, $comment);
     }
 
     private function processMethod(array $config, string $path, ScannerMethod $method): GenerateMethod
@@ -230,19 +230,21 @@ class DocumentGenerateCommand
         /** @var Method $instance */
         $instance = $method->getAttributeInstance();
 
-        $document = $method->reflectionMethod->getDocComment();
+        $comment = $method->reflectionMethod->getDocComment();
 
-        if ($document) {
-            $document = $this->parseDocument($document);
+        if ($comment) {
+            $comment = $this->parseComment($comment);
         }
 
         $parameters = [];
 
         foreach ($method->reflectionMethod->getParameters() as $parameter) {
+            $parameterComment = !is_bool($comment) && array_key_exists($parameter->getName(), $comment->params) ? new GenerateComment([$comment->params[$parameter->getName()]], []) : false;
+
             if ($parameter->getType()->isBuiltin()) {
-                $parameters[] = new GenerateParameter($parameter->getName(), $parameter->getType()->getName(), false);
+                $parameters[] = new GenerateParameter($parameter->getName(), $parameter->getType()->getName(), $parameterComment);
             } else if (is_subclass_of($parameter->getType()->getName(), RouteRequest::class)) {
-                $parameters[] = new GenerateParameter($parameter->getName(), $parameter->getType()->getName(), false);
+                $parameters[] = new GenerateParameter($parameter->getName(), $parameter->getType()->getName(), $parameterComment);
 
                 $this->processRequest($parameter->getType()->getName());
             }
@@ -266,9 +268,9 @@ class DocumentGenerateCommand
                 $result[] = $method->method;
             }
 
-            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, implode('-', $result) . '-' . strtolower($instance->type), $parameters, $document);
+            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, implode('-', $result) . '-' . strtolower($instance->type), $parameters, $comment);
         } else {
-            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, '', $parameters, $document);
+            return new GenerateMethod($method->method, $instance->type, $path . $instance->path, '', $parameters, $comment);
         }
     }
 
@@ -314,7 +316,7 @@ class DocumentGenerateCommand
         }
     }
 
-    private function parseDocument(string $value): GenerateDocument
+    private function parseComment(string $value): GenerateComment
     {
         $lines = array_map('trim', explode(PHP_EOL, $value));
 
@@ -322,14 +324,20 @@ class DocumentGenerateCommand
             $lines = array_slice($lines, 1, count($lines) - 2);
         }
 
-        $result = ['lines' => []];
+        $result = ['lines' => [], 'params' => []];
 
         foreach ($lines as $line) {
             if (!str_starts_with($line, '* @')) {
                 $result['lines'][] = substr($line, 2);
+            } else if (str_starts_with($line, '* @param')) {
+                $segments = explode(' ', substr($line, 9), 3);
+
+                if (count($segments) > 2) {
+                    $result['params'][substr($segments[1], 1)] = $segments[2];
+                }
             }
         }
 
-        return new GenerateDocument($result['lines']);
+        return new GenerateComment($result['lines'], $result['params']);
     }
 }

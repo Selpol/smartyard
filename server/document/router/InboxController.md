@@ -6,12 +6,12 @@
 
 Параметры: 
 
-- [InboxIndexRequest](../OBJECT.md#InboxIndexRequest) *request*
+- [InboxIndexRequest](../OBJECT.md#InboxIndexRequest) 
 
 ### [POST/read]  `/mobile/inbox/read`
 
 Параметры: 
 
-- [InboxReadRequest](../OBJECT.md#InboxReadRequest) *request*
+- [InboxReadRequest](../OBJECT.md#InboxReadRequest) 
 
 ### [POST/unread]  `/mobile/inbox/unread`

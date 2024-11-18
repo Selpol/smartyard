@@ -18,4 +18,4 @@
 
 Параметры: 
 
-- [FrsDeleteRequest](../OBJECT.md#FrsDeleteRequest) *request*
+- [FrsDeleteRequest](../OBJECT.md#FrsDeleteRequest) 

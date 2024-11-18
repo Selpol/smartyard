@@ -8,4 +8,4 @@
 
 Параметры: 
 
-- [KeyIndexRequest](../OBJECT.md#KeyIndexRequest) *request*
+- [KeyIndexRequest](../OBJECT.md#KeyIndexRequest) 
