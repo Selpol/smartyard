@@ -2,8 +2,12 @@
 
 namespace Selpol\Entity\Model\Core;
 
+use Selpol\Entity\Model\Permission;
+use Selpol\Entity\Model\Role;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -24,6 +28,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $default_route
  *
  * @property int|null $last_login
+ *
+ * @property-read Role[] $roles
+ * @property-read Permission[] $permissions
  */
 class CoreUser extends Entity
 {
@@ -31,6 +38,7 @@ class CoreUser extends Entity
      * @use RepositoryTrait<CoreUserRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'core_users';
 
@@ -45,6 +53,22 @@ class CoreUser extends Entity
         }
 
         return $value;
+    }
+
+    /**
+     * @return ManyToManyRelationship<Role>
+     */
+    public function roles(): ManyToManyRelationship
+    {
+        return $this->manyToMany(Role::class, 'user_role', localRelation: 'user_id', foreignRelation: 'role_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<Permission>
+     */
+    public function permissions(): ManyToManyRelationship
+    {
+        return $this->manyToMany(Permission::class, 'user_permission', localRelation: 'user_id', foreignRelation: 'permission_id');
     }
 
     public static function getColumns(): array
