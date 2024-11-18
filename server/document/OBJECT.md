@@ -119,6 +119,32 @@
 
 - `string` *uuid* - Идентификатор картинки
 
+## SipUserIndexRequest
+
+Поля: 
+
+- `null|int` *type* - Префикс номера
+- `null|string` *title* - Имя аккаунта
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## SipUserStoreRequest
+
+Поля: 
+
+- `int` *type* - Префикс номера
+- `string` *title* - Имя аккаунта
+- `string` *password* - Пароль аккаунта
+
+## SipUserUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор аккаунтп
+- `int` *type* - Префикс номера
+- `string` *title* - Имя аккаунта
+- `string` *password* - Пароль аккаунта
+
 ## StreamerRequest
 
 Поля: 

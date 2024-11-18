@@ -71,7 +71,12 @@ class RoleInitCommand
             'inbox-index-get' => '[Сообщения] Получить список',
             'inbox-store-post' => '[Сообщения] Отправить сообщение пользователю',
 
-            'key-index-get' => '[Ключи] Получить список'
+            'key-index-get' => '[Ключи] Получить список',
+
+            'sip-user-index-get' => '[SipUser] Получить список',
+            'sip-user-store-post' => '[SipUser] Добавить пользователя',
+            'sip-user-update-put' => '[SipUser] Обновить пользователя',
+            'sip-user-delete-delete' => '[SipUser] Удалить пользователя'
         ];
 
         /** @var array<string, Permission> $titlePermissions */
