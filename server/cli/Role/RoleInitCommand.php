@@ -69,7 +69,9 @@ class RoleInitCommand
             'streamer-delete-delete' => '[Стример] Удалить поток',
 
             'inbox-index-get' => '[Сообщения] Получить список',
-            'inbox-store-post' => '[Сообщения] Отправить сообщение пользователю'
+            'inbox-store-post' => '[Сообщения] Отправить сообщение пользователю',
+
+            'key-index-get' => '[Ключи] Получить список'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

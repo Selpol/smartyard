@@ -1,26 +1,29 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace Selpol\Controller\Api\key;
+namespace Selpol\Controller\Admin;
 
 use Psr\Http\Message\ResponseInterface;
-use Selpol\Controller\Api\Api;
+use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\KeyIndexRequest;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Framework\Entity\EntityPage;
+use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\DatabaseService;
 
-readonly class keys extends Api
+/**
+ * Ключи
+ */
+#[Controller('/admin/key')]
+readonly class KeyController extends AdminRbtController
 {
-    public static function GET(array $params): ResponseInterface
+    /**
+     * Получить список ключей
+     */
+    #[Get]
+    public function index(KeyIndexRequest $request): ResponseInterface
     {
-        $validate = validator($params, [
-            'rfid' => rule()->string(),
-            'comments' => rule()->string(),
-
-            'page' => [filter()->default(0), rule()->int()->min(0)->max()],
-            'size' => [filter()->default(10), rule()->int()->min(1)->max(512)],
-        ]);
-
-        $page = HouseKey::fetchPage($validate['page'], $validate['size'], criteria()->like('rfid', $validate['rfid'])->orLike('comments', $validate['comments'])->asc('house_rfid_id')->asc('access_to'));
+        $page = HouseKey::fetchPage($request->page, $request->size, criteria()->like('rfid', $request->rfid)->orLike('comments', $request->comments)->asc('house_rfid_id')->asc('access_to'));
         $data = $page->getData();
 
         $flats = [];
@@ -46,10 +49,5 @@ readonly class keys extends Api
         }
 
         return self::success(new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
-    }
-
-    public static function index(): array
-    {
-        return ['GET' => '[Deprecated] [Ключи] Получить список'];
     }
 }

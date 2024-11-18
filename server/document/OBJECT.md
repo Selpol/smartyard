@@ -81,6 +81,15 @@
 - `string` *body* - Описание
 - `string` *action* - Тип действия
 
+## KeyIndexRequest
+
+Поля: 
+
+- `null|string` *rfid* - RFID-Метка
+- `null|string` *comments* - Комментарий
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## LogIndexRequest
 
 Поля: 
