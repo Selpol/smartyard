@@ -466,7 +466,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     }
                 }
 
-                $device->addCode(new Code(is_int($code) ? $code : $code->code, $flat->flat));
+                $device->addCode(new Code(is_int($code) ? $code : $code->code, intval($flat->flat)));
             } elseif (array_key_exists($flat->flat, $apartmentCodes)) {
                 foreach ($apartmentCodes[$flat->flat] as $code) {
                     $device->removeCode($code);

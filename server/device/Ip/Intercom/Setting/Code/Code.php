@@ -4,7 +4,7 @@ namespace Selpol\Device\Ip\Intercom\Setting\Code;
 
 class Code
 {
-    public function __construct(public string|int $code, public int $apartment)
+    public function __construct(public int $code, public int $apartment)
     {
     }
 
