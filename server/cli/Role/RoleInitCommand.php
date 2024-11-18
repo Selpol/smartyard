@@ -61,7 +61,12 @@ class RoleInitCommand
             'task-search-get' => '[Задачи] Поиск по списку задач',
 
             'task-unique-get' => '[Задачи] Получить список уникальных задач',
-            'task-unique-delete-delete' => '[Задачи] Удалить из списка уникальную задачу'
+            'task-unique-delete-delete' => '[Задачи] Удалить из списка уникальную задачу',
+
+            'streamer-index-get' => '[Стример] Получить список потоков',
+            'streamer-store-post' => '[Стример] Добавить поток',
+            'streamer-update-put' => '[Стример] Обновить поток',
+            'streamer-delete-delete' => '[Стример] Удалить поток'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

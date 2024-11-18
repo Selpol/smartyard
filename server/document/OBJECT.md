@@ -92,6 +92,23 @@
 
 - `string` *uuid* - Идентификатор картинки
 
+## StreamerRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор стримера
+- `string` *stream_id* - Идентификатор потока
+- `string` *input* - Входящий поток
+- `string` *input_type* - Тип входящего потока
+- `string` *output_type* - Тип выходящего потока
+
+## StreamerDeleteRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор стримера
+- `string` *stream_id* - Идентификатор потока
+
 ## TaskSearchRequest
 
 Поля: 
