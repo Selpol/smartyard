@@ -101,14 +101,16 @@ class FlussonicDvr extends DvrDevice
             }
 
             if ($container === DvrContainer::STREAMER_RTC || $container === DvrContainer::STREAMER_RTSP) {
-                $stream = new Stream(container(StreamerFeature::class)->random());
+                $server = container(StreamerFeature::class)->random();
+
+                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
                 $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
                 return new DvrOutput(
                     $container,
-                    new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                    new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
                 );
             }
         } elseif ($stream === DvrStream::ARCHIVE) {

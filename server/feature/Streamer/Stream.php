@@ -21,11 +21,6 @@ class Stream implements JsonSerializable
         $this->token = $token ?: uniqid(more_entropy: true);
     }
 
-    public function getKey(): string
-    {
-        return 'streamer:' . $this->server->id . ':' . $this->token;
-    }
-
     public function getServer(): StreamerServer
     {
         return $this->server;
