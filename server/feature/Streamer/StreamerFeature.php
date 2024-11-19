@@ -4,12 +4,12 @@ namespace Selpol\Feature\Streamer;
 
 use Selpol\Entity\Model\Server\StreamerServer;
 use Selpol\Feature\Feature;
-use Selpol\Feature\Streamer\Redis\RedisStreamerFeature;
+use Selpol\Feature\Streamer\Internal\InternalStreamerFeature;
 use Selpol\Framework\Client\Client;
 use Selpol\Framework\Client\ClientOption;
 use Selpol\Framework\Container\Attribute\Singleton;
 
-#[Singleton(RedisStreamerFeature::class)]
+#[Singleton(InternalStreamerFeature::class)]
 readonly abstract class StreamerFeature extends Feature
 {
     private ClientOption $option;

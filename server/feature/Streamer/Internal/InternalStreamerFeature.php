@@ -1,12 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Feature\Streamer\Redis;
+namespace Selpol\Feature\Streamer\Internal;
 
 use Selpol\Entity\Model\Server\StreamerServer;
 use Selpol\Feature\Streamer\Stream;
 use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Framework\Client\Client;
 
-readonly class RedisStreamerFeature extends StreamerFeature
+readonly class InternalStreamerFeature extends StreamerFeature
 {
     public function random(): StreamerServer
     {
@@ -18,7 +19,12 @@ readonly class RedisStreamerFeature extends StreamerFeature
 
     public function stream(Stream $value): void
     {
-        // 30 Секунд время, за которое нужно запросить стрим, иначе он будет утерен и его требуется запросить заново.
-        $this->getRedis()->setEx($value->getKey(), 30, json_encode($value));
+        $request = client_request('PUT', uri($value->getServer()->title)->withPath('/api/v1/source'));
+
+        $response = container(Client::class)->send($request);
+
+        if ($response->getStatusCode() !== 200) {
+            file_logger('streamer')->debug('Error put stream', [$response->getBody()->getContents()]);
+        }
     }
 }
