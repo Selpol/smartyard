@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Device\Ip\Dvr\Common\DvrOutput;
+use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Block\SubscriberBlock;
 use Psr\Http\Message\ResponseInterface;
@@ -22,6 +24,10 @@ use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamerFeature;
+use Selpol\Feature\Streamer\StreamInput;
+use Selpol\Feature\Streamer\StreamOutput;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -156,7 +162,7 @@ readonly class DvrController extends MobileRbtController
     }
 
     #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
-    public function video(DvrVideoRequest $request): ResponseInterface
+    public function video(DvrVideoRequest $request, StreamerFeature $feature): ResponseInterface
     {
         /**
          * @var DvrIdentifier $identifier
@@ -165,8 +171,26 @@ readonly class DvrController extends MobileRbtController
          */
         list($identifier, $camera, $dvr) = $this->process($request->id);
 
-        if ($request->stream == 'archive' && is_null($identifier->subscriber)) {
-            return user_response(403, message: 'Доступ к архиву запрещен');
+        if (is_null($identifier->subscriber)) {
+            if ($request->stream == DvrStream::CAMERA->value) {
+                return user_response(403, message: 'Доступ к видео с камеры запрещен');
+            } else if ($request->stream == DvrStream::ARCHIVE->value) {
+                return user_response(403, message: 'Доступ к архиву запрещен');
+            }
+        }
+
+        if ($request->container == DvrContainer::STREAMER_RTC->value && $request->stream == DvrStream::CAMERA->value) {
+            $server = $feature->random();
+
+            $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
+            $stream->source($camera->stream)->input(StreamInput::RTSP)->output(StreamOutput::RTC);
+
+            $feature->stream($stream);
+
+            return user_response(data: new DvrOutput(
+                DvrContainer::STREAMER_RTC,
+                new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
+            ));
         }
 
         $video = $dvr->video(

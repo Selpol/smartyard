@@ -23,7 +23,7 @@ readonly class DvrVideoRequest extends RouteRequest
             'id' => rule()->required()->string()->nonNullable(),
 
             'container' => rule()->required()->in(['rtsp', 'hls', 'streamer_rtc', 'streamer_rtsp'])->nonNullable(),
-            'stream' => rule()->required()->in(['online', 'archive'])->nonNullable(),
+            'stream' => rule()->required()->in(['camera', 'online', 'archive'])->nonNullable(),
 
             'time' => rule()->int(),
 
