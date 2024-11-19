@@ -36,6 +36,16 @@ class Stream implements JsonSerializable
         return $this->token;
     }
 
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function getInput(): StreamInput
+    {
+        return $this->input;
+    }
+
     public function getOutput(): StreamOutput
     {
         return $this->output;
