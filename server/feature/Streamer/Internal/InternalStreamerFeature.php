@@ -20,7 +20,7 @@ readonly class InternalStreamerFeature extends StreamerFeature
     public function stream(Stream $value): void
     {
         $request = client_request('PUT', uri($value->getServer()->title)->withPath('/api/v1/source'))
-            ->withBody(stream(['token' => $value->getToken(), 'input' => $value->getSource(), 'input_type' => $value->getInput()->value, 'output_type' => $value->getOutput()->value]));
+            ->withBody(stream(['token' => $value->getToken(), 'input' => $value->getSource(), 'container' => $value->getContainer(), 'input_type' => $value->getInput()->value, 'output_type' => $value->getOutput()->value]));
 
         $response = container(Client::class)->send($request);
 

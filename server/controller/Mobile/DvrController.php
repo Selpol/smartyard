@@ -25,6 +25,7 @@ use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Feature\Streamer\Stream;
+use Selpol\Feature\Streamer\StreamContainer;
 use Selpol\Feature\Streamer\StreamerFeature;
 use Selpol\Feature\Streamer\StreamInput;
 use Selpol\Feature\Streamer\StreamOutput;
@@ -183,7 +184,7 @@ readonly class DvrController extends MobileRbtController
             $server = $feature->random();
 
             $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-            $stream->source($camera->stream)->input(StreamInput::RTSP)->output(StreamOutput::RTC);
+            $stream->source($camera->stream)->container(StreamContainer::CAMERA)->input(StreamInput::RTSP)->output(StreamOutput::RTC);
 
             $feature->stream($stream);
 

@@ -12,6 +12,7 @@ class Stream implements JsonSerializable
 
     private string $source;
 
+    private StreamContainer $container;
     private StreamInput $input;
     private StreamOutput $output;
 
@@ -36,14 +37,19 @@ class Stream implements JsonSerializable
         return $this->source;
     }
 
+    public function getContainer(): StreamContainer
+    {
+        return $this->container ?? StreamContainer::SERVER;
+    }
+
     public function getInput(): StreamInput
     {
-        return $this->input;
+        return $this->input ?? StreamInput::RTSP;
     }
 
     public function getOutput(): StreamOutput
     {
-        return $this->output;
+        return $this->output ?? StreamOutput::RTC;
     }
 
     /**
@@ -54,6 +60,13 @@ class Stream implements JsonSerializable
     public function source(string $value): static
     {
         $this->source = $value;
+
+        return $this;
+    }
+
+    public function container(StreamContainer $value): static
+    {
+        $this->container = $value;
 
         return $this;
     }
@@ -84,6 +97,6 @@ class Stream implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return ['source' => $this->source, 'input' => $this->input ?? StreamInput::RTSP, 'output' => $this->output ?? StreamOutput::RTC];
+        return ['source' => $this->source, 'container' => $this->getContainer(), 'input' => $this->getInput(), 'output' => $this->getOutput()];
     }
 }
