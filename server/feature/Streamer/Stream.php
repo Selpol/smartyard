@@ -12,9 +12,11 @@ class Stream implements JsonSerializable
 
     private string $source;
 
-    private StreamContainer $container;
-    private StreamInput $input;
-    private StreamOutput $output;
+    private StreamInput $input = StreamInput::RTSP;
+    private StreamOutput $output = StreamOutput::RTC;
+
+    private int $latency = 100;
+    private StreamTransport $transport = StreamTransport::TCP;
 
     public function __construct(StreamerServer $server, ?string $token = null)
     {
@@ -37,19 +39,24 @@ class Stream implements JsonSerializable
         return $this->source;
     }
 
-    public function getContainer(): StreamContainer
-    {
-        return $this->container ?? StreamContainer::SERVER;
-    }
-
     public function getInput(): StreamInput
     {
-        return $this->input ?? StreamInput::RTSP;
+        return $this->input;
     }
 
     public function getOutput(): StreamOutput
     {
-        return $this->output ?? StreamOutput::RTC;
+        return $this->output;
+    }
+
+    public function getLatency(): int
+    {
+        return $this->latency;
+    }
+
+    public function getTransport(): StreamTransport
+    {
+        return $this->transport;
     }
 
     /**
@@ -60,13 +67,6 @@ class Stream implements JsonSerializable
     public function source(string $value): static
     {
         $this->source = $value;
-
-        return $this;
-    }
-
-    public function container(StreamContainer $value): static
-    {
-        $this->container = $value;
 
         return $this;
     }
@@ -95,8 +95,22 @@ class Stream implements JsonSerializable
         return $this;
     }
 
+    public function latency(int $value): static
+    {
+        $this->latency = $value;
+
+        return $this;
+    }
+
+    public function transport(StreamTransport $value): static
+    {
+        $this->transport = $value;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
-        return ['source' => $this->source, 'container' => $this->getContainer(), 'input' => $this->getInput(), 'output' => $this->getOutput()];
+        return ['source' => $this->source, 'input' => $this->getInput()->value, 'output' => $this->getOutput()->value, 'option' => ['latency' => $this->getLatency(), 'transport' => $this->getTransport()->value]];
     }
 }

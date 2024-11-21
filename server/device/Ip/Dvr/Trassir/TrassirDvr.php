@@ -18,7 +18,6 @@ use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Streamer\Stream;
-use Selpol\Feature\Streamer\StreamContainer;
 use Selpol\Feature\Streamer\StreamerFeature;
 use Selpol\Feature\Streamer\StreamInput;
 use Selpol\Feature\Streamer\StreamOutput;
@@ -190,7 +189,7 @@ class TrassirDvr extends DvrDevice
                 $server = container(StreamerFeature::class)->random();
 
                 $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-                $stream->source($rtsp[0])->container(StreamContainer::SERVER)->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
@@ -214,7 +213,7 @@ class TrassirDvr extends DvrDevice
             if ($rtsp != null) {
                 $server = container(StreamerFeature::class)->random();
                 $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-                $stream->source($rtsp[0])->container(StreamContainer::SERVER)->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 

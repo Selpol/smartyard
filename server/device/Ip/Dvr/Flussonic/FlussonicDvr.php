@@ -13,7 +13,6 @@ use Selpol\Device\Ip\Dvr\Common\DvrStream;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Streamer\Stream;
-use Selpol\Feature\Streamer\StreamContainer;
 use Selpol\Feature\Streamer\StreamerFeature;
 use Selpol\Feature\Streamer\StreamInput;
 use Selpol\Feature\Streamer\StreamOutput;
@@ -105,7 +104,7 @@ class FlussonicDvr extends DvrDevice
                 $server = container(StreamerFeature::class)->random();
 
                 $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->container(StreamContainer::SERVER)->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
