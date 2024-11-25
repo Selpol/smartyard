@@ -78,7 +78,13 @@ class RoleInitCommand
             'sip-user-update-put' => '[SipUser] Обновить пользователя',
             'sip-user-delete-delete' => '[SipUser] Удалить пользователя',
 
-            'account-audit-index-get' => '[Аудит] Получить список действий'
+            'account-audit-index-get' => '[Аудит] Получить список действий',
+
+            'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
+            'device-relay-store-post' => '[Устройство-Реле] Получить устройство реле',
+            'device-relay-update-put' => '[Устройство-Реле] Добавить устройство реле',
+            'device-relay-flap-get' => '[Устройство-Реле] Обновить устройство реле',
+            'device-relay-delete-delete' => '[Устройство-Реле] Флапнуть устройством реле',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

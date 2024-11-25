@@ -64,6 +64,39 @@
 - `int` *id* - Идентификатор устройства
 - `bool` *optimize* - Оптимизация конфигурации
 
+## DeviceRelayIndexRequest
+
+Поля: 
+
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## DeviceRelayStoreRequest
+
+Поля: 
+
+- `string` *title* - Название устройства
+- `string` *url* - Ссылка на устройство
+- `string` *credential* - Авторизация для устройства
+- `bool` *invert* - Инвентированный выход
+
+## DeviceRelayUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `null|string` *title* - Название устройства
+- `null|string` *url* - Ссылка на устройство
+- `null|string` *credential* - Авторизация для устройства
+- `null|bool` *invert* - Инвентированный выход
+
+## DeviceRelayFlapRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int` *sleep* - Задержка между состоянием
+
 ## DvrShowRequest
 
 Поля: 
