@@ -6,8 +6,6 @@ CREATE TABLE relays
     url        VARCHAR   NOT NULL,
     credential VARCHAR   NOT NULL,
 
-    invert     BOOLEAN   NOT NULL,
-
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
 

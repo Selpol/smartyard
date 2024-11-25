@@ -53,7 +53,6 @@ readonly class DeviceRelayController extends AdminRbtController
         $relay->title = $request->title;
         $relay->url = $request->url;
         $relay->credential = $request->credential;
-        $relay->invert = $request->invert;
 
         if ($relay->safeInsert()) {
             return self::success($relay->id);
@@ -82,10 +81,6 @@ readonly class DeviceRelayController extends AdminRbtController
             $relay->credential = $request->credential;
         }
 
-        if (!is_null($request->invert)) {
-            $relay->invert = $request->invert;
-        }
-
         if ($relay->safeUpdate()) {
             return self::success($relay->id);
         }
@@ -105,7 +100,7 @@ readonly class DeviceRelayController extends AdminRbtController
 
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
-                ->withBody(stream(['value' => $relay->invert])),
+                ->withBody(stream(['value' => true])),
             $option
         );
 
@@ -117,7 +112,7 @@ readonly class DeviceRelayController extends AdminRbtController
 
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
-                ->withBody(stream(['value' => !$relay->invert])),
+                ->withBody(stream(['value' => false])),
             $option
         );
 

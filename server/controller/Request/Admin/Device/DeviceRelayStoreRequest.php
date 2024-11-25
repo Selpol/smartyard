@@ -8,8 +8,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $title Название устройства
  * @property-read string $url Ссылка на устройство
  * @property-read string $credential Авторизация для устройства
- *
- * @property-read bool $invert Инвентированный выход
  */
 readonly class DeviceRelayStoreRequest extends RouteRequest
 {
@@ -18,9 +16,7 @@ readonly class DeviceRelayStoreRequest extends RouteRequest
         return [
             'title' => rule()->required()->string()->nonNullable(),
             'url' => rule()->required()->url()->nonNullable(),
-            'credential' => rule()->required()->string()->nonNullable(),
-
-            'invert' => rule()->required()->bool()->nonNullable()
+            'credential' => rule()->required()->string()->nonNullable()
         ];
     }
 }

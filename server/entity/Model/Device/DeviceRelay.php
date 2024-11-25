@@ -13,8 +13,6 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $url
  * @property string $credential
  *
- * @property bool $invert
- *
  * @property string $created_at
  * @property string $updated_at
  */
@@ -35,8 +33,6 @@ class DeviceRelay extends Entity
             'title' => rule()->required()->string()->nonNullable(),
             'url' => rule()->required()->url()->nonNullable(),
             'credential' => rule()->required()->string()->nonNullable(),
-
-            'invert' => rule()->required()->bool()->nonNullable(),
 
             'created_at' => rule()->string(),
             'updated_at' => rule()->string()
