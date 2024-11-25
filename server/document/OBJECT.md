@@ -78,7 +78,6 @@
 - `string` *title* - Название устройства
 - `string` *url* - Ссылка на устройство
 - `string` *credential* - Авторизация для устройства
-- `bool` *invert* - Инвентированный выход
 
 ## DeviceRelayUpdateRequest
 
@@ -88,7 +87,6 @@
 - `null|string` *title* - Название устройства
 - `null|string` *url* - Ссылка на устройство
 - `null|string` *credential* - Авторизация для устройства
-- `null|bool` *invert* - Инвентированный выход
 
 ## DeviceRelayFlapRequest
 
