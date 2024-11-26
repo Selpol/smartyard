@@ -6,6 +6,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\Device\DeviceRelayFlapRequest;
 use Selpol\Controller\Request\Admin\Device\DeviceRelayIndexRequest;
+use Selpol\Controller\Request\Admin\Device\DeviceRelayModeRequest;
 use Selpol\Controller\Request\Admin\Device\DeviceRelayStoreRequest;
 use Selpol\Controller\Request\Admin\Device\DeviceRelayUpdateRequest;
 use Selpol\Entity\Model\Device\DeviceRelay;
@@ -113,6 +114,29 @@ readonly class DeviceRelayController extends AdminRbtController
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
                 ->withBody(stream(['value' => false])),
+            $option
+        );
+
+        if ($response->getStatusCode() != 200) {
+            return self::error($response->getReasonPhrase(), 400);
+        }
+
+        return self::success();
+    }
+
+    /**
+     * Установить режим реле
+     */
+    #[Get('/mode/{id}')]
+    public function mode(DeviceRelayModeRequest $request, Client $client): ResponseInterface
+    {
+        $relay = DeviceRelay::findById($request->id, setting: setting()->nonNullable());
+
+        $option = (new ClientOption())->basic($relay->credential);
+
+        $response = $client->send(
+            request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
+                ->withBody(stream(['value' => $request->value])),
             $option
         );
 

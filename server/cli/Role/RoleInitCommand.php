@@ -84,6 +84,7 @@ class RoleInitCommand
             'device-relay-store-post' => '[Устройство-Реле] Получить устройство реле',
             'device-relay-update-put' => '[Устройство-Реле] Добавить устройство реле',
             'device-relay-flap-get' => '[Устройство-Реле] Обновить устройство реле',
+            'device-relay-mode-get' => '[Устройство-Реле] Установить режим реле',
             'device-relay-delete-delete' => '[Устройство-Реле] Флапнуть устройством реле',
         ];
 

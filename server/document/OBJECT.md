@@ -95,6 +95,13 @@
 - `int` *id* - Идентификатор устройства
 - `int` *sleep* - Задержка между состоянием
 
+## DeviceRelayModeRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `bool` *value* - Состояние реле
+
 ## DvrShowRequest
 
 Поля: 
