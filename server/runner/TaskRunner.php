@@ -103,7 +103,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             try {
                 $service->task($uuid, $task->title, 'start', $task->uid, 0);
 
-                $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
+                if ($task->progress) {
+                    $task->setProgressCallback(static fn(int|float $progress) => $service->task($uuid, $task->title, 'progress', $task->uid, $progress));
+                }
 
                 $logger->info('Dequeue start task', ['uuid' => $uuid, 'queue' => $queue, 'class' => $task::class, 'title' => $task->title]);
 
@@ -113,7 +115,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $logger->info('Dequeue complete task', ['uuid' => $uuid, 'queue' => $queue, 'class' => $task::class, 'title' => $task->title, 'elapsed' => $elapsed]);
 
-                $task->setProgressCallback(null);
+                if ($task->progress) {
+                    $task->setProgressCallback(null);
+                }
 
                 $feature->add($task, 'OK (' . round($elapsed / 1000, 2) . 's)', 1);
 
@@ -132,7 +136,9 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                 $logger->info('Dequeue error task' . PHP_EOL . $throwable, ['queue' => $queue, 'class' => $task::class, 'title' => $task->title, 'message' => $message]);
 
-                $task->setProgressCallback(null);
+                if ($task->progress) {
+                    $task->setProgressCallback(null);
+                }
 
                 $feature->add($task, $message, 0);
 

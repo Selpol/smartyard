@@ -41,6 +41,8 @@ abstract class IntercomDevice extends IpDevice
             $this->debug = $this->resolver->bool('debug', false);
         }
 
+        $this->prepare = $this->resolver->int('prepare', 1);
+
         if ($this->resolver->bool('mifare', false) === true) {
             $key = $this->resolver->string('mifare.key');
             $sector = $this->resolver->string('mifare.sector');
