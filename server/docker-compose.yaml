@@ -2,6 +2,7 @@ services:
   nginx:
     image: nginx:1.25-alpine
     container_name: nginx
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -18,6 +19,7 @@ services:
   database:
     image: postgres:15-alpine
     container_name: database
+    restart: always
     volumes:
       - ./docker/data/database:/var/lib/postgresql/data
     env_file:
@@ -33,6 +35,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
+    restart: always
     ports:
       - "6379:6379"
     environment:
@@ -57,6 +60,7 @@ services:
   amqp:
     image: heidiks/rabbitmq-delayed-message-exchange:3.10.2-management
     container_name: amqp
+    restart: always
     environment:
       - RABBITMQ_DEFAULT_USER=${AMQP_USERNAME}
       - RABBITMQ_DEFAULT_PASS=${AMQP_PASSWORD}
@@ -65,6 +69,7 @@ services:
   mqtt:
     image: iegomez/mosquitto-go-auth:2.0.0-mosquitto_2.0.14
     container_name: mqtt
+    restart: always
     volumes:
       - ./docker/mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf
       - ./docker/mosquitto/conf.d:/mosquitto/conf.d
