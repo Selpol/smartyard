@@ -22,8 +22,6 @@ services:
     restart: always
     volumes:
       - ./docker/data/database:/var/lib/postgresql/data
-    env_file:
-      - .env
     environment:
       - POSTGRES_DB=${DB_DATABASE}
       - POSTGRES_USER=${DB_USERNAME}
@@ -77,14 +75,11 @@ services:
       backend:
       frontend:
   php:
-    build:
-      context: .
-      args:
-        TZ: Europe/Moscow
-        COMPOSER_AUTH: ${COMPOSER_AUTH}
+    image: ${SMARTYARD_IMAGE}
     container_name: php
     restart: always
     volumes:
+      - .env:/srv/app/.env
       - ${DEFAULT_PUBLIC_KEY}:/etc/ssl/resource_key.key
       - ${SMARTYARD_LOG_DEVICE}:/srv/app/var/log
     environment:
