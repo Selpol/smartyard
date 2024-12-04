@@ -78,6 +78,8 @@ class FlussonicDvr extends DvrDevice
             if ($password !== $camera->credentials) {
                 $uri->withUserInfo($user, $camera->credentials);
 
+                $inputs[$i]['url'] = (string)$uri;
+
                 $update = true;
             }
         }
