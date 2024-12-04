@@ -113,6 +113,8 @@ readonly class camera extends Api
 
     private static function set(DeviceCamera $camera, array $params): void
     {
+        $credentials = $camera->credentials !== $params['credentials'];
+
         $camera->enabled = $params['enabled'];
 
         if (array_key_exists('dvr_server_id', $params)) {
@@ -155,6 +157,10 @@ readonly class camera extends Api
             }
         } catch (Throwable) {
 
+        }
+
+        if ($credentials && $camera->dvr_server_id) {
+            dvr($camera->dvr_server_id)->updateCamera($camera);
         }
 
         if (array_key_exists('hidden', $params)) {

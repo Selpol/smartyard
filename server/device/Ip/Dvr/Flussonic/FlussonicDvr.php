@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
 use Psr\Http\Message\StreamInterface;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -55,6 +56,39 @@ class FlussonicDvr extends DvrDevice
             'command' => [DvrCommand::SEEK->value],
             'speed' => [1, 2, 4]
         ];
+    }
+
+    public function updateCamera(DeviceCamera $camera): void
+    {
+        $stream = $this->get('/streamer/api/v3/streams/' . $camera->dvr_stream);
+
+        if (!array_key_exists('inputs', $stream) && !is_array($stream['inputs'])) {
+            throw new DeviceException($this, 'Не удалось получить поток');
+        }
+
+        $inputs = $stream['inputs'];
+
+        $update = false;
+
+        for ($i = 0; $i < count($inputs); $i++) {
+            $uri = uri($inputs[$i]['url']);
+
+            list($user, $password) = explode(':', $uri->getUserInfo());
+
+            if ($password !== $camera->credentials) {
+                $uri->withUserInfo($user, $camera->credentials);
+
+                $update = true;
+            }
+        }
+
+        if ($update) {
+            $stream = $this->put('/streamer/api/v3/streams/' . $camera->dvr_stream, ['inputs' => $inputs]);
+
+            if (!array_key_exists('inputs', $stream) && !is_array($stream['inputs'])) {
+                throw new DeviceException($this, 'Не удалось обновить поток');
+            }
+        }
     }
 
     public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
