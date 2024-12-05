@@ -38,14 +38,10 @@ class DeviceInfoCommand
 
                 $info = $intercom->getSysInfo();
 
-                if (!$info) {
-                    continue;
-                }
-
-                $deviceIntercom->device_id = $info['DeviceID'];
-                $deviceIntercom->device_model = $info['DeviceModel'];
-                $deviceIntercom->device_software_version = $info['SoftwareVersion'];
-                $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+                $deviceIntercom->device_id = $info->deviceId;
+                $deviceIntercom->device_model = $info->deviceModel;
+                $deviceIntercom->device_software_version = $info->softwareVersion;
+                $deviceIntercom->device_hardware_version = $info->hardwareVersion;
 
                 $deviceIntercom->update();
 
@@ -68,14 +64,10 @@ class DeviceInfoCommand
 
                 $info = $camera->getSysInfo();
 
-                if (!$info) {
-                    continue;
-                }
-
-                $deviceCamera->device_id = $info['DeviceID'];
-                $deviceCamera->device_model = $info['DeviceModel'];
-                $deviceCamera->device_software_version = $info['SoftwareVersion'];
-                $deviceCamera->device_hardware_version = $info['HardwareVersion'];
+                $deviceCamera->device_id = $info->deviceId;
+                $deviceCamera->device_model = $info->deviceModel;
+                $deviceCamera->device_software_version = $info->softwareVersion;
+                $deviceCamera->device_hardware_version = $info->hardwareVersion;
 
                 $deviceCamera->update();
 

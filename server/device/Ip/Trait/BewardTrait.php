@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\InfoDevice;
 use SensitiveParameter;
 use Throwable;
 
@@ -19,10 +20,12 @@ trait BewardTrait
         return $this->intercomCgi;
     }
 
-    public function getSysInfo(): array
+    public function getSysInfo(): InfoDevice
     {
         try {
-            return $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+            $response = $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+
+            return new InfoDevice($response['DeviceID'], $response['DeviceModel'], $response['HardwareVersion'], $response['SoftwareVersion']);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }

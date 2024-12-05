@@ -38,6 +38,12 @@ return [
         'password' => env('MQTT_PASSWORD', 'password')
     ],
 
+    'zabbix' => [
+        'endpoint' => env('ZABBIX_ENDPOINT'),
+
+        'key' => env('ZABBIX_KEY')
+    ],
+
     'internal' => [
         'trust' => explode(',', env('INTERNAL_TRUST', '127.0.0.1/32'))
     ],

@@ -53,10 +53,10 @@ class DeviceService implements CronInterface
 
                 $info = $intercom->getSysInfo();
 
-                $deviceIntercom->device_id = $info['DeviceID'];
-                $deviceIntercom->device_model = $info['DeviceModel'];
-                $deviceIntercom->device_software_version = $info['SoftwareVersion'];
-                $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+                $deviceIntercom->device_id = $info->deviceId;
+                $deviceIntercom->device_model = $info->deviceModel;
+                $deviceIntercom->device_software_version = $info->softwareVersion;
+                $deviceIntercom->device_hardware_version = $info->hardwareVersion;
 
                 $deviceIntercom->update();
             }

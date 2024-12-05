@@ -3,12 +3,13 @@
 namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\InfoDevice;
 use SensitiveParameter;
 use Throwable;
 
 trait IsTrait
 {
-    public function getSysInfo(): array
+    public function getSysInfo(): InfoDevice
     {
         try {
             $info = $this->get('/system/info');
@@ -22,13 +23,7 @@ trait IsTrait
                 $softwareVersion = $version['opt']['name'];
             }
 
-            return [
-                'DeviceID' => $info['deviceID'],
-                'DeviceModel' => $info['model'],
-
-                'HardwareVersion' => $hardwareVersion,
-                'SoftwareVersion' => $softwareVersion
-            ];
+            return new InfoDevice($info['deviceID'], $info['model'], $hardwareVersion, $softwareVersion);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }

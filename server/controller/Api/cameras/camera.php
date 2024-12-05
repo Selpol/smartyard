@@ -154,10 +154,10 @@ readonly class camera extends Api
             if ($device) {
                 $info = $device->getSysInfo();
 
-                $camera->device_id = $info['DeviceID'];
-                $camera->device_model = $info['DeviceModel'];
-                $camera->device_software_version = $info['SoftwareVersion'];
-                $camera->device_hardware_version = $info['HardwareVersion'];
+                $camera->device_id = $info->deviceId;
+                $camera->device_model = $info->deviceModel;
+                $camera->device_software_version = $info->softwareVersion;
+                $camera->device_hardware_version = $info->hardwareVersion;
             }
         } catch (Throwable) {
 

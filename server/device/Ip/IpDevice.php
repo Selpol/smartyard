@@ -81,7 +81,7 @@ abstract class IpDevice extends Device
     public function ping(): bool
     {
         try {
-            return array_key_exists('DeviceID', $this->getSysInfo());
+            return $this->getSysInfo()->deviceId !== '';
         } catch (Throwable) {
             return false;
         }
@@ -89,12 +89,12 @@ abstract class IpDevice extends Device
 
     public function pingOrThrow(): void
     {
-        if (!array_key_exists('DeviceID', $this->getSysInfo())) {
+        if (!$this->getSysInfo()->deviceId) {
             throw new DeviceException($this, 'Не удалось узнать информацию об устройстве');
         }
     }
 
-    public function getSysInfo(): array
+    public function getSysInfo(): InfoDevice
     {
         throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
     }
