@@ -69,6 +69,8 @@ readonly class camera extends Api
 
         self::set($camera, $params);
 
+        $credentials = $camera->credentials !== $params['credentials'];
+
         if ($camera->safeUpdate()) {
             if (array_key_exists('frs_server_id', $params)) {
                 if ($camera->frs_server_id !== $params['frs_server_id']) {
@@ -78,6 +80,10 @@ readonly class camera extends Api
                 if ($params['frs_server_id']) {
                     task(new FrsAddStreamTask($params['frs_server_id'], $camera->camera_id))->high()->dispatch();
                 }
+            }
+
+            if ($credentials && $camera->dvr_server_id) {
+                dvr($camera->dvr_server_id)->updateCamera($camera);
             }
 
             return self::success($camera->camera_id);
@@ -113,8 +119,6 @@ readonly class camera extends Api
 
     private static function set(DeviceCamera $camera, array $params): void
     {
-        $credentials = $camera->credentials !== $params['credentials'];
-
         $camera->enabled = $params['enabled'];
 
         if (array_key_exists('dvr_server_id', $params)) {
@@ -157,10 +161,6 @@ readonly class camera extends Api
             }
         } catch (Throwable) {
 
-        }
-
-        if ($credentials && $camera->dvr_server_id) {
-            dvr($camera->dvr_server_id)->updateCamera($camera);
         }
 
         if (array_key_exists('hidden', $params)) {
