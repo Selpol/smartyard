@@ -130,4 +130,35 @@ readonly class DeviceRelaySettingController extends AdminRbtController
 
         return self::success();
     }
+
+    /**
+     * Получить состояние платы
+     * @param int $id Идентификатор устройства
+     */
+    #[Get('/states/{id}')]
+    public function states(int $id, Client $client): ResponseInterface
+    {
+        $relay = DeviceRelay::findById($id, setting: setting()->nonNullable());
+
+        $option = (new ClientOption())->basic($relay->credential);
+
+        $response = $client->send(
+            request('GET', uri($relay->url)->withPath('/api/v1/states')),
+            $option
+        );
+
+        if ($response->getStatusCode() != 200) {
+            return self::error($response->getReasonPhrase(), 400);
+        }
+
+        $body = json_decode($response->getBody()->getContents());
+
+        if (array_key_exists('data', $body)) {
+            return self::success($body['data']);
+        } else if (array_key_exists('message', $body)) {
+            return self::error($body['message']);
+        }
+
+        return self::error();
+    }
 }

@@ -27,3 +27,9 @@
 Параметры: 
 
 - [DeviceRelaySettingModeRequest](../OBJECT.md#DeviceRelaySettingModeRequest) 
+
+### [GET/states `device-relay-setting-states-get`] Получить состояние платы `/admin/device/relay/setting/states/{id}`
+
+Параметры: 
+
+- `int` *id* Идентификатор устройства

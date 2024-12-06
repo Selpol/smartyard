@@ -89,6 +89,7 @@ class RoleInitCommand
             'device-relay-setting-update-put' => '[Устройство-Реле] Обновить настройки реле',
             'device-relay-setting-flap-get' => '[Устройство-Реле] Флапнуть режим реле',
             'device-relay-setting-mode-get' => '[Устройство-Реле] Установить режим реле',
+            'device-relay-setting-states-get' => '[Устройство-Реле] Получить статус платы'
         ];
 
         /** @var array<string, Permission> $titlePermissions */
