@@ -30,6 +30,13 @@ readonly class info extends Api
 
             $deviceIntercom->update();
 
+            $info = [
+                'DeviceID' => $info->deviceId,
+                'DeviceModel' => $info->deviceModel,
+                'HardwareVersion' => $info->hardwareVersion,
+                'SoftwareVersion' => $info->softwareVersion,
+            ];
+
             $info['cms'] = explode(',', $device->resolver->string('cms.value', ''));
             $info['output'] = $device->resolver->int('output', 1);
 
