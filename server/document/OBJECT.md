@@ -88,14 +88,25 @@
 - `null|string` *url* - Ссылка на устройство
 - `null|string` *credential* - Авторизация для устройства
 
-## DeviceRelayFlapRequest
+## DeviceRelaySettingUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `null|int` *pin* - Пин управления
+- `null|bool` *invert* - Инвертный пин управления
+- `null|string` *authentication* - Авторизация в формате Base64
+- `null|string` *ping_address* - Ip-адрес для пинга
+- `null|int` *ping_timeout* - Таймаут пинга
+
+## DeviceRelaySettingFlapRequest
 
 Поля: 
 
 - `int` *id* - Идентификатор устройства
 - `int` *sleep* - Задержка между состоянием
 
-## DeviceRelayModeRequest
+## DeviceRelaySettingModeRequest
 
 Поля: 
 

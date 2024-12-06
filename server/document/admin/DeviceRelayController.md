@@ -28,18 +28,6 @@
 
 - [DeviceRelayUpdateRequest](../OBJECT.md#DeviceRelayUpdateRequest) 
 
-### [GET/flap `device-relay-flap-get`] Флапнуть устройством реле `/admin/device/relay/flap/{id}`
-
-Параметры: 
-
-- [DeviceRelayFlapRequest](../OBJECT.md#DeviceRelayFlapRequest) 
-
-### [GET/mode `device-relay-mode-get`] Установить режим реле `/admin/device/relay/mode/{id}`
-
-Параметры: 
-
-- [DeviceRelayModeRequest](../OBJECT.md#DeviceRelayModeRequest) 
-
 ### [DELETE/delete `device-relay-delete-delete`] Удалить устройство реле `/admin/device/relay/{id}`
 
 Параметры: 

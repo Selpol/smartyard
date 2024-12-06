@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Admin\Device;
+namespace Selpol\Controller\Request\Admin\Device\Setting;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 
@@ -8,7 +8,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read int $id Идентификатор устройства
  * @property-read int $sleep Задержка между состоянием
  */
-readonly class DeviceRelayFlapRequest extends RouteRequest
+readonly class DeviceRelaySettingFlapRequest extends RouteRequest
 {
     public static function getValidate(): array
     {

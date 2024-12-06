@@ -35,19 +35,23 @@ readonly class ZabbixService
             'method' => 'host.create',
             'params' => [
                 'host' => $intercom->ip,
-                'visiblename' => $intercom->comment ?? $intercom->ip,
+                'name' => $intercom->comment,
                 'interfaces' => [['type' => 1, 'main' => 1, 'useip' => 1, 'ip' => $intercom->ip, 'port' => '10050']],
                 'groups' => [
                     array_map(
-                        static fn(string $value) => ['groupid' => intval($value)],
+                        static fn(string $value) => ['groupid' => $value],
                         array_map('trim', explode(',', $device->resolver->string('zabbix.group', '1')))
                     )
                 ],
                 'templates' => [
                     array_map(
-                        static fn(string $value) => ['templateid' => intval($value)],
+                        static fn(string $value) => ['templateid' => $value],
                         array_map('trim', explode(',', $device->resolver->string('zabbix.template', '1')))
                     )
+                ],
+                'macros' => [
+                    ['macro' => '{$DEVICE_LOGIN}', 'value' => $device->login],
+                    ['macro' => '{$DEVICE_PASSWORD}', 'value' => $device->password]
                 ],
                 'inventory_mode' => 1,
                 'inventory' => [
@@ -56,13 +60,16 @@ readonly class ZabbixService
                     'model' => $info->deviceModel,
                     'hardware' => $info->hardwareVersion,
                     'software' => $info->softwareVersion,
-                    'url_a' => 'http://' . $intercom->ip,
-                    'host_inventory_site_notes' => $device->login . ':' . $device->password
+                    'url_a' => 'http://' . $intercom->ip
                 ]
             ],
             'auth' => $this->key,
             'id' => 1
         ];
+
+        if ($intercom->comment) {
+            $data['params']['name'] = $intercom->comment;
+        }
 
         $this->client->send(
             request('POST', $this->endpoint)

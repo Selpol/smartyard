@@ -81,11 +81,14 @@ class RoleInitCommand
             'account-audit-index-get' => '[Аудит] Получить список действий',
 
             'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
-            'device-relay-store-post' => '[Устройство-Реле] Получить устройство реле',
-            'device-relay-update-put' => '[Устройство-Реле] Добавить устройство реле',
-            'device-relay-flap-get' => '[Устройство-Реле] Обновить устройство реле',
-            'device-relay-mode-get' => '[Устройство-Реле] Установить режим реле',
-            'device-relay-delete-delete' => '[Устройство-Реле] Флапнуть устройством реле',
+            'device-relay-store-post' => '[Устройство-Реле] Добавить устройство реле',
+            'device-relay-update-put' => '[Устройство-Реле] Обновить устройство реле',
+            'device-relay-delete-delete' => '[Устройство-Реле] Удалить устройством реле',
+
+            'device-relay-setting-index-get' => '[Устройство-Реле] Получить настройки реле',
+            'device-relay-setting-update-put' => '[Устройство-Реле] Обновить настройки реле',
+            'device-relay-setting-flap-get' => '[Устройство-Реле] Флапнуть режим реле',
+            'device-relay-setting-mode-get' => '[Устройство-Реле] Установить режим реле',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
