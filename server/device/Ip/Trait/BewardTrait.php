@@ -25,7 +25,7 @@ trait BewardTrait
         try {
             $response = $this->get('/cgi-bin/systeminfo_cgi', ['action' => 'get'], parse: ['type' => 'param']);
 
-            return new InfoDevice($response['DeviceID'], $response['DeviceModel'], $response['HardwareVersion'], $response['SoftwareVersion']);
+            return new InfoDevice($response['DeviceID'], $response['DeviceModel'], $response['HardwareVersion'], $response['SoftwareVersion'], null);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }

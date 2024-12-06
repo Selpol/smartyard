@@ -26,6 +26,10 @@ readonly class ZabbixService
 
     public function addIntercom(DeviceIntercom $intercom): void
     {
+        if ($this->endpoint == null || $this->key == null) {
+            return;
+        }
+
         $device = container(DeviceService::class)->intercomByEntity($intercom);
 
         $info = $device->getSysInfo();
@@ -35,7 +39,6 @@ readonly class ZabbixService
             'method' => 'host.create',
             'params' => [
                 'host' => $intercom->ip,
-                'name' => $intercom->comment,
                 'interfaces' => [['type' => 1, 'main' => 1, 'useip' => 1, 'ip' => $intercom->ip, 'port' => '10050']],
                 'groups' => [
                     array_map(
@@ -60,7 +63,8 @@ readonly class ZabbixService
                     'model' => $info->deviceModel,
                     'hardware' => $info->hardwareVersion,
                     'software' => $info->softwareVersion,
-                    'url_a' => 'http://' . $intercom->ip
+                    'url_a' => 'http://' . $intercom->ip,
+                    'site_address_a' => $intercom->comment
                 ]
             ],
             'auth' => $this->key,
@@ -69,6 +73,10 @@ readonly class ZabbixService
 
         if ($intercom->comment) {
             $data['params']['name'] = $intercom->comment;
+        }
+
+        if ($info->mac) {
+            $data['params']['inventory']['macaddress_a'] = $info->mac;
         }
 
         $this->client->send(

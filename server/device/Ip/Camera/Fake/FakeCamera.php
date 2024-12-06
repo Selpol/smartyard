@@ -11,7 +11,7 @@ class FakeCamera extends CameraDevice
 {
     public function getSysInfo(): InfoDevice
     {
-        return new InfoDevice('FAKE', 'FAKE', 'FAKE', 'FAKE');
+        return new InfoDevice('FAKE', 'FAKE', 'FAKE', 'FAKE', null);
     }
 
     public function ping(): bool

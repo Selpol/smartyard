@@ -24,7 +24,8 @@ trait HikVisionTrait
                 $serial,
                 $info['model'],
                 $info['hardwareVersion'],
-                $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
+                $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate'],
+                null
             );
         } catch (Throwable $throwable) {
             if ($throwable instanceof DeviceException) {

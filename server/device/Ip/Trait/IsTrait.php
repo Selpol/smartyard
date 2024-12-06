@@ -23,7 +23,7 @@ trait IsTrait
                 $softwareVersion = $version['opt']['name'];
             }
 
-            return new InfoDevice($info['deviceID'], $info['model'], $hardwareVersion, $softwareVersion);
+            return new InfoDevice($info['deviceID'], $info['model'], $hardwareVersion, $softwareVersion, $info['mac']);
         } catch (Throwable $throwable) {
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
