@@ -151,7 +151,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
             return self::error($response->getReasonPhrase(), 400);
         }
 
-        $body = json_decode($response->getBody()->getContents());
+        $body = json_decode($response->getBody()->getContents(), true);
 
         if (array_key_exists('data', $body)) {
             return self::success($body['data']);
