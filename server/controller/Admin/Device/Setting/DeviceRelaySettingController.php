@@ -17,7 +17,7 @@ use Selpol\Framework\Router\Attribute\Method\Put;
 /**
  * Устройство-реле настройки
  */
-#[Controller('/admin/device/relay/setting')]
+#[Controller('/admin/device/relay-setting')]
 readonly class DeviceRelaySettingController extends AdminRbtController
 {
     /**
@@ -29,7 +29,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     {
         $relay = DeviceRelay::findById($id, setting: setting()->nonNullable());
 
-        $option = (new ClientOption())->basic($relay->credential);
+        $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         $response = $client->send(request('GET', uri($relay->url)->withPath('/api/v1/setting')), $option);
 
@@ -37,7 +37,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
             return self::error($response->getReasonPhrase(), 400);
         }
 
-        $body = json_decode($response->getBody()->getContents());
+        $body = json_decode($response->getBody()->getContents(), true);
 
         if (array_key_exists('data', $body)) {
             return self::success($body['data']);
@@ -56,7 +56,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     {
         $relay = DeviceRelay::findById($request->id, setting: setting()->nonNullable());
 
-        $option = (new ClientOption())->basic($relay->credential);
+        $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         $response = $client->send(request('PUT', uri($relay->url)->withPath('/api/v1/setting'))->withBody(stream([
             'pin' => $request->pin,
@@ -81,7 +81,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     {
         $relay = DeviceRelay::findById($request->id, setting: setting()->nonNullable());
 
-        $option = (new ClientOption())->basic($relay->credential);
+        $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
@@ -116,7 +116,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     {
         $relay = DeviceRelay::findById($request->id, setting: setting()->nonNullable());
 
-        $option = (new ClientOption())->basic($relay->credential);
+        $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))
@@ -140,7 +140,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     {
         $relay = DeviceRelay::findById($id, setting: setting()->nonNullable());
 
-        $option = (new ClientOption())->basic($relay->credential);
+        $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         $response = $client->send(
             request('GET', uri($relay->url)->withPath('/api/v1/states')),
