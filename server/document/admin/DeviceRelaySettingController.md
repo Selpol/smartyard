@@ -22,7 +22,7 @@
 
 - [DeviceRelaySettingFlapRequest](../OBJECT.md#DeviceRelaySettingFlapRequest) 
 
-### [GET/mode `device-relay-setting-mode-get`] Установить режим реле `/admin/device/relay-setting/mode/{id}`
+### [GET/mode `device-relay-setting-mode-get`] Запросить или установить режим реле `/admin/device/relay-setting/mode/{id}`
 
 Параметры: 
 

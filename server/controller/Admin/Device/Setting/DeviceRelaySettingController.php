@@ -109,7 +109,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
     }
 
     /**
-     * Установить режим реле
+     * Запросить или установить режим реле
      */
     #[Get('/mode/{id}')]
     public function mode(DeviceRelaySettingModeRequest $request, Client $client): ResponseInterface
@@ -117,6 +117,24 @@ readonly class DeviceRelaySettingController extends AdminRbtController
         $relay = DeviceRelay::findById($request->id, setting: setting()->nonNullable());
 
         $option = (new ClientOption())->basic(base64_decode($relay->credential));
+
+        if ($request->value == null) {
+            $response = $client->send(request('GET', uri($relay->url)->withPath('/api/v1/relay')));
+
+            if ($response->getStatusCode() != 200) {
+                return self::error($response->getReasonPhrase(), 400);
+            }
+
+            $body = json_decode($response->getBody()->getContents(), true);
+
+            if (array_key_exists('data', $body)) {
+                return self::success($body['data']);
+            } else if (array_key_exists('message', $body)) {
+                return self::error($body['message']);
+            }
+
+            return self::error();
+        }
 
         $response = $client->send(
             request('PUT', uri($relay->url)->withPath('/api/v1/relay'))

@@ -111,7 +111,7 @@
 Поля: 
 
 - `int` *id* - Идентификатор устройства
-- `bool` *value* - Состояние реле
+- `null|bool` *value* - Состояние реле
 
 ## DvrShowRequest
 
