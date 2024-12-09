@@ -119,7 +119,7 @@ readonly class DeviceRelaySettingController extends AdminRbtController
         $option = (new ClientOption())->basic(base64_decode($relay->credential));
 
         if ($request->value == null) {
-            $response = $client->send(request('GET', uri($relay->url)->withPath('/api/v1/relay')));
+            $response = $client->send(request('GET', uri($relay->url)->withPath('/api/v1/relay')), $option);
 
             if ($response->getStatusCode() != 200) {
                 return self::error($response->getReasonPhrase(), 400);
