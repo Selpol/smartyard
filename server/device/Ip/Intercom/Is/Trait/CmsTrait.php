@@ -153,8 +153,6 @@ trait CmsTrait
                 continue;
             }
 
-            $matrix['capacity'] = $cms->capacity;
-
             if (is_array($matrix['matrix'])) {
                 $counter = count($matrix['matrix']);
 
