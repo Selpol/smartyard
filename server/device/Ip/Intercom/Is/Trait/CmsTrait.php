@@ -149,6 +149,10 @@ trait CmsTrait
         for ($i = 1; $i <= $length; ++$i) {
             $matrix = $this->get('/switch/matrix/' . $i);
 
+            if (!is_array($matrix)) {
+                continue;
+            }
+
             $matrix['capacity'] = $cms->capacity;
             $counter = count($matrix['matrix']);
 
