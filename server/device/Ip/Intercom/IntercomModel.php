@@ -7,6 +7,7 @@ use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
 use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
 use Selpol\Device\Ip\Intercom\Is\Is5Intercom;
 use Selpol\Device\Ip\Intercom\Is\IsIntercom;
+use Selpol\Device\Ip\Intercom\Relay\RelayIntercom;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigResolver;
 
@@ -56,7 +57,8 @@ class IntercomModel
             'DsBeward' => DsIntercom::class,
             'HikVision' => HikVisionIntercom::class,
             'Is' => IsIntercom::class,
-            'Is5' => Is5Intercom::class
+            'Is5' => Is5Intercom::class,
+            'Relay' => RelayIntercom::class,
 
         };
 
@@ -80,6 +82,7 @@ class IntercomModel
                 'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=DsBeward'),
                 'beward_dks' => new IntercomModel('BEWARD DKS', 'BEWARD', 'class=DksBeward'),
                 'hikvision' => new IntercomModel('HikVision', 'HIKVISION', 'class=HikVision'),
+                'relay' => new IntercomModel('Relay', 'RX', 'class=Relay')
             ];
         }
 

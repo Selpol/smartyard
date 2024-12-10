@@ -93,25 +93,10 @@
 Поля: 
 
 - `int` *id* - Идентификатор устройства
-- `null|int` *pin* - Пин управления
-- `null|bool` *invert* - Инвертный пин управления
 - `null|string` *authentication* - Авторизация в формате Base64
+- `null|int` *open_duration* - Время октрытия реле
 - `null|string` *ping_address* - Ip-адрес для пинга
 - `null|int` *ping_timeout* - Таймаут пинга
-
-## DeviceRelaySettingFlapRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор устройства
-- `int` *sleep* - Задержка между состоянием
-
-## DeviceRelaySettingModeRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор устройства
-- `null|bool` *value* - Состояние реле
 
 ## DvrShowRequest
 

@@ -30,7 +30,9 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
             ['type' => 'value', 'value' => 'prepare', 'title' => 'Подготовка запроса', 'assign' => ['default' => '1', 'in:0,1,2']],
             ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
+
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
+            ['type' => 'value', 'value' => 'output.map', 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
 
             ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:DksBeward,DsBeward,HikVision,Is,Is5']],
 
