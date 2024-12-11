@@ -81,6 +81,7 @@ class RoleInitCommand
             'account-audit-index-get' => '[Аудит] Получить список действий',
 
             'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
+            'device-relay-show-get' => '[Устройство-Реле] Получить устройство реле',
             'device-relay-store-post' => '[Устройство-Реле] Добавить устройство реле',
             'device-relay-update-put' => '[Устройство-Реле] Обновить устройство реле',
             'device-relay-delete-delete' => '[Устройство-Реле] Удалить устройством реле',

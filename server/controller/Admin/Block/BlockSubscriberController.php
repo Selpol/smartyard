@@ -45,11 +45,10 @@ readonly class BlockSubscriberController extends AdminRbtController
         $subscriberBlock->subscriber_id = $request->subscriber_id;
 
         $subscriberBlock->service = $request->service;
+        $subscriberBlock->status = BlockFeature::STATUS_ADMIN;
 
         $subscriberBlock->cause = $request->cause;
         $subscriberBlock->comment = $request->comment;
-
-        $subscriberBlock->status = BlockFeature::STATUS_ADMIN;
 
         if ($subscriberBlock->safeInsert()) {
             if ($request->notify) {
