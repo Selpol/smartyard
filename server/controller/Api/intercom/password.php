@@ -32,7 +32,7 @@ readonly class password extends Api
 
                 $password = array_key_exists('password', $params) ? rule()->string()->clamp(8, 8)->onItem('password', $params) : generate_password();
 
-                file_logger('intercom')->debug('Обновление пароля устройства', ['id' => $deviceIntercom->house_domophone_id, 'oldPassword' => $deviceIntercom->credentials, 'password' => $password]);
+                file_logger('password')->debug('Обновление пароля устройства', ['id' => $deviceIntercom->house_domophone_id, 'oldPassword' => $deviceIntercom->credentials, 'password' => $password]);
 
                 try {
                     $sipServer = container(SipFeature::class)->server('ip', $deviceIntercom->server)[0];
@@ -43,7 +43,7 @@ readonly class password extends Api
                         $intercom->setSip(new Sip($username, $password, $sipServer->internal_ip, $sipServer->internal_port));
                     }
                 } catch (Throwable $throwable) {
-                    file_logger('intercom')->error($throwable);
+                    file_logger('password')->error($throwable);
 
                     return self::error('Неудалось обновить sip аккаунт домофона', 500);
                 }
@@ -54,7 +54,7 @@ readonly class password extends Api
                 $deviceIntercom->credentials = $password;
 
                 if (!$deviceIntercom->safeUpdate()) {
-                    file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
+                    file_logger('password')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
 
                     return self::error('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')', 400);
                 }
@@ -69,9 +69,17 @@ readonly class password extends Api
                     $deviceCamera->credentials = $password;
 
                     if (!$deviceCamera->safeUpdate()) {
-                        file_logger('intercom')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
+                        file_logger('password')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
 
                         return self::error('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')', 400);
+                    }
+
+                    if ($deviceCamera->dvr_server_id) {
+                        try {
+                            dvr($deviceCamera->dvr_server_id)->updateCamera($deviceCamera);
+                        } catch (Throwable $throwable) {
+                            file_logger('password')->info('Неудалось обновить пароль на DVR' . PHP_EOL . $throwable, ['old' => $oldCameraPassword, 'new' => $password]);
+                        }
                     }
                 }
 

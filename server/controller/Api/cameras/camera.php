@@ -6,8 +6,10 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Service\AuthService;
+use Selpol\Service\DeviceService;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
+use Throwable;
 
 readonly class camera extends Api
 {
@@ -31,18 +33,15 @@ readonly class camera extends Api
             'name' => 'name',
             'dvr_stream' => 'dvrStream',
             'timezone' => 'timezone',
-            'screenshot' => 'screenshot',
             'lat' => 'lat',
             'lon' => 'lon',
-            'direction' => 'direction',
-            'angle' => 'angle',
-            'distance' => 'distance',
-            'md_left' => 'mdLeft',
-            'md_top' => 'mdTop',
-            'md_width' => 'mdWidth',
-            'md_height' => 'mdHeight',
             'common' => 'common',
             'comment' => 'comment',
+            'device_id' => 'deviceId',
+            'device_model' => 'deviceModel',
+            'device_software_version' => 'deviceSoftwareVersion',
+            'device_hardware_version' => 'deviceHardwareVersion',
+            'config' => 'config',
             'hidden' => 'hidden'
         ]));
     }
@@ -70,6 +69,8 @@ readonly class camera extends Api
 
         self::set($camera, $params);
 
+        $credentials = $camera->credentials !== $params['credentials'];
+
         if ($camera->safeUpdate()) {
             if (array_key_exists('frs_server_id', $params)) {
                 if ($camera->frs_server_id !== $params['frs_server_id']) {
@@ -79,6 +80,10 @@ readonly class camera extends Api
                 if ($params['frs_server_id']) {
                     task(new FrsAddStreamTask($params['frs_server_id'], $camera->camera_id))->high()->dispatch();
                 }
+            }
+
+            if ($credentials && $camera->dvr_server_id) {
+                dvr($camera->dvr_server_id)->updateCamera($camera);
             }
 
             return self::success($camera->camera_id);
@@ -132,25 +137,31 @@ readonly class camera extends Api
         $camera->dvr_stream = $params['dvrStream'];
         $camera->timezone = $params['timezone'];
 
-        if (array_key_exists('screenshot', $params)) {
-            $camera->screenshot = $params['screenshot'];
-        }
-
         $camera->lat = $params['lat'];
         $camera->lon = $params['lon'];
-
-        $camera->direction = $params['direction'];
-        $camera->angle = $params['angle'];
-        $camera->distance = $params['distance'];
-
-        $camera->md_left = $params['mdLeft'];
-        $camera->md_top = $params['mdTop'];
-        $camera->md_width = $params['mdWidth'];
-        $camera->md_height = $params['mdHeight'];
 
         $camera->common = $params['common'];
 
         $camera->comment = $params['comment'];
+
+        if (array_key_exists('config', $params)) {
+            $camera->config = $params['config'];
+        }
+
+        try {
+            $device = container(DeviceService::class)->cameraByEntity($camera);
+
+            if ($device) {
+                $info = $device->getSysInfo();
+
+                $camera->device_id = $info->deviceId;
+                $camera->device_model = $info->deviceModel;
+                $camera->device_software_version = $info->softwareVersion;
+                $camera->device_hardware_version = $info->hardwareVersion;
+            }
+        } catch (Throwable) {
+
+        }
 
         if (array_key_exists('hidden', $params)) {
             $camera->hidden = $params['hidden'];

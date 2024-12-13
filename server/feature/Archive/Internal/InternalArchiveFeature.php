@@ -2,8 +2,8 @@
 
 namespace Selpol\Feature\Archive\Internal;
 
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Service\PrometheusService;
@@ -61,7 +61,7 @@ readonly class InternalArchiveFeature extends ArchiveFeature
             );
 
             if ($task) {
-                $cam = container(CameraFeature::class)->getCamera($task['cameraId']);
+                $cam = DeviceCamera::findById($task['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
                 if (!$cam) {
                     echo "Camera with id = " . $task['cameraId'] . " was not found\n";

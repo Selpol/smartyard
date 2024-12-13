@@ -53,11 +53,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             throw new KernelException('Устройство не существует');
         }
 
-        $this->setProgress(1);
-
         $entrance = HouseEntrance::fetch(criteria()->equal('house_domophone_id', $this->id));
-
-        $this->setProgress(2);
 
         $device = container(DeviceService::class)->intercomByEntity($deviceIntercom);
 
@@ -67,31 +63,31 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $device->pingOrThrow();
 
-        $this->setProgress(5);
-
         $individualLevels = false;
 
-        $this->setProgress(10);
+        $this->setProgress(5);
 
         if ($device instanceof SipInterface) {
             $this->sip($device, $deviceIntercom);
         }
 
-        $this->setProgress(20);
+        $this->setProgress(10);
 
         if ($device instanceof CommonInterface) {
             $this->common($device, $entrance);
         }
 
-        if ($entrance instanceof HouseEntrance) {
-            $this->setProgress(30);
+        $this->setProgress(20);
 
-            if ($device instanceof CmsInterface) {
+        if ($entrance instanceof HouseEntrance) {
+            if (!$entrance->shared && $device instanceof CmsInterface) {
                 $this->cms($device, $entrance);
             }
 
+            $this->setProgress(40);
+
             if ($device instanceof ApartmentInterface) {
-                /** @var array<int, HouseFlat> $flats */
+                /** @var HouseFlat[] $flats */
                 $flats = [];
 
                 $this->apartment($device, $entrance, $flats, $individualLevels);
@@ -99,20 +95,15 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 if ($device instanceof KeyHandlerInterface) {
                     $device->handleKey($flats, $entrance);
                 } elseif (count($flats) > 0) {
-                    $this->setProgress(60);
                     if ($device instanceof KeyInterface) {
                         $this->key($device, $flats);
                     }
                 }
 
-                $this->setProgress(70);
-
                 if (count($flats) > 0) {
                     if ($device instanceof CodeInterface) {
                         $this->code($device, $flats);
                     }
-
-                    $this->setProgress(75);
                 }
             }
 
@@ -124,8 +115,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 $device->setGatesMode($device->resolver->int('wicket.mode', 1));
             }
         }
-
-        $this->setProgress(85);
 
         if ($device instanceof CommonInterface) {
             $this->commonOther($device, $individualLevels);
@@ -145,6 +134,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $deviceIntercom->update();
             $deviceIntercom->refresh();
         }
+
+        $this->setProgress(100);
 
         return true;
     }
@@ -298,8 +289,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      */
     public function apartment(IntercomDevice & ApartmentInterface $device, HouseEntrance $entrance, array &$flats, bool &$individualLevels): void
     {
-        $this->setProgress(50);
-
         /** @var array<int, Apartment> $apartments */
         $apartments = array_reduce($device->getApartments(), static function (array $previous, Apartment $current) {
             $previous[$current->apartment] = $current;
@@ -315,9 +304,18 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return;
         }
 
+        $count = count($houseFlats);
+
+        if ($count === 0) {
+            $count = 1;
+        }
+
+        $progress = 40;
+        $delta = (80 - $progress) / $count;
+
         foreach ($houseFlats as $flat) {
-            if (!array_key_exists(intval($flat->flat), $flats)) {
-                $flats[intval($flat->flat)] = $flat;
+            if (!array_key_exists($flat->house_flat_id, $flats)) {
+                $flats[$flat->house_flat_id] = $flat;
             }
 
             if ($device->model->isBeward() && $entrance->shared === 1) {
@@ -373,9 +371,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             } else {
                 $device->addApartment($apartment);
             }
-        }
 
-        $this->setProgress(80);
+            $progress += $delta;
+            $this->setProgress($progress);
+        }
 
         foreach ($apartments as $apartment) {
             $device->removeApartment($apartment);
@@ -384,13 +383,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     /**
      * @param KeyInterface&IntercomDevice $device
-     * @param array<int, HouseFlat> $flats
+     * @param HouseFlat[] $flats
      * @return void
      */
     public function key(IntercomDevice & KeyInterface $device, array $flats): void
     {
         $progress = 80;
-        $delta = (90 - 80) / count($flats);
+        $delta = (90 - $progress) / count($flats);
 
         /** @var array<string, Key> $keys */
         $keys = array_reduce($device->getKeys(null), static function (array $previous, Key $current) {
@@ -399,8 +398,12 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return $previous;
         }, []);
 
-        foreach ($flats as $apartment => $flat) {
+        foreach ($flats as $flat) {
             $flatKeys = HouseKey::fetchAll(criteria()->equal('access_to', $flat->house_flat_id)->equal('access_type', 2));
+
+            if ($device->debug) {
+                $device->getLogger()?->debug('Update flat keys', ['flat' => $flat, 'count' => count($flatKeys)]);
+            }
 
             foreach ($flatKeys as $index => $flatKey) {
                 if (array_key_exists($flat->flat . $flatKey->rfid, $keys)) {
@@ -412,7 +415,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
                 unset($keys[$flat->flat . $flatKey->rfid]);
 
-                $device->addKey(new Key($flatKey->rfid, $apartment));
+                $device->addKey(new Key($flatKey->rfid, intval($flat->flat)));
             }
 
             $progress += $delta;
@@ -432,7 +435,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     public function code(IntercomDevice & CodeInterface $device, array $flats): void
     {
         $progress = 90;
-        $delta = (95 - 90) / count($flats);
+        $delta = (95 - $progress) / count($flats);
 
         /** @var array<int, Code[]> $apartmentCodes */
         $apartmentCodes = array_reduce($device->getCodes(null), static function (array $previous, Code $current) {
@@ -445,27 +448,27 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             return $previous;
         }, []);
 
-        foreach ($flats as $apartment => $flat) {
+        foreach ($flats as $flat) {
             $code = intval($flat->open_code) !== 0 ? intval($flat->open_code) : null;
 
             if ($code !== null) {
-                if (array_key_exists($apartment, $apartmentCodes)) {
-                    if (count($apartmentCodes[$apartment]) == 1) {
-                        if ($apartmentCodes[$apartment][0]->code != $code) {
-                            $device->removeCode($apartmentCodes[$apartment][0]);
+                if (array_key_exists($flat->flat, $apartmentCodes)) {
+                    if (count($apartmentCodes[$flat->flat]) == 1) {
+                        if ($apartmentCodes[$flat->flat][0]->code != $code) {
+                            $device->removeCode($apartmentCodes[$flat->flat][0]);
                         } else {
                             continue;
                         }
                     } else {
-                        foreach ($apartmentCodes[$apartment] as $code) {
+                        foreach ($apartmentCodes[$flat->flat] as $code) {
                             $device->removeCode($code);
                         }
                     }
                 }
 
-                $device->addCode(new Code($code, $apartment));
-            } elseif (array_key_exists($apartment, $apartmentCodes)) {
-                foreach ($apartmentCodes[$apartment] as $code) {
+                $device->addCode(new Code(is_int($code) ? $code : $code->code, intval($flat->flat)));
+            } elseif (array_key_exists($flat->flat, $apartmentCodes)) {
+                foreach ($apartmentCodes[$flat->flat] as $code) {
                     $device->removeCode($code);
                 }
             }
@@ -482,10 +485,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      */
     public function cms(IntercomDevice & ApartmentInterface & CmsInterface $device, HouseEntrance $entrance): void
     {
-        if ($entrance->shared) {
-            return;
-        }
-
         $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
 
         $levels = $device->getCmsLevels();
@@ -525,7 +524,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         /** @var Gate[] $gates */
         $gates = [];
 
-        $housesEntrances = container(DatabaseService::class)->get('SELECT address_house_id, prefix FROM houses_houses_entrances WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
+        $housesEntrances = container(DatabaseService::class)->get('SELECT addresses_houses.house_full, houses_houses_entrances.address_house_id, prefix FROM houses_houses_entrances JOIN public.addresses_houses ON addresses_houses.address_house_id = houses_houses_entrances.address_house_id WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]);
 
         $flatsIds = array_map(static fn(array $flatId) => $flatId['house_flat_id'], container(DatabaseService::class)->get('SELECT house_flat_id FROM houses_entrances_flats WHERE house_entrance_id = :id', ['id' => $entrance->house_entrance_id]));
 
@@ -552,9 +551,13 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 continue;
             }
 
-            $intercom = DeviceIntercom::findById($entrancesFlat->house_domophone_id, setting: setting()->columns(['ip']));
+            $segments = explode(', ', $housesEntrance['house_full']);
 
-            $gates[] = new Gate($intercom->ip, $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
+            if (str_starts_with($segments[0], 'г ') || str_ends_with($segments[0], ' обл')) {
+                unset($segments[0]);
+            }
+
+            $gates[] = new Gate(implode(', ', $segments), $housesEntrance['prefix'], intval($firstFlat->flat), intval($lastFlat->flat));
         }
 
         $device->setGates($gates);

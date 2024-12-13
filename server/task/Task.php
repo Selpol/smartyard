@@ -12,6 +12,7 @@ abstract class Task implements LoggerAwareInterface
     use LoggerAwareTrait;
 
     public ?int $uid = null;
+    public bool $progress = false;
 
     private mixed $progressCallback = null;
 

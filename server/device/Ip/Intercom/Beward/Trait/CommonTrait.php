@@ -36,7 +36,11 @@ trait CommonTrait
     {
         if ($this->mifare) {
             $cipher = $this->get('/cgi-bin/cipher_cgi', ['action' => 'list'], parse: ['type' => 'param']);
-            $mifare = $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+            $mifare = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
+
+            if (!$cipher || !$mifare) {
+                return new Mifare(false, '', 0);
+            }
 
             return new Mifare(true, array_key_exists('Value1', $cipher) ? $cipher['Value1'] : '', intval($mifare['Sector']));
         }
@@ -114,7 +118,7 @@ trait CommonTrait
     public function getAutoCollectKey(): bool
     {
         if ($this->mifare) {
-            $response = $this->get('/cgi-bin/mifare_cgi', ['action' => 'get'], parse: ['type' => 'param']);
+            $response = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
 
             return $response['AutoCollectKeys'] === 'on';
         }
@@ -141,7 +145,7 @@ trait CommonTrait
     {
         if ($this->mifare) {
             $this->get('/cgi-bin/cipher_cgi', ['action' => 'add', 'Value' => $mifare->key, 'Type' => 1, 'Index' => 1]);
-            $this->get('/cgi-bin/mifareusr_cgi', ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
+            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
         }
     }
 
@@ -184,7 +188,7 @@ trait CommonTrait
     public function setAutoCollectKey(bool $value): void
     {
         if ($this->mifare) {
-            $this->get('/cgi-bin/mifare_cgi', ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
+            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
         }
     }
 

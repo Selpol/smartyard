@@ -81,6 +81,11 @@ readonly class user extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[SipUser] Получить список', 'POST' => '[SipUser] Добавить пользователя', 'PUT' => '[SipUser] Обновить пользователя', 'DELETE' => '[SipUser] Удалить пользователя'];
+        return [
+            'GET' => '[Deprecated] [SipUser] Получить список',
+            'POST' => '[Deprecated] [SipUser] Добавить пользователя',
+            'PUT' => '[Deprecated] [SipUser] Обновить пользователя',
+            'DELETE' => '[Deprecated] [SipUser] Удалить пользователя'
+        ];
     }
 }

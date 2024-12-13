@@ -11,9 +11,15 @@ use Selpol\Framework\Router\Route\RouteController;
 use Selpol\Service\TaskService;
 use Throwable;
 
+/**
+ * Статус
+ */
 #[Controller('/internal/status')]
 readonly class StatusController extends RouteController
 {
+    /**
+     * Получить статус сервера
+     */
     #[Get]
     public function index(RedisCache $cache, TaskService $task): ResponseInterface
     {

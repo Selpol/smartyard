@@ -186,15 +186,16 @@ class TrassirDvr extends DvrDevice
                     return null;
                 }
 
-                $stream = new Stream(container(StreamerFeature::class)->random());
+                $server = container(StreamerFeature::class)->random();
 
+                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
                 $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
                 return new DvrOutput(
                     $container,
-                    new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                    new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
                 );
             }
         } elseif ($stream === DvrStream::ARCHIVE) {
@@ -210,8 +211,8 @@ class TrassirDvr extends DvrDevice
             $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
 
             if ($rtsp != null) {
-                $stream = new Stream(container(StreamerFeature::class)->random());
-
+                $server = container(StreamerFeature::class)->random();
+                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
                 $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);

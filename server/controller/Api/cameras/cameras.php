@@ -4,6 +4,7 @@ namespace Selpol\Controller\Api\cameras;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Api\Api;
+use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Service\AuthService;
@@ -15,11 +16,27 @@ readonly class cameras extends Api
         $validate = validator($params, [
             'comment' => rule()->string()->clamp(0, 1000),
 
+            'model' => rule()->string()->in(array_keys(CameraModel::models())),
+            'ip' => rule()->string()->clamp(0, 15),
+
+            'device_id' => rule()->string()->clamp(0, 128),
+            'device_model' => rule()->string()->clamp(0, 64),
+            'device_software_version' => rule()->string()->clamp(0, 64),
+            'device_hardware_version' => rule()->string()->clamp(0, 64),
+
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
             'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
         ]);
 
-        $criteria = criteria()->like('comment', $validate['comment'])->asc('camera_id');
+        $criteria = criteria()
+            ->like('comment', $validate['comment'])
+            ->equal('model', $validate['model'])
+            ->like('ip', $validate['ip'])
+            ->like('device_id', $validate['device_id'])
+            ->like('device_model', $validate['device_model'])
+            ->like('device_software_version', $validate['device_software_version'])
+            ->like('device_hardware_version', $validate['device_hardware_version'])
+            ->asc('camera_id');
 
         if (!container(AuthService::class)->checkScope('camera-hidden')) {
             $criteria->equal('hidden', false);
@@ -42,18 +59,15 @@ readonly class cameras extends Api
                 'name' => 'name',
                 'dvr_stream' => 'dvrStream',
                 'timezone' => 'timezone',
-                'screenshot' => 'screenshot',
                 'lat' => 'lat',
                 'lon' => 'lon',
-                'direction' => 'direction',
-                'angle' => 'angle',
-                'distance' => 'distance',
-                'md_left' => 'mdLeft',
-                'md_top' => 'mdTop',
-                'md_width' => 'mdWidth',
-                'md_height' => 'mdHeight',
                 'common' => 'common',
                 'comment' => 'comment',
+                'device_id' => 'deviceId',
+                'device_model' => 'deviceModel',
+                'device_software_version' => 'deviceSoftwareVersion',
+                'device_hardware_version' => 'deviceHardwareVersion',
+                'config' => 'config',
                 'hidden' => 'hidden'
             ]);
 

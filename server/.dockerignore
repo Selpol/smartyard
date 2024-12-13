@@ -5,3 +5,5 @@ var/log/*
 
 *Dockerfile
 docker-compose*.yaml
+
+.env*

@@ -16,7 +16,6 @@ readonly class ScopeMiddleware extends RouteMiddleware
 {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $target = $request->getRequestTarget();
         $method = strtolower($request->getMethod());
 
         $route = $request->getAttribute('route');
@@ -25,7 +24,25 @@ readonly class ScopeMiddleware extends RouteMiddleware
             return AdminRbtController::error('Не удалось проверить права', 403);
         }
 
-        $scope = substr($target, 7) . '-' . $route->route['class'][1] . '-' . $method;
+        $result = [];
+
+        $i = count($route->paths) > 1 ? 1 : 0;
+
+        for (; $i < count($route->paths); $i++) {
+            if (str_starts_with($route->paths[$i], '{') && str_ends_with($route->paths[$i], '}')) {
+                continue;
+            }
+
+            $result[] = $route->paths[$i];
+        }
+
+        $scope = implode('-', $result);
+
+        if ($result[count($result) - 1] !== $route->route['class'][1]) {
+            $scope .= '-' . $route->route['class'][1];
+        }
+
+        $scope .= '-' . $method;
 
         if (!container(AuthService::class)->checkScope($scope)) {
             try {

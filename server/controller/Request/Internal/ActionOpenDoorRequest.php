@@ -5,11 +5,11 @@ namespace Selpol\Controller\Request\Internal;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $date
- * @property-read string $ip
- * @property-read int $event
- * @property-read int $door
- * @property-read string $detail
+ * @property-read int $date Дата события
+ * @property-read string $ip IP-адрес устройства
+ * @property-read int $event Тип события
+ * @property-read int $door Номер входа на устройстве
+ * @property-read string $detail Дополнительные детали события
  */
 readonly class ActionOpenDoorRequest extends RouteRequest
 {

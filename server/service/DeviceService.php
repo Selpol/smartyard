@@ -4,6 +4,7 @@ namespace Selpol\Service;
 
 use Selpol\Cli\Cron\CronEnum;
 use Selpol\Cli\Cron\CronInterface;
+use Selpol\Device\Ip\Camera\CameraConfigResolver;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Dvr\DvrDevice;
@@ -52,10 +53,10 @@ class DeviceService implements CronInterface
 
                 $info = $intercom->getSysInfo();
 
-                $deviceIntercom->device_id = $info['DeviceID'];
-                $deviceIntercom->device_model = $info['DeviceModel'];
-                $deviceIntercom->device_software_version = $info['SoftwareVersion'];
-                $deviceIntercom->device_hardware_version = $info['HardwareVersion'];
+                $deviceIntercom->device_id = $info->deviceId;
+                $deviceIntercom->device_model = $info->deviceModel;
+                $deviceIntercom->device_software_version = $info->softwareVersion;
+                $deviceIntercom->device_hardware_version = $info->hardwareVersion;
 
                 $deviceIntercom->update();
             }
@@ -75,7 +76,7 @@ class DeviceService implements CronInterface
             return $this->cameras[$id];
         }
 
-        if (($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials'])->nonNullable())) instanceof DeviceCamera) {
+        if (($camera = DeviceCamera::findById($id, setting: setting()->columns(['camera_id', 'model', 'url', 'credentials', 'config', 'device_model'])->nonNullable())) instanceof DeviceCamera) {
             return $this->cameraByEntity($camera);
         }
 
@@ -91,10 +92,32 @@ class DeviceService implements CronInterface
         }
 
         if (($model = CameraModel::model($camera->model)) instanceof CameraModel) {
-            $camera = new $model->class(new Uri($camera->url), $camera->credentials, $model);
-            $this->cameras[$id] = $camera;
+            $feature = container(ConfigFeature::class);
 
-            return $camera;
+            if ($this->cache) {
+                try {
+                    $config = $feature->getCacheConfigForCamera($camera->camera_id);
+
+                    if ($config === null) {
+                        $config = $feature->getOptimizeConfigForCamera($model, $camera);
+                        $feature->setCacheConfigForCamera($config, $camera->camera_id);
+                    }
+
+                    $resolver = new ConfigResolver($config);
+                } catch (Throwable) {
+                    $resolver = new CameraConfigResolver($feature->getConfigForCamera($model, $camera), $model, $camera);
+                }
+            } else {
+                $resolver = new CameraConfigResolver($feature->getConfigForCamera($model, $camera), $model, $camera);
+            }
+
+            $device = $model->instance($camera, $resolver);
+
+            if ($this->cache) {
+                $this->cameras[$id] = $device;
+            }
+
+            return $device;
         }
 
         return null;

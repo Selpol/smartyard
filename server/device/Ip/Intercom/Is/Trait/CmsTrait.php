@@ -149,17 +149,22 @@ trait CmsTrait
         for ($i = 1; $i <= $length; ++$i) {
             $matrix = $this->get('/switch/matrix/' . $i);
 
-            $matrix['capacity'] = $cms->capacity;
-            $counter = count($matrix['matrix']);
-
-            for ($j = 0; $j < $counter; ++$j) {
-                for ($k = 0; $k < count($matrix['matrix'][$j]); ++$k) {
-                    $matrix['matrix'][$j][$k] = 0;
-                }
+            if (!is_array($matrix)) {
+                continue;
             }
 
-            if (count($matrix['matrix']) > 0) {
-                $this->put('/switch/matrix/' . $i, $matrix);
+            if (is_array($matrix['matrix'])) {
+                $counter = count($matrix['matrix']);
+
+                for ($j = 0; $j < $counter; ++$j) {
+                    for ($k = 0; $k < count($matrix['matrix'][$j]); ++$k) {
+                        $matrix['matrix'][$j][$k] = 0;
+                    }
+                }
+
+                if (count($matrix['matrix']) > 0) {
+                    $this->put('/switch/matrix/' . $i, $matrix);
+                }
             }
         }
     }

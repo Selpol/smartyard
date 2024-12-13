@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
 use Psr\Http\Message\StreamInterface;
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Dvr\Common\DvrArchive;
 use Selpol\Device\Ip\Dvr\Common\DvrCommand;
 use Selpol\Device\Ip\Dvr\Common\DvrContainer;
@@ -57,6 +58,41 @@ class FlussonicDvr extends DvrDevice
         ];
     }
 
+    public function updateCamera(DeviceCamera $camera): void
+    {
+        $stream = $this->get('/streamer/api/v3/streams/' . $camera->dvr_stream);
+
+        if (!array_key_exists('inputs', $stream) && !is_array($stream['inputs'])) {
+            throw new DeviceException($this, 'Не удалось получить поток');
+        }
+
+        $inputs = $stream['inputs'];
+
+        $update = false;
+
+        for ($i = 0; $i < count($inputs); $i++) {
+            $uri = uri($inputs[$i]['url']);
+
+            list($user, $password) = explode(':', $uri->getUserInfo());
+
+            if ($password !== $camera->credentials) {
+                $uri->withUserInfo($user, $camera->credentials);
+
+                $inputs[$i]['url'] = (string)$uri;
+
+                $update = true;
+            }
+        }
+
+        if ($update) {
+            $stream = $this->put('/streamer/api/v3/streams/' . $camera->dvr_stream, ['inputs' => $inputs]);
+
+            if (!array_key_exists('inputs', $stream) && !is_array($stream['inputs'])) {
+                throw new DeviceException($this, 'Не удалось обновить поток');
+            }
+        }
+    }
+
     public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
     {
         $start = $time - 300;
@@ -71,10 +107,6 @@ class FlussonicDvr extends DvrDevice
 
         if (!$device) {
             return null;
-        }
-
-        if ($device->model->vendor === 'FAKE' && $camera->screenshot) {
-            return $this->client->send(client_request('GET', $camera->screenshot))->getBody();
         }
 
         return $device->getScreenshot();
@@ -105,14 +137,16 @@ class FlussonicDvr extends DvrDevice
             }
 
             if ($container === DvrContainer::STREAMER_RTC || $container === DvrContainer::STREAMER_RTSP) {
-                $stream = new Stream(container(StreamerFeature::class)->random());
+                $server = container(StreamerFeature::class)->random();
+
+                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
                 $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 
                 return new DvrOutput(
                     $container,
-                    new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput())
+                    new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
                 );
             }
         } elseif ($stream === DvrStream::ARCHIVE) {

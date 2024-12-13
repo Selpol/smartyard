@@ -5,10 +5,10 @@ namespace Selpol\Controller\Request\Internal;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $stream_id
+ * @property-read int $stream_id Идентификатор потока
  *
- * @property-read int $eventId
- * @property-read int $faceId
+ * @property-read int $eventId Идентификатор события
+ * @property-read int $faceId Идентификатор лица
  */
 readonly class FrsCallbackRequest extends RouteRequest
 {

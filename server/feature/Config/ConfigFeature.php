@@ -2,7 +2,9 @@
 
 namespace Selpol\Feature\Config;
 
+use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Internal\InternalConfigFeature;
 use Selpol\Feature\Feature;
@@ -26,8 +28,11 @@ readonly abstract class ConfigFeature extends Feature
             ],
 
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => 'prepare', 'title' => 'Подготовка запроса', 'assign' => ['default' => '1', 'in:0,1,2']],
             ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
+
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
+            ['type' => 'value', 'value' => 'output.map', 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
 
             ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:DksBeward,DsBeward,HikVision,Is,Is5']],
 
@@ -150,17 +155,59 @@ readonly abstract class ConfigFeature extends Feature
                     ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
                     ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'condition' => 'in:mifareusr_cgi,mifare_cgi']]
                 ]
+            ],
+
+            [
+                'type' => 'namespace',
+                'value' => 'zabbix',
+                'title' => 'Система мониторинга',
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'group', 'title' => 'Группа', 'assign' => ['type' => 'array:int', 'example' => '1,2']],
+                    ['type' => 'value', 'value' => 'template', 'title' => 'Шаблон', 'assign' => ['type' => 'array:int', 'example' => '1,2']]
+                ]
             ]
+        ];
+    }
+
+    public function getSuggestionsForCameraConfig(): array
+    {
+        return [
+            [
+                'type' => 'value',
+                'value' => 'auth',
+                'title' => 'Авторизация',
+                'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => 'login', 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
+                ]
+            ],
+
+            ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
+
+            ['type' => 'value', 'value' => 'screenshot', 'title' => 'Скриншот', 'assign' => ['type' => 'string']]
         ];
     }
 
     public abstract function getCacheConfigForIntercom(int $id): ?Config;
 
+    public abstract function getCacheConfigForCamera(int $id): ?Config;
+
     public abstract function setCacheConfigForIntercom(Config $config, int $id): void;
+
+    public abstract function setCacheConfigForCamera(Config $config, int $id): void;
 
     public abstract function clearCacheConfigForIntercom(?int $id = null): void;
 
+    public abstract function clearCacheConfigForCamera(?int $id = null): void;
+
     public abstract function getConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom): Config;
 
+    public abstract function getConfigForCamera(CameraModel $model, DeviceCamera $camera): Config;
+
     public abstract function getOptimizeConfigForIntercom(IntercomModel $model, DeviceIntercom $intercom): Config;
+
+    public abstract function getOptimizeConfigForCamera(CameraModel $model, DeviceCamera $camera): Config;
 }

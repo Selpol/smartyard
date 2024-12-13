@@ -12,7 +12,7 @@ class IsCamera extends CameraDevice
 {
     use IsTrait;
 
-    public function getScreenshot(): Stream
+    protected function getScreenshotInternal(): Stream
     {
         try {
             return $this->client->send(client_request('GET', $this->uri . '/camera/snapshot'), $this->clientOption)->getBody();

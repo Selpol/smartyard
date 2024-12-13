@@ -133,10 +133,10 @@ readonly class intercom extends Api
             if ($device) {
                 $info = $device->getSysInfo();
 
-                $intercom->device_id = $info['DeviceID'];
-                $intercom->device_model = $info['DeviceModel'];
-                $intercom->device_software_version = $info['SoftwareVersion'];
-                $intercom->device_hardware_version = $info['HardwareVersion'];
+                $intercom->device_id = $info->deviceId;
+                $intercom->device_model = $info->deviceModel;
+                $intercom->device_software_version = $info->softwareVersion;
+                $intercom->device_hardware_version = $info->hardwareVersion;
             }
         } catch (Throwable) {
 

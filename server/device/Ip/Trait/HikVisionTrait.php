@@ -3,24 +3,30 @@
 namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
+use Selpol\Device\Ip\InfoDevice;
 use SensitiveParameter;
 use Throwable;
 
 trait HikVisionTrait
 {
-    public function getSysInfo(): array
+    public function getSysInfo(): InfoDevice
     {
         try {
             $info = $this->get('/ISAPI/System/deviceInfo');
 
+            if ($info === null) {
+                throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
+            }
+
             $serial = strlen($info['serialNumber']) > 9 ? substr($info['serialNumber'], -9) : $info['serialNumber'];
 
-            return [
-                'DeviceID' => $serial,
-                'DeviceModel' => $info['model'],
-                'HardwareVersion' => $info['hardwareVersion'],
-                'SoftwareVersion' => $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate']
-            ];
+            return new InfoDevice(
+                $serial,
+                $info['model'],
+                $info['hardwareVersion'],
+                $info['firmwareVersion'] . ' ' . $info['firmwareReleasedDate'],
+                null
+            );
         } catch (Throwable $throwable) {
             if ($throwable instanceof DeviceException) {
                 throw $throwable;

@@ -27,25 +27,21 @@ use Selpol\Service\DatabaseService;
  * @property string|null $dvr_stream
  * @property string|null $timezone
  *
- * @property string|null $screenshot
- *
  * @property double|null $lat
  * @property double|null $lon
- *
- * @property double|null $direction
- * @property double|null $angle
- * @property double|null $distance
- *
- * @property int|null $md_left
- * @property int|null $md_top
- * @property int|null $md_width
- * @property int|null $md_height
  *
  * @property int|null $common
  *
  * @property string|null $ip
  *
  * @property string|null $comment
+ *
+ * @property string|null $device_id
+ * @property string|null $device_model
+ * @property string|null $device_software_version
+ * @property string|null $device_hardware_version
+ *
+ * @property string|null $config
  *
  * @property bool $hidden
  */
@@ -149,6 +145,28 @@ class DeviceCamera extends Entity
         return $statement && $statement->execute($params) && $statement->rowCount() == 1 && $statement->fetch(PDO::FETCH_NUM)[0] == 1;
     }
 
+    public function toOldArray(): array
+    {
+        return $this->toArrayMap([
+            "camera_id" => "cameraId",
+            "dvr_server_id" => "dvrServerId",
+            "frs_server_id" => "frsServerId",
+            "enabled" => "enabled",
+            "model" => "model",
+            "url" => "url",
+            "stream" => "stream",
+            "credentials" => "credentials",
+            "name" => "name",
+            "dvr_stream" => "dvrStream",
+            "timezone" => "timezone",
+            "lat" => "lat",
+            "lon" => "lon",
+            "frs" => "frs",
+            "common" => "common",
+            "comment" => "comment"
+        ]);
+    }
+
     public static function getColumns(): array
     {
         return [
@@ -167,25 +185,21 @@ class DeviceCamera extends Entity
             'dvr_stream' => rule()->string(),
             'timezone' => rule()->string(),
 
-            'screenshot' => rule()->url(),
-
             'lat' => rule()->float(),
             'lon' => rule()->float(),
-
-            'direction' => rule()->float(),
-            'angle' => rule()->float(),
-            'distance' => rule()->float(),
-
-            'md_left' => rule()->int(),
-            'md_top' => rule()->int(),
-            'md_width' => rule()->int(),
-            'md_height' => rule()->int(),
 
             'common' => rule()->int(),
 
             'ip' => rule()->ipV4(),
 
             'comment' => rule()->string(),
+
+            'config' => rule()->string(),
+
+            'device_id' => rule()->string()->clamp(0, 128),
+            'device_model' => rule()->string()->clamp(0, 64),
+            'device_software_version' => rule()->string()->clamp(0, 64),
+            'device_hardware_version' => rule()->string()->clamp(0, 64),
 
             'hidden' => rule()->bool()
         ];

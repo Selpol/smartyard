@@ -4,8 +4,8 @@ namespace Selpol\Feature\Frs\Internal;
 
 use Psr\Log\LoggerInterface;
 use Selpol\Cli\Cron\CronEnum;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Frs\FrsServer;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -358,7 +358,7 @@ readonly class InternalFrsFeature extends FrsFeature
                 $this->logger->debug('syncData() add streams to frs', ['diff' => $diff_streams]);
 
             foreach ($diff_streams as $stream_id => $faces) {
-                $cam = container(CameraFeature::class)->getCamera($stream_id);
+                $cam = DeviceCamera::findById($stream_id, setting: setting()->nonNullable())->toOldArray();
 
                 if ($cam) {
                     $method_params = [
@@ -441,7 +441,7 @@ readonly class InternalFrsFeature extends FrsFeature
         $entrances = $households->getEntrances("flatId", $flat_id);
 
         foreach ($entrances as $entrance) {
-            $cam = container(CameraFeature::class)->getCamera($entrance["cameraId"]);
+            $cam = DeviceCamera::findById($entrance['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
             $this->removeFaces($cam, [$face_id]);
         }

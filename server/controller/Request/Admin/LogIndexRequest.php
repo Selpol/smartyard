@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read null|string $file
+ * @property-read null|string $file Путь к файлу логов
  */
 readonly class LogIndexRequest extends RouteRequest
 {

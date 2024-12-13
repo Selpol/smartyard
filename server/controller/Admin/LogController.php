@@ -2,17 +2,23 @@
 
 namespace Selpol\Controller\Admin;
 
+use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\LogIndexRequest;
-use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
+/**
+ * Логи сервера
+ */
 #[Controller('/admin/log')]
 readonly class LogController extends AdminRbtController
 {
+    /**
+     * Получить файл логов или дерево логов
+     */
     #[Get]
-    public function index(LogIndexRequest $request): Response
+    public function index(LogIndexRequest $request): ResponseInterface
     {
         if ($request->file) {
             $path = realpath(path('var/log/' . $request->file));
@@ -31,13 +37,6 @@ readonly class LogController extends AdminRbtController
         $path = path('/var/log/');
 
         return self::success(self::walk($path));
-    }
-
-    public static function scopes(): array
-    {
-        return [
-            'log-index-get' => '[Логи] Получить логи'
-        ];
     }
 
     private static function walk(string $path): array

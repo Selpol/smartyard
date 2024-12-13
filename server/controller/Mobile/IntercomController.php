@@ -6,8 +6,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\MobileRbtController;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Block\BlockFeature;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
@@ -33,7 +33,7 @@ readonly class IntercomController extends MobileRbtController
             BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
-    public function intercom(ServerRequestInterface $request, HouseFeature $houseFeature, CameraFeature $cameraFeature): Response
+    public function intercom(ServerRequestInterface $request, HouseFeature $houseFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -125,7 +125,7 @@ readonly class IntercomController extends MobileRbtController
             $e = $houseFeature->getEntrance($entrance['entranceId']);
 
             if ($e['cameraId']) {
-                $vstream = $cameraFeature->getCamera($e['cameraId']);
+                $vstream = DeviceCamera::findById($e['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
                 if (strlen($vstream["frs"]) > 1) {
                     $frsDisabled = false;

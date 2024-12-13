@@ -55,7 +55,7 @@ class API {
         try {
             return await internalAPI.post("/actions/motionDetection", {date, ip, motionActive});
         } catch (error) {
-            console.error(getTimestamp(new Date()), "||", ip, "|| motionDetection error: ", error.message); // TODO: hm
+            console.error(getTimestamp(new Date()), "||", ip, "|| motionDetection error: ", error.response?.data?.message ?? error.message ?? 'Неизвестная ошибка'); // TODO: hm
         }
     }
 

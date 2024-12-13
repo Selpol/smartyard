@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip;
 
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use Selpol\Device\Device;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Framework\Client\ClientOption;
@@ -17,6 +18,7 @@ abstract class IpDevice extends Device
     public string $password;
 
     public bool $debug;
+    public int $prepare;
 
     protected ClientOption $clientOption;
 
@@ -29,8 +31,14 @@ abstract class IpDevice extends Device
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
 
         $this->debug = config_get('debug', false);
+        $this->prepare = 1;
 
         $this->setLogger(file_logger('ip'));
+    }
+
+    public function getLogger(): ?LoggerInterface
+    {
+        return $this->logger;
     }
 
     public function pingRaw(): bool
@@ -47,7 +55,11 @@ abstract class IpDevice extends Device
             $url .= ':' . $this->uri->getPort();
         }
 
+        $reporting = error_reporting();
+
         try {
+            error_reporting($reporting ^ E_WARNING);
+
             $fp = stream_socket_client($url, $code, $message, timeout: 1);
 
             if ($fp) {
@@ -56,8 +68,12 @@ abstract class IpDevice extends Device
                 return true;
             }
 
+            error_reporting($reporting);
+
             return false;
         } catch (Throwable) {
+            error_reporting($reporting);
+
             return false;
         }
     }
@@ -65,7 +81,7 @@ abstract class IpDevice extends Device
     public function ping(): bool
     {
         try {
-            return array_key_exists('DeviceID', $this->getSysInfo());
+            return $this->getSysInfo()->deviceId !== '';
         } catch (Throwable) {
             return false;
         }
@@ -73,12 +89,12 @@ abstract class IpDevice extends Device
 
     public function pingOrThrow(): void
     {
-        if (!array_key_exists('DeviceID', $this->getSysInfo())) {
+        if (!$this->getSysInfo()->deviceId) {
             throw new DeviceException($this, 'Не удалось узнать информацию об устройстве');
         }
     }
 
-    public function getSysInfo(): array
+    public function getSysInfo(): InfoDevice
     {
         throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
     }
@@ -90,6 +106,8 @@ abstract class IpDevice extends Device
 
     public function get(string $endpoint, array $query = [], array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
+        $now = microtime(true);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/')) {
@@ -110,7 +128,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug($endpoint . PHP_EOL . '--GET  REQUEST--' . PHP_EOL . 'QUERY: ' . json_encode($query) . PHP_EOL . '--GET RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
+            $this->logger?->debug($endpoint . PHP_EOL . '--GET  REQUEST (' . (microtime(true) - $now) . 'ms)--' . PHP_EOL . 'QUERY: ' . json_encode($query) . PHP_EOL . '--GET RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -118,6 +136,8 @@ abstract class IpDevice extends Device
 
     public function post(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
+        $now = microtime(true);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/')) {
@@ -146,7 +166,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug($endpoint . PHP_EOL . '--POST  REQUEST--' . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--POST RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
+            $this->logger?->debug($endpoint . PHP_EOL . '--POST  REQUEST (' . (microtime(true) - $now) . 'ms)--' . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--POST RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -154,6 +174,8 @@ abstract class IpDevice extends Device
 
     public function put(string $endpoint, mixed $body = null, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
+        $now = microtime(true);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/')) {
@@ -182,7 +204,7 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug($endpoint . PHP_EOL . '--PUT  REQUEST--' . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--PUT RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
+            $this->logger?->debug($endpoint . PHP_EOL . '--PUT  REQUEST (' . (microtime(true) - $now) . 'ms)--' . PHP_EOL . 'BODY: ' . json_encode($body) . PHP_EOL . '--PUT RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
@@ -190,6 +212,8 @@ abstract class IpDevice extends Device
 
     public function delete(string $endpoint, array $headers = ['Content-Type' => 'application/json'], bool|array $parse = true): mixed
     {
+        $now = microtime(true);
+
         $this->prepare();
 
         if (!str_starts_with($endpoint, '/')) {
@@ -210,10 +234,27 @@ abstract class IpDevice extends Device
         $result = $this->response($response, $parse);
 
         if ($this->debug) {
-            $this->logger?->debug($endpoint . PHP_EOL . '--DELETE  REQUEST--' . PHP_EOL . '--DELETE RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
+            $this->logger?->debug($endpoint . PHP_EOL . '--DELETE  REQUEST (' . (microtime(true) - $now) . 'ms)--' . PHP_EOL . '--DELETE RESPONSE--' . PHP_EOL . 'STATUS: ' . $response->getStatusCode() . PHP_EOL . 'RESULT: ' . json_encode($result));
         }
 
         return $result;
+    }
+
+    public static function template(string $value, array $values): string
+    {
+        if (preg_match_all('(%\w+%)', $value, $matches)) {
+            foreach ($matches as $match) {
+                foreach ($match as $item) {
+                    $key = substr($item, 1, -1);
+
+                    if (array_key_exists($key, $values)) {
+                        $value = str_replace($item, $values[$key], $value);
+                    }
+                }
+            }
+        }
+
+        return $value;
     }
 
     /**
@@ -222,7 +263,15 @@ abstract class IpDevice extends Device
      */
     private function prepare(): void
     {
-        if (!$this->pingRaw()) {
+        if ($this->prepare === 0) {
+            return;
+        }
+
+        if ($this->prepare === 1 && !$this->pingRaw()) {
+            throw new DeviceException($this, 'Устройство не доступно');
+        }
+
+        if ($this->prepare === 2 && !$this->ping()) {
             throw new DeviceException($this, 'Устройство не доступно');
         }
     }

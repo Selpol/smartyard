@@ -12,18 +12,16 @@ class Stream implements JsonSerializable
 
     private string $source;
 
-    private StreamInput $input;
-    private StreamOutput $output;
+    private StreamInput $input = StreamInput::RTSP;
+    private StreamOutput $output = StreamOutput::RTC;
+
+    private int $latency = 100;
+    private StreamTransport $transport = StreamTransport::TCP;
 
     public function __construct(StreamerServer $server, ?string $token = null)
     {
         $this->server = $server;
         $this->token = $token ?: uniqid(more_entropy: true);
-    }
-
-    public function getKey(): string
-    {
-        return 'streamer:' . $this->server->id . ':' . $this->token;
     }
 
     public function getServer(): StreamerServer
@@ -36,9 +34,29 @@ class Stream implements JsonSerializable
         return $this->token;
     }
 
+    public function getSource(): string
+    {
+        return $this->source;
+    }
+
+    public function getInput(): StreamInput
+    {
+        return $this->input;
+    }
+
     public function getOutput(): StreamOutput
     {
         return $this->output;
+    }
+
+    public function getLatency(): int
+    {
+        return $this->latency;
+    }
+
+    public function getTransport(): StreamTransport
+    {
+        return $this->transport;
     }
 
     /**
@@ -77,8 +95,22 @@ class Stream implements JsonSerializable
         return $this;
     }
 
+    public function latency(int $value): static
+    {
+        $this->latency = $value;
+
+        return $this;
+    }
+
+    public function transport(StreamTransport $value): static
+    {
+        $this->transport = $value;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
-        return ['source' => $this->source, 'input' => $this->input ?? StreamInput::RTSP, 'output' => $this->output ?? StreamOutput::RTC];
+        return ['source' => $this->source, 'input' => $this->getInput()->value, 'output' => $this->getOutput()->value, 'option' => ['latency' => $this->getLatency(), 'transport' => $this->getTransport()->value]];
     }
 }

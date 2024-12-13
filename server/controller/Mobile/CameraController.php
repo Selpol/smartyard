@@ -16,7 +16,6 @@ use Selpol\Controller\Request\Mobile\Camera\CameraEventsRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraIndexRequest;
 use Selpol\Controller\Request\Mobile\Camera\CameraShowRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
-use Selpol\Feature\Camera\CameraFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -39,11 +38,11 @@ readonly class CameraController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, CameraFeature $cameraFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
+    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $cameraFeature, $blockFeature);
+        $houses = $this->getHousesWithCameras($user, $request->houseId, $houseFeature, $blockFeature);
 
         return user_response(200, $this->convertCameras($houses, $dvrFeature, $user));
     }
@@ -223,14 +222,7 @@ readonly class CameraController extends MobileRbtController
             "timezone" => "timezone",
             "lat" => "lat",
             "lon" => "lon",
-            "direction" => "direction",
-            "angle" => "angle",
-            "distance" => "distance",
             "frs" => "frs",
-            "md_left" => "mdLeft",
-            "md_top" => "mdTop",
-            "md_width" => "mdWidth",
-            "md_height" => "mdHeight",
             "common" => "common",
             "comment" => "comment"
         ]), $user));
@@ -274,7 +266,7 @@ readonly class CameraController extends MobileRbtController
         return user_response(404, message: 'События не найдены');
     }
 
-    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, CameraFeature $cameraFeature, BlockFeature $blockFeature): array
+    private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, BlockFeature $blockFeature): array
     {
         $houses = [];
 
@@ -323,7 +315,7 @@ readonly class CameraController extends MobileRbtController
                 $door = [];
 
                 if ($e['cameraId']) {
-                    $cam = $cameraFeature->getCamera($e["cameraId"]);
+                    $cam = DeviceCamera::findById($e['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
                     $cam['entranceId'] = $entrance['entranceId'];
                     $cam['houseId'] = $houseId;

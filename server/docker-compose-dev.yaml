@@ -88,6 +88,7 @@ services:
     volumes:
       - ./:/srv/app
       - ./docker/data/log:/srv/app/var/log
+      - ./document:/srv/app/document
     environment:
       - DB_HOST=database
       - DB_PORT=5432

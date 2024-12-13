@@ -15,18 +15,21 @@ readonly class ResourceOauthFeature extends OauthFeature
 
         $publicKey = file_get_contents($oauth['public_key']);
 
-        if (openssl_verify(mb_convert_encoding($header . '.' . $payload, 'ISO-8859-1', 'UTF-8'), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1)
+        if (openssl_verify(mb_convert_encoding($header . '.' . $payload, 'ISO-8859-1', 'UTF-8'), $decoded_signature, $publicKey, OPENSSL_ALGO_SHA256) !== 1) {
             return null;
+        }
 
         $jwt = json_decode(base64_decode($payload), true);
 
-        if (time() <= $jwt['nbf'] || time() >= $jwt['exp'])
+        if (time() <= $jwt['nbf'] || time() >= $jwt['exp']) {
             return null;
+        }
 
         $audience = explode(',', $oauth['audience']);
 
-        if (!in_array($jwt['aud'], $audience) || !array_key_exists('scopes', $jwt) || !array_key_exists(1, $jwt['scopes']))
+        if (!in_array($jwt['aud'], $audience) || !array_key_exists('scopes', $jwt) || !array_key_exists(1, $jwt['scopes'])) {
             return null;
+        }
 
         return $jwt;
     }
@@ -57,8 +60,9 @@ readonly class ResourceOauthFeature extends OauthFeature
 
             file_logger('intercomtel')->debug('Send register to: ' . $webApi . $endpoint, $body);
 
-            if ($body['success'])
+            if ($body['success']) {
                 return $body['data'];
+            }
         }
 
         return null;
