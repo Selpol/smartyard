@@ -4,6 +4,8 @@ namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Repository\House\HouseEntranceRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -31,6 +33,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $cms_levels
  *
  * @property int $locks_disabled
+ *
+ * @property-read HouseFlat[] $flats
  */
 class HouseEntrance extends Entity
 {
@@ -38,10 +42,19 @@ class HouseEntrance extends Entity
      * @use RepositoryTrait<HouseEntranceRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'houses_entrances';
 
     public static string $columnId = 'house_entrance_id';
+
+    /**
+     * @return ManyToManyRelationship<HouseFlat>
+     */
+    public function flats(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseEntrance::$entrance, 'houses_entrances_flats', localRelation: 'house_entrance_id', foreignRelation: 'house_flat_id');
+    }
 
     public static function getColumns(): array
     {
