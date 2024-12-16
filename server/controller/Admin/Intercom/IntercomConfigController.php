@@ -64,7 +64,7 @@ readonly class IntercomConfigController extends AdminRbtController
             $config->load($intercom->config);
         }
 
-        $intercom->config = implode(PHP_EOL, $config->set($request->key, $request->value)->getValues());
+        $intercom->config = (string)$config->set($request->key, $request->value);
 
         $intercom->update();
 

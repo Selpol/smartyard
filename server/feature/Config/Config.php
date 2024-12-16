@@ -96,4 +96,15 @@ class Config
 
         return $default;
     }
+
+    public function __toString(): string
+    {
+        $result = '';
+
+        foreach ($this->values as $key => $value) {
+            $result .= $key . '=' . $value . PHP_EOL;
+        }
+
+        return $result;
+    }
 }
