@@ -40,7 +40,7 @@ readonly class IntercomConfigController extends AdminRbtController
             $config->load($intercom->config);
         }
 
-        return self::success($config->resolve($request->key));
+        return self::success($config->resolve($request->key, ''));
     }
 
     /**
