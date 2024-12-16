@@ -19,6 +19,7 @@ use Selpol\Service\DatabaseService;
 use Selpol\Service\Exception\DatabaseException;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
 use Selpol\Task\Tasks\Intercom\Flat\IntercomCmsFlatTask;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomCodeFlatTask;
 use Throwable;
 
 /**
@@ -189,6 +190,7 @@ readonly class SyncController extends RouteController
                     }
 
                     task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->high()->dispatch();
+                    task(new IntercomCodeFlatTask($validate['id'], boolval($intercom)))->high()->dispatch();
                     task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $intercom ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->dispatch();
                 }
 
