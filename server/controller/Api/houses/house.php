@@ -7,6 +7,7 @@ use Selpol\Controller\Api\Api;
 use Selpol\Device\Ip\Intercom\IntercomCms;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Service\AuthService;
@@ -36,7 +37,18 @@ readonly class house extends Api
         $service = container(AuthService::class);
 
         if ($service->checkScope('houses-entrance-get')) {
-            $house['entrances'] = $households->getEntrances("houseId", $params["_id"]);
+            $house['entrances'] = array_map(
+                static function (array $entrance): array {
+                    try {
+                        $entrance['domophoneModel'] = DeviceIntercom::findById($entrance['domophoneId'], setting: setting()->columns(['model'])->nonNullable())->model;
+                    } catch (Throwable $throwable) {
+                        file_logger('error')->error($throwable);
+                    }
+
+                    return $entrance;
+                },
+                $households->getEntrances("houseId", $params["_id"])
+            );
         }
 
         if ($service->checkScope('cameras-cameras-get')) {
