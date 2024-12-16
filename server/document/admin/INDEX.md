@@ -12,6 +12,7 @@
 - [DvrController](./DvrController.md)
 - [GeoController](./GeoController.md)
 - [InboxController](./InboxController.md)
+- [IntercomConfigController](./IntercomConfigController.md)
 - [KeyController](./KeyController.md)
 - [LogController](./LogController.md)
 - [MonitorController](./MonitorController.md)

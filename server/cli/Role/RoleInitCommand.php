@@ -88,6 +88,10 @@ class RoleInitCommand
 
             'device-relay-setting-index-get' => '[Устройство-Реле] Получить настройки реле',
             'device-relay-setting-update-put' => '[Устройство-Реле] Обновить настройки реле',
+
+            'intercom-config-audio' => '[Домофон-Конфигурация] Управление аудио домофона',
+            'intercom-config-show-get' => '[Домофон-Конфигурация] Получить настройку домофона',
+            'intercom-config-update-put' => '[Домофон-Конфигурация] Обновить настройку домофона',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

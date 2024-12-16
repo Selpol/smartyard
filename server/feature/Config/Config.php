@@ -73,6 +73,13 @@ class Config
         }
     }
 
+    public function set(string $key, string $value): Config
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
     public function scope(string $value): Config
     {
         $config = clone $this;

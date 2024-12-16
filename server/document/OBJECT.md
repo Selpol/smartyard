@@ -130,6 +130,21 @@
 - `string` *body* - Описание
 - `string` *action* - Тип действия
 
+## IntercomConfigShowRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string` *key* - Ключ значения
+
+## IntercomConfigUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string` *key* - Ключ
+- `string` *value* - Значение
+
 ## KeyIndexRequest
 
 Поля: 
