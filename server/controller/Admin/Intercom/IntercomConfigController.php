@@ -13,6 +13,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\AuthService;
+use Selpol\Task\Tasks\Intercom\Flat\IntercomAudioFlatTask;
 
 /**
  * Конфигурация домофона
@@ -69,6 +70,10 @@ readonly class IntercomConfigController extends AdminRbtController
         $intercom->update();
 
         $feature->clearCacheConfigForIntercom($request->id);
+
+        if (str_starts_with($request->key, 'audio.volume')) {
+            task(new IntercomAudioFlatTask($request->id, intval(substr($request->key, 13))))->high()->dispatch();
+        }
 
         return self::success();
     }

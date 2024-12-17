@@ -2,7 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
