@@ -35,6 +35,10 @@ readonly class IntercomConfigController extends AdminRbtController
 
         $intercom = intercom($request->id);
 
+        if (str_starts_with($request->key, 'audio.volume')) {
+            return self::success($intercom->resolver->string($request->key, $intercom->resolver->string('audio.volume')));
+        }
+
         return self::success($intercom->resolver->string($request->key, ''));
     }
 
