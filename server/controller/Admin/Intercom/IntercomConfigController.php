@@ -8,6 +8,7 @@ use Selpol\Controller\Request\Admin\Intercom\IntercomConfigShowRequest;
 use Selpol\Controller\Request\Admin\Intercom\IntercomConfigUpdateRequest;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Config;
+use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Put;
@@ -46,7 +47,7 @@ readonly class IntercomConfigController extends AdminRbtController
      * Обновить настройку домофона
      */
     #[Put('/{id}')]
-    public function update(IntercomConfigUpdateRequest $request, AuthService $service): ResponseInterface
+    public function update(IntercomConfigUpdateRequest $request, ConfigFeature $feature, AuthService $service): ResponseInterface
     {
         if (str_starts_with($request->key, 'audio.volume')) {
             if (!$service->checkScope('intercom-config-audio')) {
@@ -66,6 +67,8 @@ readonly class IntercomConfigController extends AdminRbtController
         $intercom->config = (string)$config->set($request->key, $request->value);
 
         $intercom->update();
+
+        $feature->clearCacheConfigForIntercom($request->id);
 
         return self::success();
     }
