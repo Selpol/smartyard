@@ -33,14 +33,9 @@ readonly class IntercomConfigController extends AdminRbtController
             return self::error('Не доступный ключ конфигурации', 403);
         }
 
-        $intercom = DeviceIntercom::findById($request->id, setting: setting()->nonNullable());
-        $config = new Config();
+        $intercom = intercom($request->id);
 
-        if ($intercom->config) {
-            $config->load($intercom->config);
-        }
-
-        return self::success($config->resolve($request->key, ''));
+        return self::success($intercom->resolver->string($request->key, ''));
     }
 
     /**
