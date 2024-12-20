@@ -13,6 +13,7 @@
 - [GeoController](./GeoController.md)
 - [InboxController](./InboxController.md)
 - [IntercomConfigController](./IntercomConfigController.md)
+- [IntercomKeyController](./IntercomKeyController.md)
 - [KeyController](./KeyController.md)
 - [LogController](./LogController.md)
 - [MonitorController](./MonitorController.md)
