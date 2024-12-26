@@ -2,12 +2,13 @@
 
 namespace Selpol\Feature\Plog;
 
+use Selpol\Cli\Cron\CronInterface;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Plog\Clickhouse\ClickhousePlogFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
 #[Singleton(ClickhousePlogFeature::class)]
-readonly abstract class PlogFeature extends Feature
+readonly abstract class PlogFeature extends Feature implements CronInterface
 {
     //типы событий
     const EVENT_UNANSWERED_CALL = 1;
@@ -134,7 +135,7 @@ readonly abstract class PlogFeature extends Feature
      */
     abstract public function addCallDoneData(int $date, string $ip, ?int $call_id): void;
 
-    abstract public function getSyslog(string $ip, int $date): false|array;
+    abstract public function getSyslog(string $ip, int $date, int $max_call_time): false|array;
 
     abstract public function getSyslogFilter(string $ip, ?string $message, ?int $minDate, ?int $maxDate, ?int $page, ?int $size): false|array;
 }

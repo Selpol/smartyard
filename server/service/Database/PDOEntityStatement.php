@@ -9,16 +9,30 @@ use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Framework\Entity\EntityMessage;
 use Selpol\Framework\Entity\Exception\EntityException;
 
-readonly class PDOEntityStatement implements EntityStatementInterface
+class PDOEntityStatement implements EntityStatementInterface
 {
-    public function __construct(private PDOStatement $statement)
+    private array $values = [];
+
+    public function __construct(private readonly PDOStatement $statement)
     {
     }
 
     public function execute(?array $value = null): bool
     {
-        if ($value !== null && $value !== []) {
-            foreach ($value as $key => $item) {
+        $values = $value !== null && $value !== [] ? array_merge($this->values, $value) : $this->values;
+
+        if ($values !== []) {
+            foreach ($values as $key => $item) {
+                if (is_array($item)) {
+                    if ($item[0] === 0) {
+                        $this->statement->bindValue($key, $item[1], PDO::PARAM_STMT);
+
+                        continue;
+                    }
+
+                    $item = $item[1];
+                }
+
                 if (is_bool($item)) {
                     $this->statement->bindValue($key, $item, PDO::PARAM_BOOL);
                 } elseif (is_int($item)) {
@@ -42,6 +56,20 @@ readonly class PDOEntityStatement implements EntityStatementInterface
 
             return false;
         }
+    }
+
+    public function bind(string $key, float|bool|int|string $value): static
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
+    public function bindRaw(string $key, string $value): static
+    {
+        $this->values[$key] = [0, $value];
+
+        return $this;
     }
 
     public function fetch(int $flags = self::FETCH_ASSOC): ?array

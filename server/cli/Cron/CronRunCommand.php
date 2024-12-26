@@ -5,6 +5,7 @@ namespace Selpol\Cli\Cron;
 use Psr\Log\LoggerAwareInterface;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
+use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
@@ -26,7 +27,7 @@ class CronRunCommand implements LoggerAwareInterface
             $start = microtime(true) * 1000;
             $io->writeLine('Processing cron ' . $part->name);
 
-            $values = [FrsFeature::class, FileFeature::class, DeviceService::class];
+            $values = [FrsFeature::class, FileFeature::class, PlogFeature::class, DeviceService::class];
 
             foreach ($values as $value) {
                 $instance = container($value);

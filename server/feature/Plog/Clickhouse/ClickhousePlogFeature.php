@@ -4,6 +4,7 @@ namespace Selpol\Feature\Plog\Clickhouse;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Selpol\Cli\Cron\CronEnum;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -18,7 +19,6 @@ readonly class ClickhousePlogFeature extends PlogFeature
 {
     private ClickhouseService $clickhouse;
 
-    private int $max_call_length;  // максимальная длительность звонка в секундах
     private int $ttl_camshot_days;  // время жизни кадра события
     private int $back_time_shift_video_shot;  // сдвиг назад в секундах от времени события для получения кадра от медиа сервера
 
@@ -28,9 +28,21 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
         $plog = config_get('feature.plog');
 
-        $this->max_call_length = $plog['max_call_length'];
-        $this->ttl_camshot_days = $plog['ttl_camshot_days'];
+        $this->ttl_camshot_days = intval($plog['ttl_camshot_days']);
         $this->back_time_shift_video_shot = $plog['back_time_shift_video_shot'];
+    }
+
+    public function cron(CronEnum $value): bool
+    {
+        if ($value != CronEnum::daily) {
+            return true;
+        }
+
+        $database = $this->clickhouse->database;
+
+        return $this->clickhouse->statement("ALTER TABLE $database.plog UPDATE hidden = 1 WHERE hidden = 0 AND date <= now() - :date")
+            ->bind('date', time() - $this->ttl_camshot_days * 86400)
+            ->execute();
     }
 
     /**
@@ -197,11 +209,11 @@ readonly class ClickhousePlogFeature extends PlogFeature
         }
     }
 
-    public function getSyslog(string $ip, int $date): false|array
+    public function getSyslog(string $ip, int $date, int $max_call_time): false|array
     {
         $database = $this->clickhouse->database;
 
-        $start_date = $date - $this->max_call_length;
+        $start_date = $date - $max_call_time;
         $query = "select date, msg, unit from $database.syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
 
         return $this->clickhouse->select($query);
