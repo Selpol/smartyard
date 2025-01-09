@@ -9,7 +9,5 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(InternalMonitorFeature::class)]
 readonly abstract class MonitorFeature extends Feature
 {
-    public abstract function ping(int $id): bool;
-
     public abstract function sip(int $id): bool;
 }

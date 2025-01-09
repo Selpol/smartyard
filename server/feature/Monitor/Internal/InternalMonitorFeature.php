@@ -8,17 +8,6 @@ use Throwable;
 
 readonly class InternalMonitorFeature extends MonitorFeature
 {
-    public function ping(int $id): bool
-    {
-        try {
-            return intercom($id)?->pingRaw() ?: false;
-        } catch (Throwable $throwable) {
-            file_logger('intercom')->error($throwable);
-
-            return false;
-        }
-    }
-
     public function sip(int $id): bool
     {
         try {
