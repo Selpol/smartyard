@@ -227,6 +227,16 @@
 - `int` *id* - Идентификатор стримера
 - `string` *stream_id* - Идентификатор потока
 
+## SubscriberRequest
+
+Поля: 
+
+- `null|string` *name* - Имя
+- `null|string` *patronymic* - Отчество
+- `null|string` *id* - Номер телефона
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## TaskSearchRequest
 
 Поля: 

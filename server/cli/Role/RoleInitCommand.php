@@ -93,7 +93,9 @@ class RoleInitCommand
             'intercom-config-show-get' => '[Домофон-Конфигурация] Получить настройку домофона',
             'intercom-config-update-put' => '[Домофон-Конфигурация] Обновить настройку домофона',
 
-            'intercom-key-show-get' => '[Домофое-Ключи] Получить ключи с домофона'
+            'intercom-key-show-get' => '[Домофое-Ключи] Получить ключи с домофона',
+
+            'subscriber-index-get' => '[Абонент] Получить список абонентов'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

@@ -20,4 +20,5 @@
 - [PlogController](./PlogController.md)
 - [SipUserController](./SipUserController.md)
 - [StreamerController](./StreamerController.md)
+- [SubscriberController](./SubscriberController.md)
 - [TaskController](./TaskController.md)
