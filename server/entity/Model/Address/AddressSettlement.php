@@ -4,6 +4,9 @@ namespace Selpol\Entity\Model\Address;
 
 use Selpol\Entity\Repository\Address\AddressSettlementRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -19,6 +22,12 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $settlement
  *
  * @property string|null $timezone
+ * 
+ * @property-read AddressArea|null $area
+ * @property-read AddressCity|null $city
+ * 
+ * @property-read AddressStreet[] $streets
+ * @property-read AddressHouse[] $houses
  */
 class AddressSettlement extends Entity
 {
@@ -26,10 +35,43 @@ class AddressSettlement extends Entity
      * @use RepositoryTrait<AddressSettlementRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'addresses_settlements';
 
     public static string $columnId = 'address_settlement_id';
+
+    /**
+     * @return OneToOneRelationship<AddressArea>
+     */
+    public function area(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressArea::class, 'address_area_id', 'address_area_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<AddressCity>
+     */
+    public function city(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressCity::class, 'address_city_id', 'address_city_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<AddressStreet>
+     */
+    public function streets(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressStreet::class, 'address_settlement_id', 'address_settlement_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<AddressHouse>
+     */
+    public function houses(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressHouse::class, 'address_settlement_id', 'address_settlement_id');
+    }
 
     public static function getColumns(): array
     {

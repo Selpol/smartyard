@@ -7,6 +7,7 @@ use Selpol\Entity\Model\Role;
 use Selpol\Entity\Repository\Core\CoreUserRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -28,6 +29,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $default_route
  *
  * @property int|null $last_login
+ * 
+ * @property-read CoreAuth[] $auths
  *
  * @property-read Role[] $roles
  * @property-read Permission[] $permissions
@@ -44,15 +47,12 @@ class CoreUser extends Entity
 
     public static string $columnId = 'uid';
 
-    public function jsonSerialize(): array
+    /**
+     * @return OneToManyRelationship<CoreAuth>
+     */
+    public function auths(): OneToManyRelationship
     {
-        $value = $this->getValue();
-
-        if (array_key_exists('password', $value)) {
-            unset($value['password']);
-        }
-
-        return $value;
+        return $this->oneToMany(CoreAuth::class, 'user_id', 'uid');
     }
 
     /**
@@ -69,6 +69,17 @@ class CoreUser extends Entity
     public function permissions(): ManyToManyRelationship
     {
         return $this->manyToMany(Permission::class, 'user_permission', localRelation: 'user_id', foreignRelation: 'permission_id');
+    }
+
+    public function jsonSerialize(): array
+    {
+        $value = $this->getValue();
+
+        if (array_key_exists('password', $value)) {
+            unset($value['password']);
+        }
+
+        return $value;
     }
 
     public static function getColumns(): array

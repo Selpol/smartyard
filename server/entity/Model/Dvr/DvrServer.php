@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Dvr;
 
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository\Dvr\DvrServerRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -20,6 +23,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ * 
+ * @property-read DeviceCamera[] $cameras
  */
 class DvrServer extends Entity
 {
@@ -27,6 +32,7 @@ class DvrServer extends Entity
      * @use RepositoryTrait<DvrServerRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'dvr_servers';
 
@@ -35,6 +41,14 @@ class DvrServer extends Entity
     public static ?string $columnCreateAt = 'created_at';
 
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToManyRelationship<DeviceCamera>
+     */
+    public function cameras(): OneToManyRelationship
+    {
+        return $this->oneToMany(DeviceCamera::class, 'dvr_server_id', 'id');
+    }
 
     public function jsonSerialize(): array
     {
@@ -50,7 +64,9 @@ class DvrServer extends Entity
     public function credentials(): array
     {
         return array_reduce(explode('&', $this->credentials), static function (array $previous, string $current) {
-            $previous[($value = explode('=', $current))[0]] = $value[1];
+            $value = explode('=', $current);
+
+            $previous[$value[0]] = $value[1];
 
             return $previous;
         }, []);

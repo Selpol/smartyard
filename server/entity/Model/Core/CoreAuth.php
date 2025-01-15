@@ -4,6 +4,9 @@ namespace Selpol\Entity\Model\Core;
 
 use Selpol\Entity\Repository\Core\CoreAuthRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -21,6 +24,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ * 
+ * @property-read CoreUser $user
  */
 class CoreAuth extends Entity
 {
@@ -28,12 +33,21 @@ class CoreAuth extends Entity
      * @use RepositoryTrait<CoreAuthRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'core_auth';
 
     public static ?string $columnCreateAt = 'created_at';
 
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToManyRelationship<CoreUser>
+     */
+    public function user(): OneToOneRelationship
+    {
+        return $this->oneToOne(CoreUser::class, 'uid', 'user_id');
+    }
 
     public function jsonSerialize(): array
     {

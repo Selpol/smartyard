@@ -4,6 +4,9 @@ namespace Selpol\Entity\Model\Address;
 
 use Selpol\Entity\Repository\Address\AddressCityRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -19,6 +22,12 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $city
  *
  * @property string|null $timezone
+ * 
+ * @property-read AddressRegion|null $region
+ * @property-read AddressArea|null $area
+ * 
+ * @property-read AddressStreet[] $streets
+ * @property-read AddressSettlement[] $settlements
  */
 class AddressCity extends Entity
 {
@@ -26,10 +35,43 @@ class AddressCity extends Entity
      * @use RepositoryTrait<AddressCityRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'addresses_cities';
 
     public static string $columnId = 'address_city_id';
+
+    /**
+     * @return OneToOneRelationship<AddressRegion>
+     */
+    public function region(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressRegion::class, 'address_region_id', 'address_region_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<AddressArea>
+     */
+    public function area(): OneToOneRelationship
+    {
+        return $this->oneToOne(AddressArea::class, 'address_area_id', 'address_area_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<AddressStreet>
+     */
+    public function streets(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressStreet::class, 'address_city_id', 'address_city_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<AddressSettlement>
+     */
+    public function settlements(): OneToManyRelationship
+    {
+        return $this->oneToMany(AddressSettlement::class, 'address_city_id', 'address_city_id');
+    }
 
     public static function getColumns(): array
     {

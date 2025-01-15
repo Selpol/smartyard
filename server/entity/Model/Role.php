@@ -3,6 +3,7 @@
 namespace Selpol\Entity\Model;
 
 use Selpol\Entity\Model\Core\CoreUser;
+use Selpol\Entity\Repository\RoleRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;

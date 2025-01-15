@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Block;
 
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Repository\Block\FlatBlockRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -19,6 +22,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ * 
+ * @property-read HouseFlat $flat
  */
 class FlatBlock extends Entity
 {
@@ -26,12 +31,21 @@ class FlatBlock extends Entity
      * @use RepositoryTrait<FlatBlockRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'flat_block';
 
     public static ?string $columnCreateAt = 'created_at';
 
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToOneRelationship<HouseFlat>
+     */
+    public function flat(): OneToOneRelationship
+    {
+        return $this->oneToOne(HouseFlat::class, 'house_flat_id', '$flat_id');
+    }
 
     public static function getColumns(): array
     {
