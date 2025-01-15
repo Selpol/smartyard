@@ -95,7 +95,12 @@ class RoleInitCommand
 
             'intercom-key-show-get' => '[Домофое-Ключи] Получить ключи с домофона',
 
-            'subscriber-index-get' => '[Абонент] Получить список абонентов'
+            'subscriber-index-get' => '[Абонент] Получить список абонентов',
+            'subscriber-show-get' => '[Абонент] Получить абонента',
+
+            'subscriber-camera-index-get' => '[Абонент-Камера] Получить камеры абонента',
+            'subscriber-camera-store-post' => '[Абонент-Камера] Привязать камеру к абоненту',
+            'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

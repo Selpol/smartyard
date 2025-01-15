@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.1.15",
+            "version": "1.1.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "70a73a7bb591bbd107c19f5e4b380251ec4f75b3"
+                "reference": "f3fe6d477a8ed0ba87416e979e10f19b6ed6c201"
             },
             "require": {
                 "ext-curl": "*",
@@ -1272,7 +1272,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Selpol\\Framework\\": "src/"
+                    "Selpol\\Framework\\": "src/",
+                    "Example\\Controller\\": "examples/controller/"
                 },
                 "files": [
                     "src/kernel.php",
@@ -1285,7 +1286,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2024-12-25T06:53:29+00:00"
+            "time": "2025-01-15T10:17:12+00:00"
         },
         {
             "name": "selpol/validator",

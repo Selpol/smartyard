@@ -64,6 +64,6 @@ readonly class subscribers extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Абоненты] Получить список'];
+        return ['GET' => '[Deprecated] [Абоненты] Получить список'];
     }
 }

@@ -2,8 +2,10 @@
 
 namespace Selpol\Entity\Model\House;
 
-use Selpol\Entity\Repository\House\HouseSubscriberRepository;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -28,6 +30,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $subscriber_patronymic
  *
  * @property int $role
+ * 
+ * @property-read DeviceCamera[] $cameras
  */
 class HouseSubscriber extends Entity
 {
@@ -35,10 +39,19 @@ class HouseSubscriber extends Entity
      * @use RepositoryTrait<HouseSubscriberRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'houses_subscribers_mobile';
 
     public static string $columnId = 'house_subscriber_id';
+
+    /**
+     * @return ManyToManyRelationship<DeviceCamera[]>
+     */
+    public function cameras(): ManyToManyRelationship
+    {
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_subscribers', localRelation: 'house_subscriber_id', foreignRelation: 'camera_id');
+    }
 
     public static function getColumns(): array
     {

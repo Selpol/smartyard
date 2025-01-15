@@ -5,9 +5,11 @@ namespace Selpol\Entity\Model\Device;
 use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Entity\Repository\Device\DeviceCameraRepository;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 use Selpol\Service\DatabaseService;
 
@@ -44,6 +46,8 @@ use Selpol\Service\DatabaseService;
  * @property string|null $config
  *
  * @property bool $hidden
+ * 
+ * @property-read HouseSubscriber[] $subscribers
  */
 class DeviceCamera extends Entity
 {
@@ -51,10 +55,19 @@ class DeviceCamera extends Entity
      * @use RepositoryTrait<DeviceCameraRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';
+
+    /**
+     * @return ManyToManyRelationship<HouseSubscriber[]>
+     */
+    public function subscribers(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseSubscriber::class, 'houses_cameras_subscribers', localRelation: 'camera_id', foreignRelation: 'house_subscriber_id');
+    }
 
     public function getDvrServer(): ?DvrServer
     {

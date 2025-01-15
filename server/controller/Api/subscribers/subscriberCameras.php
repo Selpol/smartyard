@@ -36,6 +36,6 @@ readonly class subscriberCameras extends Api
 
     public static function index(): bool|array
     {
-        return ['POST' => '[Абоненты] Привязать камеру', 'DELETE' => '[Абоненты] Отвязать камеру'];
+        return ['POST' => '[Deprecated] [Абоненты] Привязать камеру', 'DELETE' => '[Deprecated] [Абоненты] Отвязать камеру'];
     }
 }

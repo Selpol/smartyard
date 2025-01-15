@@ -231,9 +231,10 @@
 
 Поля: 
 
+- `null|int[]` *ids* - Идентификаторы абонентов
 - `null|string` *name* - Имя
 - `null|string` *patronymic* - Отчество
-- `null|string` *id* - Номер телефона
+- `null|string` *mobile* - Номер телефона
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
