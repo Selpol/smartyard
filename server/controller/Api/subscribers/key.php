@@ -78,6 +78,6 @@ readonly class key extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Ключи] Получить ключ', 'PUT' => '[Ключи] Обновить ключ', 'POST' => '[Ключи] Создать ключ', 'DELETE' => '[Ключи] Удалить ключ'];
+        return ['GET' => '[Deprecated] [Ключи] Получить ключ', 'PUT' => '[Deprecated] [Ключи] Обновить ключ', 'POST' => '[Deprecated] [Ключи] Создать ключ', 'DELETE' => '[Deprecated] [Ключи] Удалить ключ'];
     }
 }

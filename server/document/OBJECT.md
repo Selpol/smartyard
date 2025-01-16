@@ -145,14 +145,21 @@
 - `string` *key* - Ключ
 - `string` *value* - Значение
 
-## KeyIndexRequest
+## KeyStoreRequest
 
 Поля: 
 
-- `null|string` *rfid* - RFID-Метка
+- `string` *rfid* - RFID-Метка
+- `int` *access_type* - Тип доступа 2 - квартира
+- `int` *access_to* - Куда доступ
+- `string|null` *comments* - Комментарий
+
+## KeyUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор ключа
 - `null|string` *comments* - Комментарий
-- `int` *page* - Страница
-- `int` *size* - Размер страницы
 
 ## LogIndexRequest
 

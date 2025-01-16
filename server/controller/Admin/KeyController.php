@@ -4,15 +4,21 @@ namespace Selpol\Controller\Admin;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\Key\KeyStoreRequest;
+use Selpol\Controller\Request\Admin\Key\KeyUpdateRequest;
 use Selpol\Controller\Request\Admin\KeyIndexRequest;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\DatabaseService;
+use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
 
 /**
- * Ключи
+ * Ключ
  */
 #[Controller('/admin/key')]
 readonly class KeyController extends AdminRbtController
@@ -49,5 +55,92 @@ readonly class KeyController extends AdminRbtController
         }
 
         return self::success(new EntityPage($data, $page->getTotal(), $page->getPage(), $page->getSize()));
+    }
+
+    /**
+     * Получить ключ
+     * 
+     * @param int $id Идентификатор ключа 
+     */
+    #[Get('/{id}')]
+    public function show(int $id): ResponseInterface
+    {
+        $key = HouseKey::findById($id);
+
+        if (!$key) {
+            return self::error('Не удалось найти ключ', 404);
+        }
+
+        return self::success($key);
+    }
+
+    /**
+     * Добавить ключ
+     */
+    #[Post]
+    public function store(KeyStoreRequest $request): ResponseInterface
+    {
+        $key = HouseKey::fetch(criteria()->equal('rfid', $request->rfid)->equal('access_type', $request->access_type)->equal('access_to', $request->access_to));
+
+        if ($key instanceof HouseKey) {
+            task(new IntercomAddKeyTask($key->rfid, $key->access_to))->sync();
+
+            return self::success($key->house_rfid_id);
+        }
+
+        $key = new HouseKey();
+
+        $key->rfid = $request->rfid;
+
+        $key->access_type = $request->access_type;
+        $key->access_to = $request->access_to;
+
+        $key->comments = $request->comments;
+
+        $key->insert();
+
+        task(new IntercomAddKeyTask($key->rfid, $key->access_to))->sync();
+
+        return self::success($key->house_rfid_id);
+    }
+
+    /**
+     * Обновить ключ
+     * 
+     * @param int $id Идентификатор ключа 
+     */
+    #[Put('/{id}')]
+    public function update(KeyUpdateRequest $request): ResponseInterface
+    {
+        $key = HouseKey::findById($request->id);
+
+        if (!$key) {
+            return self::error('Не удалось найти ключ', 404);
+        }
+
+        $key->comments = $request->comments;
+
+        $key->update();
+
+        return self::success();
+    }
+
+    /**
+     * Удалить ключ
+     * 
+     * @param int $id Идентификатор ключа
+     */
+    #[Delete('/{id}')]
+    public function delete(int $id)
+    {
+        $key = HouseKey::findById($id);
+
+        if (!$key) {
+            return self::error('Не удалось найти ключ', 404);
+        }
+
+        $key->delete();
+
+        return self::success();
     }
 }
