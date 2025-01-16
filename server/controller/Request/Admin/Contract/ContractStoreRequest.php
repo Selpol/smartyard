@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Admin\Device;
+namespace Selpol\Controller\Request\Admin\Contract;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 

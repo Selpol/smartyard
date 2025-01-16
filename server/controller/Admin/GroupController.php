@@ -4,9 +4,9 @@ namespace Selpol\Controller\Admin;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Request\Admin\GroupIndexRequest;
-use Selpol\Controller\Request\Admin\GroupStoreRequest;
-use Selpol\Controller\Request\Admin\GroupUpdateRequest;
+use Selpol\Controller\Request\Admin\Group\GroupIndexRequest;
+use Selpol\Controller\Request\Admin\Group\GroupStoreRequest;
+use Selpol\Controller\Request\Admin\Group\GroupUpdateRequest;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;

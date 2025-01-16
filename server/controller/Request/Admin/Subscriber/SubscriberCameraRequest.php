@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Request\Admin;
+namespace Selpol\Controller\Request\Admin\Subscriber;
 
 use Selpol\Framework\Router\Route\RouteRequest;
 

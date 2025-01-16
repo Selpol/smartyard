@@ -4,10 +4,10 @@ namespace Selpol\Controller\Admin;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Request\Admin\Device\ContractIndexRequest;
-use Selpol\Controller\Request\Admin\Device\ContractStoreRequest;
-use Selpol\Controller\Request\Admin\Device\ContractSyncRequest;
-use Selpol\Controller\Request\Admin\Device\ContractUpdateRequest;
+use Selpol\Controller\Request\Admin\Contract\ContractIndexRequest;
+use Selpol\Controller\Request\Admin\Contract\ContractStoreRequest;
+use Selpol\Controller\Request\Admin\Contract\ContractSyncRequest;
+use Selpol\Controller\Request\Admin\Contract\ContractUpdateRequest;
 use Selpol\Entity\Model\Contractor;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;

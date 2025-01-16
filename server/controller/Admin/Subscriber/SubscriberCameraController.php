@@ -4,7 +4,7 @@ namespace Selpol\Controller\Admin\Subscriber;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Request\Admin\SubscriberCameraRequest;
+use Selpol\Controller\Request\Admin\Subscriber\SubscriberCameraRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Framework\Router\Attribute\Controller;
