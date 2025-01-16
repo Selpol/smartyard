@@ -71,7 +71,11 @@ class RoleInitCommand
             'inbox-index-get' => '[Сообщения] Получить список',
             'inbox-store-post' => '[Сообщения] Отправить сообщение пользователю',
 
-            'key-index-get' => '[Ключи] Получить список',
+            'key-index-get' => '[Ключ] Получить список ключей',
+            'key-show-get' => '[Ключ] Получить ключ',
+            'key-store-post' => '[Ключ] Добавить ключ',
+            'key-update-put' => '[Ключ] Обновить ключ',
+            'key-delete-delete' => '[Ключ] Удалить ключ ',
 
             'sip-user-index-get' => '[SipUser] Получить список',
             'sip-user-store-post' => '[SipUser] Добавить пользователя',
