@@ -98,6 +98,7 @@ class RoleInitCommand
             'intercom-config-update-put' => '[Домофон-Конфигурация] Обновить настройку домофона',
 
             'intercom-key-show-get' => '[Домофое-Ключи] Получить ключи с домофона',
+            'intercom-log-index-get' => '[Домофон-Логи] Получить логи с домофона',
 
             'subscriber-index-get' => '[Абонент] Получить список абонентов',
             'subscriber-show-get' => '[Абонент] Получить абонента',

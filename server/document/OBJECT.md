@@ -211,6 +211,17 @@
 - `string` *key* - Ключ
 - `string` *value* - Значение
 
+## IntercomLogIndexRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int|null` *min_date* - Минимальная дата
+- `int|null` *max_date* - Максимальная дата
+- `string|null` *message* - Сообщение лога
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## KeyStoreRequest
 
 Поля: 
@@ -226,12 +237,6 @@
 
 - `int` *id* - Идентификатор ключа
 - `null|string` *comments* - Комментарий
-
-## LogIndexRequest
-
-Поля: 
-
-- `null|string` *file* - Путь к файлу логов
 
 ## MonitorIntercomRequest
 

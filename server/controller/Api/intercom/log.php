@@ -39,6 +39,6 @@ readonly class log extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Домофон] Получить логи устройства'];
+        return ['GET' => '[Deprecated] [Домофон] Получить логи устройства'];
     }
 }

@@ -39,6 +39,7 @@ class RoleUpdateCommand
             'subscribers-key-post' => ['key-update-put'],
             'subscribers-key-delete' => ['key-delete-delete'],
             'subscribers-subscribers-get' => ['subscriber-index-get', 'house-flat-key-index-get', 'house-flat-camera-index-get'],
+            'intercom-log-get' => ['intercom-log-index-get']
         ];
 
         foreach ($permissions as $source => $destinations) {
