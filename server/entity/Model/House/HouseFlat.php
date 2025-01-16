@@ -4,7 +4,6 @@ namespace Selpol\Entity\Model\House;
 
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Block\FlatBlock;
-use Selpol\Entity\Repository\House\HouseFlatRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
@@ -36,12 +35,14 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property int|null $last_opened
  * @property int|null $cms_enabled
  *
- * @property string|null $comment
+ * @property string|null $comment Комментарий
  *
- * @property-read AddressHouse $house
- * @property-read HouseEntrance[] $entrances
+ * @property-read AddressHouse $house Дом
+ * @property-read HouseEntrance[] $entrances Привязанные входы к квартире
  * 
- * @property-read FlatBlock[] $blocks
+ * @property-read FlatBlock[] $blocks Блокировки квартиры
+ * 
+ * @property-read HouseSubscriber[] $subscribers Привязанные абоненты в квартире
  */
 class HouseFlat extends Entity
 {
@@ -77,6 +78,14 @@ class HouseFlat extends Entity
     public function blocks(): OneToManyRelationship
     {
         return $this->oneToMany(FlatBlock::class, 'flat_id', 'house_flat_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseSubscriber>
+     */
+    public function subscribers(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseSubscriber::class, 'houses_flats_subscribers', localRelation: 'house_flat_id', foreignRelation: 'house_subscriber_id');
     }
 
     public static function getColumns(): array

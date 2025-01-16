@@ -72,6 +72,6 @@ readonly class contractor extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Подрядчики] Получить подрядчика', 'POST' => '[Подрядчики] Создать подрядчика', 'PUT' => '[Подрядчики] Обновить подрядчика', 'DELETE' => '[Подрядчики] Удалить подрядчика'];
+        return ['GET' => '[Deprecated] [Подрядчики] Получить подрядчика', 'POST' => '[Deprecated] [Подрядчики] Создать подрядчика', 'PUT' => '[Deprecated] [Подрядчики] Обновить подрядчика', 'DELETE' => '[Deprecated] [Подрядчики] Удалить подрядчика'];
     }
 }

@@ -107,6 +107,13 @@ class RoleInitCommand
             'group-store-post' => '[Группа] Создать новую группу',
             'group-update-put' => '[Группа] Обновить группу',
             'group-delete-delete' => '[Группа] Удалить группу',
+
+            'contractor-index-get' => '[Подрядчик] Получить список подрядчиков',
+            'contractor-show-get' => '[Подрядчик] Получить подрядчика',
+            'contractor-sync-get' => '[Подрядчик] Синхронизация подрядчика',
+            'contractor-store-post' => '[Подрядчик] Создать нового подрядчика',
+            'contractor-update-put' => '[Подрядчик] Обновить подрядчика',
+            'contractor-delete-delete' => '[Подрядчик] Удалить подрядчика',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

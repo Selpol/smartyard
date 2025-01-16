@@ -24,6 +24,6 @@ readonly class contractors extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Подрядчики] Получить список подрядчиков'];
+        return ['GET' => '[Deprecated] [Подрядчики] Получить список подрядчиков'];
     }
 }

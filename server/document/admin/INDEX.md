@@ -7,6 +7,7 @@
 - [BlockFlatController](./BlockFlatController.md)
 - [BlockSubscriberController](./BlockSubscriberController.md)
 - [ConfigController](./ConfigController.md)
+- [ContractorController](./ContractorController.md)
 - [DeviceRelayController](./DeviceRelayController.md)
 - [DeviceRelaySettingController](./DeviceRelaySettingController.md)
 - [DvrController](./DvrController.md)

@@ -232,6 +232,7 @@
 Поля: 
 
 - `null|int[]` *ids* - Идентификаторы абонентов
+- `int|null` *flat_id* - Идентификатор квартиры
 - `null|string` *name* - Имя
 - `null|string` *patronymic* - Отчество
 - `null|string` *mobile* - Номер телефона

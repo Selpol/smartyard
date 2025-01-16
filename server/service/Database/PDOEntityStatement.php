@@ -74,7 +74,7 @@ class PDOEntityStatement implements EntityStatementInterface
 
     public function fetch(int $flags = self::FETCH_ASSOC): ?array
     {
-        $result = $this->statement->fetch(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetch($this->flags($flags));
 
         return $result === false ? null : $result;
     }
@@ -86,7 +86,7 @@ class PDOEntityStatement implements EntityStatementInterface
 
     public function fetchAll(int $flags = self::FETCH_ASSOC): array
     {
-        $result = $this->statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetchAll($this->flags($flags));
 
         return $result === false ? [] : $result;
     }
@@ -105,5 +105,16 @@ class PDOEntityStatement implements EntityStatementInterface
         }
 
         return $result;
+    }
+
+    private function flags(int $flags): int
+    {
+        if ($flags == self::FETCH_ASSOC) {
+            return PDO::FETCH_ASSOC;
+        } else if ($flags == self::FETCH_NUMBER) {
+            return PDO::FETCH_NUM;
+        }
+
+        return -1;
     }
 }

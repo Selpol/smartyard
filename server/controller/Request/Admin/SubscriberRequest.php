@@ -7,6 +7,8 @@ use Selpol\Framework\Router\Route\RouteRequest;
 /**
  * @property-read null|int[] $ids Идентификаторы абонентов
  * 
+ * @property-read int|null $flat_id Идентификатор квартиры
+ * 
  * @property-read null|string $name Имя
  * @property-read null|string $patronymic Отчество
  *
@@ -22,6 +24,8 @@ readonly class SubscriberRequest extends RouteRequest
         return [
             'ids' => rule()->array(),
             'ids.*' => rule()->id(),
+
+            'flat_id' => rule()->int()->clamp(0),
 
             'name' => rule()->string()->clamp(0, 64),
             'patronymic' => rule()->string()->clamp(0, 64),

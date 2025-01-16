@@ -5,6 +5,7 @@ namespace Selpol\Controller\Admin\Subscriber;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\SubscriberRequest;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -23,6 +24,16 @@ readonly class SubscriberController extends AdminRbtController
     #[Get]
     public function index(SubscriberRequest $request, AuthService $service): ResponseInterface
     {
+        if ($request->flat_id) {
+            $flat = HouseFlat::findById($request->flat_id);
+
+            if (!$flat) {
+                return self::error('Не удалось найти квартиру', 404);
+            }
+
+            return self::success($flat->subscribers);
+        }
+
         $criteria = criteria()
             ->in('house_subscriber_id', $request->ids)
             ->like('subscriber_name', $request->name)
