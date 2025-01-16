@@ -100,7 +100,13 @@ class RoleInitCommand
 
             'subscriber-camera-index-get' => '[Абонент-Камера] Получить камеры абонента',
             'subscriber-camera-store-post' => '[Абонент-Камера] Привязать камеру к абоненту',
-            'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента'
+            'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента',
+
+            'group-index-get' => '[Группа] Получить список групп',
+            'group-show-get' => '[Группа] Получить группу',
+            'group-store-post' => '[Группа] Создать новую группу',
+            'group-update-put' => '[Группа] Обновить группу',
+            'group-delete-delete' => '[Группа] Удалить группу',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

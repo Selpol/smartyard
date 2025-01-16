@@ -68,6 +68,6 @@ readonly class group extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Группы] Получить группу', 'POST' => '[Группы] Создать группу', 'PUT' => '[Группы] Обновить группу', 'DELETE' => '[Группы] Удалить группу'];
+        return ['GET' => '[Deprecated] [Группы] Получить группу', 'POST' => '[Deprecated] [Группы] Создать группу', 'PUT' => '[Deprecated] [Группы] Обновить группу', 'DELETE' => '[Deprecated] [Группы] Удалить группу'];
     }
 }

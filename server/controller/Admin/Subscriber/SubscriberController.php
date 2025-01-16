@@ -25,9 +25,10 @@ readonly class SubscriberController extends AdminRbtController
     {
         $criteria = criteria()
             ->in('house_subscriber_id', $request->ids)
-            ->equal('subscriber_name', $request->name)
-            ->equal('subscriber_patronymic', $request->patronymic)
-            ->equal('id', $request->mobile);
+            ->like('subscriber_name', $request->name)
+            ->like('subscriber_patronymic', $request->patronymic)
+            ->equal('id', $request->mobile)
+            ->asc('house_subscriber_id');
 
         $page = HouseSubscriber::fetchPage($request->page, $request->size, $criteria);
 

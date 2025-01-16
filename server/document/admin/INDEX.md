@@ -11,6 +11,7 @@
 - [DeviceRelaySettingController](./DeviceRelaySettingController.md)
 - [DvrController](./DvrController.md)
 - [GeoController](./GeoController.md)
+- [GroupController](./GroupController.md)
 - [InboxController](./InboxController.md)
 - [IntercomConfigController](./IntercomConfigController.md)
 - [IntercomKeyController](./IntercomKeyController.md)

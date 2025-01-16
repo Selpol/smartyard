@@ -39,6 +39,6 @@ readonly class groups extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Группы] Получить список групп'];
+        return ['GET' => '[Deprecated] [Группы] Получить список групп'];
     }
 }
