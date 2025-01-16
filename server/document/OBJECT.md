@@ -64,6 +64,40 @@
 - `int` *id* - Идентификатор устройства
 - `bool` *optimize* - Оптимизация конфигурации
 
+## ContractIndexRequest
+
+Поля: 
+
+- `string|null` *title* - Название
+- `int|null` *flat* - Квартира
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## ContractSyncRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор подрядчика
+- `bool` *remove_subscriber* - Удалять ли абонентов
+- `bool` *remove_key* - Удалять ли ключи
+
+## ContractStoreRequest
+
+Поля: 
+
+- `string` *title* - Название
+- `int` *flat* - Квартира
+- `string|null` *code* - Код открытия
+
+## ContractUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор подрядчика
+- `string` *title* - Название
+- `int` *flat* - Квартира
+- `string|null` *code* - Код открытия
+
 ## DeviceRelayIndexRequest
 
 Поля: 
@@ -111,6 +145,38 @@
 
 - `string` *search* - Строка поиска
 - `null|string` *bound* - Ограничение поиска
+
+## GroupIndexRequest
+
+Поля: 
+
+- `string|null` *name* - Название
+- `string|null` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string|null` *for* - Сущность подрядчик или адрес
+- `string|null` *id* - Идентификатор сущности
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## GroupStoreRequest
+
+Поля: 
+
+- `string` *name* - Название
+- `string` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string` *for* - Сущность подрядчик или адрес
+- `string` *id* - Идентификатор сущности
+- `mixed` *value* - Значение
+
+## GroupUpdateRequest
+
+Поля: 
+
+- `string` *oid* - Идентификатор группы
+- `string` *name* - Название
+- `string` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string` *for* - Сущность подрядчик или адрес
+- `string` *id* - Идентификатор сущности
+- `mixed` *value* - Значение
 
 ## InboxIndexRequest
 
@@ -233,6 +299,13 @@
 
 - `int` *id* - Идентификатор стримера
 - `string` *stream_id* - Идентификатор потока
+
+## SubscriberCameraRequest
+
+Поля: 
+
+- `int` *subscriber_id* - Идентификатор абонента
+- `int` *camera_id* - Идентификатор камеры
 
 ## SubscriberRequest
 
