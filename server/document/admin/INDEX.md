@@ -13,6 +13,8 @@
 - [DvrController](./DvrController.md)
 - [GeoController](./GeoController.md)
 - [GroupController](./GroupController.md)
+- [HouseFlatCameraController](./HouseFlatCameraController.md)
+- [HouseFlatKeyController](./HouseFlatKeyController.md)
 - [InboxController](./InboxController.md)
 - [IntercomConfigController](./IntercomConfigController.md)
 - [IntercomKeyController](./IntercomKeyController.md)

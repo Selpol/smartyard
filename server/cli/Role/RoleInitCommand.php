@@ -114,6 +114,12 @@ class RoleInitCommand
             'contractor-store-post' => '[Подрядчик] Создать нового подрядчика',
             'contractor-update-put' => '[Подрядчик] Обновить подрядчика',
             'contractor-delete-delete' => '[Подрядчик] Удалить подрядчика',
+
+            'house-flat-camera-index-get' => '[Квартира-Камера] Получить список камер',
+            'house-flat-camera-store-post' => '[Квартира-Камера] Привязать камеру к квартире',
+            'house-flat-camera-delete-delete' => '[Квартира-Камера] Отвязать камеру от квартиры',
+
+            'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

@@ -36,6 +36,6 @@ readonly class flatCameras extends Api
 
     public static function index(): bool|array
     {
-        return ['POST' => '[Квартира] Привязать камеру', 'DELETE' => '[Квартира] Отвязать камеру'];
+        return ['POST' => '[Deprecated] [Квартира] Привязать камеру', 'DELETE' => '[Deprecated] [Квартира] Отвязать камеру'];
     }
 }
