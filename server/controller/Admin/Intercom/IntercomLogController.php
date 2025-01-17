@@ -13,7 +13,7 @@ use Selpol\Framework\Router\Attribute\Method\Get;
 /**
  * Домофон-Логи
  */
-#[Controller('/admin/intercom/log/')]
+#[Controller('/admin/intercom/log')]
 readonly class IntercomLogController extends AdminRbtController
 {
     /**
