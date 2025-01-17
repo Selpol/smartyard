@@ -90,6 +90,7 @@ readonly class GroupController extends AdminRbtController
             $request->id,
             $request->value
         );
+
         return $result ? self::success() : self::error('Не удалось обновить группу', 400);
     }
 

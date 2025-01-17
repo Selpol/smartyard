@@ -10,7 +10,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $type Тип абонент, камера, домофон, ключ, адрес
  * 
  * @property-read string $for Сущность подрядчик или адрес
- * @property-read string $id Идентификатор сущности
+ * @property-read int $id Идентификатор сущности
  * 
  * @property-read mixed $value Значение
  */
@@ -23,7 +23,7 @@ readonly class GroupStoreRequest extends RouteRequest
             'type' => rule()->required()->in(['subscriber', 'camera', 'intercom', 'key', 'address'])->nonNullable(),
 
             'for' => rule()->required()->in(['contractor', 'address'])->nonNullable(),
-            'id' => rule()->required()->string()->clamp(0, 64)->nonNullable(),
+            'id' => rule()->required()->int()->nonNullable(),
 
             'value' => rule()->required()->nonNullable()
         ];
