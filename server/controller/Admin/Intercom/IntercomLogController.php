@@ -22,13 +22,13 @@ readonly class IntercomLogController extends AdminRbtController
     #[Get('/{id}')]
     public function index(IntercomLogIndexRequest $request, PlogFeature $featue): ResponseInterface
     {
-        $intercom = DeviceIntercom::findById($request->id, setting: setting()->columns(['ip']));
+        $intercom = DeviceIntercom::findById($request->id);
 
         if (!$intercom) {
             return self::error('Не удалось найти домофон', 404);
         }
 
-        if (!isset($intercom->ip) || is_null($intercom->ip)) {
+        if (is_null($intercom->ip)) {
             return self::error('Не удалось определить IP-адрес', 404);
         }
 
