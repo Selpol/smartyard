@@ -6,6 +6,10 @@
 
 ### [GET/index `key-index-get`] Получить список ключей `/admin/key`
 
+Параметры: 
+
+- [KeyIndexRequest](../OBJECT.md#KeyIndexRequest) 
+
 ### [GET/show `key-show-get`] Получить ключ `/admin/key/{id}`
 
 Параметры: 

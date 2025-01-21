@@ -222,6 +222,15 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## KeyIndexRequest
+
+Поля: 
+
+- `null|string` *rfid* - RFID-Метка
+- `null|string` *comments* - Комментарий
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## KeyStoreRequest
 
 Поля: 

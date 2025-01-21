@@ -2,8 +2,10 @@
 
 namespace Selpol\Entity\Model\Address;
 
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Repository\Address\AddressHouseRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
@@ -24,6 +26,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * 
  * @property-read AddressSettlement|null $settlement
  * @property-read AddressStreet|null $street
+ * 
+ * @property-read DeviceCamera[] $cameras
  */
 class AddressHouse extends Entity
 {
@@ -51,6 +55,14 @@ class AddressHouse extends Entity
     public function street(): OneToOneRelationship
     {
         return $this->oneToOne(AddressStreet::class, 'address_street_id', 'address_street_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<DeviceCamera>
+     */
+    public function cameras(): ManyToManyRelationship
+    {
+        return $this->manyToMany(DeviceCamera::class, '', localRelation: 'address_house_id', foreignRelation: 'camera_id');
     }
 
     public static function getColumns(): array

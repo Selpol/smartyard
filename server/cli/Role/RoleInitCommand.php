@@ -83,6 +83,7 @@ class RoleInitCommand
             'sip-user-delete-delete' => '[SipUser] Удалить пользователя',
 
             'account-audit-index-get' => '[Аудит] Получить список действий',
+            'account-audit-description-get' => '[Аудит] Получить описание',
 
             'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
             'device-relay-show-get' => '[Устройство-Реле] Получить устройство реле',
@@ -119,6 +120,10 @@ class RoleInitCommand
             'contractor-store-post' => '[Подрядчик] Создать нового подрядчика',
             'contractor-update-put' => '[Подрядчик] Обновить подрядчика',
             'contractor-delete-delete' => '[Подрядчик] Удалить подрядчика',
+
+            'house-camera-index-get' => '[Дом-Камера] Получить список камер',
+            'house-camera-store-post' => '[Дом-Камера] Привязать камеру к дому',
+            'house-camera-delete-delete' => '[Дом-Камера] Отвязать камеру от дома',
 
             'house-flat-camera-index-get' => '[Квартира-Камера] Получить список камер',
             'house-flat-camera-store-post' => '[Квартира-Камера] Привязать камеру к квартире',

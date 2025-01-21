@@ -15,6 +15,7 @@
 - [GroupController](./GroupController.md)
 - [HouseFlatCameraController](./HouseFlatCameraController.md)
 - [HouseFlatKeyController](./HouseFlatKeyController.md)
+- [HouseCameraController](./HouseCameraController.md)
 - [InboxController](./InboxController.md)
 - [IntercomConfigController](./IntercomConfigController.md)
 - [IntercomKeyController](./IntercomKeyController.md)
