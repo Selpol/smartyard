@@ -20,7 +20,7 @@ readonly class HouseCameraController extends AdminRbtController
     /**
      * Получить список камер
      * 
-     * @param int $id Идентификатор квартиры 
+     * @param int $id Идентификатор дома 
      */
     #[Get]
     public function index(int $id): ResponseInterface

@@ -8,7 +8,7 @@
 
 Параметры: 
 
-- `int` *id* Идентификатор квартиры
+- `int` *id* Идентификатор дома
 
 ### [POST/store `house-camera-store-post`] Привязать камеру к дому `/admin/house/{id}/camera/{camera_id}`
 

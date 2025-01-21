@@ -62,7 +62,7 @@ class AddressHouse extends Entity
      */
     public function cameras(): ManyToManyRelationship
     {
-        return $this->manyToMany(DeviceCamera::class, '', localRelation: 'address_house_id', foreignRelation: 'camera_id');
+        return $this->manyToMany(DeviceCamera::class, 'houses_cameras_houses', localRelation: 'address_house_id', foreignRelation: 'camera_id');
     }
 
     public static function getColumns(): array
