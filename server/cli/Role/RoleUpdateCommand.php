@@ -59,10 +59,8 @@ class RoleUpdateCommand
                 }
 
                 foreach ($roles as $role) {
-                    $sourcePermission->roles()->remove($role);
-
-                    if (!$destinationPermission->roles()->has($role)) {
-                        $destinationPermission->roles()->add($role);
+                    if (!$role->permissions()->has($destinationPermission)) {
+                        $role->permissions()->add($destinationPermission);
                     }
                 }
             }
