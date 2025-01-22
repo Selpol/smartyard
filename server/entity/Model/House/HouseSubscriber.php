@@ -37,7 +37,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * 
  * @property-read DeviceCamera[] $cameras
  * @property-read InboxMessage[] $messages
- * 
+ * @property-read HouseFlat[] $flats
  * @property-read DvrRecord[] $records
  * 
  * @property-read SubscriberBlock[] $blocks
@@ -68,6 +68,14 @@ class HouseSubscriber extends Entity
     public function messages(): OneToManyRelationship
     {
         return $this->oneToMany(InboxMessage::class, 'house_subscriber_id', 'house_subscriber_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseFlat>
+     */
+    public function flats(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseFlat::class, 'houses_flats_subscribers', localRelation: 'house_subscriber_id', foreignRelation: 'house_flat_id');
     }
 
     /**

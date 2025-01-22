@@ -30,7 +30,7 @@ class RoleUpdateCommand
             'contractor-contractors-get' => ['contractor-index-get'],
             'contractor-sync-get' => ['contractor-sync-get'],
             'subscribers-flatCameras-post' => ['house-flat-camera-store-post'],
-            'subscribers-subscriber-get' => ['subscriber-show-get'],
+            'subscribers-subscriber-get' => ['subscriber-show-get', 'subscriber-flat-index-get'],
             'subscribers-subscriberCameras-post' => ['house-flat-camera-store-post'],
             'subscribers-subscriberCameras-delete' => ['house-flat-camera-delete-delete'],
             'subscribers-flatCameras-delete' => ['house-flat-camera-delete-delete'],
@@ -38,7 +38,7 @@ class RoleUpdateCommand
             'subscribers-key-put' => ['key-store-post'],
             'subscribers-key-post' => ['key-update-put'],
             'subscribers-key-delete' => ['key-delete-delete'],
-            'subscribers-subscribers-get' => ['subscriber-index-get', 'house-flat-key-index-get', 'house-flat-camera-index-get'],
+            'subscribers-subscribers-get' => ['subscriber-index-get', 'house-flat-key-index-get', 'house-flat-camera-index-get', 'subscriber-flat-index-get'],
             'intercom-log-get' => ['intercom-log-index-get']
         ];
 

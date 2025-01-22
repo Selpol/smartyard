@@ -27,4 +27,5 @@
 - [StreamerController](./StreamerController.md)
 - [SubscriberCameraController](./SubscriberCameraController.md)
 - [SubscriberController](./SubscriberController.md)
+- [SubscriberFlatController](./SubscriberFlatController.md)
 - [TaskController](./TaskController.md)

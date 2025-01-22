@@ -108,6 +108,8 @@ class RoleInitCommand
             'subscriber-camera-store-post' => '[Абонент-Камера] Привязать камеру к абоненту',
             'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента',
 
+            'subscriber-flat-index-get' => '[Абонент-Квартира] Получить квартиры абонента',
+
             'group-index-get' => '[Группа] Получить список групп',
             'group-show-get' => '[Группа] Получить группу',
             'group-store-post' => '[Группа] Создать новую группу',
