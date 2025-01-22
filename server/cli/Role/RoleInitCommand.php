@@ -131,7 +131,26 @@ class RoleInitCommand
             'house-flat-camera-store-post' => '[Квартира-Камера] Привязать камеру к квартире',
             'house-flat-camera-delete-delete' => '[Квартира-Камера] Отвязать камеру от квартиры',
 
-            'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей'
+            'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей',
+
+            'permission-index-get' => '[Права] Получить список прав',
+
+            'role-index-get' => '[Роль] Получить список прав',
+            'role-store-post' => '[Роль] Создать новую роль',
+            'role-update-put' => '[Роль] Обновить роль',
+            'role-delete-delete' => '[Роль] Удалить роль',
+
+            'role-permission-index-get' => '[Роль-Права] Получить список прав роли',
+            'role-permission-store-post' => '[Роль-Права] Привязать право к роли',
+            'role-permission-delete-delete' => '[Роль-Права] Отвязать право от роли',
+
+            'user-permission-index-get' => '[Пользователь-Права] Получить список прав пользователя',
+            'user-permission-store-post' => '[Пользователь-Права] Привязать право к пользователю',
+            'user-permission-delete-delete' => '[Пользователь-Права] Отвязать право от пользователя',
+
+            'user-role-index-get' => '[Пользователь-Роль] Получить список ролей пользователя',
+            'user-role-store-post' => '[Пользователь-Роль] Привязать роль к пользователю',
+            'user-role-delete-delete' => '[Пользователь-Роль] Отвязать роль от пользователя',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
