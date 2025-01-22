@@ -26,9 +26,18 @@ readonly class SubscriberFlatController extends AdminRbtController
             return self::error('Абонент не найден', 404);
         }
 
-        $flats = $subscriber->flats;
+        $relations = $subscriber->flats()->fetchRelation();
+        $flats = $subscriber->flats()->fetchAllWithRelation($relations);
+
+        $relations = array_reduce($relations, static function (array $previous, array $current): array {
+            $previous[$current['house_flat_id']] = $current['role'];
+
+            return $previous;
+        }, []);
 
         foreach ($flats as $flat) {
+            $flat->__set('role', $relations[$flat->house_flat_id]);
+
             $house = $flat->house()->fetch(setting: setting()->columns(['house_full']));
 
             if ($house) {
@@ -36,6 +45,6 @@ readonly class SubscriberFlatController extends AdminRbtController
             }
         }
 
-        return self::success($subscriber->flats);
+        return self::success($flats);
     }
 }
