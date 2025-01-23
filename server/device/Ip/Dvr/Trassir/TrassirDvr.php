@@ -210,25 +210,28 @@ class TrassirDvr extends DvrDevice
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
             $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
 
-            if ($rtsp != null) {
-                $server = container(StreamerFeature::class)->random();
-                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-                $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
-
-                container(StreamerFeature::class)->stream($stream);
-
-                return new DvrOutput(
-                    $container,
-                    new DvrArchive(
-                        new DvrStreamer($stream->getServer()->url, $stream->getServer()->id . '-' . $stream->getToken(), $stream->getOutput()),
-                        $from,
-                        $to,
-                        $seek,
-                        $camera->timezone,
-                        $rtsp[1],
-                    )
-                );
+            if ($rtsp == null) {
+                return null;
             }
+
+            $server = container(StreamerFeature::class)->random();
+
+            $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
+            $stream->source($rtsp[0])->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+
+            container(StreamerFeature::class)->stream($stream);
+
+            return new DvrOutput(
+                $container,
+                new DvrArchive(
+                    new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput()),
+                    $from,
+                    $to,
+                    $seek,
+                    $camera->timezone,
+                    $rtsp[1],
+                )
+            );
         }
 
         return null;
@@ -248,7 +251,7 @@ class TrassirDvr extends DvrDevice
 
         foreach ($response as $value) {
             if (array_key_exists('token', $value) && $value['token'] == $arguments['token']) {
-                $start = strtotime((string)$value['day_start']);
+                $start = strtotime((string) $value['day_start']);
 
                 $result = [];
 
@@ -289,7 +292,7 @@ class TrassirDvr extends DvrDevice
             return [];
         }
 
-        $time = strtotime((string)$timelineEvent['day_start']);
+        $time = strtotime((string) $timelineEvent['day_start']);
 
         /** @var string $activities */
         $activities = $timelineEvent['activities'];
@@ -335,7 +338,7 @@ class TrassirDvr extends DvrDevice
             $response = $this->get('/archive_command', ['command' => 'play', 'direction' => 1, 'start' => $arguments['seek'] ?: $arguments['from'], 'stop' => $arguments['to'], 'speed' => $arguments['speed'] ?: 1, 'token' => $arguments['token'], 'sid' => $this->getSid()]);
             if (array_key_exists('success', $response) && $response['success'] == 1) {
                 if (array_key_exists('first_frame_ts', $response)) {
-                    return ['seek' => strtotime((string)$response['first_frame_ts'])];
+                    return ['seek' => strtotime((string) $response['first_frame_ts'])];
                 }
 
                 return true;
@@ -365,7 +368,7 @@ class TrassirDvr extends DvrDevice
             }
 
             $rtsp = array_key_exists('rtsp', $setting) ? $setting['rtsp'] : 554;
-            $request = client_request('GET', (string)uri($this->server->url)->withScheme('http')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
+            $request = client_request('GET', (string) uri($this->server->url)->withScheme('http')->withPort($rtsp)->withPath($arguments['token'])->withQuery('ping'));
             $response = $this->client->send($request, $this->clientOption);
             return $response->getStatusCode() === 200;
         }
@@ -379,7 +382,7 @@ class TrassirDvr extends DvrDevice
 
             foreach ($response as $value) {
                 if (array_key_exists('token', $value) && $value['token'] === $arguments['token']) {
-                    return ['seek' => strtotime((string)$value['time']), 'speed' => intval($value['speed'])];
+                    return ['seek' => strtotime((string) $value['time']), 'speed' => intval($value['speed'])];
                 }
             }
         }
@@ -399,7 +402,7 @@ class TrassirDvr extends DvrDevice
         $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => DvrContainer::RTSP->value, 'stream' => $stream, 'sid' => $this->getSid()]);
 
         if (array_key_exists('success', $response) && $response['success']) {
-            return [(string)uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token']), $response['token']];
+            return [(string) uri($this->server->url)->withScheme('rtsp')->withPort($rtsp)->withPath($response['token']), $response['token']];
         }
 
         return null;
