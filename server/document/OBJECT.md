@@ -271,6 +271,21 @@
 
 - `string` *uuid* - Идентификатор картинки
 
+## RoleStoreRequest
+
+Поля: 
+
+- `string` *title* - Заголовок
+- `string` *description* - Описание
+
+## RoleUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор роли
+- `string` *title* - Заголовок
+- `string` *description* - Описание
+
 ## SipUserIndexRequest
 
 Поля: 

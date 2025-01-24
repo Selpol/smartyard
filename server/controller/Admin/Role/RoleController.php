@@ -4,8 +4,8 @@ namespace Selpol\Controller\Admin\Role;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Request\Role\RoleStoreRequest;
-use Selpol\Controller\Request\Role\RoleUpdateRequest;
+use Selpol\Controller\Request\Admin\Role\RoleStoreRequest;
+use Selpol\Controller\Request\Admin\Role\RoleUpdateRequest;
 use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
 use Selpol\Framework\Router\Attribute\Controller;

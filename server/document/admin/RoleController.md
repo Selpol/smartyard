@@ -8,7 +8,15 @@
 
 ### [POST/store `role-store-post`] Создать новую роль `/admin/role`
 
+Параметры: 
+
+- [RoleStoreRequest](../OBJECT.md#RoleStoreRequest) 
+
 ### [PUT/update `role-update-put`] Обновить роль `/admin/role/{id}`
+
+Параметры: 
+
+- [RoleUpdateRequest](../OBJECT.md#RoleUpdateRequest) 
 
 ### [DELETE/delete `role-delete-delete`] Удалить роль `/admin/role/{id}`
 
