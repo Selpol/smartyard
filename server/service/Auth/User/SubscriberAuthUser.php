@@ -28,6 +28,10 @@ readonly class SubscriberAuthUser implements AuthUserInterface
         return $this->value;
     }
 
+    public function getRole(): int {
+        return $this->value['role'];
+    }
+
     public function canScope(): bool
     {
         return false;

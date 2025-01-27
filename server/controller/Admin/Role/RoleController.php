@@ -6,7 +6,6 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\Role\RoleStoreRequest;
 use Selpol\Controller\Request\Admin\Role\RoleUpdateRequest;
-use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
@@ -21,12 +20,12 @@ use Selpol\Framework\Router\Attribute\Method\Put;
 readonly class RoleController extends AdminRbtController
 {
     /**
-     * Получить список прав
+     * Получить список ролей
      */
     #[Get]
     public function index(): ResponseInterface
     {
-        return self::success(Permission::fetchAll(criteria()->asc('title'), setting()->columns(['id', 'title', 'description'])));
+        return self::success(Role::fetchAll());
     }
 
     /**

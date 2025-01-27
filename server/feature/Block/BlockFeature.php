@@ -29,14 +29,14 @@ readonly abstract class BlockFeature extends Feature
 
     /**
      * @param int $value
-     * @param int[] $services
+     * @param int[]|null $services
      * @return FlatBlock[]
      */
     public abstract function getBlocksForFlat(int $value, ?array $services): array;
 
     /**
      * @param int $value
-     * @param int[] $services
+     * @param int[]|null $services
      * @return SubscriberBlock[]
      */
     public abstract function getBlocksForSubscriber(int $value, ?array $services): array;
