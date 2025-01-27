@@ -60,11 +60,11 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
             }
 
             try {
-                $key = HouseKey::fetch(criteria()->equal('rfid', $rfid_key));
+                $keys = HouseKey::fetchAll(criteria()->equal('rfid', $rfid_key));
 
-                if ($key) {
+                foreach ($keys as $key) {
                     $key->last_seen = $this->date;
-                    $key->safeUpdate();
+                    $key->update();
                 }
             } catch (Exception $exception) {
                 $this->logger?->error($exception);
