@@ -348,6 +348,29 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## SubscriberStoreRequest
+
+Поля: 
+
+- `string` *id* - Номер телефона
+- `string` *subscriber_name* - Имя абонента
+- `string` *subscriber_patronymic* - Отчество клиента
+
+## SubscriberUpdateRequest
+
+Поля: 
+
+- `int` *house_subscriber_id* - Идентификатор абонента
+- `string` *subscriber_name* - Имя абонента
+- `string` *subscriber_patronymic* - Отчество клиента
+
+## SubscriberFlatRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор абонента
+- `int` *flat_id* - Идентификатор квартиры
+
 ## TaskSearchRequest
 
 Поля: 

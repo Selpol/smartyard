@@ -103,12 +103,17 @@ class RoleInitCommand
 
             'subscriber-index-get' => '[Абонент] Получить список абонентов',
             'subscriber-show-get' => '[Абонент] Получить абонента',
+            'subscriber-store-post' => '[Абонент] Создать нового абонента',
+            'subscriber-update-put' => '[Абонент] Обновить абонента',
+            'subscriber-delete-delete' => '[Абонент] Удалить абонента',
 
             'subscriber-camera-index-get' => '[Абонент-Камера] Получить камеры абонента',
             'subscriber-camera-store-post' => '[Абонент-Камера] Привязать камеру к абоненту',
             'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента',
 
             'subscriber-flat-index-get' => '[Абонент-Квартира] Получить квартиры абонента',
+            'subscriber-flat-store-post' => '[Абонент-Квартира] Привязать квартиру к абоненту',
+            'subscriber-flat-delete-delete' => '[Абонент-Квартира] Отвязать квартиру от абонента ',
 
             'group-index-get' => '[Группа] Получить список групп',
             'group-show-get' => '[Группа] Получить группу',

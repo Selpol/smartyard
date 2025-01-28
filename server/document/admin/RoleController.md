@@ -4,7 +4,7 @@
 
 ## Методы
 
-### [GET/index `role-index-get`] Получить список прав `/admin/role`
+### [GET/index `role-index-get`] Получить список ролей `/admin/role`
 
 ### [POST/store `role-store-post`] Создать новую роль `/admin/role`
 

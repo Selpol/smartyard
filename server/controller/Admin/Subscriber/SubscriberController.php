@@ -4,13 +4,20 @@ namespace Selpol\Controller\Admin\Subscriber;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\Subscriber\SubscriberStoreRequest;
+use Selpol\Controller\Request\Admin\Subscriber\SubscriberUpdateRequest;
 use Selpol\Controller\Request\Admin\SubscriberRequest;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseSubscriber;
+use Selpol\Feature\Oauth\OauthFeature;
 use Selpol\Framework\Entity\EntityPage;
 use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\AuthService;
+use Throwable;
 
 /**
  * Абоненты
@@ -57,12 +64,12 @@ readonly class SubscriberController extends AdminRbtController
     /**
      * Получить абонента
      * 
-     * @param int $id Идентификатор абонента 
+     * @param int $house_subscriber_id Идентификатор абонента 
      */
-    #[Get('/{id}')]
-    public function show(int $id, AuthService $authService): ResponseInterface
+    #[Get('/{house_subscriber_id}')]
+    public function show(int $house_subscriber_id, AuthService $authService): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($id);
+        $subscriber = HouseSubscriber::findById($house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 400);
@@ -73,5 +80,68 @@ readonly class SubscriberController extends AdminRbtController
         }
 
         return self::success($subscriber);
+    }
+
+    /**
+     * Создать нового абонента
+     */
+    #[Post]
+    public function store(SubscriberStoreRequest $request, OauthFeature $feature): ResponseInterface
+    {
+        $subscriber = new HouseSubscriber();
+
+        $subscriber->id = $request->id;
+
+        $subscriber->subscriber_name = $request->subscriber_name;
+        $subscriber->subscriber_patronymic = $request->subscriber_patronymic;
+
+        try {
+            $subscriber->aud_jti = $jti = $feature->register($request->id);
+        } catch (Throwable $throwable) {
+            file_logger('subscriber')->error($throwable);
+        }
+
+        $subscriber->insert();
+
+        return self::success($subscriber->house_subscriber_id);
+    }
+
+    /**
+     * Обновить абонента
+     */
+    #[Put('/{house_subscriber_id}')]
+    public function update(SubscriberUpdateRequest $request): ResponseInterface
+    {
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
+
+        if (!$subscriber) {
+            return self::error('Абонент не найден', 400);
+        }
+
+        $subscriber->subscriber_name = $request->subscriber_name;
+        $subscriber->subscriber_patronymic = $request->subscriber_patronymic;
+
+        $subscriber->update();
+
+        return self::success();
+    }
+
+    /**
+     * Удалить абонента
+     * 
+     * @param int $house_subscriber_id Идентификатор абонента
+     */
+    #[Delete('/{house_subscriber_id}')]
+    public function delete(int $house_subscriber_id): ResponseInterface
+    {
+        $subscriber = HouseSubscriber::findById($house_subscriber_id);
+
+        if (!$subscriber) {
+            return self::error('Абонент не найден', 400);
+        }
+
+        $subscriber->delete();
+
+        return self::success();
     }
 }

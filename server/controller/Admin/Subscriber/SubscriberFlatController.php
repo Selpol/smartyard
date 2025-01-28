@@ -4,9 +4,13 @@ namespace Selpol\Controller\Admin\Subscriber;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\Subscriber\SubscriberFlatRequest;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Framework\Router\Attribute\Method\Post;
 
 /**
  * Квартиры абонента
@@ -46,5 +50,55 @@ readonly class SubscriberFlatController extends AdminRbtController
         }
 
         return self::success($flats);
+    }
+
+    /**
+     * Привязать квартиру к абоненту
+     */
+    #[Post('/{flat_id}')]
+    public function store(SubscriberFlatRequest $request): ResponseInterface
+    {
+        $subscriber = HouseSubscriber::findById($request->id);
+
+        if (!$subscriber) {
+            return self::error('Абонент не найден', 404);
+        }
+
+        $flat = HouseFlat::findById($request->flat_id);
+
+        if (!$flat) {
+            return self::error('Квартира не найдена', 404);
+        }
+
+        if ($subscriber->flats()->add($flat)) {
+            return self::success();
+        }
+
+        return self::error('Не удалось привязать квартиру к абоненту', 400);
+    }
+
+    /**
+     * Отвязать квартиру от абонента
+     */
+    #[Delete('/{flat_id}')]
+    public function delete(SubscriberFlatRequest $request): ResponseInterface
+    {
+        $subscriber = HouseSubscriber::findById($request->id);
+
+        if (!$subscriber) {
+            return self::error('Абонент не найден', 404);
+        }
+
+        $flat = HouseFlat::findById($request->flat_id);
+
+        if (!$flat) {
+            return self::error('Квартира не найдена', 404);
+        }
+
+        if ($subscriber->flats()->remove($flat)) {
+            return self::success();
+        }
+
+        return self::error('Не удалось отвязать квартиру от абонента', 400);
     }
 }
