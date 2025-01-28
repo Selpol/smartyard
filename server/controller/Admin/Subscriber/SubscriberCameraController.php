@@ -19,11 +19,13 @@ readonly class SubscriberCameraController extends AdminRbtController
 {
     /**
      * Получить камеры абонента
+     * 
+     * @param int $house_subscriber_id Идентификатор абонента
      */
-    #[Get('/{subscriber_id}')]
-    public function index(int $subscriber_id): ResponseInterface
+    #[Get('/{house_subscriber_id}')]
+    public function index(int $house_subscriber_id): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($subscriber_id);
+        $subscriber = HouseSubscriber::findById($house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);
@@ -35,10 +37,10 @@ readonly class SubscriberCameraController extends AdminRbtController
     /**
      * Привязать камеру к абоненту
      */
-    #[Post('/{subscriber_id}')]
+    #[Post('/{house_subscriber_id}')]
     public function store(SubscriberCameraRequest $request): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($request->subscriber_id);
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);
@@ -60,10 +62,10 @@ readonly class SubscriberCameraController extends AdminRbtController
     /**
      * Отвязать камеру от абонента
      */
-    #[Post('/{subscriber_id}')]
+    #[Post('/{house_subscriber_id}')]
     public function delete(SubscriberCameraRequest $request): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($request->subscriber_id);
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);

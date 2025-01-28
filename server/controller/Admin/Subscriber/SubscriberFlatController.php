@@ -15,16 +15,18 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 /**
  * Квартиры абонента
  */
-#[Controller('/admin/subscriber/{id}/flat')]
+#[Controller('/admin/subscriber/flat/{house_subscriber_id}')]
 readonly class SubscriberFlatController extends AdminRbtController
 {
     /**
      * Получить квартиры абонента
+     * 
+     * @param int $house_subscriber_id Идентификатор абонента 
      */
     #[Get]
-    public function index(int $id): ResponseInterface
+    public function index(int $house_subscriber_id): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($id);
+        $subscriber = HouseSubscriber::findById($house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);
@@ -58,7 +60,7 @@ readonly class SubscriberFlatController extends AdminRbtController
     #[Post('/{flat_id}')]
     public function store(SubscriberFlatRequest $request): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($request->id);
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);
@@ -83,7 +85,7 @@ readonly class SubscriberFlatController extends AdminRbtController
     #[Delete('/{flat_id}')]
     public function delete(SubscriberFlatRequest $request): ResponseInterface
     {
-        $subscriber = HouseSubscriber::findById($request->id);
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
 
         if (!$subscriber) {
             return self::error('Абонент не найден', 404);

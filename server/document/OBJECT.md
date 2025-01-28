@@ -333,7 +333,7 @@
 
 Поля: 
 
-- `int` *subscriber_id* - Идентификатор абонента
+- `int` *house_subscriber_id* - Идентификатор абонента
 - `int` *camera_id* - Идентификатор камеры
 
 ## SubscriberRequest
@@ -368,7 +368,7 @@
 
 Поля: 
 
-- `int` *id* - Идентификатор абонента
+- `int` *house_subscriber_id* - Идентификатор абонента
 - `int` *flat_id* - Идентификатор квартиры
 
 ## TaskSearchRequest

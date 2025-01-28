@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Admin\Subscriber;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $subscriber_id Идентификатор абонента
+ * @property-read int $house_subscriber_id Идентификатор абонента
  * @property-read int $camera_id Идентификатор камеры
  */
 readonly class SubscriberCameraRequest extends RouteRequest
@@ -13,7 +13,7 @@ readonly class SubscriberCameraRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'subscriber_id' => rule()->id(),
+            'house_subscriber_id' => rule()->id(),
             'camera_id' => rule()->id(),
         ];
     }
