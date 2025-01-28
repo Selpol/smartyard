@@ -88,6 +88,12 @@ readonly class SubscriberController extends AdminRbtController
     #[Post]
     public function store(SubscriberStoreRequest $request, OauthFeature $feature): ResponseInterface
     {
+        $subscriber = HouseSubscriber::fetch(criteria()->equal('id', $request->id));
+
+        if ($subscriber) {
+            return self::success($subscriber->house_subscriber_id);
+        }
+
         $subscriber = new HouseSubscriber();
 
         $subscriber->id = $request->id;
@@ -96,7 +102,7 @@ readonly class SubscriberController extends AdminRbtController
         $subscriber->subscriber_patronymic = $request->subscriber_patronymic;
 
         try {
-            $subscriber->aud_jti = $jti = $feature->register($request->id);
+            $subscriber->aud_jti = $feature->register($request->id);
         } catch (Throwable $throwable) {
             file_logger('subscriber')->error($throwable);
         }

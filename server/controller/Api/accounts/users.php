@@ -32,6 +32,6 @@ readonly class users extends Api
 
     public static function index(): bool|array
     {
-        return ["GET" => "[Пользователи] Получить список"];
+        return ["GET" => "[Deprecated] [Пользователи] Получить список"];
     }
 }

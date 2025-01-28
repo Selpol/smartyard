@@ -32,5 +32,7 @@
 - [SubscriberController](./SubscriberController.md)
 - [SubscriberFlatController](./SubscriberFlatController.md)
 - [TaskController](./TaskController.md)
+- [UserController](./UserController.md)
 - [UserPermissionController](./UserPermissionController.md)
 - [UserRoleController](./UserRoleController.md)
+- [UserSessionController](./UserSessionController.md)

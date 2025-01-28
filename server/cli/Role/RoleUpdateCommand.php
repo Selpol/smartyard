@@ -65,6 +65,15 @@ class RoleUpdateCommand
             'role-userRole-get' => ['user-role-index-get'],
             'role-userRole-post' => ['user-role-store-post'],
             'role-userRole-delete' => ['user-role-delete-delete'],
+
+            'accounts-users-get' => ['user-index-get'],
+            'accounts-user-get' => ['user-show-get'],
+            'accounts-user-post' => ['user-store-post'],
+            'accounts-user-put' => ['user-update-put'],
+            'accounts-user-delete' => ['user-delete-delete'],
+
+            'accounts-session-get' => ['user-session-show-get'],
+            'accounts-session-put' => ['user-session-update-put'],
         ];
 
         foreach ($permissions as $source => $destinations) {

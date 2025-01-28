@@ -388,6 +388,29 @@
 
 - `string` *key* - Ключ для удаления
 
+## UserStoreRequest
+
+Поля: 
+
+- `string` *login* - Логин
+- `string` *password* - Пароль
+- `string` *name* - Имя
+- `string|null` *email* - Почта
+- `string|null` *phone* - Номер телефона
+- `int` *enabled* - Включен ли пользователь
+
+## UserUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор пользователя
+- `string` *login* - Логин
+- `string|null` *password* - Пароль
+- `string` *name* - Имя
+- `string|null` *email* - Почта
+- `string|null` *phone* - Номер телефона
+- `int` *enabled* - Включен ли пользователь
+
 ## ActionCallFinishedRequest
 
 Поля: 

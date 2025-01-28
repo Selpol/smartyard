@@ -14,7 +14,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 /**
  * Пользователь роль
  */
-#[Controller('/admin/user/{id}/role')]
+#[Controller('/admin/user/role/{id}')]
 readonly class UserRoleController extends AdminRbtController
 {
     /**
