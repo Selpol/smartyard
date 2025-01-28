@@ -363,6 +363,7 @@
 - `int` *house_subscriber_id* - Идентификатор абонента
 - `string` *subscriber_name* - Имя абонента
 - `string` *subscriber_patronymic* - Отчество клиента
+- `int` *voip_enabled* - VoIp звонок для IOS
 
 ## SubscriberFlatRequest
 

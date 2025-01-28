@@ -121,6 +121,8 @@ readonly class SubscriberController extends AdminRbtController
         $subscriber->subscriber_name = $request->subscriber_name;
         $subscriber->subscriber_patronymic = $request->subscriber_patronymic;
 
+        $subscriber->voip_enabled = $request->voip_enabled;
+
         $subscriber->update();
 
         return self::success();
