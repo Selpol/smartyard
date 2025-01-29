@@ -22,7 +22,13 @@ readonly class MongoFileFeature extends FileFeature
     public function cron(CronEnum $value): bool
     {
         if ($value->name === config_get('feature.file.cron_sync_data_scheduler')) {
-            $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(true))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+
+            foreach ($cursor as $document) {
+                $this->deleteFile($document->_id);
+            }
+
+            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(false))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
 
             foreach ($cursor as $document) {
                 $this->deleteFile($document->_id);
@@ -40,9 +46,9 @@ readonly class MongoFileFeature extends FileFeature
         return $value[0]['objects'];
     }
 
-    public function addFile(string $realFileName, $stream, array $metadata = []): string
+    public function addFile(string $realFileName, $stream, array $metadata = [], bool $archive = false): string
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
 
         $id = $bucket->uploadFromStream($realFileName, $stream);
 
@@ -50,12 +56,12 @@ readonly class MongoFileFeature extends FileFeature
             $this->setFileMetadata($id, $metadata);
         }
 
-        return (string)$id;
+        return (string) $id;
     }
 
-    public function getFile(string $uuid): array
+    public function getFile(string $uuid, bool $archive = false): array
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
 
         $fileId = new ObjectId($uuid);
 
@@ -64,9 +70,9 @@ readonly class MongoFileFeature extends FileFeature
         return ["fileInfo" => $bucket->getFileDocumentForStream($stream), "stream" => $stream];
     }
 
-    public function getFileSize(string $uuid): int
+    public function getFileSize(string $uuid, bool $archive = false): int
     {
-        $value = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
+        $value = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
 
         if ($value) {
             if ($value instanceof BSONDocument) {
@@ -79,42 +85,42 @@ readonly class MongoFileFeature extends FileFeature
         return 0;
     }
 
-    public function getFileBytes(string $uuid): string
+    public function getFileBytes(string $uuid, bool $archive = false): string
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
 
         return stream_get_contents($bucket->openDownloadStream(new ObjectId($uuid)));
     }
 
-    public function getFileStream(string $uuid)
+    public function getFileStream(string $uuid, bool $archive = false)
     {
-        return $this->getFile($uuid)["stream"];
+        return $this->getFile($uuid, $archive)["stream"];
     }
 
-    public function getFileInfo(string $uuid): object
+    public function getFileInfo(string $uuid, bool $archive = false): object
     {
-        return $this->getFile($uuid)["fileInfo"];
+        return $this->getFile($uuid, $archive)["fileInfo"];
     }
 
-    public function setFileMetadata(string $uuid, array $metadata): UpdateResult
+    public function setFileMetadata(string $uuid, array $metadata, bool $archive = false): UpdateResult
     {
-        return container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
+        return container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
     }
 
-    public function getFileMetadata(string $uuid): array
+    public function getFileMetadata(string $uuid, bool $archive = false): array
     {
         return $this->getFileInfo($uuid)->metadata;
     }
 
-    public function searchFiles(array $query): array
+    public function searchFiles(array $query, bool $archive = false): array
     {
-        $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
+        $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
 
         $files = [];
 
         foreach ($cursor as $document) {
             $document = json_decode(json_encode($document), true);
-            $document["id"] = (string)$document["_id"]["\$oid"];
+            $document["id"] = (string) $document["_id"]["\$oid"];
 
             unset($document["_id"]);
 
@@ -124,9 +130,9 @@ readonly class MongoFileFeature extends FileFeature
         return $files;
     }
 
-    public function deleteFile(string $uuid): bool
+    public function deleteFile(string $uuid, bool $archive = false): bool
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
 
         if ($bucket) {
             try {
@@ -152,5 +158,14 @@ readonly class MongoFileFeature extends FileFeature
     public function fromGUIDv4(string $guidv4): string
     {
         return str_replace("-", "", substr($guidv4, 8));
+    }
+
+    private function getDatabaseName(bool $archive): string
+    {
+        if ($archive) {
+            return $this->database . '_archive';
+        }
+
+        return $this->database;
     }
 }

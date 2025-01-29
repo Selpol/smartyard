@@ -21,29 +21,29 @@ readonly abstract class FileFeature extends Feature implements CronInterface
      * @param array $metadata
      * @return string
      */
-    abstract public function addFile(string $realFileName, $stream, array $metadata = []): string;
+    abstract public function addFile(string $realFileName, $stream, array $metadata = [], bool $archive = false): string;
 
-    abstract public function getFile(string $uuid): array;
+    abstract public function getFile(string $uuid, bool $archive = false): array;
 
-    abstract public function getFileSize(string $uuid): int;
+    abstract public function getFileSize(string $uuid, bool $archive = false): int;
 
-    abstract public function getFileBytes(string $uuid): string;
+    abstract public function getFileBytes(string $uuid, bool $archive = false): string;
 
     /**
      * @param string $uuid
      * @return resource
      */
-    abstract public function getFileStream(string $uuid);
+    abstract public function getFileStream(string $uuid, bool $archive = false);
 
-    abstract public function getFileInfo(string $uuid): object;
+    abstract public function getFileInfo(string $uuid, bool $archive = false): object;
 
-    abstract public function setFileMetadata(string $uuid, array $metadata): UpdateResult;
+    abstract public function setFileMetadata(string $uuid, array $metadata, bool $archive = false): UpdateResult;
 
-    abstract public function getFileMetadata(string $uuid): array;
+    abstract public function getFileMetadata(string $uuid, bool $archive = false): array;
 
-    abstract public function searchFiles(array $query): array;
+    abstract public function searchFiles(array $query, bool $archive = false): array;
 
-    abstract public function deleteFile(string $uuid): bool;
+    abstract public function deleteFile(string $uuid, bool $archive = false): bool;
 
     abstract public function toGUIDv4(string $uuid): string;
 
