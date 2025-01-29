@@ -23,6 +23,6 @@ readonly class logout extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Авторизация] Выйти'];
+        return ['GET' => '[Deprecated] [Авторизация] Выйти'];
     }
 }

@@ -22,6 +22,6 @@ readonly class login extends Api
 
     public static function index(): bool|array
     {
-        return ['POST' => '[Авторизация] Войти'];
+        return ['POST' => '[Deprecated] [Авторизация] Войти'];
     }
 }

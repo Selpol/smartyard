@@ -15,6 +15,16 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## AuthenticationRequest
+
+Поля: 
+
+- `string` *login* - Логин
+- `string` *password* - Пароль
+- `bool` *remember_me* - Запомнить вход, как уникальный
+- `string|null` *user_agent* - User-Agent пользователя
+- `string|null` *did* - Уникальный идентификатор
+
 ## BlockFlatStoreRequest
 
 Поля: 

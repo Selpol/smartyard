@@ -3,6 +3,7 @@
 ## Контроллеры
 
 - [AccountAuditController](./AccountAuditController.md)
+- [AuthenticationController](./AuthenticationController.md)
 - [BlockController](./BlockController.md)
 - [BlockFlatController](./BlockFlatController.md)
 - [BlockSubscriberController](./BlockSubscriberController.md)
@@ -36,3 +37,4 @@
 - [UserPermissionController](./UserPermissionController.md)
 - [UserRoleController](./UserRoleController.md)
 - [UserSessionController](./UserSessionController.md)
+- [UserSettingController](./UserSettingController.md)

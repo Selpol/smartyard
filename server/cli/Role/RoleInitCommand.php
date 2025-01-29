@@ -14,6 +14,10 @@ class RoleInitCommand
     public function execute(): void
     {
         $requirePermissions = [
+            'authentication-index-get' => '[Авторизация] Получить перечень прав пользователя',
+            'authentication-store-post' => '[Авторизация] Авторизация из-под пользователя',
+            'authentication-update-put' => '[Авторизация] Выход из-под пользователя',
+
             'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
             'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
 
@@ -157,6 +161,8 @@ class RoleInitCommand
 
             'user-session-show-get' => '[Пользователь-Сессия] Получить список сессий пользователя',
             'user-session-update-put' => '[Пользователь-Сессия] Отключить сессию пользователя',
+
+            'user-setting-index-get' => '[Пользователь-Настройки] Получить настройки пользователя',
 
             'user-permission-index-get' => '[Пользователь-Права] Получить список прав пользователя',
             'user-permission-store-post' => '[Пользователь-Права] Привязать право к пользователю',

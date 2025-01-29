@@ -13,6 +13,12 @@ class RoleUpdateCommand
     public function execute(): void
     {
         $permissions = [
+            'authentication-login-post' => ['authentication-store-post'],
+            'authentication-logout-get' => ['authentication-update-put'],
+            'authentication-permission-get' => ['authentication-index-get'],
+
+            'authentication-whoAmI-get' => ['user-setting-index-get'],
+
             'sip-user-get' => ['sip-user-index-get'],
             'sip-user-post' => ['sip-user-store-post'],
             'sip-user-put' => ['sip-user-update-put'],
