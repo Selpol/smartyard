@@ -117,6 +117,7 @@ class RoleInitCommand
 
             'subscriber-flat-index-get' => '[Абонент-Квартира] Получить квартиры абонента',
             'subscriber-flat-store-post' => '[Абонент-Квартира] Привязать квартиру к абоненту',
+            'subscriber-flat-update-put' => '[Абонент-Квартира] Обновить привязку абонента к квартире',
             'subscriber-flat-delete-delete' => '[Абонент-Квартира] Отвязать квартиру от абонента ',
 
             'group-index-get' => '[Группа] Получить список групп',

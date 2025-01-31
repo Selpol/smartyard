@@ -46,7 +46,7 @@ class RoleUpdateCommand
             'subscribers-flatCameras-delete' => ['house-flat-camera-delete-delete'],
 
             'subscribers-subscriber-post' => ['subscriber-store-post', 'subscriber-flat-store-post'],
-            'subscribers-subscriber-put' => ['subscriber-update-put', 'subscriber-flat-store-post', 'subscriber-flat-delete-delete'],
+            'subscribers-subscriber-put' => ['subscriber-update-put', 'subscriber-flat-store-post', 'subscriber-flat-update-put', 'subscriber-flat-delete-delete'],
             'subscribers-subscriber-delete' => ['subscriber-delete-delete', 'subscriber-flat-delete-delete'],
 
             'subscribers-key-get' => ['key-show-get'],

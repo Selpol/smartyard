@@ -11,6 +11,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
+use Selpol\Framework\Router\Attribute\Method\Put;
 
 /**
  * Квартиры абонента
@@ -77,6 +78,37 @@ readonly class SubscriberFlatController extends AdminRbtController
         }
 
         return self::error('Не удалось привязать квартиру к абоненту', 400);
+    }
+
+    /**
+     * Обновить привязку абонента к квартире
+     */
+    #[Put('/{flat_id}')]
+    public function update(SubscriberFlatRequest $request): ResponseInterface
+    {
+        $subscriber = HouseSubscriber::findById($request->house_subscriber_id);
+
+        if (!$subscriber) {
+            return self::error('Абонент не найден', 404);
+        }
+
+        $flat = HouseFlat::findById($request->flat_id);
+
+        if (!$flat) {
+            return self::error('Квартира не найдена', 404);
+        }
+
+        if (!$subscriber->flats()->has($flat)) {
+            return self::error('Квартира не привязана к абоненту', 404);
+        }
+
+        $subscriber->flats()->remove($flat);
+
+        if ($subscriber->flats()->addWith($flat, ['role' => $request->role])) {
+            return self::success();
+        }
+
+        return self::error('Не удалось обновить привязку квартиры к абоненту', 400);
     }
 
     /**
