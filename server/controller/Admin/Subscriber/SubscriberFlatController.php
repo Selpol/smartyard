@@ -72,7 +72,7 @@ readonly class SubscriberFlatController extends AdminRbtController
             return self::error('Квартира не найдена', 404);
         }
 
-        if ($subscriber->flats()->add($flat)) {
+        if ($subscriber->flats()->addWith($flat, ['role' => $request->role])) {
             return self::success();
         }
 

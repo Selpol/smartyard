@@ -7,6 +7,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
 /**
  * @property-read int $house_subscriber_id Идентификатор абонента
  * @property-read int $flat_id Идентификатор квартиры
+ * @property-read int $role Роль абонента в квартире, 0 - Владелец, 1 - Жилец
  */
 readonly class SubscriberFlatRequest extends RouteRequest
 {
@@ -15,6 +16,7 @@ readonly class SubscriberFlatRequest extends RouteRequest
         return [
             'house_subscriber_id' => rule()->id(),
             'flat_id' => rule()->id(),
+            'role' => rule()->int()->clamp(0, 1)->exist(),
         ];
     }
 }

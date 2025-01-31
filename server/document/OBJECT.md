@@ -381,6 +381,7 @@
 
 - `int` *house_subscriber_id* - Идентификатор абонента
 - `int` *flat_id* - Идентификатор квартиры
+- `int` *role* - Роль абонента в квартире, 0 - Владелец, 1 - Жилец
 
 ## TaskSearchRequest
 
