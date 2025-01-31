@@ -17,8 +17,8 @@ readonly class SubscriberStoreRequest extends RouteRequest
         return [
             'id' => rule()->string()->regexp('/^(\+\d{1,3}[- ]?)?\d{11}$/')->exist(),
 
-            'subscriber_name' => [filter()->fullSpecialChars(), rule()->string()->max(32)->exist()],
-            'subscriber_patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(32)->exist()],
+            'subscriber_name' => [filter()->default('Имя')->fullSpecialChars(), rule()->string()->max(32)->exist()],
+            'subscriber_patronymic' => [filter()->default('Отчество')->fullSpecialChars(), rule()->string()->max(32)->exist()],
         ];
     }
 }
