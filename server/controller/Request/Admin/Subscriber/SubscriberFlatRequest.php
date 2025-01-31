@@ -16,7 +16,7 @@ readonly class SubscriberFlatRequest extends RouteRequest
         return [
             'house_subscriber_id' => rule()->id(),
             'flat_id' => rule()->id(),
-            'role' => rule()->int()->clamp(0, 1)->exist(),
+            'role' => [filter()->default(1), rule()->int()->clamp(0, 1)->exist()],
         ];
     }
 }

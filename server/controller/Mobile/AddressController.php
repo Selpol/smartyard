@@ -86,7 +86,7 @@ readonly class AddressController extends MobileRbtController
                 $house['doors'] = [];
             }
 
-            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'cms' => $flat['cmsEnabled'], 'owner' => $flat['role'] == 0, 'block' => $block, 'description' => $flat['descriptionBlock']];
+            $house['flats'][] = ['id' => $flat['flatId'], 'flat' => $flat['flat'], 'cms' => $flat['cmsEnabled'], 'owner' => $flat['role'] == 0, 'block' => $block];
 
             if (!$cctvBlock) {
                 $house['cameras'] = array_merge($house['cameras'], $houseFeature->getCameras("flatId", $flat['flatId']));
