@@ -32,16 +32,6 @@ readonly class UserController extends AdminRbtController
 
         $users = CoreUser::fetchAll($criteria, setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'real_name', 'e_mail', 'last_login']));
 
-        if (!$service->checkScope('mobile-mask')) {
-            return self::success(array_map(static function (CoreUser $user): CoreUser {
-                if ($user->phone) {
-                    $user->phone = mobile_mask($user->phone);
-                }
-
-                return $user;
-            }, $users));
-        }
-
         return self::success($users);
     }
 
@@ -51,16 +41,20 @@ readonly class UserController extends AdminRbtController
      * @param int $id Идентификатор пользователя
      */
     #[Get('/{id}')]
-    public function show(int $id): ResponseInterface
+    public function show(int $id, AuthService $service): ResponseInterface
     {
         if ($id == 0 && $this->getUser()->getIdentifier() != 0) {
             return self::error('Главный аккаунт можно получить только с него самого', 400);
         }
 
-        $user = CoreUser::findById($id, setting: setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'real_name', 'e_mail', 'last_login']));
+        $user = CoreUser::findById($id, setting: setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'phone', 'real_name', 'e_mail', 'last_login']));
 
         if (!$user) {
             return self::error('Не удалось найти пользователя', 404);
+        }
+
+        if (!$service->checkScope('mobile-mask')) {
+            $user->phone = mobile_mask($user->phone);
         }
 
         return self::success($user);
@@ -119,7 +113,9 @@ readonly class UserController extends AdminRbtController
         $user->real_name = $request->name;
         $user->e_mail = $request->email;
 
-        $user->phone = $request->phone;
+        if (!str_contains($request->phone, '*')) {
+            $user->phone = $request->phone;
+        }
 
         $user->enabled = $request->enabled;
 
