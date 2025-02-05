@@ -16,8 +16,6 @@ use Selpol\Framework\Entity\Entity;
 #[Singleton(InternalGroupFeature::class)]
 readonly abstract class GroupFeature extends Feature
 {
-    protected const DEFAULT_DATABASE = 'rbt';
-
     public const FOR_CONTRACTOR = Contractor::class;
     public const FOR_ADDRESS = AddressHouse::class;
 

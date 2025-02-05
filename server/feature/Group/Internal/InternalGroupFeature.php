@@ -2,31 +2,30 @@
 
 namespace Selpol\Feature\Group\Internal;
 
+use FileType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Group\Group;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Service\MongoService;
 
 readonly class InternalGroupFeature extends GroupFeature
 {
-    private string $database;
-
-    public function __construct()
-    {
-        $this->database = config_get('feature.group.database', self::DEFAULT_DATABASE);
-    }
-
     public function find(?string $name = null, ?string $type = null, ?string $for = null, mixed $id = null, ?int $page = null, ?int $limit = null): array
     {
         $filter = [];
 
-        if ($name !== null) $filter['name'] = $name;
-        if ($type !== null) $filter['type'] = $type;
-        if ($for !== null) $filter['for'] = $for;
-        if ($id !== null) $filter['id'] = (int)$id;
+        if ($name !== null)
+            $filter['name'] = $name;
+        if ($type !== null)
+            $filter['type'] = $type;
+        if ($for !== null)
+            $filter['for'] = $for;
+        if ($id !== null)
+            $filter['id'] = (int) $id;
 
         $options = [];
 
@@ -39,8 +38,10 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument) $result[] = new Group($document->getArrayCopy());
-            else if ($document) $result[] = new Group($document);
+            if ($document instanceof BSONDocument)
+                $result[] = new Group($document->getArrayCopy());
+            else if ($document)
+                $result[] = new Group($document);
         }
 
         return $result;
@@ -53,8 +54,10 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument) $result[] = new Group($document->getArrayCopy());
-            else if ($document) $result[] = new Group($document);
+            if ($document instanceof BSONDocument)
+                $result[] = new Group($document->getArrayCopy());
+            else if ($document)
+                $result[] = new Group($document);
         }
 
         return $result;
@@ -69,13 +72,15 @@ readonly class InternalGroupFeature extends GroupFeature
 
             if ($insertedId instanceof ObjectId)
                 $id = $insertedId->__toString();
-            else $id = $insertedId;
+            else
+                $id = $insertedId;
 
             if (container(AuditFeature::class)->canAudit())
                 container(AuditFeature::class)->audit($id, Group::class, 'insert', 'Создание группы');
 
             return $id;
-        } else return false;
+        } else
+            return false;
     }
 
     public function get(string $oid): Group|bool
@@ -140,6 +145,6 @@ readonly class InternalGroupFeature extends GroupFeature
 
     private function getCollection(): Collection
     {
-        return container(MongoService::class)->getDatabase($this->database)->selectCollection('group');
+        return container(MongoService::class)->getDatabase(container(FileFeature::class)->getDatabaseName(FileType::Group))->selectCollection('group');
     }
 }

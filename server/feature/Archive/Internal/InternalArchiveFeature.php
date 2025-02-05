@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\Archive\Internal;
 
+use FileType;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Dvr\DvrFeature;
@@ -83,7 +84,7 @@ readonly class InternalArchiveFeature extends ArchiveFeature
                     "finish" => $task['finish'],
                     "subscriberId" => $task['subscriberId'],
                     "expire" => $task['expire']
-                ]);
+                ], FileType::Archive);
 
                 $time = container(PrometheusService::class)->getCounter('record', 'time', 'Record download time', ['camera', 'subscriber', 'status']);
 
@@ -98,7 +99,7 @@ readonly class InternalArchiveFeature extends ArchiveFeature
                     try {
                         $counter = container(PrometheusService::class)->getCounter('record', 'size', 'Record download size', ['camera', 'subscriber']);
 
-                        $counter->incBy(container(FileFeature::class)->getFileSize($fileId), [$task['cameraId'], $task['subscriberId']]);
+                        $counter->incBy(container(FileFeature::class)->getFileSize($fileId, FileType::Archive), [$task['cameraId'], $task['subscriberId']]);
                     } catch (Throwable) {
                     }
 

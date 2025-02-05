@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use FileType;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
@@ -70,8 +71,8 @@ readonly class ArchiveController extends MobileRbtController
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
         try {
-            $stream = $fileFeature->getFileStream($uuid);
-            $info = $fileFeature->getFileInfo($uuid);
+            $stream = $fileFeature->getFileStream($uuid, FileType::Archive);
+            $info = $fileFeature->getFileInfo($uuid, FileType::Archive);
 
             return response()
                 ->withHeader('Content-Type', 'video/mp4')

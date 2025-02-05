@@ -156,10 +156,6 @@ return [
             'secret' => env('FEATURE_OAUTH_SECRET')
         ],
 
-        'group' => [
-            'database' => env('FEATURE_GROUP_DB', 'rbt')
-        ],
-
         'dvr' => [
             'token' => env('FEATURE_DVR_TOKEN')
         ],

@@ -3,6 +3,7 @@
 namespace Selpol\Feature\File\Mongo;
 
 use Exception;
+use FileType;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Model\BSONDocument;
 use MongoDB\UpdateResult;
@@ -22,40 +23,44 @@ readonly class MongoFileFeature extends FileFeature
     public function cron(CronEnum $value): bool
     {
         if ($value->name === config_get('feature.file.cron_sync_data_scheduler')) {
-            $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(FileType::Archive))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
 
             foreach ($cursor as $document) {
-                $this->deleteFile($document->_id);
+                $this->deleteFile($document->_id, FileType::Archive);
+            }
+
+            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(FileType::Screenshot))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+
+            foreach ($cursor as $document) {
+                $this->deleteFile($document->_id, FileType::Screenshot);
+            }
+
+            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(FileType::OldScreenshot))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
+
+            foreach ($cursor as $document) {
+                $this->deleteFile($document->_id, FileType::OldScreenshot);
             }
         }
 
         return true;
     }
 
-    public function getCount(): ?int
+    public function addFile(string $realFileName, $stream, array $metadata = [], FileType $type = FileType::Other): string
     {
-        $cursor = container(MongoService::class)->getDatabase($this->database)->command(['dbStats' => 1]);
-        $value = iterator_to_array($cursor);
-
-        return $value[0]['objects'];
-    }
-
-    public function addFile(string $realFileName, $stream, array $metadata = []): string
-    {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
 
         $id = $bucket->uploadFromStream($realFileName, $stream);
 
         if ($metadata) {
-            $this->setFileMetadata($id, $metadata);
+            $this->setFileMetadata($id, $metadata, $type);
         }
 
-        return (string)$id;
+        return (string) $id;
     }
 
-    public function getFile(string $uuid): array
+    public function getFile(string $uuid, FileType $type = FileType::Other): array
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
 
         $fileId = new ObjectId($uuid);
 
@@ -64,9 +69,9 @@ readonly class MongoFileFeature extends FileFeature
         return ["fileInfo" => $bucket->getFileDocumentForStream($stream), "stream" => $stream];
     }
 
-    public function getFileSize(string $uuid): int
+    public function getFileSize(string $uuid, FileType $type = FileType::Other): int
     {
-        $value = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
+        $value = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
 
         if ($value) {
             if ($value instanceof BSONDocument) {
@@ -79,42 +84,42 @@ readonly class MongoFileFeature extends FileFeature
         return 0;
     }
 
-    public function getFileBytes(string $uuid): string
+    public function getFileBytes(string $uuid, FileType $type = FileType::Other): string
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
 
         return stream_get_contents($bucket->openDownloadStream(new ObjectId($uuid)));
     }
 
-    public function getFileStream(string $uuid)
+    public function getFileStream(string $uuid, FileType $type = FileType::Other)
     {
-        return $this->getFile($uuid)["stream"];
+        return $this->getFile($uuid, $type)["stream"];
     }
 
-    public function getFileInfo(string $uuid): object
+    public function getFileInfo(string $uuid, FileType $type = FileType::Other): object
     {
-        return $this->getFile($uuid)["fileInfo"];
+        return $this->getFile($uuid, $type)["fileInfo"];
     }
 
-    public function setFileMetadata(string $uuid, array $metadata): UpdateResult
+    public function setFileMetadata(string $uuid, array $metadata, FileType $type = FileType::Other): UpdateResult
     {
-        return container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
+        return container(MongoService::class)->getDatabase($this->getDatabaseName($type))->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
     }
 
-    public function getFileMetadata(string $uuid): array
+    public function getFileMetadata(string $uuid, FileType $type = FileType::Other): array
     {
         return $this->getFileInfo($uuid)->metadata;
     }
 
-    public function searchFiles(array $query): array
+    public function searchFiles(array $query, FileType $type = FileType::Other): array
     {
-        $cursor = container(MongoService::class)->getDatabase($this->database)->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
+        $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
 
         $files = [];
 
         foreach ($cursor as $document) {
             $document = json_decode(json_encode($document), true);
-            $document["id"] = (string)$document["_id"]["\$oid"];
+            $document["id"] = (string) $document["_id"]["\$oid"];
 
             unset($document["_id"]);
 
@@ -124,9 +129,9 @@ readonly class MongoFileFeature extends FileFeature
         return $files;
     }
 
-    public function deleteFile(string $uuid): bool
+    public function deleteFile(string $uuid, FileType $type = FileType::Other): bool
     {
-        $bucket = container(MongoService::class)->getDatabase($this->database)->selectGridFSBucket();
+        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
 
         if ($bucket) {
             try {
@@ -152,5 +157,18 @@ readonly class MongoFileFeature extends FileFeature
     public function fromGUIDv4(string $guidv4): string
     {
         return str_replace("-", "", substr($guidv4, 8));
+    }
+
+    public function getDatabaseName(FileType $type = FileType::Other): string
+    {
+        return match ($type) {
+            FileType::Screenshot => $this->database . '_screenshot',
+            FileType::Face => $this->database . '_face',
+            FileType::Archive => $this->database . '_archive',
+            FileType::Group => $this->database . '_group',
+            FileType::OldScreenshot => $this->database,
+            FileType::OldFace => $this->database,
+            default => $this->database . '_other'
+        };
     }
 }

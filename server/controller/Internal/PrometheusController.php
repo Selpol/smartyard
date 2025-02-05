@@ -23,7 +23,6 @@ readonly class PrometheusController extends RbtController
 {
     /**
      * @throws NotFoundExceptionInterface
-     * @throws RedisException
      */
     #[Get]
     public function index(): Response
