@@ -20,7 +20,7 @@ class RelayIntercom extends IntercomDevice
 
         foreach ($map as $item) {
             if (str_starts_with($item, $value . ':')) {
-                $this->post('/api/v1/open/' . substr($item, strlen((string)$value) + 1));
+                $this->post('/api/v1/open/' . substr($item, strlen((string) $value) + 1), ['invert' => $this->resolver->bool('output.invert', false)]);
 
                 return;
             }

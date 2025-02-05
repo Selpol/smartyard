@@ -14,6 +14,6 @@ readonly class ping extends Api
 
     public static function index(): bool|array
     {
-        return ['POST' => '[Авторизация] Проверка доступности'];
+        return ['POST' => '[Deprecated] [Авторизация] Проверка доступности'];
     }
 }

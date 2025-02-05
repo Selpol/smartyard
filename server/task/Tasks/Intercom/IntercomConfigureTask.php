@@ -2,7 +2,6 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
-use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
@@ -110,9 +109,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             if ($device instanceof CommonInterface) {
                 if ($entrance->shared) {
                     $this->commonGates($device, $entrance);
+                } else {
+                    $device->setGates([]);
+                    $device->setGatesMode($device->resolver->int('wicket.mode', 1));
                 }
-
-                $device->setGatesMode($device->resolver->int('wicket.mode', 1));
             }
         }
 

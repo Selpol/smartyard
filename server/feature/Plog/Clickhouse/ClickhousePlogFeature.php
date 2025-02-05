@@ -212,11 +212,11 @@ readonly class ClickhousePlogFeature extends PlogFeature
         }
     }
 
-    public function getSyslog(string $ip, int $date): false|array
+    public function getSyslog(string $ip, int $date, int $max_call_time): false|array
     {
         $database = $this->clickhouse->database;
 
-        $start_date = $date;
+        $start_date = $date - $max_call_time;
         $query = "select date, msg, unit from $database.syslog s where IPv4NumToString(s.ip) = '$ip' and s.date > $start_date and s.date <= $date order by date desc";
 
         return $this->clickhouse->select($query);

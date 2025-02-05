@@ -67,17 +67,17 @@ readonly class MonitorController extends AdminRbtController
             while ($fibers) {
                 foreach ($fibers as $i => $fiber) {
                     if (!$fiber->isStarted()) {
-                        $intercom = intercom($request->ids[$i]);
-                        $url = $intercom->uri->getHost();
+                        $device = $request->device === 'intercom' ? intercom($request->ids[$i]) : camera($request->ids[$i]);
+                        $url = $device->uri->getHost();
 
-                        if ($intercom->uri->getPort() === null) {
-                            $url .= ':' . match (strtolower($intercom->uri->getScheme())) {
+                        if ($device->uri->getPort() === null) {
+                            $url .= ':' . match (strtolower($device->uri->getScheme())) {
                                     'http' => 80,
                                     'https' => 443,
                                     default => 22
                                 };
                         } else {
-                            $url .= ':' . $intercom->uri->getPort();
+                            $url .= ':' . $device->uri->getPort();
                         }
 
                         $fiber->start($url);

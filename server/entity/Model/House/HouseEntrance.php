@@ -2,9 +2,12 @@
 
 namespace Selpol\Entity\Model\House;
 
+use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\House\HouseEntranceRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -34,6 +37,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int $locks_disabled
  *
+ * @property-read DeviceCamera $camera
+ * @property-read DeviceIntercom $intercom
+ * 
  * @property-read HouseFlat[] $flats
  */
 class HouseEntrance extends Entity
@@ -47,6 +53,22 @@ class HouseEntrance extends Entity
     public static string $table = 'houses_entrances';
 
     public static string $columnId = 'house_entrance_id';
+
+    /**
+     * @return OneToOneRelationship<DeviceCamera>
+     */
+    public function camera(): OneToOneRelationship
+    {
+        return $this->oneToOne(DeviceCamera::class, 'camera_id', 'camera_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<DeviceIntercom>
+     */
+    public function intercom(): OneToOneRelationship
+    {
+        return $this->oneToOne(DeviceIntercom::class, 'house_domophone_id', 'house_domophone_id');
+    }
 
     /**
      * @return ManyToManyRelationship<HouseFlat>

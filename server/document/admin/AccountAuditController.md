@@ -9,3 +9,5 @@
 Параметры: 
 
 - [AccountAuditIndexRequest](../OBJECT.md#AccountAuditIndexRequest) 
+
+### [GET/description `account-audit-description-get`]  `/admin/account/audit/description`

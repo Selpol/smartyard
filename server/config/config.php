@@ -116,8 +116,7 @@ return [
             'username' => env('FEATURE_PLOG_USERNAME'),
             'password' => env('FEATURE_PLOG_PASSWORD'),
 
-            'max_call_length' => 120,
-            'ttl_camshot_days' => 180,
+            'ttl_camshot_days' => 30,
 
             'back_time_shift_video_shot' => 3
         ],

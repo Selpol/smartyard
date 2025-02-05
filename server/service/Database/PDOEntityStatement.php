@@ -9,16 +9,30 @@ use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Framework\Entity\EntityMessage;
 use Selpol\Framework\Entity\Exception\EntityException;
 
-readonly class PDOEntityStatement implements EntityStatementInterface
+class PDOEntityStatement implements EntityStatementInterface
 {
-    public function __construct(private PDOStatement $statement)
+    private array $values = [];
+
+    public function __construct(private readonly PDOStatement $statement)
     {
     }
 
     public function execute(?array $value = null): bool
     {
-        if ($value !== null && $value !== []) {
-            foreach ($value as $key => $item) {
+        $values = $value !== null && $value !== [] ? array_merge($this->values, $value) : $this->values;
+
+        if ($values !== []) {
+            foreach ($values as $key => $item) {
+                if (is_array($item)) {
+                    if ($item[0] === 0) {
+                        $this->statement->bindValue($key, $item[1], PDO::PARAM_STMT);
+
+                        continue;
+                    }
+
+                    $item = $item[1];
+                }
+
                 if (is_bool($item)) {
                     $this->statement->bindValue($key, $item, PDO::PARAM_BOOL);
                 } elseif (is_int($item)) {
@@ -44,9 +58,23 @@ readonly class PDOEntityStatement implements EntityStatementInterface
         }
     }
 
+    public function bind(string $key, float|bool|int|string $value): static
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
+    public function bindRaw(string $key, string $value): static
+    {
+        $this->values[$key] = [0, $value];
+
+        return $this;
+    }
+
     public function fetch(int $flags = self::FETCH_ASSOC): ?array
     {
-        $result = $this->statement->fetch(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetch($this->flags($flags));
 
         return $result === false ? null : $result;
     }
@@ -58,7 +86,7 @@ readonly class PDOEntityStatement implements EntityStatementInterface
 
     public function fetchAll(int $flags = self::FETCH_ASSOC): array
     {
-        $result = $this->statement->fetchAll(PDO::FETCH_ASSOC);
+        $result = $this->statement->fetchAll($this->flags($flags));
 
         return $result === false ? [] : $result;
     }
@@ -77,5 +105,16 @@ readonly class PDOEntityStatement implements EntityStatementInterface
         }
 
         return $result;
+    }
+
+    private function flags(int $flags): int
+    {
+        if ($flags == self::FETCH_ASSOC) {
+            return PDO::FETCH_ASSOC;
+        } else if ($flags == self::FETCH_NUMBER) {
+            return PDO::FETCH_NUM;
+        }
+
+        return -1;
     }
 }

@@ -37,6 +37,10 @@ trait ApartmentTrait
     {
     }
 
+    public function setApartmentAudio(int $apartment, array $audios): void
+    {
+    }
+
     public function setApartmentHandset(int $apartment, bool $value): void
     {
 

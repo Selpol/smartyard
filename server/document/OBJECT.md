@@ -15,6 +15,16 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## AuthenticationRequest
+
+Поля: 
+
+- `string` *login* - Логин
+- `string` *password* - Пароль
+- `bool` *remember_me* - Запомнить вход, как уникальный
+- `string|null` *user_agent* - User-Agent пользователя
+- `string|null` *did* - Уникальный идентификатор
+
 ## BlockFlatStoreRequest
 
 Поля: 
@@ -64,6 +74,40 @@
 - `int` *id* - Идентификатор устройства
 - `bool` *optimize* - Оптимизация конфигурации
 
+## ContractIndexRequest
+
+Поля: 
+
+- `string|null` *title* - Название
+- `int|null` *flat* - Квартира
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## ContractSyncRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор подрядчика
+- `bool` *remove_subscriber* - Удалять ли абонентов
+- `bool` *remove_key* - Удалять ли ключи
+
+## ContractStoreRequest
+
+Поля: 
+
+- `string` *title* - Название
+- `int` *flat* - Квартира
+- `string|null` *code* - Код открытия
+
+## ContractUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор подрядчика
+- `string` *title* - Название
+- `int` *flat* - Квартира
+- `string|null` *code* - Код открытия
+
 ## DeviceRelayIndexRequest
 
 Поля: 
@@ -112,6 +156,38 @@
 - `string` *search* - Строка поиска
 - `null|string` *bound* - Ограничение поиска
 
+## GroupIndexRequest
+
+Поля: 
+
+- `string|null` *name* - Название
+- `string|null` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string|null` *for* - Сущность подрядчик или адрес
+- `string|null` *id* - Идентификатор сущности
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## GroupStoreRequest
+
+Поля: 
+
+- `string` *name* - Название
+- `string` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string` *for* - Сущность подрядчик или адрес
+- `int` *id* - Идентификатор сущности
+- `mixed` *value* - Значение
+
+## GroupUpdateRequest
+
+Поля: 
+
+- `string` *oid* - Идентификатор группы
+- `string` *name* - Название
+- `string` *type* - Тип абонент, камера, домофон, ключ, адрес
+- `string` *for* - Сущность подрядчик или адрес
+- `int` *id* - Идентификатор сущности
+- `mixed` *value* - Значение
+
 ## InboxIndexRequest
 
 Поля: 
@@ -130,6 +206,32 @@
 - `string` *body* - Описание
 - `string` *action* - Тип действия
 
+## IntercomConfigShowRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string` *key* - Ключ значения
+
+## IntercomConfigUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string` *key* - Ключ
+- `string` *value* - Значение
+
+## IntercomLogIndexRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int|null` *min_date* - Минимальная дата
+- `int|null` *max_date* - Максимальная дата
+- `string|null` *message* - Сообщение лога
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
 ## KeyIndexRequest
 
 Поля: 
@@ -139,17 +241,28 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
-## LogIndexRequest
+## KeyStoreRequest
 
 Поля: 
 
-- `null|string` *file* - Путь к файлу логов
+- `string` *rfid* - RFID-Метка
+- `int` *access_type* - Тип доступа 2 - квартира
+- `int` *access_to* - Куда доступ
+- `string|null` *comments* - Комментарий
+
+## KeyUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор ключа
+- `null|string` *comments* - Комментарий
 
 ## MonitorIntercomRequest
 
 Поля: 
 
 - `null|string` *type* - Тип мониторинга
+- `string` *device* - Тип устройства, используется только для ping
 - `int[]` *ids* - Список идентификаторов устройств
 
 ## PlogIndexRequest
@@ -167,6 +280,21 @@
 Поля: 
 
 - `string` *uuid* - Идентификатор картинки
+
+## RoleStoreRequest
+
+Поля: 
+
+- `string` *title* - Заголовок
+- `string` *description* - Описание
+
+## RoleUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор роли
+- `string` *title* - Заголовок
+- `string` *description* - Описание
 
 ## SipUserIndexRequest
 
@@ -211,6 +339,50 @@
 - `int` *id* - Идентификатор стримера
 - `string` *stream_id* - Идентификатор потока
 
+## SubscriberCameraRequest
+
+Поля: 
+
+- `int` *house_subscriber_id* - Идентификатор абонента
+- `int` *camera_id* - Идентификатор камеры
+
+## SubscriberRequest
+
+Поля: 
+
+- `null|int[]` *ids* - Идентификаторы абонентов
+- `int|null` *flat_id* - Идентификатор квартиры
+- `null|string` *name* - Имя
+- `null|string` *patronymic* - Отчество
+- `null|string` *mobile* - Номер телефона
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## SubscriberStoreRequest
+
+Поля: 
+
+- `string` *id* - Номер телефона
+- `string` *subscriber_name* - Имя абонента
+- `string` *subscriber_patronymic* - Отчество клиента
+
+## SubscriberUpdateRequest
+
+Поля: 
+
+- `int` *house_subscriber_id* - Идентификатор абонента
+- `string` *subscriber_name* - Имя абонента
+- `string` *subscriber_patronymic* - Отчество клиента
+- `int` *voip_enabled* - VoIp звонок для IOS
+
+## SubscriberFlatRequest
+
+Поля: 
+
+- `int` *house_subscriber_id* - Идентификатор абонента
+- `int` *flat_id* - Идентификатор квартиры
+- `int` *role* - Роль абонента в квартире, 0 - Владелец, 1 - Жилец
+
 ## TaskSearchRequest
 
 Поля: 
@@ -226,6 +398,29 @@
 Поля: 
 
 - `string` *key* - Ключ для удаления
+
+## UserStoreRequest
+
+Поля: 
+
+- `string` *login* - Логин
+- `string` *password* - Пароль
+- `string` *name* - Имя
+- `string|null` *email* - Почта
+- `string|null` *phone* - Номер телефона
+- `int` *enabled* - Включен ли пользователь
+
+## UserUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор пользователя
+- `string` *login* - Логин
+- `string|null` *password* - Пароль
+- `string` *name* - Имя
+- `string|null` *email* - Почта
+- `string|null` *phone* - Номер телефона
+- `int` *enabled* - Включен ли пользователь
 
 ## ActionCallFinishedRequest
 

@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Inbox;
 
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Repository\Inbox\InboxMessageRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -26,6 +29,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property int $readed
  *
  * @property int $code
+ * 
+ * @property HouseSubscriber $subscriber
  */
 class InboxMessage extends Entity
 {
@@ -33,10 +38,19 @@ class InboxMessage extends Entity
      * @use RepositoryTrait<InboxMessageRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'inbox';
 
     public static string $columnId = 'msg_id';
+
+    /**
+     * @return OneToOneRelationship<HouseSubscriber>
+     */
+    public function subscriber(): OneToOneRelationship
+    {
+        return $this->oneToOne(HouseSubscriber::class, 'house_subscriber_id', 'house_subscriber_id');
+    }
 
     public static function getColumns(): array
     {

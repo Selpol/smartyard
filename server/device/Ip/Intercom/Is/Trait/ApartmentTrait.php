@@ -121,6 +121,22 @@ trait ApartmentTrait
         $this->put('/panelCode/' . $apartment->apartment, $body);
     }
 
+    public function setApartmentAudio(int $apartment, array $audios): void
+    {
+        $body = [
+            'volumes' => [
+                'thCall' => $audios !== [] ? $audios[0] : null,
+                'thTalk' => count($audios) > 1 ? $audios[1] : null,
+                'uartFrom' => count($audios) > 2 ? $audios[2] : null,
+                'uartTo' => count($audios) > 3 ? $audios[3] : null,
+                'panelCall' => count($audios) > 4 ? $audios[4] : null,
+                'panelTalk' => count($audios) > 5 ? $audios[5] : null
+            ]
+        ];
+
+        $this->put('/panelCode/' . $apartment, $body);
+    }
+
     public function setApartmentHandset(int $apartment, bool $value): void
     {
         $this->put('/panelCode/' . $apartment, ['callsEnabled' => ['handset' => $value]]);

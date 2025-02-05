@@ -14,6 +14,10 @@ class RoleInitCommand
     public function execute(): void
     {
         $requirePermissions = [
+            'authentication-index-get' => '[Авторизация] Получить перечень прав пользователя',
+            'authentication-store-post' => '[Авторизация] Авторизация из-под пользователя',
+            'authentication-update-put' => '[Авторизация] Выход из-под пользователя',
+
             'block-flat-billing-delete' => '[Блокировка-Квартира] Удалить блокировку биллинга',
             'block-subscriber-billing-delete' => '[Блокировка-Абонент] Удалить блокировку биллинга',
 
@@ -71,7 +75,11 @@ class RoleInitCommand
             'inbox-index-get' => '[Сообщения] Получить список',
             'inbox-store-post' => '[Сообщения] Отправить сообщение пользователю',
 
-            'key-index-get' => '[Ключи] Получить список',
+            'key-index-get' => '[Ключ] Получить список ключей',
+            'key-show-get' => '[Ключ] Получить ключ',
+            'key-store-post' => '[Ключ] Добавить ключ',
+            'key-update-put' => '[Ключ] Обновить ключ',
+            'key-delete-delete' => '[Ключ] Удалить ключ ',
 
             'sip-user-index-get' => '[SipUser] Получить список',
             'sip-user-store-post' => '[SipUser] Добавить пользователя',
@@ -79,6 +87,7 @@ class RoleInitCommand
             'sip-user-delete-delete' => '[SipUser] Удалить пользователя',
 
             'account-audit-index-get' => '[Аудит] Получить список действий',
+            'account-audit-description-get' => '[Аудит] Получить описание',
 
             'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
             'device-relay-show-get' => '[Устройство-Реле] Получить устройство реле',
@@ -88,6 +97,81 @@ class RoleInitCommand
 
             'device-relay-setting-index-get' => '[Устройство-Реле] Получить настройки реле',
             'device-relay-setting-update-put' => '[Устройство-Реле] Обновить настройки реле',
+
+            'intercom-config-audio' => '[Домофон-Конфигурация] Управление аудио домофона',
+            'intercom-config-show-get' => '[Домофон-Конфигурация] Получить настройку домофона',
+            'intercom-config-update-put' => '[Домофон-Конфигурация] Обновить настройку домофона',
+
+            'intercom-key-show-get' => '[Домофое-Ключи] Получить ключи с домофона',
+            'intercom-log-index-get' => '[Домофон-Логи] Получить логи с домофона',
+
+            'subscriber-index-get' => '[Абонент] Получить список абонентов',
+            'subscriber-show-get' => '[Абонент] Получить абонента',
+            'subscriber-store-post' => '[Абонент] Создать нового абонента',
+            'subscriber-update-put' => '[Абонент] Обновить абонента',
+            'subscriber-delete-delete' => '[Абонент] Удалить абонента',
+
+            'subscriber-camera-index-get' => '[Абонент-Камера] Получить камеры абонента',
+            'subscriber-camera-store-post' => '[Абонент-Камера] Привязать камеру к абоненту',
+            'subscriber-camera-delete-post' => '[Абонент-Камера] Отвязать камеру от абонента',
+
+            'subscriber-flat-index-get' => '[Абонент-Квартира] Получить квартиры абонента',
+            'subscriber-flat-store-post' => '[Абонент-Квартира] Привязать квартиру к абоненту',
+            'subscriber-flat-update-put' => '[Абонент-Квартира] Обновить привязку абонента к квартире',
+            'subscriber-flat-delete-delete' => '[Абонент-Квартира] Отвязать квартиру от абонента ',
+
+            'group-index-get' => '[Группа] Получить список групп',
+            'group-show-get' => '[Группа] Получить группу',
+            'group-store-post' => '[Группа] Создать новую группу',
+            'group-update-put' => '[Группа] Обновить группу',
+            'group-delete-delete' => '[Группа] Удалить группу',
+
+            'contractor-index-get' => '[Подрядчик] Получить список подрядчиков',
+            'contractor-show-get' => '[Подрядчик] Получить подрядчика',
+            'contractor-sync-get' => '[Подрядчик] Синхронизация подрядчика',
+            'contractor-store-post' => '[Подрядчик] Создать нового подрядчика',
+            'contractor-update-put' => '[Подрядчик] Обновить подрядчика',
+            'contractor-delete-delete' => '[Подрядчик] Удалить подрядчика',
+
+            'house-camera-index-get' => '[Дом-Камера] Получить список камер',
+            'house-camera-store-post' => '[Дом-Камера] Привязать камеру к дому',
+            'house-camera-delete-delete' => '[Дом-Камера] Отвязать камеру от дома',
+
+            'house-flat-camera-index-get' => '[Квартира-Камера] Получить список камер',
+            'house-flat-camera-store-post' => '[Квартира-Камера] Привязать камеру к квартире',
+            'house-flat-camera-delete-delete' => '[Квартира-Камера] Отвязать камеру от квартиры',
+
+            'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей',
+
+            'permission-index-get' => '[Права] Получить список прав',
+
+            'role-index-get' => '[Роль] Получить список прав',
+            'role-store-post' => '[Роль] Создать новую роль',
+            'role-update-put' => '[Роль] Обновить роль',
+            'role-delete-delete' => '[Роль] Удалить роль',
+
+            'role-permission-index-get' => '[Роль-Права] Получить список прав роли',
+            'role-permission-store-post' => '[Роль-Права] Привязать право к роли',
+            'role-permission-delete-delete' => '[Роль-Права] Отвязать право от роли',
+
+            'user-index-get' => '[Пользователь] Получить список пользователей',
+            'user-show-get' => '[Пользователь] Получить пользователя',
+            'user-store-post' => '[Пользователь] Создать нового пользователя',
+            'user-update-put' => '[Пользователь]  Обновить пользователя',
+            'user-delete-delete' => '[Пользователь] Удалить пользователя',
+
+            'user-session-show-get' => '[Пользователь-Сессия] Получить список сессий пользователя',
+            'user-session-update-put' => '[Пользователь-Сессия] Отключить сессию пользователя',
+
+            'user-setting-index-get' => '[Пользователь-Настройки] Получить настройки пользователя',
+
+            'user-permission-index-get' => '[Пользователь-Права] Получить список прав пользователя',
+            'user-permission-store-post' => '[Пользователь-Права] Привязать право к пользователю',
+            'user-permission-delete-delete' => '[Пользователь-Права] Отвязать право от пользователя',
+
+            'user-role-index-get' => '[Пользователь-Роль] Получить список ролей пользователя',
+            'user-role-store-post' => '[Пользователь-Роль] Привязать роль к пользователю',
+            'user-role-delete-delete' => '[Пользователь-Роль] Отвязать роль от пользователя',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

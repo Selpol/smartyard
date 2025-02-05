@@ -15,6 +15,6 @@ readonly class permission extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Авторизация] Получить список прав пользователя'];
+        return ['GET' => '[Deprecated] [Авторизация] Получить список прав пользователя'];
     }
 }

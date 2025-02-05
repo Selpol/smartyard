@@ -7,6 +7,8 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\SubscriberDeleteRequest;
 use Selpol\Controller\Request\Mobile\SubscriberStoreRequest;
+use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Http\Response;
@@ -30,25 +32,38 @@ readonly class SubscriberController extends MobileRbtController
     #[Get(
         '/{flatId}',
         includes: [
-            FlatMiddleware::class => ['flat' => 'flatId'],
+            FlatMiddleware::class => ['flat' => 'flatId', 'role' => 0],
             BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
     public function index(int $flatId, HouseFeature $houseFeature): Response
     {
-        $subscribers = $houseFeature->getSubscribers('flatId', $flatId);
+        $flat = HouseFlat::findById($flatId);
 
-        return user_response(
-            data: array_map(
-                fn(array $subscriber): array => [
-                    'subscriberId' => $subscriber['subscriberId'],
-                    'name' => $subscriber['subscriberName'] . ' ' . $subscriber['subscriberPatronymic'],
-                    'mobile' => substr($subscriber['mobile'], -4),
-                    'role' => @($this->getFlat($subscriber['flats'], $flatId)['role'])
-                ],
-                $subscribers
-            )
+        if (!$flat) {
+            return user_response(404, message: 'Квартира не найдена');
+        }
+
+        $relations = $flat->subscribers()->fetchRelation();
+        $subscribers = $flat->subscribers()->fetchAllWithRelation(
+            $relations,
+            $this->getUser()->getRole() == 0 ? criteria()->equal('role', 0) : null
         );
+
+        $relations = array_reduce($relations, static function (array $previous, array $current): array {
+            $previous[$current['house_subscriber_id']] = $current['role'];
+
+            return $previous;
+        }, []);
+
+        return user_response(data: array_map(static function (HouseSubscriber $subscriber) use ($relations): array {
+            return [
+                'subscriberId' => $subscriber->house_subscriber_id,
+                'name' => $subscriber->subscriber_name . ' ' . $subscriber->subscriber_patronymic,
+                'mobile' => substr($subscriber->id, -4),
+                'role' => $relations[$subscriber->house_subscriber_id]
+            ];
+        }, $subscribers));
     }
 
     /**

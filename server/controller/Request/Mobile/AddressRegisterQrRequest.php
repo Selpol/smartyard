@@ -21,8 +21,8 @@ readonly class AddressRegisterQrRequest extends RouteRequest
 
             'mobile' => rule()->clamp(11, 11),
 
-            'name' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
-            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(64)],
+            'name' => [filter()->fullSpecialChars(), rule()->string()->max(256)],
+            'patronymic' => [filter()->fullSpecialChars(), rule()->string()->max(256)],
         ];
     }
 
