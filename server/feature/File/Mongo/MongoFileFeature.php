@@ -23,17 +23,7 @@ readonly class MongoFileFeature extends FileFeature
     public function cron(CronEnum $value): bool
     {
         if ($value->name === config_get('feature.file.cron_sync_data_scheduler')) {
-<<<<<<< HEAD
             $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(FileType::Archive))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
-=======
-            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(true))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
-
-            foreach ($cursor as $document) {
-                $this->deleteFile($document->_id);
-            }
-
-            $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName(false))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
             foreach ($cursor as $document) {
                 $this->deleteFile($document->_id, FileType::Archive);
