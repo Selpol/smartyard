@@ -2,6 +2,8 @@
 
 namespace Selpol\Task\Tasks\Plog;
 
+use Exception;
+use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -15,12 +17,13 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
     public int $initialRetry = 3;
 
-    public function __construct(int           $id, /** @var int Тип события */
-                                public int    $type, /** @var int Выход устройства */
-                                public int    $door, /** @var int Дата события */
-                                public int    $date, /** @var string Информация о событие */
-                                public string $detail)
-    {
+    public function __construct(
+        int $id, /** @var int Тип события */
+        public int $type, /** @var int Выход устройства */
+        public int $door, /** @var int Дата события */
+        public int $date, /** @var string Информация о событие */
+        public string $detail
+    ) {
         parent::__construct($id, 'Событие открытие двери');
 
         $this->setLogger(file_logger('task-plog-open'));
@@ -54,6 +57,17 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
             if (count($flat_list) == 0) {
                 return false;
+            }
+
+            try {
+                $keys = HouseKey::fetchAll(criteria()->equal('rfid', $rfid_key));
+
+                foreach ($keys as $key) {
+                    $key->last_seen = $this->date;
+                    $key->update();
+                }
+            } catch (Exception $exception) {
+                $this->logger?->error($exception);
             }
         }
 

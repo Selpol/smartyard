@@ -43,6 +43,6 @@ readonly class whoAmI extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Авторизация] Запросить дополнительные данные'];
+        return ['GET' => '[Deprecated] [Авторизация] Запросить дополнительные данные'];
     }
 }

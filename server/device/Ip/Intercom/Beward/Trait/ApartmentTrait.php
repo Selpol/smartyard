@@ -123,6 +123,10 @@ trait ApartmentTrait
         $this->apartments[$apartment->apartment] = $apartment;
     }
 
+    public function setApartmentAudio(int $apartment, array $audios): void
+    {
+    }
+
     public function setApartmentHandset(int $apartment, bool $value): void
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'set', 'BlockCMS' => $value ? 'off' : 'on']);

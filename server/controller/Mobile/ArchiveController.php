@@ -70,8 +70,8 @@ readonly class ArchiveController extends MobileRbtController
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
         try {
-            $stream = $fileFeature->getFileStream($uuid);
-            $info = $fileFeature->getFileInfo($uuid);
+            $stream = $fileFeature->getFileStream($uuid, true);
+            $info = $fileFeature->getFileInfo($uuid, true);
 
             return response()
                 ->withHeader('Content-Type', 'video/mp4')

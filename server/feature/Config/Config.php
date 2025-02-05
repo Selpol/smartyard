@@ -73,6 +73,13 @@ class Config
         }
     }
 
+    public function set(string $key, string $value): Config
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
     public function scope(string $value): Config
     {
         $config = clone $this;
@@ -88,5 +95,16 @@ class Config
         }
 
         return $default;
+    }
+
+    public function __toString(): string
+    {
+        $result = '';
+
+        foreach ($this->values as $key => $value) {
+            $result .= $key . '=' . $value . PHP_EOL;
+        }
+
+        return $result;
     }
 }

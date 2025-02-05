@@ -4,10 +4,17 @@ namespace Selpol\Entity\Model\Device;
 
 use PDO;
 use Selpol\Device\Ip\Camera\CameraModel;
+use Selpol\Entity\Model\Dvr\DvrRecord;
 use Selpol\Entity\Model\Dvr\DvrServer;
-use Selpol\Entity\Repository\Device\DeviceCameraRepository;
+use Selpol\Entity\Model\Frs\FrsServer;
+use Selpol\Entity\Model\House\HouseEntrance;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 use Selpol\Service\DatabaseService;
 
@@ -44,6 +51,14 @@ use Selpol\Service\DatabaseService;
  * @property string|null $config
  *
  * @property bool $hidden
+ * 
+ * @property-read DvrServer|null $dvr_server
+ * @property-read FrsServer|null $frs_server
+ * 
+ * @property-read HouseEntrance[] $entrances
+ * @property-read HouseSubscriber[] $subscribers
+ * 
+ * @property-read DvrRecord[] $records
  */
 class DeviceCamera extends Entity
 {
@@ -51,10 +66,51 @@ class DeviceCamera extends Entity
      * @use RepositoryTrait<DeviceCameraRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'cameras';
 
     public static string $columnId = 'camera_id';
+
+    /**
+     * @return OneToOneRelationship<DvrServer>
+     */
+    public function dvr_server(): OneToOneRelationship
+    {
+        return $this->oneToOne(DvrServer::class, 'id', 'dvr_server_id');
+    }
+
+    /**
+     * @return OneToOneRelationship<FrsServer>
+     */
+    public function frs_server(): OneToOneRelationship
+    {
+        return $this->oneToOne(FrsServer::class, 'id', 'frs_server_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<HouseEntrance>
+     */
+    public function entrances(): OneToManyRelationship
+    {
+        return $this->oneToMany(HouseEntrance::class, 'camera_id', 'camera_id');
+    }
+
+    /**
+     * @return ManyToManyRelationship<HouseSubscriber[]>
+     */
+    public function subscribers(): ManyToManyRelationship
+    {
+        return $this->manyToMany(HouseSubscriber::class, 'houses_cameras_subscribers', localRelation: 'camera_id', foreignRelation: 'house_subscriber_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<DvrRecord>
+     */
+    public function records(): OneToManyRelationship
+    {
+        return $this->oneToMany(DvrRecord::class, 'camera_id', 'camera_id');
+    }
 
     public function getDvrServer(): ?DvrServer
     {

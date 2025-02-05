@@ -1248,11 +1248,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.1.14",
+            "version": "1.1.25",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "fbf2f9a1cba271c88ec955bde9907017afe8e51b"
+                "reference": "e45d7bfab470dbb23892613a1f55c5cac6e68815"
             },
             "require": {
                 "ext-curl": "*",
@@ -1264,7 +1264,7 @@
                 "psr/http-server-middleware": "^1.0",
                 "psr/log": "^3.0",
                 "psr/simple-cache": "^3.0",
-                "selpol/validator": "^1.1"
+                "selpol/validator": "^1.2"
             },
             "require-dev": {
                 "rector/rector": "^1.0"
@@ -1272,7 +1272,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Selpol\\Framework\\": "src/"
+                    "Selpol\\Framework\\": "src/",
+                    "Example\\Controller\\": "examples/controller/"
                 },
                 "files": [
                     "src/kernel.php",
@@ -1285,15 +1286,15 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2024-11-18T14:06:42+00:00"
+            "time": "2025-01-31T10:47:09+00:00"
         },
         {
             "name": "selpol/validator",
-            "version": "1.1.2",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/validator.git",
-                "reference": "46348a1f2f5ce381f646458411b049939e29df54"
+                "reference": "adc164c569e74a96d1e63d7adf9ec60130cfab0f"
             },
             "require": {
                 "php": ">=8.2"
@@ -1318,7 +1319,7 @@
                 }
             ],
             "description": "Selpol validator library",
-            "time": "2024-10-24T07:30:56+00:00"
+            "time": "2025-01-17T07:05:22+00:00"
         },
         {
             "name": "symfony/polyfill-php80",

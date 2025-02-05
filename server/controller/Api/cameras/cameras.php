@@ -25,7 +25,7 @@ readonly class cameras extends Api
             'device_hardware_version' => rule()->string()->clamp(0, 64),
 
             'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
-            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
+            'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 10000)->nonNullable()]
         ]);
 
         $criteria = criteria()

@@ -19,6 +19,8 @@ interface ApartmentInterface
 
     public function setApartment(Apartment $apartment): void;
 
+    public function setApartmentAudio(int $apartment, array $audios): void;
+
     public function setApartmentHandset(int $apartment, bool $value): void;
 
     public function removeApartment(Apartment|int $apartment): void;

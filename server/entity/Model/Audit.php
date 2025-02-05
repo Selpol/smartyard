@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model;
 
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Repository\AuditRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -21,6 +24,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ * 
+ * @property CoreUser $user
  */
 class Audit extends Entity
 {
@@ -28,6 +33,7 @@ class Audit extends Entity
      * @use RepositoryTrait<AuditRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'audit';
 
@@ -36,6 +42,14 @@ class Audit extends Entity
     public static ?string $columnCreateAt = 'created_at';
 
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToOneRelationship<CoreUser>
+     */
+    public function user(): OneToOneRelationship
+    {
+        return $this->oneToOne(CoreUser::class, 'uid', 'user_id');
+    }
 
     public static function getColumns(): array
     {

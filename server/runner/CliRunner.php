@@ -68,7 +68,7 @@ class CliRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $counter = count($arguments);
 
         for ($i = 1; $i < $counter; ++$i) {
-            $a = explode('=', (string)$arguments[$i]);
+            $a = explode('=', (string) $arguments[$i]);
 
             $args[$a[0]] = @$a[1];
         }

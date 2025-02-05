@@ -35,7 +35,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         $event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_description'] = $this->getDomophoneDescription($event_data[PlogFeature::COLUMN_DOMOPHONE]['domophone_output']);
         $event_data[PlogFeature::COLUMN_EVENT_UUID] = guid_v4();
 
-        $logs = $plog->getSyslog($this->ip, $this->date);
+        $device = intercom($this->id);
+
+        $logs = $plog->getSyslog($this->ip, $this->date, $device?->resolver->int('clean.call_timeout', 60) ?: 60);
 
         $call_from_panel = 0;
         $call_start_found = false;

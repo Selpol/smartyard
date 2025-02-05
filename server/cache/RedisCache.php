@@ -72,8 +72,6 @@ readonly class RedisCache implements CacheInterface
 
     public function has(string $key): bool
     {
-        $result = $this->service->exist($key);
-
-        return $result && $result > 0;
+        return $this->service->exist($key);
     }
 }

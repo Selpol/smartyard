@@ -12,6 +12,8 @@ use Throwable;
 
 class ClickhouseEntityStatement implements EntityStatementInterface
 {
+    private array $values = [];
+
     private array $data = [];
 
     private array $error = [];
@@ -24,9 +26,21 @@ class ClickhouseEntityStatement implements EntityStatementInterface
     {
         $query = $this->value;
 
-        if ($value !== null && $value !== []) {
-            foreach ($value as $key => $item) {
-                if (is_string($item)) {
+        $values = $value !== null && $value !== [] ? array_merge($this->values, $value) : $this->values;
+
+        if ($values !== []) {
+            foreach ($values as $key => $item) {
+                if (is_array($item)) {
+                    if ($item[0] === 0) {
+                        $item = $item[1];
+                    } else {
+                        if (is_string($item[1])) {
+                            $item = "'" . str_replace("'", "\'", $item[1]) . "'";
+                        } else {
+                            $item = $item[1];
+                        }
+                    }
+                } else if (is_string($item)) {
                     $item = "'" . str_replace("'", "\'", $item) . "'";
                 }
 
@@ -68,6 +82,20 @@ class ClickhouseEntityStatement implements EntityStatementInterface
         } catch (Throwable $throwable) {
             throw new EntityException($this->error, throwable: $throwable);
         }
+    }
+
+    public function bind(string $key, float|bool|int|string $value): static
+    {
+        $this->values[$key] = $value;
+
+        return $this;
+    }
+
+    public function bindRaw(string $key, string $value): static
+    {
+        $this->values[$key] = [0, $value];
+
+        return $this;
     }
 
     public function fetch(int $flags = self::FETCH_ASSOC): ?array

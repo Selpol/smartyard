@@ -3,8 +3,11 @@
 namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -36,6 +39,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $config
  *
  * @property bool $hidden
+ * 
+ * @property-read HouseEntrance[] $entrances
  */
 class DeviceIntercom extends Entity
 {
@@ -43,10 +48,19 @@ class DeviceIntercom extends Entity
      * @use RepositoryTrait<DeviceIntercomRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'houses_domophones';
 
     public static string $columnId = 'house_domophone_id';
+
+    /**
+     * @return OneToManyRelationship<HouseEntrance>
+     */
+    public function entrances(): OneToManyRelationship
+    {
+        return $this->oneToMany(HouseEntrance::class, 'house_domophone_id', 'house_domophone_id');
+    }
 
     public static function getColumns(): array
     {
