@@ -38,7 +38,7 @@ readonly class UserSettingController extends AdminRbtController
             'wsTitle' => $sipServer->title,
             'wsDomain' => $sipServer->external_ip,
 
-            'wsUsername' => sprintf('"7%09d"', (int) $this->getUser()->getIdentifier()),
+            'wsUsername' => sprintf('7%09d', (int) $this->getUser()->getIdentifier()),
             'wsPassword' => $password,
         ]);
     }
