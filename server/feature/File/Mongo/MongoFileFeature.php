@@ -47,19 +47,7 @@ readonly class MongoFileFeature extends FileFeature
 
     public function addFile(string $realFileName, $stream, array $metadata = [], FileType $type = FileType::Other): string
     {
-<<<<<<< HEAD
         $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
-=======
-        $cursor = container(MongoService::class)->getDatabase($this->database)->command(['dbStats' => 1]);
-        $value = iterator_to_array($cursor);
-
-        return $value[0]['objects'];
-    }
-
-    public function addFile(string $realFileName, $stream, array $metadata = [], bool $archive = false): string
-    {
-        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         $id = $bucket->uploadFromStream($realFileName, $stream);
 
@@ -70,15 +58,9 @@ readonly class MongoFileFeature extends FileFeature
         return (string) $id;
     }
 
-<<<<<<< HEAD
     public function getFile(string $uuid, FileType $type = FileType::Other): array
     {
         $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
-=======
-    public function getFile(string $uuid, bool $archive = false): array
-    {
-        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         $fileId = new ObjectId($uuid);
 
@@ -87,15 +69,9 @@ readonly class MongoFileFeature extends FileFeature
         return ["fileInfo" => $bucket->getFileDocumentForStream($stream), "stream" => $stream];
     }
 
-<<<<<<< HEAD
     public function getFileSize(string $uuid, FileType $type = FileType::Other): int
     {
         $value = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
-=======
-    public function getFileSize(string $uuid, bool $archive = false): int
-    {
-        $value = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->findOne(['_id' => new ObjectId($uuid)], ['projection' => ['length' => true]]);
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         if ($value) {
             if ($value instanceof BSONDocument) {
@@ -108,20 +84,13 @@ readonly class MongoFileFeature extends FileFeature
         return 0;
     }
 
-<<<<<<< HEAD
     public function getFileBytes(string $uuid, FileType $type = FileType::Other): string
     {
         $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
-=======
-    public function getFileBytes(string $uuid, bool $archive = false): string
-    {
-        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         return stream_get_contents($bucket->openDownloadStream(new ObjectId($uuid)));
     }
 
-<<<<<<< HEAD
     public function getFileStream(string $uuid, FileType $type = FileType::Other)
     {
         return $this->getFile($uuid, $type)["stream"];
@@ -138,37 +107,13 @@ readonly class MongoFileFeature extends FileFeature
     }
 
     public function getFileMetadata(string $uuid, FileType $type = FileType::Other): array
-=======
-    public function getFileStream(string $uuid, bool $archive = false)
-    {
-        return $this->getFile($uuid, $archive)["stream"];
-    }
-
-    public function getFileInfo(string $uuid, bool $archive = false): object
-    {
-        return $this->getFile($uuid, $archive)["fileInfo"];
-    }
-
-    public function setFileMetadata(string $uuid, array $metadata, bool $archive = false): UpdateResult
-    {
-        return container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->updateOne(["_id" => new ObjectId($uuid)], ['$set' => ["metadata" => $metadata]]);
-    }
-
-    public function getFileMetadata(string $uuid, bool $archive = false): array
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
     {
         return $this->getFileInfo($uuid)->metadata;
     }
 
-<<<<<<< HEAD
     public function searchFiles(array $query, FileType $type = FileType::Other): array
     {
         $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
-=======
-    public function searchFiles(array $query, bool $archive = false): array
-    {
-        $cursor = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->{"fs.files"}->find($query, ["sort" => ["filename" => 1]]);
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         $files = [];
 
@@ -184,15 +129,9 @@ readonly class MongoFileFeature extends FileFeature
         return $files;
     }
 
-<<<<<<< HEAD
     public function deleteFile(string $uuid, FileType $type = FileType::Other): bool
     {
         $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($type))->selectGridFSBucket();
-=======
-    public function deleteFile(string $uuid, bool $archive = false): bool
-    {
-        $bucket = container(MongoService::class)->getDatabase($this->getDatabaseName($archive))->selectGridFSBucket();
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
 
         if ($bucket) {
             try {
@@ -220,7 +159,6 @@ readonly class MongoFileFeature extends FileFeature
         return str_replace("-", "", substr($guidv4, 8));
     }
 
-<<<<<<< HEAD
     public function getDatabaseName(FileType $type = FileType::Other): string
     {
         return match ($type) {
@@ -232,14 +170,5 @@ readonly class MongoFileFeature extends FileFeature
             FileType::OldFace => $this->database,
             default => $this->database . '_other'
         };
-=======
-    private function getDatabaseName(bool $archive): string
-    {
-        if ($archive) {
-            return $this->database . '_archive';
-        }
-
-        return $this->database;
->>>>>>> 5ac0c085f357ae0558ce7a26aeb884130ff1a69d
     }
 }
