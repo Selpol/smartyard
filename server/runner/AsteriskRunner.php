@@ -3,6 +3,7 @@
 namespace Selpol\Runner;
 
 use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Core\CoreUser;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
@@ -11,7 +12,6 @@ use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
-use Selpol\Feature\User\UserFeature;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
@@ -134,9 +134,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     case 'domophone':
                         $households = container(HouseFeature::class);
 
-                        $domophone = $households->getDomophone(intval($params));
+                        $intercom = DeviceIntercom::findById(intval($params), setting: setting()->columns(['dtmf', 'sos_number', 'ip']));
 
-                        echo json_encode($domophone);
+                        if (!$intercom) {
+                            break;
+                        }
+
+                        echo json_encode([
+                            'dtmf' => $intercom->dtmf,
+                            'sosNumber' => $intercom->sos_number,
+                            'ip' => $intercom->ip
+                        ]);
 
                         break;
 
@@ -378,7 +386,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $password];
 
                     case 'endpoints':
-                        $user = container(UserFeature::class)->getUser($uid);
+                        $user = CoreUser::findById($uid, setting: setting()->columns(['real_name']));
 
                         if ($user) {
                             return [
@@ -386,7 +394,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 'auth' => $extension,
                                 'outbound_auth' => $extension,
                                 'aors' => $extension,
-                                'callerid' => $user['realName'],
+                                'callerid' => $user->real_name,
                                 'context' => 'default',
                                 'disallow' => 'all',
                                 'allow' => 'alaw,ulaw,h264',

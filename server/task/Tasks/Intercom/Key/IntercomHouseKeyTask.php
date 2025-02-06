@@ -7,6 +7,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
+use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Tasks\Intercom\IntercomTask;
 use Selpol\Task\TaskUniqueInterface;
@@ -55,15 +56,15 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
 
         $device = intercom($domophoneId);
 
+        if (!$device->ping()) {
+            return;
+        }
+
         if (!$device instanceof IntercomDevice) {
             return;
         }
 
         if (!$device instanceof KeyInterface) {
-            return;
-        }
-
-        if (!$device->ping()) {
             return;
         }
 
@@ -81,10 +82,10 @@ class IntercomHouseKeyTask extends IntercomTask implements TaskUniqueInterface
                     }
                 }
 
-                $keys = container(HouseFeature::class)->getKeys('flatId', $flat['flatId']);
+                $keys = HouseKey::fetchAll(criteria()->equal('access_type', 2)->equal('access_to', $flat['flatId']));
 
                 foreach ($keys as $key) {
-                    $device->addKey(new Key($key['rfId'], $apartment));
+                    $device->addKey(new Key($key->rfid, $apartment));
                 }
             }
         }

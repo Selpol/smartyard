@@ -57,28 +57,4 @@ readonly class InternalBlockFeature extends BlockFeature
 
         return null;
     }
-
-    public function getBlockStatusForFlat(int $value, array $services): array
-    {
-        $blocks = FlatBlock::getRepository()->fetchAll(criteria()->equal('flat_id', $value)->in('service', $services), setting()->columns(['service']));
-        $blocks = array_map(static fn(FlatBlock $block): int => $block->service, $blocks);
-
-        return array_reduce($services, static function (array $previous, int $current) use ($blocks): array {
-            $previous[$current] = in_array($current, $blocks);
-
-            return $previous;
-        }, []);
-    }
-
-    public function getBlockStatusForSubscriber(int $value, array $services): array
-    {
-        $blocks = SubscriberBlock::getRepository()->fetchAll(criteria()->equal('subscriber_id', $value)->in('service', $services), setting()->columns(['service']));
-        $blocks = array_map(static fn(SubscriberBlock $block): int => $block->service, $blocks);
-
-        return array_reduce($services, static function (array $previous, int $current) use ($blocks): array {
-            $previous[$current] = in_array($current, $blocks);
-
-            return $previous;
-        }, []);
-    }
 }

@@ -2,7 +2,6 @@
 
 namespace Selpol\Feature\House\Internal;
 
-use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseFlat;
@@ -188,16 +187,6 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         return false;
-    }
-
-    public function getFlatBlock(int $flatId): bool
-    {
-        $flat = HouseFlat::findById($flatId, setting: setting()->columns(['manual_block', 'auto_block', 'admin_block']));
-
-        if ($flat)
-            return $flat->manual_block || $flat->auto_block || $flat->admin_block;
-
-        return true;
     }
 
     function createEntrance(int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool|int
@@ -533,65 +522,6 @@ readonly class InternalHouseFeature extends HouseFeature
         return $result;
     }
 
-    public function getDomophones(string $by = "all", string|int $query = -1): bool|array
-    {
-        $q = "select * from houses_domophones order by house_domophone_id";
-        $r = [
-            "house_domophone_id" => "domophoneId",
-            "enabled" => "enabled",
-            "model" => "model",
-            "server" => "server",
-            "url" => "url",
-            "credentials" => "credentials",
-            "dtmf" => "dtmf",
-            "first_time" => "firstTime",
-            "nat" => "nat",
-            "comment" => "comment",
-            "ip" => "ip",
-            'sos_number' => 'sosNumber'
-        ];
-
-        switch ($by) {
-            case "house":
-                $q = "select * from houses_domophones where house_domophone_id in (
-                                select house_domophone_id from houses_entrances where house_entrance_id in (
-                                  select house_entrance_id from houses_houses_entrances where address_house_id = $query
-                                ) group by house_domophone_id
-                              ) order by house_domophone_id";
-                break;
-
-            case "entrance":
-                $q = "select * from houses_domophones where house_domophone_id in (
-                                select house_domophone_id from houses_entrances where house_entrance_id = $query group by house_domophone_id
-                              ) order by house_domophone_id";
-                break;
-
-            case "flat":
-                $q = "select * from houses_domophones where house_domophone_id in (
-                                select house_domophone_id from houses_entrances where house_entrance_id in (
-                                  select house_entrance_id from houses_entrances_flats where house_flat_id = $query
-                                ) group by house_domophone_id
-                              ) order by house_domophone_id";
-                break;
-
-            case "ip":
-                $q = "select * from houses_domophones where ip = '" . long2ip(ip2long($query)) . "'";
-                break;
-
-            case "subscriber":
-                $q = "select * from houses_domophones where house_domophone_id in (
-                                select house_domophone_id from houses_entrances where house_entrance_id in (
-                                  select house_entrance_id from houses_entrances_flats where house_flat_id in (
-                                    select house_flat_id from houses_flats_subscribers where house_subscriber_id = $query
-                                  )
-                                ) group by house_domophone_id
-                              ) order by house_domophone_id";
-                break;
-        }
-
-        return $this->getDatabase()->get($q, map: $r);
-    }
-
     public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int
     {
         $entrance = $this->getDatabase()->get("select house_domophone_id from houses_entrances where camera_id = $camera_id limit 1");
@@ -610,46 +540,6 @@ readonly class InternalHouseFeature extends HouseFeature
             return ['domophoneId' => $entrance[0]['house_domophone_id'], 'doorId' => $entrance[0]['domophone_output']];
 
         return null;
-    }
-
-    public function deleteDomophone(int $domophoneId): bool
-    {
-        return
-            $this->getDatabase()->modify("delete from houses_domophones where house_domophone_id = $domophoneId") !== false
-            &&
-            $this->getDatabase()->modify("delete from houses_entrances where house_domophone_id not in (select house_domophone_id from houses_domophones)") !== false
-            &&
-            $this->getDatabase()->modify("delete from houses_entrances_cmses where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false
-            &&
-            $this->getDatabase()->modify("delete from houses_houses_entrances where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false
-            &&
-            $this->getDatabase()->modify("delete from houses_entrances_flats where house_entrance_id not in (select house_entrance_id from houses_entrances)") !== false;
-    }
-
-    public function getDomophone(int $domophoneId): bool|array
-    {
-        $domophone = $this->getDatabase()->get("select * from houses_domophones where house_domophone_id = $domophoneId",
-            map: [
-                "house_domophone_id" => "domophoneId",
-                "enabled" => "enabled",
-                "model" => "model",
-                "server" => "server",
-                "url" => "url",
-                "credentials" => "credentials",
-                "dtmf" => "dtmf",
-                "first_time" => "firstTime",
-                "nat" => "nat",
-                "comment" => "comment",
-                "ip" => "ip",
-                'sos_number' => 'sosNumber'
-            ],
-            options: ["singlify"]
-        );
-
-        if ($domophone)
-            $domophone['json'] = IntercomModel::models()[$domophone['model']]->toArray();
-
-        return $domophone;
     }
 
     public function getSubscribers(string $by, mixed $query): bool|array
@@ -919,89 +809,6 @@ readonly class InternalHouseFeature extends HouseFeature
         ]);
     }
 
-    public function setSubscriberFlats(int $subscriberId, array $flats): bool
-    {
-        if (!$this->getDatabase()->modify("delete from houses_flats_subscribers where house_subscriber_id = :subscriber_id", ['subscriber_id' => $subscriberId,])) {
-            return false;
-        }
-
-        foreach ($flats as $flatId => $owner) {
-            if (!$this->getDatabase()->insert("insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, :role)", [
-                "house_subscriber_id" => $subscriberId,
-                "house_flat_id" => $flatId,
-                "role" => $owner ? 0 : 1,
-            ])) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    public function getKeys(string $by, ?int $query): bool|array
-    {
-        $q = "";
-        $p = false;
-
-        if ($by == "flatId") {
-            $q = "select * from houses_rfids where access_to = :flat_id and access_type = 2";
-            $p = [
-                "flat_id" => (int)$query,
-            ];
-        }
-
-        return $this->getDatabase()->get($q, $p, [
-            "house_rfid_id" => "keyId",
-            "rfid" => "rfId",
-            "access_type" => "accessType",
-            "access_to" => "accessTo",
-            "last_seen" => "lastSeen",
-            "comments" => "comments",
-        ]);
-    }
-
-    public function getKey(int $keyId): array|false
-    {
-        return $this->getDatabase()->get('select * from houses_rfids where house_rfid_id = :key_id', ['key_id' => $keyId], [
-            "house_rfid_id" => "keyId",
-            "rfid" => "rfId",
-            "access_type" => "accessType",
-            "access_to" => "accessTo",
-            "last_seen" => "lastSeen",
-            "comments" => "comments",
-        ], ['singlify']);
-    }
-
-    public function addKey(string $rfId, int $accessType, $accessTo, string $comments): bool|int|string
-    {
-        if (!check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($rfId, ["minLength" => 6, "maxLength" => 32]) || !check_string($comments, ["maxLength" => 128])) {
-            last_error("invalidParams");
-            return false;
-        }
-
-        return $this->getDatabase()->insert("insert into houses_rfids (rfid, access_type, access_to, comments) values (:rfid, :access_type, :access_to, :comments)", [
-            "rfid" => $rfId,
-            "access_type" => $accessType,
-            "access_to" => $accessTo,
-            "comments" => $comments,
-        ]);
-    }
-
-    public function deleteKey(int $keyId): bool|int
-    {
-        return $this->getDatabase()->modify("delete from houses_rfids where house_rfid_id = $keyId");
-    }
-
-    public function modifyKey(int $keyId, string $comments): bool|int
-    {
-        return $this->getDatabase()->modify("update houses_rfids set comments = :comments where house_rfid_id = :rfid_id", ['rfid_id' => $keyId, "comments" => $comments]);
-    }
-
-    function doorOpened(int $flatId): bool|int
-    {
-        return $this->getDatabase()->modify("update houses_flats set last_opened = :now where house_flat_id = :flat_id", ['flat_id' => $flatId, "now" => time()]);
-    }
-
     function getEntrance(int $entranceId): array|bool
     {
         return $this->getDatabase()->get("select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = :entrance_id order by entrance_type, entrance",
@@ -1059,14 +866,6 @@ readonly class InternalHouseFeature extends HouseFeature
         );
     }
 
-    public function dismissToken(string $token): bool
-    {
-        return
-            $this->getDatabase()->modify("update houses_subscribers_mobile set push_token = null where push_token = :push_token", ["push_token" => $token])
-            or
-            $this->getDatabase()->modify("update houses_subscribers_mobile set voip_token = null where voip_token = :voip_token", ["voip_token" => $token]);
-    }
-
     function getEntrances(string $by, mixed $query): bool|array
     {
         $where = '';
@@ -1118,26 +917,6 @@ readonly class InternalHouseFeature extends HouseFeature
                 "locks_disabled" => "locksDisabled"
             ]
         );
-    }
-
-    public function addCamera(string $to, int $id, int $cameraId): bool|int|string
-    {
-        return match ($to) {
-            "house" => $this->getDatabase()->insert("insert into houses_cameras_houses (camera_id, address_house_id) values ($cameraId, $id)"),
-            "flat" => $this->getDatabase()->insert("insert into houses_cameras_flats (camera_id, house_flat_id) values ($cameraId, $id)"),
-            "subscriber" => $this->getDatabase()->insert("insert into houses_cameras_subscribers (camera_id, house_subscriber_id) values ($cameraId, $id)"),
-            default => false,
-        };
-    }
-
-    public function unlinkCamera(string $from, int $id, int $cameraId): bool|int
-    {
-        return match ($from) {
-            "house" => $this->getDatabase()->modify("delete from houses_cameras_houses where camera_id = $cameraId and address_house_id = $id"),
-            "flat" => $this->getDatabase()->modify("delete from houses_cameras_flats where camera_id = $cameraId and house_flat_id = $id"),
-            "subscriber" => $this->getDatabase()->modify("delete from houses_cameras_subscribers where camera_id = $cameraId and house_subscriber_id = $id"),
-            default => false,
-        };
     }
 
     public function getCameras(string $by, int $params): array
