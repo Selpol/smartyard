@@ -43,7 +43,9 @@ readonly class ClickhouseService
 
         curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type: text/plain; charset=UTF-8', 'X-ClickHouse-User: ' . $username, 'X-ClickHouse-Key: ' . $password]);
 
-        curl_setopt($curl, CURLOPT_HEADERFUNCTION,
+        curl_setopt(
+            $curl,
+            CURLOPT_HEADERFUNCTION,
             function ($curl, $header) use (&$headers): int {
                 $len = strlen($header);
                 $header = explode(':', $header, 2);
@@ -91,72 +93,5 @@ readonly class ClickhouseService
         }
 
         return false;
-    }
-
-    public function insert(string $table, array $data): bool|string
-    {
-        $plog = config_get('feature.plog');
-
-        $host = $plog['host'];
-        $port = $plog['port'];
-
-        $username = $plog['username'];
-        $password = $plog['password'];
-
-        $curl = curl_init();
-        $headers = [];
-
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: text/plain; charset=UTF-8',
-            'X-ClickHouse-User: ' . $username,
-            'X-ClickHouse-Key: ' . $password,
-        ]);
-
-        curl_setopt($curl, CURLOPT_HEADERFUNCTION,
-            function ($curl, $header) use (&$headers): int {
-                $len = strlen($header);
-                $header = explode(':', $header, 2);
-
-                if (count($header) < 2) {
-                    return $len;
-                }
-
-                $headers[strtolower(trim($header[0]))][] = trim($header[1]);
-
-                return $len;
-            }
-        );
-
-        $_data = "";
-
-        foreach ($data as $line) {
-            $_data .= json_encode($line) . "\n";
-        }
-
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $_data);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_URL, sprintf('http://%s:%s/?query=', $host, $port) . urlencode(sprintf('INSERT INTO %s.%s FORMAT JSONEachRow', $this->database, $table)));
-        curl_setopt($curl, CURLOPT_POST, true);
-
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_TIMEOUT, 5);
-        curl_setopt($curl, CURLOPT_VERBOSE, false);
-
-        try {
-            $error = curl_exec($curl);
-        } catch (Exception $exception) {
-            file_logger('clickhouse-service')->error('Error send command' . PHP_EOL . $exception);
-
-            return false;
-        }
-
-        curl_close($curl);
-
-        if (@$headers['x-clickhouseService-exception-code'] !== []) {
-            return $error;
-        }
-
-        return true;
     }
 }

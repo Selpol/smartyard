@@ -44,7 +44,7 @@ class ClickhouseEntityStatement implements EntityStatementInterface
                     $item = "'" . str_replace("'", "\'", $item) . "'";
                 }
 
-                $query = str_replace(':' . $key, (string)$item, $query);
+                $query = str_replace(':' . $key, (string) $item, $query);
             }
         }
 
