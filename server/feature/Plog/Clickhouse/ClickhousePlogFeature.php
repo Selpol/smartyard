@@ -10,6 +10,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\ClickhouseService;
 use Selpol\Task\Tasks\Plog\PlogCallTask;
 use Selpol\Task\Tasks\Plog\PlogOpenTask;
@@ -158,7 +159,12 @@ readonly class ClickhousePlogFeature extends PlogFeature
                 }
                 $event_data[self::COLUMN_HIDDEN] = $hidden;
                 $event_data[self::COLUMN_FLAT_ID] = $flat_id;
-                $this->clickhouse->insert("plog", [$event_data]);
+
+                $statement = $this->getInsertStatement($event_data);
+
+                if (!$statement->execute()) {
+                    file_logger('plog')->error('Error writeEventData', $statement->error());
+                }
             }
         } else {
             $hidden = $this->getPlogHidden($event_data[self::COLUMN_FLAT_ID]);
@@ -169,8 +175,35 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
             $event_data[self::COLUMN_HIDDEN] = $hidden;
 
-            $this->clickhouse->insert("plog", [$event_data]);
+            $statement = $this->getInsertStatement($event_data);
+
+            if (!$statement->execute()) {
+                file_logger('plog')->error('Error writeEventData', $statement->error());
+            }
         }
+    }
+
+    private function getInsertStatement(array $data): EntityStatementInterface
+    {
+        $query = 'INSERT INTO prod.plog(`date`, `event_uuid`, `hidden`, `image_uuid`, `flat_id`, `domophone`, `event`, `opened`, `face`, `rfid`, `code`, `phones`, `preview`) VALUES (';
+
+        $query .= $data['date'] . ', ';
+        $query .= "'" . $data['event_uuid'] . "', ";
+        $query .= $data['hidden'] . ', ';
+        $query .= "'" . $data['image_uuid'] . "', ";
+        $query .= $data['flat_id'] . ', ';
+        $query .= "tuple('" . $data['domophone']['domophone_description'] . "', " . $data['domophone']['domophone_id'] . ', ' . $data['domophone']['domophone_output'] . '), ';
+        $query .= $data['event'] . ', ';
+        $query .= $data['opened'] . ', ';
+        $query .= "tuple('" . $data['face']['faceId'] . "', " . ($data['face']['height'] ?? 0) . ', ' . ($data['face']['left'] ?? 0) . ', ' . ($data['face']['top'] ?? 0) . ', ' . ($data['face']['width'] ?? 0) . '), ';
+        $query .= "'" . $data['rfid'] . "', ";
+        $query .= "'" . $data['code'] . "', ";
+        $query .= 'tuple(' . ($data['phones']['user_phone'] == '' ? 'NULL' : $data['phones']['user_phone']) . '), ';
+        $query .= "'" . $data['preview'] . "'";
+
+        $query .= ')';
+
+        return container(ClickhouseService::class)->statement($query);
     }
 
     /**
