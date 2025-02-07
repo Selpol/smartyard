@@ -108,40 +108,6 @@
 - `int` *flat* - Квартира
 - `string|null` *code* - Код открытия
 
-## DeviceRelayIndexRequest
-
-Поля: 
-
-- `int` *page* - Страница
-- `int` *size* - Размер страницы
-
-## DeviceRelayStoreRequest
-
-Поля: 
-
-- `string` *title* - Название устройства
-- `string` *url* - Ссылка на устройство
-- `string` *credential* - Авторизация для устройства
-
-## DeviceRelayUpdateRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор устройства
-- `null|string` *title* - Название устройства
-- `null|string` *url* - Ссылка на устройство
-- `null|string` *credential* - Авторизация для устройства
-
-## DeviceRelaySettingUpdateRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор устройства
-- `null|string` *authentication* - Авторизация в формате Base64
-- `null|int` *open_duration* - Время октрытия реле
-- `null|string` *ping_address* - Ip-адрес для пинга
-- `null|int` *ping_timeout* - Таймаут пинга
-
 ## DvrShowRequest
 
 Поля: 

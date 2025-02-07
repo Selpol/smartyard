@@ -9,8 +9,6 @@
 - [BlockSubscriberController](./BlockSubscriberController.md)
 - [ConfigController](./ConfigController.md)
 - [ContractorController](./ContractorController.md)
-- [DeviceRelayController](./DeviceRelayController.md)
-- [DeviceRelaySettingController](./DeviceRelaySettingController.md)
 - [DvrController](./DvrController.md)
 - [GeoController](./GeoController.md)
 - [GroupController](./GroupController.md)
