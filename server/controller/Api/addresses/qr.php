@@ -17,8 +17,10 @@ readonly class qr extends Api
 
         $uuid = task(new QrTask($validate['_id'], $validate['override']))->sync();
 
+        $file = container(FileFeature::class)->getFile($uuid);
+
         return response()
-            ->withBody(stream(container(FileFeature::class)->getFileStream($uuid)))
+            ->withBody($file->stream)
             ->withHeader('Content-Type', 'application/zip')
             ->withHeader('Content-Disposition', 'attachment; filename="' . $uuid . '.zip"');
     }

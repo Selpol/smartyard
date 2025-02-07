@@ -2,7 +2,7 @@
 
 namespace Selpol\Feature\Group\Internal;
 
-use FileType;
+use FileStorage;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
@@ -114,6 +114,6 @@ readonly class InternalGroupFeature extends GroupFeature
 
     private function getCollection(): Collection
     {
-        return container(MongoService::class)->getDatabase(container(FileFeature::class)->getDatabaseName(FileType::Group))->selectCollection('group');
+        return container(MongoService::class)->getDatabase(container(FileFeature::class)->getDatabaseName(FileStorage::Group))->selectCollection('group');
     }
 }

@@ -7,7 +7,9 @@ use PhpOffice\PhpWord\Settings;
 use PhpOffice\PhpWord\TemplateProcessor;
 use RuntimeException;
 use Selpol\Feature\Address\AddressFeature;
+use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileInfo;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
@@ -40,10 +42,10 @@ class QrTask extends Task implements TaskUniqueInterface
 
         if ($this->override) {
             foreach ($uuids as $uuid) {
-                $file->deleteFile($uuid['id']);
+                $file->deleteFile($uuid);
             }
         } elseif (count($uuids) > 0) {
-            return $uuids[count($uuids) - 1]['id'];
+            return $uuids[count($uuids) - 1];
         }
 
         $qr = $this->getOrCreateQr($house);
@@ -104,7 +106,7 @@ class QrTask extends Task implements TaskUniqueInterface
 
             $zip->close();
 
-            return container(FileFeature::class)->addFile($qr['address'] . ' QR.zip', fopen($file, "r"));
+            return container(FileFeature::class)->addFile(File::stream(stream(fopen($file, 'r')))->withFilename($qr['address'] . ' QR.zip'));
         } catch (Throwable $throwable) {
             throw new RuntimeException($throwable->getMessage(), $throwable->getCode(), previous: $throwable);
         } finally {

@@ -2,7 +2,6 @@
 
 namespace Selpol\Controller\Mobile;
 
-use FileType;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
@@ -10,6 +9,7 @@ use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -57,7 +57,7 @@ readonly class ArchiveController extends MobileRbtController
             return user_response(200, $check['id']);
         }
 
-        $result = (int)$archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
+        $result = (int) $archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
         task(new RecordTask($userId, $result))->queue('record')->dispatch();
 
@@ -71,13 +71,12 @@ readonly class ArchiveController extends MobileRbtController
     public function download(string $uuid, FileFeature $fileFeature): Response
     {
         try {
-            $stream = $fileFeature->getFileStream($uuid, FileType::Archive);
-            $info = $fileFeature->getFileInfo($uuid, FileType::Archive);
+            $file = $fileFeature->getFile($uuid, FileStorage::Archive);
 
             return response()
                 ->withHeader('Content-Type', 'video/mp4')
-                ->withHeader('Content-Disposition', 'attachment; filename=' . $info['filename'])
-                ->withBody(stream($stream));
+                ->withHeader('Content-Disposition', 'attachment; filename=' . $file->info->filename)
+                ->withBody($file->stream);
         } catch (Throwable) {
             return response()
                 ->withHeader('Content-Type', 'charset=utf-8')

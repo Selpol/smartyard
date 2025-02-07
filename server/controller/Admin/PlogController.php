@@ -51,8 +51,10 @@ readonly class PlogController extends AdminRbtController
     #[Get('/camshot/{uuid}')]
     public function camshot(PlogCamshotRequest $request, FileFeature $feature): ResponseInterface
     {
+        $file = $feature->getFile($feature->fromGUIDv4($request->uuid));
+
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($request->uuid))));
+            ->withBody($file->stream);
     }
 }

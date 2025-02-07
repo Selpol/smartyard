@@ -6,7 +6,11 @@ use Psr\Log\LoggerInterface;
 use Selpol\Cli\Cron\CronEnum;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Frs\FrsServer;
+use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileInfo;
+use Selpol\Feature\File\FileMetadata;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -38,22 +42,29 @@ readonly class InternalFrsFeature extends FrsFeature
         if ($r)
             return $data[self::P_FACE_ID];
 
-        $content_type = "image/jpeg";
+        $contentType = "image/jpeg";
         $image_data = file_get_contents($data[self::P_FACE_IMAGE]);
 
         if (str_starts_with($data[self::P_FACE_IMAGE], "data:")) {
             if (preg_match_all("/^data:(.*);/i", $image_data, $matches))
-                $content_type = end($matches[1]);
+                $contentType = end($matches[1]);
         } else {
             $headers = implode("\n", $http_response_header);
 
             if (preg_match_all("/^content-type\s*:\s*(.*)$/mi", $headers, $matches))
-                $content_type = end($matches[1]);
+                $contentType = end($matches[1]);
         }
 
-        $file = container(FileFeature::class);
+        $feature = container(FileFeature::class);
 
-        $face_uuid = $file->toGUIDv4($file->addFile("face_image", temp_stream($image_data), ["contentType" => $content_type, "faceId" => $data[self::P_FACE_ID]]));
+        $face_uuid = $feature->toGUIDv4(
+            $feature->addFile(
+                File::stream(stream($image_data))
+                    ->withFilename('face')
+                    ->withMetadata(FileMetadata::contentType($contentType)->withFaceId($data[self::P_FACE_ID])),
+                FileStorage::Face
+            )
+        );
 
         $this->getDatabase()->insert(
             "insert into frs_faces(face_id, face_uuid, event_uuid) values(:face_id, :face_uuid, :event_uuid)",

@@ -124,8 +124,10 @@ readonly class FrsController extends RouteController
     #[Get('/face/{uuid}')]
     public function face(string $uuid, FileFeature $feature): Response
     {
+        $file = $feature->getFile($feature->fromGUIDv4($uuid));
+
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(stream($feature->getFileStream($feature->fromGUIDv4($uuid))));
+            ->withBody($file->stream);
     }
 }

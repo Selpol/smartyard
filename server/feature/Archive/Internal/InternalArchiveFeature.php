@@ -2,11 +2,14 @@
 
 namespace Selpol\Feature\Archive\Internal;
 
-use FileType;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Dvr\DvrFeature;
+use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileInfo;
+use Selpol\Feature\File\FileMetadata;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Service\PrometheusService;
 use Throwable;
 
@@ -77,31 +80,31 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                 $arrContextOptions = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false));
 
-                $file = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
-                $fileId = container(FileFeature::class)->addFile($task['filename'], $file, [
-                    "camId" => $task['cameraId'],
-                    "start" => $task['start'],
-                    "finish" => $task['finish'],
-                    "subscriberId" => $task['subscriberId'],
-                    "expire" => $task['expire']
-                ], FileType::Archive);
+                $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
+
+                $fileId = container(FileFeature::class)->addFile(
+                    File::stream(stream($resource))
+                        ->withFilename($task['filename'])
+                        ->withMetadata(
+                            FileMetadata::contentType(null)
+                                ->withCameraId($task['cameraId'])
+                                ->withSubscirberId($task['subscriberId'])
+                                ->withStart($task['start'])
+                                ->withEnd($task['finish'])
+                                ->withExpire($task['expire'])
+                        ),
+                    FileStorage::Archive
+                );
 
                 $time = container(PrometheusService::class)->getCounter('record', 'time', 'Record download time', ['camera', 'subscriber', 'status']);
 
-                if ($file) {
+                if ($resource) {
                     $this->getDatabase()->modify("update camera_records set state = 2 where record_id = $recordId");
                     echo "Record download task with id = $recordId was successfully finished!\n";
 
-                    fclose($file);
+                    fclose($resource);
 
                     $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 1]);
-
-                    try {
-                        $counter = container(PrometheusService::class)->getCounter('record', 'size', 'Record download size', ['camera', 'subscriber']);
-
-                        $counter->incBy(container(FileFeature::class)->getFileSize($fileId, FileType::Archive), [$task['cameraId'], $task['subscriberId']]);
-                    } catch (Throwable) {
-                    }
 
                     return $fileId;
                 } else {

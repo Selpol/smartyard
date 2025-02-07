@@ -2,13 +2,16 @@
 
 namespace Selpol\Feature\Plog\Clickhouse;
 
-use FileType;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Cli\Cron\CronEnum;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Dvr\DvrFeature;
+use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileInfo;
+use Selpol\Feature\File\FileMetadata;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -56,7 +59,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
      */
     public function getCamshot(int $domophone_id, int $door_id, string|bool|null $date, int|bool|null $event_id = false): array
     {
-        $file = container(FileFeature::class);
+        $fileFeature = container(FileFeature::class);
 
         $camshot_data = [];
 
@@ -80,19 +83,20 @@ readonly class ClickhousePlogFeature extends PlogFeature
                     $image_data = file_get_contents($response[FrsFeature::P_DATA][FrsFeature::P_SCREENSHOT]);
                     if ($image_data) {
                         $headers = implode("\n", $http_response_header);
-                        $content_type = "image/jpeg";
+                        $contentType = "image/jpeg";
+
                         if (preg_match_all("/^content-type\s*:\s*(.*)$/mi", $headers, $matches)) {
-                            $content_type = end($matches[1]);
+                            $contentType = end($matches[1]);
                         }
-                        $camshot_data[self::COLUMN_IMAGE_UUID] = $file->toGUIDv4($file->addFile(
-                            "camshot",
-                            temp_stream($image_data),
-                            [
-                                "contentType" => $content_type,
-                                "expire" => time() + $this->ttl_camshot_days * 86400,
-                            ],
-                            FileType::Screenshot
-                        ));
+
+                        $camshot_data[self::COLUMN_IMAGE_UUID] = $fileFeature->toGUIDv4(
+                            $fileFeature->addFile(
+                                File::stream(stream($image_data))
+                                    ->withFilename('screenshot')
+                                    ->withMetadata(FileMetadata::contentType($contentType)->withExpire(time() + $this->ttl_camshot_days * 86400)),
+                                FileStorage::Screenshot
+                            )
+                        );
                         $camshot_data[self::COLUMN_PREVIEW] = self::PREVIEW_FRS;
                         $camshot_data[self::COLUMN_FACE] = [
                             FrsFeature::P_FACE_LEFT => $response[FrsFeature::P_DATA][FrsFeature::P_FACE_LEFT],
@@ -121,15 +125,14 @@ readonly class ClickhousePlogFeature extends PlogFeature
                         }
 
                         if (file_exists($filename)) {
-                            $camshot_data[self::COLUMN_IMAGE_UUID] = $file->toGUIDv4($file->addFile(
-                                "camshot",
-                                fopen($filename, 'rb'),
-                                [
-                                    "contentType" => "image/jpeg",
-                                    "expire" => time() + $this->ttl_camshot_days * 86400,
-                                ],
-                                FileType::Screenshot
-                            ));
+                            $camshot_data[self::COLUMN_IMAGE_UUID] = $fileFeature->toGUIDv4(
+                                $fileFeature->addFile(
+                                    File::stream(stream(fopen($filename, 'rb')))
+                                        ->withFilename('screenshot')
+                                        ->withMetadata(FileMetadata::contentType('image/jpeg')->withExpire(time() + $this->ttl_camshot_days * 86400)),
+                                    FileStorage::Screenshot
+                                )
+                            );
 
                             unlink($filename);
 

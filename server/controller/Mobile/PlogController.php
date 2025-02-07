@@ -9,6 +9,7 @@ use Selpol\Controller\Request\Mobile\PlogDaysRequest;
 use Selpol\Controller\Request\Mobile\PlogIndexRequest;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -81,7 +82,7 @@ readonly class PlogController extends MobileRbtController
                         $e_details['mechanizmaDescription'] = isset($domophone->domophone_description) ? $domophone->domophone_description : '';
                     }
 
-                    $event_type = (int)$row[PlogFeature::COLUMN_EVENT];
+                    $event_type = (int) $row[PlogFeature::COLUMN_EVENT];
                     $e_details['event'] = strval($event_type);
                     $face = json_decode($row[PlogFeature::COLUMN_FACE], false);
 
@@ -94,7 +95,7 @@ readonly class PlogController extends MobileRbtController
                             $face_id = $face->faceId;
                         }
 
-                        $subscriber_id = (int)$user['subscriberId'];
+                        $subscriber_id = (int) $user['subscriberId'];
 
                         if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'] = [FrsFeature::FLAG_LIKED, FrsFeature::FLAG_CAN_DISLIKE];
@@ -146,7 +147,7 @@ readonly class PlogController extends MobileRbtController
                             break;
                     }
 
-                    if ((int)$row[PlogFeature::COLUMN_PREVIEW] !== 0) {
+                    if ((int) $row[PlogFeature::COLUMN_PREVIEW] !== 0) {
                         $img_uuid = $row[PlogFeature::COLUMN_IMAGE_UUID];
                         $url = config_get('api.mobile') . ('/address/plogCamshot/' . $img_uuid);
                         $e_details['preview'] = $url;
@@ -169,9 +170,11 @@ readonly class PlogController extends MobileRbtController
     #[Get('/plogCamshot/{uuid}')]
     public function camshot(string $uuid, FileFeature $fileFeature): Response
     {
+        $file = $fileFeature->getFile($uuid, FileStorage::Screenshot);
+
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody(stream($fileFeature->getFileStream($fileFeature->fromGUIDv4($uuid))));
+            ->withBody($file->stream);
     }
 
     #[Post(
@@ -210,7 +213,7 @@ readonly class PlogController extends MobileRbtController
             $t = [];
 
             foreach ($filter_events as $e)
-                $t[(int)$e] = 1;
+                $t[(int) $e] = 1;
 
             $filter_events = [];
 
