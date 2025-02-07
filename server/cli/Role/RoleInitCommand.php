@@ -89,15 +89,6 @@ class RoleInitCommand
             'account-audit-index-get' => '[Аудит] Получить список действий',
             'account-audit-description-get' => '[Аудит] Получить описание',
 
-            'device-relay-index-get' => '[Устройство-Реле] Получить список устройств реле',
-            'device-relay-show-get' => '[Устройство-Реле] Получить устройство реле',
-            'device-relay-store-post' => '[Устройство-Реле] Добавить устройство реле',
-            'device-relay-update-put' => '[Устройство-Реле] Обновить устройство реле',
-            'device-relay-delete-delete' => '[Устройство-Реле] Удалить устройством реле',
-
-            'device-relay-setting-index-get' => '[Устройство-Реле] Получить настройки реле',
-            'device-relay-setting-update-put' => '[Устройство-Реле] Обновить настройки реле',
-
             'intercom-config-audio' => '[Домофон-Конфигурация] Управление аудио домофона',
             'intercom-config-show-get' => '[Домофон-Конфигурация] Получить настройку домофона',
             'intercom-config-update-put' => '[Домофон-Конфигурация] Обновить настройку домофона',

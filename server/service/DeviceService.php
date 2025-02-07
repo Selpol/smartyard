@@ -12,6 +12,7 @@ use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Device\Ip\Intercom\IntercomConfigResolver;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
@@ -19,6 +20,7 @@ use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigResolver;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
+use Selpol\Task\Tasks\Intercom\IntercomHealthTask;
 use Throwable;
 
 #[Singleton]
@@ -59,6 +61,10 @@ class DeviceService implements CronInterface
                 $deviceIntercom->device_hardware_version = $info->hardwareVersion;
 
                 $deviceIntercom->update();
+
+                if ($intercom instanceof SipInterface) {
+                    $this->health($intercom);
+                }
             }
         }
 
@@ -214,5 +220,24 @@ class DeviceService implements CronInterface
         }
 
         return null;
+    }
+
+    public function health(IntercomDevice|SipInterface $intercom): void
+    {
+        if (!$intercom->model->isBeward()) {
+            return;
+        }
+
+        if (!$intercom->ping()) {
+            return;
+        }
+
+        if (!$intercom->getSipStatus()) {
+            $sip = $intercom->getSip();
+
+            $intercom->setSip($sip);
+
+            task(new IntercomHealthTask($intercom->intercom->house_domophone_id))->delay(120)->low()->dispatch();
+        }
     }
 }

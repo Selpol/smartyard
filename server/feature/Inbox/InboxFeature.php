@@ -17,9 +17,5 @@ readonly abstract class InboxFeature extends Feature
 
     abstract public function markMessageAsRead(int $subscriberId, int|bool $msgId = false): bool|int;
 
-    abstract public function markMessageAsDelivered(int $subscriberId, int|bool $msgId = false): bool|int;
-
     abstract public function unRead(int $subscriberId): array|bool;
-
-    abstract public function undelivered(int $subscriberId): array|bool;
 }

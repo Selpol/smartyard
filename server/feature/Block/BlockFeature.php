@@ -44,18 +44,4 @@ readonly abstract class BlockFeature extends Feature
     public abstract function getFirstBlockForFlat(int $value, array $services): ?FlatBlock;
 
     public abstract function getFirstBlockForSubscriber(int $value, array $services): ?SubscriberBlock;
-
-    /**
-     * @param int $value
-     * @param int[] $services
-     * @return array<int, bool>
-     */
-    public abstract function getBlockStatusForFlat(int $value, array $services): array;
-
-    /**
-     * @param int $value
-     * @param int[] $services
-     * @return array<int, bool>
-     */
-    public abstract function getBlockStatusForSubscriber(int $value, array $services): array;
 }

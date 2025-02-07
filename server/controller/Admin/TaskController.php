@@ -24,6 +24,7 @@ use Selpol\Task\Tasks\Intercom\Flat\IntercomSyncFlatTask;
 use Selpol\Task\Tasks\Intercom\IntercomBlockTask;
 use Selpol\Task\Tasks\Intercom\IntercomConfigureTask;
 use Selpol\Task\Tasks\Intercom\IntercomEntranceTask;
+use Selpol\Task\Tasks\Intercom\IntercomHealthTask;
 use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
 use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
@@ -81,11 +82,12 @@ readonly class TaskController extends AdminRbtController
                 IntercomDeleteFlatTask::class => '[Домофон] Удаление квартиры',
                 IntercomSyncFlatTask::class => '[Домофон] Синхронизация квартиры',
                 IntercomBlockTask::class => '[Домофон] Синхронизация блокировок КМС Трубок',
+                IntercomHealthTask::class => '[Домофон] Проверка состояния здоровья',
 
                 IntercomAddKeyTask::class => '[Домофон] Добавление ключ',
                 IntercomDeleteKeyTask::class => '[Домофон] Удаление ключ',
                 IntercomHouseKeyTask::class => '[Домофон] Синхронизация ключей на дому',
-                IntercomKeysKeyTask::class => '[Домофон] Массовая синхронизация ключей на дому'
+                IntercomKeysKeyTask::class => '[Домофон] Массовая синхронизация ключей на дому',
             ]
         ]);
     }

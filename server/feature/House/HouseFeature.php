@@ -27,8 +27,6 @@ readonly abstract class HouseFeature extends Feature
 
     abstract function getFlat(int $flatId, bool $withBlock = false): bool|array;
 
-    abstract function getFlatBlock(int $flatId): bool;
-
     abstract function getFlatPlog(int $flatId): ?int;
 
     abstract function getFlats(string $by, mixed $params, bool $withBlock = false): bool|array;
@@ -41,23 +39,15 @@ readonly abstract class HouseFeature extends Feature
 
     abstract function deleteFlat(int $flatId): bool;
 
-    abstract function doorOpened(int $flatId): bool|int;
-
     abstract function getSharedEntrances(int|bool $houseId = false): bool|array;
 
     abstract public function getCms(int $entranceId): bool|array;
 
     abstract public function setCms(int $entranceId, array $cms): bool;
 
-    abstract public function getDomophones(string $by = "all", string|int $query = -1): bool|array;
-
     abstract public function getDomophoneIdByEntranceCameraId(int $camera_id): ?int;
 
     abstract public function getIntercomOpenDataByEntranceCameraId(int $camera_id): ?array;
-
-    abstract public function deleteDomophone(int $domophoneId): bool;
-
-    abstract public function getDomophone(int $domophoneId): bool|array;
 
     abstract public function getSubscribers(string $by, mixed $query): bool|array;
 
@@ -73,23 +63,5 @@ readonly abstract class HouseFeature extends Feature
 
     abstract public function removeSubscriberFromFlat(int $flatId, int $subscriberId): bool|int;
 
-    abstract public function setSubscriberFlats(int $subscriberId, array $flats): bool;
-
-    abstract public function getKeys(string $by, ?int $query): bool|array;
-
-    abstract public function getKey(int $keyId): array|false;
-
-    abstract public function addKey(string $rfId, int $accessType, $accessTo, string $comments): bool|int|string;
-
-    abstract public function modifyKey(int $keyId, string $comments): bool|int;
-
-    abstract public function deleteKey(int $keyId): bool|int;
-
-    abstract public function dismissToken(string $token): bool;
-
     abstract public function getCameras(string $by, int $params): array;
-
-    abstract public function addCamera(string $to, int $id, int $cameraId): bool|int|string;
-
-    abstract public function unlinkCamera(string $from, int $id, int $cameraId): bool|int;
 }

@@ -47,22 +47,6 @@ readonly class InternalGroupFeature extends GroupFeature
         return $result;
     }
 
-    public function findIn(string $type, string $for, mixed $id, mixed $value): array
-    {
-        $cursor = $this->getCollection()->find(['type' => $type, 'for' => $for, 'id' => $id, 'value' => ['$in' => [$value]]]);
-
-        $result = [];
-
-        foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument)
-                $result[] = new Group($document->getArrayCopy());
-            else if ($document)
-                $result[] = new Group($document);
-        }
-
-        return $result;
-    }
-
     public function insert(string $name, string $type, string $for, mixed $id, array $value): string|bool
     {
         $result = $this->getCollection()->insertOne(['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]);
@@ -121,21 +105,6 @@ readonly class InternalGroupFeature extends GroupFeature
         if ($status) {
             if (container(AuditFeature::class)->canAudit())
                 container(AuditFeature::class)->audit($oid, Group::class, 'delete', 'Удаление группы');
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public function deleteFor(string $for, mixed $id): bool
-    {
-        $result = $this->getCollection()->deleteMany(['for' => $for, 'id' => $id]);
-        $status = $result->getDeletedCount() > 0;
-
-        if ($status) {
-            if (container(AuditFeature::class)->canAudit())
-                container(AuditFeature::class)->audit(strval($id), Group::class, 'delete', 'Удаление группы для типа ' . $for);
 
             return true;
         }

@@ -171,8 +171,6 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
      */
     private function keys(Contractor $contractor, array $devices, array $flats, array $keys): void
     {
-        $houseFeature = container(HouseFeature::class);
-
         /** @var array<IntercomDevice|KeyInterface> $intercoms */
         $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device instanceof KeyInterface && $device->pingRaw());
 
@@ -181,9 +179,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
         foreach ($flats as $id => $flat) {
             try {
-                /** @var array<string, int> $keysInFlat */
-                $keysInFlat = array_reduce($houseFeature->getKeys('flatId', $id), static function (array $previous, array $current) {
-                    $previous[$current['rfId']] = $current['keyId'];
+                /** @var array<string, HouseKey> $keysInFlat */
+                $keysInFlat = array_reduce(HouseKey::fetchAll(criteria()->equal('access_type', 2)->equal('access_to', $id)), static function (array $previous, HouseKey $current) {
+                    $previous[$current->rfid] = $current;
 
                     return $previous;
                 }, []);
@@ -224,7 +222,8 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                     if ($this->removeKey) {
                         foreach ($keysInFlat as $key => $value) {
-                            $houseFeature->deleteKey($value);
+                            $value->safeDelete();
+
                             $intercom->removeKey(new Key($key, $flat));
                         }
                     }

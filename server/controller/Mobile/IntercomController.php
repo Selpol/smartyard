@@ -7,6 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
@@ -195,7 +196,12 @@ readonly class IntercomController extends MobileRbtController
                 $model->open($validate['doorId'] ?: 0);
 
                 foreach (array_unique($flatsId) as $flatId) {
-                    $houseFeature->doorOpened($flatId);
+                    $flat = HouseFlat::findById($flatId);
+
+                    if ($flat) {
+                        $flat->last_opened = time();
+                        $flat->safeUpdate();
+                    }
                 }
 
                 $plogFeature->addDoorOpenDataById(time(), $validate['domophoneId'], PlogFeature::EVENT_OPENED_BY_APP, $validate['doorId'], $user['mobile']);

@@ -6,6 +6,7 @@ use FileType;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Cli\Cron\CronEnum;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\Frs\FrsFeature;
@@ -463,10 +464,11 @@ readonly class ClickhousePlogFeature extends PlogFeature
      */
     public function getDomophoneId($ip): bool|int
     {
-        $result = container(HouseFeature::class)->getDomophones('ip', $ip);
+        $intercom = DeviceIntercom::fetch(criteria()->equal('ip', $ip), setting()->columns(['house_domophone_id']));
 
-        if ($result && $result[0])
-            return $result[0]['domophoneId'];
+        if ($intercom) {
+            return $intercom->house_domophone_id;
+        }
 
         return false;
     }
