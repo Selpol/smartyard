@@ -18,6 +18,8 @@ abstract class IpDevice extends Device
     public string $password;
 
     public bool $debug;
+
+    public int $timeout;
     public int $prepare;
 
     protected ClientOption $clientOption;
@@ -31,6 +33,8 @@ abstract class IpDevice extends Device
         $this->clientOption = (new ClientOption())->basic($this->login, $this->password);
 
         $this->debug = config_get('debug', false);
+
+        $this->timeout = 0;
         $this->prepare = 1;
 
         $this->setLogger(file_logger('ip'));
@@ -263,6 +267,10 @@ abstract class IpDevice extends Device
      */
     private function prepare(): void
     {
+        if ($this->timeout > 0) {
+            usleep($this->timeout);
+        }
+
         if ($this->prepare === 0) {
             return;
         }

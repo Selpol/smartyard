@@ -41,6 +41,7 @@ abstract class IntercomDevice extends IpDevice
             $this->debug = $this->resolver->bool('debug', false);
         }
 
+        $this->timeout = $this->resolver->int('timeout', 0);
         $this->prepare = $this->resolver->int('prepare', 1);
 
         if ($this->resolver->bool('mifare', false) === true) {
