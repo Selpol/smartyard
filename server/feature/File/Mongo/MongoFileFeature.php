@@ -101,34 +101,35 @@ readonly class MongoFileFeature extends FileFeature
         $rawInfo = $bucket->getFileDocumentForStream($rawStream);
 
         if (isset($rawInfo->metadata)) {
+            $rawMetadata = json_decode(json_encode($rawInfo->metadata), true);
             $metadata = new FileMetadata(null, null, null, null, null, null, null);
 
-            if (array_key_exists('content_type', $rawInfo->metadata)) {
-                $metadata->withContentType($rawInfo->metadata['content_type']);
+            if (array_key_exists('content_type', $rawMetadata)) {
+                $metadata->withContentType($rawMetadata['content_type']);
             }
 
-            if (array_key_exists('subscirber_id', $rawInfo->metadata)) {
-                $metadata->withSubscirberId($rawInfo->metadata['subscirber_id']);
+            if (array_key_exists('subscirber_id', $rawMetadata)) {
+                $metadata->withSubscirberId($rawMetadata['subscirber_id']);
             }
 
-            if (array_key_exists('camera_id', $rawInfo->metadata)) {
-                $metadata->withCameraId($rawInfo->metadata['camera_id']);
+            if (array_key_exists('camera_id', $rawMetadata)) {
+                $metadata->withCameraId($rawMetadata['camera_id']);
             }
 
-            if (array_key_exists('face_id', $rawInfo->metadata)) {
-                $metadata->withFaceId($rawInfo->metadata['face_id']);
+            if (array_key_exists('face_id', $rawMetadata)) {
+                $metadata->withFaceId($rawMetadata['face_id']);
             }
 
-            if (array_key_exists('start', $rawInfo->metadata)) {
-                $metadata->withStart($rawInfo->metadata['start']);
+            if (array_key_exists('start', $rawMetadata)) {
+                $metadata->withStart($rawMetadata['start']);
             }
 
-            if (array_key_exists('end', $rawInfo->metadata)) {
-                $metadata->withEnd($rawInfo->metadata['end']);
+            if (array_key_exists('end', $rawMetadata)) {
+                $metadata->withEnd($rawMetadata['end']);
             }
 
-            if (array_key_exists('expire', $rawInfo->metadata)) {
-                $metadata->withExpire($rawInfo->metadata['expire']);
+            if (array_key_exists('expire', $rawMetadata)) {
+                $metadata->withExpire($rawMetadata['expire']);
             }
         } else {
             $metadata = null;
@@ -143,9 +144,9 @@ readonly class MongoFileFeature extends FileFeature
         return new File(stream($rawStream), $info);
     }
 
-    public function searchFiles(array $query, FileStorage $type = FileStorage::Other): array
+    public function searchFiles(FileInfo|array $info, FileStorage $type = FileStorage::Other): array
     {
-        $cursor = $this->service->getDatabase($this->getDatabaseName($type))->{"fs.files"}->find($query);
+        $cursor = $this->service->getDatabase($this->getDatabaseName($type))->{"fs.files"}->find(is_array($info) ? $info : $info->toQuery());
 
         $files = [];
 

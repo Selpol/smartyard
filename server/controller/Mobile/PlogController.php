@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\Mobile;
 
+use MongoDB\Client;
+use MongoDB\BSON\ObjectId;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
@@ -20,6 +22,7 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
+use Selpol\Service\DatabaseService;
 use Throwable;
 
 #[Controller('/mobile/address', includes: [BlockMiddleware::class => ['code' => 200, 'body' => ['code' => 200, 'name' => 'OK', 'data' => []], 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_EVENT]]])]
@@ -168,13 +171,30 @@ readonly class PlogController extends MobileRbtController
     }
 
     #[Get('/plogCamshot/{uuid}')]
-    public function camshot(string $uuid, FileFeature $fileFeature): Response
+    public function camshot(string $uuid, DatabaseService $service, FileFeature $feature): Response
     {
-        $file = $fileFeature->getFile($uuid, FileStorage::Screenshot);
+        try {
+            $file = $feature->getFile($feature->fromGUIDv4($uuid), FileStorage::Screenshot);
 
-        return response()
-            ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody($file->stream);
+            return response()
+                ->withHeader('Content-Type', 'image/jpeg')
+                ->withBody($file->stream);
+        } catch (Throwable $throwable) {
+            $client = new Client(env('OLD_MONGO_URI'));
+
+            /**
+             * @var \MongoDB\Database
+             */
+            $database = $client->{env('OLD_MONGO_DATABASE', FileFeature::DEFAULT_DATABASE)};
+            $bucket = $database->selectGridFSBucket();
+
+            $fileId = new ObjectId($feature->fromGUIDv4($uuid));
+            $stream = $bucket->openDownloadStream($fileId);
+
+            return response()
+                ->withHeader('Content-Type', 'image/jpeg')
+                ->withBody(stream($stream));
+        }
     }
 
     #[Post(

@@ -41,6 +41,25 @@ class FileInfo
         return $this;
     }
 
+    public function toQuery(): array
+    {
+        $result = [];
+
+        if ($this->filename) {
+            $result['filename'] = $this->filename;
+        }
+
+        if ($this->length) {
+            $result['length'] = $this->length;
+        }
+
+        if ($this->metadata) {
+            $result['metadata'] = $this->metadata->toQuery();
+        }
+
+        return $result;
+    }
+
     public static function filename(?string $filename): static
     {
         return new FileInfo($filename, null, null);

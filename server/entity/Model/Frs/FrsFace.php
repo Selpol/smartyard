@@ -28,8 +28,8 @@ class FrsFace extends Entity
         return [
             static::$columnId => rule()->id(),
 
-            'face_uuid' => rule()->required()->uuid()->nonNullable(),
-            'event_uuid' => rule()->required()->uuid()->nonNullable()
+            'face_uuid' => rule()->required()->nonNullable(),
+            'event_uuid' => rule()->required()->nonNullable()
         ];
     }
 }

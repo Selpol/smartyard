@@ -4,6 +4,7 @@ namespace Selpol\Cli\File;
 
 use Exception;
 use MongoDB\Client;
+use MongoDB\BSON\ObjectId;
 use MongoDB\GridFS\Exception\FileNotFoundException;
 use Selpol\Entity\Model\Frs\FrsFace;
 use Selpol\Feature\File\File;
@@ -16,7 +17,7 @@ use Selpol\Framework\Cli\IO\CliIO;
 use Throwable;
 
 #[Executable('file:face', 'Миграция файлов лиц')]
-class FileMigrateCommand
+class FileFaceCommand
 {
     /**
      * @throws Exception
@@ -24,55 +25,63 @@ class FileMigrateCommand
     #[Execute]
     public function execute(CliIO $io, FileFeature $feature): void
     {
-        $client = new Client(env('OLD_MONGO_URI'));
+        try {
+            $client = new Client(env('OLD_MONGO_URI'));
 
-        /**
-         * @var \MongoDB\Database
-         */
-        $database = $client->{config_get('feature.file.database', default: FileFeature::DEFAULT_DATABASE)};
-        $bucket = $database->selectGridFSBucket();
+            /**
+             * @var \MongoDB\Database
+             */
+            $database = $client->{env('OLD_MONGO_DATABASE', FileFeature::DEFAULT_DATABASE)};
+            $bucket = $database->selectGridFSBucket();
+    
+            $faces = FrsFace::fetchAll();
+    
+            $bar = $io->getOutput()->getBar('Мигрировано ' . count($faces));
+    
+            $count = 0;
+            $step = 100.0 / count($faces);
+            $percent = 0.0;
+    
+            $bar->show();
+    
+            foreach ($faces as $face) {
+                $count++;
+                $io->writeLine('Proccess: ' . $count . PHP_EOL);
 
-        $faces = FrsFace::fetchAll();
-
-        $bar = $io->getOutput()->getBar('Мигрировано ' . count($faces));
-
-        $step = 1.0 / count($faces);
-        $percent = 0.0;
-
-        $bar->show();
-
-        foreach ($faces as $face) {
-            try {
-                $fileId = new ObjectId($face->face_uuid);
-                $stream = $bucket->openDownloadStream($fileId);
-            } catch (Throwable $throwable) {
-                if ($throwable instanceof FileNotFoundException) {
-                    $face->safeDelete();
-
+                try {
+                    $fileId = new ObjectId($feature->fromGUIDv4($face->face_uuid));
+                    $stream = $bucket->openDownloadStream($fileId);
+                } catch (Throwable $throwable) {
+                    if ($throwable instanceof FileNotFoundException) {
+                        file_logger('face')->debug('empty', $face->jsonSerialize());
+    
+                        continue;
+                    }
+    
+                    $io->writeLine($throwable);
+    
                     continue;
                 }
-
-                $io->writeLine($throwable->getMessage());
-
-                continue;
+    
+                $face_uuid = $feature->toGUIDv4(
+                    $feature->addFile(
+                        File::stream(stream($stream))
+                            ->withFilename('face')
+                            ->withMetadata(FileMetadata::contentType('image/jpeg')->withFaceId($face->face_id)),
+                        FileStorage::Face
+                    )
+                );
+    
+                $face->face_uuid = trim($face_uuid);
+                $face->update();
+    
+                $percent += $step;
+                $bar->set((int) ceil($percent));
             }
-
-            $face_uuid = $feature->toGUIDv4(
-                $feature->addFile(
-                    File::stream(stream($stream))
-                        ->withFilename('face')
-                        ->withMetadata(FileMetadata::contentType('image/jpeg')->withFaceId($face->face_id)),
-                    FileStorage::Face
-                )
-            );
-
-            $face->face_uuid = $face_uuid;
-            $face->update();
-
-            $percent += $step;
-            $bar->set((int) ceil($percent));
+    
+            $bar->hide();
+        } catch(Throwable $throwable) {
+            $io->writeLine($throwable->__tostring()); 
         }
-
-        $bar->hide();
     }
 }

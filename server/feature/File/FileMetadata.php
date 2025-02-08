@@ -78,6 +78,41 @@ class FileMetadata
         return $this;
     }
 
+    public function toQuery(): array
+    {
+        $result = [];
+
+        if ($this->contentType) {
+            $result['content_type'] = $this->contentType;
+        }
+
+        if ($this->subscirberId) {
+            $result['subscirber_id'] = $this->subscirberId;
+        }
+
+        if ($this->cameraId) {
+            $result['camera_id'] = $this->cameraId;
+        }
+
+        if ($this->faceId) {
+            $result['face_id'] = $this->faceId;
+        }
+
+        if ($this->start) {
+            $result['start'] = $this->start;
+        }
+
+        if ($this->end) {
+            $result['end'] = $this->end;
+        }
+
+        if ($this->expire) {
+            $result['expire'] = $this->expire;
+        }
+
+        return $result;
+    }
+
     public static function contentType(?string $contentType): FileMetadata
     {
         return new FileMetadata($contentType, null, null, null, null, null, null);

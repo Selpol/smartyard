@@ -19,12 +19,12 @@ readonly abstract class FileFeature extends Feature implements CronInterface
     abstract public function deleteFile(string $uuid, FileStorage $storage = FileStorage::Other): bool;
 
     /**
-     * Search file
-     * @param array $query
+     * Search, return files oid
+     * @param FileInfo $info
      * @param FileStorage $storage
      * @return string[]
      */
-    abstract public function searchFiles(array $query, FileStorage $storage = FileStorage::Other): array;
+    abstract public function searchFiles(FileInfo|array $info, FileStorage $storage = FileStorage::Other): array;
 
     abstract public function toGUIDv4(string $uuid): string;
 

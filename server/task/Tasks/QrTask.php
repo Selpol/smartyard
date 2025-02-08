@@ -38,7 +38,7 @@ class QrTask extends Task implements TaskUniqueInterface
 
         $house = container(AddressFeature::class)->getHouse($this->houseId);
 
-        $uuids = $file->searchFiles(['filename' => $house['houseFull'] . ' QR.zip']);
+        $uuids = $file->searchFiles(FileInfo::filename($house['houseFull'] . ' QR.zip'));
 
         if ($this->override) {
             foreach ($uuids as $uuid) {

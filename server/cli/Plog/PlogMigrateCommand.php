@@ -80,7 +80,7 @@ class PlogMigrateCommand
 
             $io->writeLine('Processed: ' . $processed . ', ' . (time() - $start) . 's');
 
-            if (count($values) < 1000) {
+            if ($length < 1000) {
                 break;
             }
         }
