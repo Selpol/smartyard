@@ -2,12 +2,12 @@
 
 namespace Selpol\Feature\Group\Internal;
 
-use FileStorage;
 use MongoDB\BSON\ObjectId;
 use MongoDB\Collection;
 use MongoDB\Model\BSONDocument;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Group\Group;
 use Selpol\Feature\Group\GroupFeature;
 use Selpol\Service\MongoService;
