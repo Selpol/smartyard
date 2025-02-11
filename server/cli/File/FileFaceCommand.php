@@ -68,7 +68,7 @@ class FileFaceCommand
                         File::stream(stream($stream))
                             ->withFilename('face')
                             ->withMetadata(FileMetadata::contentType('image/jpeg')->withFaceId($face->face_id)),
-                        FileStorage::Face
+                        FileStorage::Screenshot
                     )
                 );
     

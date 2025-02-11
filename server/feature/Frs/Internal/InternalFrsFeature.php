@@ -5,10 +5,10 @@ namespace Selpol\Feature\Frs\Internal;
 use Psr\Log\LoggerInterface;
 use Selpol\Cli\Cron\CronEnum;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Frs\FrsFace;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
-use Selpol\Feature\File\FileInfo;
 use Selpol\Feature\File\FileMetadata;
 use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
@@ -39,8 +39,9 @@ readonly class InternalFrsFeature extends FrsFeature
     {
         $r = $this->getDatabase()->get("select face_id from frs_faces where face_id = :face_id", [":face_id" => $data[self::P_FACE_ID]], options: [self::PDO_SINGLIFY]);
 
-        if ($r)
+        if ($r) {
             return $data[self::P_FACE_ID];
+        }
 
         $contentType = "image/jpeg";
         $image_data = file_get_contents($data[self::P_FACE_IMAGE]);
@@ -62,14 +63,18 @@ readonly class InternalFrsFeature extends FrsFeature
                 File::stream(stream($image_data))
                     ->withFilename('face')
                     ->withMetadata(FileMetadata::contentType($contentType)->withFaceId($data[self::P_FACE_ID])),
-                FileStorage::Face
+                FileStorage::Screenshot
             )
         );
 
-        $this->getDatabase()->insert(
-            "insert into frs_faces(face_id, face_uuid, event_uuid) values(:face_id, :face_uuid, :event_uuid)",
-            [":face_id" => $data[self::P_FACE_ID], ":face_uuid" => $face_uuid, ":event_uuid" => $event_uuid]
-        );
+        $face = new FrsFace();
+
+        $face->face_id = $data[self::P_FACE_ID];
+
+        $face->face_uuid = $face_uuid;
+        $face->event_uuid = $event_uuid;
+
+        $face->safeInsert();
 
         return $data[self::P_FACE_ID];
     }
@@ -185,8 +190,9 @@ readonly class InternalFrsFeature extends FrsFeature
 
         $response = $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_REGISTER_FACE, $method_params);
 
-        if ($response && $response[self::P_CODE] == self::R_CODE_OK && $response[self::P_DATA])
+        if ($response && $response[self::P_CODE] == self::R_CODE_OK && $response[self::P_DATA]) {
             return [self::P_FACE_ID => $this->addFace($response[self::P_DATA], $event_uuid)];
+        }
 
         return $response;
     }
@@ -221,9 +227,9 @@ readonly class InternalFrsFeature extends FrsFeature
         $r = $this->getDatabase()->get("select face_uuid from frs_faces where face_id = :face_id", [":face_id" => $face_id], [], [self::PDO_SINGLIFY]);
 
         if ($r) {
-            $file = container(FileFeature::class);
+            $file = container(FileFeature::class,);
 
-            $file->deleteFile($file->fromGUIDv4($r["face_uuid"]));
+            $file->deleteFile($file->fromGUIDv4($r["face_uuid"]), FileStorage::Screenshot);
         }
 
         $this->getDatabase()->modify("delete from frs_faces where face_id = :face_id", [":face_id" => $face_id]);
@@ -278,7 +284,7 @@ readonly class InternalFrsFeature extends FrsFeature
                 if ($r) {
                     $file = container(FileFeature::class);
 
-                    $file->deleteFile($file->fromGUIDv4($r["face_uuid"]));
+                    $file->deleteFile($file->fromGUIDv4($r["face_uuid"]), FileStorage::Screenshot);
                 }
             }
 

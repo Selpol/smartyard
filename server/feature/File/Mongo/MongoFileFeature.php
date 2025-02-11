@@ -191,7 +191,6 @@ readonly class MongoFileFeature extends FileFeature
     {
         return match ($type) {
             FileStorage::Screenshot => $this->database . '_screenshot',
-            FileStorage::Face => $this->database . '_face',
             FileStorage::Archive => $this->database . '_archive',
             FileStorage::Group => $this->database . '_group',
             FileStorage::Other => $this->database

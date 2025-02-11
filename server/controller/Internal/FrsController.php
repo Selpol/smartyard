@@ -8,6 +8,7 @@ use Psr\Container\ContainerExceptionInterface;
 use Selpol\Controller\Request\Internal\FrsCallbackRequest;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Http\Response;
@@ -124,7 +125,7 @@ readonly class FrsController extends RouteController
     #[Get('/face/{uuid}')]
     public function face(string $uuid, FileFeature $feature): Response
     {
-        $file = $feature->getFile($feature->fromGUIDv4($uuid));
+        $file = $feature->getFile($feature->fromGUIDv4($uuid), FileStorage::Screenshot);
 
         return response()
             ->withHeader('Content-Type', 'image/jpeg')

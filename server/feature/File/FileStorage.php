@@ -5,7 +5,6 @@ namespace Selpol\Feature\File;
 enum FileStorage
 {
     case Screenshot;
-    case Face;
     case Archive;
     case Group;
     case Other;
