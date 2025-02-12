@@ -63,7 +63,7 @@ trait VideoTrait
                     "Height" => intval($height),
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
+                    "RcMode" => "VBR",
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
@@ -77,7 +77,7 @@ trait VideoTrait
                     "Height" => 480,
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
+                    "RcMode" => "VBR",
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate
