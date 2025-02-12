@@ -18,10 +18,6 @@ return [
         'web' => env('API_WEB', 'http://127.0.0.1'),
     ],
 
-    'asterisk' => [
-        'trust' => explode(',', env('ASTERISK_TRUST', '127.0.0.1/32'))
-    ],
-
     'clickhouse' => [
         'endpoint' => env('CLICKHOUSE_ENDPOINT', 'http://127.0.0.1:8123?database=default'),
 

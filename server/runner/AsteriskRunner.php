@@ -34,27 +34,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
      */
     public function run(array $arguments): int
     {
-        $asterisk = config('asterisk');
-
-        $ip = $_SERVER['REMOTE_ADDR'];
-
-        $trust = false;
-
-        foreach ($asterisk['trust'] as $range)
-            if (ip_in_range($ip, $range)) {
-                $trust = true;
-
-                break;
-            }
-
-        if (!$trust) {
-            header('Content-Type: application/json');
-
-            echo '{"code":404,"name":"Not Found","message":"Не найдено"}';
-
-            return 0;
-        }
-
         $path = $this->getPath();
 
         switch ($path[0]) {
@@ -68,10 +47,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 break;
             case 'extensions':
                 $params = json_decode(file_get_contents('php://input'), true);
-
-                if (is_array($params)) {
-                    ksort($params);
-                }
 
                 switch ($path[1]) {
                     case 'autoopen':
@@ -280,8 +255,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
     private function getExtension(string $extension, string $section): array
     {
-        $redis = container(RedisService::class);
-
         if ($extension[0] === '1' && strlen($extension) === 6) {
             $intercom = DeviceIntercom::findById((int) substr($extension, 1), setting: setting()->columns(['credentials']));
 
@@ -313,7 +286,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // mobile extension
         if ($extension[0] === '2' && strlen($extension) === 10) {
-            $cred = $redis->get('mobile_extension_' . $extension);
+            $cred = container(RedisService::class)->get('mobile_extension_' . $extension);
 
             if ($cred) {
                 return match ($section) {
@@ -375,7 +348,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         // webrtc extension
         if ($extension[0] === '7' && strlen($extension) === 10) {
             $uid = intval(substr($extension, 1));
-            $password = $redis->get('user:' . $uid . ':ws');
+            $password = container(RedisService::class)->get('user:' . $uid . ':ws');
 
             if ($password) {
                 switch ($section) {
