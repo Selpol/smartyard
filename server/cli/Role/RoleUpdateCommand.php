@@ -97,7 +97,12 @@ class RoleUpdateCommand
             'server-frs-get' => ['server-frs-index-get'],
             'server-frs-post' => ['server-frs-store-post'],
             'server-frs-put' => ['server-frs-update-put'],
-            'server-frs-delete' => ['server-frs-delete-delete']
+            'server-frs-delete' => ['server-frs-delete-delete'],
+
+            'server-dvr-get' => ['server-dvr-index-get'],
+            'server-dvr-post' => ['server-dvr-store-post'],
+            'server-dvr-put' => ['server-dvr-update-put'],
+            'server-dvr-delete' => ['server-dvr-delete-delete']
         ];
 
         foreach ($permissions as $source => $destinations) {

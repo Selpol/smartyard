@@ -8,7 +8,6 @@ use Selpol\Controller\Request\Admin\Server\ServerStreamerFrsStoreRequest;
 use Selpol\Controller\Request\Admin\Server\ServerStreamerFrsUpdateRequest;
 use Selpol\Controller\Request\PageRequest;
 use Selpol\Entity\Model\Frs\FrsServer;
-use Selpol\Entity\Model\Server\StreamerServer;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;

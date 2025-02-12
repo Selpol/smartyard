@@ -181,7 +181,12 @@ class RoleInitCommand
             'server-frs-index-get' => '[Сервер-Лиц] Получить список серверов лиц',
             'server-frs-store-post' => '[Сервер-Лиц] Создание нового сервера лиц',
             'server-frs-update-put' => '[Сервер-Лиц] Обновление сервера лиц',
-            'server-frs-delete-delete' => '[Сервер-Лиц] Удалить сервера лиц'
+            'server-frs-delete-delete' => '[Сервер-Лиц] Удалить сервера лиц',
+
+            'server-dvr-index-get' => '[Сервер-Архивов] Получить список серверов архивов',
+            'server-dvr-store-post' => '[Сервер-Архивов] Создание нового сервера архива',
+            'server-dvr-update-put' => '[Сервер-Архивов] Обновление сервера архива',
+            'server-dvr-delete-delete' => '[Сервер-Архивов] Удалить сервера архива'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

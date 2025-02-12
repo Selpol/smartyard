@@ -276,6 +276,27 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## ServerDvrStoreRequest
+
+Поля: 
+
+- `string` *title* - Название сервера архива
+- `string` *type* - Тип сервера архива. Поддерживается: flunnonic, trassir
+- `string` *url* - URL к серверу ахрива
+- `string` *token* - Токен для доступа к архиву
+- `string` *credentials* - Авторизация на сервере архива
+
+## ServerDvrUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор сервера архива
+- `string` *title* - Название сервера архива
+- `string` *type* - Тип сервера архива. Поддерживается: flunnonic, trassir
+- `string` *url* - URL к серверу ахрива
+- `string` *token* - Токен для доступа к архиву
+- `string|null` *credentials* - Авторизация на сервере архива
+
 ## ServerStreamerFrsStoreRequest
 
 Поля: 

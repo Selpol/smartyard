@@ -84,6 +84,6 @@ readonly class dvr extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Dvr] Получить список серверов', 'POST' => '[Dvr] Добавить сервер', 'PUT' => '[Dvr] Обновить сервер', 'DELETE' => '[Dvr] Удалить сервер'];
+        return ['GET' => '[Deprecated] [Dvr] Получить список серверов', 'POST' => '[Deprecated][Dvr] Добавить сервер', 'PUT' => '[Deprecated][Dvr] Обновить сервер', 'DELETE' => '[Deprecated][Dvr] Удалить сервер'];
     }
 }
