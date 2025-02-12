@@ -69,7 +69,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function get(string $oid): Group|bool
     {
-        $result = $this->getCollection()->findOne(['_id' => new ObjectId($oid)]);
+        $result = $this->getCollection()->findOne(['_id' => $oid]);
 
         if ($result) {
             if ($result instanceof BSONDocument)
@@ -84,7 +84,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool
     {
-        $result = $this->getCollection()->updateOne(['_id' => new ObjectId($oid)], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
+        $result = $this->getCollection()->updateOne(['_id' => $oid], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
         $status = $result->getModifiedCount() === 1;
 
         if ($status) {
@@ -99,7 +99,7 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function delete(string $oid): bool
     {
-        $result = $this->getCollection()->deleteOne(['_id' => new ObjectId($oid)]);
+        $result = $this->getCollection()->deleteOne(['_id' => $oid]);
         $status = $result->getDeletedCount() == 1;
 
         if ($status) {

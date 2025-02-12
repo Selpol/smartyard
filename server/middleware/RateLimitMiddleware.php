@@ -5,7 +5,6 @@ namespace Selpol\Middleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use RedisException;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\AuthService;
@@ -35,9 +34,6 @@ readonly class RateLimitMiddleware extends RouteMiddleware
         $this->request = $config['request'] ?? false;
     }
 
-    /**
-     * @throws RedisException
-     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $redis = container(RedisService::class)->getConnection();
@@ -47,7 +43,7 @@ readonly class RateLimitMiddleware extends RouteMiddleware
                 $ttl = 5;
 
                 return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
-                    ->withHeader('Retry-After', $ttl);
+                    ->withHeader('Retry-After', [(string) $ttl]);
             }
 
             return $handler->handle($request);
@@ -81,7 +77,7 @@ readonly class RateLimitMiddleware extends RouteMiddleware
             $ttl = $redis->ttl($key);
 
             return json_response(429, body: ['code' => 429, 'name' => Response::$codes[429]['name'], 'message' => 'Слишком много запросов, пожалуйста попробуйте, через ' . $ttl . ' секунд'])
-                ->withHeader('Retry-After', $ttl);
+                ->withHeader('Retry-After', [(string) $ttl]);
         }
 
         return $handler->handle($request);

@@ -14,7 +14,8 @@ return [
         'asterisk' => env('API_ASTERISK', 'http://127.0.0.1/asterisk'),
         'internal' => env('API_INTERNAL', 'http://127.0.0.1/internal'),
         'private' => env('API_PRIVATE', 'http://127.0.0.1/private'),
-        'mobile' => env('API_MOBILE', 'http://127.0.0.1/mobile')
+        'mobile' => env('API_MOBILE', 'http://127.0.0.1/mobile'),
+        'web' => env('API_WEB', 'http://127.0.0.1'),
     ],
 
     'asterisk' => [

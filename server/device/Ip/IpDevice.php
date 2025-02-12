@@ -51,10 +51,10 @@ abstract class IpDevice extends Device
 
         if ($this->uri->getPort() === null) {
             $url .= ':' . match (strtolower($this->uri->getScheme())) {
-                    'http' => 80,
-                    'https' => 443,
-                    default => 22
-                };
+                'http' => 80,
+                'https' => 443,
+                default => 22
+            };
         } else {
             $url .= ':' . $this->uri->getPort();
         }
@@ -62,7 +62,7 @@ abstract class IpDevice extends Device
         $reporting = error_reporting();
 
         try {
-            error_reporting($reporting ^ E_WARNING);
+            error_reporting(E_ERROR);
 
             $fp = stream_socket_client($url, $code, $message, timeout: 1);
 

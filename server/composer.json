@@ -55,7 +55,8 @@
     "psr/http-server-handler": "^1.0",
     "psr/http-server-middleware": "^1.0",
     "php-mqtt/client": "^1.8",
-    "selpol/framework": "^1.1"
+    "selpol/framework": "^1.1",
+    "ofbeaton/phpami": "^1.1"
   },
   "require-dev": {
     "rector/rector": "^1.2"

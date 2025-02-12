@@ -15,6 +15,10 @@ trait IsTrait
             $info = $this->get('/system/info');
             $version = $this->get('/v2/system/versions');
 
+            if ($info == null) {
+                throw new DeviceException($this, 'Не удалось получить информацию об устройстве');
+            }
+
             if ($version == null || !array_key_exists('opt', $version) || $version['opt'] == null) {
                 $hardwareVersion = '2.5';
                 $softwareVersion = '2.2.5.14.0';
