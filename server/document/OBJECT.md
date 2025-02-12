@@ -61,6 +61,63 @@
 - `null|string` *cause* - Официальная причина
 - `null|string` *comment* - Комментарий
 
+## CameraIndexRequest
+
+Поля: 
+
+- `string|null` *comment* - Комментарий
+- `string|null` *model* - Модель камеры
+- `string|null` *ip* - IP камеры
+- `string|null` *device_id*
+- `string|null` *device_model*
+- `string|null` *device_software_version*
+- `string|null` *device_hardware_version*
+
+## CameraStoreRequest
+
+Поля: 
+
+- `int|null` *dvr_server_id* - Идентификатор сервера архива
+- `int|null` *frs_server_id* - Идентификатор сервера лиц
+- `int` *enabled* - Статус камеры
+- `string` *model* - Модель камеры
+- `string` *url* - URL Камеры
+- `string|null` *stream*
+- `string` *credentials* - Авторизация камеры
+- `string|null` *name* - Имя камеры
+- `string|null` *dvr_stream* - Идентификатор стрима на сервере ахрива
+- `string|null` *timezone* - Временная зона камеры
+- `double|null` *lat* - Позиция камеры
+- `double|null` *lon* - Позиция камеры
+- `int|null` *common*
+- `string|null` *ip*
+- `string|null` *comment* - Комментарий камеры
+- `string|null` *config* - Конфигурация камеры
+- `bool` *hidden* - Скрытая ли камера
+
+## CameraUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор камеры
+- `int|null` *dvr_server_id* - Идентификатор сервера архива
+- `int|null` *frs_server_id* - Идентификатор сервера лиц
+- `int` *enabled* - Статус камеры
+- `string` *model* - Модель камеры
+- `string` *url* - URL Камеры
+- `string|null` *stream*
+- `string` *credentials* - Авторизация камеры
+- `string|null` *name* - Имя камеры
+- `string|null` *dvr_stream* - Идентификатор стрима на сервере ахрива
+- `string|null` *timezone* - Временная зона камеры
+- `double|null` *lat* - Позиция камеры
+- `double|null` *lon* - Позиция камеры
+- `int|null` *common*
+- `string|null` *ip*
+- `string|null` *comment* - Комментарий камеры
+- `string|null` *config* - Конфигурация камеры
+- `bool` *hidden* - Скрытая ли камера
+
 ## ConfigIndexRequest
 
 Поля: 

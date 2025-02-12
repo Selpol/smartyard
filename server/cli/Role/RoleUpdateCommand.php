@@ -102,7 +102,15 @@ class RoleUpdateCommand
             'server-dvr-get' => ['server-dvr-index-get'],
             'server-dvr-post' => ['server-dvr-store-post'],
             'server-dvr-put' => ['server-dvr-update-put'],
-            'server-dvr-delete' => ['server-dvr-delete-delete']
+            'server-dvr-delete' => ['server-dvr-delete-delete'],
+
+            'cameras-cameras-get' => ['camera-index-get'],
+            'cameras-camera-get' => ['camera-show-get'],
+            'cameras-screenshot-get' => ['camera-screenshot-get'],
+            'cameras-camera-post' => ['camera-store-post'],
+            'cameras-camera-put' => ['camera-update-put'],
+            'cameras-camera-delete' => ['camera-delete-delete'],
+            'cameras-model-get' => ['camera-model-index-get']
         ];
 
         foreach ($permissions as $source => $destinations) {

@@ -20,6 +20,6 @@ readonly class screenshot extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Камера] Получить скриншот'];
+        return ['GET' => '[Deprecated] [Камера] Получить скриншот'];
     }
 }

@@ -110,10 +110,10 @@ readonly class camera extends Api
     public static function index(): bool|array
     {
         return [
-            'GET' => '[Камера] Получить камеру',
-            'PUT' => '[Камера] Обновить камеру',
-            'POST' => '[Камера] Создать камеру',
-            'DELETE' => '[Камера] Удалить камеру'
+            'GET' => '[Deprecated] [Камера] Получить камеру',
+            'PUT' => '[Deprecated] [Камера] Обновить камеру',
+            'POST' => '[Deprecated] [Камера] Создать камеру',
+            'DELETE' => '[Deprecated] [Камера] Удалить камеру'
         ];
     }
 

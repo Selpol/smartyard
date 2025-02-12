@@ -7,6 +7,8 @@
 - [BlockController](./BlockController.md)
 - [BlockFlatController](./BlockFlatController.md)
 - [BlockSubscriberController](./BlockSubscriberController.md)
+- [CameraController](./CameraController.md)
+- [CameraModelController](./CameraModelController.md)
 - [ConfigController](./ConfigController.md)
 - [ContractorController](./ContractorController.md)
 - [DvrController](./DvrController.md)

@@ -76,6 +76,6 @@ readonly class cameras extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Камера] Получить список'];
+        return ['GET' => '[Deprecated] [Камера] Получить список'];
     }
 }

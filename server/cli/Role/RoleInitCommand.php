@@ -186,7 +186,16 @@ class RoleInitCommand
             'server-dvr-index-get' => '[Сервер-Архивов] Получить список серверов архивов',
             'server-dvr-store-post' => '[Сервер-Архивов] Создание нового сервера архива',
             'server-dvr-update-put' => '[Сервер-Архивов] Обновление сервера архива',
-            'server-dvr-delete-delete' => '[Сервер-Архивов] Удалить сервера архива'
+            'server-dvr-delete-delete' => '[Сервер-Архивов] Удалить сервера архива',
+
+            'camera-index-get' => '[Камера] Получить список камер',
+            'camera-show-get' => '[Камера] Получить камеру',
+            'camera-screenshot-get' => '[Камера] Получить скриншот с камеры',
+            'camera-store-post' => '[Камера] Создать новую камеру',
+            'camera-update-put' => '[Камера] Обновить камеру',
+            'camera-delete-delete' => '[Камера] Удалить камеру',
+
+            'camera-model-index-get' => '[Камера-Модель] Получить список моделей камер'
         ];
 
         /** @var array<string, Permission> $titlePermissions */
