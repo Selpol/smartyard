@@ -165,7 +165,12 @@ class RoleInitCommand
             'user-role-delete-delete' => '[Пользователь-Роль] Отвязать роль от пользователя',
 
             'server-variable-index-get' => '[Сервер-Переменная] Получить список переменных',
-            'server-variable-update-put' => '[Сервер-Переменная] Обновить переменную'
+            'server-variable-update-put' => '[Сервер-Переменная] Обновить переменную',
+
+            'server-streamer-index-get' => '[Сервер-Стреамер] Получить список стримеров',
+            'server-streamer-store-post' => '[Сервер-Стреамер] Создание нового стримера',
+            'server-streamer-update-put' => '[Сервер-Стреамер] Обновление стримера',
+            'server-streamer-delete-delete' => '[Сервер-Стреамер] Удалить стример',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

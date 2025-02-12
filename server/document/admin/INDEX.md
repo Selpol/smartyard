@@ -25,6 +25,7 @@
 - [PlogController](./PlogController.md)
 - [RoleController](./RoleController.md)
 - [RolePermissionController](./RolePermissionController.md)
+- [ServerStreamerController](./ServerStreamerController.md)
 - [ServerVariableController](./ServerVariableController.md)
 - [SipUserController](./SipUserController.md)
 - [StreamerController](./StreamerController.md)

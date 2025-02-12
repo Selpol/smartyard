@@ -4,8 +4,8 @@ namespace Selpol\Controller\Admin\Server;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
-use Selpol\Controller\Request\Admin\Server\ServerVariableIndexRequest;
 use Selpol\Controller\Request\Admin\Server\ServerVariableUpdateRequest;
+use Selpol\Controller\Request\PageRequest;
 use Selpol\Entity\Model\Core\CoreVar;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -21,7 +21,7 @@ readonly class ServerVariableController extends AdminRbtController
      * Получить список переменных
      */
     #[Get]
-    public function index(ServerVariableIndexRequest $request): ResponseInterface
+    public function index(PageRequest $request): ResponseInterface
     {
         return self::success(CoreVar::fetchPage($request->page, $request->size, criteria()->equal('hidden', false)->asc('var_id')));
     }

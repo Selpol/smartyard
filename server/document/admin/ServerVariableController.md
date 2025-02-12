@@ -8,7 +8,7 @@
 
 Параметры: 
 
-- [ServerVariableIndexRequest](../OBJECT.md#ServerVariableIndexRequest) 
+- [PageRequest](../OBJECT.md#PageRequest) 
 
 ### [PUT/update `server-variable-update-put`] Обновить переменную `/admin/server/variable/{var_id}`
 

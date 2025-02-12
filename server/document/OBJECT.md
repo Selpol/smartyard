@@ -262,12 +262,27 @@
 - `string` *title* - Заголовок
 - `string` *description* - Описание
 
-## ServerVariableIndexRequest
+## PageRequest
 
 Поля: 
 
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
+
+## ServerStreamerStoreRequest
+
+Поля: 
+
+- `string` *title* - Название стримера
+- `string` *url* - URL к стримеру
+
+## ServerStreamerUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор стримера
+- `string` *title* - Название стримера
+- `string` *url* - URL к стримеру
 
 ## ServerVariableUpdateRequest
 

@@ -82,7 +82,12 @@ class RoleUpdateCommand
             'accounts-session-put' => ['user-session-update-put'],
 
             'server-variable-get' => ['server-variable-index-get'],
-            'server-variable-put' => ['server-variable-update-put']
+            'server-variable-put' => ['server-variable-update-put'],
+
+            'server-streamer-get' => ['server-streamer-index-get'],
+            'server-streamer-post' => ['server-streamer-store-post'],
+            'server-streamer-put' => ['server-streamer-update-put'],
+            'server-streamer-delete' => ['server-streamer-delete-delete'],
         ];
 
         foreach ($permissions as $source => $destinations) {

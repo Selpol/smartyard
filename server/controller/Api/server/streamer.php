@@ -66,6 +66,6 @@ readonly class streamer extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Стример] Получить список серверов', 'POST' => '[Стример] Добавить сервер', 'PUT' => '[Стример] Обновить сервер', 'DELETE' => '[Стример] Удалить сервер'];
+        return ['GET' => '[Deprecated] [Стример] Получить список серверов', 'POST' => '[Deprecated] [Стример] Добавить сервер', 'PUT' => '[Deprecated] [Стример] Обновить сервер', 'DELETE' => '[Deprecated] [Стример] Удалить сервер'];
     }
 }
