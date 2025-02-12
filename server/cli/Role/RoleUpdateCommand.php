@@ -92,7 +92,12 @@ class RoleUpdateCommand
             'server-sip-get' => ['server-sip-index-get'],
             'server-sip-post' => ['server-sip-store-post'],
             'server-sip-put' => ['server-sip-update-put'],
-            'server-sip-delete' => ['server-sip-delete-delete']
+            'server-sip-delete' => ['server-sip-delete-delete'],
+
+            'server-frs-get' => ['server-frs-index-get'],
+            'server-frs-post' => ['server-frs-store-post'],
+            'server-frs-put' => ['server-frs-update-put'],
+            'server-frs-delete' => ['server-frs-delete-delete']
         ];
 
         foreach ($permissions as $source => $destinations) {

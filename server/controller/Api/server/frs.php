@@ -66,6 +66,6 @@ readonly class frs extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Frs] Получить список серверов', 'POST' => '[Frs] Добавить сервер', 'PUT' => '[Frs] Обновить сервер', 'DELETE' => '[Frs] Удалить сервер'];
+        return ['GET' => '[Deprecated] [Frs] Получить список серверов', 'POST' => '[Deprecated] [Frs] Добавить сервер', 'PUT' => '[Deprecated] [Frs] Обновить сервер', 'DELETE' => '[Deprecated] [Frs] Удалить сервер'];
     }
 }

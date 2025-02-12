@@ -177,6 +177,11 @@ class RoleInitCommand
             'server-sip-store-post' => '[Сервер-Сип] Создание новый сип',
             'server-sip-update-put' => '[Сервер-Сип] Обновление сип',
             'server-sip-delete-delete' => '[Сервер-Сип] Удалить сип',
+
+            'server-frs-index-get' => '[Сервер-Лиц] Получить список серверов лиц',
+            'server-frs-store-post' => '[Сервер-Лиц] Создание нового сервера лиц',
+            'server-frs-update-put' => '[Сервер-Лиц] Обновление сервера лиц',
+            'server-frs-delete-delete' => '[Сервер-Лиц] Удалить сервера лиц'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

@@ -14,13 +14,13 @@
 
 Параметры: 
 
-- [ServerStreamerStoreRequest](../OBJECT.md#ServerStreamerStoreRequest) 
+- [ServerStreamerFrsStoreRequest](../OBJECT.md#ServerStreamerFrsStoreRequest) 
 
 ### [PUT/update `server-streamer-update-put`] Обновление стримера `/admin/server/streamer/{id}`
 
 Параметры: 
 
-- [ServerStreamerUpdateRequest](../OBJECT.md#ServerStreamerUpdateRequest) 
+- [ServerStreamerFrsUpdateRequest](../OBJECT.md#ServerStreamerFrsUpdateRequest) 
 
 ### [DELETE/delete `server-streamer-delete-delete`] Удалить стример `/admin/server/streamer/{id}`
 

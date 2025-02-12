@@ -9,7 +9,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * 
  * @property-read string $url URL к стримеру
  */
-readonly class ServerStreamerStoreRequest extends RouteRequest
+readonly class ServerStreamerFrsStoreRequest extends RouteRequest
 {
     public static function getValidate(): array
     {

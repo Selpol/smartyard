@@ -276,6 +276,21 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## ServerStreamerFrsStoreRequest
+
+Поля: 
+
+- `string` *title* - Название стримера
+- `string` *url* - URL к стримеру
+
+## ServerStreamerFrsUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор стримера
+- `string` *title* - Название стримера
+- `string` *url* - URL к стримеру
+
 ## ServerSipStoreRequest
 
 Поля: 
@@ -300,21 +315,6 @@
 - `string` *internal_ip* - IP для домофонов
 - `int` *external_port* - Порт для абонентов
 - `int` *internal_port* - Порт для домофонов
-
-## ServerStreamerStoreRequest
-
-Поля: 
-
-- `string` *title* - Название стримера
-- `string` *url* - URL к стримеру
-
-## ServerStreamerUpdateRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор стримера
-- `string` *title* - Название стримера
-- `string` *url* - URL к стримеру
 
 ## ServerVariableUpdateRequest
 
