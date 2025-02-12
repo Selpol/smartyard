@@ -276,6 +276,31 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## ServerSipStoreRequest
+
+Поля: 
+
+- `string` *title* - Название сипа
+- `string` *type* - Тип сипа. Поддерживается: asterisk
+- `string` *trunk* - Транк
+- `string` *external_ip* - IP для абонентов
+- `string` *internal_ip* - IP для домофонов
+- `int` *external_port* - Порт для абонентов
+- `int` *internal_port* - Порт для домофонов
+
+## ServerSipUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор сипа
+- `string` *title* - Название сипа
+- `string` *type* - Тип сипа. Поддерживается: asterisk
+- `string` *trunk* - Транк
+- `string` *external_ip* - IP для абонентов
+- `string` *internal_ip* - IP для домофонов
+- `int` *external_port* - Порт для абонентов
+- `int` *internal_port* - Порт для домофонов
+
 ## ServerStreamerStoreRequest
 
 Поля: 

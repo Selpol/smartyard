@@ -90,6 +90,6 @@ readonly class sip extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Sip] Получить список серверов', 'POST' => '[Sip] Добавить сервер', 'PUT' => '[Sip] Обновить сервер', 'DELETE' => '[Sip] Удалить сервер'];
+        return ['GET' => '[Deprecated] [Sip] Получить список серверов', 'POST' => '[Deprecated] [Sip] Добавить сервер', 'PUT' => '[Deprecated] [Sip] Обновить сервер', 'DELETE' => '[Deprecated] [Sip] Удалить сервер'];
     }
 }

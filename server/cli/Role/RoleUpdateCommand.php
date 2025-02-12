@@ -88,6 +88,11 @@ class RoleUpdateCommand
             'server-streamer-post' => ['server-streamer-store-post'],
             'server-streamer-put' => ['server-streamer-update-put'],
             'server-streamer-delete' => ['server-streamer-delete-delete'],
+
+            'server-sip-get' => ['server-sip-index-get'],
+            'server-sip-post' => ['server-sip-store-post'],
+            'server-sip-put' => ['server-sip-update-put'],
+            'server-sip-delete' => ['server-sip-delete-delete']
         ];
 
         foreach ($permissions as $source => $destinations) {

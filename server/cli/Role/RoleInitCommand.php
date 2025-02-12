@@ -172,6 +172,11 @@ class RoleInitCommand
             'server-streamer-store-post' => '[Сервер-Стреамер] Создание нового стримера',
             'server-streamer-update-put' => '[Сервер-Стреамер] Обновление стримера',
             'server-streamer-delete-delete' => '[Сервер-Стреамер] Удалить стример',
+
+            'server-sip-index-get' => '[Сервер-Сип] Получить список сип',
+            'server-sip-store-post' => '[Сервер-Сип] Создание новый сип',
+            'server-sip-update-put' => '[Сервер-Сип] Обновление сип',
+            'server-sip-delete-delete' => '[Сервер-Сип] Удалить сип',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
