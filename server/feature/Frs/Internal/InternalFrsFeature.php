@@ -74,7 +74,7 @@ readonly class InternalFrsFeature extends FrsFeature
         $face->face_uuid = $face_uuid;
         $face->event_uuid = $event_uuid;
 
-        $face->safeInsert();
+        $face->insert();
 
         return $data[self::P_FACE_ID];
     }
@@ -227,7 +227,7 @@ readonly class InternalFrsFeature extends FrsFeature
         $r = $this->getDatabase()->get("select face_uuid from frs_faces where face_id = :face_id", [":face_id" => $face_id], [], [self::PDO_SINGLIFY]);
 
         if ($r) {
-            $file = container(FileFeature::class,);
+            $file = container(FileFeature::class, );
 
             $file->deleteFile($file->fromGUIDv4($r["face_uuid"]), FileStorage::Screenshot);
         }
@@ -430,8 +430,9 @@ readonly class InternalFrsFeature extends FrsFeature
             options: [self::PDO_SINGLIFY]
         );
 
-        if ($r)
+        if ($r) {
             return true;
+        }
 
         return $this->getDatabase()->insert(
             "insert into frs_links_faces(face_id, flat_id, house_subscriber_id) values(:face_id, :flat_id, :house_subscriber_id)",
@@ -572,8 +573,9 @@ readonly class InternalFrsFeature extends FrsFeature
 
         $list_faces = [];
 
-        foreach ($r as $row)
+        foreach ($r as $row) {
             $list_faces[] = [self::P_FACE_ID => $row['face_id'], self::P_FACE_IMAGE => $row['face_uuid']];
+        }
 
         return $list_faces;
     }
