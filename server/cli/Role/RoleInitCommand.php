@@ -135,6 +135,7 @@ class RoleInitCommand
             'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей',
 
             'permission-index-get' => '[Права] Получить список прав',
+            'permission-update-put' => '[Права ] Обновить право',
 
             'role-index-get' => '[Роль] Получить список прав',
             'role-store-post' => '[Роль] Создать новую роль',

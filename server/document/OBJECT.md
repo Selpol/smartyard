@@ -231,6 +231,13 @@
 - `string` *device* - Тип устройства, используется только для ping
 - `int[]` *ids* - Список идентификаторов устройств
 
+## PermissionUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор права
+- `string` *description* - Описание права
+
 ## PlogIndexRequest
 
 Поля: 
