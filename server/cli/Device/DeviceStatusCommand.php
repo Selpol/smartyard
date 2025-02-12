@@ -2,7 +2,6 @@
 
 namespace Selpol\Cli\Device;
 
-use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Framework\Cli\Attribute\Executable;
@@ -104,6 +103,7 @@ class DeviceStatusCommand
 
         $io->getOutputCursor()->erase();
         $io->getOutput()->table(['IP', 'SIP', 'ENTRANCE', 'LINK'], $result);
+
         $io->writeLine(count($result) . '/' . $count);
     }
 }

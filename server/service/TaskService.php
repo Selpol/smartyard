@@ -22,13 +22,13 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
     use LoggerAwareTrait;
 
     private ?AMQPStreamConnection $connection = null;
-    
+
     private ?AMQPChannel $channel = null;
 
     public const QUEUE_HIGH = 'high';
-    
+
     public const QUEUE_LOW = 'low';
-    
+
     public const QUEUE_DEFAULT = 'default';
 
     private static ?TaskService $instance = null;
@@ -93,7 +93,7 @@ class TaskService implements LoggerAwareInterface, ContainerDisposeInterface
 
         $logger = $this->logger;
 
-        $this->channel->basic_consume($queue, no_ack: true, callback: static function (AMQPMessage $message) use ($callback, $logger): void {
+        $this->channel->basic_consume($queue, no_ack: true, callback: function (AMQPMessage $message) use ($callback, $logger): void {
             try {
                 $task = unserialize($message->body);
 
