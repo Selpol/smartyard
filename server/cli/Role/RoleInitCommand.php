@@ -163,6 +163,9 @@ class RoleInitCommand
             'user-role-index-get' => '[Пользователь-Роль] Получить список ролей пользователя',
             'user-role-store-post' => '[Пользователь-Роль] Привязать роль к пользователю',
             'user-role-delete-delete' => '[Пользователь-Роль] Отвязать роль от пользователя',
+
+            'server-variable-index-get' => '[Сервер-Переменная] Получить список переменных',
+            'server-variable-update-put' => '[Сервер-Переменная] Обновить переменную'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

@@ -46,6 +46,6 @@ readonly class variable extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Переменные] Получить список переменных', 'PUT' => '[Переменные] Обновить переменную'];
+        return ['GET' => '[Deprecated] [Переменные] Получить список переменных', 'PUT' => '[Deprecated] [Переменные] Обновить переменную'];
     }
 }

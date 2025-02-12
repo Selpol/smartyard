@@ -80,6 +80,9 @@ class RoleUpdateCommand
 
             'accounts-session-get' => ['user-session-show-get'],
             'accounts-session-put' => ['user-session-update-put'],
+
+            'server-variable-get' => ['server-variable-index-get'],
+            'server-variable-put' => ['server-variable-update-put']
         ];
 
         foreach ($permissions as $source => $destinations) {

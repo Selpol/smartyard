@@ -262,6 +262,20 @@
 - `string` *title* - Заголовок
 - `string` *description* - Описание
 
+## ServerVariableIndexRequest
+
+Поля: 
+
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## ServerVariableUpdateRequest
+
+Поля: 
+
+- `int` *var_id* - Идентификатор переменной
+- `string` *var_value* - Значение переменной
+
 ## SipUserIndexRequest
 
 Поля: 
