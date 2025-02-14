@@ -8,6 +8,7 @@ use Selpol\Controller\Request\Admin\PlogCamshotRequest;
 use Selpol\Controller\Request\Admin\PlogIndexRequest;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\File\FileFeature;
+use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -51,7 +52,7 @@ readonly class PlogController extends AdminRbtController
     #[Get('/camshot/{uuid}')]
     public function camshot(PlogCamshotRequest $request, FileFeature $feature): ResponseInterface
     {
-        $file = $feature->getFile($feature->fromGUIDv4($request->uuid));
+        $file = $feature->getFile($feature->fromGUIDv4($request->uuid), FileStorage::Screenshot);
 
         return response()
             ->withHeader('Content-Type', 'image/jpeg')
