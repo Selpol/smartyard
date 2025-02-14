@@ -9,7 +9,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $password Пароль
  * 
  * @property-read string $name Имя
- * @property-read string|null $email Почта
  * 
  * @property-read string|null $phone Номер телефона
  * 
@@ -24,7 +23,6 @@ readonly class UserStoreRequest extends RouteRequest
             'password' => [filter()->fullSpecialChars(), rule()->string()->min(8)->exist()],
 
             'name' => [filter()->fullSpecialChars(), rule()->string()->exist()],
-            'email' => rule()->email(),
 
             'phone' => rule()->string()->regexp('/^(\+\d{1,3}[- ]?)?\d{11}$/'),
 

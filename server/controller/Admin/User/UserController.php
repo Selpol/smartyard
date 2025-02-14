@@ -72,7 +72,6 @@ readonly class UserController extends AdminRbtController
         $user->password = password_hash($request->password, PASSWORD_DEFAULT);
 
         $user->real_name = $request->name;
-        $user->e_mail = $request->email;
 
         $user->phone = $request->phone;
 
@@ -104,16 +103,19 @@ readonly class UserController extends AdminRbtController
             return self::error('Не удалось найти пользователя', 404);
         }
 
-        $user->login = $request->login;
+        if ($request->login) {
+            $user->login = $request->login;
+        }
 
-        if ($request->password) {
+        if ($request->password && !str_contains($request->password, '*')) {
             $user->password = password_hash($request->password, PASSWORD_DEFAULT);
         }
 
-        $user->real_name = $request->name;
-        $user->e_mail = $request->email;
+        if ($request->name) {
+            $user->real_name = $request->name;
+        }
 
-        if (!str_contains($request->phone, '*')) {
+        if ($request->phone && !str_contains($request->phone, '*')) {
             $user->phone = $request->phone;
         }
 

@@ -596,7 +596,6 @@
 - `string` *login* - Логин
 - `string` *password* - Пароль
 - `string` *name* - Имя
-- `string|null` *email* - Почта
 - `string|null` *phone* - Номер телефона
 - `int` *enabled* - Включен ли пользователь
 
@@ -605,10 +604,9 @@
 Поля: 
 
 - `int` *id* - Идентификатор пользователя
-- `string` *login* - Логин
+- `string|null` *login* - Логин
 - `string|null` *password* - Пароль
-- `string` *name* - Имя
-- `string|null` *email* - Почта
+- `string|null` *name* - Имя
 - `string|null` *phone* - Номер телефона
 - `int` *enabled* - Включен ли пользователь
 
