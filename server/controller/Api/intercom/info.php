@@ -48,6 +48,6 @@ readonly class info extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Получить информацию об устройстве'];
+        return ['GET' => '[Deprecated] [Домофон] Получить информацию об устройстве'];
     }
 }

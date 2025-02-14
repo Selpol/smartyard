@@ -22,6 +22,6 @@ readonly class call extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Домофон] Звонок в квартиру'];
+        return ['GET' => '[Deprecated] [Домофон] Звонок в квартиру'];
     }
 }

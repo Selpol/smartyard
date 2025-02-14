@@ -28,6 +28,6 @@ readonly class open extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Домофон] Открыть дверь'];
+        return ['GET' => '[Deprecated] [Домофон] Открыть дверь'];
     }
 }

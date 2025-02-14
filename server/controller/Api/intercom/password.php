@@ -98,6 +98,6 @@ readonly class password extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Сгенерировать пароль'];
+        return ['GET' => '[Deprecated] [Домофон] Сгенерировать пароль'];
     }
 }

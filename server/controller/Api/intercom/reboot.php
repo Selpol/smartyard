@@ -32,6 +32,6 @@ readonly class reboot extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Перезапустить домофон'];
+        return ['GET' => '[Deprecated] [Домофон] Перезапустить домофон'];
     }
 }

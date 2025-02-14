@@ -244,6 +244,91 @@
 - `string` *key* - Ключ
 - `string` *value* - Значение
 
+## IntercomIndexRequest
+
+Поля: 
+
+- `string|null` *comment* - Комментарий
+- `string|null` *model* - Модель домофона
+- `string|null` *ip* - IP домофона
+- `string|null` *device_id*
+- `string|null` *device_model*
+- `string|null` *device_software_version*
+- `string|null` *device_hardware_version*
+
+## IntercomStoreRequest
+
+Поля: 
+
+- `int` *enabled* - Состояние домофона
+- `string` *model* - Модель домофона
+- `string` *server* - Сервер
+- `string` *url* - URL Домофона
+- `string` *credentials* - Авторизация
+- `string` *dtmf* - DTMF Открытия реле
+- `int|null` *nat* - NAT Режим
+- `string|null` *ip* - IP домофона
+- `string|null` *comment* - Комментарий
+- `string|null` *sos_number* - Номер SOS
+- `string|null` *config* - Конфигурация домофона
+- `bool|null` *hidden* - Скрытый домофон
+
+## IntercomUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор домофона
+- `int` *enabled* - Состояние домофона
+- `string` *model* - Модель домофона
+- `string` *server* - Сервер
+- `string` *url* - URL Домофона
+- `string` *credentials* - Авторизация
+- `string` *dtmf* - DTMF Открытия реле
+- `int|null` *nat* - NAT Режим
+- `string|null` *ip* - IP домофона
+- `string|null` *comment* - Комментарий
+- `string|null` *sos_number* - Номер SOS
+- `string|null` *config* - Конфигурация домофона
+- `bool|null` *hidden* - Скрытый домофон
+
+## IntercomDeviceCallRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int|null` *apartment* - Квартира
+
+## IntercomDeviceLevelRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int|null` *apartment* - Квартира
+- `int|null` *from* - Первая квартира
+- `int|null` *ti* - Последняя квартира
+- `bool` *info* - Дополнительная информация
+
+## IntercomDeviceOpenRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `int` *output* - Номер реле
+
+## IntercomDevicePasswordRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string|null` *password* - Пароль
+
+## IntercomDeviceResetRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор устройства
+- `string` *type* - Тип действия
+
 ## IntercomLogIndexRequest
 
 Поля: 

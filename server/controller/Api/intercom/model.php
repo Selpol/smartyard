@@ -16,6 +16,6 @@ readonly class model extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Получить список моделей'];
+        return ['GET' => '[Deprecated] [Домофон] Получить список моделей'];
     }
 }

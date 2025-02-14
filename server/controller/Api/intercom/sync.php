@@ -32,6 +32,6 @@ readonly class sync extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Синхронизация домофона'];
+        return ['GET' => '[Deprecated] [Домофон] Синхронизация домофона'];
     }
 }

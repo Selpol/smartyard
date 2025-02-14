@@ -110,7 +110,23 @@ class RoleUpdateCommand
             'cameras-camera-post' => ['camera-store-post'],
             'cameras-camera-put' => ['camera-update-put'],
             'cameras-camera-delete' => ['camera-delete-delete'],
-            'cameras-model-get' => ['camera-model-index-get']
+            'cameras-model-get' => ['camera-model-index-get'],
+
+            'intercom-sync-get' => ['intercom-device-sync-post'],
+            'intercom-info-get' => ['intercom-device-info-get'],
+            'intercom-intercom-get' => ['intercom-show-get'],
+            'intercom-intercom-put' => ['intercom-update-put'],
+            'intercom-intercom-post' => ['intercom-store-post'],
+            'intercom-intercom-delete' => ['intercom-delete-delete'],
+            'intercom-intercoms-get' => ['intercom-index-get'],
+            'intercom-model-get' => ['intercom-model-index-get'],
+            'intercom-level-get' => ['intercom-device-level-post'],
+            'intercom-reboot-get' => ['intercom-device-reboot-post'],
+            'intercom-reset-get' => ['intercom-device-reset-post'],
+            'intercom-open-get' => ['intercom-device-open-post'],
+            'intercom-call-get' => ['intercom-device-call-post'],
+            'intercom-password-get' => ['intercom-device-password-post'],
+            'intercom-stop-get' => ['intercom-device-call-post'],
         ];
 
         foreach ($permissions as $source => $destinations) {

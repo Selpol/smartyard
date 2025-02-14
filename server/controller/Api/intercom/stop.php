@@ -27,6 +27,6 @@ readonly class stop extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Сбросить активные звонки'];
+        return ['GET' => '[Deprecated] [Домофон] Сбросить активные звонки'];
     }
 }

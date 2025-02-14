@@ -40,6 +40,6 @@ readonly class level extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Домофон] Запросить уровень'];
+        return ['GET' => '[Deprecated] [Домофон] Запросить уровень'];
     }
 }

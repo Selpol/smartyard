@@ -22,15 +22,15 @@ class IntercomModel
         public readonly string $title,
         public readonly string $vendor,
         public readonly string $config
-    )
-    {
+    ) {
     }
 
     public function toArray(): array
     {
         return [
             'title' => $this->title,
-            'vendor' => $this->vendor
+            'vendor' => $this->vendor,
+            'config' => $this->config
         ];
     }
 

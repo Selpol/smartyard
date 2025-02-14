@@ -61,6 +61,6 @@ readonly class reset extends Api
 
     public static function index(): array|bool
     {
-        return ['GET' => '[Домофон] Сброс домофона'];
+        return ['GET' => '[Deprecated] [Домофон] Сброс домофона'];
     }
 }

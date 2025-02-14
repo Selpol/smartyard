@@ -72,6 +72,6 @@ readonly class intercoms extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Домофон] Получить список домофонов'];
+        return ['GET' => '[Deprecated] [Домофон] Получить список домофонов'];
     }
 }

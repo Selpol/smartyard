@@ -195,7 +195,24 @@ class RoleInitCommand
             'camera-update-put' => '[Камера] Обновить камеру',
             'camera-delete-delete' => '[Камера] Удалить камеру',
 
-            'camera-model-index-get' => '[Камера-Модель] Получить список моделей камер'
+            'camera-model-index-get' => '[Камера-Модель] Получить список моделей камер',
+
+            'intercom-index-get' => '[Домофон] Получить список домофонов',
+            'intercom-show-get' => '[Домофон] Получить домофон',
+            'intercom-store-post' => '[Домофон] Создать новый домофон',
+            'intercom-update-put' => '[Домофон] Обновить домофон',
+            'intercom-delete-delete' => '[Домофон] Удалить домофон',
+
+            'intercom-model-index-get' => '[Домофон-Модель] Получить список моделей домофона',
+
+            'intercom-device-info-get' => '[Домофон-Устройство] Получить информацию об домофоне',
+            'intercom-device-call-post' => '[Домофон-Устройство] Позвонить с домофона или сбросить звонок',
+            'intercom-device-level-post' => '[Домофон-Устройство] Получить уровни с домофона',
+            'intercom-device-open-post' => '[Домофон-Устройство] Открыть реле домофона',
+            'intercom-device-password-post' => '[Домофон-Устройство] Обновить пароль на домофоне',
+            'intercom-device-reboot-post' => '[Домофон-Устройство] Перезапустить домофон',
+            'intercom-device-reset-post' => '[Домофон-Устройство] Сброс домофона',
+            'intercom-device-sync-post' => '[Домофон-Устройство] Синхронизация домофона',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
