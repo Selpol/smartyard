@@ -288,7 +288,7 @@ extensions = {
                             local domophone = dm("domophone", domophoneId)
 
                             if domophone ~= false then
-                                dest = dest .. "&PJSIP/" .. tostring(e.apartment) .. "@" .. domophone.ip .. ":5060"
+                                dest = dest .. "&SIP/" .. tostring(e.apartment) .. "@" .. domophone.ip .. ":5060"
                             end
                         end
                     end
