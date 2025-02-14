@@ -4,5 +4,5 @@ namespace Selpol\Cli\Cron;
 
 interface CronInterface
 {
-    public function cron(CronEnum $value): bool;
+    public function cron(CronValue $value): bool;
 }

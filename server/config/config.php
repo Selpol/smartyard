@@ -102,8 +102,6 @@ return [
 
         'frs' => [
             'open_door_timeout' => 10,
-
-            'cron_sync_data_scheduler' => '5min'
         ],
 
         'plog' => [
@@ -120,8 +118,6 @@ return [
 
         'file' => [
             'database' => env('FEATURE_FILES_DB', 'rbt'),
-
-            'cron_sync_data_scheduler' => 'daily'
         ],
 
         'archive' => [

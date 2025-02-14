@@ -3,11 +3,13 @@
 namespace Selpol\Feature\Frs;
 
 use Selpol\Cli\Cron\CronInterface;
+use Selpol\Cli\Cron\CronTag;
 use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Frs\Internal\InternalFrsFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
+#[CronTag]
 #[Singleton(InternalFrsFeature::class)]
 readonly abstract class FrsFeature extends Feature implements CronInterface
 {

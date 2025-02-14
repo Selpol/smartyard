@@ -3,10 +3,12 @@
 namespace Selpol\Feature\Plog;
 
 use Selpol\Cli\Cron\CronInterface;
+use Selpol\Cli\Cron\CronTag;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Plog\Clickhouse\ClickhousePlogFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
+#[CronTag]
 #[Singleton(ClickhousePlogFeature::class)]
 readonly abstract class PlogFeature extends Feature implements CronInterface
 {

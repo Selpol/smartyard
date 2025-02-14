@@ -3,7 +3,7 @@
 namespace Selpol\Feature\Frs\Internal;
 
 use Psr\Log\LoggerInterface;
-use Selpol\Cli\Cron\CronEnum;
+use Selpol\Cli\Cron\CronValue;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Frs\FrsFace;
 use Selpol\Entity\Model\Frs\FrsServer;
@@ -211,9 +211,9 @@ readonly class InternalFrsFeature extends FrsFeature
         return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_MOTION_DETECTION, $method_params);
     }
 
-    public function cron(CronEnum $value): bool
+    public function cron(CronValue $value): bool
     {
-        if ($value->name === config_get('feature.frs.cron_sync_data_scheduler')) {
+        if ($value->at('*/5')) {
             $this->syncData();
         }
 

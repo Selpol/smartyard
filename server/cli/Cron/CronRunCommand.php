@@ -3,14 +3,10 @@
 namespace Selpol\Cli\Cron;
 
 use Psr\Log\LoggerAwareInterface;
-use Selpol\Feature\File\FileFeature;
-use Selpol\Feature\Frs\FrsFeature;
-use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
-use Selpol\Service\DeviceService;
 use Throwable;
 
 #[Executable('cron:run', 'Запуск cron задач')]
@@ -19,42 +15,46 @@ class CronRunCommand implements LoggerAwareInterface
     use LoggerRunnerTrait;
 
     #[Execute]
-    public function execute(CliIO $io, string $value): void
+    public function execute(CliIO $io): void
     {
-        $part = CronEnum::from($value);
+        $time = time();
 
-        if ($part) {
-            $start = microtime(true) * 1000;
-            $io->writeLine('Processing cron ' . $part->name);
+        $start = microtime(true) * 1000;
+        $io->writeLine('Processing cron ');
 
-            $values = [FrsFeature::class, FileFeature::class, PlogFeature::class, DeviceService::class];
+        $value = new CronValue(
+            intval(date('i', $time)),
+            intval(date('H', $time)),
+            intval(date('d', $time)),
+            intval(date('m', $time)),
+            intval(date('w', $time))
+        );
 
-            foreach ($values as $value) {
-                $instance = container($value);
+        $classes = kernel()->getContainer()->getTag(CronTag::CRON);
 
-                if (!($instance instanceof CronInterface)) {
-                    $io->writeLine('Skipped ' . $value);
+        foreach ($classes as $class) {
+            $instance = container($class);
 
-                    continue;
-                }
+            if (!($instance instanceof CronInterface)) {
+                $io->writeLine('Skipped ' . $class);
 
-                try {
-                    if ($instance->cron($part)) {
-                        $io->writeLine('Success processed feature ' . $value . ', part ' . $part->name);
-                    } else {
-                        $io->writeLine('Fail processed feature ' . $value . ', part ' . $part->name);
-                    }
-                } catch (Throwable $throwable) {
-                    $io->writeLine('Error cron ' . $throwable);
-                }
+                continue;
             }
 
-            $elapsed = microtime(true) * 1000 - $start;
-
-            $this->logger?->debug('Cron done ' . $elapsed . 'ms');
-            $io->writeLine('Cron done ' . $elapsed . 'ms');
-        } else {
-            $io->writeLine('Cron skip');
+            try {
+                if ($instance->cron($value)) {
+                    $io->writeLine('Success processed feature ' . $class);
+                } else {
+                    $io->writeLine('Fail processed feature ' . $class);
+                }
+            } catch (Throwable $throwable) {
+                $io->writeLine('Error cron ' . $throwable);
+            }
         }
+
+        $elapsed = microtime(true) * 1000 - $start;
+
+        $this->logger?->debug('Cron done ' . $elapsed . 'ms');
+        $io->writeLine('Cron done ' . $elapsed . 'ms');
     }
 }

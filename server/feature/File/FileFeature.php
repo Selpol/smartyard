@@ -3,10 +3,12 @@
 namespace Selpol\Feature\File;
 
 use Selpol\Cli\Cron\CronInterface;
+use Selpol\Cli\Cron\CronTag;
 use Selpol\Feature\Feature;
 use Selpol\Feature\File\Mongo\MongoFileFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 
+#[CronTag]
 #[Singleton(MongoFileFeature::class)]
 readonly abstract class FileFeature extends Feature implements CronInterface
 {

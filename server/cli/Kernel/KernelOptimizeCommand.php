@@ -63,7 +63,7 @@ class KernelOptimizeCommand
                 }
             };
 
-            $cache->set('container', $container->getContainer()->getFactories());
+            $cache->set('container', ['factories' => $container->getContainer()->getFactories(), 'tags' => $container->getContainer()->getTags()]);
         }
 
         if (file_exists(path('config/router.php'))) {

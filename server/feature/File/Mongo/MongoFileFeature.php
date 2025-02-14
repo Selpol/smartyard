@@ -4,7 +4,7 @@ namespace Selpol\Feature\File\Mongo;
 
 use Exception;
 use MongoDB\BSON\ObjectId;
-use Selpol\Cli\Cron\CronEnum;
+use Selpol\Cli\Cron\CronValue;
 use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\File\FileInfo;
@@ -25,9 +25,9 @@ readonly class MongoFileFeature extends FileFeature
         $this->database = config_get('feature.file.database', self::DEFAULT_DATABASE);
     }
 
-    public function cron(CronEnum $value): bool
+    public function cron(CronValue $value): bool
     {
-        if ($value->name === config_get('feature.file.cron_sync_data_scheduler')) {
+        if ($value->daily()) {
             $cursor = $this->service->getDatabase($this->getDatabaseName(FileStorage::Archive))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);
 
             foreach ($cursor as $document) {

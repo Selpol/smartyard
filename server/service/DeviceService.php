@@ -2,8 +2,9 @@
 
 namespace Selpol\Service;
 
-use Selpol\Cli\Cron\CronEnum;
 use Selpol\Cli\Cron\CronInterface;
+use Selpol\Cli\Cron\CronTag;
+use Selpol\Cli\Cron\CronValue;
 use Selpol\Device\Ip\Camera\CameraConfigResolver;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
@@ -21,6 +22,7 @@ use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
 use Throwable;
 
+#[CronTag]
 #[Singleton]
 class DeviceService implements CronInterface
 {
@@ -39,27 +41,29 @@ class DeviceService implements CronInterface
     {
     }
 
-    public function cron(CronEnum $value): bool
+    public function cron(CronValue $value): bool
     {
-        if ($value == CronEnum::daily) {
-            $deviceIntercoms = DeviceIntercom::fetchAll();
+        if (!$value->daily()) {
+            return true;
+        }
 
-            foreach ($deviceIntercoms as $deviceIntercom) {
-                $intercom = $this->intercomByEntity($deviceIntercom);
+        $deviceIntercoms = DeviceIntercom::fetchAll();
 
-                if (!$intercom->ping()) {
-                    continue;
-                }
+        foreach ($deviceIntercoms as $deviceIntercom) {
+            $intercom = $this->intercomByEntity($deviceIntercom);
 
-                $info = $intercom->getSysInfo();
-
-                $deviceIntercom->device_id = $info->deviceId;
-                $deviceIntercom->device_model = $info->deviceModel;
-                $deviceIntercom->device_software_version = $info->softwareVersion;
-                $deviceIntercom->device_hardware_version = $info->hardwareVersion;
-
-                $deviceIntercom->update();
+            if (!$intercom->ping()) {
+                continue;
             }
+
+            $info = $intercom->getSysInfo();
+
+            $deviceIntercom->device_id = $info->deviceId;
+            $deviceIntercom->device_model = $info->deviceModel;
+            $deviceIntercom->device_software_version = $info->softwareVersion;
+            $deviceIntercom->device_hardware_version = $info->hardwareVersion;
+
+            $deviceIntercom->update();
         }
 
         return true;

@@ -43,15 +43,7 @@ class CronInstallCommand
 
         $clean[] = "## RBT crons start, dont touch!!!";
         ++$lines;
-        $clean[] = sprintf('*/1 * * * * %s=minutely', $cli);
-        ++$lines;
-        $clean[] = sprintf('*/5 * * * * %s=5min', $cli);
-        ++$lines;
-        $clean[] = sprintf('1 */1 * * * %s=hourly', $cli);
-        ++$lines;
-        $clean[] = sprintf('1 1 */1 * * %s=daily', $cli);
-        ++$lines;
-        $clean[] = sprintf('1 1 1 */1 * %s=monthly', $cli);
+        $clean[] = sprintf('* * * * * %s', $cli);
         ++$lines;
         $clean[] = "## RBT crons end, dont touch!!!";
         ++$lines;
