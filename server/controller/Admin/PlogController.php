@@ -2,6 +2,8 @@
 
 namespace Selpol\Controller\Admin;
 
+use MongoDB\BSON\ObjectId;
+use MongoDB\Client;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\PlogCamshotRequest;
@@ -13,6 +15,7 @@ use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Service\AuthService;
+use Throwable;
 
 /**
  * События домофона
@@ -52,10 +55,31 @@ readonly class PlogController extends AdminRbtController
     #[Get('/camshot/{uuid}')]
     public function camshot(PlogCamshotRequest $request, FileFeature $feature): ResponseInterface
     {
-        $file = $feature->getFile($feature->fromGUIDv4($request->uuid), FileStorage::Screenshot);
+        try {
+            $file = $feature->getFile($feature->fromGUIDv4($request->uuid), FileStorage::Screenshot);
 
-        return response()
-            ->withHeader('Content-Type', 'image/jpeg')
-            ->withBody($file->stream);
+            return response()
+                ->withHeader('Content-Type', 'image/jpeg')
+                ->withBody($file->stream);
+        } catch (Throwable $throwable) {
+            try {
+                $client = new Client(env('OLD_MONGO_URI'));
+
+                /**
+                 * @var \MongoDB\Database
+                 */
+                $database = $client->{env('OLD_MONGO_DATABASE', FileFeature::DEFAULT_DATABASE)};
+                $bucket = $database->selectGridFSBucket();
+
+                $fileId = new ObjectId($feature->fromGUIDv4($request->uuid));
+                $stream = $bucket->openDownloadStream($fileId);
+
+                return response()
+                    ->withHeader('Content-Type', 'image/jpeg')
+                    ->withBody(stream($stream));
+            } catch (Throwable) {
+                return self::error('Скриншота уже не существует', 404);
+            }
+        }
     }
 }
