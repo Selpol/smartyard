@@ -11,8 +11,8 @@ use Selpol\Service\Asterisk\Contact;
 use Selpol\Service\AsteriskService;
 use Selpol\Service\DeviceService;
 
-#[Executable('device:status', 'Статус устройств')]
-class DeviceStatusCommand
+#[Executable('device:contact', 'Список устройств, без контактов')]
+class DeviceContactCommand
 {
     #[Execute]
     public function execute(CliIO $io, DeviceService $deviceService, AsteriskService $asteriskService): void
