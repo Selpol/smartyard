@@ -80,8 +80,7 @@ class DeviceSipCommand
                 'IP' => $devices[$i]->intercom->ip,
                 'TYPE' => $entrances[0]->entrance_type,
                 'MODEL' => $devices[$i]->model->vendor,
-                'ENTRANCE' => $entrances[0]->house_entrance_id,
-                'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances'
+                'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances&entranceId=' . $entrances[0]->house_entrance_id
             ];
 
             $bar->label('Обработка ' . ($i + 1) . '/' . $length);
@@ -91,7 +90,7 @@ class DeviceSipCommand
         $bar->hide();
 
         $io->getOutputCursor()->erase();
-        $io->getOutput()->table(['IP', 'TYPE', 'MODEL', 'ENTRANCE', 'LINK'], $result);
+        $io->getOutput()->table(['IP', 'TYPE', 'MODEL', 'LINK'], $result);
 
         $io->writeLine(count($result) . '/' . $count);
     }
