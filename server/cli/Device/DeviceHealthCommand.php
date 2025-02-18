@@ -2,118 +2,104 @@
 
 namespace Selpol\Cli\Device;
 
-use Selpol\Device\Ip\Intercom\IntercomDevice;
+use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
-use Selpol\Service\Asterisk\Contact;
-use Selpol\Service\AsteriskService;
 use Selpol\Service\DeviceService;
 
-#[Executable('device:health', 'Восстановление устройств')]
+#[Executable('device:health', 'Восстановление устройств, без регистрации')]
 class DeviceHealthCommand
 {
     #[Execute]
-    public function execute(CliIO $io, DeviceService $deviceService, AsteriskService $asteriskService): void
+    public function execute(CliIO $io, DeviceService $deviceService, SipFeature $sipFeature): void
     {
         $io->getOutputCursor()->erase();
 
-        $bar = $io->getOutput()->getBar('Домофоны');
+        $devices = array_map(fn(DeviceIntercom $intercom) => $deviceService->intercomByEntity($intercom), DeviceIntercom::fetchAll());
+        $length = count($devices);
+        $step = 100.0 / $length;
+
+        $count = 0;
+        $result = [];
+
+        $bar = $io->getOutput()->getBar('Обработка 0/' . $length);
 
         $bar->show();
 
-        $deviceIntercoms = DeviceIntercom::fetchAll();
+        $web = config_get('api.web', 'http://127.0.0.1');
 
-        $devices = array_filter(
-            array_map(fn(DeviceIntercom $intercom) => $deviceService->intercomByEntity($intercom), $deviceIntercoms),
-            static fn(IntercomDevice $device) => $device->pingRaw()
-        );
+        for ($i = 0; $i < $length; $i++) {
+            $device = $devices[$i];
 
-        $percent = 0;
-        $step = 100.0 / count($devices) / 3.0;
+            if ($device == null || $device->model == null || !$device->pingRaw()) {
+                $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+                $bar->advance($step);
 
-        $contacts = $asteriskService->contacts();
-
-        foreach ($devices as $device) {
-            if (count($contacts) > 0) {
-                if ($device instanceof SipInterface) {
-                    $this->health($device, $contacts, 0);
-                }
+                continue;
             }
 
-            $percent += $step;
-            $bar->set((int) ceil($percent));
-        }
+            $count++;
 
-        $contacts = $asteriskService->contacts();
+            if (!($device instanceof SipInterface)) {
+                $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+                $bar->advance($step);
 
-        if (count($contacts) > 0) {
-            foreach ($devices as $device) {
-                if ($device instanceof SipInterface) {
-                    $this->health($device, $contacts, 1);
-                }
-
-                $percent += $step;
-                $bar->set((int) ceil($percent));
+                continue;
             }
 
-            sleep(30);
+            $status = $device->getSipStatus();
 
-            $contacts = $asteriskService->contacts();
-
-            if (count($contacts) > 0) {
-                foreach ($devices as $device) {
-                    if ($device instanceof SipInterface) {
-                        $this->health($device, $contacts, state: 2);
-                    }
-
-                    $percent += $step;
-                    $bar->set((int) ceil($percent));
-                }
+            if ($status) {
+                continue;
             }
+
+            $entrances = $devices[$i]->intercom->entrances()->fetchAll(criteria()->limit(1));
+
+            if (count($entrances) == 0) {
+                $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+                $bar->advance($step);
+
+                continue;
+            }
+
+            $houses = $entrances[0]->houses()->fetchAll(criteria()->limit(1));
+
+            if (count($houses) == 0) {
+                $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+                $bar->advance($step);
+
+                continue;
+            }
+
+            $result[] = [
+                'IP' => $devices[$i]->intercom->ip,
+                'MODEL' => $devices[$i]->model->vendor,
+                'ENTRANCE' => $entrances[0]->house_entrance_id,
+                'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances'
+            ];
+
+            $server = $sipFeature->server('ip', $devices[$i]->intercom->server)[0];
+
+            $device->setSip(new Sip(
+                sprintf("1%05d", $devices[$i]->intercom->house_domophone_id),
+                $devices[$i]->password,
+                $server->internal_ip,
+                $server->internal_port
+            ));
+
+            $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+            $bar->advance($step);
         }
 
         $bar->hide();
-    }
 
-    /**
-     * @param IntercomDevice|SipInterface $device
-     * @param Contact[] $contacts
-     * @param int $state 
-     * @return void
-     */
-    public function health(IntercomDevice|SipInterface $device, array $contacts, int $state): void
-    {
-        if (!$device->model->isBeward()) {
-            return;
-        }
+        $io->getOutputCursor()->erase();
+        $io->getOutput()->table(['IP', 'MODEL', 'ENTRANCE', 'LINK'], $result);
 
-        if (!$device->intercom->ip) {
-            return;
-        }
-
-        for ($i = 0; $i < count($contacts); $i++) {
-            if ($contacts[$i]->ip == $device->intercom->ip) {
-                return;
-            }
-        }
-
-        if ($state == 0) {
-            $device->get('/webs/SIP1CfgEx', ['cksip' => 0, 'ckenablesip' => 0]);
-
-            sleep(1);
-
-            $device->get('/webs/SIP1CfgEx', ['cksip' => 1, 'ckenablesip' => 1]);
-
-            echo 'SIP: ' . $device->intercom->ip . PHP_EOL;
-        } else if ($state == 1) {
-            $device->reboot();
-
-            echo 'REBOOT: ' . $device->intercom->ip . PHP_EOL;
-        } else if ($state == 2) {
-            echo 'STATE: ' . $device->intercom->ip . PHP_EOL;
-        }
+        $io->writeLine(count($result) . '/' . $count);
     }
 }
