@@ -210,4 +210,8 @@ class RelayIntercom extends IntercomDevice implements CommonInterface
     public function setUPnP(bool $value): void
     {
     }
+
+    public function setServiceMode(bool $value): void
+    {
+    }
 }
