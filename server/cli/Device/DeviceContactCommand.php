@@ -90,6 +90,7 @@ class DeviceContactCommand
 
             $result[] = [
                 'IP' => $devices[$i]->intercom->ip,
+                'TYPE' => $entrances[0]->entrance_type,
                 'MODEL' => $devices[$i]->model->vendor,
                 'ENTRANCE' => $entrances[0]->house_entrance_id,
                 'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances'
@@ -102,7 +103,7 @@ class DeviceContactCommand
         $bar->hide();
 
         $io->getOutputCursor()->erase();
-        $io->getOutput()->table(['IP', 'MODEL', 'ENTRANCE', 'LINK'], $result);
+        $io->getOutput()->table(['IP', 'TYPE', 'MODEL', 'ENTRANCE', 'LINK'], $result);
 
         $io->writeLine(count($result) . '/' . $count);
     }
