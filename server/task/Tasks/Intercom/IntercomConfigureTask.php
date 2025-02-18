@@ -597,5 +597,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         if ($device->getUPnP()) {
             $device->setUPnP(false);
         }
+
+        $device->setServiceMode(false);
     }
 }

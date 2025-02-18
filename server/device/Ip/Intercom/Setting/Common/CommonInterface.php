@@ -56,4 +56,6 @@ interface CommonInterface
     public function setGates(array $value): void;
 
     public function setGatesMode(int $value): void;
+
+    public function setServiceMode(bool $value): void;
 }

@@ -152,4 +152,9 @@ trait CommonTrait
     {
 
     }
+
+    public function setServiceMode(bool $value): void
+    {
+
+    }
 }

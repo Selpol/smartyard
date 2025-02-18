@@ -36,7 +36,7 @@ trait CommonTrait
         try {
             $response = $this->client->send(client_request('GET', $this->uri . '/system/files/rsyslogd.conf'), $this->clientOption);
             $contents = $response->getBody()->getContents();
-            $lines = explode(PHP_EOL, (string)$contents);
+            $lines = explode(PHP_EOL, (string) $contents);
 
             if (str_starts_with($lines[count($lines) - 1], '@')) {
                 $value = explode(':', $lines[count($lines) - 1]);
@@ -132,7 +132,7 @@ trait CommonTrait
 
         foreach ($response['direct']['rules'] as $prefix => $rules) {
             foreach ($rules as $range => $address) {
-                $slice = preg_split('-', (string)$range);
+                $slice = preg_split('-', (string) $range);
 
                 $result[] = new Gate($address, intval($prefix), intval($slice[0]), intval($slice[1]));
             }
@@ -237,6 +237,11 @@ trait CommonTrait
     }
 
     public function setGatesMode(int $value): void
+    {
+
+    }
+
+    public function setServiceMode(bool $value): void
     {
 
     }

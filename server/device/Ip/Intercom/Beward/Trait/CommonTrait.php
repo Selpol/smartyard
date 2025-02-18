@@ -226,4 +226,12 @@ trait CommonTrait
     {
         $this->get('/cgi-bin/gate_cgi', ['action' => 'set', 'Mode' => $value]);
     }
+
+    public function setServiceMode(bool $value): void
+    {
+        $this->get(
+            '/webs/sysSrvCodesCfgEx',
+            ['ckkeyscanactive' => 0, 'cknetinfoactive' => 0, 'cknetstaticipactive' => 0, 'ckdooraddactive' => 0, 'cknetresetactive' => 0, 'ckpassresetactive' => 0, 'ckfullresetactive' => 0]
+        );
+    }
 }
