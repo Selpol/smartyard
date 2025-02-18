@@ -30,6 +30,11 @@ trait SipTrait
         return new SipOption(intval($response['CallTimeout']), intval($response['TalkTimeout']), [$sip['DtmfSignal1'], $sip['DtmfSignal2'], $sip['DtmfSignal3']], $audio['EchoCancellation'] === 'open');
     }
 
+    public function setSipStatus(bool $value): void
+    {
+        $this->get('/webs/SIP1CfgEx', ['cksip' => $value ? 1 : 0, 'ckenablesip' => $value ? 1 : 0]);
+    }
+
     public function setSip(Sip $sip): void
     {
         $this->get('/webs/SIP1CfgEx', [

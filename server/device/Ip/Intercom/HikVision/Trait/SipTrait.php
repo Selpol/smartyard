@@ -42,6 +42,11 @@ trait SipTrait
         return new  SipOption(intval($response['OperationTime']['maxRingTime']), intval($response['OperationTime']['talkTime']), [], false);
     }
 
+    public function setSipStatus(bool $value): void
+    {
+
+    }
+
     public function setSip(Sip $sip): void
     {
         $this->put('/ISAPI/System/Network/SIP', "<SIPServerList><SIPServer><id>1</id><Standard><enabled>true</enabled><proxy>" . $sip->server . "</proxy><proxyPort>" . $sip->port . "</proxyPort><displayName>" . $sip->login . "</displayName><userName>" . $sip->login . "</userName><authID>" . $sip->login . "</authID><password>" . $sip->password . "</password><expires>30</expires></Standard></SIPServer></SIPServerList>", ['Content-Type' => 'application/xml']);

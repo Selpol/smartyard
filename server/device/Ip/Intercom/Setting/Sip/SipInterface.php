@@ -10,6 +10,8 @@ interface SipInterface
 
     public function getSipOption(): SipOption;
 
+    public function setSipStatus(bool $value): void;
+
     public function setSip(Sip $sip): void;
 
     public function setSipOption(SipOption $sipOption): void;

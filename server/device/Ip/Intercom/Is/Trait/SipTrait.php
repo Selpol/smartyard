@@ -42,6 +42,11 @@ trait SipTrait
         }
     }
 
+    public function setSipStatus(bool $value): void
+    {
+
+    }
+
     public function setSip(Sip $sip): void
     {
         $this->put('/sip/settings', [

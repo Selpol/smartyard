@@ -88,6 +88,10 @@ class DeviceHealthCommand
 
             $server = $sipFeature->server('ip', $devices[$i]->intercom->server)[0];
 
+            $device->setSipStatus(false);
+
+            usleep(250000);
+
             $device->setSip(new Sip(
                 sprintf("1%05d", $devices[$i]->intercom->house_domophone_id),
                 $devices[$i]->password,
