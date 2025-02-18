@@ -285,10 +285,10 @@ extensions = {
 
                             dest = dest .. "&PJSIP/" .. trunk .. "/sip:" .. string.format("%d", e.apartment) .. contact:sub(index)
                         else
-                            local domophone = dm("domophone", domophoneId)
+                            local domophone = dm("domophone", e.domophoneId)
 
                             if domophone ~= false then
-                                dest = dest .. "&SIP/" .. tostring(e.apartment) .. "@" .. domophone.ip .. ":5060"
+                                dest = dest .. "&PJSIP/" .. tostring(math.floor(e.apartment)) .. "@" .. domophone.ip .. ":5060"
                             end
                         end
                     end
@@ -376,7 +376,7 @@ extensions = {
 
             log_debug("sos callerid " .. inspect(channel.CALLERID("all"):get()))
 
-            app.Dial(config_sos, 120, "m")
+            app.Dial("PJSIP/112@pbx.icomtel.info", 120, "m")
             app.Hangup()
         end,
 
