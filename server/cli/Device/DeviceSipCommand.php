@@ -33,7 +33,7 @@ class DeviceSipCommand
         for ($i = 0; $i < $length; $i++) {
             $device = $devices[$i];
 
-            if ($device == null || $device->model == null || !$device->model->isBeward() || !$device->pingRaw()) {
+            if ($device == null || $device->model == null || !$device->pingRaw()) {
                 $bar->label('Обработка ' . ($i + 1) . '/' . $length);
                 $bar->advance($step);
 
@@ -75,7 +75,7 @@ class DeviceSipCommand
 
             $result[] = [
                 'IP' => $devices[$i]->intercom->ip,
-                'SIP' => $status ? 'true' : 'false',
+                'MODEL' => $devices[$i]->model->vendor,
                 'ENTRANCE' => $entrances[0]->house_entrance_id,
                 'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances'
             ];
@@ -87,7 +87,7 @@ class DeviceSipCommand
         $bar->hide();
 
         $io->getOutputCursor()->erase();
-        $io->getOutput()->table(['IP', 'SIP', 'ENTRANCE', 'LINK'], $result);
+        $io->getOutput()->table(['IP', 'MODEL', 'ENTRANCE', 'LINK'], $result);
 
         $io->writeLine(count($result) . '/' . $count);
     }
