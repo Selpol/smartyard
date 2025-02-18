@@ -52,6 +52,9 @@ class DeviceSipCommand
             $status = $device->getSipStatus();
 
             if ($status) {
+                $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+                $bar->advance($step);
+
                 continue;
             }
 
