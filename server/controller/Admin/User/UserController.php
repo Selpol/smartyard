@@ -30,7 +30,7 @@ readonly class UserController extends AdminRbtController
     {
         $criteria = $this->getUser()->getIdentifier() != 0 ? criteria()->nonEqual('uid', 0) : null;
 
-        $users = CoreUser::fetchAll($criteria, setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'real_name', 'e_mail', 'last_login']));
+        $users = CoreUser::fetchAll($criteria, setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'real_name', 'last_login']));
 
         return self::success($users);
     }
@@ -47,7 +47,7 @@ readonly class UserController extends AdminRbtController
             return self::error('Главный аккаунт можно получить только с него самого', 400);
         }
 
-        $user = CoreUser::findById($id, setting: setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'phone', 'real_name', 'e_mail', 'last_login']));
+        $user = CoreUser::findById($id, setting: setting()->columns(['uid', 'login', 'enabled', 'aud_jti', 'phone', 'real_name', 'last_login']));
 
         if (!$user) {
             return self::error('Не удалось найти пользователя', 404);
@@ -64,7 +64,7 @@ readonly class UserController extends AdminRbtController
      * Создать нового пользователя
      */
     #[Post]
-    public function store(UserStoreRequest $request, OauthFeature $feature)
+    public function store(UserStoreRequest $request, OauthFeature $feature): ResponseInterface
     {
         $user = new CoreUser();
 
@@ -137,7 +137,7 @@ readonly class UserController extends AdminRbtController
      * @param int $id Идентификатор пользователя
      */
     #[Delete('/{id}')]
-    public function delete(int $id)
+    public function delete(int $id): ResponseInterface
     {
         if ($id == 0) {
             return self::error('Нельзя удалить главный аккаунт, только отключить', 400);
