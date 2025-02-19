@@ -40,10 +40,10 @@ readonly class region extends Api
     public static function index(): array
     {
         return [
-            'GET' => '[Регион] Получить регион',
-            "PUT" => "[Регион] Обновить регион",
-            "POST" => "[Регион] Создать регион",
-            "DELETE" => "[Регион] Удалить регион",
+            'GET' => '[Deprecated] [Регион] Получить регион',
+            "PUT" => "[Deprecated] [Регион] Обновить регион",
+            "POST" => "[Deprecated] [Регион] Создать регион",
+            "DELETE" => "[Deprecated] [Регион] Удалить регион",
         ];
     }
 }

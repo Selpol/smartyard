@@ -44,6 +44,19 @@ class AddressHouse extends Entity
 
     public static string $columnId = 'address_house_id';
 
+    public static array $fillable = [
+        'address_settlement_id' => true,
+        'address_street_id' => true,
+
+        'house_uuid' => true,
+        'house_type' => true,
+        'house_type_full' => true,
+        'house_full' => true,
+        'house' => true,
+
+        'timezone' => true
+    ];
+
     /**
      * @return OneToOneRelationship<AddressSettlement>
      */

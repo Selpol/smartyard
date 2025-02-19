@@ -39,6 +39,6 @@ readonly class area extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Адрес] Получить область', 'PUT' => '[Адрес] Обновить область', 'POST' => '[Адрес] Создать область', 'DELETE' => '[Адрес] Удалить область'];
+        return ['GET' => '[Deprecated] [Адрес] Получить область', 'PUT' => '[Deprecated] [Адрес] Обновить область', 'POST' => '[Deprecated] [Адрес] Создать область', 'DELETE' => '[Deprecated] [Адрес] Удалить область'];
     }
 }

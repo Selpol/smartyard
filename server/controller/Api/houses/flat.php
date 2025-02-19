@@ -100,6 +100,6 @@ readonly class flat extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Дом] Получить квартиру', 'POST' => '[Дом] Создать квартиру', 'PUT' => '[Дом] Обновить квартиру', 'DELETE' => '[Дом] Удалить квартиру'];
+        return ['GET' => '[Deprecated] [Дом] Получить квартиру', 'POST' => '[Deprecated] [Дом] Создать квартиру', 'PUT' => '[Deprecated] [Дом] Обновить квартиру', 'DELETE' => '[Deprecated] [Дом] Удалить квартиру'];
     }
 }

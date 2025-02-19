@@ -79,6 +79,6 @@ readonly class entrance extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Дом] Получить вход', 'POST' => '[Дом] Создать вход', 'PUT' => '[Дом] Обновить вход', 'DELETE' => '[Дом] Удалить вход'];
+        return ['GET' => '[Deprecated] [Дом] Получить вход', 'POST' => '[Deprecated] [Дом] Создать вход', 'PUT' => '[Deprecated] [Дом] Обновить вход', 'DELETE' => '[Deprecated] [Дом] Удалить вход'];
     }
 }

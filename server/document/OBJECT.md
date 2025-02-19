@@ -15,6 +15,218 @@
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
+## AddressAreaIndexRequest
+
+Поля: 
+
+- `int|null` *address_region_id*
+
+## AddressAreaStoreRequest
+
+Поля: 
+
+- `int` *address_region_id*
+- `string|null` *area_uuid*
+- `string` *area_with_type*
+- `string|null` *area_type*
+- `string|null` *area_type_full*
+- `string` *area*
+- `string|null` *timezone*
+
+## AddressAreaUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int` *address_region_id*
+- `string|null` *area_uuid*
+- `string` *area_with_type*
+- `string|null` *area_type*
+- `string|null` *area_type_full*
+- `string` *area*
+- `string|null` *timezone*
+
+## AddressCityIndexRequest
+
+Поля: 
+
+- `int|null` *address_region_id*
+- `int|null` *address_area_id*
+
+## AddressCityStoreRequest
+
+Поля: 
+
+- `int|null` *address_region_id*
+- `int|null` *address_area_id*
+- `string|null` *city_uuid*
+- `string` *city_with_type*
+- `string|null` *city_type*
+- `string|null` *city_type_full*
+- `string` *city*
+- `string|null` *timezone*
+
+## AddressCityUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int|null` *address_region_id*
+- `int|null` *address_area_id*
+- `string|null` *city_uuid*
+- `string` *city_with_type*
+- `string|null` *city_type*
+- `string|null` *city_type_full*
+- `string` *city*
+- `string|null` *timezone*
+
+## AddressHouseIndexRequest
+
+Поля: 
+
+- `int|null` *address_settlement_id*
+- `int|null` *address_street_id*
+
+## AddressHouseQrRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор дома
+- `bool` *override* - Перегенерировать коды
+
+## AddressHouseStoreRequest
+
+Поля: 
+
+- `int|null` *address_settlement_id*
+- `int|null` *address_street_id*
+- `string|null` *house_uuid*
+- `string` *house_type*
+- `string|null` *house_type_full*
+- `string|null` *house_full*
+- `string` *house*
+- `string|null` *timezone*
+
+## AddressHouseMagicRequest
+
+Поля: 
+
+- `string` *address*
+
+## AddressHouseUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int|null` *address_settlement_id*
+- `int|null` *address_street_id*
+- `string|null` *house_uuid*
+- `string` *house_type*
+- `string|null` *house_type_full*
+- `string|null` *house_full*
+- `string` *house*
+- `string|null` *timezone*
+
+## PageRequest
+
+Поля: 
+
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## AddressRegionStoreRequest
+
+Поля: 
+
+- `string|null` *region_uuid*
+- `string|null` *region_iso_code*
+- `string` *region_with_type*
+- `string|null` *region_type*
+- `string|null` *region_type_full*
+- `string` *region*
+- `string|null` *timezone*
+
+## AddressRegionUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `string|null` *region_uuid*
+- `string|null` *region_iso_code*
+- `string` *region_with_type*
+- `string|null` *region_type*
+- `string|null` *region_type_full*
+- `string` *region*
+- `string|null` *timezone*
+
+## AddressSettlementIndexRequest
+
+Поля: 
+
+- `int|null` *address_area_id*
+- `int|null` *address_city_id*
+
+## AddressSettlementStoreRequest
+
+Поля: 
+
+- `int|null` *address_area_id*
+- `int|null` *address_city_id*
+- `string|null` *settlement_uuid*
+- `string` *settlement_with_type*
+- `string|null` *settlement_type*
+- `string|null` *settlement_type_full*
+- `string` *settlement*
+- `string|null` *timezone*
+
+## AddressSettlementUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int|null` *address_area_id*
+- `int|null` *address_city_id*
+- `string|null` *settlement_uuid*
+- `string` *settlement_with_type*
+- `string|null` *settlement_type*
+- `string|null` *settlement_type_full*
+- `string` *settlement*
+- `string|null` *timezone*
+
+## AddressStreetIndexRequest
+
+Поля: 
+
+- `int|null` *address_city_id*
+- `int|null` *address_settlement_id*
+
+## AddressStreetStoreRequest
+
+Поля: 
+
+- `int|null` *address_city_id*
+- `int|null` *address_settlement_id*
+- `string|null` *street_uuid*
+- `string` *street_with_type*
+- `string|null` *street_type*
+- `string|null` *street_type_full*
+- `string` *street*
+- `string|null` *timezone*
+
+## AddressStreetUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int|null` *address_city_id*
+- `int|null` *address_settlement_id*
+- `string|null` *street_uuid*
+- `string` *street_with_type*
+- `string|null` *street_type*
+- `string|null` *street_type_full*
+- `string` *street*
+- `string|null` *timezone*
+
 ## AuthenticationRequest
 
 Поля: 
@@ -171,6 +383,13 @@
 
 - `int` *id* - Идентификатор DVR сервера
 - `string` *search* - Строка поиска камеры
+
+## EntranceCmsRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор входа
+- `array` *cmses* - Массив КМС входа
 
 ## GeoIndexRequest
 
@@ -410,13 +629,6 @@
 - `int` *id* - Идентификатор роли
 - `string` *title* - Заголовок
 - `string` *description* - Описание
-
-## PageRequest
-
-Поля: 
-
-- `int` *page* - Страница
-- `int` *size* - Размер страницы
 
 ## ServerDvrStoreRequest
 

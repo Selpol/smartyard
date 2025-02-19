@@ -3,6 +3,12 @@
 ## Контроллеры
 
 - [AccountAuditController](./AccountAuditController.md)
+- [AddressAreaController](./AddressAreaController.md)
+- [AddressCityController](./AddressCityController.md)
+- [AddressHouseController](./AddressHouseController.md)
+- [AddressRegionController](./AddressRegionController.md)
+- [AddressSettlementController](./AddressSettlementController.md)
+- [AddressStreetController](./AddressStreetController.md)
 - [AuthenticationController](./AuthenticationController.md)
 - [BlockController](./BlockController.md)
 - [BlockFlatController](./BlockFlatController.md)
@@ -12,6 +18,7 @@
 - [ConfigController](./ConfigController.md)
 - [ContractorController](./ContractorController.md)
 - [DvrController](./DvrController.md)
+- [EntranceCmsController](./EntranceCmsController.md)
 - [GeoController](./GeoController.md)
 - [GroupController](./GroupController.md)
 - [HouseFlatCameraController](./HouseFlatCameraController.md)

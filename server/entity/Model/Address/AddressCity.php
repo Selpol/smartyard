@@ -41,6 +41,19 @@ class AddressCity extends Entity
 
     public static string $columnId = 'address_city_id';
 
+    public static array $fillable = [
+        'address_region_id' => true,
+        'address_area_id' => true,
+
+        'city_uuid' => true,
+        'city_with_type' => true,
+        'city_type' => true,
+        'city_type_full' => true,
+        'city' => true,
+
+        'timezone' => true,
+    ];
+
     /**
      * @return OneToOneRelationship<AddressRegion>
      */

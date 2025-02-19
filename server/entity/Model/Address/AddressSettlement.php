@@ -41,6 +41,19 @@ class AddressSettlement extends Entity
 
     public static string $columnId = 'address_settlement_id';
 
+    public static array $fillable = [
+        'address_area_id' => true,
+        'address_city_id' => true,
+
+        'settlement_uuid' => true,
+        'settlement_with_type' => true,
+        'settlement_type' => true,
+        'settlement_type_full' => true,
+        'settlement' => true,
+
+        'timezone' => true
+    ];
+
     /**
      * @return OneToOneRelationship<AddressArea>
      */

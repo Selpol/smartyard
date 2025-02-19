@@ -60,6 +60,6 @@ readonly class addresses extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Адрес] Получить список'];
+        return ['GET' => '[Deprecated] [Адрес] Получить список'];
     }
 }

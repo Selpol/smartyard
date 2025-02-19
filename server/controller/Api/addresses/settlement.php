@@ -40,10 +40,10 @@ readonly class settlement extends Api
     public static function index(): array
     {
         return [
-            'GET' => '[Поселение] Получить поселение',
-            "PUT" => "[Поселение] Обновить поселение",
-            "POST" => "[Поселение] Создать поселение",
-            "DELETE" => "[Поселение] Удалить поселение",
+            'GET' => '[Deprecated] [Поселение] Получить поселение',
+            "PUT" => "[Deprecated] [Поселение] Обновить поселение",
+            "POST" => "[Deprecated] [Поселение] Создать поселение",
+            "DELETE" => "[Deprecated] [Поселение] Удалить поселение",
         ];
     }
 }

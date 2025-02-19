@@ -39,6 +39,6 @@ readonly class city extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Город] Получить город', 'PUT' => '[Город] Обновить город', 'POST' => '[Город] Создать город', 'DELETE' => '[Город] Удалить город'];
+        return ['GET' => '[Deprecated] [Город] Получить город', 'PUT' => '[Deprecated] [Город] Обновить город', 'POST' => '[Deprecated] [Город] Создать город', 'DELETE' => '[Deprecated] [Город] Удалить город'];
     }
 }

@@ -39,6 +39,18 @@ class AddressArea extends Entity
 
     public static string $columnId = 'address_area_id';
 
+    public static array $fillable = [
+        'address_region_id' => true,
+
+        'area_uuid' => true,
+        'area_with_type' => true,
+        'area_type' => true,
+        'area_type_full' => true,
+        'area' => true,
+
+        'timezone' => true,
+    ];
+
     /**
      * @return OneToOneRelationship<AddressRegion>
      */

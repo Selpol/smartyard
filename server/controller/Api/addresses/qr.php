@@ -27,6 +27,6 @@ readonly class qr extends Api
 
     public static function index(): array
     {
-        return ['POST' => '[QR] Получить Qr для дома'];
+        return ['POST' => '[Deprecated] [QR] Получить Qr для дома'];
     }
 }

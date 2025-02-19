@@ -73,6 +73,6 @@ readonly class house extends Api
 
     public static function index(): bool|array
     {
-        return ["GET" => '[Дом] Получить список', "PUT" => '[Дом] Обновить дом', "POST" => '[Дом] Создать дом', "DELETE" => '[Дом] Удалить дом'];
+        return ["GET" => '[Deprecated] [Дом] Получить список', "PUT" => '[Deprecated] [Дом] Обновить дом', "POST" => '[Deprecated] [Дом] Создать дом', "DELETE" => '[Deprecated] [Дом] Удалить дом'];
     }
 }

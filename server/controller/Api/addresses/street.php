@@ -40,10 +40,10 @@ readonly class street extends Api
     public static function index(): array
     {
         return [
-            'GET' => '[Улица] Получить улицу',
-            "PUT" => "[Улица] Обновить улицу",
-            "POST" => "[Улица] Создать улицу",
-            "DELETE" => "[Улица] Удалить улицу",
+            'GET' => '[Deprecated] [Улица] Получить улицу',
+            "PUT" => "[Deprecated] [Улица] Обновить улицу",
+            "POST" => "[Deprecated] [Улица] Создать улицу",
+            "DELETE" => "[Deprecated] [Улица] Удалить улицу",
         ];
     }
 }

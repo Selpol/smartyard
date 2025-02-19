@@ -19,6 +19,6 @@ readonly class sharedEntrances extends Api
 
     public static function index(): bool|array
     {
-        return ['GET' => '[Дом] Получить общий вход'];
+        return ['GET' => '[Deprecated] [Дом] Получить общий вход'];
     }
 }

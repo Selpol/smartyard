@@ -25,6 +25,6 @@ readonly class flatEntrance extends Api
 
     public static function index(): array
     {
-        return ['POST' => '[Дом] Привязать вход к квартирам'];
+        return ['POST' => '[Deprecated] [Дом] Привязать вход к квартирам'];
     }
 }

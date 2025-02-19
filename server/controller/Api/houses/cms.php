@@ -33,6 +33,6 @@ readonly class cms extends Api
 
     public static function index(): array
     {
-        return ['GET' => '[Дом] Получить КМС', 'PUT' => '[Дом] Обновить КМС'];
+        return ['GET' => '[Deprecated] [Дом] Получить КМС', 'PUT' => '[Deprecated] [Дом] Обновить КМС'];
     }
 }

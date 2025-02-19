@@ -40,6 +40,19 @@ class AddressStreet extends Entity
 
     public static string $columnId = 'address_street_id';
 
+    public static array $fillable = [
+        'address_city_id' => true,
+        'address_settlement_id' => true,
+
+        'street_uuid' => true,
+        'street_with_type' => true,
+        'street_type' => true,
+        'street_type_full' => true,
+        'street' => true,
+
+        'timezone' => true,
+    ];
+
     /**
      * @return OneToOneRelationship<AddressCity>
      */

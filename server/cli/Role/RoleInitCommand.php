@@ -213,6 +213,44 @@ class RoleInitCommand
             'intercom-device-reboot-post' => '[Домофон-Устройство] Перезапустить домофон',
             'intercom-device-reset-post' => '[Домофон-Устройство] Сброс домофона',
             'intercom-device-sync-post' => '[Домофон-Устройство] Синхронизация домофона',
+
+            'address-region-index-get' => '[Адрес-Регион] Получить список регионов',
+            'address-region-show-get' => '[Адрес-Регион] Получить регион',
+            'address-region-store-post' => '[Адрес-Регион] Создать новый регион',
+            'address-region-update-put' => '[Адрес-Регион] Обновить регион',
+            'address-region-delete-delete' => '[Адрес-Регион] Удалить регион',
+            
+            'address-area-index-get' => '[Адрес-Область] Получить список областей',
+            'address-area-show-get' => '[Адрес-Область] Получить область',
+            'address-area-store-post' => '[Адрес-Область] Создать новую область',
+            'address-area-update-put' => '[Адрес-Область] Обновить область',
+            'address-area-delete-delete' => '[Адрес-Область] Удалить область',
+            
+            'address-city-index-get' => '[Адрес-Город] Получить список городов',
+            'address-city-show-get' => '[Адрес-Город] Получить город',
+            'address-city-store-post' => '[Адрес-Город] Создать новый город',
+            'address-city-update-put' => '[Адрес-Город] Обновить город',
+            'address-city-delete-delete' => '[Адрес-Город] Удалить город',
+
+            'address-settlement-index-get' => '[Адрес-Поселение] Получить список поселений',
+            'address-settlement-show-get' => '[Адрес-Поселение] Получить поселение',
+            'address-settlement-store-post' => '[Адрес-Поселение] Создать новое поселение',
+            'address-settlement-update-put' => '[Адрес-Поселение] Обновить поселение',
+            'address-settlement-delete-delete' => '[Адрес-Поселение] Удалить поселение',
+
+            'address-street-index-get' => '[Адрес-Улица] Получить список улиц',
+            'address-street-show-get' => '[Адрес-Улица] Получить улицу',
+            'address-street-store-post' => '[Адрес-Улица] Создать новую улицу',
+            'address-street-update-put' => '[Адрес-Улица] Обновить улицу',
+            'address-street-delete-delete' => '[Адрес-Улица] Удалить улицу',
+
+            'address-house-index-get' => '[Адрес-Дом] Получить список домов',
+            'address-house-show-get' => '[Адрес-Дом] Получить дом',
+            'address-house-qr-get' => '[Адрес-Дом] Получить QR с адреса',
+            'address-house-store-post' => '[Адрес-Дом] Создать новый дом',
+            'address-house-magic-post' => '[Адрес-Дом] Автоматически создать дом',
+            'address-house-update-put' => '[Адрес-Дом] Обновить дом',
+            'address-house-delete-delete' => '[Адрес-Дом] Удалить дом',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
