@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "ff9622df9d5073b4f7f8e3a86c44e42a",
+    "content-hash": "1f1d081479d33a327e300b007c5fc406",
     "packages": [
         {
             "name": "chillerlan/php-qrcode",
@@ -1315,11 +1315,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.1.31",
+            "version": "1.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "f9fafcfcfeea53dfb8d4cc3bccba3f2e7f1c782d"
+                "reference": "a4e1b9423c3b32e5963562a4d4f50ed8e6decd54"
             },
             "require": {
                 "ext-curl": "*",
@@ -1353,7 +1353,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2025-02-18T07:14:38+00:00"
+            "time": "2025-02-19T07:14:56+00:00"
         },
         {
             "name": "selpol/validator",

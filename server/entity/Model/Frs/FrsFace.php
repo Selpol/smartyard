@@ -23,7 +23,7 @@ class FrsFace extends Entity
 
     public static string $columnId = 'face_id';
 
-    public static string $columnIdStrategy = 'self';
+    public static string $columnIdStrategy = self::STRATEGY_SELF;
 
     public static function getColumns(): array
     {

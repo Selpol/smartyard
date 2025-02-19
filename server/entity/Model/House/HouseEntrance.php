@@ -5,9 +5,11 @@ namespace Selpol\Entity\Model\House;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Entity\Model\Entrance\EntranceCms;
 use Selpol\Entity\Repository\House\HouseEntranceRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
@@ -43,6 +45,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * 
  * @property-read AddressHouse[] $houses
  * @property-read HouseFlat[] $flats
+ * 
+ * @property-read EntranceCms[] $cmses
  */
 class HouseEntrance extends Entity
 {
@@ -86,6 +90,14 @@ class HouseEntrance extends Entity
     public function flats(): ManyToManyRelationship
     {
         return $this->manyToMany(HouseFlat::class, 'houses_entrances_flats', localRelation: 'house_entrance_id', foreignRelation: 'house_flat_id');
+    }
+
+    /**
+     * @return OneToManyRelationship<EntranceCms>
+     */
+    public function cmses(): OneToManyRelationship
+    {
+        return $this->oneToMany(EntranceCms::class, 'house_entrance_id', 'house_entrance_id');
     }
 
     public static function getColumns(): array
