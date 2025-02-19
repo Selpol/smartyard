@@ -39,7 +39,7 @@ class AddressArea extends Entity
 
     public static string $columnId = 'address_area_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'address_region_id' => true,
 
         'area_uuid' => true,

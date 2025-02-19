@@ -41,7 +41,7 @@ class AddressCity extends Entity
 
     public static string $columnId = 'address_city_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'address_region_id' => true,
         'address_area_id' => true,
 

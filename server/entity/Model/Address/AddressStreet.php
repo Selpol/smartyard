@@ -40,7 +40,7 @@ class AddressStreet extends Entity
 
     public static string $columnId = 'address_street_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'address_city_id' => true,
         'address_settlement_id' => true,
 

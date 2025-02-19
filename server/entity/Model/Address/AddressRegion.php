@@ -35,7 +35,7 @@ class AddressRegion extends Entity
 
     public static string $columnId = 'address_region_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'region_uuid' => true,
         'region_iso_code' => true,
         'region_with_type' => true,

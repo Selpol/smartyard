@@ -44,7 +44,7 @@ class AddressHouse extends Entity
 
     public static string $columnId = 'address_house_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'address_settlement_id' => true,
         'address_street_id' => true,
 

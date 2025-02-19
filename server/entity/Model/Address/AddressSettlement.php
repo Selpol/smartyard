@@ -41,7 +41,7 @@ class AddressSettlement extends Entity
 
     public static string $columnId = 'address_settlement_id';
 
-    public static array $fillable = [
+    public static ?array $fillable = [
         'address_area_id' => true,
         'address_city_id' => true,
 
