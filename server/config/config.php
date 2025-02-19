@@ -32,7 +32,9 @@ return [
         'port' => env('MQTT_PORT', '1883'),
 
         'username' => env('MQTT_USERNAME', 'username'),
-        'password' => env('MQTT_PASSWORD', 'password')
+        'password' => env('MQTT_PASSWORD', 'password'),
+
+        'progress' => env('MQTT_PROGRESS', '0') == '1'
     ],
 
     'zabbix' => [

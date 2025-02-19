@@ -18,6 +18,8 @@ abstract class Task implements LoggerAwareInterface
 
     public function __construct(public string $title)
     {
+        $this->progress = config_get('mqtt.progress', false);
+
         $this->setLogger(file_logger('task'));
     }
 
