@@ -491,7 +491,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newLevels = clone $levels;
 
-        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel());
+        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel());
         $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel());
 
         if (!$newLevels->equal($levels)) {
