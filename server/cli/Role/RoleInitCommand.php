@@ -251,6 +251,8 @@ class RoleInitCommand
             'address-house-magic-post' => '[Адрес-Дом] Автоматически создать дом',
             'address-house-update-put' => '[Адрес-Дом] Обновить дом',
             'address-house-delete-delete' => '[Адрес-Дом] Удалить дом',
+
+            'dashboard-device-sip-get' => '[Панель-Устройства] Формирования списка устройств, без регистрации'
         ];
 
         /** @var array<string, Permission> $titlePermissions */

@@ -92,20 +92,18 @@ class IntercomSipTask extends Task
             $this->setProgress($process);
         }
 
-        if (!$this->sync) {
-            container(MqttService::class)->table(
-                $this->uuid ?? guid_v4(),
-                'Список устройств, без регистрации',
-                [
-                    'ip' => ['type' => 'text', 'label' => 'Ip-адрес'],
-                    'type' => ['type' => 'text', 'label' => 'Тип входа'],
-                    'model' => ['type' => 'text', 'label' => 'Модель устройства'],
-                    'link' => ['type' => 'link', 'label' => 'Ссылка на устройство']
-                ],
-                $result,
-                $this->uid
-            );
-        }
+        container(MqttService::class)->table(
+            $this->uuid ?? guid_v4(),
+            'Список устройств, без регистрации',
+            [
+                'ip' => ['type' => 'text', 'label' => 'Ip-адрес'],
+                'type' => ['type' => 'text', 'label' => 'Тип входа'],
+                'model' => ['type' => 'text', 'label' => 'Модель устройства'],
+                'link' => ['type' => 'link', 'label' => 'Ссылка на устройство']
+            ],
+            $result,
+            $this->uid
+        );
 
         return true;
     }

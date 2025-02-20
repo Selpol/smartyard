@@ -17,6 +17,7 @@
 - [CameraModelController](./CameraModelController.md)
 - [ConfigController](./ConfigController.md)
 - [ContractorController](./ContractorController.md)
+- [DashboardDeviceController](./DashboardDeviceController.md)
 - [DvrController](./DvrController.md)
 - [EntranceCmsController](./EntranceCmsController.md)
 - [GeoController](./GeoController.md)
