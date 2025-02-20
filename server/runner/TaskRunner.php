@@ -97,6 +97,7 @@ class TaskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $histogram = $prometheus->getHistogram('task', 'elapsed', 'Task elapsed in milliseconds', ['class', 'status'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 10000, 25000, 50000, 100000]);
 
             $uuid = guid_v4();
+            $task->uuid = $uuid;
 
             $time = microtime(true) * 1000;
 

@@ -44,6 +44,11 @@ readonly class MqttService implements ContainerDisposeInterface
         $this->publish($uid !== null ? ('task:' . $uid) : 'task', ['uuid' => $uuid, 'title' => $title, 'action' => $action, 'data' => $data]);
     }
 
+    public function table(string $uuid, string $title, array $headers, array $values, ?int $uid): void
+    {
+        $this->publish($uid !== null ? ('table:' . $uid) : $uid, ['uuid' => $uuid, 'title' => $title, 'headers' => $headers, 'values' => $values]);
+    }
+
     /**
      * @throws DataTransferException
      */

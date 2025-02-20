@@ -48,11 +48,20 @@ class TaskContainer
         return $this;
     }
 
+    public function progress(callable $calback): static
+    {
+        $this->task->setProgressCallback($calback);
+
+        return $this;
+    }
+
     /**
      * @throws Exception
      */
     public function sync(): mixed
     {
+        $this->task->sync = true;
+
         return $this->task->onTask();
     }
 

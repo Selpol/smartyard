@@ -14,6 +14,9 @@ abstract class Task implements LoggerAwareInterface
     public ?int $uid = null;
     public bool $progress = false;
 
+    public ?string $uuid = null;
+    public bool $sync = false;
+
     private mixed $progressCallback = null;
 
     public function __construct(public string $title)
