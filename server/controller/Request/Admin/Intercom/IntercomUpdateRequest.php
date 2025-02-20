@@ -16,6 +16,8 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
  * @property-read string $credentials Авторизация
  * @property-read string $dtmf DTMF Открытия реле
  * 
+ * @property-read int $first_time Первая синхронизация
+ * 
  * @property-read int|null $nat NAT Режим
  * 
  * @property-read string|null $ip IP домофона
@@ -42,6 +44,8 @@ readonly class IntercomUpdateRequest extends PageRequest
             'url' => rule()->required()->url()->nonNullable(),
             'credentials' => rule()->required()->string()->nonNullable(),
             'dtmf' => rule()->required()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->nonNullable(),
+
+            'first_time' => rule()->int()->exist(),
 
             'nat' => rule()->int(),
 

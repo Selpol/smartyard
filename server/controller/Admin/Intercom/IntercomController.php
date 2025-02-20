@@ -119,6 +119,8 @@ readonly class IntercomController extends AdminRbtController
         $intercom->credentials = $request->credentials;
         $intercom->dtmf = $request->dtmf;
 
+        $intercom->first_time = $request->first_time;
+
         $intercom->nat = $request->nat;
 
         $intercom->ip = $request->ip;
