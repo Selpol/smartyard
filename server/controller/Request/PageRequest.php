@@ -26,7 +26,7 @@ readonly class PageRequest extends RouteRequest
                 'page' => [filter()->default(0), rule()->required()->int()->clamp(0)->nonNullable()],
                 'size' => [filter()->default(10), rule()->required()->int()->clamp(1, 1000)->nonNullable()]
             ],
-            self::getExtendValidate()
+            static::getExtendValidate()
         );
     }
 }
