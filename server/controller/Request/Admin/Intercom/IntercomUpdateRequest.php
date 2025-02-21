@@ -2,8 +2,8 @@
 
 namespace Selpol\Controller\Request\Admin\Intercom;
 
-use Selpol\Controller\Request\PageRequest;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
  * @property-read int $id Идентификатор домофона
@@ -30,9 +30,9 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
  * 
  * @property-read bool|null $hidden Скрытый домофон
  */
-readonly class IntercomUpdateRequest extends PageRequest
+readonly class IntercomUpdateRequest extends RouteRequest
 {
-    public static function getExtendValidate(): array
+    public static function getValidate(): array
     {
         return [
             'id' => rule()->id(),

@@ -54,6 +54,30 @@ class DeviceIntercom extends Entity
 
     public static string $columnId = 'house_domophone_id';
 
+    public static ?array $fillable = [
+        'enabled' => true,
+
+        'model' => true,
+        'server' => true,
+        'url' => true,
+        'credentials' => true,
+        'dtmf' => true,
+
+        'first_time' => true,
+
+        'nat' => true,
+
+        'ip' => true,
+
+        'comment' => true,
+
+        'sos_number' => true,
+
+        'config' => true,
+
+        'hidden' => true
+    ];
+
     /**
      * @return OneToManyRelationship<HouseEntrance>
      */

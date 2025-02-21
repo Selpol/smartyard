@@ -79,7 +79,7 @@ readonly class ArchiveController extends MobileRbtController
                 ->withBody($file->stream);
         } catch (Throwable) {
             return response()
-                ->withHeader('Content-Type', 'charset=utf-8')
+                ->withHeader('Content-Type', 'text/html; charset=utf-8')
                 ->withBody(stream('Не удалось получить доступ к отрезку архива'));
         }
     }

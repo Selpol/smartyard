@@ -2,8 +2,8 @@
 
 namespace Selpol\Controller\Request\Admin\Intercom;
 
-use Selpol\Controller\Request\PageRequest;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
  * @property-read int $enabled Состояние домофона
@@ -26,18 +26,18 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
  * 
  * @property-read bool|null $hidden Скрытый домофон
  */
-readonly class IntercomStoreRequest extends PageRequest
+readonly class IntercomStoreRequest extends RouteRequest
 {
-    public static function getExtendValidate(): array
+    public static function getValidate(): array
     {
         return [
-            'enabled' => rule()->required()->int()->nonNullable(),
+            'enabled' => rule()->int()->exist(),
 
-            'model' => rule()->required()->in(array_keys(IntercomModel::models()))->nonNullable(),
-            'server' => rule()->required()->string()->nonNullable(),
-            'url' => rule()->required()->url()->nonNullable(),
-            'credentials' => rule()->required()->string()->nonNullable(),
-            'dtmf' => rule()->required()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->nonNullable(),
+            'model' => rule()->in(array_keys(IntercomModel::models()))->exist(),
+            'server' => rule()->string()->exist(),
+            'url' => rule()->url()->exist(),
+            'credentials' => rule()->string()->exist(),
+            'dtmf' => rule()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->exist(),
 
             'nat' => rule()->int(),
 

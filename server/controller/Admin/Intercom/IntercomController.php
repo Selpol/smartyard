@@ -76,23 +76,7 @@ readonly class IntercomController extends AdminRbtController
     {
         $intercom = new DeviceIntercom();
 
-        $intercom->enabled = $request->enabled;
-
-        $intercom->model = $request->model;
-        $intercom->server = $request->server;
-        $intercom->url = $request->url;
-        $intercom->credentials = $request->credentials;
-        $intercom->dtmf = $request->dtmf;
-
-        $intercom->nat = $request->nat;
-
-        $intercom->ip = $request->ip;
-
-        $intercom->comment = $request->comment;
-
-        $intercom->config = $request->config;
-
-        $intercom->hidden = $request->hidden;
+        $intercom->fill($request->all(true));
 
         $intercom->insert();
 
@@ -111,25 +95,7 @@ readonly class IntercomController extends AdminRbtController
             return self::error('Не удалось найти домофон', 404);
         }
 
-        $intercom->enabled = $request->enabled;
-
-        $intercom->model = $request->model;
-        $intercom->server = $request->server;
-        $intercom->url = $request->url;
-        $intercom->credentials = $request->credentials;
-        $intercom->dtmf = $request->dtmf;
-
-        $intercom->first_time = $request->first_time;
-
-        $intercom->nat = $request->nat;
-
-        $intercom->ip = $request->ip;
-
-        $intercom->comment = $request->comment;
-
-        $intercom->config = $request->config;
-
-        $intercom->hidden = $request->hidden;
+        $intercom->fill($request->all(true));
 
         $intercom->update();
 
