@@ -9,3 +9,9 @@
 Параметры: 
 
 - `int` *id* Идентификатор квартиры
+
+### [POST/sync `house-flat-key-sync-post`] Синхронизация ключей квартиры `/admin/house/flat/{id}/key/sync`
+
+Параметры: 
+
+- `int` *id* Идентификатор квартиры

@@ -133,6 +133,7 @@ class RoleInitCommand
             'house-flat-camera-delete-delete' => '[Квартира-Камера] Отвязать камеру от квартиры',
 
             'house-flat-key-index-get' => '[Квартира-Ключ] Получить список ключей',
+            'house-flat-key-sync-post' => '[Квартира-Ключ] Синхронизация ключей квартиры',
 
             'permission-index-get' => '[Права] Получить список прав',
             'permission-update-put' => '[Права ] Обновить право',
