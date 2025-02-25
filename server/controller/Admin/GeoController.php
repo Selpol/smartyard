@@ -45,6 +45,6 @@ readonly class GeoController extends AdminRbtController
             }, $suggestions));
         }
 
-        return self::error('Адрес не найден', 404);
+        return self::success([]);
     }
 }
