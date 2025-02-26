@@ -191,6 +191,9 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 foreach ($keys as $group => $groupKeys) {
                     foreach ($groupKeys as $key) {
                         if (array_key_exists($key, $keysInFlat)) {
+                            $keysInFlat[$key]->comments = 'Ключ (' . $contractor->title . '-' . $group . ')';
+                            $keysInFlat[$key]->update();
+
                             unset($keysInFlat[$key]);
                         } else {
                             try {
