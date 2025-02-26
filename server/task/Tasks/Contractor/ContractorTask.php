@@ -56,7 +56,7 @@ abstract class ContractorTask extends Task
      */
     protected function getUniqueAddressesIds(array $value): array
     {
-        return array_values(array_unique(array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), []), SORT_NUMERIC));
+        return array_values(array_unique(array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array) $current['value']), []), SORT_NUMERIC));
     }
 
     /**
@@ -65,16 +65,24 @@ abstract class ContractorTask extends Task
      */
     protected function getUniqueSubscribersIdsAndRoles(array $value): array
     {
-        return array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), []);
+        return array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array) $current['value']), []);
     }
 
     /**
      * @param Group<HouseKey, Contractor, int>[] $value
-     * @return string[]
+     * @return array<string, string[]>
      */
     protected function getUniqueKeys(array $value): array
     {
-        return array_values(array_unique(array_reduce(array_map(static fn(Group $group): array => $group->jsonSerialize(), $value), static fn(array $previous, array $current): array => array_merge($previous, (array)$current['value']), [])));
+        return array_reduce(
+            $value,
+            static function (array $previous, Group $current): array {
+                $previous[$current->name] = $current->value;
+
+                return $previous;
+            },
+            []
+        );
     }
 
     protected function getOrCreateFlat(Contractor $contractor, int $address): ?HouseFlat
@@ -93,12 +101,12 @@ abstract class ContractorTask extends Task
             $flatId = $houseFeature->addFlat(
                 $address,
                 0,
-                (string)$contractor->flat,
+                (string) $contractor->flat,
                 '',
                 $entrances,
                 array_reduce($entrances, static function (array $previous, int $current) use ($contractor) {
                     $previous[$current] = [
-                        'apartment' => (string)$contractor->flat,
+                        'apartment' => (string) $contractor->flat,
                         'apartmentLevels' => ''
                     ];
 

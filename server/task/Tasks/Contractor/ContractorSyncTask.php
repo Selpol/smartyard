@@ -166,7 +166,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
      * @param Contractor $contractor
      * @param array<int, bool> $devices
      * @param array<int, int> $flats
-     * @param string[] $keys
+     * @param array<string, string[]> $keys
      * @return void
      */
     private function keys(Contractor $contractor, array $devices, array $flats, array $keys): void
@@ -188,23 +188,25 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
 
                 $addKeys = [];
 
-                foreach ($keys as $key) {
-                    if (array_key_exists($key, $keysInFlat)) {
-                        unset($keysInFlat[$key]);
-                    } else {
-                        try {
-                            (new HouseKey([
-                                'rfid' => $key,
+                foreach ($keys as $group => $groupKeys) {
+                    foreach ($groupKeys as $key) {
+                        if (array_key_exists($key, $keysInFlat)) {
+                            unset($keysInFlat[$key]);
+                        } else {
+                            try {
+                                (new HouseKey([
+                                    'rfid' => $key,
 
-                                'access_type' => 2,
-                                'access_to' => $id,
+                                    'access_type' => 2,
+                                    'access_to' => $id,
 
-                                'comments' => 'Ключ (' . $contractor->title . ')'
-                            ]))->insert();
+                                    'comments' => 'Ключ (' . $contractor->title . '-' . $group . ')'
+                                ]))->insert();
 
-                            $addKeys[] = $key;
-                        } catch (Throwable $throwable) {
-                            $this->logger?->error($throwable);
+                                $addKeys[] = $key;
+                            } catch (Throwable $throwable) {
+                                $this->logger?->error($throwable);
+                            }
                         }
                     }
                 }

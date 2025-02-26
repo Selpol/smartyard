@@ -18,14 +18,21 @@ readonly class InternalGroupFeature extends GroupFeature
     {
         $filter = [];
 
-        if ($name !== null)
+        if ($name !== null) {
             $filter['name'] = $name;
-        if ($type !== null)
+        }
+
+        if ($type !== null) {
             $filter['type'] = $type;
-        if ($for !== null)
+        }
+
+        if ($for !== null) {
             $filter['for'] = $for;
-        if ($id !== null)
+        }
+
+        if ($id !== null) {
             $filter['id'] = (int) $id;
+        }
 
         $options = [];
 
@@ -38,10 +45,11 @@ readonly class InternalGroupFeature extends GroupFeature
         $result = [];
 
         foreach ($cursor as $document) {
-            if ($document instanceof BSONDocument)
+            if ($document instanceof BSONDocument) {
                 $result[] = new Group($document->getArrayCopy());
-            else if ($document)
+            } else if ($document) {
                 $result[] = new Group($document);
+            }
         }
 
         return $result;
@@ -54,29 +62,39 @@ readonly class InternalGroupFeature extends GroupFeature
         if ($result->getInsertedCount() === 1) {
             $insertedId = $result->getInsertedId();
 
-            if ($insertedId instanceof ObjectId)
+            if ($insertedId instanceof ObjectId) {
                 $id = $insertedId->__toString();
-            else
+            } else {
                 $id = $insertedId;
+            }
 
-            if (container(AuditFeature::class)->canAudit())
+            if (container(AuditFeature::class)->canAudit()) {
                 container(AuditFeature::class)->audit($id, Group::class, 'insert', 'Создание группы');
+            }
 
             return $id;
-        } else
+        } else {
             return false;
+        }
     }
 
     public function get(string $oid): Group|bool
     {
-        $result = $this->getCollection()->findOne(['_id' => $oid]);
+        $result = $this->getCollection()->findOne([
+            '$or' => [
+                ['_id' => $oid],
+                ['_id' => new ObjectId($oid)],
+            ]
+        ]);
 
         if ($result) {
-            if ($result instanceof BSONDocument)
+            if ($result instanceof BSONDocument) {
                 $result = $result->getArrayCopy();
+            }
 
-            if (is_array($result))
+            if (is_array($result)) {
                 return new Group($result);
+            }
         }
 
         return false;
@@ -84,12 +102,18 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function update(string $oid, string $name, string $type, string $for, mixed $id, array $value): bool
     {
-        $result = $this->getCollection()->updateOne(['_id' => $oid], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
+        $result = $this->getCollection()->updateOne([
+            '$or' => [
+                ['_id' => $oid],
+                ['_id' => new ObjectId($oid)],
+            ]
+        ], ['$set' => ['name' => $name, 'type' => $type, 'for' => $for, 'id' => $id, 'value' => $value]]);
         $status = $result->getModifiedCount() === 1;
 
         if ($status) {
-            if (container(AuditFeature::class)->canAudit())
+            if (container(AuditFeature::class)->canAudit()) {
                 container(AuditFeature::class)->audit($oid, Group::class, 'update', 'Обновление группы');
+            }
 
             return true;
         }
@@ -99,12 +123,18 @@ readonly class InternalGroupFeature extends GroupFeature
 
     public function delete(string $oid): bool
     {
-        $result = $this->getCollection()->deleteOne(['_id' => $oid]);
+        $result = $this->getCollection()->deleteOne([
+            '$or' => [
+                ['_id' => $oid],
+                ['_id' => new ObjectId($oid)],
+            ]
+        ]);
         $status = $result->getDeletedCount() == 1;
 
         if ($status) {
-            if (container(AuditFeature::class)->canAudit())
+            if (container(AuditFeature::class)->canAudit()) {
                 container(AuditFeature::class)->audit($oid, Group::class, 'delete', 'Удаление группы');
+            }
 
             return true;
         }
