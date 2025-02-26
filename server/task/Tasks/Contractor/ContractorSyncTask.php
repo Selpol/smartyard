@@ -215,22 +215,20 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                 }
 
                 foreach ($intercoms as $intercom) {
-                    if (!$intercom->pingRaw()) {
-                        $this->logger?->debug('Skip process intercom ' . $intercom->uri->getHost() . ' for contractor id ' . $this->id);
-
-                        continue;
-                    }
-
-                    foreach ($addKeys as $key) {
-                        $intercom->addKey(new Key($key, $flat));
-                    }
-
-                    if ($this->removeKey) {
-                        foreach ($keysInFlat as $key => $value) {
-                            $value->safeDelete();
-
-                            $intercom->removeKey(new Key($key, $flat));
+                    try {
+                        foreach ($addKeys as $key) {
+                            $intercom->addKey(new Key($key, $flat));
                         }
+
+                        if ($this->removeKey) {
+                            foreach ($keysInFlat as $key => $value) {
+                                $value->safeDelete();
+
+                                $intercom->removeKey(new Key($key, $flat));
+                            }
+                        }
+                    } catch (Throwable) {
+
                     }
                 }
             } catch (Throwable $throwable) {
