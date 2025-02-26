@@ -62,7 +62,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $progress = 15;
 
         if (count($addresses) > 0) {
-            $delta = (50 - $progress) / count($addresses);
+            $delta = (45 - $progress) / count($addresses);
 
             foreach ($addresses as $address) {
                 try {
@@ -76,7 +76,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
             }
         }
 
-        $this->setProgress(50);
+        $this->setProgress(45);
 
         try {
             $this->keys($contractor, $devices, $flats, $keys);
@@ -171,11 +171,34 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
      */
     private function keys(Contractor $contractor, array $devices, array $flats, array $keys): void
     {
+        $intercoms = array_map(
+            static fn(int $id): ?IntercomDevice => intercom($id),
+            array_keys($devices)
+        );
+
+        $progress = 45;
+        $delta = (50 - 45) / count($intercoms);
+
         /** @var array<IntercomDevice|KeyInterface> $intercoms */
-        $intercoms = array_filter(array_map(static fn(int $id): ?IntercomDevice => intercom($id), array_keys($devices)), static fn(IntercomDevice $device): bool => $device instanceof KeyInterface && $device->pingRaw());
+        $intercoms = array_filter(
+            $intercoms,
+            function (IntercomDevice $device) use (&$progress, $delta): bool {
+                if (!$device->pingRaw()) {
+                    return false;
+                }
+
+                $progress += $delta;
+
+                $this->setProgress($progress);
+
+                return $device instanceof KeyInterface;
+            }
+        );
 
         $progress = 50;
         $delta = (100 - 50) / count($flats);
+
+        $this->setProgress(50);
 
         foreach ($flats as $id => $flat) {
             try {
