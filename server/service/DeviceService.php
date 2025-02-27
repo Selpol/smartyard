@@ -13,11 +13,14 @@ use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Device\Ip\Intercom\IntercomConfigResolver;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\IntercomModel;
+use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigResolver;
+use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
 use Throwable;
@@ -43,27 +46,12 @@ class DeviceService implements CronInterface
 
     public function cron(CronValue $value): bool
     {
-        if (!$value->daily()) {
-            return true;
+        if ($value->daily()) {
+            $this->info();
         }
 
-        $deviceIntercoms = DeviceIntercom::fetchAll();
-
-        foreach ($deviceIntercoms as $deviceIntercom) {
-            $intercom = $this->intercomByEntity($deviceIntercom);
-
-            if (!$intercom->ping()) {
-                continue;
-            }
-
-            $info = $intercom->getSysInfo();
-
-            $deviceIntercom->device_id = $info->deviceId;
-            $deviceIntercom->device_model = $info->deviceModel;
-            $deviceIntercom->device_software_version = $info->softwareVersion;
-            $deviceIntercom->device_hardware_version = $info->hardwareVersion;
-
-            $deviceIntercom->update();
+        if ($value->hourly()) {
+            $this->health();
         }
 
         return true;
@@ -218,5 +206,70 @@ class DeviceService implements CronInterface
         }
 
         return null;
+    }
+
+    private function info(): void
+    {
+        $deviceIntercoms = DeviceIntercom::fetchAll();
+
+        foreach ($deviceIntercoms as $deviceIntercom) {
+            $intercom = $this->intercomByEntity($deviceIntercom);
+
+            if (!$intercom->ping()) {
+                continue;
+            }
+
+            $info = $intercom->getSysInfo();
+
+            $deviceIntercom->device_id = $info->deviceId;
+            $deviceIntercom->device_model = $info->deviceModel;
+            $deviceIntercom->device_software_version = $info->softwareVersion;
+            $deviceIntercom->device_hardware_version = $info->hardwareVersion;
+
+            $deviceIntercom->update();
+        }
+    }
+
+    private function health(): void
+    {
+        /**
+         * @var array<IntercomDevice|SipInterface>
+         */
+        $devices = array_filter(
+            array_map(
+                fn(DeviceIntercom $intercom) => $this->intercomByEntity($intercom),
+                DeviceIntercom::fetchAll()
+            ),
+            static function (IntercomDevice $device): bool {
+                if ($device == null || $device->model == null || !($device instanceof SipInterface)) {
+                    return false;
+                }
+
+                try {
+                    return !$device->getSipStatus();
+                } catch (Throwable) {
+                    return false;
+                }
+            }
+        );
+
+        file_logger('device')->debug('health count ' . count($devices));
+
+        foreach ($devices as $device) {
+            $device->setSipStatus(false);
+        }
+
+        usleep(250000);
+
+        foreach ($devices as $device) {
+            $server = container(SipFeature::class)->server('ip', $device->intercom->server)[0];
+
+            $device->setSip(new Sip(
+                sprintf("1%05d", $device->intercom->house_domophone_id),
+                $device->password,
+                $server->internal_ip,
+                $server->internal_port
+            ));
+        }
     }
 }

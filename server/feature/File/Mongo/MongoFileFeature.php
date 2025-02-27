@@ -151,7 +151,9 @@ readonly class MongoFileFeature extends FileFeature
         $files = [];
 
         foreach ($cursor as $document) {
-            $files[] = (string) $document["_id"]["\$oid"];
+            $id = $document['_id'];
+
+            $files[] = ($id instanceof ObjectId) ? (string) $id->jsonSerialize()['$oid'] : (string) $id['$oid'];
         }
 
         return $files;

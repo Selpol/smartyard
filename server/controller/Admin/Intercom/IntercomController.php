@@ -78,6 +78,12 @@ readonly class IntercomController extends AdminRbtController
 
         $intercom->fill($request->all(true));
 
+        $ip = gethostbyname(parse_url($intercom->url, PHP_URL_HOST));
+
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+            $intercom->ip = $ip;
+        }
+
         $intercom->insert();
 
         return self::success($intercom->house_domophone_id);
@@ -96,6 +102,12 @@ readonly class IntercomController extends AdminRbtController
         }
 
         $intercom->fill($request->all(true));
+
+        $ip = gethostbyname(parse_url($intercom->url, PHP_URL_HOST));
+
+        if (filter_var($ip, FILTER_VALIDATE_IP) !== false) {
+            $intercom->ip = $ip;
+        }
 
         $intercom->update();
 
