@@ -1,6 +1,6 @@
 {
-  "name": "rbt/server",
-  "homepage": "https://github.com/Selpol/SmartYard-Server",
+  "name": "selpol/smartyard",
+  "homepage": "https://github.com/Selpol/smartyard",
   "license": "GNU GENERAL PUBLIC LICENSE",
   "autoload": {
     "psr-4": {
