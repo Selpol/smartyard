@@ -525,7 +525,7 @@
 - `int` *id* - Идентификатор устройства
 - `int|null` *apartment* - Квартира
 - `int|null` *from* - Первая квартира
-- `int|null` *ti* - Последняя квартира
+- `int|null` *to* - Последняя квартира
 - `bool` *info* - Дополнительная информация
 
 ## IntercomDeviceOpenRequest

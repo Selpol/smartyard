@@ -9,6 +9,7 @@ use Selpol\Controller\Request\Admin\Intercom\IntercomDeviceLevelRequest;
 use Selpol\Controller\Request\Admin\Intercom\IntercomDeviceOpenRequest;
 use Selpol\Controller\Request\Admin\Intercom\IntercomDevicePasswordRequest;
 use Selpol\Controller\Request\Admin\Intercom\IntercomDeviceResetRequest;
+use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
@@ -107,7 +108,7 @@ readonly class IntercomDeviceController extends AdminRbtController
             return self::error('Домофон не доступен', 400);
         }
 
-        if (!$device instanceof CmsInterface) {
+        if (!($device instanceof CmsInterface)) {
             return self::error('Домофон не поддерживает КМС', 400);
         }
 

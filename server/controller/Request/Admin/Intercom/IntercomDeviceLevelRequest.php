@@ -10,7 +10,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read int|null $apartment Квартира
  * 
  * @property-read int|null $from Первая квартира
- * @property-read int|null $ti Последняя квартира
+ * @property-read int|null $to Последняя квартира
  * 
  * @property-read bool $info Дополнительная информация
  */
