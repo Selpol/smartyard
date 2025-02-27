@@ -17,7 +17,7 @@ use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\Exception\DatabaseException;
-use Selpol\Validator\Exception\ValidatorException;
+use Selpol\Framework\Validator\Exception\ValidatorException;
 use Throwable;
 
 class RouterRunner implements RunnerInterface, RunnerExceptionHandlerInterface, RequestHandlerInterface

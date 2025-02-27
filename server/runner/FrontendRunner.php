@@ -21,7 +21,7 @@ use Selpol\Service\Auth\Token\CoreAuthToken;
 use Selpol\Service\Auth\User\CoreAuthUser;
 use Selpol\Service\AuthService;
 use Selpol\Service\Exception\DatabaseException;
-use Selpol\Validator\Exception\ValidatorException;
+use Selpol\Framework\Validator\Exception\ValidatorException;
 use Throwable;
 
 class FrontendRunner implements RunnerInterface, RunnerExceptionHandlerInterface

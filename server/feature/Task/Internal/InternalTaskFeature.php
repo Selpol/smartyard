@@ -6,7 +6,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Feature\Task\TaskFeature;
 use Selpol\Task\Task;
 use Selpol\Task\TaskUniqueInterface;
-use Selpol\Validator\Exception\ValidatorException;
+use Selpol\Framework\Validator\Exception\ValidatorException;
 
 readonly class InternalTaskFeature extends TaskFeature
 {

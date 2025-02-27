@@ -19,7 +19,6 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
-use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/subscriber', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM]])]
 readonly class SubscriberController extends MobileRbtController
@@ -27,7 +26,6 @@ readonly class SubscriberController extends MobileRbtController
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
     #[Get(
         '/{flatId}',
@@ -69,7 +67,6 @@ readonly class SubscriberController extends MobileRbtController
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
     #[Post(
         '/{flatId}',
@@ -110,7 +107,6 @@ readonly class SubscriberController extends MobileRbtController
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
     #[Delete(
         '/{flatId}',
@@ -148,10 +144,11 @@ readonly class SubscriberController extends MobileRbtController
 
     private function getFlat(array $value, int $id): ?array
     {
-        foreach ($value as $item)
+        foreach ($value as $item) {
             if ($item['flatId'] === $id) {
                 return $item;
             }
+        }
 
         return null;
     }

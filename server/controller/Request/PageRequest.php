@@ -3,7 +3,7 @@
 namespace Selpol\Controller\Request;
 
 use Selpol\Framework\Router\Route\RouteRequest;
-use Selpol\Validator\ValidatorOnItemInterface;
+use Selpol\Framework\Validator\ValidatorOnItemInterface;
 
 /**
  * @property-read int $page Страница

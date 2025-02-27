@@ -17,7 +17,7 @@ use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
 use Selpol\Service\DeviceService;
 use Selpol\Service\RedisService;
-use Selpol\Validator\Exception\ValidatorException;
+use Selpol\Framework\Validator\Exception\ValidatorException;
 use Throwable;
 
 class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface

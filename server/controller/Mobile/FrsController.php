@@ -20,7 +20,6 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Middleware\Mobile\BlockFlatMiddleware;
 use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
-use Selpol\Validator\Exception\ValidatorException;
 
 #[Controller('/mobile/frs', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS]])]
 readonly class FrsController extends MobileRbtController
@@ -28,7 +27,6 @@ readonly class FrsController extends MobileRbtController
     /**
      * @throws ContainerExceptionInterface
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
     #[Get(
         '/{flatId}',

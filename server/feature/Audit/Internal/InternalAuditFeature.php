@@ -7,7 +7,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Selpol\Entity\Model\Audit;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Service\AuthService;
-use Selpol\Validator\Exception\ValidatorException;
+use Selpol\Framework\Validator\Exception\ValidatorException;
 
 readonly class InternalAuditFeature extends AuditFeature
 {

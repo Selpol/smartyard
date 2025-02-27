@@ -28,7 +28,6 @@ use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Service\DatabaseService;
-use Selpol\Validator\Exception\ValidatorException;
 use Throwable;
 
 #[Controller('/mobile/cctv')]
@@ -148,7 +147,6 @@ readonly class CameraController extends MobileRbtController
 
     /**
      * @throws NotFoundExceptionInterface
-     * @throws ValidatorException
      */
     #[Get(
         '/{cameraId}',
