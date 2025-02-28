@@ -19,6 +19,7 @@ use Selpol\Entity\Model\Frs\FrsServer;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Entity\Model\House\HouseSubscriber;
+use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Model\Role;
 use Selpol\Entity\Model\Server\StreamerServer;
 use Selpol\Entity\Model\Sip\SipServer;
@@ -89,6 +90,7 @@ readonly class AccountAuditController extends AdminRbtController
             HouseFlat::class => 'Квартира',
             HouseKey::class => 'Ключ',
             HouseSubscriber::class => 'Абонент',
+            Permission::class => 'Права',
             Role::class => 'Роль',
             StreamerServer::class => 'Сервер-Стример',
             SipServer::class => 'Сервер-Sip',
@@ -110,7 +112,6 @@ readonly class AccountAuditController extends AdminRbtController
             IntercomHouseKeyTask::class => 'Задача синхронизации ключей дома',
             IntercomKeysKeyTask::class => 'Задача синхронизация ключей',
             QrTask::class => 'Задача генерации QR-кода',
-            ScopeMiddleware::class => 'Доступ'
         ]);
     }
 }
