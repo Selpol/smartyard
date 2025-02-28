@@ -120,7 +120,7 @@ class RoleUpdateCommand
             'intercom-intercom-delete' => ['intercom-delete-delete'],
             'intercom-intercoms-get' => ['intercom-index-get'],
             'intercom-model-get' => ['intercom-model-index-get'],
-            'intercom-level-get' => ['intercom-device-level-post'],
+            'intercom-level-get' => ['intercom-device-level-post', 'intercom-model-index-get'],
             'intercom-reboot-get' => ['intercom-device-reboot-post'],
             'intercom-reset-get' => ['intercom-device-reset-post'],
             'intercom-open-get' => ['intercom-device-open-post'],
