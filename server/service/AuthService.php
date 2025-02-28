@@ -2,11 +2,15 @@
 
 namespace Selpol\Service;
 
+use Selpol\Entity\Model\Permission;
+use Selpol\Entity\Repository\PermissionRepository;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\Exception\AuthException;
+use Throwable;
 
 #[Singleton]
 class AuthService

@@ -26,6 +26,7 @@ use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Feature\Group\Group;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Middleware\Admin\ScopeMiddleware;
 use Selpol\Task\Tasks\Contractor\ContractorSyncTask;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
@@ -109,6 +110,7 @@ readonly class AccountAuditController extends AdminRbtController
             IntercomHouseKeyTask::class => 'Задача синхронизации ключей дома',
             IntercomKeysKeyTask::class => 'Задача синхронизация ключей',
             QrTask::class => 'Задача генерации QR-кода',
+            ScopeMiddleware::class => 'Доступ'
         ]);
     }
 }

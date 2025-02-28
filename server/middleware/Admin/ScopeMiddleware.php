@@ -6,7 +6,9 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Entity\Model\Permission;
 use Selpol\Entity\Repository\PermissionRepository;
+use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Framework\Router\Route\Route;
 use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\AuthService;
@@ -48,8 +50,16 @@ readonly class ScopeMiddleware extends RouteMiddleware
             try {
                 $permission = container(PermissionRepository::class)->findByTitle($scope);
 
+                if (container(AuditFeature::class)->canAudit()) {
+                    container(AuditFeature::class)->audit(strval($permission?->id ?: $scope), Permission::class, 'scope', 'Не удалось получить доступ (' . ($permission?->description ?: $scope) . ')');
+                }
+
                 return AdminRbtController::error('Не достаточно прав для действия (' . ($permission?->description ?? $scope) . ')', 403);
             } catch (Throwable) {
+                if (container(AuditFeature::class)->canAudit()) {
+                    container(AuditFeature::class)->audit($scope, Permission::class, 'scope', 'Не удалось получить доступ (' . $scope . ')');
+                }
+
                 return AdminRbtController::error('Не достаточно прав', 403);
             }
         }
