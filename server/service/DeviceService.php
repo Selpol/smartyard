@@ -50,7 +50,7 @@ class DeviceService implements CronInterface
             $this->info();
         }
 
-        if ($value->hourly()) {
+        if ($value->at('*/30')) {
             $this->health();
         }
 
