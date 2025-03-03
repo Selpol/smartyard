@@ -46,6 +46,8 @@ readonly class SubscriberController extends AdminRbtController
             ->like('subscriber_name', $request->name)
             ->like('subscriber_patronymic', $request->patronymic)
             ->equal('id', $request->mobile)
+            ->equal('platform', $request->platform)
+            ->equal('push_token_type', $request->push_token_type)
             ->asc('house_subscriber_id');
 
         $page = HouseSubscriber::fetchPage($request->page, $request->size, $criteria);

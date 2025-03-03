@@ -758,6 +758,8 @@
 - `null|string` *name* - Имя
 - `null|string` *patronymic* - Отчество
 - `null|string` *mobile* - Номер телефона
+- `null|string` *platform* - Платформа. 0 - ANDROID, 1 - IOS, 2 - WEB
+- `null|string` *push_token_type* - Тип токена. 0 - GMS, 1 - IOS PROD, 2 - IOS DEV, 3 - HMS, 4 - RSR
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
 
