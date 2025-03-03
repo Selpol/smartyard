@@ -2,14 +2,9 @@
 
 namespace Selpol\Device\Ip\Intercom;
 
-use Selpol\Device\Ip\Intercom\Beward\DksIntercom;
-use Selpol\Device\Ip\Intercom\Beward\DsIntercom;
-use Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom;
-use Selpol\Device\Ip\Intercom\Is\Is5Intercom;
-use Selpol\Device\Ip\Intercom\Is\IsIntercom;
-use Selpol\Device\Ip\Intercom\Relay\RelayIntercom;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\ConfigResolver;
+use Selpol\Framework\Kernel\Exception\KernelException;
 
 class IntercomModel
 {
@@ -52,15 +47,14 @@ class IntercomModel
     public function instance(DeviceIntercom $intercom, ConfigResolver $resolver): IntercomDevice
     {
         $class = $resolver->string('class');
-        $class = match ($class) {
-            'DksBeward' => DksIntercom::class,
-            'DsBeward' => DsIntercom::class,
-            'HikVision' => HikVisionIntercom::class,
-            'Is' => IsIntercom::class,
-            'Is5' => Is5Intercom::class,
-            'Relay' => RelayIntercom::class,
 
-        };
+        if (!class_exists($class)) {
+            throw new KernelException('Не известный обработчик домофона');
+        }
+
+        if (!is_subclass_of($class, IntercomDevice::class)) {
+            throw new KernelException('Обработчик не принадлежит домофоном');
+        }
 
         return new $class(uri($intercom->url), $intercom->credentials, $this, $intercom, $resolver);
     }
@@ -77,12 +71,12 @@ class IntercomModel
     {
         if (!isset(self::$models)) {
             self::$models = [
-                'is_1' => new IntercomModel('IS ISCOM X1', 'IS', 'class=Is'),
-                'is_5' => new IntercomModel('IS ISCOM X5', 'IS', 'class=Is5'),
-                'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=DsBeward'),
-                'beward_dks' => new IntercomModel('BEWARD DKS', 'BEWARD', 'class=DksBeward'),
-                'hikvision' => new IntercomModel('HikVision', 'HIKVISION', 'class=HikVision'),
-                'relay' => new IntercomModel('Relay', 'RX', 'class=Relay')
+                'is_1' => new IntercomModel('IS ISCOM X1', 'IS', 'class=Selpol\Device\Ip\Intercom\Is\IsIntercom'),
+                'is_5' => new IntercomModel('IS ISCOM X5', 'IS', 'class=Selpol\Device\Ip\Intercom\Is\Is5Intercom'),
+                'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=Selpol\Device\Ip\Intercom\Beward\DsIntercom'),
+                'beward_dks' => new IntercomModel('BEWARD DKS', 'BEWARD', 'class=Selpol\Device\Ip\Intercom\Beward\DksIntercom'),
+                'hikvision' => new IntercomModel('HikVision', 'HIKVISION', 'class=Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom'),
+                'relay' => new IntercomModel('Relay', 'RX', 'class=Selpol\Device\Ip\Intercom\Relay\RelayIntercom')
             ];
         }
 

@@ -35,7 +35,12 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
             ['type' => 'value', 'value' => 'output.map', 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
 
-            ['type' => 'value', 'value' => 'class', 'title' => 'Класс обработчик', 'assign' => ['condition' => 'in:DksBeward,DsBeward,HikVision,Is,Is5']],
+            [
+                'type' => 'value', 
+                'value' => 'class', 
+                'title' => 'Класс обработчик', 
+                'assign' => ['example' => 'Selpol\Device\Ip\Intercom\Is\IsIntercom,Selpol\Device\Ip\Intercom\Is\Is5Intercom,Selpol\Device\Ip\Intercom\Beward\DsIntercom,Selpol\Device\Ip\Intercom\Beward\DksIntercom,Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom,Selpol\Device\Ip\Intercom\Relay\RelayIntercom']
+            ],
 
             [
                 'type' => 'namespace',
@@ -187,6 +192,13 @@ readonly abstract class ConfigFeature extends Feature
 
             ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
             ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
+
+            [
+                'type' => 'value', 
+                'value' => 'class', 
+                'title' => 'Класс обработчик', 
+                'assign' => ['example' => 'Selpol\Device\Ip\Camera\Is\IsCamera,Selpol\Device\Ip\Camera\Beward\BewardCamera,Selpol\Device\Ip\Camera\HikVision\HikVisionCamera,Selpol\Device\Ip\Camera\Fake\FakeCamera']
+            ],
 
             ['type' => 'value', 'value' => 'screenshot', 'title' => 'Скриншот', 'assign' => ['type' => 'string']]
         ];

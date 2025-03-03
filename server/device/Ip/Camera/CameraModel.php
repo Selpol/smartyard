@@ -2,12 +2,9 @@
 
 namespace Selpol\Device\Ip\Camera;
 
-use Selpol\Device\Ip\Camera\Beward\BewardCamera;
-use Selpol\Device\Ip\Camera\Fake\FakeCamera;
-use Selpol\Device\Ip\Camera\HikVision\HikVisionCamera;
-use Selpol\Device\Ip\Camera\Is\IsCamera;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Config\ConfigResolver;
+use Selpol\Framework\Kernel\Exception\KernelException;
 
 class CameraModel
 {
@@ -24,19 +21,22 @@ class CameraModel
     {
         return [
             'title' => $this->title,
-            'vendor' => $this->vendor
+            'vendor' => $this->vendor,
+            'config' => $this->config
         ];
     }
 
     public function instance(DeviceCamera $camera, ConfigResolver $resolver): CameraDevice
     {
         $class = $resolver->string('class');
-        $class = match ($class) {
-            'Is' => IsCamera::class,
-            'Beward' => BewardCamera::class,
-            'HikVision' => HikVisionCamera::class,
-            'Fake' => FakeCamera::class
-        };
+
+        if (!class_exists($class)) {
+            throw new KernelException('Не известный обработчик камеры');
+        }
+
+        if (!is_subclass_of($class, CameraDevice::class)) {
+            throw new KernelException('Обработчик не принадлежит камерам');
+        }
 
         return new $class(uri($camera->url), $camera->credentials, $this, $camera, $resolver);
     }
@@ -53,11 +53,11 @@ class CameraModel
     {
         if (!isset(self::$models)) {
             self::$models = [
-                'is' => new CameraModel('IS', 'IS', 'class=Is'),
-                'beward' => new CameraModel('BEWARD', 'BEWARD', 'class=Beward'),
-                'hikVision' => new CameraModel('HikVision', 'HIKVISION', 'class=HikVision'),
+                'is' => new CameraModel('IS', 'IS', 'class=Selpol\Device\Ip\Camera\Is\IsCamera'),
+                'beward' => new CameraModel('BEWARD', 'BEWARD', 'class=Selpol\Device\Ip\Camera\Beward\BewardCamera'),
+                'hikVision' => new CameraModel('HikVision', 'HIKVISION', 'class=Selpol\Device\Ip\Camera\HikVision\HikVisionCamera'),
 
-                'fake' => new CameraModel('FAKE', 'FAKE', 'class=Fake')
+                'fake' => new CameraModel('FAKE', 'FAKE', 'class=Selpol\Device\Ip\Camera\Fake\FakeCamera')
             ];
         }
 
