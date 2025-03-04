@@ -145,7 +145,7 @@ readonly abstract class ConfigFeature extends Feature
                 'title' => 'Калитка',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'mode', 'title' => 'Режим калитки для BEWARD', 'assign' => ['default' => '1', 'type' => 'int', 'in:1,2']]
+                    ['type' => 'value', 'value' => 'mode', 'title' => 'Режим калитки для BEWARD', 'assign' => ['default' => '1', 'type' => 'int', 'condition' => 'in:1,2']]
                 ]
             ],
 
@@ -160,17 +160,6 @@ readonly abstract class ConfigFeature extends Feature
                     ['type' => 'value', 'value' => 'key', 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
                     ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
                     ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'condition' => 'in:mifareusr_cgi,mifare_cgi']]
-                ]
-            ],
-
-            [
-                'type' => 'namespace',
-                'value' => 'zabbix',
-                'title' => 'Система мониторинга',
-
-                'suggestions' => [
-                    ['type' => 'value', 'value' => 'group', 'title' => 'Группа', 'assign' => ['type' => 'array:int', 'example' => '1,2']],
-                    ['type' => 'value', 'value' => 'template', 'title' => 'Шаблон', 'assign' => ['type' => 'array:int', 'example' => '1,2']]
                 ]
             ]
         ];
