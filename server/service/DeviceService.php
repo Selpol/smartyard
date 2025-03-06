@@ -259,20 +259,28 @@ class DeviceService implements CronInterface
         );
 
         foreach ($devices as $device) {
-            $device->setSipStatus(false);
+            try {
+                $device->setSipStatus(false);
+            } catch (Throwable $throwable) {
+                file_logger('device')->error('health error status: ' . $throwable->getMessage(), ['ip' => $device->intercom->ip]);
+            }
         }
 
         sleep(1);
 
         foreach ($devices as $device) {
-            $server = container(SipFeature::class)->server('ip', $device->intercom->server)[0];
+            try {
+                $server = container(SipFeature::class)->server('ip', $device->intercom->server)[0];
 
-            $device->setSip(new Sip(
-                sprintf("1%05d", $device->intercom->house_domophone_id),
-                $device->password,
-                $server->internal_ip,
-                $server->internal_port
-            ));
+                $device->setSip(new Sip(
+                    sprintf("1%05d", $device->intercom->house_domophone_id),
+                    $device->password,
+                    $server->internal_ip,
+                    $server->internal_port
+                ));
+            } catch (Throwable $throwable) {
+                file_logger('device')->error('health error sip: ' . $throwable->getMessage(), ['ip' => $device->intercom->ip]);
+            }
         }
     }
 }
