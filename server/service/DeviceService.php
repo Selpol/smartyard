@@ -262,7 +262,7 @@ class DeviceService implements CronInterface
             $device->setSipStatus(false);
         }
 
-        usleep(250000);
+        sleep(1);
 
         foreach ($devices as $device) {
             $server = container(SipFeature::class)->server('ip', $device->intercom->server)[0];
