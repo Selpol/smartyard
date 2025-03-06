@@ -50,7 +50,7 @@ class DeviceService implements CronInterface
             $this->info();
         }
 
-        if ($value->at('*/30')) {
+        if ($value->at('*/15')) {
             $this->health();
         }
 
@@ -253,7 +253,10 @@ class DeviceService implements CronInterface
             }
         );
 
-        file_logger('device')->debug('health count ' . count($devices));
+        file_logger('device')->debug(
+            'health count ' . count($devices),
+            array_map(static fn(IntercomDevice $device) => $device->intercom->ip, $devices)
+        );
 
         foreach ($devices as $device) {
             $device->setSipStatus(false);

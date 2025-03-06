@@ -37,12 +37,6 @@ return [
         'progress' => env('MQTT_PROGRESS', '0') == '1'
     ],
 
-    'zabbix' => [
-        'endpoint' => env('ZABBIX_ENDPOINT'),
-
-        'key' => env('ZABBIX_KEY')
-    ],
-
     'internal' => [
         'trust' => explode(',', env('INTERNAL_TRUST', '127.0.0.1/32'))
     ],
