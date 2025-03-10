@@ -107,7 +107,7 @@ return [
             'username' => env('FEATURE_PLOG_USERNAME'),
             'password' => env('FEATURE_PLOG_PASSWORD'),
 
-            'ttl_camshot_days' => 30,
+            'ttl_camshot_days' => 90,
 
             'back_time_shift_video_shot' => 3
         ],

@@ -36,9 +36,9 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => 'output.map', 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
 
             [
-                'type' => 'value', 
-                'value' => 'class', 
-                'title' => 'Класс обработчик', 
+                'type' => 'value',
+                'value' => 'class',
+                'title' => 'Класс обработчик',
                 'assign' => ['example' => 'Selpol\Device\Ip\Intercom\Is\IsIntercom,Selpol\Device\Ip\Intercom\Is\Is5Intercom,Selpol\Device\Ip\Intercom\Beward\DsIntercom,Selpol\Device\Ip\Intercom\Beward\DksIntercom,Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom,Selpol\Device\Ip\Intercom\Relay\RelayIntercom']
             ],
 
@@ -127,6 +127,8 @@ readonly abstract class ConfigFeature extends Feature
                 'suggestions' => [
                     ['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']],
 
+                    ['type' => 'value', 'value' => 'call', 'title' => 'Звонок в SIP', 'assign' => ['type' => 'bool', 'default' => 'false']],
+
                     [
                         'type' => 'namespace',
                         'value' => 'number',
@@ -183,9 +185,9 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
 
             [
-                'type' => 'value', 
-                'value' => 'class', 
-                'title' => 'Класс обработчик', 
+                'type' => 'value',
+                'value' => 'class',
+                'title' => 'Класс обработчик',
                 'assign' => ['example' => 'Selpol\Device\Ip\Camera\Is\IsCamera,Selpol\Device\Ip\Camera\Beward\BewardCamera,Selpol\Device\Ip\Camera\HikVision\HikVisionCamera,Selpol\Device\Ip\Camera\Fake\FakeCamera']
             ],
 
