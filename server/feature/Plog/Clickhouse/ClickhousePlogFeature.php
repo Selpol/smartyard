@@ -286,6 +286,8 @@ readonly class ClickhousePlogFeature extends PlogFeature
     {
         $database = $this->clickhouse->database;
 
+        $date = time() - $this->ttl_camshot_days * 86400;
+
         if ($filter_events) {
             $query = "
                         select
@@ -297,6 +299,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                             not hidden
                             and flat_id = $flat_id
                             and event in ($filter_events)
+                            and date >= $date
                         group by
                             day
                         order by
@@ -312,6 +315,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
                         where
                             not hidden
                             and flat_id = $flat_id
+                            and date >= $date
                         group by
                             day
                         order by

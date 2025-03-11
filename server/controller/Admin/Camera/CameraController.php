@@ -17,6 +17,7 @@ use Selpol\Service\AuthService;
 use Selpol\Service\DeviceService;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
+use Throwable;
 
 /**
  * Камера
@@ -125,21 +126,6 @@ readonly class CameraController extends AdminRbtController
 
         $camera->hidden = $request->hidden;
 
-        try {
-            $device = $service->cameraByEntity($camera);
-
-            if ($device) {
-                $info = $device->getSysInfo();
-
-                $camera->device_id = $info->deviceId;
-                $camera->device_model = $info->deviceModel;
-                $camera->device_software_version = $info->softwareVersion;
-                $camera->device_hardware_version = $info->hardwareVersion;
-            }
-        } catch (Throwable) {
-
-        }
-
         if (!$camera->ip) {
             $ip = gethostbyname(parse_url($camera->url, PHP_URL_HOST));
 
@@ -149,6 +135,28 @@ readonly class CameraController extends AdminRbtController
         }
 
         $camera->insert();
+
+        try {
+            $camera->device_id = null;
+            $camera->device_model = null;
+            $camera->device_software_version = null;
+            $camera->device_hardware_version = null;
+
+            $device = $service->cameraByEntity($camera);
+
+            if ($device) {
+                $info = $device->getSysInfo();
+
+                $camera->device_id = $info->deviceId;
+                $camera->device_model = $info->deviceModel;
+                $camera->device_software_version = $info->softwareVersion;
+                $camera->device_hardware_version = $info->hardwareVersion;
+
+                $camera->update();
+            }
+        } catch (Throwable) {
+
+        }
 
         if ($camera->frs_server_id) {
             task(new FrsAddStreamTask($camera->frs_server_id, $camera->camera_id))->high()->dispatch();

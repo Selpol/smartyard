@@ -65,7 +65,7 @@ services:
     networks:
       backend:
   mqtt:
-    image: iegomez/mosquitto-go-auth:2.0.0-mosquitto_2.0.14
+    image: iegomez/mosquitto-go-auth:2.1.0-mosquitto_2.0.15
     container_name: mqtt
     restart: always
     volumes:

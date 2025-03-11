@@ -2,7 +2,6 @@
 
 namespace Selpol\Controller\Internal;
 
-use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\Request\Internal\ActionCallFinishedRequest;
 use Selpol\Controller\Request\Internal\ActionMotionDetectionRequest;
 use Selpol\Controller\Request\Internal\ActionOpenDoorRequest;

@@ -180,20 +180,7 @@ readonly class PlogController extends MobileRbtController
                 ->withHeader('Content-Type', 'image/jpeg')
                 ->withBody($file->stream);
         } catch (Throwable $throwable) {
-            $client = new Client(env('OLD_MONGO_URI'));
-
-            /**
-             * @var \MongoDB\Database
-             */
-            $database = $client->{env('OLD_MONGO_DATABASE', FileFeature::DEFAULT_DATABASE)};
-            $bucket = $database->selectGridFSBucket();
-
-            $fileId = new ObjectId($feature->fromGUIDv4($uuid));
-            $stream = $bucket->openDownloadStream($fileId);
-
-            return response()
-                ->withHeader('Content-Type', 'image/jpeg')
-                ->withBody(stream($stream));
+            return user_response(404, message: 'Скриншота устарел');
         }
     }
 

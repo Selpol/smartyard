@@ -354,67 +354,54 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
             $password = container(RedisService::class)->get('user:' . $uid . ':ws');
 
             if ($password) {
-                switch ($section) {
-                    case 'aors':
-                        return ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'];
-
-                    case 'auths':
-                        return ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $password];
-
-                    case 'endpoints':
-                        $user = CoreUser::findById($uid, setting: setting()->columns(['real_name']));
-
-                        if ($user) {
-                            return [
-                                'id' => $extension,
-                                'auth' => $extension,
-                                'outbound_auth' => $extension,
-                                'aors' => $extension,
-                                'callerid' => $user->real_name,
-                                'context' => 'default',
-                                'disallow' => 'all',
-                                'allow' => 'alaw,ulaw,h264',
-                                'dtmf_mode' => 'rfc4733',
-                                'webrtc' => 'yes',
-                            ];
-                        }
-
-                        break;
-                }
+                return match ($section) {
+                    'aors' => ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'],
+                    'auths' => ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $password],
+                    'endpoints' => [
+                        'id' => $extension,
+                        'auth' => $extension,
+                        'outbound_auth' => $extension,
+                        'aors' => $extension,
+                        'callerid' => $uid,
+                        'context' => 'default',
+                        'disallow' => 'all',
+                        'allow' => 'alaw,ulaw,h264',
+                        'dtmf_mode' => 'rfc4733',
+                        'webrtc' => 'yes',
+                    ],
+                };
             }
         }
 
         if (strlen($extension) >= 6 && strlen($extension) <= 10) {
             try {
                 $sipUserId = (int) substr($extension, 1);
-                $sipUser = SipUser::getRepository()->findByIdAndType($sipUserId, (int) $extension[0]);
+                $sipUser = SipUser::findById($sipUserId, criteria()->equal('type', (int) $extension[0]), setting()->columns(['title', 'password']));
 
-                if ($sipUser == null) {
-                    return [];
+                if ($sipUser) {
+                    return match ($section) {
+                        'aors' => ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'],
+                        'auths' => ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $sipUser->password],
+                        'endpoints' => [
+                            'id' => $extension,
+                            'auth' => $extension,
+                            'outbound_auth' => $extension,
+                            'aors' => $extension,
+                            'callerid' => $sipUser->title,
+                            'context' => 'default',
+                            'disallow' => 'all',
+                            'allow' => 'alaw,ulaw,h264',
+                            'rtp_symmetric' => 'yes',
+                            'force_rport' => 'yes',
+                            'rewrite_contact' => 'yes',
+                            'timers' => 'no',
+                            'direct_media' => 'no',
+                            'allow_subscribe' => 'yes',
+                            'dtmf_mode' => 'rfc4733',
+                            'ice_support' => 'yes'
+                        ],
+                    };
                 }
-
-                return match ($section) {
-                    'aors' => ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'],
-                    'auths' => ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $sipUser->password],
-                    'endpoints' => [
-                        'id' => $extension,
-                        'auth' => $extension,
-                        'outbound_auth' => $extension,
-                        'aors' => $extension,
-                        'callerid' => $sipUser->title,
-                        'context' => 'default',
-                        'disallow' => 'all',
-                        'allow' => 'alaw,ulaw,h264',
-                        'rtp_symmetric' => 'yes',
-                        'force_rport' => 'yes',
-                        'rewrite_contact' => 'yes',
-                        'timers' => 'no',
-                        'direct_media' => 'no',
-                        'allow_subscribe' => 'yes',
-                        'dtmf_mode' => 'rfc4733',
-                        'ice_support' => 'yes'
-                    ],
-                };
             } catch (Throwable) {
 
             }
