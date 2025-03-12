@@ -24,7 +24,7 @@ readonly class PageRequest extends RouteRequest
         return array_merge(
             [
                 'page' => [filter()->default(0), rule()->int()->clamp(0)->exist()],
-                'size' => [filter()->default(10), rule()->int()->clamp(1, 1000)->exist()]
+                'size' => [filter()->default(10), rule()->int()->clamp(1, 10000)->exist()]
             ],
             static::getExtendValidate()
         );
