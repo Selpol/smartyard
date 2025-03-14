@@ -11,8 +11,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $url URL Домофона
  * @property-read string $credentials Авторизация
  * 
- * @property-read int|null $nat NAT Режим
- * 
  * @property-read string|null $ip IP домофона
  * 
  * @property-read string|null $comment Комментарий
@@ -30,8 +28,6 @@ readonly class IntercomStoreRequest extends RouteRequest
             'server' => rule()->string()->exist(),
             'url' => rule()->url()->exist(),
             'credentials' => rule()->string()->exist(),
-
-            'nat' => rule()->int(),
 
             'ip' => rule()->ipV4(),
 

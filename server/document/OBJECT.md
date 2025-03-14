@@ -483,7 +483,6 @@
 - `string` *server* - Сервер
 - `string` *url* - URL Домофона
 - `string` *credentials* - Авторизация
-- `int|null` *nat* - NAT Режим
 - `string|null` *ip* - IP домофона
 - `string|null` *comment* - Комментарий
 - `string|null` *config* - Конфигурация домофона
@@ -499,7 +498,6 @@
 - `string` *url* - URL Домофона
 - `string` *credentials* - Авторизация
 - `int` *first_time* - Первая синхронизация
-- `int|null` *nat* - NAT Режим
 - `string|null` *ip* - IP домофона
 - `string|null` *comment* - Комментарий
 - `string|null` *config* - Конфигурация домофона

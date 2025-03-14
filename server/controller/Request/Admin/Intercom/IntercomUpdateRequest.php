@@ -15,8 +15,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * 
  * @property-read int $first_time Первая синхронизация
  * 
- * @property-read int|null $nat NAT Режим
- * 
  * @property-read string|null $ip IP домофона
  * 
  * @property-read string|null $comment Комментарий
@@ -38,8 +36,6 @@ readonly class IntercomUpdateRequest extends RouteRequest
             'credentials' => rule()->required()->string()->nonNullable(),
 
             'first_time' => rule()->int()->exist(),
-
-            'nat' => rule()->int(),
 
             'ip' => rule()->ipV4(),
 
