@@ -85,7 +85,7 @@ class DeviceHealthCommand
                 'LINK' => $web . '/houses/' . $houses[0]->address_house_id . '?houseTab=entrances&entranceId=' . $entrances[0]->house_entrance_id
             ];
 
-            $server = $sipFeature->server('ip', $devices[$i]->intercom->server)[0];
+            $server = $sipFeature->sip($devices[$i]->intercom);
 
             $device->setSipStatus(false);
 

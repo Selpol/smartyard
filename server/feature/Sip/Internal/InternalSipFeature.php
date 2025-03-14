@@ -2,25 +2,24 @@
 
 namespace Selpol\Feature\Sip\Internal;
 
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\Sip\SipFeature;
 
 readonly class InternalSipFeature extends SipFeature
 {
-    public function server(string $by, string|int|null $query = null): array
+    public function sip(DeviceIntercom $intercom): ?SipServer
     {
-        return match ($by) {
-            "all" => SipServer::fetchAll(),
-            default => [SipServer::fetch()]
-        };
+        return SipServer::fetch(criteria()->equal('internal_ip', $intercom->server));
     }
 
-    public function stun(string|int $extension): bool|string
+    public function stun(): bool|string
     {
         $stuns = config_get('feature.sip.stuns');
 
-        if ($stuns)
+        if ($stuns) {
             return $stuns[rand(0, count($stuns) - 1)];
+        }
 
         return false;
     }

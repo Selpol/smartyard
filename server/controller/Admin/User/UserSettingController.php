@@ -4,6 +4,7 @@ namespace Selpol\Controller\Admin\User;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -29,7 +30,7 @@ readonly class UserSettingController extends AdminRbtController
 
         $service->setEx('user:' . $this->getUser()->getIdentifier() . ':ws', 24 * 60 * 60, $password);
 
-        $sipServer = $feature->server('first')[0];
+        $sipServer = SipServer::fetch();
 
         return self::success([
             'uid' => $this->getUser()->getIdentifier(),

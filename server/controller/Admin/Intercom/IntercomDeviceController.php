@@ -11,6 +11,7 @@ use Selpol\Controller\Request\Admin\Intercom\IntercomDevicePasswordRequest;
 use Selpol\Controller\Request\Admin\Intercom\IntercomDeviceResetRequest;
 use Selpol\Device\Ip\Intercom\Setting\Cms\CmsInterface;
 use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
@@ -167,7 +168,7 @@ readonly class IntercomDeviceController extends AdminRbtController
         file_logger('password')->debug('Обновление пароля устройства', ['id' => $device->intercom->house_domophone_id, 'oldPassword' => $device->intercom->credentials, 'password' => $password]);
 
         try {
-            $sipServer = $sipFeature->server('ip', $device->intercom->server)[0];
+            $sipServer = $sipFeature->sip($device->intercom);
 
             $username = sprintf('1%05d', $device->intercom->house_domophone_id);
 

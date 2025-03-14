@@ -270,7 +270,7 @@ class DeviceService implements CronInterface
 
         foreach ($devices as $device) {
             try {
-                $server = container(SipFeature::class)->server('ip', $device->intercom->server)[0];
+                $server = container(SipFeature::class)->sip($device->intercom)[0];
 
                 $device->setSip(new Sip(
                     sprintf("1%05d", $device->intercom->house_domophone_id),

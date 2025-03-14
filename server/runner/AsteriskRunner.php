@@ -172,7 +172,17 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         break;
 
                     case 'push':
-                        $server = container(SipFeature::class)->server('extension', $params['extension'])[0];
+                        $intercom = DeviceIntercom::findById(intval($params['domophoneId']));
+
+                        if (!$intercom) {
+                            break;
+                        }
+
+                        $server = container(SipFeature::class)->sip($intercom);
+
+                        if (!$server) {
+                            break;
+                        }
 
                         $flat = HouseFlat::findById($params['flatId'], setting: setting()->columns(['address_house_id'])->nonNullable());
                         $house = AddressHouse::findById($flat->address_house_id, setting: setting()->columns(['house_full'])->nonNullable());
@@ -211,7 +221,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             'title' => $address,
                         ];
 
-                        $stun = container(SipFeature::class)->stun($params['extension']);
+                        $stun = container(SipFeature::class)->stun();
 
                         if ($stun) {
                             $params['stun'] = $stun;
