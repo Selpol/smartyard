@@ -391,6 +391,13 @@
 - `int` *id* - Идентификатор входа
 - `array` *cmses* - Массив КМС входа
 
+## EntranceFlatRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор входа
+- `array` *flats* - Квартиры
+
 ## GeoIndexRequest
 
 Поля: 
@@ -429,6 +436,13 @@
 - `string` *for* - Сущность подрядчик или адрес
 - `int` *id* - Идентификатор сущности
 - `mixed` *value* - Значение
+
+## HouseKeyRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор дома
+- `array` *keys* - Список ключей {rfId, accessTo, comment?}[]
 
 ## InboxIndexRequest
 

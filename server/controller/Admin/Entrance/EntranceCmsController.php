@@ -13,17 +13,17 @@ use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Task\Tasks\Intercom\Cms\IntercomSyncCmsTask;
 
 /**
- * Дом-Вход
+ * Вход-КМС
  */
-#[Controller('/admin/entrance')]
+#[Controller('/admin/entrance/{id}/cms')]
 readonly class EntranceCmsController extends AdminRbtController
 {
     /**
      * Получить КМС входа
-     * 
-     * @param int $id Идентификатор входа 
+     *
+     * @param int $id Идентификатор входа
      */
-    #[Get('/{id}')]
+    #[Get]
     public function show(int $id): ResponseInterface
     {
         $entrance = HouseEntrance::findById($id);
@@ -38,7 +38,7 @@ readonly class EntranceCmsController extends AdminRbtController
     /**
      * Изменить КМС входа
      */
-    #[Post('/{id}')]
+    #[Post]
     public function store(EntranceCmsRequest $request): ResponseInterface
     {
         $entrance = HouseEntrance::findById($request->id);

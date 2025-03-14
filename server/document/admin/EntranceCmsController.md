@@ -1,16 +1,16 @@
-# Контроллер EntranceCmsController `/admin/entrance`
+# Контроллер EntranceCmsController `/admin/entrance/{id}/cms`
 
-Дом-Вход
+Вход-КМС
 
 ## Методы
 
-### [GET/show `entrance-show-get`] Получить КМС входа `/admin/entrance/{id}`
+### [GET/show `entrance-cms-show-get`] Получить КМС входа `/admin/entrance/{id}/cms`
 
 Параметры: 
 
 - `int` *id* Идентификатор входа
 
-### [POST/store `entrance-store-post`] Изменить КМС входа `/admin/entrance/{id}`
+### [POST/store `entrance-cms-store-post`] Изменить КМС входа `/admin/entrance/{id}/cms`
 
 Параметры: 
 

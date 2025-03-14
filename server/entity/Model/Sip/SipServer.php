@@ -2,8 +2,11 @@
 
 namespace Selpol\Entity\Model\Sip;
 
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Repository\Sip\SipServerRepository;
 use Selpol\Framework\Entity\Entity;
+use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
 /**
@@ -22,6 +25,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $created_at
  * @property string $updated_at
+ *
+ * @property-read DeviceIntercom[] $intercoms
  */
 class SipServer extends Entity
 {
@@ -29,6 +34,7 @@ class SipServer extends Entity
      * @use RepositoryTrait<SipServerRepository>
      */
     use RepositoryTrait;
+    use RelationshipTrait;
 
     public static string $table = 'sip_servers';
 
@@ -37,6 +43,14 @@ class SipServer extends Entity
     public static ?string $columnCreateAt = 'created_at';
 
     public static ?string $columnUpdateAt = 'updated_at';
+
+    /**
+     * @return OneToManyRelationship<DeviceIntercom>
+     */
+    public function intercoms(): OneToManyRelationship
+    {
+        return $this->oneToMany(DeviceIntercom::class, 'server', 'internal_ip');
+    }
 
     public static function getColumns(): array
     {
