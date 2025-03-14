@@ -101,7 +101,11 @@ class PDOEntityStatement implements EntityStatementInterface
         $result = [];
 
         foreach ($this->statement->errorInfo() as $error) {
-            $result[] = new EntityMessage($error[1], $error[2]);
+            if (is_array($error)) {
+                $result[] = new EntityMessage($error[1], $error[2]);
+            } else {
+                $result[] = new EntityMessage($error, null);
+            }
         }
 
         return $result;
