@@ -8,8 +8,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
 /**
  * @property-read int $id Идентификатор домофона
  * 
- * @property-read int $enabled Состояние домофона
- * 
  * @property-read string $model Модель домофона
  * @property-read string $server Сервер
  * @property-read string $url URL Домофона
@@ -33,8 +31,6 @@ readonly class IntercomUpdateRequest extends RouteRequest
     {
         return [
             'id' => rule()->id(),
-
-            'enabled' => rule()->required()->int()->nonNullable(),
 
             'model' => rule()->required()->in(array_keys(IntercomModel::models()))->nonNullable(),
             'server' => rule()->required()->string()->nonNullable(),

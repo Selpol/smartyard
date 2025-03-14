@@ -479,7 +479,6 @@
 
 Поля: 
 
-- `int` *enabled* - Состояние домофона
 - `string` *model* - Модель домофона
 - `string` *server* - Сервер
 - `string` *url* - URL Домофона
@@ -495,7 +494,6 @@
 Поля: 
 
 - `int` *id* - Идентификатор домофона
-- `int` *enabled* - Состояние домофона
 - `string` *model* - Модель домофона
 - `string` *server* - Сервер
 - `string` *url* - URL Домофона

@@ -6,8 +6,6 @@ use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $enabled Состояние домофона
- * 
  * @property-read string $model Модель домофона
  * @property-read string $server Сервер
  * @property-read string $url URL Домофона
@@ -28,8 +26,6 @@ readonly class IntercomStoreRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'enabled' => rule()->int()->exist(),
-
             'model' => rule()->in(array_keys(IntercomModel::models()))->exist(),
             'server' => rule()->string()->exist(),
             'url' => rule()->url()->exist(),
