@@ -4,9 +4,11 @@ namespace Selpol\Entity\Model\Device;
 
 use Selpol\Device\Ip\Intercom\IntercomModel;
 use Selpol\Entity\Model\House\HouseEntrance;
+use Selpol\Entity\Model\Sip\SipServer;
 use Selpol\Entity\Repository\Device\DeviceIntercomRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;
+use Selpol\Framework\Entity\Relationship\OneToOneRelationship;
 use Selpol\Framework\Entity\Trait\RelationshipTrait;
 use Selpol\Framework\Entity\Trait\RepositoryTrait;
 
@@ -32,7 +34,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string|null $config
  *
  * @property bool $hidden
- * 
+ *
+ * @property-read SipServer|null $sipServer
+ *
  * @property-read HouseEntrance[] $entrances
  */
 class DeviceIntercom extends Entity
@@ -63,6 +67,14 @@ class DeviceIntercom extends Entity
 
         'hidden' => true
     ];
+
+    /**
+     * @return OneToOneRelationship<SipServer>
+     */
+    public function sipServer(): OneToOneRelationship
+    {
+        return $this->oneToOne(SipServer::class, 'internal_ip', 'server');
+    }
 
     /**
      * @return OneToManyRelationship<HouseEntrance>

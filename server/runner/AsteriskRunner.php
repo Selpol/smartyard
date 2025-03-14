@@ -178,7 +178,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             break;
                         }
 
-                        $server = container(SipFeature::class)->sip($intercom);
+                        $server = $intercom->sipServer;
 
                         if (!$server) {
                             break;
