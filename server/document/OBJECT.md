@@ -484,11 +484,9 @@
 - `string` *server* - Сервер
 - `string` *url* - URL Домофона
 - `string` *credentials* - Авторизация
-- `string` *dtmf* - DTMF Открытия реле
 - `int|null` *nat* - NAT Режим
 - `string|null` *ip* - IP домофона
 - `string|null` *comment* - Комментарий
-- `string|null` *sos_number* - Номер SOS
 - `string|null` *config* - Конфигурация домофона
 - `bool|null` *hidden* - Скрытый домофон
 
@@ -502,12 +500,10 @@
 - `string` *server* - Сервер
 - `string` *url* - URL Домофона
 - `string` *credentials* - Авторизация
-- `string` *dtmf* - DTMF Открытия реле
 - `int` *first_time* - Первая синхронизация
 - `int|null` *nat* - NAT Режим
 - `string|null` *ip* - IP домофона
 - `string|null` *comment* - Комментарий
-- `string|null` *sos_number* - Номер SOS
 - `string|null` *config* - Конфигурация домофона
 - `bool|null` *hidden* - Скрытый домофон
 
@@ -604,7 +600,7 @@
 
 Поля: 
 
-- `int` *id* - Идентификатор квартиры
+- `int` *id* - Идентификатор
 - `null|int` *type* - Тип события
 - `null|bool` *opened* - Было ли открытие во время звонка
 - `int` *page* - Страница

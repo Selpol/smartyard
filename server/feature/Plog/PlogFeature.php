@@ -4,6 +4,7 @@ namespace Selpol\Feature\Plog;
 
 use Selpol\Cli\Cron\CronInterface;
 use Selpol\Cli\Cron\CronTag;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Feature\Feature;
 use Selpol\Feature\Plog\Clickhouse\ClickhousePlogFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
@@ -86,6 +87,8 @@ readonly abstract class PlogFeature extends Feature implements CronInterface
     abstract public function getEventsByIntercom(int $intercomId, int $after, int $before): bool|array;
 
     abstract public function getEventsByFlat(int $flatId, ?int $type, ?int $opened, int $page, int $size): bool|array;
+
+    abstract public function getEventsByHouse(AddressHouse $house, ?int $type, ?int $opened, int $page, int $size): bool|array;
 
     /**
      * Get event's detail by UUID

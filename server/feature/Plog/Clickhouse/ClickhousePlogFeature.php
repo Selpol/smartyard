@@ -5,7 +5,10 @@ namespace Selpol\Feature\Plog\Clickhouse;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Cli\Cron\CronValue;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Entity\Model\House\HouseEntrance;
+use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
@@ -425,11 +428,35 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
         $query = "SELECT * FROM $database.plog WHERE NOT hidden AND flat_id = $flatId";
 
-        if ($type !== null)
+        if ($type !== null) {
             $query .= " AND event = $type";
+        }
 
-        if ($opened !== null)
+        if ($opened !== null) {
             $query .= " AND opened = $opened";
+        }
+
+        return $this->clickhouse->select($query . " ORDER BY date DESC LIMIT $size OFFSET $offset");
+    }
+
+    public function getEventsByHouse(AddressHouse $house, ?int $type, ?int $opened, int $page, int $size): bool|array
+    {
+        $entrances = $house->entrances()->fetchAll(setting: setting()->columns(['house_domophone_id']));
+        $where = implode(', ', array_map(static fn(HouseEntrance $entrance) => $entrance->house_domophone_id, $entrances));
+
+        $database = $this->clickhouse->database;
+
+        $offset = $page * $size;
+
+        $query = "SELECT * FROM $database.plog WHERE NOT hidden AND domophone.domophone_id in ($where)";
+
+        if ($type !== null) {
+            $query .= " AND event = $type";
+        }
+
+        if ($opened !== null) {
+            $query .= " AND opened = $opened";
+        }
 
         return $this->clickhouse->select($query . " ORDER BY date DESC LIMIT $size OFFSET $offset");
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Task\Tasks\Intercom;
 
@@ -214,7 +216,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $newSipOption = clone $sipOption;
         $newSipOption->callTimeout = $device->resolver->int('clean.call_timeout', 30);
         $newSipOption->talkTimeout = $device->resolver->int('clean.talk_timeout', 60);
-        $newSipOption->dtmf = [$deviceIntercom->dtmf, '2'];
+        $newSipOption->dtmf = [$device->resolver->string('sip.dtmf', '1'), '2'];
         $newSipOption->echo = false;
 
         if (!$newSipOption->equal($sipOption)) {

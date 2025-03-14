@@ -5,7 +5,7 @@ namespace Selpol\Controller\Request\Admin;
 use Selpol\Framework\Router\Route\RouteRequest;
 
 /**
- * @property-read int $id Идентификатор квартиры
+ * @property-read int $id Идентификатор
  *
  * @property-read null|int $type Тип события
  * @property-read null|bool $opened Было ли открытие во время звонка

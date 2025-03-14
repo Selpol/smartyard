@@ -14,7 +14,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $server Сервер
  * @property-read string $url URL Домофона
  * @property-read string $credentials Авторизация
- * @property-read string $dtmf DTMF Открытия реле
  * 
  * @property-read int $first_time Первая синхронизация
  * 
@@ -23,8 +22,6 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string|null $ip IP домофона
  * 
  * @property-read string|null $comment Комментарий
- * 
- * @property-read string|null $sos_number Номер SOS
  * 
  * @property-read string|null $config Конфигурация домофона
  * 
@@ -43,7 +40,6 @@ readonly class IntercomUpdateRequest extends RouteRequest
             'server' => rule()->required()->string()->nonNullable(),
             'url' => rule()->required()->url()->nonNullable(),
             'credentials' => rule()->required()->string()->nonNullable(),
-            'dtmf' => rule()->required()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->nonNullable(),
 
             'first_time' => rule()->int()->exist(),
 
@@ -52,8 +48,6 @@ readonly class IntercomUpdateRequest extends RouteRequest
             'ip' => rule()->ipV4(),
 
             'comment' => rule()->string(),
-
-            'sos_number' => rule()->string(),
 
             'config' => rule()->string(),
 

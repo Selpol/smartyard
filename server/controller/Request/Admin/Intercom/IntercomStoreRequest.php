@@ -12,15 +12,12 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $server Сервер
  * @property-read string $url URL Домофона
  * @property-read string $credentials Авторизация
- * @property-read string $dtmf DTMF Открытия реле
  * 
  * @property-read int|null $nat NAT Режим
  * 
  * @property-read string|null $ip IP домофона
  * 
  * @property-read string|null $comment Комментарий
- * 
- * @property-read string|null $sos_number Номер SOS
  * 
  * @property-read string|null $config Конфигурация домофона
  * 
@@ -37,15 +34,12 @@ readonly class IntercomStoreRequest extends RouteRequest
             'server' => rule()->string()->exist(),
             'url' => rule()->url()->exist(),
             'credentials' => rule()->string()->exist(),
-            'dtmf' => rule()->string()->in(["*", "#", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"])->exist(),
 
             'nat' => rule()->int(),
 
             'ip' => rule()->ipV4(),
 
             'comment' => rule()->string(),
-
-            'sos_number' => rule()->string(),
 
             'config' => rule()->string(),
 

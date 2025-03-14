@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Cli\Role;
 
@@ -58,7 +60,8 @@ class RoleInitCommand
 
             'monitor-index-get' => '[Мониторинг] Запросить статус устройств',
 
-            'plog-index-get' => '[События] Получить список',
+            'plog-index-get' => '[События] Получить список событий на квартире',
+            'plog-house-get' => '[События] Получить список событий на доме',
             'plog-camshot-get' => '[События] Получить скриншот',
 
             'task-index-get' => '[Задачи] Получить список задач',
@@ -220,13 +223,13 @@ class RoleInitCommand
             'address-region-store-post' => '[Адрес-Регион] Создать новый регион',
             'address-region-update-put' => '[Адрес-Регион] Обновить регион',
             'address-region-delete-delete' => '[Адрес-Регион] Удалить регион',
-            
+
             'address-area-index-get' => '[Адрес-Область] Получить список областей',
             'address-area-show-get' => '[Адрес-Область] Получить область',
             'address-area-store-post' => '[Адрес-Область] Создать новую область',
             'address-area-update-put' => '[Адрес-Область] Обновить область',
             'address-area-delete-delete' => '[Адрес-Область] Удалить область',
-            
+
             'address-city-index-get' => '[Адрес-Город] Получить список городов',
             'address-city-show-get' => '[Адрес-Город] Получить город',
             'address-city-store-post' => '[Адрес-Город] Создать новый город',
@@ -361,7 +364,6 @@ class RoleInitCommand
                 }
 
                 unset($titlePermissions[$title]);
-
             }
         }
 

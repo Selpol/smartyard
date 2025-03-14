@@ -10,6 +10,12 @@
 
 - [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) 
 
+### [GET/house `plog-house-get`] Получить список событий на доме `/admin/plog/house/{id}`
+
+Параметры: 
+
+- [PlogIndexRequest](../OBJECT.md#PlogIndexRequest) 
+
 ### [GET/camshot `plog-camshot-get`] Получить скриншот с события `/admin/plog/camshot/{uuid}`
 
 Параметры: 

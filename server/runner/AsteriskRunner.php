@@ -107,26 +107,30 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         break;
 
                     case 'domophone':
-                        $households = container(HouseFeature::class);
+                        $device = intercom(intval($params));
 
-                        $intercom = DeviceIntercom::findById(intval($params), setting: setting()->columns(['dtmf', 'sos_number', 'ip']));
-
-                        if (!$intercom) {
+                        if (!$device) {
                             break;
                         }
 
                         echo json_encode([
-                            'dtmf' => $intercom->dtmf,
-                            'sosNumber' => $intercom->sos_number,
-                            'ip' => $intercom->ip
+                            'dtmf' => $device->resolver->string('sip.dtmf', '1'),
+                            'sosNumber' => $device->resolver->string('sip.sos'),
+                            'ip' => $device->intercom->ip
                         ]);
 
                         break;
 
                     case 'sos':
-                        $intercom = DeviceIntercom::findById(intval($params), setting: setting()->columns(['sos_number'])->nonNullable());
+                        $device = intercom(intval($params));
 
-                        echo json_encode(['sos_number' => $intercom->sos_number ?? env('SOS_NUMBER', '112')]);
+                        if (!$device) {
+                            echo json_encode(['sos_number' => env('SOS_NUMBER', '112')]);
+
+                            break;
+                        }
+
+                        echo json_encode(['sos_number' => $device->resolver->string('sip.sos', '112')]);
 
                         break;
 
@@ -403,7 +407,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                     };
                 }
             } catch (Throwable) {
-
             }
         }
 

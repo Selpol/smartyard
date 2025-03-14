@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Feature\Config;
 
@@ -128,6 +130,8 @@ readonly abstract class ConfigFeature extends Feature
                     ['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']],
 
                     ['type' => 'value', 'value' => 'call', 'title' => 'Звонок в SIP', 'assign' => ['type' => 'bool', 'default' => 'false']],
+                    ['type' => 'value', 'value' => 'dtmf', 'title' => 'DTMF Номер', 'assign' => ['type' => 'int', 'condition' => 'in:-1,*,#,1,2,3,4,5,6,7,8,9,10']],
+                    ['type' => 'value', 'value' => 'sos', 'title' => 'SOS Номер', 'assign' => ['type' => 'int']],
 
                     [
                         'type' => 'namespace',
