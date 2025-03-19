@@ -197,7 +197,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom): void
     {
-        $server = container(SipFeature::class)->sip($deviceIntercom)[0];
+        $server = container(SipFeature::class)->sip($deviceIntercom);
 
         $sip = $device->getSip();
 

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip;
 
@@ -43,6 +45,31 @@ abstract class IpDevice extends Device
     public function getLogger(): ?LoggerInterface
     {
         return $this->logger;
+    }
+
+    public function pingIcmp(float $timeout = 1): bool
+    {
+        $package = "\x08\x00\x7d\x4b\x00\x00\x00\x00PingHost";
+        $socket = socket_create(AF_INET, SOCK_RAW, getprotobyname('icmp'));
+
+        if (!$socket) {
+            return false;
+        }
+
+        $timeout_seconds = floor($timeout);
+        $timeout_microseconds = ($timeout - $timeout_seconds) * 1000000;
+        $timeout_array = ['sec' => $timeout_seconds, 'usec' => $timeout_microseconds];
+
+        socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, $timeout_array);
+        socket_set_option($socket, SOL_SOCKET, SO_SNDTIMEO, $timeout_array);
+
+        socket_sendto($socket, $package, strlen($package), 0, $this->uri->getHost(), 0);
+
+        if (socket_recvfrom($socket, $response, 1024, 0, $from, $port)) {
+            return true;
+        }
+
+        return false;
     }
 
     public function pingRaw(): bool

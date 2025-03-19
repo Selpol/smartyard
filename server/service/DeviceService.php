@@ -233,7 +233,7 @@ class DeviceService implements CronInterface
     private function health(): void
     {
         /**
-         * @var array<IntercomDevice|SipInterface>
+         * @var array<IntercomDevice|SipInterface> $device
          */
         $devices = array_filter(
             array_map(
@@ -241,7 +241,7 @@ class DeviceService implements CronInterface
                 DeviceIntercom::fetchAll()
             ),
             static function (IntercomDevice $device): bool {
-                if ($device == null || $device->model == null || !($device instanceof SipInterface)) {
+                if ($device->model == null || !($device instanceof SipInterface)) {
                     return false;
                 }
 
@@ -270,7 +270,7 @@ class DeviceService implements CronInterface
 
         foreach ($devices as $device) {
             try {
-                $server = container(SipFeature::class)->sip($device->intercom)[0];
+                $server = container(SipFeature::class)->sip($device->intercom);
 
                 $device->setSip(new Sip(
                     sprintf("1%05d", $device->intercom->house_domophone_id),

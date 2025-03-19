@@ -35,7 +35,7 @@ class DeviceHealthCommand
         for ($i = 0; $i < $length; $i++) {
             $device = $devices[$i];
 
-            if ($device == null || $device->model == null || !$device->pingRaw()) {
+            if ($device == null || $device->model == null || !$device->pingIcmp()) {
                 $bar->label('Обработка ' . ($i + 1) . '/' . $length);
                 $bar->advance($step);
 
