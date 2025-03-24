@@ -68,7 +68,7 @@ if (!function_exists('guid_v4')) {
             return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
         }
 
-        mt_srand((double)microtime() * 10000);
+        mt_srand((float)microtime() * 10000);
 
         $char = strtolower(md5(uniqid(rand(), true)));
 
@@ -165,10 +165,12 @@ if (!function_exists('setting')) {
 if (!function_exists('rbt_response')) {
     function rbt_response(int $code = 200, ?string $message = null): ResponseInterface
     {
+        $name = array_key_exists($code, Response::$codes) ? Response::$codes[$code]['name'] : ($message ?: 'Unknown error');
+
         return json_response($code, body: [
             'code' => $code,
-            'name' => Response::$codes[$code]['name'],
-            'message' => $message ?: Response::$codes[$code]['name']
+            'name' => $name,
+            'message' => $message ?: $name
         ]);
     }
 }
