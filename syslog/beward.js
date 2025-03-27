@@ -82,6 +82,13 @@ syslog.on("message", async ({date, host, message}) => {
         await API.openDoor({date: now, ip: host, door, detail: rfid, by: "rfid"});
     }
 
+    // Opening door by RFID CLASSIC key
+    if (/^RFID [a-fA-F0-9]+ is User CLASSIC key/.test(bwMsg)) {
+        const segments = bwMsg.split(' ')
+
+        await API.openDoor({date: now, ip: host, door: 0, detail: segments[1], by: "rfid"})
+    }
+
     // Opening door by personal code
     if (bwMsg.includes("Opening door by code")) {
         const code = parseInt(bwMsg.split("code")[1].split(",")[0]);
