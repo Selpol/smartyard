@@ -108,13 +108,17 @@ readonly class BlockSubscriberController extends AdminRbtController
 
     private static function notify(SubscriberBlock $block, bool $status): void
     {
-        task(new InboxSubscriberTask(
-            $block->subscriber_id,
-            'Обновление статуса абонента',
-            $status
-                ? ('Услуга ' . BlockController::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
-                : ('Услуга ' . BlockController::translate($block->service) . ' разблокирована'),
-            'inbox'
-        ))->default()->dispatch();
+        $translate = BlockController::translate($block->service);
+
+        if ($translate) {
+            task(new InboxSubscriberTask(
+                $block->subscriber_id,
+                'Обновление статуса абонента',
+                $status
+                    ? ('Услуга ' . $translate . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
+                    : ('Услуга ' . $translate . ' разблокирована'),
+                'inbox'
+            ))->default()->dispatch();
+        }
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Selpol\Entity\Model\Block;
 
+use Selpol\Controller\Admin\Block\BlockController;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Repository\Block\FlatBlockRepository;
 use Selpol\Framework\Entity\Entity;
@@ -54,7 +55,7 @@ class FlatBlock extends Entity
 
             'flat_id' => rule()->id(),
 
-            'service' => rule()->required()->in([0, 1, 2, 3, 4, 5, 6, 7])->nonNullable(),
+            'service' => rule()->required()->in(BlockController::SERVICES_FLAT)->nonNullable(),
             'status' => rule()->required()->in([1, 2, 3])->nonNullable(),
 
             'cause' => rule()->string(),

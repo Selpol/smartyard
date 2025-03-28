@@ -304,6 +304,10 @@ readonly class CameraController extends MobileRbtController
                 return $camera;
             }, $flatCameras));
 
+            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_INTERCOM]) != null) {
+                continue;
+            }
+
             foreach ($flatDetail['entrances'] as $entrance) {
                 if (array_key_exists($entrance['entranceId'], $house['doors'])) {
                     continue;

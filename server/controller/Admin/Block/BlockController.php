@@ -25,7 +25,8 @@ readonly class BlockController extends AdminRbtController
         BlockFeature::SUB_SERVICE_FRS,
         BlockFeature::SUB_SERVICE_CMS,
 
-        BlockFeature::SUB_SERVICE_APP
+        BlockFeature::SUB_SERVICE_APP,
+        BlockFeature::SUB_SERVICE_INTERCOM,
     ];
 
     public const SERVICES_SUBSCRIBER = [
@@ -39,7 +40,7 @@ readonly class BlockController extends AdminRbtController
         BlockFeature::SUB_SERVICE_FRS,
         BlockFeature::SUB_SERVICE_INBOX,
 
-        BlockFeature::SUB_SERVICE_APP
+        BlockFeature::SUB_SERVICE_APP,
     ];
 
     /**
@@ -61,7 +62,8 @@ readonly class BlockController extends AdminRbtController
                 BlockFeature::SUB_SERVICE_CMS => 'Трубка домофона',
                 BlockFeature::SUB_SERVICE_INBOX => 'Сообщения',
 
-                BlockFeature::SUB_SERVICE_APP => 'Приложение'
+                BlockFeature::SUB_SERVICE_APP => 'Приложение',
+                BlockFeature::SUB_SERVICE_INTERCOM => 'Приложение: домофония',
             ],
 
             'services_flat' => self::SERVICES_FLAT,
@@ -75,7 +77,7 @@ readonly class BlockController extends AdminRbtController
         ]);
     }
 
-    public static function translate(int $value): string
+    public static function translate(int $value): ?string
     {
         return match ($value) {
             BlockFeature::SERVICE_INTERCOM => 'умного домофона',
@@ -88,9 +90,7 @@ readonly class BlockController extends AdminRbtController
             BlockFeature::SUB_SERVICE_FRS => 'распознования лиц',
             BlockFeature::SUB_SERVICE_CMS => 'звонков в квартиру',
 
-            BlockFeature::SUB_SERVICE_APP => 'приложения',
-
-            default => '',
+            default => null,
         };
     }
 }

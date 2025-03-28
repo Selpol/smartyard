@@ -51,6 +51,7 @@ readonly class AddressController extends MobileRbtController
             $flatDetail = $houseFeature->getFlat($flat["flatId"]);
 
             $intercomBlock = $subscriberIntercomBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM]) != null;
+            $intercomHide = $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_INTERCOM]) != null;
             $cctvBlock = $subscriberCctvBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null;
             $block = $subscriberBlock || $intercomBlock && $cctvBlock;
 
@@ -61,7 +62,7 @@ readonly class AddressController extends MobileRbtController
             if (array_key_exists($houseId, $houses)) {
                 $house = &$houses[$houseId];
 
-                if (!$house['hasPlog']) {
+                if (!$intercomHide && !$house['hasPlog']) {
                     $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
                 }
             } else {
@@ -78,7 +79,7 @@ readonly class AddressController extends MobileRbtController
 
                 $house['address'] = implode(', ', $segments);
 
-                $house['hasPlog'] = !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
+                $house['hasPlog'] = !$intercomHide && !$eventBlock && ($flatDetail['plog'] == PlogFeature::ACCESS_ALL || $flatDetail['plog'] == PlogFeature::ACCESS_OWNER_ONLY && $is_owner);
 
                 $house['cameras'] = $cctvBlock ? [] : $houseFeature->getCameras("houseId", $houseId);
 
@@ -94,7 +95,7 @@ readonly class AddressController extends MobileRbtController
 
             $house['cctv'] = count($house['cameras']);
 
-            if (!$intercomBlock) {
+            if (!$intercomHide && !$intercomBlock) {
                 foreach ($flatDetail['entrances'] as $entrance) {
                     if (array_key_exists($entrance['entranceId'], $house['doors'])) {
                         continue;
@@ -137,7 +138,7 @@ readonly class AddressController extends MobileRbtController
             for ($i = 0; $i < $counter; ++$i)
                 usort($result[$i]['doors'], static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
 
-            usort($result, static fn(array $a, array $b): int => strcmp($a['address'], $b['address']));
+            usort($result, static fn(array $a, array $b): int => strcmp((string)$a['address'], (string)$b['address']));
             return user_response(data: $result);
         }
 

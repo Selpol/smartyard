@@ -2,6 +2,7 @@
 
 namespace Selpol\Entity\Model\Block;
 
+use Selpol\Controller\Admin\Block\BlockController;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Repository\Block\SubscriberBlockRepository;
 use Selpol\Framework\Entity\Entity;
@@ -54,7 +55,7 @@ class SubscriberBlock extends Entity
 
             'subscriber_id' => rule()->id(),
 
-            'service' => rule()->required()->in([0, 1, 2, 3, 4, 5, 6, 7, 8])->nonNullable(),
+            'service' => rule()->required()->in(BlockController::SERVICES_SUBSCRIBER)->nonNullable(),
             'status' => rule()->required()->in([1, 2, 3])->nonNullable(),
 
             'cause' => rule()->string(),

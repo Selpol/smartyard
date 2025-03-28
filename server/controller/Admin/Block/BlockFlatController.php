@@ -122,13 +122,17 @@ readonly class BlockFlatController extends AdminRbtController
 
     private static function notify(FlatBlock $block, bool $status): void
     {
-        task(new InboxFlatTask(
-            $block->flat_id,
-            'Обновление статуса квартиры',
-            $status
-                ? ('Услуга ' . BlockController::translate($block->service) . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
-                : ('Услуга ' . BlockController::translate($block->service) . ' разблокирована'),
-            'inbox'
-        ))->default()->dispatch();
+        $translate = BlockController::translate($block->service);
+
+        if ($translate) {
+            task(new InboxFlatTask(
+                $block->flat_id,
+                'Обновление статуса квартиры',
+                $status
+                    ? ('Услуга ' . $translate . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
+                    : ('Услуга ' . $translate . ' разблокирована'),
+                'inbox'
+            ))->default()->dispatch();
+        }
     }
 }
