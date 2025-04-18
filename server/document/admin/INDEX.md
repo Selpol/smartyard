@@ -40,6 +40,7 @@
 - [PlogController](./PlogController.md)
 - [RoleController](./RoleController.md)
 - [RolePermissionController](./RolePermissionController.md)
+- [ScheduleController](./ScheduleController.md)
 - [ServerDvrController](./ServerDvrController.md)
 - [ServerFrsController](./ServerFrsController.md)
 - [ServerSipController](./ServerSipController.md)

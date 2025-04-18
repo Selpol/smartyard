@@ -3,7 +3,6 @@
 namespace Selpol\Feature\Frs\Internal;
 
 use Psr\Log\LoggerInterface;
-use Selpol\Cli\Cron\CronValue;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Frs\FrsFace;
 use Selpol\Entity\Model\Frs\FrsServer;
@@ -14,6 +13,7 @@ use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Feature\Schedule\ScheduleTime;
 use Throwable;
 
 readonly class InternalFrsFeature extends FrsFeature
@@ -211,7 +211,7 @@ readonly class InternalFrsFeature extends FrsFeature
         return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_MOTION_DETECTION, $method_params);
     }
 
-    public function cron(CronValue $value): bool
+    public function cron(ScheduleTime $value): bool
     {
         if ($value->at('*/5')) {
             $this->syncData();

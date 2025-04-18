@@ -3,6 +3,7 @@
 namespace Selpol\Cli\Cron;
 
 use Psr\Log\LoggerAwareInterface;
+use Selpol\Feature\Schedule\ScheduleTime;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
@@ -17,18 +18,10 @@ class CronRunCommand implements LoggerAwareInterface
     #[Execute]
     public function execute(CliIO $io): void
     {
-        $time = time();
-
         $start = microtime(true) * 1000;
         $io->writeLine('Processing cron ');
 
-        $value = new CronValue(
-            intval(date('i', $time)),
-            intval(date('H', $time)),
-            intval(date('d', $time)),
-            intval(date('m', $time)),
-            intval(date('w', $time))
-        );
+        $time = ScheduleTime::fromGlobal();
 
         $classes = kernel()->getContainer()->getTag(CronTag::CRON);
 
@@ -42,7 +35,7 @@ class CronRunCommand implements LoggerAwareInterface
             }
 
             try {
-                if ($instance->cron($value)) {
+                if ($instance->cron($time)) {
                     $io->writeLine('Success processed feature ' . $class);
                 } else {
                     $io->writeLine('Fail processed feature ' . $class);

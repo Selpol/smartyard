@@ -637,6 +637,31 @@
 - `string` *title* - Заголовок
 - `string` *description* - Описание
 
+## ScheduleIndexRequest
+
+Поля: 
+
+- `null|int` *status* - Статус
+- `int` *page* - Страница
+- `int` *size* - Размер страницы
+
+## ScheduleStoreRequest
+
+Поля: 
+
+- `string` *time* - Время
+- `string` *script* - Скрипт
+- `int` *status* - Статус
+
+## ScheduleUpdateRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор расписания
+- `string` *time* - Время
+- `string` *script* - Скрипт
+- `int` *status* - Статус
+
 ## ServerDvrStoreRequest
 
 Поля: 

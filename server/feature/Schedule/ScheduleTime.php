@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Cli\Cron;
+namespace Selpol\Feature\Schedule;
 
-final readonly class CronValue
+use Selpol\Framework\Kernel\Exception\KernelException;
+
+final readonly class ScheduleTime
 {
     /**
      * Значение от 0 до 59
@@ -97,16 +99,16 @@ final readonly class CronValue
 
     private function validate(string $target, int $source): bool
     {
-        if (str_starts_with($target, '*/')) {
-            $value = intval(substr($target, 2));
-
-            return ($source % $value) == 0;
-        }
-
         $parts = explode(',', $target);
 
         foreach ($parts as $part) {
-            if (str_contains('-', $part)) {
+            if (str_starts_with($part, '*/')) {
+                $value = intval(substr($part, 2));
+
+                if (($source % $value) != 0) {
+                    continue;
+                }
+            } else if (str_contains('-', $part)) {
                 [$left, $right] = explode('-', $part);
 
                 if ($source < intval($left) || $source > intval($right)) {
@@ -120,5 +122,60 @@ final readonly class CronValue
         }
 
         return false;
+    }
+
+    /**
+     * @param string $value
+     * @return void
+     * @throws KernelException
+     */
+    public static function check(string $value): void
+    {
+        $segments = explode(' ', $value);
+
+        if (count($segments) > 5) {
+            throw new KernelException('Не верные данные расписания времени');
+        }
+
+        foreach ($segments as $segment) {
+            if ($segment == '*') {
+                continue;
+            }
+
+            $parts = explode(',', $segment);
+
+            foreach ($parts as $part) {
+                if (str_starts_with($part, '*/')) {
+                    if (!filter_var(substr($part, 2), FILTER_VALIDATE_INT)) {
+                        throw new KernelException('Не верный формат числа в расписании времени');
+                    }
+                } else if (str_contains('-', $part)) {
+                    $index = strpos($part, '-');
+
+                    if (!filter_var(substr($part, 0, $index), FILTER_VALIDATE_INT)) {
+                        throw new KernelException('Не верный формат числа в расписании времени');
+                    }
+
+                    if (!filter_var(substr($part, $index + 2), FILTER_VALIDATE_INT)) {
+                        throw new KernelException('Не верный формат числа в расписании времени');
+                    }
+                } else if (!filter_var($part, FILTER_VALIDATE_INT)) {
+                    throw new KernelException('Не верный формат числа в расписании времени');
+                }
+            }
+        }
+    }
+
+    public static function fromGlobal(): ScheduleTime
+    {
+        $time = time();
+
+        return new ScheduleTime(
+            intval(date('i', $time)),
+            intval(date('H', $time)),
+            intval(date('d', $time)),
+            intval(date('m', $time)),
+            intval(date('w', $time))
+        );
     }
 }

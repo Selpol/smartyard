@@ -4,7 +4,6 @@ namespace Selpol\Service;
 
 use Selpol\Cli\Cron\CronInterface;
 use Selpol\Cli\Cron\CronTag;
-use Selpol\Cli\Cron\CronValue;
 use Selpol\Device\Ip\Camera\CameraConfigResolver;
 use Selpol\Device\Ip\Camera\CameraDevice;
 use Selpol\Device\Ip\Camera\CameraModel;
@@ -20,6 +19,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigResolver;
+use Selpol\Feature\Schedule\ScheduleTime;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
@@ -44,7 +44,7 @@ class DeviceService implements CronInterface
     {
     }
 
-    public function cron(CronValue $value): bool
+    public function cron(ScheduleTime $value): bool
     {
         if ($value->daily()) {
             $this->info();
