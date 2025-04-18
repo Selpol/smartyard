@@ -2,7 +2,9 @@
 
 namespace Selpol\Cli\Cron;
 
+use Selpol\Feature\Schedule\ScheduleTime;
+
 interface CronInterface
 {
-    public function cron(CronValue $value): bool;
+    public function cron(ScheduleTime $value): bool;
 }

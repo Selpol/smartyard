@@ -4,11 +4,9 @@ namespace Selpol\Feature\Plog\Clickhouse;
 
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
-use Selpol\Cli\Cron\CronValue;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseEntrance;
-use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
@@ -17,6 +15,7 @@ use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Feature\Schedule\ScheduleTime;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\ClickhouseService;
 use Selpol\Task\Tasks\Plog\PlogCallTask;
@@ -40,7 +39,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
         $this->back_time_shift_video_shot = $plog['back_time_shift_video_shot'];
     }
 
-    public function cron(CronValue $value): bool
+    public function cron(ScheduleTime $value): bool
     {
         if (!$value->daily()) {
             return true;

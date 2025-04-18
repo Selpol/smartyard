@@ -256,7 +256,13 @@ class RoleInitCommand
             'address-house-update-put' => '[Адрес-Дом] Обновить дом',
             'address-house-delete-delete' => '[Адрес-Дом] Удалить дом',
 
-            'dashboard-device-sip-get' => '[Панель-Устройства] Формирования списка устройств, без регистрации'
+            'dashboard-device-sip-get' => '[Панель-Устройства] Формирования списка устройств, без регистрации',
+
+            'schedule-index-get' => '[Расписание] Получить список расписания',
+            'schedule-show-get' => '[Расписание] Получить расписание',
+            'schedule-store-post' => '[Расписание] Создать новое расписание',
+            'schedule-update-put' => '[Расписание] Обновить расписани',
+            'schedule-delete-delete' => '[Расписание] Удалить расписание',
         ];
 
         /** @var array<string, Permission> $titlePermissions */
