@@ -37,7 +37,7 @@ readonly class AddressHouseController extends AdminRbtController
     #[Get]
     public function index(AddressHouseIndexRequest $request): ResponseInterface
     {
-        return self::success(AddressHouse::fetchPage($request->page, $request->size, criteria()->equal('address_settlement_id', $request->address_settlement_id)->equal('address_street_id', $request->address_street_id)));
+        return self::success(AddressHouse::fetchPage($request->page, $request->size, criteria()->in('address_house_id', $request->ids)->equal('address_settlement_id', $request->address_settlement_id)->equal('address_street_id', $request->address_street_id)));
     }
 
     /**

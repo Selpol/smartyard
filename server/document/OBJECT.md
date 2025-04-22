@@ -84,6 +84,7 @@
 
 Поля: 
 
+- `null|int[]` *ids* - Идентификаторы домов
 - `int|null` *address_settlement_id*
 - `int|null` *address_street_id*
 
@@ -641,6 +642,7 @@
 
 Поля: 
 
+- `null|string` *title* - Заголовок
 - `null|int` *status* - Статус
 - `int` *page* - Страница
 - `int` *size* - Размер страницы
@@ -649,6 +651,7 @@
 
 Поля: 
 
+- `string` *title* - Заголовок
 - `string` *time* - Время
 - `string` *script* - Скрипт
 - `int` *status* - Статус
@@ -658,6 +661,7 @@
 Поля: 
 
 - `int` *id* - Идентификатор расписания
+- `string` *title* - Заголовок
 - `string` *time* - Время
 - `string` *script* - Скрипт
 - `int` *status* - Статус

@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Selpol\Controller\Admin\Dashbard;
+namespace Selpol\Controller\Admin\Dashboard;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;

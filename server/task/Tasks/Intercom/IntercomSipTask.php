@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Intercom;
 
+use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Service\DeviceService;
 use Selpol\Service\MqttService;
