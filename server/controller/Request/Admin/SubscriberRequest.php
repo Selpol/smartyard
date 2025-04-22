@@ -33,7 +33,7 @@ readonly class SubscriberRequest extends RouteRequest
             'name' => rule()->string()->clamp(0, 64),
             'patronymic' => rule()->string()->clamp(0, 64),
 
-            'mobile' => rule()->string()->clamp(11, 11)->regexp('/^7\d{10}$/'),
+            'mobile' => rule()->string(),
 
             'platform' => rule()->int()->in([0, 1, 2]),
             'push_token_type' => rule()->int()->in([0, 1, 2, 3, 4]),

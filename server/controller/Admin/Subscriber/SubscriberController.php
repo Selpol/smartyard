@@ -45,7 +45,7 @@ readonly class SubscriberController extends AdminRbtController
             ->in('house_subscriber_id', $request->ids)
             ->like('subscriber_name', $request->name)
             ->like('subscriber_patronymic', $request->patronymic)
-            ->equal('id', $request->mobile)
+            ->like('id', $request->mobile)
             ->equal('platform', $request->platform)
             ->equal('push_token_type', $request->push_token_type)
             ->asc('house_subscriber_id');
