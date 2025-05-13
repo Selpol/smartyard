@@ -2,9 +2,9 @@
 
 namespace Selpol\Controller\Mobile;
 
-use Selpol\Device\Ip\Camera\CameraDevice;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
+use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -21,19 +21,29 @@ readonly class CallController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get('/camshot/{hash}')]
-    public function camshot(string $hash, RedisService $redisService): Response
+    public function camshot(string $hash, RedisService $redisService, DeviceService $deviceService): Response
     {
         $this->getUser();
 
-        $image = $redisService->get('shot_' . $hash);
+        $call = json_decode($redisService->get('call/hash/' . $hash), true);
 
-        if ($image !== false) {
-            return response()
-                ->withHeader('Content-Type', 'image/jpeg')
-                ->withBody(stream($image));
+        if (!$call) {
+            return user_response(404, message: 'Неизвестный звонок');
         }
 
-        return user_response(404, message: 'Скриншот не найден');
+        $entrances = HouseEntrance::fetchAll(criteria()->equal('house_domophone_id', $call['domophone'])->equal('domophone_output', 0), setting()->columns(['camera_id']));
+
+        if (count($entrances) == 0) {
+            return user_response(404, message: 'Вход не найден');
+        }
+
+        $camera = $deviceService->cameraById($entrances[0]->camera_id);
+
+        if (!$camera) {
+            return user_response(404, message: 'Камера не найдена');
+        }
+
+        return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($camera->getScreenshot());
     }
 
     /**
@@ -42,17 +52,6 @@ readonly class CallController extends MobileRbtController
     #[Get('/live/{hash}')]
     public function live(string $hash, RedisService $redisService, DeviceService $deviceService): Response
     {
-        $this->getUser();
-
-        $json_camera = $redisService->get('live_' . $hash);
-        $camera_params = json_decode($json_camera, true);
-
-        $model = $deviceService->cameraById($camera_params['id']);
-
-        if (!$model instanceof CameraDevice) {
-            return user_response(404, message: 'Камера не найдена');
-        }
-
-        return response(headers: ['Content-Type' => ['image/jpeg']])->withBody($model->getScreenshot());
+        return $this->camshot($hash, $redisService, $deviceService);
     }
 }

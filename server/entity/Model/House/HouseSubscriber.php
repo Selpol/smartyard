@@ -6,6 +6,7 @@ use Selpol\Entity\Model\Block\SubscriberBlock;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Dvr\DvrRecord;
 use Selpol\Entity\Model\Inbox\InboxMessage;
+use Selpol\Entity\Repository\House\HouseSubscriberRepository;
 use Selpol\Framework\Entity\Entity;
 use Selpol\Framework\Entity\Relationship\ManyToManyRelationship;
 use Selpol\Framework\Entity\Relationship\OneToManyRelationship;

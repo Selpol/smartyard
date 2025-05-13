@@ -37,15 +37,24 @@ readonly class AddressHouseController extends AdminRbtController
     #[Get]
     public function index(AddressHouseIndexRequest $request): ResponseInterface
     {
+        $criteria = criteria()
+            ->in('address_house_id', $request->ids)
+            ->equal('address_settlement_id', $request->address_settlement_id)
+            ->equal('address_street_id', $request->address_street_id);
+
+        if ($request->house_full) {
+            if (str_starts_with($request->house_full, '%') && str_ends_with($request->house_full, '%')) {
+                $criteria->like('house_full', $request->house_full);
+            } else {
+                $criteria->simple('house_full', '~*', $request->house_full);
+            }
+        }
+
         return self::success(
             AddressHouse::fetchPage(
                 $request->page,
                 $request->size,
-                criteria()
-                    ->in('address_house_id', $request->ids)
-                    ->equal('address_settlement_id', $request->address_settlement_id)
-                    ->equal('address_street_id', $request->address_street_id)
-                    ->like('house_full', $request->house_full)
+                $criteria
             )
         );
     }

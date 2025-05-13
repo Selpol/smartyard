@@ -3,10 +3,10 @@
 namespace Selpol\Runner;
 
 use Selpol\Entity\Model\Address\AddressHouse;
-use Selpol\Entity\Model\Core\CoreUser;
-use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Block\SubscriberBlock;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\House\HouseFlat;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
@@ -15,7 +15,7 @@ use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Runner\RunnerExceptionHandlerInterface;
 use Selpol\Framework\Runner\RunnerInterface;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
-use Selpol\Service\DeviceService;
+use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 use Selpol\Framework\Validator\Exception\ValidatorException;
 use Throwable;
@@ -49,15 +49,215 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                 $params = json_decode(file_get_contents('php://input'), true);
 
                 switch ($path[1]) {
-                    case 'autoopen':
+                    case 'call':
                         try {
-                            $flat = HouseFlat::findById(intval($params), setting: setting()->columns(['auto_open', 'white_rabbit', 'last_opened']));
+                            $device = intercom(intval($params['domophone_id']));
+                            $entrance = $device->intercom->entrances()->fetchAll(criteria()->equal('domophone_output', 0))[0];
 
-                            $result = ($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time());
+                            if (strlen($params['extension']) < 5) {
+                                $id = intval($params['extension']);
+                                $flats = $entrance->flats()->fetchAll(criteria()->equal('flat', $id));
 
-                            echo json_encode($result);
-                        } catch (Throwable) {
-                            echo json_encode(false);
+                                if (count($flats) == 0) {
+                                    echo json_encode(['success' => false, 'message' => 'Не удалось найти квартиру ' . $id]);
+
+                                    break;
+                                }
+
+                                $flat = $flats[0];
+                            } else if (strlen($params['extension']) == 10 && str_starts_with($params['extension'], '1')) {
+                                $id = intval(substr($params['extension'], 1));
+                                $flat = HouseFlat::findById($id);
+
+                                if ($flat == null) {
+                                    echo json_encode(['success' => false, 'message' => 'Не удалось найти квартиру ' . $id]);
+
+                                    break;
+                                }
+                            } else {
+                                $number = intval(substr($params['extension'], 4));
+                                $prefix = intval(substr($params['extension'], 0, 4));
+
+                                $statement = container(DatabaseService::class)->statement('select house_flat_id from houses_entrances_flats where house_flat_id in (select house_flat_id from houses_flats where address_house_id in (select address_house_id from houses_houses_entrances where house_entrance_id in (select house_entrance_id from houses_entrances where house_domophone_id = :house_domophone_id) and prefix = :prefix)) and apartment = :apartment group by house_flat_id');
+                                $statement->execute(['house_domophone_id' => $device->intercom->house_domophone_id, 'prefix' => $prefix, 'apartment' => $number]);
+
+                                $flat = HouseFlat::findById($statement->fetchColumn(0));
+
+                                if ($flat == null) {
+                                    echo json_encode(['success' => false, 'message' => 'Не удалось найти квартиру номер ' . $number . ' префикс ' . $prefix]);
+
+                                    break;
+                                }
+                            }
+
+                            if (container(BlockFeature::class)->getFirstBlockForFlat($flat->house_flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL])) {
+                                echo json_encode(['success' => false]);
+
+                                break;
+                            }
+
+                            if (($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time())) {
+                                echo json_encode([
+                                    'success' => true,
+                                    'data' => [
+                                        'auto_open' => ($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time()),
+                                        'dtmf' => $device->resolver->int('sip.dtmf', 1),
+                                    ]
+                                ]);
+
+                                break;
+                            }
+
+                            $cmsConnected = $entrance->cmses()->hasMany(criteria()->equal('apartment', $flat->flat)) > 0;
+                            $hasCms = false;
+
+                            if (!$cmsConnected) {
+                                $entrances = $flat->entrances()->fetchAll();
+
+                                foreach ($entrances as $entrance) {
+                                    if ($entrance->cmses()->hasMany(criteria()->equal('apartment', $flat->flat)) > 0) {
+                                        $hasCms = true;
+
+                                        break;
+                                    }
+                                }
+                            }
+
+                            $subscribers = $flat->subscribers()->fetchAll();
+
+                            $subscribers = array_filter($subscribers, static function (HouseSubscriber $subscriber) {
+                                if (is_null($subscriber->platform)) {
+                                    return false;
+                                }
+
+                                if (is_null($subscriber->push_token)) {
+                                    return false;
+                                }
+
+                                if (is_null($subscriber->push_token_type)) {
+                                    return false;
+                                }
+
+                                return true;
+                            });
+
+                            $blocks = SubscriberBlock::fetchAll(
+                                criteria()
+                                    ->in('subscriber_id', array_map(static fn(HouseSubscriber $subscriber) => $subscriber->house_subscriber_id, $subscribers))
+                                    ->in('service', [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]),
+                                setting()->columns(['subscriber_id'])
+                            );
+
+                            $blocks = array_reduce($blocks, function (array $carry, SubscriberBlock $item): array {
+                                $carry[$item->subscriber_id] = true;
+
+                                return $carry;
+                            }, []);
+
+                            $subscribers = array_filter($subscribers, static fn(HouseSubscriber $subscriber) => !array_key_exists($subscriber->house_subscriber_id, $blocks));
+
+                            echo json_encode([
+                                'success' => true,
+                                'data' => [
+                                    'auto_open' => false,
+                                    'dtmf' => $device->resolver->string('sip.dtmf', '1'),
+
+                                    'call_cms' => !$cmsConnected && $hasCms,
+                                    'call_sip' => $flat->sip_enabled == 1,
+
+                                    'caller' => $entrance->caller_id . ', ' . $flat->flat,
+
+                                    'flat_id' => $flat->house_flat_id,
+                                    'flat_number' => $flat->flat,
+
+                                    'subscribers' => array_map(static fn(HouseSubscriber $subscriber) => $subscriber->house_subscriber_id, $subscribers)
+                                ]
+                            ]);
+                        } catch (Throwable $throwable) {
+                            echo json_encode(['success' => false, 'message' => $throwable->getMessage() . ' | ' . json_encode($params)]);
+                        }
+
+                        break;
+
+                    case 'send':
+                        try {
+                            $device = intercom($params['domophone_id']);
+
+                            if (!$device) {
+                                echo json_encode(['success' => false, 'message' => 'Не удалось найти домофон | ' . json_encode($params)]);
+
+                                break;
+                            }
+
+                            $server = $device->intercom->sipServer;
+
+                            if (!$server) {
+                                echo json_encode(['success' => false, 'message' => 'Отсуствует сип сервер у домофона | ' . json_encode($params)]);
+
+                                break;
+                            }
+
+                            $flat = HouseFlat::findById($params['flat_id'], setting: setting()->columns(['address_house_id'])->nonNullable());
+                            $house = AddressHouse::findById($flat->address_house_id, setting: setting()->columns(['house_full'])->nonNullable());
+
+                            try {
+                                $segments = explode(', ', $house->house_full);
+
+                                if (str_starts_with($segments[0], 'г')) {
+                                    $address = implode(', ', array_slice($segments, 1));
+                                } elseif (str_ends_with($segments[0], 'обл')) {
+                                    $address = implode(', ', array_slice($segments, 2));
+                                } else {
+                                    $address = $house->house_full;
+                                }
+                            } catch (Throwable) {
+                                $address = $house->house_full;
+                            }
+
+                            $stun = container(SipFeature::class)->stun();
+
+                            $subscribers = HouseSubscriber::fetchAll(criteria()->in('house_subscriber_id', $params['subscribers']));
+
+                            foreach ($subscribers as $subscriber) {
+                                $token = $subscriber->push_token;
+                                $voip = false;
+
+                                if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
+                                    $token = $subscriber->voip_token;
+                                    $voip = true;
+                                }
+
+                                $push = [
+                                    'token' => $token,
+                                    'type' => $subscriber->push_token_type,
+                                    'hash' => $params['hash'],
+                                    'extension' => $params['extensions'][strval($subscriber->house_subscriber_id)],
+                                    'server' => $server->external_ip,
+                                    'port' => $server->external_port,
+                                    'transport' => 'udp',
+                                    'dtmf' => $device->resolver->string('sip.dtmf', '1'),
+                                    'timestamp' => time(),
+                                    'ttl' => 30,
+                                    'platform' => $subscriber->platform !== 0 ? 'ios' : 'android',
+                                    'callerId' => $params['caller_id'] ?: 'WebRTC',
+                                    'domophoneId' => $params['domophone_id'],
+                                    'flatId' => $params['flat_id'],
+                                    'flatNumber' => $params['flat_number'],
+                                    'voipEnabled' => $voip ? 1 : 0,
+                                    'title' => $address,
+                                ];
+
+                                if ($stun) {
+                                    $push['stun'] = $stun;
+                                    $push['stunTransport'] = 'udp';
+                                }
+
+                                container(ExternalFeature::class)->push($push);
+                            }
+
+                            echo json_encode(['success' => true]);
+                        } catch (Throwable $throwable) {
+                            echo json_encode(['success' => false, 'message' => $throwable->getMessage() . ' | ' . json_encode($params)]);
                         }
 
                         break;
@@ -71,38 +271,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         if ($block == null) {
                             echo json_encode($flat);
                         }
-
-                        break;
-
-                    case 'flatIdByPrefix':
-                        $households = container(HouseFeature::class);
-
-                        $apartments = array_filter($households->getFlats('flatIdByPrefix', $params), static fn(array $flat): bool => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
-
-                        if ($apartments !== []) {
-                            echo json_encode($apartments);
-                        }
-
-                        break;
-
-                    case 'apartment':
-                        $households = container(HouseFeature::class);
-
-                        $apartments = $households->getFlats('apartment', $params);
-                        $filterApartments = array_filter($apartments, static fn(array $flat): bool => container(BlockFeature::class)->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]) == null);
-
-                        if ($filterApartments !== []) {
-                            echo json_encode($filterApartments);
-                        }
-
-                        break;
-
-                    case 'subscribers':
-                        $households = container(HouseFeature::class);
-
-                        $subscribers = array_filter($households->getSubscribers('flatId', intval($params)), static fn(array $subscriber): bool => container(BlockFeature::class)->getFirstBlockForSubscriber($subscriber['subscriberId'], [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL, BlockFeature::SUB_SERVICE_APP]) == null);
-
-                        echo json_encode($subscribers);
 
                         break;
 
@@ -134,103 +302,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                         break;
 
-                    case 'entrance':
-                        $households = container(HouseFeature::class);
-
-                        $entrances = $households->getEntrances('domophoneId', ['domophoneId' => intval($params), 'output' => '0']);
-
-                        if ($entrances) {
-                            echo json_encode($entrances[0]);
-                        } else {
-                            echo json_encode(false);
-                        }
-
-                        break;
-
-                    case 'camshot':
-                        $redis = container(RedisService::class);
-
-                        if ($params['domophoneId'] >= 0) {
-                            $households = container(HouseFeature::class);
-
-                            $entrances = $households->getEntrances('domophoneId', ['domophoneId' => $params['domophoneId'], 'output' => '0']);
-
-                            if ($entrances && $entrances[0]) {
-                                $camera = DeviceCamera::findById($entrances[0]['cameraId']);
-
-                                if ($camera instanceof DeviceCamera) {
-                                    $model = container(DeviceService::class)->cameraByEntity($camera);
-
-                                    $redis->setEx('shot_' . $params["hash"], 3 * 60, $model->getScreenshot()->getContents());
-                                    $redis->setEx('live_' . $params["hash"], 3 * 60, json_encode(['id' => $camera->camera_id, 'model' => $camera->model, 'url' => $camera->url, 'credentials' => $camera->credentials]));
-
-                                    echo $params['hash'];
-                                }
-                            }
-                        }
-
-                        break;
-
-                    case 'push':
-                        $intercom = DeviceIntercom::findById(intval($params['domophoneId']));
-
-                        if (!$intercom) {
-                            break;
-                        }
-
-                        $server = $intercom->sipServer;
-
-                        if (!$server) {
-                            break;
-                        }
-
-                        $flat = HouseFlat::findById($params['flatId'], setting: setting()->columns(['address_house_id'])->nonNullable());
-                        $house = AddressHouse::findById($flat->address_house_id, setting: setting()->columns(['house_full'])->nonNullable());
-
-                        try {
-                            $segments = explode(', ', $house->house_full);
-
-                            if (str_starts_with($segments[0], 'г')) {
-                                $address = implode(', ', array_slice($segments, 1));
-                            } elseif (str_ends_with($segments[0], 'обл')) {
-                                $address = implode(', ', array_slice($segments, 2));
-                            } else {
-                                $address = $house->house_full;
-                            }
-                        } catch (Throwable) {
-                            $address = $house->house_full;
-                        }
-
-                        $params = [
-                            'token' => $params['token'],
-                            'type' => $params['tokenType'],
-                            'hash' => $params['hash'],
-                            'extension' => $params['extension'],
-                            'server' => $server->external_ip,
-                            'port' => $server->external_port,
-                            'transport' => 'udp',
-                            'dtmf' => $params['dtmf'],
-                            'timestamp' => time(),
-                            'ttl' => 30,
-                            'platform' => (int) $params['platform'] !== 0 ? 'ios' : 'android',
-                            'callerId' => $params['callerId'] ?: 'WebRTC',
-                            'domophoneId' => $params['domophoneId'],
-                            'flatId' => $params['flatId'],
-                            'flatNumber' => $params['flatNumber'],
-                            'voipEnabled' => $params['voipEnabled'] ?? false,
-                            'title' => $address,
-                        ];
-
-                        $stun = container(SipFeature::class)->stun();
-
-                        if ($stun) {
-                            $params['stun'] = $stun;
-                            $params['stunTransport'] = 'udp';
-                        }
-
-                        container(ExternalFeature::class)->push($params);
-
-                        break;
                     default:
                         break;
                 }
@@ -254,23 +325,23 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url((string) config_get('api.asterisk'));
+        $server = parse_url((string)config_get('api.asterisk'));
 
         if ($server && $server['path']) {
-            $path = substr((string) $path, strlen($server['path']));
+            $path = substr((string)$path, strlen($server['path']));
         }
 
         if ($path && $path[0] == '/') {
-            $path = substr((string) $path, 1);
+            $path = substr((string)$path, 1);
         }
 
-        return explode('/', (string) $path);
+        return explode('/', (string)$path);
     }
 
     private function getExtension(string $extension, string $section): array
     {
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $intercom = DeviceIntercom::findById((int) substr($extension, 1), setting: setting()->columns(['credentials']));
+            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials']));
 
             if ($intercom instanceof DeviceIntercom && $intercom->credentials) {
                 return match ($section) {
@@ -301,12 +372,12 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // mobile extension
         if ($extension[0] === '2' && strlen($extension) === 10) {
-            $cred = container(RedisService::class)->get('mobile_extension_' . $extension);
+            $call = json_decode(container(RedisService::class)->get('call/user/' . $extension), true);
 
-            if ($cred) {
+            if ($call) {
                 return match ($section) {
                     'aors' => ['id' => $extension, 'max_contacts' => '1', 'remove_existing' => 'yes'],
-                    'auths' => ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $cred],
+                    'auths' => ['id' => $extension, 'username' => $extension, 'auth_type' => 'userpass', 'password' => $call['hash']],
                     'endpoints' => [
                         'id' => $extension,
                         'auth' => $extension,
@@ -332,7 +403,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // sip extension
         if ($extension[0] === '4' && strlen($extension) === 10) {
-            $flat = HouseFlat::findById((int) substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
+            $flat = HouseFlat::findById((int)substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
 
             if ($flat instanceof HouseFlat && $flat->sip_password) {
                 return match ($section) {
@@ -389,8 +460,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         if (strlen($extension) >= 6 && strlen($extension) <= 10) {
             try {
-                $sipUserId = (int) substr($extension, 1);
-                $sipUser = SipUser::findById($sipUserId, criteria()->equal('type', (int) $extension[0]), setting()->columns(['title', 'password']));
+                $sipUserId = (int)substr($extension, 1);
+                $sipUser = SipUser::findById($sipUserId, criteria()->equal('type', (int)$extension[0]), setting()->columns(['title', 'password']));
 
                 if ($sipUser) {
                     return match ($section) {
@@ -428,7 +499,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = '';
 
         foreach ($params as $key => $value) {
-            $result .= urldecode($key) . '=' . urldecode((string) $value) . '&';
+            $result .= urldecode($key) . '=' . urldecode((string)$value) . '&';
         }
 
         return $result;
