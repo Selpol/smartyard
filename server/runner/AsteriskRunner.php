@@ -242,7 +242,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     'callerId' => $params['caller_id'] ?: 'WebRTC',
                                     'domophoneId' => $params['domophone_id'],
                                     'flatId' => $params['flat_id'],
-                                    'flatNumber' => $params['flat_number'],
+                                    'flatNumber' => intval($params['flat_number']),
                                     'voipEnabled' => $voip ? 1 : 0,
                                     'title' => $address,
                                 ];
