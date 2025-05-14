@@ -112,10 +112,10 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             $hasCms = false;
 
                             if (!$cmsConnected) {
-                                $entrances = $flat->entrances()->fetchAll();
+                                $flatEntrances = $flat->entrances()->fetchAll();
 
-                                foreach ($entrances as $entrance) {
-                                    if ($entrance->cmses()->hasMany(criteria()->equal('apartment', $flat->flat)) > 0) {
+                                foreach ($flatEntrances as $flatEntrance) {
+                                    if ($flatEntrance->cmses()->hasMany(criteria()->equal('apartment', $flat->flat)) > 0) {
                                         $hasCms = true;
 
                                         break;
