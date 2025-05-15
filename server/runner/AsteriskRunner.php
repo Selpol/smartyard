@@ -170,7 +170,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     'flat_id' => $flat->house_flat_id,
                                     'flat_number' => $flat->flat,
 
-                                    'subscribers' => array_map(static fn(HouseSubscriber $subscriber) => $subscriber->house_subscriber_id, $subscribers)
+                                    'subscribers' => array_values(array_map(static fn(HouseSubscriber $subscriber) => $subscriber->house_subscriber_id, $subscribers))
                                 ]
                             ]);
                         } catch (Throwable $throwable) {

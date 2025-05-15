@@ -140,7 +140,7 @@ extensions = {
 
                 if pjsip_extension ~= "" and pjsip_extension ~= nil then
                     if not skip then
-                        log_debug("[Домофон/" .. math.floor(call.domophone) .. "] Найдена регистрация для " .. extension .. ", абонента " .. call.subscriber)
+                        log_debug("[Домофон/" .. math.floor(call.domophone) .. "] Найдена регистрация для " .. extension .. ", абонента " .. math.floor(call.subscriber))
 
                         skip = true
                     end
@@ -150,7 +150,7 @@ extensions = {
                     status = channel.DIALSTATUS:get()
 
                     if status == "CHANUNAVAIL" then
-                        log_debug("[Домофон/" .. math.floor(call.domophone) .. "] Приостановка потока для " .. extension .. ", абонента " .. call.subscriber)
+                        log_debug("[Домофон/" .. math.floor(call.domophone) .. "] Приостановка потока для " .. extension .. ", абонента " .. math.floor(call.subscriber))
 
                         app.Wait(35)
                     end
@@ -390,13 +390,7 @@ extensions = {
             local status = channel.DIALSTATUS:get()
 
             if status == nil then
-                status = "неизвестно"
-            end
-
-            local subscriber = channel.SUBSCRIBER:get()
-
-            if subscriber == nil then
-                subscriber = "Отсуствует"
+                status = "UNKNOWN"
             end
 
             local message = ""
@@ -407,7 +401,15 @@ extensions = {
                 message = "Звонок с устройства " .. src
             end
 
-            log_debug(message .. " на " .. channel.CDR("dst"):get() .. " завершен со статусом " .. status .. ", абонент " .. subscriber)
+            message = message .. " на " .. channel.CDR("dst"):get() .. " завершен со статусом " .. status
+
+            local subscriber = channel.SUBSCRIBER:get()
+
+            if subscriber ~= nil then
+                message = message .. ", абонент " .. math.floor(subscriber)
+            end
+
+            log_debug(message)
         end,
     },
 }
