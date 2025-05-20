@@ -68,6 +68,14 @@ readonly abstract class PlogFeature extends Feature implements CronInterface
     abstract public function getEventsByFlatsAndDomophone(array $flats_id, int $domophone_id, int $date): bool|array;
 
     /**
+     * Получить список движений по хосту
+     * @param string $ip
+     * @param int $date глубина промежутка времени от текущей даты
+     * @return bool|array
+     */
+    abstract public function getMotionsByHost(string $ip, int $date): bool|array;
+
+    /**
      * Получить детальный список событий по домофону и квартирам, за определенный промежуток времени
      * @param array $flatIds список идентификаторов квартир
      * @param int $intercomId идентификатор домофона

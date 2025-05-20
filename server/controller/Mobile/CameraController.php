@@ -8,6 +8,7 @@ use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
@@ -229,7 +230,7 @@ readonly class CameraController extends MobileRbtController
     /**
      * @throws NotFoundExceptionInterface
      */
-    #[Post('/events', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],])]
+    #[Post('/events', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
     public function events(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
@@ -262,6 +263,50 @@ readonly class CameraController extends MobileRbtController
         }
 
         return user_response(404, message: 'События не найдены');
+    }
+
+    /**
+     * @throws NotFoundExceptionInterface
+     */
+    #[Post('/motions', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
+    public function motions(CameraEventsRequest $request, HouseFeature $houseFeature, PlogFeature $plogFeature): ResponseInterface
+    {
+        $user = $this->getUser()->getOriginalValue();
+
+        $domophoneId = $houseFeature->getDomophoneIdByEntranceCameraId($request->cameraId);
+
+        if (is_null($domophoneId)) {
+            return user_response(404, message: 'Домофон не найден');
+        }
+
+        $flats = array_filter(
+            array_map(static fn(array $item): array => ['id' => $item['flatId'], 'owner' => $item['role'] == 0], $user['flats']),
+            static function (array $flat) use ($houseFeature): bool {
+                $plog = $houseFeature->getFlatPlog($flat['id']);
+
+                return is_null($plog) || $plog == PlogFeature::ACCESS_ALL || $plog == PlogFeature::ACCESS_OWNER_ONLY && $flat['owner'];
+            }
+        );
+
+        $flatsId = array_map(static fn(array $item) => $item['id'], $flats);
+
+        if (count($flatsId) == 0) {
+            return user_response(404, message: 'Квартира у абонента не найдена');
+        }
+
+        $intercom = DeviceIntercom::findById($domophoneId, setting: setting()->columns(['ip']));
+
+        if ($intercom == null) {
+            return user_response(404, message: 'Домофон не найден');
+        }
+
+        $motions = $plogFeature->getMotionsByHost($intercom->ip, $request->date);
+
+        if ($motions) {
+            return user_response(200, array_map(static fn(array $item) => [$item['start'], $item['end']], $motions));
+        }
+
+        return user_response(404, message: 'Движения не найдены');
     }
 
     private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, BlockFeature $blockFeature): array

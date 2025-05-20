@@ -7,6 +7,8 @@ const hwVer = process.argv.length === 3 && process.argv[2].split("=")[0] === '--
 
 const gateRabbits = [];
 
+const motions = {};
+
 syslog.on("message", async ({date, host, message}) => {
     const now = getTimestamp(date);
     const bwMsg = message.split("- -")[1].trim();
@@ -38,11 +40,17 @@ syslog.on("message", async ({date, host, message}) => {
     // Motion detection: start
     if (bwMsg.indexOf("SS_MAINAPI_ReportAlarmHappen") >= 0) {
         await API.motionDetection({date: now, ip: host, motionActive: true});
+
+        motions[host] = now
     }
 
     // Motion detection: stop
     if (bwMsg.indexOf("SS_MAINAPI_ReportAlarmFinish") >= 0) {
         await API.motionDetection({date: now, ip: host, motionActive: false});
+
+        if (motions[host]) {
+            await API.motion(host, motions[host], now)
+        }
     }
 
     // Opening door by DTMF or CMS handset

@@ -40,7 +40,28 @@ class API {
 
             return await axios(config);
         } catch (error) {
-            console.error(getTimestamp(new Date()), "||", ip, "|| sendLog error: ", error.message); // TODO: hm
+            console.error(getTimestamp(new Date()), "||", ip, "|| sendLog error: ", error.message);
+        }
+    }
+
+    async motion(ip, start, end) {
+        try {
+            const query = `INSERT INTO motion (ip, start, end)
+                           VALUES ('${ip}', '${start}', '${end}');`;
+            const config = {
+                method: "post",
+                url: `http://${env.clickhouseHost}:${env.clickhousePort}`,
+                headers: {
+                    'Authorization': `Basic ${Buffer.from(`${env.clickhouseUsername}:${env.clickhousePassword}`).toString('base64')}`,
+                    'Content-Type': 'text/plain;charset=UTF-8',
+                    'X-ClickHouse-Database': `${env.clickhouseDatabase}`
+                },
+                data: query
+            };
+
+            return await axios(config);
+        } catch (error) {
+            console.error(getTimestamp(new Date()), "||", ip, "|| motion error: ", error.message);
         }
     }
 

@@ -2,9 +2,22 @@ const syslog = new (require("syslog-server"))();
 const env = require("./utils/env");
 const {getTimestamp} = require("./utils/getTimestamp");
 const API = require("./utils/api");
-const {mdTimer} = require("./utils/mdTimer");
 
 const gateRabbits = [];
+
+const motions = {};
+
+async function motionStop(host) {
+    const now = getTimestamp(new Date())
+
+    await API.motionDetection({date: now, ip: host, motionActive: false})
+
+    if (motions[host]) {
+        await API.motion(host, motions[host].start, now)
+    }
+
+    delete motions[host]
+}
 
 syslog.on("message", async ({date, host, message}) => {
     const now = getTimestamp(date);
@@ -36,7 +49,14 @@ syslog.on("message", async ({date, host, message}) => {
     if (isMsg.includes("EVENT: Detected motion")) {
         await API.motionDetection({date: now, ip: host, motionActive: true});
 
-        await mdTimer(host, 5000);
+        if (motions[host]) {
+            clearTimeout(motions[host].interval)
+        }
+
+        motions[host] = {
+            start: now,
+            interval: setTimeout(motionStop, 5000, host)
+        }
     }
 
     // Call to apartment

@@ -399,6 +399,28 @@ readonly class ClickhousePlogFeature extends PlogFeature
         return $this->clickhouse->select($query);
     }
 
+    public function getMotionsByHost(string $ip, int $date): bool|array
+    {
+        $database = $this->clickhouse->database;
+
+        $query = "select start, end from $database.motion where ip = :ip and start >= :start order by start desc";
+
+        $start = time() - $date * 24 * 60 * 60;
+        $start -= $start % 86400;
+
+        $statement = $this->clickhouse->statement($query)
+            ->bind('ip', $ip)
+            ->bind('start', $start);
+
+        if ($statement->execute()) {
+            return $statement->fetchAll();
+        } else {
+            file_logger('clickhouse')->error('Error load motions', $statement->error());
+
+            return false;
+        }
+    }
+
     public function getEventByFlatsAndIntercom(array $flatIds, int $intercomId, int $after, int $before): bool|array
     {
         $database = $this->clickhouse->database;
