@@ -12,6 +12,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property string $title Название подрядчика
  *
  * @property int $flat Сервисная квартира подрядчика
+ * @property int $flat_flag Флаги для квартиры
  *
  * @property string|null $code Код сервисной квартиры
  *
@@ -20,6 +21,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  */
 class Contractor extends Entity
 {
+    public const FLAG_INTERCOM_BLOCK = 1;
+    public const FLAG_INTERCOM_CAMERA = 2;
+
     /**
      * @use RepositoryTrait<ContractorRepository>
      */
@@ -31,6 +35,21 @@ class Contractor extends Entity
 
     public static ?string $columnUpdateAt = 'updated_at';
 
+    public function isFlatFlag(int $flag): bool
+    {
+        return ($this->flat_flag & $flag) == $flag;
+    }
+
+    public function isFlatFlagIntercomBlock(): bool
+    {
+        return $this->isFlatFlag(self::FLAG_INTERCOM_BLOCK);
+    }
+
+    public function isFlatFlagIntercomCamera(): bool
+    {
+        return $this->isFlatFlag(self::FLAG_INTERCOM_CAMERA);
+    }
+
     public static function getColumns(): array
     {
         return [
@@ -39,6 +58,8 @@ class Contractor extends Entity
             'title' => rule()->required()->string()->max(1000)->nonNullable(),
 
             'flat' => rule()->required()->int()->clamp(0, 10000)->nonNullable(),
+            'flat_flag' => rule()->int()->min()->nonNullable(),
+
             'code' => rule()->string(),
 
             'created_at' => rule()->string(),

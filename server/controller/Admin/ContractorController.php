@@ -74,7 +74,10 @@ readonly class ContractorController extends AdminRbtController
         $contractor = new Contractor();
 
         $contractor->title = $request->title;
+
         $contractor->flat = $request->flat;
+        $contractor->flat_flag = $request->flat_flag;
+
         $contractor->code = $request->code;
 
         $contractor->insert();
@@ -95,7 +98,10 @@ readonly class ContractorController extends AdminRbtController
         }
 
         $contractor->title = $request->title;
+
         $contractor->flat = $request->flat;
+        $contractor->flat_flag = $request->flat_flag;
+
         $contractor->code = $request->code;
 
         $contractor->update();
@@ -105,8 +111,8 @@ readonly class ContractorController extends AdminRbtController
 
     /**
      * Удалить подрядчика
-     * 
-     * @param int $id Идентификатор подрядчика 
+     *
+     * @param int $id Идентификатор подрядчика
      */
     #[Delete('/{id}')]
     public function delete(int $id): ResponseInterface

@@ -85,12 +85,8 @@ abstract class ContractorTask extends Task
         );
     }
 
-    protected function getOrCreateFlat(Contractor $contractor, int $address): ?HouseFlat
+    protected function getOrCreateFlat(Contractor $contractor, int $address): HouseFlat
     {
-        if (AddressHouse::findById($address) == null) {
-            return null;
-        }
-
         $flat = HouseFlat::fetch(criteria()->equal('address_house_id', $address)->equal('flat', $contractor->flat), setting: setting()->columns(['house_flat_id', 'flat']));
 
         if (!$flat instanceof HouseFlat) {

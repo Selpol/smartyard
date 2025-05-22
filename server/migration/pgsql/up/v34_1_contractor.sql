@@ -1,0 +1,2 @@
+ALTER TABLE contractor
+    ADD COLUMN flat_flag INTEGER DEFAULT 0;

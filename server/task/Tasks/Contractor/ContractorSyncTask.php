@@ -2,13 +2,18 @@
 
 namespace Selpol\Task\Tasks\Contractor;
 
+use Selpol\Controller\Api\houses\flat;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
+use Selpol\Entity\Model\Address\AddressHouse;
+use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Contractor;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Entity\Model\House\HouseSubscriber;
+use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
@@ -97,10 +102,47 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
      */
     private function address(Contractor $contractor, int $address, array $subscribers, array &$devices, array &$flats): void
     {
+        $house = AddressHouse::findById($address);
+
+        if ($house == null) {
+            return;
+        }
+
         $flat = $this->getOrCreateFlat($contractor, $address);
 
-        if ($flat == null) {
-            return;
+        if ($contractor->isFlatFlagIntercomBlock()) {
+            if ($flat->blocks()->hasMany(criteria()->equal('service', [BlockFeature::SERVICE_INTERCOM])) == 0) {
+                $block = new FlatBlock();
+
+                $block->flat_id = $flat->house_flat_id;
+
+                $block->service = BlockFeature::SERVICE_INTERCOM;
+                $block->status = BlockFeature::STATUS_ADMIN;
+
+                $block->cause = 'Заблокировано подрядчиком';
+
+                $block->insert();
+            }
+        }
+
+        if ($contractor->isFlatFlagIntercomCamera()) {
+            $cameras = array_reduce(
+                $flat->cameras()->fetchAll(setting: setting()->columns(['camera_id'])),
+                static function (array $carry, DeviceCamera $camera) {
+                    $carry[$camera->camera_id] = true;
+
+                    return $carry;
+                },
+                []
+            );
+
+            $entrances = $house->entrances;
+
+            foreach ($entrances as $entrance) {
+                if (!array_key_exists($entrance->camera_id, $cameras)) {
+                    $flat->cameras()->addRaw($entrance->camera_id);
+                }
+            }
         }
 
         $flats[$flat->house_flat_id] = intval($flat->flat);

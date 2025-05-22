@@ -27,7 +27,7 @@ RUN set -eux; \
         sockets \
         pgsql \
         redis \
-        mongodb \
+        mongodb-1.21.0 \
         yaml \
         zip \
         curl \
