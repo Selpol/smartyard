@@ -47,7 +47,7 @@ readonly class HouseFlatKeyController extends AdminRbtController
             return self::error('Не удалось найти квартиру', 404);
         }
 
-        task(new IntercomFlatKeyTask($flat->house_flat_id))->high()->dispatch();
+        task(new IntercomFlatKeyTask($flat->house_flat_id))->high()->async();
 
         return self::success();
     }

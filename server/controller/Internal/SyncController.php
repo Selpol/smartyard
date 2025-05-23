@@ -189,9 +189,9 @@ readonly class SyncController extends RouteController
                         $block->insert();
                     }
 
-                    task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->high()->dispatch();
-                    task(new IntercomCodeFlatTask($validate['id'], boolval($intercom)))->high()->dispatch();
-                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $intercom ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->dispatch();
+                    task(new IntercomCmsFlatTask($validate['id'], boolval($intercom)))->high()->async();
+                    task(new IntercomCodeFlatTask($validate['id'], boolval($intercom)))->high()->async();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $intercom ? ('Услуга умного домофона заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга умного домофона разблокирована', 'inbox'))->low()->async();
                 }
 
                 if ($cctv !== null) {
@@ -217,7 +217,7 @@ readonly class SyncController extends RouteController
                         $block->insert();
                     }
 
-                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $cctv ? ('Услуга видеонаблюдения заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга видеонаблюдение разблокирована', 'inbox'))->low()->dispatch();
+                    task(new InboxFlatTask($validate['id'], 'Обновление статуса квартиры', $cctv ? ('Услуга видеонаблюдения заблокирована' . ($block?->cause ? ('. ' . $block->cause) : '')) : 'Услуга видеонаблюдение разблокирована', 'inbox'))->low()->async();
                 }
 
                 $result[$validate['id']] = true;

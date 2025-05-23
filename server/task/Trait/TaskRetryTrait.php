@@ -20,7 +20,7 @@ trait TaskRetryTrait
         if ($this->retry > 0) {
             --$this->retry;
 
-            return task($this)->delay($delay)->queue($queue)->dispatch();
+            return task($this)->delay($delay)->queue($queue)->async();
         }
 
         return false;

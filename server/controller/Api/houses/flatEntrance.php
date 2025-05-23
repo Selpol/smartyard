@@ -18,7 +18,7 @@ readonly class flatEntrance extends Api
         foreach ($params['flats'] as $flat)
             $house->addEntranceToFlat($entrance, intval($flat['flatId']), intval($flat['apartment']));
 
-        task(new IntercomEntranceTask($entrance))->high()->dispatch();
+        task(new IntercomEntranceTask($entrance))->high()->async();
 
         return self::success($params['_id']);
     }

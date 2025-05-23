@@ -37,7 +37,7 @@ readonly class InternalTaskFeature extends TaskFeature
         $task = unserialize($dbTask->data);
 
         if ($task instanceof Task)
-            return task($task)->high()->dispatch();
+            return task($task)->high()->async();
 
         file_logger('frontend')->error('Unknown type', [$task, 'data' => $dbTask->data]);
 

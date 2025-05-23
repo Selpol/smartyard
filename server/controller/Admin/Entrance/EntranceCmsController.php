@@ -82,7 +82,7 @@ readonly class EntranceCmsController extends AdminRbtController
             }
         }
 
-        task(new IntercomSyncCmsTask($request->id))->high()->dispatch();
+        task(new IntercomSyncCmsTask($request->id))->high()->async();
 
         return self::success();
     }

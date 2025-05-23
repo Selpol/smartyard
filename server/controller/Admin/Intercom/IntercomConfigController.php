@@ -72,7 +72,7 @@ readonly class IntercomConfigController extends AdminRbtController
         $feature->clearCacheConfigForIntercom($request->id);
 
         if (str_starts_with($request->key, 'audio.volume')) {
-            task(new IntercomAudioFlatTask($request->id, intval(substr($request->key, 13))))->high()->dispatch();
+            task(new IntercomAudioFlatTask($request->id, intval(substr($request->key, 13))))->high()->async();
         }
 
         return self::success();

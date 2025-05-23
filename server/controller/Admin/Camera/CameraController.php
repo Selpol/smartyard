@@ -159,7 +159,7 @@ readonly class CameraController extends AdminRbtController
         }
 
         if ($camera->frs_server_id) {
-            task(new FrsAddStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->dispatch();
+            task(new FrsAddStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->async();
         }
 
         return self::success($camera->camera_id);
@@ -243,11 +243,11 @@ readonly class CameraController extends AdminRbtController
 
         if ($frsUpdate) {
             if ($frsUpdate) {
-                task(new FrsRemoveStreamTask($frsUpdate, (int) $camera->camera_id))->high()->dispatch();
+                task(new FrsRemoveStreamTask($frsUpdate, (int) $camera->camera_id))->high()->async();
             }
 
             if ($camera->frs_server_id) {
-                task(new FrsAddStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->dispatch();
+                task(new FrsAddStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->async();
             }
         }
 
@@ -275,7 +275,7 @@ readonly class CameraController extends AdminRbtController
         $camera->delete();
 
         if ($camera->frs_server_id) {
-            task(new FrsRemoveStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->dispatch();
+            task(new FrsRemoveStreamTask($camera->frs_server_id, (int) $camera->camera_id))->high()->async();
         }
 
         return self::success();

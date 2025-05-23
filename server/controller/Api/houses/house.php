@@ -91,7 +91,7 @@ readonly class house extends Api
         if (count($keys) < 25) {
             $task->sync();
         } else {
-            $task->high()->dispatch();
+            $task->high()->async();
         }
 
         return self::success();

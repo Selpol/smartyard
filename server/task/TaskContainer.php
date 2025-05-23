@@ -60,12 +60,24 @@ class TaskContainer
      */
     public function sync(): mixed
     {
+        $canAudit = container(AuditFeature::class)->canAudit();
+
+        if ($canAudit && $this->task->uid === null) {
+            $this->task->uid = container(AuthService::class)->getUserOrThrow()->getIdentifier();
+        }
+
         $this->task->sync = true;
 
-        return $this->task->onTask();
+        $result = $this->task->onTask();
+
+        if ($canAudit) {
+            container(AuditFeature::class)->audit('-1', $this->task::class, 'task', $this->task->title);
+        }
+
+        return $result;
     }
 
-    public function dispatch(): bool
+    public function async(): bool
     {
         $logger = file_logger('task');
 

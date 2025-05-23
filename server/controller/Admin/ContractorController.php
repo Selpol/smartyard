@@ -60,7 +60,7 @@ readonly class ContractorController extends AdminRbtController
             return self::error('Не удалось найти подрядчика', 404);
         }
 
-        task(new ContractorSyncTask($contactor->id, $request->remove_subscriber, $request->remove_key))->high()->dispatch();
+        task(new ContractorSyncTask($contactor->id, $request->remove_subscriber, $request->remove_key))->high()->async();
 
         return self::success();
     }

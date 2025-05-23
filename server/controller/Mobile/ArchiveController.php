@@ -59,7 +59,7 @@ readonly class ArchiveController extends MobileRbtController
 
         $result = (int) $archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
-        task(new RecordTask($userId, $result))->queue('record')->dispatch();
+        task(new RecordTask($userId, $result))->queue('record')->async();
 
         return user_response(200, $result);
     }

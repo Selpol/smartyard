@@ -20,7 +20,7 @@ readonly class DashboardDeviceController extends AdminRbtController
     #[Get('/sip')]
     public function sip(): ResponseInterface
     {
-        task(new IntercomSipTask())->high()->dispatch();
+        task(new IntercomSipTask())->high()->async();
 
         return self::success();
     }

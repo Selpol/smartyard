@@ -220,7 +220,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
     public function addCallDoneData(int $date, string $ip, ?int $call_id): void
     {
         try {
-            task(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id))->delay(15)->default()->dispatch();
+            task(new PlogCallTask($this->getDomophoneId($ip), $ip, $date, $call_id))->delay(15)->default()->async();
         } catch (Throwable $e) {
             file_logger('task')->error('Error addCallDoneData' . PHP_EOL . $e);
         }
@@ -232,7 +232,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
     public function addDoorOpenData(int $date, string $ip, int $event_type, int $door, string $detail): void
     {
         try {
-            task(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
+            task(new PlogOpenTask($this->getDomophoneId($ip), $event_type, $door, $date, $detail))->delay(15)->default()->async();
         } catch (Throwable $e) {
             file_logger('task')->error('Error addDoorOpenData' . PHP_EOL . $e);
         }
@@ -244,7 +244,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
     public function addDoorOpenDataById(int $date, int $domophone_id, int $event_type, int $door, string $detail): void
     {
         try {
-            task(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail))->delay(15)->default()->dispatch();
+            task(new PlogOpenTask($domophone_id, $event_type, $door, $date, $detail))->delay(15)->default()->async();
         } catch (Throwable $e) {
             file_logger('task')->error('Error addDoorOpenDataById' . PHP_EOL . $e);
         }

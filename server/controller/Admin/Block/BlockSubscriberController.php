@@ -118,7 +118,7 @@ readonly class BlockSubscriberController extends AdminRbtController
                     ? ('Услуга ' . $translate . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
                     : ('Услуга ' . $translate . ' разблокирована'),
                 'inbox'
-            ))->default()->dispatch();
+            ))->default()->async();
         }
     }
 }

@@ -34,8 +34,8 @@ readonly class entrance extends Api
         $entranceId = $households->createEntrance($params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], $params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
         if ($entranceId) {
-            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->dispatch();
-            task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
+            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->async();
+            task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->async();
         }
 
         return $entranceId ? self::success($entranceId) : self::error('Не удалось создать вход', 400);
@@ -50,14 +50,14 @@ readonly class entrance extends Api
         $success = $households->modifyEntrance((int)$params["_id"], (int)$params["houseId"], $params["entranceType"], $params["entrance"], $params["lat"], $params["lon"], $params["shared"], $params["plog"], (int)$params["prefix"], $params["callerId"], $params["domophoneId"], $params["domophoneOutput"], $params["cms"], $params["cmsType"], $params["cameraId"], $params["locksDisabled"], $params["cmsLevels"]);
 
         if ($success) {
-            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->dispatch();
+            task(new IntercomLockTask(intval($params['domophoneId']), $params['locksDisabled'] == 0, intval($params["domophoneOutput"]) ?? 0))->high()->async();
 
             if ($entrance->cms !== $params['cms']) {
-                task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->dispatch();
+                task(new IntercomSetCmsTask(intval($params['domophoneId']), $params['cms']))->high()->async();
             }
 
             if ($entrance->cms_levels !== $params['cmsLevels']) {
-                task(new IntercomLevelTask($entrance->house_domophone_id))->high()->dispatch();
+                task(new IntercomLevelTask($entrance->house_domophone_id))->high()->async();
             }
         }
 

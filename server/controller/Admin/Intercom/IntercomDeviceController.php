@@ -309,7 +309,7 @@ readonly class IntercomDeviceController extends AdminRbtController
             return self::error('Домофон не доступен', 400);
         }
 
-        task(new IntercomConfigureTask($id))->high()->dispatch();
+        task(new IntercomConfigureTask($id))->high()->async();
 
         if ($feature->canAudit()) {
             $feature->audit(strval($id), DeviceIntercom::class, 'sync', 'Синхронизация домофона');

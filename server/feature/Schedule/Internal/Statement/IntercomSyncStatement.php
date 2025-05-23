@@ -22,9 +22,9 @@ class IntercomSyncStatement extends Statement
             /** @var IntercomDevice $intercom */
             $intercom = $context->getOrThrow($this->intercom);
 
-            task(new IntercomConfigureTask($intercom->intercom->house_domophone_id))->high()->dispatch();
+            task(new IntercomConfigureTask($intercom->intercom->house_domophone_id))->high()->async();
         } else {
-            task(new IntercomConfigureTask($this->intercom))->high()->dispatch();
+            task(new IntercomConfigureTask($this->intercom))->high()->async();
         }
     }
 

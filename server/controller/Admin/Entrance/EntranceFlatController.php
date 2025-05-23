@@ -29,7 +29,7 @@ readonly class EntranceFlatController extends AdminRbtController
             $feature->addEntranceToFlat($entrance->house_entrance_id, $flat['flatId'], $flat['apartment']);
         }
 
-        task(new IntercomEntranceTask($entrance->house_entrance_id))->high()->dispatch();
+        task(new IntercomEntranceTask($entrance->house_entrance_id))->high()->async();
 
         return self::success();
     }

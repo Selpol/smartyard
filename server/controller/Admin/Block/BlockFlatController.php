@@ -54,7 +54,7 @@ readonly class BlockFlatController extends AdminRbtController
 
         if ($flatBlock->safeInsert()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
-                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->async();
             }
 
             if ($request->notify) {
@@ -80,7 +80,7 @@ readonly class BlockFlatController extends AdminRbtController
 
         if ($flatBlock->safeUpdate()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
-                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->async();
             }
 
             if ($request->notify) {
@@ -107,7 +107,7 @@ readonly class BlockFlatController extends AdminRbtController
 
         if ($flatBlock->safeDelete()) {
             if ($flatBlock->service == BlockFeature::SERVICE_INTERCOM || $flatBlock->service == BlockFeature::SUB_SERVICE_CMS) {
-                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->dispatch();
+                task(new IntercomSyncFlatTask(-1, $flatBlock->flat_id, false))->high()->async();
             }
 
             if ($request->notify) {
@@ -132,7 +132,7 @@ readonly class BlockFlatController extends AdminRbtController
                     ? ('Услуга ' . $translate . ' заблокирована' . ($block->cause ? ('. ' . $block->cause) : ''))
                     : ('Услуга ' . $translate . ' разблокирована'),
                 'inbox'
-            ))->default()->dispatch();
+            ))->default()->async();
         }
     }
 }

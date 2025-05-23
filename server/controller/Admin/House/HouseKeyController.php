@@ -47,7 +47,7 @@ readonly class HouseKeyController extends AdminRbtController
                 return self::error('Не удалось загрузить ключи', 400);
             }
         } else {
-            $task->high()->dispatch();
+            $task->high()->async();
         }
 
         return self::success();
