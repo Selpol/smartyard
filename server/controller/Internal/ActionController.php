@@ -77,7 +77,7 @@ readonly class ActionController extends RouteController
                 return user_response();
 
             case PlogFeature::EVENT_OPENED_BY_BUTTON:
-                [0 => ["camera_id" => $streamId, "frs_server_id" => $frsServerId]] = $databaseService->get(
+                $result = $databaseService->get(
                     'SELECT frs_server_id, camera_id FROM cameras 
                         WHERE camera_id = (
                         SELECT camera_id FROM houses_domophones 
@@ -86,13 +86,18 @@ readonly class ActionController extends RouteController
                     ["ip" => $request->ip, "door" => $request->door]
                 );
 
-                if (isset($frsServerId) && $frsServerId) {
-                    $frsServer = FrsServer::findById($frsServerId, setting: setting()->columns(['url'])->nonNullable());
+                if (count($result) > 0) {
+                    $streamId = $result[0]['camera_id'];
+                    $frsServerId = $result[0]['frs_server_id'];
 
-                    $payload = ["streamId" => strval($streamId)];
-                    $apiResponse = $frsService->request('POST', $frsServer->url . "/api/doorIsOpen", $payload);
+                    if (isset($frsServerId) && $frsServerId) {
+                        $frsServer = FrsServer::findById($frsServerId, setting: setting()->columns(['url'])->nonNullable());
 
-                    return user_response(201, $apiResponse);
+                        $payload = ["streamId" => strval($streamId)];
+                        $apiResponse = $frsService->request('POST', $frsServer->url . "/api/doorIsOpen", $payload);
+
+                        return user_response(201, $apiResponse);
+                    }
                 }
 
                 return response(204);

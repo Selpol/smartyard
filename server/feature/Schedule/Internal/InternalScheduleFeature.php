@@ -6,6 +6,7 @@ use Selpol\Entity\Model\Schedule;
 use Selpol\Feature\Schedule\Internal\Statement\TopStatement;
 use Selpol\Feature\Schedule\ScheduleFeature;
 use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
 readonly class InternalScheduleFeature extends ScheduleFeature
@@ -28,7 +29,7 @@ readonly class InternalScheduleFeature extends ScheduleFeature
         TopStatement::check($script);
     }
 
-    public function execute(Schedule $schedule, ScheduleTime $time): void
+    public function execute(Schedule $schedule, ScheduleTimeInterface $time): void
     {
         $context = new Context($time);
 

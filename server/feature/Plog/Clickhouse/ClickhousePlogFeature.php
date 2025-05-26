@@ -15,7 +15,7 @@ use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Selpol\Framework\Entity\Database\EntityStatementInterface;
 use Selpol\Service\ClickhouseService;
 use Selpol\Task\Tasks\Plog\PlogCallTask;
@@ -39,7 +39,7 @@ readonly class ClickhousePlogFeature extends PlogFeature
         $this->back_time_shift_video_shot = $plog['back_time_shift_video_shot'];
     }
 
-    public function cron(ScheduleTime $value): bool
+    public function cron(ScheduleTimeInterface $value): bool
     {
         if (!$value->daily()) {
             return true;

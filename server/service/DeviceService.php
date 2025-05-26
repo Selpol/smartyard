@@ -19,7 +19,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigResolver;
-use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Http\Uri;
@@ -44,7 +44,7 @@ class DeviceService implements CronInterface
     {
     }
 
-    public function cron(ScheduleTime $value): bool
+    public function cron(ScheduleTimeInterface $value): bool
     {
         if ($value->daily()) {
             $this->info();

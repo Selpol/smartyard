@@ -9,7 +9,7 @@ use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\File\FileInfo;
 use Selpol\Feature\File\FileMetadata;
 use Selpol\Feature\File\FileStorage;
-use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Selpol\Service\MongoService;
 
 readonly class MongoFileFeature extends FileFeature
@@ -25,7 +25,7 @@ readonly class MongoFileFeature extends FileFeature
         $this->database = config_get('feature.file.database', self::DEFAULT_DATABASE);
     }
 
-    public function cron(ScheduleTime $value): bool
+    public function cron(ScheduleTimeInterface $value): bool
     {
         if ($value->daily()) {
             $cursor = $this->service->getDatabase($this->getDatabaseName(FileStorage::Archive))->{"fs.files"}->find(['metadata.expire' => ['$lt' => time()]]);

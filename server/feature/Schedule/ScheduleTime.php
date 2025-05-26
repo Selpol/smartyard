@@ -4,7 +4,7 @@ namespace Selpol\Feature\Schedule;
 
 use Selpol\Framework\Kernel\Exception\KernelException;
 
-final readonly class ScheduleTime
+final readonly class ScheduleTime implements ScheduleTimeInterface
 {
     /**
      * Значение от 0 до 59
@@ -166,10 +166,8 @@ final readonly class ScheduleTime
         }
     }
 
-    public static function fromGlobal(): ScheduleTime
+    public static function fromUnix(int $time): ScheduleTime
     {
-        $time = time();
-
         return new ScheduleTime(
             intval(date('i', $time)),
             intval(date('H', $time)),
@@ -177,5 +175,10 @@ final readonly class ScheduleTime
             intval(date('m', $time)),
             intval(date('w', $time))
         );
+    }
+
+    public static function fromGlobal(): ScheduleTime
+    {
+        return self::fromUnix(time());
     }
 }

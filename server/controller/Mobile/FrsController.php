@@ -57,7 +57,7 @@ readonly class FrsController extends MobileRbtController
         try {
             $user = $this->getUser()->getOriginalValue();
 
-            $validate = validator(['eventId' => $eventId], ['eventId' => rule()->required()->uuid()->nonNullable()]);
+            $validate = validator(['eventId' => $eventId], ['eventId' => rule()->required()->uuid4()->nonNullable()]);
 
             $eventData = container(PlogFeature::class)->getEventDetails($validate['eventId']);
 
@@ -97,18 +97,14 @@ readonly class FrsController extends MobileRbtController
                         return user_response(400, message: $result[FrsFeature::P_MESSAGE]);
                     }
 
-                    file_logger('error')->error('', [$result]);
-
                     $face_id = (int) $result[FrsFeature::P_FACE_ID];
                     $subscriber_id = (int) $user['subscriberId'];
 
                     $result = $frsFeature->attachFaceId($face_id, $flat_id, $subscriber_id);
 
-                    if ($result == true) {
+                    if ($result) {
                         return user_response();
                     }
-
-                    file_logger('error')->error($result);
 
                     return user_response(400, message: 'Не удалось добавить лицо');
                 }

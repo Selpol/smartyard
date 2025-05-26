@@ -13,7 +13,7 @@ use Selpol\Feature\File\FileStorage;
 use Selpol\Feature\Frs\FrsFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
-use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Throwable;
 
 readonly class InternalFrsFeature extends FrsFeature
@@ -102,8 +102,6 @@ readonly class InternalFrsFeature extends FrsFeature
         $api_url = $base_url . "api/" . $method;
         $curl = curl_init();
 
-        $this->logger->debug('ApiCall Request', [$params]);
-
         $data = json_encode($params);
         $options = [
             CURLOPT_URL => $api_url,
@@ -120,15 +118,13 @@ readonly class InternalFrsFeature extends FrsFeature
 
         curl_close($curl);
 
-        $this->logger->debug('ApiCall Response', ['code' => $response_code, 'data' => $response]);
-
         try {
             if ($response_code > self::R_CODE_OK && !$response)
                 return ["code" => $response_code];
             else
                 return json_decode($response, true) ?: false;
         } catch (Throwable $throwable) {
-            file_logger('fsr')->error($throwable);
+            $this->logger->error($throwable);
 
             return false;
         }
@@ -211,7 +207,7 @@ readonly class InternalFrsFeature extends FrsFeature
         return $this->apiCall($this->getFrsServerByCamera($cam)->url, self::M_MOTION_DETECTION, $method_params);
     }
 
-    public function cron(ScheduleTime $value): bool
+    public function cron(ScheduleTimeInterface $value): bool
     {
         if ($value->at('*/5')) {
             $this->syncData();

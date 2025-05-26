@@ -12,5 +12,5 @@ readonly abstract class ScheduleFeature extends Feature
 {
     public abstract function check(Schedule $schedule): void;
 
-    public abstract function execute(Schedule $schedule, ScheduleTime $time): void;
+    public abstract function execute(Schedule $schedule, ScheduleTimeInterface $time): void;
 }

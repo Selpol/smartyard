@@ -19,7 +19,7 @@ readonly class FrsDeleteRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'eventId' => rule()->uuid(),
+            'eventId' => rule()->uuid4(),
 
             'flat_id' => rule()->int()->clamp(0),
             'face_id' => rule()->int()->clamp(0),
