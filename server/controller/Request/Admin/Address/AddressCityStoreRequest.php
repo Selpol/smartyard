@@ -24,7 +24,7 @@ readonly class AddressCityStoreRequest extends RouteRequest
             'address_region_id' => rule()->int()->clamp(0),
             'address_area_id' => rule()->int()->clamp(0),
 
-            'city_uuid' => rule()->uuid(),
+            'city_uuid' => rule()->uuid4(),
             'city_with_type' => rule()->required()->string()->nonNullable(),
             'city_type' => rule()->string(),
             'city_type_full' => rule()->string(),

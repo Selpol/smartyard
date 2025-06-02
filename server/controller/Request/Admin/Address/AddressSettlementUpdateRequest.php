@@ -28,7 +28,7 @@ readonly class AddressSettlementUpdateRequest extends RouteRequest
             'address_area_id' => rule()->int()->clamp(0),
             'address_city_id' => rule()->int()->clamp(0),
 
-            'settlement_uuid' => rule()->uuid(),
+            'settlement_uuid' => rule()->uuid4(),
             'settlement_with_type' => rule()->required()->string()->nonNullable(),
             'settlement_type' => rule()->string(),
             'settlement_type_full' => rule()->string(),

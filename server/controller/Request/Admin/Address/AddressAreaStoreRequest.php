@@ -22,7 +22,7 @@ readonly class AddressAreaStoreRequest extends RouteRequest
         return [
             'address_region_id' => rule()->id(),
 
-            'area_uuid' => rule()->uuid(),
+            'area_uuid' => rule()->uuid4(),
             'area_with_type' => rule()->required()->string()->nonNullable(),
             'area_type' => rule()->string(),
             'area_type_full' => rule()->string(),

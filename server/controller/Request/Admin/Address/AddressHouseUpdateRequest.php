@@ -28,7 +28,7 @@ readonly class AddressHouseUpdateRequest extends RouteRequest
             'address_settlement_id' => rule()->int()->clamp(0),
             'address_street_id' => rule()->int()->clamp(0),
 
-            'house_uuid' => rule()->uuid(),
+            'house_uuid' => rule()->uuid4(),
             'house_type' => rule()->required()->string()->nonNullable(),
             'house_type_full' => rule()->string(),
             'house_full' => rule()->required()->string()->nonNullable(),

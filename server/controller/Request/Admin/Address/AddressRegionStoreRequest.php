@@ -19,7 +19,7 @@ readonly class AddressRegionStoreRequest extends RouteRequest
     public static function getValidate(): array
     {
         return [
-            'region_uuid' => rule()->uuid(),
+            'region_uuid' => rule()->uuid4(),
             'region_iso_code' => rule()->string(),
             'region_with_type' => rule()->required()->string()->nonNullable(),
             'region_type' => rule()->string(),

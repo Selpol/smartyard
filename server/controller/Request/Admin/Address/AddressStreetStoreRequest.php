@@ -24,7 +24,7 @@ readonly class AddressStreetStoreRequest extends RouteRequest
             'address_city_id' => rule()->int()->clamp(0),
             'address_settlement_id' => rule()->int()->clamp(0),
 
-            'street_uuid' => rule()->uuid(),
+            'street_uuid' => rule()->uuid4(),
             'street_with_type' => rule()->required()->string()->nonNullable(),
             'street_type' => rule()->string(),
             'street_type_full' => rule()->string(),
