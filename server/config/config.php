@@ -26,8 +26,6 @@ return [
     ],
 
     'mqtt' => [
-        'trust' => explode(',', env('MQTT_TRUST', '0.0.0.0/0')),
-
         'host' => env('MQTT_HOST', '127.0.0.1'),
         'port' => env('MQTT_PORT', '1883'),
 

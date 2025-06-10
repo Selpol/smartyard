@@ -11,8 +11,9 @@ readonly class InternalMqttFeature extends MqttFeature
 {
     public function checkUser(string $username, #[SensitiveParameter] string $password, string $clientId): bool
     {
-        if ($username === config_get('mqtt.username'))
+        if ($username === config_get('mqtt.username')) {
             return $password === config_get('mqtt.password');
+        }
 
         $success = $password === container(RedisService::class)->get('user:' . $clientId . ':ws');
 
