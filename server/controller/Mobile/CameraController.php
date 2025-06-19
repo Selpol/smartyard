@@ -110,16 +110,21 @@ readonly class CameraController extends MobileRbtController
         $identifier = $dvr->identifier($camera, $time, $this->getUser()->getIdentifier());
 
         $screenshot = $service->useCacheEx(1, 'camera:' . $id . ':preview', 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
-           $value = $dvr->screenshot($identifier, $camera, $time);
+            $value = $dvr->screenshot($identifier, $camera, $time);
 
-           if ($value) {
-               return $value->getContents();
-           }
+            if ($value) {
+                return $value->getContents();
+            }
 
-           throw new KernelException(message: 'Не удалось получить скриншот', code: 404);
+            throw new KernelException(message: 'Не удалось получить скриншот', code: 404);
         });
 
-        return response(headers: ['Content-Type' => ['image/jpeg']])->withBody(stream($screenshot));
+        return response(
+            headers: [
+                'Content-Type' => ['image/jpeg'],
+                'Expires' => [gmdate('D, d M Y H:i:s \G\M\T', time() + 86400)]
+            ]
+        )->withBody(stream($screenshot));
     }
 
     /**
