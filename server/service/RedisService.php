@@ -87,6 +87,21 @@ class RedisService implements LoggerAwareInterface
         return false;
     }
 
+    public function useCacheEx(int $index, string $key, int $time, callable $callback): mixed
+    {
+        return $this->use($index, function (RedisService $service) use ($key, $time, $callback) {
+            $value = $service->get($key);
+
+            if (!$value) {
+                $value = $callback();
+
+                $service->setEx($key, $time, $value);
+            }
+
+            return $value;
+        });
+    }
+
     public function keys(string $pattern): array
     {
         try {

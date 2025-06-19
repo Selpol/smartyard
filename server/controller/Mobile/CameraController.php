@@ -20,6 +20,7 @@ use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Plog\PlogFeature;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
@@ -29,6 +30,7 @@ use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
 use Selpol\Service\DatabaseService;
+use Selpol\Service\RedisService;
 use Throwable;
 
 #[Controller('/mobile/cctv')]
@@ -85,6 +87,39 @@ readonly class CameraController extends MobileRbtController
         }
 
         return user_response(data: $response);
+    }
+
+    #[Get('/preview/{id}')]
+    public function preview(int $id, RedisService $service): ResponseInterface
+    {
+        $camera = DeviceCamera::findById($id);
+
+        if (!$camera instanceof DeviceCamera) {
+            return user_response(404, message: 'Камера не найдена');
+        }
+
+        $dvr = dvr($camera->dvr_server_id);
+
+        if (!$dvr instanceof DvrDevice) {
+            return user_response(404, message: 'Получить скриншот не возможно');
+        }
+
+        $time = time();
+        $time = $time - $time % 86400 + 43200;
+
+        $identifier = $dvr->identifier($camera, $time, $this->getUser()->getIdentifier());
+
+        $screenshot = $service->useCacheEx(1, 'camera:' . $id . ':preview', 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
+           $value = $dvr->screenshot($identifier, $camera, $time);
+
+           if ($value) {
+               return $value->getContents();
+           }
+
+           throw new KernelException(message: 'Не удалось получить скриншот', code: 404);
+        });
+
+        return response(headers: ['Content-Type' => ['image/jpeg']])->withBody(stream($screenshot));
     }
 
     /**
