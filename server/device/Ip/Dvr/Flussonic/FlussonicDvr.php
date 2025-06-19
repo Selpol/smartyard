@@ -103,6 +103,21 @@ class FlussonicDvr extends DvrDevice
 
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
+        if ($time) {
+            $filename = "/tmp/" . uniqid('preview_') . ".jpeg";
+            $url = $this->getUrl($camera) . '/' . $time . '-preview.mp4';
+
+            shell_exec('ffmpeg -y -i ' . $url . ' -vframes 1 ' . $filename . ' 1>/dev/null 2>/dev/null');
+
+            if (file_exists($filename)) {
+                $contents = stream(fopen($filename, 'rb'))->getContents();
+
+                unlink($filename);
+
+                return stream($contents);
+            }
+        }
+
         $device = container(DeviceService::class)->cameraByEntity($camera);
 
         if (!$device) {
