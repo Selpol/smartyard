@@ -9,6 +9,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\PlogDaysRequest;
 use Selpol\Controller\Request\Mobile\PlogIndexRequest;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\File\FileStorage;
@@ -72,6 +73,7 @@ readonly class PlogController extends MobileRbtController
                 foreach ($result as $row) {
                     $e_details = [];
                     $e_details['date'] = date('Y-m-d H:i:s', $row[PlogFeature::COLUMN_DATE]);
+                    $e_details['timestamp'] = $row[PlogFeature::COLUMN_DATE];
                     $e_details['uuid'] = $row[PlogFeature::COLUMN_EVENT_UUID];
                     $e_details['image'] = $row[PlogFeature::COLUMN_IMAGE_UUID];
                     $e_details['previewType'] = $row[PlogFeature::COLUMN_PREVIEW];
@@ -83,9 +85,21 @@ readonly class PlogController extends MobileRbtController
                         $e_details['objectType'] = "0";
                         $e_details['objectMechanizma'] = strval($domophone->domophone_output);
                         $e_details['mechanizmaDescription'] = isset($domophone->domophone_description) ? $domophone->domophone_description : '';
+
+                        if ($row[PlogFeature::COLUMN_DATE] > time() - 7 * 86400) {
+                            $intercom = DeviceIntercom::findById($domophone->domophone_id);
+
+                            if ($intercom) {
+                                $entrances = $intercom->entrances()->fetchAll(criteria()->equal('domophone_output', $domophone->domophone_output));
+
+                                if (count($entrances) > 0) {
+                                    $e_details['cameraId'] = $entrances[0]->camera_id;
+                                }
+                            }
+                        }
                     }
 
-                    $event_type = (int) $row[PlogFeature::COLUMN_EVENT];
+                    $event_type = (int)$row[PlogFeature::COLUMN_EVENT];
                     $e_details['event'] = strval($event_type);
                     $face = json_decode($row[PlogFeature::COLUMN_FACE], false);
 
@@ -98,7 +112,7 @@ readonly class PlogController extends MobileRbtController
                             $face_id = $face->faceId;
                         }
 
-                        $subscriber_id = (int) $user['subscriberId'];
+                        $subscriber_id = (int)$user['subscriberId'];
 
                         if ($frsFeature->isLikedFlag($request->flatId, $subscriber_id, $face_id, $row[PlogFeature::COLUMN_EVENT_UUID], $flat_owner)) {
                             $e_details['detailX']['flags'] = [FrsFeature::FLAG_LIKED, FrsFeature::FLAG_CAN_DISLIKE];
@@ -150,7 +164,7 @@ readonly class PlogController extends MobileRbtController
                             break;
                     }
 
-                    if ((int) $row[PlogFeature::COLUMN_PREVIEW] !== 0) {
+                    if ((int)$row[PlogFeature::COLUMN_PREVIEW] !== 0) {
                         $img_uuid = $row[PlogFeature::COLUMN_IMAGE_UUID];
                         $url = config_get('api.mobile') . ('/address/plogCamshot/' . $img_uuid);
                         $e_details['preview'] = $url;
@@ -171,7 +185,7 @@ readonly class PlogController extends MobileRbtController
     }
 
     #[Get('/plogCamshot/{uuid}')]
-    public function camshot(string $uuid, DatabaseService $service, FileFeature $feature): Response
+    public function camshot(string $uuid, FileFeature $feature): Response
     {
         try {
             $file = $feature->getFile($feature->fromGUIDv4($uuid), FileStorage::Screenshot);
@@ -179,7 +193,7 @@ readonly class PlogController extends MobileRbtController
             return response()
                 ->withHeader('Content-Type', 'image/jpeg')
                 ->withBody($file->stream);
-        } catch (Throwable $throwable) {
+        } catch (Throwable) {
             return user_response(404, message: 'Скриншота устарел');
         }
     }
@@ -220,9 +234,7 @@ readonly class PlogController extends MobileRbtController
             $t = [];
 
             foreach ($filter_events as $e)
-                $t[(int) $e] = 1;
-
-            $filter_events = [];
+                $t[(int)$e] = 1;
 
             $filter_events = array_keys($t);
 

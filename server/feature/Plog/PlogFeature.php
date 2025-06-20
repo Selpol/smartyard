@@ -122,6 +122,15 @@ readonly abstract class PlogFeature extends Feature implements CronInterface
     abstract public function getCamshot(int $domophone_id, int $door_id, string|bool|null $date, int|bool|null $event_id = false): array;
 
     /**
+     * По возможности получить видеоотрезок
+     * @param int $domophone_id
+     * @param int $door_id
+     * @param int $date
+     * @return string|null
+     */
+    abstract public function getSegment(int $domophone_id, int $door_id, int $date): ?string;
+
+    /**
      * Добавить данные открытия двери для последующего формирования события
      * @param int $date timestamp события
      * @param string $ip адрес устройства

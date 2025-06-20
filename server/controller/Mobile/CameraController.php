@@ -103,15 +103,23 @@ readonly class CameraController extends MobileRbtController
         }
 
         $time = time();
-        $time = $time - $time % 86400 + 43200;
+        $time = $time - 120;
 
         $identifier = $dvr->identifier($camera, $time, $this->getUser()->getIdentifier());
 
-        $screenshot = $service->useCacheEx(1, 'camera:' . $id . ':preview', 7 * 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
-            $value = $dvr->screenshot($identifier, $camera, $time);
+        $screenshot = $service->useCacheEx(1, 'camera:' . $id . ':screenshot', 7 * 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
+            try {
+                $value = $dvr->screenshot($identifier, $camera, $time);
 
-            if ($value) {
-                return $value->getContents();
+                if ($value) {
+                    $contents = $value->getContents();
+
+                    if (strlen($contents) > 0) {
+                        return $contents;
+                    }
+                }
+            } catch (Throwable $throwable) {
+                file_logger('camera')->error($throwable, [$id]);
             }
 
             throw new KernelException(message: 'Не удалось получить скриншот', code: 404);

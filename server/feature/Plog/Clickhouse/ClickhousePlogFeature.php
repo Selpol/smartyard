@@ -153,6 +153,33 @@ readonly class ClickhousePlogFeature extends PlogFeature
         return $camshot_data;
     }
 
+    public function getSegment(int $domophone_id, int $door_id, int $date): ?string
+    {
+        if ($date < time() - 7 * 86400) {
+            return null;
+        }
+
+        $intercom = DeviceIntercom::findById($domophone_id);
+
+        if (!$intercom) {
+            return null;
+        }
+
+        $entrances = $intercom->entrances()->fetchAll(criteria()->equal('domophone_output', $door_id));
+
+        if (count($entrances) == 0) {
+            return null;
+        }
+
+        $entrance = $entrances[0];
+
+        $dvr = dvr($entrance->camera->dvr_server_id);
+
+        $video = $dvr->segment($dvr->identifier($entrance->camera, $date, null), $entrance->camera, $date - 2, $date + 2);
+
+        return $video?->value->src;
+    }
+
     /**
      * @inheritDoc
      * @throws NotFoundExceptionInterface

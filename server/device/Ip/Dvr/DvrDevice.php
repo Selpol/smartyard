@@ -96,6 +96,11 @@ abstract class DvrDevice extends IpDevice
         return null;
     }
 
+    public function segment(DvrIdentifier $identifier, DeviceCamera $camera, int $start, int $end): ?DvrOutput
+    {
+        return null;
+    }
+
     public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
     {
         return null;

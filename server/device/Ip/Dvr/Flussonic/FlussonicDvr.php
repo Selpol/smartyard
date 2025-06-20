@@ -104,10 +104,22 @@ class FlussonicDvr extends DvrDevice
     public function screenshot(DvrIdentifier $identifier, DeviceCamera $camera, ?int $time): ?StreamInterface
     {
         if ($time) {
+            $timeline = $this->timeline($identifier, $camera, ['short' => true]);
+
+            if ($timeline === null || $timeline === []) {
+                return null;
+            }
+
+            $from = $timeline[0][0];
+            $to = $timeline[0][1];
+            $time = max(min($to, $time), $from);
+
             $filename = "/tmp/" . uniqid('preview_') . ".jpeg";
             $url = $this->getUrl($camera) . '/' . $time . '-preview.mp4';
 
-            shell_exec('ffmpeg -y -i ' . $url . ' -vframes 1 ' . $filename . ' 1>/dev/null 2>/dev/null');
+            shell_exec('ffmpeg -y -i ' . $url . ' -vframes 1 ' . $filename);
+
+            file_logger('dvr')->debug('url', [$url]);
 
             if (file_exists($filename)) {
                 $contents = stream(fopen($filename, 'rb'))->getContents();
@@ -182,6 +194,27 @@ class FlussonicDvr extends DvrDevice
         }
 
         return null;
+    }
+
+    public function segment(DvrIdentifier $identifier, DeviceCamera $camera, int $start, int $end): ?DvrOutput
+    {
+        $timeline = $this->timeline($identifier, $camera, ['short' => true]);
+
+        if ($timeline === null || $timeline === []) {
+            return null;
+        }
+
+        $from = $timeline[0][0];
+        $to = $timeline[0][1];
+
+        if ($from > $start || $to < $end) {
+            return null;
+        }
+
+        return new DvrOutput(
+            DvrContainer::HLS,
+            new DvrArchive($this->getUrl($camera) . '/archive-' . $from . '-' . ($to - $from) . '.m3u8?token=' . $this->getToken($camera, $identifier->start, $identifier->end) . '&event=true', $from, $to, $from, $camera->timezone, null)
+        );
     }
 
     public function timeline(DvrIdentifier $identifier, DeviceCamera $camera, array $arguments): ?array
