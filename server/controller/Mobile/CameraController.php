@@ -4,7 +4,6 @@ namespace Selpol\Controller\Mobile;
 
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
-use PDO;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
@@ -29,7 +28,6 @@ use Selpol\Middleware\Mobile\BlockMiddleware;
 use Selpol\Middleware\Mobile\AuthMiddleware;
 use Selpol\Middleware\Mobile\FlatMiddleware;
 use Selpol\Middleware\Mobile\SubscriberMiddleware;
-use Selpol\Service\DatabaseService;
 use Selpol\Service\RedisService;
 use Throwable;
 
@@ -190,61 +188,27 @@ readonly class CameraController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Get(
-        '/{cameraId}',
+        '/{id}',
         includes: [
             FlatMiddleware::class => ['house' => 'houseId'],
             BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM],
             BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
         ]
     )]
-    public function show(CameraShowRequest $request, int $cameraId, DatabaseService $databaseService, HouseFeature $houseFeature, DvrFeature $dvrFeature): ResponseInterface
+    public function show(CameraShowRequest $request, DvrFeature $dvrFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
-        $camera = DeviceCamera::findById($cameraId);
+        $camera = DeviceCamera::findById($request->id);
 
         if (!$camera instanceof DeviceCamera) {
-            return user_response(404, message: 'Камера не найдена');
-        }
-
-        $entrances = $houseFeature->getEntrances('houseId', $request->houseId);
-
-        $findEntrance = null;
-
-        foreach ($entrances as $entrance) {
-            if ($entrance['cameraId'] == $cameraId) {
-                $findEntrance = $entrance;
-
-                break;
-            }
-        }
-
-        if (!$findEntrance) {
-            return user_response(404, message: 'Камера не найдена');
-        }
-
-        $flats = [];
-
-        foreach ($user['flats'] as $flat) {
-            if ($flat['addressHouseId'] == $request->houseId) {
-                $flats[] = $flat['flatId'];
-            }
-        }
-
-        if ($flats === []) {
-            return user_response(404, message: 'Камера не найдена');
-        }
-
-        $statement = $databaseService->getConnection()->prepare('SELECT 1 FROM houses_entrances_flats WHERE house_flat_id IN (' . implode(', ', $flats) . ') AND house_entrance_id = :entrance_id');
-
-        if (!$statement || !$statement->execute(['entrance_id' => $findEntrance['entranceId']]) || $statement->rowCount() == 0 || $statement->fetch(PDO::FETCH_NUM)[0] != 1) {
             return user_response(404, message: 'Камера не найдена');
         }
 
         $dvr = $camera->getDvrServer();
 
         if (!$dvr instanceof DvrServer) {
-            return user_response(404, message: 'Камера не найдена');
+            return user_response(404, message: 'Камера пустая');
         }
 
         return user_response(data: $dvrFeature->convertCameraForSubscriber($dvr, $camera->toArrayMap([
