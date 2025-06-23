@@ -24,6 +24,7 @@ readonly class BlockController extends AdminRbtController
         BlockFeature::SUB_SERVICE_ARCHIVE,
         BlockFeature::SUB_SERVICE_FRS,
         BlockFeature::SUB_SERVICE_CMS,
+        BlockFeature::SUB_SERVICE_CODE,
 
         BlockFeature::SUB_SERVICE_APP,
         BlockFeature::SUB_SERVICE_INTERCOM,
@@ -39,6 +40,7 @@ readonly class BlockController extends AdminRbtController
         BlockFeature::SUB_SERVICE_ARCHIVE,
         BlockFeature::SUB_SERVICE_FRS,
         BlockFeature::SUB_SERVICE_INBOX,
+        BlockFeature::SUB_SERVICE_CODE,
 
         BlockFeature::SUB_SERVICE_APP,
     ];
@@ -61,6 +63,7 @@ readonly class BlockController extends AdminRbtController
                 BlockFeature::SUB_SERVICE_FRS => 'Распозвонания лиц',
                 BlockFeature::SUB_SERVICE_CMS => 'Трубка домофона',
                 BlockFeature::SUB_SERVICE_INBOX => 'Сообщения',
+                BlockFeature::SUB_SERVICE_CODE => 'Код',
 
                 BlockFeature::SUB_SERVICE_APP => 'Приложение',
                 BlockFeature::SUB_SERVICE_INTERCOM => 'Приложение: домофония',
@@ -89,6 +92,7 @@ readonly class BlockController extends AdminRbtController
             BlockFeature::SUB_SERVICE_ARCHIVE => 'архива',
             BlockFeature::SUB_SERVICE_FRS => 'распознования лиц',
             BlockFeature::SUB_SERVICE_CMS => 'звонков в квартиру',
+            BlockFeature::SUB_SERVICE_CODE => 'код доступа',
 
             default => null,
         };

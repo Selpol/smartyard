@@ -25,6 +25,8 @@ readonly abstract class BlockFeature extends Feature
     public const SUB_SERVICE_APP = 9;
     public const SUB_SERVICE_INTERCOM = 10;
 
+    public const SUB_SERVICE_CODE = 11;
+
     public const STATUS_ADMIN = 1;
     public const STATUS_BILLING = 2;
 

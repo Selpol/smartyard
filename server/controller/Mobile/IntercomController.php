@@ -225,7 +225,7 @@ readonly class IntercomController extends MobileRbtController
         '/resetCode',
         includes: [
             FlatMiddleware::class => ['flat' => 'flatId'],
-            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+            BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CODE]]
         ]
     )]
     public function resetCode(ServerRequestInterface $request, HouseFeature $houseFeature): Response
