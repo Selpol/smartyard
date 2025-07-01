@@ -50,8 +50,6 @@ readonly class FlatMiddleware extends RouteMiddleware
 
         $value = $route->toArray();
 
-        file_logger('middleware')->debug('value', $value);
-
         if ($this->flat && array_key_exists($this->flat, $value) && !is_null($value[$this->flat])) {
             $flatId = rule()->id()->onItem($this->flat, $value);
             if (!array_key_exists($flatId, $flats)) {

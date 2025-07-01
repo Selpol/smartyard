@@ -69,13 +69,24 @@ readonly class FrsController extends MobileRbtController
                 return user_response(404, message: 'Нет кадра события');
             }
 
-            $flat_ids = array_map(static fn(array $item) => $item['flatId'], $user['flats']);
+            $flats = array_reduce(
+                $user['flats'],
+                static function (array $previous, array $current): array {
+                    $previous[$current['flatId']] = $current;
 
-            $flat_id = (int) $eventData[PlogFeature::COLUMN_FLAT_ID];
-            $f = in_array($flat_id, $flat_ids);
+                    return $previous;
+                },
+                []
+            );
 
-            if (!$f) {
+            $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
+
+            if (!array_key_exists($flat_id, $flats)) {
                 return user_response(404, message: 'Квартира не найдена');
+            }
+
+            if ($flats[$flat_id]['role'] != 0) {
+                return user_response(403, message: 'Не достаточно прав на данного действия');
             }
 
             if (($block = $blockFeature->getFirstBlockForFlat($flat_id, [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_FRS])) instanceof FlatBlock) {
@@ -97,8 +108,8 @@ readonly class FrsController extends MobileRbtController
                         return user_response(400, message: $result[FrsFeature::P_MESSAGE]);
                     }
 
-                    $face_id = (int) $result[FrsFeature::P_FACE_ID];
-                    $subscriber_id = (int) $user['subscriberId'];
+                    $face_id = (int)$result[FrsFeature::P_FACE_ID];
+                    $subscriber_id = (int)$user['subscriberId'];
 
                     $result = $frsFeature->attachFaceId($face_id, $flat_id, $subscriber_id);
 
@@ -134,12 +145,12 @@ readonly class FrsController extends MobileRbtController
                 return user_response(404, message: 'Событие не найдено');
             }
 
-            $flat_id = (int) $eventData[PlogFeature::COLUMN_FLAT_ID];
+            $flat_id = (int)$eventData[PlogFeature::COLUMN_FLAT_ID];
 
             $face = json_decode($eventData[PlogFeature::COLUMN_FACE]);
 
             if (isset($face->faceId) && $face->faceId > 0) {
-                $face_id = (int) $face->faceId;
+                $face_id = (int)$face->faceId;
             }
 
             $face_id2 = $frsFeature->getRegisteredFaceId($request->eventId);
@@ -181,7 +192,7 @@ readonly class FrsController extends MobileRbtController
                 $frsFeature->detachFaceIdFromFlat($face_id2, $flat_id);
             }
         } else {
-            $subscriber_id = (int) $user['subscriberId'];
+            $subscriber_id = (int)$user['subscriberId'];
 
             if ($face_id > 0) {
                 $frsFeature->detachFaceId($face_id, $subscriber_id);
