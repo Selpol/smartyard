@@ -9,7 +9,7 @@ enum ConfigKey: string
 
     case Debug = 'debug';
     case Log = 'log';
-    case Handler = 'handler';
+    case Handler = 'class';
 
     case Timeout = 'timeout';
     case Prepare = 'prepare';
