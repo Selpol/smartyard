@@ -11,12 +11,12 @@ class ConfigResolver
         $this->config = $config;
     }
 
-    public function string(string $key, ?string $default = null): ?string
+    public function string(ConfigKey|string $key, ?string $default = null): ?string
     {
         return $this->config->resolve($key, $default);
     }
 
-    public function float(string $key, ?float $default = null): ?float
+    public function float(ConfigKey|string $key, ?float $default = null): ?float
     {
         $value = $this->string($key);
 
@@ -27,7 +27,7 @@ class ConfigResolver
         return floatval($value);
     }
 
-    public function int(string $key, ?int $default = null): ?int
+    public function int(ConfigKey|string $key, ?int $default = null): ?int
     {
         $value = $this->string($key);
 
@@ -38,7 +38,7 @@ class ConfigResolver
         return intval($value);
     }
 
-    public function bool(string $key, ?bool $default = null): ?bool
+    public function bool(ConfigKey|string $key, ?bool $default = null): ?bool
     {
         $value = $this->string($key);
 

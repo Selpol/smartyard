@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
 
@@ -42,7 +43,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         $this->setProgress(50);
 
         if ($device instanceof CommonInterface) {
-            $unlockTime = $device->resolver->int('clean.unlock_time', 5);
+            $unlockTime = $device->resolver->int(ConfigKey::CleanUnlockTime, 5);
 
             $device->setRelay(new Relay($this->lock, $unlockTime), $this->type);
         }

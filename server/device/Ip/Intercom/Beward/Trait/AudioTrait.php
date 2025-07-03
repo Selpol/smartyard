@@ -3,13 +3,14 @@
 namespace Selpol\Device\Ip\Intercom\Beward\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioLevels;
+use Selpol\Feature\Config\ConfigKey;
 use Throwable;
 
 trait AudioTrait
 {
     public function getDefaultAudioLevels(): AudioLevels
     {
-        return new AudioLevels(array_map('intval', explode(',', $this->resolver->string('audio.volume', ''))));
+        return new AudioLevels(array_map('intval', explode(',', $this->resolver->string(ConfigKey::AudioVolume, ''))));
     }
 
     public function getAudioLevels(): AudioLevels

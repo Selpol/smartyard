@@ -73,8 +73,10 @@ class Config
         }
     }
 
-    public function set(string $key, string $value): Config
+    public function set(ConfigKey|string $key, string $value): Config
     {
+        $key = is_string($key) ? $key : $key->value;
+
         $this->values[$key] = $value;
 
         return $this;
@@ -88,8 +90,19 @@ class Config
         return $config;
     }
 
-    public function resolve(string $key, ?string $default = null): ?string
+    public function use(string $value, callable $callback): Config
     {
+        $config = $this->scope($value);
+
+        $callback($config);
+
+        return $this;
+    }
+
+    public function resolve(ConfigKey|string $key, ?string $default = null): ?string
+    {
+        $key = is_string($key) ? $key : $key->value;
+
         if (array_key_exists($key, $this->values)) {
             return $this->values[$key];
         }

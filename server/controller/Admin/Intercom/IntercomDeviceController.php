@@ -15,6 +15,8 @@ use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Config\ConfigFeature;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -62,8 +64,8 @@ readonly class IntercomDeviceController extends AdminRbtController
             'SoftwareVersion' => $info->softwareVersion,
         ];
 
-        $info['cms'] = explode(',', $device->resolver->string('cms.value', ''));
-        $info['output'] = $device->resolver->int('output', 1);
+        $info['cms'] = explode(',', $device->resolver->string(ConfigKey::CmsValue, ''));
+        $info['output'] = $device->resolver->int(ConfigKey::Output, 1);
 
         return self::success($info);
     }
@@ -196,7 +198,7 @@ readonly class IntercomDeviceController extends AdminRbtController
             $oldCameraPassword = $device->intercom->credentials;
 
             if ($deviceCamera->stream && trim($deviceCamera->stream) !== '') {
-                $deviceCamera->stream = (string) (new Uri($deviceCamera->stream))->withUserInfo($device->login, $password);
+                $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($device->login, $password);
             }
 
             $deviceCamera->credentials = $password;
@@ -293,7 +295,7 @@ readonly class IntercomDeviceController extends AdminRbtController
 
     /**
      * Синхронизация домофона
-     * 
+     *
      * @param int $id Идентификатор домофона
      */
     #[Post('/sync/{id}')]

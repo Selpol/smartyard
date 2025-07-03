@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip\Intercom\Beward\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipOption;
+use Selpol\Feature\Config\ConfigKey;
 
 trait SipTrait
 {
@@ -49,7 +50,7 @@ trait SipTrait
             'regport' => $sip->port,
             'sipserver' => $sip->server,
             'sipserverport' => $sip->port,
-            'streamtype' => $this->resolver->int('sip.stream', 0),
+            'streamtype' => $this->resolver->int(ConfigKey::SipStream, 0),
             'packettype' => 1,
             'dtfmmod' => 0,
             'passchanged' => 1,

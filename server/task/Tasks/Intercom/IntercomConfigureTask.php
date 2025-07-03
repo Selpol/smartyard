@@ -25,6 +25,7 @@ use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseKey;
 use Selpol\Feature\Block\BlockFeature;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
@@ -113,7 +114,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                     $this->commonGates($device, $entrance);
                 } else {
                     $device->setGates([]);
-                    $device->setGatesMode($device->resolver->int('wicket.mode', 1));
+                    $device->setGatesMode($device->resolver->int(ConfigKey::WicketMode, 1));
                 }
             }
         }
@@ -166,9 +167,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newVideoEncoding = clone $videoEncoding;
 
-        $newVideoEncoding->quality = $device->resolver->string('video.quality');
-        $newVideoEncoding->primaryBitrate = $device->resolver->int('video.primary_bitrate', 1024);
-        $newVideoEncoding->secondaryBitrate = $device->resolver->int('video.secondary_bitrate', 512);
+        $newVideoEncoding->quality = $device->resolver->string(ConfigKey::VideoQuality);
+        $newVideoEncoding->primaryBitrate = $device->resolver->int(ConfigKey::VideoPrimaryBitrate, 1024);
+        $newVideoEncoding->secondaryBitrate = $device->resolver->int(ConfigKey::VideoSecondaryBitrate, 512);
 
         if (!$newVideoEncoding->equal($videoEncoding)) {
             $device->setVideoEncoding($newVideoEncoding);
@@ -187,7 +188,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         if ($entrance instanceof HouseEntrance) {
             $newVideoOverlay = clone $videoOverlay;
-            $newVideoOverlay->title = $device::template($device->resolver->string('display.title', $entrance->caller_id), ['entrance' => $entrance->caller_id]);
+            $newVideoOverlay->title = $device::template($device->resolver->string(ConfigKey::DisplayTitle, $entrance->caller_id), ['entrance' => $entrance->caller_id]);
 
             if (!$newVideoOverlay->equal($videoOverlay)) {
                 $device->setVideoOverlay($newVideoOverlay);
@@ -214,9 +215,9 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $sipOption = $device->getSipOption();
 
         $newSipOption = clone $sipOption;
-        $newSipOption->callTimeout = $device->resolver->int('clean.call_timeout', 30);
-        $newSipOption->talkTimeout = $device->resolver->int('clean.talk_timeout', 60);
-        $newSipOption->dtmf = [$device->resolver->string('sip.dtmf', '1'), '2'];
+        $newSipOption->callTimeout = $device->resolver->int(ConfigKey::CleanCallTimeout, 30);
+        $newSipOption->talkTimeout = $device->resolver->int(ConfigKey::CleanTalkTimeout, 60);
+        $newSipOption->dtmf = [$device->resolver->string(ConfigKey::SipDtmf, '1'), '2'];
         $newSipOption->echo = false;
 
         if (!$newSipOption->equal($sipOption)) {
@@ -226,7 +227,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance): void
     {
-        $ntpServer = $device->resolver->string('clean.ntp');
+        $ntpServer = $device->resolver->string(ConfigKey::CleanNtp);
 
         if ($ntpServer != null) {
             $ntpServer = uri($ntpServer);
@@ -262,8 +263,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $room = $device->getRoom();
 
         $newRoom = clone $room;
-        $newRoom->concierge = $device->resolver->string('clean.concierge', '9999');
-        $newRoom->sos = $device->resolver->string('clean.sos', 'SOS');
+        $newRoom->concierge = $device->resolver->string(ConfigKey::CleanConcierge, '9999');
+        $newRoom->sos = $device->resolver->string(ConfigKey::CleanSos, 'SOS');
 
         if (!$newRoom->equal($room)) {
             $device->setRoom($newRoom);
@@ -274,7 +275,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
             $newRelay = clone $relay;
             $newRelay->lock = !$entrance->locks_disabled;
-            $newRelay->openDuration = $device->resolver->int('clean.unlock_time', 5);
+            $newRelay->openDuration = $device->resolver->int(ConfigKey::CleanUnlockTime, 5);
 
             if (!$newRelay->equal($relay)) {
                 $device->setRelay($newRelay, $entrance->domophone_output ?? 0);
@@ -344,7 +345,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             } else {
                 $numbers = [sprintf('1%09d', $flat->house_flat_id)];
 
-                $additional = explode(',', $device->resolver->string('sip.number.' . $flat->flat, ''));
+                $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with($flat->flat), ''));
 
                 foreach ($additional as $number) {
                     $numbers[] = $number;
@@ -355,8 +356,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
                 intval($flat->flat),
                 $entrance->shared == 0 && !$blockCms && $flat->cms_enabled == 1,
                 $entrance->shared == 0 && !$blockCall,
-                array_key_exists(0, $levels) ? $levels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel()),
-                array_key_exists(1, $levels) ? $levels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel()),
+                array_key_exists(0, $levels) ? $levels[0] : $device->resolver->int(ConfigKey::ApartmentAnswer, $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $levels) ? $levels[1] : $device->resolver->int(ConfigKey::ApartmnetQuiescent, $device->getDefaultQuiescentLevel()),
                 $numbers
             );
 
@@ -493,8 +494,8 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
         $newLevels = clone $levels;
 
-        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel());
-        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel());
+        $newLevels->value[0] = array_key_exists(0, $entranceLevels) ? $entranceLevels[0] : $device->resolver->int(ConfigKey::ApartmentAnswer, $device->getDefaultAnswerLevel());
+        $newLevels->value[1] = array_key_exists(1, $entranceLevels) ? $entranceLevels[1] : $device->resolver->int(ConfigKey::ApartmnetQuiescent, $device->getDefaultQuiescentLevel());
 
         if (!$newLevels->equal($levels)) {
             $device->setCmsLevels($newLevels);
@@ -567,7 +568,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
 
     public function commonOther(IntercomDevice & CommonInterface $device, bool $individualLevels): void
     {
-        $server = uri($device->resolver->string('clean.syslog', 'syslog://127.0.0.1:514'));
+        $server = uri($device->resolver->string(ConfigKey::CleanSyslog, 'syslog://127.0.0.1:514'));
 
         $syslog = $device->getSyslog();
 

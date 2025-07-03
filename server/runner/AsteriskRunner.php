@@ -9,6 +9,7 @@ use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Entity\Model\Sip\SipUser;
 use Selpol\Feature\Block\BlockFeature;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Feature\Sip\SipFeature;
@@ -101,7 +102,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     'success' => true,
                                     'data' => [
                                         'auto_open' => ($flat->auto_open && $flat->auto_open > time()) || ($flat->white_rabbit && $flat->last_opened + $flat->white_rabbit * 60 > time()),
-                                        'dtmf' => $device->resolver->int('sip.dtmf', 1),
+                                        'dtmf' => $device->resolver->int(ConfigKey::SipDtmf, 1),
                                     ]
                                 ]);
 
@@ -160,7 +161,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 'success' => true,
                                 'data' => [
                                     'auto_open' => false,
-                                    'dtmf' => $device->resolver->string('sip.dtmf', '1'),
+                                    'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
 
                                     'call_cms' => !$cmsConnected && $hasCms,
                                     'call_sip' => $flat->sip_enabled == 1,
@@ -235,7 +236,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                     'server' => $server->external_ip,
                                     'port' => $server->external_port,
                                     'transport' => 'udp',
-                                    'dtmf' => $device->resolver->string('sip.dtmf', '1'),
+                                    'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
                                     'timestamp' => time(),
                                     'ttl' => 30,
                                     'platform' => $subscriber->platform !== 0 ? 'ios' : 'android',
@@ -282,8 +283,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                         }
 
                         echo json_encode([
-                            'dtmf' => $device->resolver->string('sip.dtmf', '1'),
-                            'sosNumber' => $device->resolver->string('sip.sos'),
+                            'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
+                            'sosNumber' => $device->resolver->string(ConfigKey::SipSos),
                             'ip' => $device->intercom->ip
                         ]);
 
@@ -298,7 +299,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             break;
                         }
 
-                        echo json_encode(['sos_number' => $device->resolver->string('sip.sos', '112')]);
+                        echo json_encode(['sos_number' => $device->resolver->string(ConfigKey::SipSos, '112')]);
 
                         break;
 

@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Camera;
 
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Config\ConfigResolver;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
@@ -28,7 +29,7 @@ class CameraModel
 
     public function instance(DeviceCamera $camera, ConfigResolver $resolver): CameraDevice
     {
-        $class = $resolver->string('class');
+        $class = $resolver->string(ConfigKey::Handler);
 
         if (!class_exists($class)) {
             throw new KernelException('Не известный обработчик камеры');

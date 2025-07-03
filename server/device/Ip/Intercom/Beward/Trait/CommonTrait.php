@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
 use Selpol\Device\Ip\Intercom\Setting\Common\Room;
 use Selpol\Device\Ip\Intercom\Setting\Common\Stun;
 use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
+use Selpol\Feature\Config\ConfigKey;
 
 trait CommonTrait
 {
@@ -36,7 +37,7 @@ trait CommonTrait
     {
         if ($this->mifare) {
             $cipher = $this->get('/cgi-bin/cipher_cgi', ['action' => 'list'], parse: ['type' => 'param']);
-            $mifare = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
+            $mifare = $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
 
             if (!$cipher || !$mifare) {
                 return new Mifare(false, '', 0);
@@ -118,7 +119,7 @@ trait CommonTrait
     public function getAutoCollectKey(): bool
     {
         if ($this->mifare) {
-            $response = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
+            $response = $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'get'], parse: ['type' => 'param']);
 
             return $response['AutoCollectKeys'] === 'on';
         }
@@ -145,7 +146,7 @@ trait CommonTrait
     {
         if ($this->mifare) {
             $this->get('/cgi-bin/cipher_cgi', ['action' => 'add', 'Value' => $mifare->key, 'Type' => 1, 'Index' => 1]);
-            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
+            $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'set', 'Sector' => $mifare->sector, 'AutoValidation' => 'off']);
         }
     }
 
@@ -188,7 +189,7 @@ trait CommonTrait
     public function setAutoCollectKey(bool $value): void
     {
         if ($this->mifare) {
-            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
+            $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'set', 'AutoCollectKeys' => $value ? 'on' : 'off']);
         }
     }
 
@@ -200,7 +201,7 @@ trait CommonTrait
     {
         $params = [
             'action' => 'set',
-            'Mode' => $this->resolver->int('wicket.mode', 1),
+            'Mode' => $this->resolver->int(ConfigKey::WicketMode, 1),
             'Enable' => $value !== [] ? 'on' : 'off',
             'MainDoor' => 'on',
             'AltDoor' => 'off',

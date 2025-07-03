@@ -5,6 +5,7 @@ namespace Selpol\Device\Ip\Intercom;
 use Selpol\Device\Ip\DeviceLogger;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Config\ConfigResolver;
 use Selpol\Framework\Http\Uri;
 use SensitiveParameter;
@@ -25,28 +26,28 @@ abstract class IntercomDevice extends IpDevice
 
         $this->resolver = $resolver;
 
-        $login = $this->resolver->string('auth.login');
+        $login = $this->resolver->string(ConfigKey::AuthLogin);
 
         if ($login !== null) {
             $this->login = $login;
         }
 
-        match ($this->resolver->string('auth', 'basic')) {
+        match ($this->resolver->string(ConfigKey::Auth, 'basic')) {
             "any_safe" => $this->clientOption->anySafe($this->login, $password),
             "basic" => $this->clientOption->basic($this->login, $password),
             "digest" => $this->clientOption->digest($this->login, $password),
         };
 
         if (!$this->debug) {
-            $this->debug = $this->resolver->bool('debug', false);
+            $this->debug = $this->resolver->bool(ConfigKey::Debug, false);
         }
 
-        $this->timeout = $this->resolver->int('timeout', 0);
-        $this->prepare = $this->resolver->int('prepare', 1);
+        $this->timeout = $this->resolver->int(ConfigKey::Timeout, 0);
+        $this->prepare = $this->resolver->int(ConfigKey::Prepare, 1);
 
-        if ($this->resolver->bool('mifare', false) === true) {
-            $key = $this->resolver->string('mifare.key');
-            $sector = $this->resolver->string('mifare.sector');
+        if ($this->resolver->bool(ConfigKey::Mifare, false) === true) {
+            $key = $this->resolver->string(ConfigKey::MifareKey);
+            $sector = $this->resolver->string(ConfigKey::MifareSector);
 
             if ($key && str_starts_with($key, 'ENV_')) {
                 $key = env(substr($key, 4));
@@ -67,7 +68,7 @@ abstract class IntercomDevice extends IpDevice
             $this->mifareSector = null;
         }
 
-        $log = self::template($this->resolver->string('log', 'intercom'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string)$this->intercom->house_domophone_id]);
+        $log = self::template($this->resolver->string(ConfigKey::Log, 'intercom'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string)$this->intercom->house_domophone_id]);
         $dir = dirname(path('var/log/' . $log));
 
         if (!is_dir($dir)) {

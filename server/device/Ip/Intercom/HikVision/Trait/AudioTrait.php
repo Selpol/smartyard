@@ -3,12 +3,13 @@
 namespace Selpol\Device\Ip\Intercom\HikVision\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Audio\AudioLevels;
+use Selpol\Feature\Config\ConfigKey;
 
 trait AudioTrait
 {
     public function getDefaultAudioLevels(): AudioLevels
     {
-        return new AudioLevels(array_map('intval', explode(',', $this->resolver->string('audio.volume', '7,7,7'))));
+        return new AudioLevels(array_map('intval', array: explode(',', $this->resolver->string(ConfigKey::AudioVolume, '7,7,7'))));
     }
 
     public function getAudioLevels(): AudioLevels

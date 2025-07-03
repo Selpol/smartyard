@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip\Trait;
 
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\InfoDevice;
+use Selpol\Feature\Config\ConfigKey;
 use SensitiveParameter;
 use Throwable;
 
@@ -40,7 +41,7 @@ trait BewardTrait
 
     public function call(int $apartment): void
     {
-        if ($this->resolver->bool('sip.call', false)) {
+        if ($this->resolver->bool(ConfigKey::SipCall, false)) {
             $this->get('/cgi-bin/sip_cgi', ['action' => 'call', 'Uri' => $apartment]);
         } else {
             $this->get('/cgi-bin/diag_cgi', ['action' => 'call', 'Apartment' => $apartment]);

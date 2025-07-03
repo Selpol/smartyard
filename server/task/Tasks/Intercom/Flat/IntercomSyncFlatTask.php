@@ -10,6 +10,7 @@ use Selpol\Device\Ip\Intercom\Setting\Code\CodeInterface;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Entity\Model\House\HouseFlat;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\Task;
@@ -96,7 +97,7 @@ class IntercomSyncFlatTask extends Task
             } else {
                 $numbers = [sprintf('1%09d', $flat['flatId'])];
 
-                $additional = explode(',', $device->resolver->string('sip.number.' . $apartment, ''));
+                $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with($apartment), ''));
 
                 foreach ($additional as $number) {
                     $numbers[] = $number;
@@ -107,8 +108,8 @@ class IntercomSyncFlatTask extends Task
                 $apartment,
                 !$entrance['shared'] && !$blockCms && $flat['cmsEnabled'],
                 !$entrance['shared'] && !$blockCall,
-                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : $device->resolver->int('apartment.answer', $device->getDefaultAnswerLevel()),
-                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : $device->resolver->int('apartment.quiescent', $device->getDefaultQuiescentLevel()),
+                array_key_exists(0, $apartment_levels) ? $apartment_levels[0] : $device->resolver->int(ConfigKey::ApartmentAnswer, $device->getDefaultAnswerLevel()),
+                array_key_exists(1, $apartment_levels) ? $apartment_levels[1] : $device->resolver->int(ConfigKey::ApartmnetQuiescent, $device->getDefaultQuiescentLevel()),
                 $numbers,
             );
 

@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Config\ConfigResolver;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
@@ -17,7 +18,8 @@ class IntercomModel
         public readonly string $title,
         public readonly string $vendor,
         public readonly string $config
-    ) {
+    )
+    {
     }
 
     public function toArray(): array
@@ -46,7 +48,7 @@ class IntercomModel
 
     public function instance(DeviceIntercom $intercom, ConfigResolver $resolver): IntercomDevice
     {
-        $class = $resolver->string('class');
+        $class = $resolver->string(ConfigKey::Handler);
 
         if (!class_exists($class)) {
             throw new KernelException('Не известный обработчик домофона');

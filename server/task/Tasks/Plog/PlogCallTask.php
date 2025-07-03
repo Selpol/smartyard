@@ -2,6 +2,7 @@
 
 namespace Selpol\Task\Tasks\Plog;
 
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Plog\PlogFeature;
 use Selpol\Task\TaskRetryInterface;
 use Selpol\Task\Trait\TaskRetryTrait;
@@ -37,7 +38,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
         $device = intercom($this->id);
 
-        $logs = $plog->getSyslog($this->ip, $this->date, $device?->resolver->int('clean.call_timeout', 60) ?: 60);
+        $logs = $plog->getSyslog($this->ip, $this->date, $device?->resolver->int(ConfigKey::CleanCallTimeout, 60) ?: 60);
 
         $call_from_panel = 0;
         $call_start_found = false;

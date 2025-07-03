@@ -20,69 +20,78 @@ readonly abstract class ConfigFeature extends Feature
         return [
             [
                 'type' => 'value',
-                'value' => 'auth',
+                'value' => ConfigKey::Auth->value,
                 'title' => 'Авторизация',
                 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'login', 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
+                    ['type' => 'value', 'value' => ConfigKey::AuthLogin->key(), 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
                 ]
             ],
 
-            ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
-            ['type' => 'value', 'value' => 'prepare', 'title' => 'Подготовка запроса', 'assign' => ['default' => '1', 'in:0,1,2']],
-            ['type' => 'value', 'value' => 'timeout', 'title' => 'Ожидание, перед выполнением запроса в 1/1000000 секунд', 'assign' => ['default' => '0', 'type' => 'int']],
-            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
-
-            ['type' => 'value', 'value' => 'output', 'title' => 'Реле', 'assign' => ['default' => '1', 'type' => 'int']],
-            ['type' => 'value', 'value' => 'output.map', 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
+            ['type' => 'value', 'value' => ConfigKey::Debug->value, 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => ConfigKey::Prepare->value, 'title' => 'Подготовка запроса', 'assign' => ['default' => '1', 'in:0,1,2']],
+            ['type' => 'value', 'value' => ConfigKey::Timeout->value, 'title' => 'Ожидание, перед выполнением запроса в 1/1000000 секунд', 'assign' => ['default' => '0', 'type' => 'int']],
+            ['type' => 'value', 'value' => ConfigKey::Log->value, 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
 
             [
                 'type' => 'value',
-                'value' => 'class',
+                'value' => ConfigKey::Output->value,
+                'title' => 'Реле',
+                'assign' => ['default' => '1', 'type' => 'int'],
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => ConfigKey::OutputMap->key(), 'title' => 'Карта реле', 'assign' => ['default' => '0:2']],
+                    ['type' => 'value', 'value' => ConfigKey::OutputInvert->key(), 'title' => 'Инверт реле', 'assign' => ['default' => 'false', 'type' => 'bool']],
+                ]
+            ],
+
+            [
+                'type' => 'value',
+                'value' => ConfigKey::Handler->value,
                 'title' => 'Класс обработчик',
                 'assign' => ['example' => 'Selpol\Device\Ip\Intercom\Is\IsIntercom,Selpol\Device\Ip\Intercom\Is\Is5Intercom,Selpol\Device\Ip\Intercom\Beward\DsIntercom,Selpol\Device\Ip\Intercom\Beward\DksIntercom,Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom,Selpol\Device\Ip\Intercom\Relay\RelayIntercom']
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'clean',
+                'value' => ConfigKey::Clean->value,
                 'title' => 'Очистка',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'unlock_time', 'title' => 'Время открытия', 'assign' => ['default' => '5', 'type' => 'int', 'condition' => 'between:5,30']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanUnlockTime->key(), 'title' => 'Время открытия', 'assign' => ['default' => '5', 'type' => 'int', 'condition' => 'between:5,30']],
 
-                    ['type' => 'value', 'value' => 'call_timeout', 'title' => 'Таймаут вызова', 'assign' => ['default' => '30', 'type' => 'int', 'condition' => 'between:15,120']],
-                    ['type' => 'value', 'value' => 'talk_timeout', 'title' => 'Таймаут разговора', 'assign' => ['default' => '60', 'type' => 'int', 'condition' => 'between:15,120']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanCallTimeout->key(), 'title' => 'Таймаут вызова', 'assign' => ['default' => '30', 'type' => 'int', 'condition' => 'between:15,120']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanTalkTimeout->key(), 'title' => 'Таймаут разговора', 'assign' => ['default' => '60', 'type' => 'int', 'condition' => 'between:15,120']],
 
-                    ['type' => 'value', 'value' => 'sos', 'title' => 'SOS', 'assign' => ['default' => 'SOS']],
-                    ['type' => 'value', 'value' => 'concierge', 'title' => 'Консьерж', 'assign' => ['default' => '9999']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanSos->key(), 'title' => 'SOS', 'assign' => ['default' => 'SOS']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanConcierge->key(), 'title' => 'Консьерж', 'assign' => ['default' => '9999']],
 
-                    ['type' => 'value', 'value' => 'ntp', 'title' => 'Сервер времени', 'assign' => ['default' => '9999', 'type' => 'string:url']],
-                    ['type' => 'value', 'value' => 'syslog', 'title' => 'Сервер логов', 'assign' => ['default' => 'syslog://127.0.0.1:514', 'type' => 'string:url']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanNtp->key(), 'title' => 'Сервер времени', 'assign' => ['default' => '9999', 'type' => 'string:url']],
+                    ['type' => 'value', 'value' => ConfigKey::CleanSyslog->key(), 'title' => 'Сервер логов', 'assign' => ['default' => 'syslog://127.0.0.1:514', 'type' => 'string:url']],
                 ]
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'apartment',
+                'value' => ConfigKey::Apartment->value,
                 'title' => 'Квартира',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'answer', 'title' => 'Уровень поднятия', ['type' => 'int']],
-                    ['type' => 'value', 'value' => 'quiescent', 'title' => 'Уровень ответа', ['type' => 'int']]
+                    ['type' => 'value', 'value' => ConfigKey::ApartmentAnswer->key(), 'title' => 'Уровень поднятия', ['type' => 'int']],
+                    ['type' => 'value', 'value' => ConfigKey::ApartmnetQuiescent->key(), 'title' => 'Уровень ответа', ['type' => 'int']]
                 ]
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'audio',
+                'value' => ConfigKey::Audio->value,
                 'title' => 'Аудио',
 
                 'suggestions' => [
                     [
                         'type' => 'value',
-                        'value' => 'volume',
+                        'value' => ConfigKey::AudioVolume->key(),
                         'title' => 'Звук домофона',
 
                         'assign' => ['type' => 'array:int'],
@@ -94,48 +103,48 @@ readonly abstract class ConfigFeature extends Feature
 
             [
                 'type' => 'namespace',
-                'value' => 'video',
+                'value' => ConfigKey::Video->value,
                 'title' => 'Видео',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'quality', 'title' => 'Разрешение', 'assign' => ['example' => '1280x720,1920x1080,1']],
+                    ['type' => 'value', 'value' => ConfigKey::VideoQuality->key(), 'title' => 'Разрешение', 'assign' => ['example' => '1280x720,1920x1080,1']],
 
-                    ['type' => 'value', 'value' => 'primary_bitrate', 'title' => 'Основной битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
-                    ['type' => 'value', 'value' => 'secondary_bitrate', 'title' => 'Дополнительный битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
+                    ['type' => 'value', 'value' => ConfigKey::VideoPrimaryBitrate->key(), 'title' => 'Основной битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
+                    ['type' => 'value', 'value' => ConfigKey::VideoSecondaryBitrate->key(), 'title' => 'Дополнительный битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
                 ]
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'display',
+                'value' => ConfigKey::Display->value,
                 'title' => 'Дисплей',
 
-                'suggestions' => [['type' => 'value', 'value' => 'title', 'title' => 'Текст', 'assign' => ['default' => '%entrance%']]]
+                'suggestions' => [['type' => 'value', 'value' => ConfigKey::DisplayTitle->key(), 'title' => 'Текст', 'assign' => ['default' => '%entrance%']]]
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'cms',
+                'value' => ConfigKey::Cms->value,
                 'title' => 'КМС',
 
-                'suggestions' => [['type' => 'value', 'value' => 'value', 'title' => 'Список КМС моделей', 'assign' => ['type' => 'array:string', 'example' => 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100']]]
+                'suggestions' => [['type' => 'value', 'value' => ConfigKey::CmsValue->key(), 'title' => 'Список КМС моделей', 'assign' => ['type' => 'array:string', 'example' => 'bk-100,com-100u,com-220u,com-25u,kad2501,kkm-100s2,kkm-105,km100-7.1,km100-7.5,kmg-100']]]
             ],
 
             [
                 'type' => 'namespace',
-                'value' => 'sip',
+                'value' => ConfigKey::Sip->value,
                 'title' => 'SIP',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'stream', 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']],
+                    ['type' => 'value', 'value' => ConfigKey::SipStream->key(), 'title' => 'Видеопоток', 'assign' => ['condition' => 'in:0,1']],
 
-                    ['type' => 'value', 'value' => 'call', 'title' => 'Звонок в SIP', 'assign' => ['type' => 'bool', 'default' => 'false']],
-                    ['type' => 'value', 'value' => 'dtmf', 'title' => 'DTMF Номер', 'assign' => ['type' => 'int', 'condition' => 'in:-1,*,#,1,2,3,4,5,6,7,8,9,10']],
-                    ['type' => 'value', 'value' => 'sos', 'title' => 'SOS Номер', 'assign' => ['type' => 'int']],
+                    ['type' => 'value', 'value' => ConfigKey::SipCall->key(), 'title' => 'Звонок в SIP', 'assign' => ['type' => 'bool', 'default' => 'false']],
+                    ['type' => 'value', 'value' => ConfigKey::SipDtmf->key(), 'title' => 'DTMF Номер', 'assign' => ['type' => 'int', 'condition' => 'in:-1,*,#,1,2,3,4,5,6,7,8,9,10']],
+                    ['type' => 'value', 'value' => ConfigKey::SipSos->key(), 'title' => 'SOS Номер', 'assign' => ['type' => 'int']],
 
                     [
                         'type' => 'namespace',
-                        'value' => 'number',
+                        'value' => ConfigKey::SipNumber->value,
                         'title' => 'Дополнительные номера телефонов',
 
                         'suggestions' => [
@@ -147,25 +156,25 @@ readonly abstract class ConfigFeature extends Feature
 
             [
                 'type' => 'namespace',
-                'value' => 'wicket',
+                'value' => ConfigKey::Wicket->value,
                 'title' => 'Калитка',
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'mode', 'title' => 'Режим калитки для BEWARD', 'assign' => ['default' => '1', 'type' => 'int', 'condition' => 'in:1,2']]
+                    ['type' => 'value', 'value' => ConfigKey::WicketMode->key(), 'title' => 'Режим калитки для BEWARD', 'assign' => ['default' => '1', 'type' => 'int', 'condition' => 'in:1,2']]
                 ]
             ],
 
             [
                 'type' => 'value',
-                'value' => 'mifare',
+                'value' => ConfigKey::Mifare->value,
                 'title' => 'MIFARE',
 
                 'assign' => ['type' => 'bool'],
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'key', 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
-                    ['type' => 'value', 'value' => 'sector', 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
-                    ['type' => 'value', 'value' => 'cgi', 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'condition' => 'in:mifareusr_cgi,mifare_cgi']]
+                    ['type' => 'value', 'value' => ConfigKey::MifareKey->key(), 'title' => 'Ключ', 'assign' => ['default' => 'ENV_MIFARE_KEY', 'type' => 'string:env']],
+                    ['type' => 'value', 'value' => ConfigKey::MifareSector->key(), 'title' => 'Сектор', 'assign' => ['default' => 'ENV_MIFARE_SECTOR', 'type' => 'int:env']],
+                    ['type' => 'value', 'value' => ConfigKey::MifareCgi->key(), 'title' => 'CGI для BEWARD', 'assign' => ['default' => 'mifareusr_cgi', 'condition' => 'in:mifareusr_cgi,mifare_cgi']]
                 ]
             ]
         ];
@@ -176,26 +185,26 @@ readonly abstract class ConfigFeature extends Feature
         return [
             [
                 'type' => 'value',
-                'value' => 'auth',
+                'value' => ConfigKey::Auth->value,
                 'title' => 'Авторизация',
                 'assign' => ['default' => 'basic', 'type' => 'string', 'condition' => 'in:basic,digest,any_safe'],
 
                 'suggestions' => [
-                    ['type' => 'value', 'value' => 'login', 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
+                    ['type' => 'value', 'value' => ConfigKey::AuthLogin->key(), 'title' => 'Логин', 'assign' => ['default' => 'admin', 'type' => 'string']]
                 ]
             ],
 
-            ['type' => 'value', 'value' => 'debug', 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
-            ['type' => 'value', 'value' => 'log', 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
+            ['type' => 'value', 'value' => ConfigKey::Debug->value, 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
+            ['type' => 'value', 'value' => ConfigKey::Log->value, 'title' => 'Файл логов', 'assign' => ['default' => 'camera']],
 
             [
                 'type' => 'value',
-                'value' => 'class',
+                'value' => ConfigKey::Handler->value,
                 'title' => 'Класс обработчик',
                 'assign' => ['example' => 'Selpol\Device\Ip\Camera\Is\IsCamera,Selpol\Device\Ip\Camera\Beward\BewardCamera,Selpol\Device\Ip\Camera\HikVision\HikVisionCamera,Selpol\Device\Ip\Camera\Fake\FakeCamera']
             ],
 
-            ['type' => 'value', 'value' => 'screenshot', 'title' => 'Скриншот', 'assign' => ['type' => 'string']]
+            ['type' => 'value', 'value' => ConfigKey::Screenshot->value, 'title' => 'Скриншот', 'assign' => ['type' => 'string']]
         ];
     }
 

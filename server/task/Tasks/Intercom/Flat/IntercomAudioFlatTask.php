@@ -3,6 +3,7 @@
 namespace Selpol\Task\Tasks\Intercom\Flat;
 
 use Selpol\Device\Ip\Intercom\Setting\Apartment\ApartmentInterface;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Task\Task;
 
 class IntercomAudioFlatTask extends Task
@@ -19,7 +20,7 @@ class IntercomAudioFlatTask extends Task
         $intercom = intercom($this->id);
 
         if ($intercom instanceof ApartmentInterface) {
-            $levels = explode(',', $intercom->resolver->string('audio.volume.' . $this->flat, ''));
+            $levels = explode(',', $intercom->resolver->string(ConfigKey::AudioVolume->with($this->flat), ''));
 
             if (count($levels) == 6) {
                 $intercom->setApartmentAudio($this->flat, $levels);

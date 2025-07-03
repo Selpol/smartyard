@@ -5,6 +5,7 @@ namespace Selpol\Cli\Device;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
 use Selpol\Entity\Model\Device\DeviceIntercom;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
@@ -58,7 +59,7 @@ class DeviceSyslogCommand
                 continue;
             }
 
-            $server = uri($intercom->resolver->string('clean.syslog', 'syslog://127.0.0.1:514'));
+            $server = uri($intercom->resolver->string(ConfigKey::CleanSyslog, 'syslog://127.0.0.1:514'));
 
             if ($intercom instanceof CommonInterface) {
                 $syslog = new Syslog($server->getHost(), $server->getPort() !== null && $server->getPort() !== 0 ? $server->getPort() : 514);

@@ -12,6 +12,8 @@ use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
 use Selpol\Device\Ip\Intercom\Setting\Common\Room;
 use Selpol\Device\Ip\Intercom\Setting\Common\Stun;
 use Selpol\Device\Ip\Intercom\Setting\Common\Syslog;
+use Selpol\Feature\Config\ConfigFeature;
+use Selpol\Feature\Config\ConfigKey;
 
 class RelayIntercom extends IntercomDevice implements CommonInterface
 {
@@ -24,11 +26,11 @@ class RelayIntercom extends IntercomDevice implements CommonInterface
 
     public function open(int $value): void
     {
-        $map = explode(',', $this->resolver->string('output.map', $value . ':' . $value));
+        $map = explode(',', $this->resolver->string(ConfigKey::OutputMap, $value . ':' . $value));
 
         foreach ($map as $item) {
             if (str_starts_with($item, $value . ':')) {
-                $this->post('/api/v1/open/' . substr($item, strlen((string) $value) + 1), ['invert' => $this->resolver->bool('output.invert', false)]);
+                $this->post('/api/v1/open/' . substr($item, strlen((string)$value) + 1), ['invert' => $this->resolver->bool(ConfigKey::OutputInvert, false)]);
 
                 return;
             }
@@ -36,6 +38,7 @@ class RelayIntercom extends IntercomDevice implements CommonInterface
 
         $this->post('/api/v1/open/' . $value);
     }
+
     /**
      * @inheritDoc
      */

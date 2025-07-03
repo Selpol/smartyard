@@ -4,6 +4,7 @@ namespace Selpol\Device\Ip\Intercom;
 
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Config\Config;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Config\ConfigResolver;
 
 class IntercomConfigResolver extends ConfigResolver
@@ -20,8 +21,10 @@ class IntercomConfigResolver extends ConfigResolver
         $this->intercom = $intercom;
     }
 
-    public function string(string $key, ?string $default = null): ?string
+    public function string(ConfigKey|string $key, ?string $default = null): ?string
     {
+        $key = is_string($key) ? $key : $key->value;
+
         $value = $this->config->resolve($key);
 
         if ($value != null) {

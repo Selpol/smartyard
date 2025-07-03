@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Apartment\Apartment;
+use Selpol\Feature\Config\ConfigKey;
 use Throwable;
 
 trait ApartmentTrait
@@ -22,8 +23,8 @@ trait ApartmentTrait
         try {
             $response = $this->get('/panelCode');
 
-            $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
-            $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
+            $answer = $this->resolver->int(ConfigKey::ApartmentAnswer, $this->getDefaultAnswerLevel());
+            $quiescent = $this->resolver->int(ConfigKey::ApartmnetQuiescent, $this->getDefaultQuiescentLevel());
 
             return array_map(static fn(array $value): Apartment => new Apartment(
                 $value['panelCode'],
@@ -47,8 +48,8 @@ trait ApartmentTrait
                 return null;
             }
 
-            $answer = $this->resolver->int('apartment.answer', $this->getDefaultAnswerLevel());
-            $quiescent = $this->resolver->int('apartment.quiescent', $this->getDefaultQuiescentLevel());
+            $answer = $this->resolver->int(ConfigKey::ApartmentAnswer, $this->getDefaultAnswerLevel());
+            $quiescent = $this->resolver->int(ConfigKey::ApartmnetQuiescent, $this->getDefaultQuiescentLevel());
 
             return new Apartment(
                 $response['panelCode'],
@@ -76,7 +77,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolver->string('audio.volume.' . $apartment->apartment)) {
+        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with($apartment->apartment))) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
@@ -105,7 +106,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolver->string('audio.volume.' . $apartment->apartment)) {
+        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with($apartment->apartment))) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [

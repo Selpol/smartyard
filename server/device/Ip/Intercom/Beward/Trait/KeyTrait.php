@@ -3,6 +3,7 @@
 namespace Selpol\Device\Ip\Intercom\Beward\Trait;
 
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
+use Selpol\Feature\Config\ConfigKey;
 
 trait KeyTrait
 {
@@ -14,7 +15,7 @@ trait KeyTrait
     public function getKeys(?int $apartment): array
     {
         if ($this->mifare) {
-            $response = $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'list'], parse: ['type' => 'param']);
+            $response = $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'list'], parse: ['type' => 'param']);
         } else {
             $response = $this->get('/cgi-bin/rfid_cgi', ['action' => 'list'], parse: ['type' => 'param']);
         }
@@ -49,7 +50,7 @@ trait KeyTrait
     public function addKey(Key $key): void
     {
         if ($this->mifare) {
-            $cgi = $this->resolver->string('mifare.cgi', 'mifareusr_cgi');
+            $cgi = $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi');
 
             if ($cgi === 'mifareusr_cgi') {
                 $this->get('/cgi-bin/' . $cgi, ['action' => 'add', 'Key' => $key->key, 'Apartment' => $key->apartment, 'CipherIndex' => 1]);
@@ -65,12 +66,12 @@ trait KeyTrait
     {
         if ($key instanceof Key) {
             if ($this->mifare) {
-                $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
+                $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
             } else {
                 $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key->key, 'Apartment' => $key->apartment]);
             }
         } elseif ($this->mifare) {
-            $this->get('/cgi-bin/' . $this->resolver->string('mifare.mode'), ['action' => 'delete', 'Key' => $key]);
+            $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi), ['action' => 'delete', 'Key' => $key]);
         } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'delete', 'Key' => $key]);
         }
@@ -79,7 +80,7 @@ trait KeyTrait
     public function clearKey(): void
     {
         if ($this->mifare) {
-            $this->get('/cgi-bin/' . $this->resolver->string('mifare.cgi', 'mifareusr_cgi'), ['action' => 'clear']);
+            $this->get('/cgi-bin/' . $this->resolver->string(ConfigKey::MifareCgi, 'mifareusr_cgi'), ['action' => 'clear']);
         } else {
             $this->get('/cgi-bin/rfid_cgi', ['action' => 'clear']);
         }
