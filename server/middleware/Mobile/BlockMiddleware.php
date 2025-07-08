@@ -7,7 +7,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Selpol\Feature\Block\BlockFeature;
 use Selpol\Framework\Router\Route\RouteMiddleware;
-use Selpol\Service\AuthService;
 
 readonly class BlockMiddleware extends RouteMiddleware
 {
@@ -30,7 +29,7 @@ readonly class BlockMiddleware extends RouteMiddleware
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if ($block = container(BlockFeature::class)->getFirstBlockForSubscriber(container(AuthService::class)->getUserOrThrow()->getIdentifier(), $this->services)) {
+        if ($block = container(BlockFeature::class)->getFirstBlockForUser($this->services)) {
             return json_response($this->code, body: $this->body !== null && $this->body !== [] ? $this->body : ['code' => 403, 'message' => 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : '')]);
         }
 

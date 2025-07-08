@@ -7,8 +7,10 @@ use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\Camera\CameraGetRequest;
+use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Entity\Model\Dvr\DvrServer;
+use Selpol\Entity\Model\House\HouseEntrance;
 use Selpol\Feature\Block\BlockFeature;
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\Request\Mobile\Camera\CameraCommonDvrRequest;
@@ -199,11 +201,11 @@ readonly class CameraController extends MobileRbtController
         '/{id}',
         includes: [
             FlatMiddleware::class => ['house' => 'houseId'],
-            BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM],
-            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_INTERCOM]]
+            BlockMiddleware::class => [BlockFeature::SERVICE_CCTV],
+            BlockFlatMiddleware::class => ['house' => 'houseId', 'services' => [BlockFeature::SERVICE_CCTV]]
         ]
     )]
-    public function show(CameraShowRequest $request, DvrFeature $dvrFeature): ResponseInterface
+    public function show(CameraShowRequest $request, DvrFeature $dvrFeature, BlockFeature $feature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -211,6 +213,42 @@ readonly class CameraController extends MobileRbtController
 
         if (!$camera instanceof DeviceCamera) {
             return user_response(404, message: 'Камера не найдена');
+        }
+
+        $entrance = HouseEntrance::fetch(criteria()->equal('camera_id', $camera->camera_id));
+
+        if ($entrance != null) {
+            if (($block = $feature->getFirstBlockForUser([BlockFeature::SERVICE_INTERCOM])) != null) {
+                return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+            }
+
+            $ids = $request->getRequest()->getAttribute('flat_ids', []);
+
+            if (count($ids) === 0) {
+                return user_response(403, message: 'Ошибка доступа к камере');
+            }
+
+            /**
+             * @var FlatBlock|null $block
+             */
+            $block = null;
+
+            for ($i = 0; $i < count($ids); $i++) {
+                if ($entrance->flats()->hasId($ids[$i])) {
+                    $tempBlock = $feature->getFirstBlockForFlat($ids[$i], [BlockFeature::SERVICE_INTERCOM]);
+
+                    if ($tempBlock == null) {
+                        $block = null;
+                        break;
+                    }
+
+                    $block = $tempBlock;
+                }
+            }
+
+            if ($block != null) {
+                return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
+            }
         }
 
         $dvr = $camera->getDvrServer();

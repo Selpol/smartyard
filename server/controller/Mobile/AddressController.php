@@ -33,11 +33,11 @@ readonly class AddressController extends MobileRbtController
             return user_response();
         }
 
-        $subscriberIntercomBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_INTERCOM]) != null;
-        $subscriberCctvBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV]) != null;
+        $subscriberIntercomBlock = $blockFeature->getFirstBlockForUser([BlockFeature::SERVICE_INTERCOM]) != null;
+        $subscriberCctvBlock = $blockFeature->getFirstBlockForUser([BlockFeature::SERVICE_CCTV]) != null;
         $subscriberBlock = $subscriberIntercomBlock && $subscriberCctvBlock;
 
-        $subscriberEventBlock = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SUB_SERVICE_EVENT]) != null;
+        $subscriberEventBlock = $blockFeature->getFirstBlockForUser([BlockFeature::SUB_SERVICE_EVENT]) != null;
 
         $houses = [];
 

@@ -52,6 +52,7 @@ readonly class FlatMiddleware extends RouteMiddleware
 
         if ($this->flat && array_key_exists($this->flat, $value) && !is_null($value[$this->flat])) {
             $flatId = rule()->id()->onItem($this->flat, $value);
+
             if (!array_key_exists($flatId, $flats)) {
                 return json_response(403, body: ['code' => 403, 'message' => 'Нету доступа к квартире']);
             }
@@ -59,6 +60,8 @@ readonly class FlatMiddleware extends RouteMiddleware
             if (!is_null($this->role) && $flats[$flatId]['role'] !== $this->role) {
                 return json_response(403, body: ['code' => 403, 'message' => 'Неверная роль в квартире']);
             }
+
+            $request->withAttribute('flat_ids', [$flatId]);
         } elseif ($this->house && array_key_exists($this->house, $value) && !is_null($value[$this->house])) {
             $houseId = rule()->id()->onItem($this->house, $value);
             /** @var array<int, int> $flats */
@@ -86,6 +89,8 @@ readonly class FlatMiddleware extends RouteMiddleware
                     }
                 }
             }
+
+            $request->withAttribute('flat_ids', $findFlatIds);
         } else {
             return json_response(403, body: ['code' => 403, 'message' => 'Не удалось определить квартиру']);
         }

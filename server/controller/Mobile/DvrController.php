@@ -83,7 +83,7 @@ readonly class DvrController extends MobileRbtController
             }
         } elseif (!is_null($request->flat_id) && ($block = $blockFeature->getFirstBlockForFlat($request->flat_id, [BlockFeature::SERVICE_CCTV])) instanceof FlatBlock) {
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
-        } elseif (($block = $blockFeature->getFirstBlockForSubscriber($this->getUser()->getIdentifier(), [BlockFeature::SERVICE_CCTV])) instanceof SubscriberBlock) {
+        } elseif (($block = $blockFeature->getFirstBlockForUser([BlockFeature::SERVICE_CCTV])) instanceof SubscriberBlock) {
             return user_response(403, message: 'Сервис не доступен по причине блокировки.' . ($block->cause ? (' ' . $block->cause) : ''));
         }
 

@@ -5,6 +5,7 @@ namespace Selpol\Feature\Block\Internal;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Block\SubscriberBlock;
 use Selpol\Feature\Block\BlockFeature;
+use Selpol\Service\AuthService;
 
 readonly class InternalBlockFeature extends BlockFeature
 {
@@ -56,5 +57,12 @@ readonly class InternalBlockFeature extends BlockFeature
         }
 
         return null;
+    }
+
+    public function getFirstBlockForUser(array $services): ?SubscriberBlock
+    {
+        $identifier = intval(container(AuthService::class)->getUserOrThrow()->getIdentifier());
+
+        return $this->getFirstBlockForSubscriber($identifier, $services);
     }
 }

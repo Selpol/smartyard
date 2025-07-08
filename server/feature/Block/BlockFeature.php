@@ -47,4 +47,6 @@ readonly abstract class BlockFeature extends Feature
     public abstract function getFirstBlockForFlat(int $value, array $services): ?FlatBlock;
 
     public abstract function getFirstBlockForSubscriber(int $value, array $services): ?SubscriberBlock;
+
+    public abstract function getFirstBlockForUser(array $services): ?SubscriberBlock;
 }
