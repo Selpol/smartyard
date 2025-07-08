@@ -164,6 +164,7 @@ class RoleUpdateCommand
             }
 
             $roles = $sourcePermission->roles;
+            $users = $sourcePermission->users;
 
             foreach ($destinations as $destination) {
                 $destinationPermission = Permission::fetch(criteria()->equal('title', $destination));
@@ -175,6 +176,12 @@ class RoleUpdateCommand
                 foreach ($roles as $role) {
                     if (!$role->permissions()->has($destinationPermission)) {
                         $role->permissions()->add($destinationPermission);
+                    }
+                }
+
+                foreach ($users as $user) {
+                    if (!$user->permissions()->has($destinationPermission)) {
+                        $user->permissions()->add($destinationPermission);
                     }
                 }
             }
