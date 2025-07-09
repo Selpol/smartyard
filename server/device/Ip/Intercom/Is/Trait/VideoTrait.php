@@ -57,7 +57,7 @@ trait VideoTrait
                 [
                     "Channel" => 0,
                     "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => intval($width),
                     "Height" => intval($height),
@@ -71,7 +71,7 @@ trait VideoTrait
                 [
                     "Channel" => 1,
                     "Type" => "H264",
-                    "Profile" => 1,
+                    "Profile" => 0,
                     "ByFrame" => true,
                     "Width" => 640,
                     "Height" => 480,

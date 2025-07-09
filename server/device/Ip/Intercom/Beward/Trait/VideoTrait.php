@@ -36,7 +36,7 @@ trait VideoTrait
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
         $this->get('/webs/videoEncodingCfgEx', [
-            'vlevel' => '2',
+            'vlevel' => '0',
             'encoder' => '0',
             'sys_cif' => '0',
             'advanced' => '1',
