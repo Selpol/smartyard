@@ -2,16 +2,16 @@
 
 namespace Selpol\Feature\Schedule\Internal;
 
-use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Feature\Schedule\ScheduleTimeInterface;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
 class Context
 {
-    public ScheduleTime $time;
+    public ScheduleTimeInterface $time;
 
     public array $store;
 
-    public function __construct(ScheduleTime $time)
+    public function __construct(ScheduleTimeInterface $time)
     {
         $this->time = $time;
 
