@@ -593,13 +593,15 @@ readonly class InternalHouseFeature extends HouseFeature
         $addresses = container(AddressFeature::class);
 
         foreach ($subscribers as &$subscriber) {
-            $flats = $this->getDatabase()->get("select house_flat_id, role, flat, address_house_id, cms_enabled from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
+            $flats = $this->getDatabase()->get("select house_flat_id, role, flat, call, address_house_id, cms_enabled from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
                 ["house_subscriber_id" => $subscriber["subscriberId"]],
-                ["house_flat_id" => "flatId", "role" => "role", "flat" => "flat", "address_house_id" => "addressHouseId", "cms_enabled" => "cmsEnabled"]
+                ["house_flat_id" => "flatId", "role" => "role", "flat" => "flat", 'call' => 'call', "address_house_id" => "addressHouseId", "cms_enabled" => "cmsEnabled"]
             );
 
-            foreach ($flats as &$flat)
+            foreach ($flats as &$flat) {
                 $flat["house"] = $addresses->getHouse($flat["addressHouseId"]);
+            }
+
             $subscriber["flats"] = $flats;
         }
 

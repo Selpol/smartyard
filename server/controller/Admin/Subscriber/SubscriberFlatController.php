@@ -21,8 +21,8 @@ readonly class SubscriberFlatController extends AdminRbtController
 {
     /**
      * Получить квартиры абонента
-     * 
-     * @param int $house_subscriber_id Идентификатор абонента 
+     *
+     * @param int $house_subscriber_id Идентификатор абонента
      */
     #[Get]
     public function index(int $house_subscriber_id): ResponseInterface
@@ -37,13 +37,14 @@ readonly class SubscriberFlatController extends AdminRbtController
         $flats = $subscriber->flats()->fetchAllWithRelation($relations);
 
         $relations = array_reduce($relations, static function (array $previous, array $current): array {
-            $previous[$current['house_flat_id']] = $current['role'];
+            $previous[$current['house_flat_id']] = [$current['role'], $current['call']];
 
             return $previous;
         }, []);
 
         foreach ($flats as $flat) {
-            $flat->__set('role', $relations[$flat->house_flat_id]);
+            $flat->__set('role', $relations[$flat->house_flat_id][0]);
+            $flat->__set('call', $relations[$flat->house_flat_id][1]);
 
             $house = $flat->house()->fetch(setting: setting()->columns(['house_full']));
 
@@ -73,7 +74,7 @@ readonly class SubscriberFlatController extends AdminRbtController
             return self::error('Квартира не найдена', 404);
         }
 
-        if ($subscriber->flats()->addWith($flat, ['role' => $request->role])) {
+        if ($subscriber->flats()->addWith($flat, ['role' => $request->role, 'call' => $request->call])) {
             return self::success();
         }
 
@@ -104,7 +105,7 @@ readonly class SubscriberFlatController extends AdminRbtController
 
         $subscriber->flats()->remove($flat);
 
-        if ($subscriber->flats()->addWith($flat, ['role' => $request->role])) {
+        if ($subscriber->flats()->addWith($flat, ['role' => $request->role, 'call' => $request->call])) {
             return self::success();
         }
 

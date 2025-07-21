@@ -124,7 +124,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                 }
                             }
 
-                            $subscribers = $flat->subscribers()->fetchAll();
+                            $subscribers = $flat->subscribers()->fetchAll(relationCriteria: criteria()->equal('call', 1));
 
                             $subscribers = array_filter($subscribers, static function (HouseSubscriber $subscriber) {
                                 if (is_null($subscriber->platform)) {
