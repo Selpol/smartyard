@@ -73,6 +73,7 @@ class IntercomModel
     {
         if (!isset(self::$models)) {
             self::$models = [
+                'auto' => new IntercomModel('Автоопределение', 'AUTO', 'class=Selpol\Device\Ip\Intercom\Auto\AutoIntercom'),
                 'is_1' => new IntercomModel('IS ISCOM X1', 'IS', 'class=Selpol\Device\Ip\Intercom\Is\IsIntercom'),
                 'is_5' => new IntercomModel('IS ISCOM X5', 'IS', 'class=Selpol\Device\Ip\Intercom\Is\Is5Intercom'),
                 'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=Selpol\Device\Ip\Intercom\Beward\DsIntercom'),

@@ -4,6 +4,13 @@ namespace Selpol\Feature\Config;
 
 enum ConfigKey: string
 {
+    case Auto = 'auto';
+    case AutoIs1 = 'auto.is1';
+    case AutoIs5 = 'auto.is5';
+    case AutoDks = 'auto.dks';
+    case AutoDs = 'auto.ds';
+    case AutoHik = 'auto.hik';
+
     case Auth = 'auth';
     case AuthLogin = 'auth.login';
 

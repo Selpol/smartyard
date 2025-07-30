@@ -17,6 +17,7 @@ use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Framework\Router\Attribute\Method\Post;
 use Selpol\Framework\Router\Attribute\Method\Put;
 use Selpol\Service\AuthService;
+use Selpol\Service\DeviceService;
 
 /**
  * Домофон
@@ -74,7 +75,7 @@ readonly class IntercomController extends AdminRbtController
      * Создать новый домофон
      */
     #[Post]
-    public function store(IntercomStoreRequest $request): ResponseInterface
+    public function store(IntercomStoreRequest $request, DeviceService $service): ResponseInterface
     {
         $intercom = new DeviceIntercom();
 
@@ -86,6 +87,12 @@ readonly class IntercomController extends AdminRbtController
             $intercom->ip = $ip;
         }
 
+        if ($intercom->model == 'auto') {
+            $device = $service->intercomByEntity($intercom);
+
+            $intercom->model = $device->specification();
+        }
+
         $intercom->insert();
 
         return self::success($intercom->house_domophone_id);
@@ -95,13 +102,16 @@ readonly class IntercomController extends AdminRbtController
      * Обновить домофон
      */
     #[Put('/{id}')]
-    public function update(IntercomUpdateRequest $request, ConfigFeature $feature): ResponseInterface
+    public function update(IntercomUpdateRequest $request, ConfigFeature $feature, DeviceService $service): ResponseInterface
     {
         $intercom = DeviceIntercom::findById($request->id);
 
         if (!$intercom) {
             return self::error('Не удалось найти домофон', 404);
         }
+
+        $feature->clearCacheConfigForIntercom($request->id);
+        $service->disableCache();
 
         $intercom->fill($request->all(true));
 
@@ -111,9 +121,13 @@ readonly class IntercomController extends AdminRbtController
             $intercom->ip = $ip;
         }
 
-        $intercom->update();
+        if ($intercom->model == 'auto') {
+            $device = $service->intercomByEntity($intercom);
 
-        $feature->clearCacheConfigForIntercom($request->id);
+            $intercom->model = $device->specification();
+        }
+
+        $intercom->update();
 
         return self::success();
     }

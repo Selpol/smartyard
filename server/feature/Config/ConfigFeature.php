@@ -19,6 +19,20 @@ readonly abstract class ConfigFeature extends Feature
     {
         return [
             [
+                'type' => 'namespace',
+                'value' => ConfigKey::Auto->value,
+                'title' => 'Автоопределение',
+
+                'suggestions' => [
+                    ['type' => 'value', 'value' => ConfigKey::AutoIs1->key(), 'title' => 'ISx1', 'assign' => ['type' => 'array']],
+                    ['type' => 'value', 'value' => ConfigKey::AutoIs5->key(), 'title' => 'ISx5', 'assign' => ['type' => 'array']],
+                    ['type' => 'value', 'value' => ConfigKey::AutoDks->key(), 'title' => 'Beward DKS', 'assign' => ['type' => 'array']],
+                    ['type' => 'value', 'value' => ConfigKey::AutoDs->key(), 'title' => 'Beward DS', 'assign' => ['type' => 'array']],
+                    ['type' => 'value', 'value' => ConfigKey::AutoHik->key(), 'title' => 'HikVision', 'assign' => ['type' => 'array']],
+                ]
+            ],
+
+            [
                 'type' => 'value',
                 'value' => ConfigKey::Auth->value,
                 'title' => 'Авторизация',
@@ -144,7 +158,7 @@ readonly abstract class ConfigFeature extends Feature
 
                     [
                         'type' => 'namespace',
-                        'value' => ConfigKey::SipNumber->value,
+                        'value' => ConfigKey::SipNumber->key(),
                         'title' => 'Дополнительные номера телефонов',
 
                         'suggestions' => [

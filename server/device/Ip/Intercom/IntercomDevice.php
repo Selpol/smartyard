@@ -1,7 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Intercom;
 
+use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\DeviceLogger;
 use Selpol\Device\Ip\IpDevice;
 use Selpol\Entity\Model\Device\DeviceIntercom;
@@ -78,23 +81,18 @@ abstract class IntercomDevice extends IpDevice
         $this->setLogger(new DeviceLogger(path('var/log/' . $log . '.log')));
     }
 
-    public function open(int $value): void
+    public function specification(): string
     {
+        throw new DeviceException($this, 'Метод спецификации устройства не реализован');
     }
 
-    public function call(int $apartment): void
-    {
-    }
+    public function open(int $value): void {}
 
-    public function callStop(): void
-    {
-    }
+    public function call(int $apartment): void {}
 
-    public function reboot(): void
-    {
-    }
+    public function callStop(): void {}
 
-    public function reset(): void
-    {
-    }
+    public function reboot(): void {}
+
+    public function reset(): void {}
 }
