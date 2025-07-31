@@ -199,7 +199,7 @@ readonly class DvrController extends MobileRbtController
             $camera,
             DvrContainer::from($request->container),
             DvrStream::from($request->stream),
-            ['time' => $request->time, 'sub' => $request->sub, 'hw' => $request->hw]
+            ['time' => $request->time]
         );
 
         if (!$video) {

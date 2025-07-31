@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Controller\Admin\Subscriber;
 
@@ -38,7 +40,21 @@ readonly class SubscriberController extends AdminRbtController
                 return self::error('Не удалось найти квартиру', 404);
             }
 
-            return self::success($flat->subscribers);
+            $relations = $flat->subscribers()->fetchRelation();
+            $subscribers = $flat->subscribers()->fetchAllWithRelation($relations);
+
+            $relations = array_reduce($relations, static function (array $previous, array $current): array {
+                $previous[$current['house_subscriber_id']] = $current;
+
+                return $previous;
+            }, []);
+
+            foreach ($subscribers as $subscriber) {
+                $subscriber->__set('role', $relations[$subscriber->house_subscriber_id]['role']);
+                $subscriber->__set('call', $relations[$subscriber->house_subscriber_id]['call']);
+            }
+
+            return self::success($subscribers);
         }
 
         $criteria = criteria()

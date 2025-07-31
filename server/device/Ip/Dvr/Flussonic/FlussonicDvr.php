@@ -156,7 +156,7 @@ class FlussonicDvr extends DvrDevice
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP) {
-                return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)));
+                return new DvrOutput($container, uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end))->__toString());
             }
 
             if ($container === DvrContainer::HLS) {

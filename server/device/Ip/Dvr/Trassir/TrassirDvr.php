@@ -160,7 +160,7 @@ class TrassirDvr extends DvrDevice
     {
         if ($stream === DvrStream::ONLINE) {
             if ($container === DvrContainer::RTSP) {
-                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
+                $rtsp = $this->getRtspStream($camera, 'main');
 
                 if ($rtsp == null) {
                     return null;
@@ -170,7 +170,7 @@ class TrassirDvr extends DvrDevice
             }
 
             if ($container === DvrContainer::HLS) {
-                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => $arguments['sub'] ? 'sub' : 'main', 'sid' => $this->getSid()]);
+                $response = $this->get('/get_video', ['channel' => $camera->dvr_stream, 'container' => $container->value, 'stream' => 'main', 'sid' => $this->getSid()]);
 
                 if (array_key_exists('success', $response) && $response['success']) {
                     return new DvrOutput($container, $this->server->url . '/hls/' . $response['token'] . '/master.m3u8');
@@ -180,7 +180,7 @@ class TrassirDvr extends DvrDevice
             }
 
             if ($container === DvrContainer::STREAMER_RTC || $container === DvrContainer::STREAMER_RTSP) {
-                $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'sub' : 'main');
+                $rtsp = $this->getRtspStream($camera, 'main');
 
                 if ($rtsp == null) {
                     return null;
@@ -208,7 +208,7 @@ class TrassirDvr extends DvrDevice
             $from = intval(time() - floor($depth['data']['depth'] * 24 * 60 * 60));
             $to = time();
             $seek = min(max($from, $arguments['time'] ?? ($to - 180)), $to);
-            $rtsp = $this->getRtspStream($camera, $arguments['sub'] ? 'archive_sub' : 'archive');
+            $rtsp = $this->getRtspStream($camera, 'archive');
 
             if ($rtsp == null) {
                 return null;
