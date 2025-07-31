@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
@@ -26,7 +28,10 @@ trait VideoTrait
         try {
             $response = $this->get('/camera/md');
 
-            return new VideoDetection($response['md_enable'], null, null, null, null);
+            $enable = $response['md_enable'];
+            $logEnable = $response['md_logs_enable'];
+
+            return new VideoDetection($enable && $logEnable, null, null, null, null);
         } catch (Throwable) {
             return new VideoDetection(false, null, null, null, null);
         }
@@ -98,16 +103,14 @@ trait VideoTrait
             'md_frame_int' => 30,
             'md_rects_enable' => false,
             'md_logs_enable' => true,
-            'md_send_snapshot_enable' => true,
+            'md_send_snapshot_enable' => false,
             'md_send_snapshot_interval' => 1,
 
             'snap_send_url' => '',
         ]);
     }
 
-    public function setVideoDisplay(VideoDisplay $videoDisplay): void
-    {
-    }
+    public function setVideoDisplay(VideoDisplay $videoDisplay): void {}
 
     public function setVideoOverlay(VideoOverlay $videoOverlay): void
     {
