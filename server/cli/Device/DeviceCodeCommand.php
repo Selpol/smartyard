@@ -19,52 +19,65 @@ class DeviceCodeCommand
     public function execute(CliIO $io): void
     {
         /** @var HouseFlat[] $flats */
-        $flats = HouseFlat::fetchAll();
+        $flats = HouseFlat::fetchAll(criteria()->asc('house_flat_id'));
 
+        /** @var array<int, array<int, int>> $intercoms */
         $intercoms = [];
 
         $length = count($flats);
+        $step = 100.0 / $length;
+
+        $bar = $io->getOutput()->getBar('Поиск 0/' . $length);
+
+        $bar->show();
+
+        $i = 1;
+
+        foreach ($flats as $flat) {
+            $entrances = $flat->entrances()->fetchAll(setting: setting()->columns(['house_domophone_id']));
+
+            foreach ($entrances as $entrance) {
+                if (!array_key_exists($entrance->house_domophone_id, $intercoms)) {
+                    $intercoms[$entrance->house_domophone_id] = [];
+                }
+
+                $intercoms[$entrance->house_domophone_id][intval($flat->flat)] = intval($flat->open_code);
+            }
+
+            $bar->label('Поиск ' . ($i++) . '/' . $length);
+            $bar->advance($step);
+        }
+
+        $bar->hide();
+
+        $length = count($intercoms);
         $step = 100.0 / $length;
 
         $bar = $io->getOutput()->getBar('Обработка 0/' . $length);
 
         $bar->show();
 
-        for ($i = 0; $i < $length; $i++) {
-            $flatEntrances = $flats[$i]->entrances()->fetchAll(setting: setting()->columns(['house_domophone_id']));
-            $count = count($flatEntrances);
+        $i = 1;
 
-            if ($count > 0) {
-                foreach ($flatEntrances as $flatEntrance) {
-                    if (!array_key_exists($flatEntrance->house_domophone_id, $intercoms)) {
-                        $intercoms[$flatEntrance->house_domophone_id] = [true, intercom($flatEntrance->house_domophone_id)];
-                    } else if (!$intercoms[$flatEntrance->house_domophone_id][0]) {
-                        $bar->advance($step / $count);
+        foreach ($intercoms as $id => $flats) {
+            $intercom = intercom($id);
 
-                        continue;
-                    }
-
-                    $intercom = $intercoms[$flatEntrance->house_domophone_id][1];
-
-                    if ($intercom instanceof CodeInterface) {
-                        try {
-                            if ($flats[$i]->open_code) {
-                                $intercom->addCode(new Code(intval($flats[$i]->open_code), intval($flats[$i]->flat)));
-                            } else {
-                                $intercom->removeCode(new Code(0, $flats[$i]->flat));
-                            }
-                        } catch (Throwable) {
-                            $intercoms[$flatEntrance->house_domophone_id][0] = false;
+            try {
+                if ($intercom instanceof CodeInterface) {
+                    foreach ($flats as $flat => $code) {
+                        if ($code != 0) {
+                            $intercom->addCode(new Code($code, $flat));
+                        } else {
+                            $intercom->removeCode(new Code(0, $flat));
                         }
                     }
-
-                    $bar->advance($step / $count);
                 }
-            } else {
-                $bar->advance($step);
+            } catch (Throwable $throwable) {
+                $io->writeLine('Домофон ' . $id . ' ' . $throwable->getMessage());
             }
 
-            $bar->label('Обработка ' . ($i + 1) . '/' . $length);
+            $bar->label('Обработка ' . ($i++) . '/' . $length);
+            $bar->advance($step);
         }
 
         $bar->hide();
