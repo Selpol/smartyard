@@ -148,6 +148,6 @@ return [
 
         'intercom' => [
             'debug' => array_map('intval', array_map('trim', explode(',', env('FEATURE_INTERCOM_DEBUG', ''))))
-        ]
+        ],
     ]
 ];

@@ -85,6 +85,7 @@
 Поля: 
 
 - `null|int[]` *ids* - Идентификаторы домов
+- `null|string` *house_full* - Полный адрес дома
 - `int|null` *address_settlement_id*
 - `int|null` *address_street_id*
 
@@ -367,6 +368,7 @@
 
 - `string` *title* - Название
 - `int` *flat* - Квартира
+- `int` *flat_flag* - Флаги квартиры
 - `string|null` *code* - Код открытия
 
 ## ContractUpdateRequest
@@ -376,6 +378,7 @@
 - `int` *id* - Идентификатор подрядчика
 - `string` *title* - Название
 - `int` *flat* - Квартира
+- `int` *flat_flag* - Флаги квартиры
 - `string|null` *code* - Код открытия
 
 ## DvrShowRequest
@@ -822,6 +825,7 @@
 - `int` *house_subscriber_id* - Идентификатор абонента
 - `int` *flat_id* - Идентификатор квартиры
 - `int` *role* - Роль абонента в квартире, 0 - Владелец, 1 - Жилец
+- `int` *call* - Статус звонков, 0 - Выключены, 1 - Включено
 
 ## TaskSearchRequest
 
@@ -895,6 +899,15 @@
 - `int` *apartmentId* - Идентификатор квартиры
 - `int` *date* - Дата события
 
+## DhcpRequest
+
+Поля: 
+
+- `string|null` *ip* - IP-Адрес устройства
+- `string|null` *mac* - MAC-Адрес устройства
+- `string|null` *host* - Hostname
+- `string|null` *server* - DHCP Сервер
+
 ## FrsCallbackRequest
 
 Поля: 
@@ -945,6 +958,7 @@
 Поля: 
 
 - `int` *houseId*
+- `int` *id*
 
 ## CameraEventsRequest
 
@@ -985,8 +999,7 @@
 - `string` *container*
 - `string` *stream*
 - `int|null` *time*
-- `bool|null` *sub*
-- `bool|null` *hw*
+- `array|null` *capabilities*
 
 ## DvrTimelineRequest
 
@@ -1017,6 +1030,13 @@
 - `string|null` *token*
 - `int|null` *from*
 - `int|null` *to*
+
+## FlatUpdateRequest
+
+Поля: 
+
+- `int` *id*
+- `int` *call*
 
 ## FrsDeleteRequest
 

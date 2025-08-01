@@ -8,6 +8,7 @@
 - [CallController](./CallController.md)
 - [CameraController](./CameraController.md)
 - [DvrController](./DvrController.md)
+- [FlatController](./FlatController.md)
 - [FrsController](./FrsController.md)
 - [InboxController](./InboxController.md)
 - [IntercomController](./IntercomController.md)

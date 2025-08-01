@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Intercom\Is\Trait;
 
@@ -28,7 +30,11 @@ trait CodeTrait
 
     public function removeCode(Code $code): void
     {
-        $this->delete('/openCode/' . $code->apartment . '/' . $code->code);
+        if ($code->code) {
+            $this->delete('/openCode/' . $code->apartment . '/' . $code->code);
+        } else {
+            $this->delete('/openCode/' . $code->apartment);
+        }
     }
 
     public function clearCode(): void
