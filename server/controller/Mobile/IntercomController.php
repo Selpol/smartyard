@@ -228,19 +228,35 @@ readonly class IntercomController extends MobileRbtController
             BlockFlatMiddleware::class => ['flat' => 'flatId', 'services' => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CODE]]
         ]
     )]
-    public function resetCode(ServerRequestInterface $request, HouseFeature $houseFeature): Response
+    public function resetCode(ServerRequestInterface $request): Response
     {
-        $validate = validator($request->getParsedBody(), ['flatId' => rule()->id()]);
+        $flat = HouseFlat::findById($request->getAttribute('flat_ids')[0], setting: setting()->nonNullable());
 
-        $params = [];
-        $params['openCode'] = '!';
+        $code = 11000 + rand(0, 88999);
+        $count = 10;
 
-        $houseFeature->modifyFlat($validate['flatId'], $params);
+        while (HouseFlat::fetch(criteria()->equal('address_house_id', $flat->address_house_id)->equal('open_code', $code), setting()->columns([])) != null) {
+            $code = 11000 + rand(0, 88999);
 
-        $flat = $houseFeature->getFlat($validate['flatId']);
+            $count--;
 
-        task(new IntercomSyncFlatTask(-1, $validate['flatId'], false))->high()->async();
+            if ($count <= 0) {
+                $code = null;
 
-        return user_response(200, ["code" => intval($flat['openCode'])]);
+                break;
+            }
+        }
+
+        if ($code == null) {
+            return user_response(429, message: 'Попробуйте позже');
+        }
+
+        $flat->open_code = (string)$code;
+        $flat->open_code_enabled = time();
+        $flat->update();
+
+        task(new IntercomSyncFlatTask(-1, $flat->house_flat_id, false))->high()->async();
+
+        return user_response(200, ['code' => intval($flat->open_code)]);
     }
 }

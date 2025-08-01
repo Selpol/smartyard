@@ -36,6 +36,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int|null $last_opened
  * @property int|null $cms_enabled
+ * 
+ * @property int|null $open_code_enabled
  *
  * @property string|null $comment Комментарий
  *
@@ -134,6 +136,8 @@ class HouseFlat extends Entity
 
             'last_opened' => rule()->int(),
             'cms_enabled' => rule()->int(),
+
+            'open_code_enabled' => rule()->int(),
 
             'comment' => rule()->string()
         ];

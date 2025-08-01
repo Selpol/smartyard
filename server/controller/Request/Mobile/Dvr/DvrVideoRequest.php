@@ -13,6 +13,8 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read string $stream
  *
  * @property-read int|null $time
+ *  
+ * @property-read array|null $capabilities
  */
 readonly class DvrVideoRequest extends RouteRequest
 {

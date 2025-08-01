@@ -128,6 +128,7 @@ readonly class InternalHouseFeature extends HouseFeature
                         sip_password,
                         last_opened,
                         cms_enabled,
+                        open_code_enabled,
                         comment
                     from houses_flats
                     where house_flat_id = :flat_id",
@@ -147,6 +148,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 "sip_password" => "sipPassword",
                 "last_opened" => "lastOpened",
                 "cms_enabled" => "cmsEnabled",
+                "open_code_enabled" => "open_code_enabled",
                 "comment" => "comment"
             ],
             options: ["singlify"]);
