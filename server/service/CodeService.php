@@ -22,7 +22,7 @@ class CodeService implements CronInterface
         }
 
         /** @var array<Houseflat> $flats */
-        $flats = HouseFlat::fetchAll(criteria()->simple('open_code_enabled', '>=', time() - 7 * 86400), setting: setting()->columns(['house_flat_id', 'open_code']));
+        $flats = HouseFlat::fetchAll(criteria()->simple('open_code_enabled', '<=', time() - 7 * 86400), setting: setting()->columns(['house_flat_id', 'open_code']));
 
         foreach ($flats as $flat) {
             $flat->open_code = '';
