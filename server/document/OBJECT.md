@@ -381,19 +381,12 @@
 - `int` *flat_flag* - Флаги квартиры
 - `string|null` *code* - Код открытия
 
-## DvrCameraShowRequest
-
-Поля: 
-
-- `int` *id* - Идентификатор DVR сервера
-- `string` *camera* - Идентификатор камеры на DVR сервере
-
 ## DvrShowRequest
 
 Поля: 
 
 - `int` *id* - Идентификатор DVR сервера
-- `string` *search* - Строка поиска камеры
+- `string` *camera* - Идентификатор камеры
 
 ## EntranceCmsRequest
 

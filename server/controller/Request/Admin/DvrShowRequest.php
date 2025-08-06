@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Controller\Request\Admin;
 
@@ -7,7 +9,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
 /**
  * @property-read int $id Идентификатор DVR сервера
  *
- * @property-read string $search Строка поиска камеры
+ * @property-read string $camera Идентификатор камеры
  */
 readonly class DvrShowRequest extends RouteRequest
 {
@@ -15,7 +17,7 @@ readonly class DvrShowRequest extends RouteRequest
     {
         return [
             'id' => rule()->id(),
-            'search' => rule()->required()->string()->nonNullable(),
+            'camera' => rule()->string()->exist(),
         ];
     }
 }

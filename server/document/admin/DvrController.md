@@ -10,7 +10,7 @@
 
 - `int` *id* Идентификатор DVR сервера
 
-### [GET/show `dvr-show-get`] Найти камеру на DVR сервере `/admin/dvr/show/{id}`
+### [GET/show `dvr-show-get`] Получить камеру с сервера `/admin/dvr/show/{id}`
 
 Параметры: 
 

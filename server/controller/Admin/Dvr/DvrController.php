@@ -36,15 +36,15 @@ readonly class DvrController extends AdminRbtController
     }
 
     /**
-     * Найти камеру на DVR сервере
+     * Получить камеру с сервера
      */
     #[Get('/show/{id}')]
     public function show(DvrShowRequest $request): ResponseInterface
     {
-        $id = dvr($request->id)?->getCameraId($request->search);
+        $camera = dvr($request->id)?->getCamera($request->camera);
 
-        if ($id != null) {
-            return self::success($id);
+        if ($camera) {
+            return self::success($camera);
         }
 
         return self::error('Камера не найдена', 404);

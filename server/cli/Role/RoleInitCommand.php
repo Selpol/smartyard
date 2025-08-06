@@ -52,9 +52,7 @@ class RoleInitCommand
             'config-camera-get' => '[Конфигурация] Получить конфигурацию камеры',
 
             'dvr-index-get' => '[Dvr] Получить список камер на сервере',
-            'dvr-show-get' => '[Dvr] Найти идентификатор камеры',
-
-            'dvr-camera-show-get' => '[Dvr-Камера] Найти камеру на DVR сервере',
+            'dvr-show-get' => '[Dvr] Получить камеру с сервера',
 
             'geo-index-get' => '[Гео] Получить список адресов',
 
