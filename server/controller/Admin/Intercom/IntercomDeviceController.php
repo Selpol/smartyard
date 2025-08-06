@@ -17,6 +17,7 @@ use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Config\ConfigFeature;
 use Selpol\Feature\Config\ConfigKey;
+use Selpol\Feature\Intercom\IntercomFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -151,76 +152,11 @@ readonly class IntercomDeviceController extends AdminRbtController
      * Обновить пароль на домофоне
      */
     #[Post('/password/{id}')]
-    public function password(IntercomDevicePasswordRequest $request, SipFeature $sipFeature, AuditFeature $auditFeature): ResponseInterface
+    public function password(IntercomDevicePasswordRequest $request, IntercomFeature $feature): ResponseInterface
     {
-        $device = intercom($request->id);
+        $device = DeviceIntercom::findById($request->id, setting: setting()->nonNullable());
 
-        if (!$device) {
-            return self::error('Не удалось найти домофон', 404);
-        }
-
-        if (!$device->ping()) {
-            return self::error('Домофон не доступен', 400);
-        }
-
-        $deviceCamera = DeviceCamera::fetch(criteria()->equal('url', $device->intercom->url));
-
-        $password = $request->password ? $request->password : generate_password();
-
-        file_logger('password')->debug('Обновление пароля устройства', ['id' => $device->intercom->house_domophone_id, 'oldPassword' => $device->intercom->credentials, 'password' => $password]);
-
-        try {
-            $sipServer = $sipFeature->sip($device->intercom);
-
-            $username = sprintf('1%05d', $device->intercom->house_domophone_id);
-
-            if ($device instanceof SipInterface) {
-                $device->setSip(new Sip($username, $password, $sipServer->internal_ip, $sipServer->internal_port));
-            }
-        } catch (Throwable $throwable) {
-            file_logger('password')->error($throwable);
-
-            return self::error('Неудалось обновить sip аккаунт домофона', 500);
-        }
-
-        $device->setLoginPassword($password);
-
-        $oldIntercomPassword = $device->intercom->credentials;
-        $device->intercom->credentials = $password;
-
-        if (!$device->intercom->safeUpdate()) {
-            file_logger('password')->info('Неудалось сохранить новый пароль в базе данных у домофона', ['old' => $oldIntercomPassword, 'new' => $password]);
-
-            return self::error('Неудалось сохранить новый пароль в базе данных у домофона (новый пароль' . $password . ', старый пароль ' . $oldIntercomPassword . ')', 400);
-        }
-
-        if ($deviceCamera instanceof DeviceCamera) {
-            $oldCameraPassword = $device->intercom->credentials;
-
-            if ($deviceCamera->stream && trim($deviceCamera->stream) !== '') {
-                $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($device->login, $password);
-            }
-
-            $deviceCamera->credentials = $password;
-
-            if (!$deviceCamera->safeUpdate()) {
-                file_logger('password')->info('Неудалось сохранить новый пароль в базе данных у камеры', ['old' => $oldCameraPassword, 'new' => $password]);
-
-                return self::error('Неудалось сохранить новый пароль в базе данных у камеры (новый пароль' . $password . ', старый пароль ' . $oldCameraPassword . ')', 400);
-            }
-
-            if ($deviceCamera->dvr_server_id) {
-                try {
-                    dvr($deviceCamera->dvr_server_id)->updateCamera($deviceCamera);
-                } catch (Throwable $throwable) {
-                    file_logger('password')->info('Неудалось обновить пароль на DVR' . PHP_EOL . $throwable, ['old' => $oldCameraPassword, 'new' => $password]);
-                }
-            }
-        }
-
-        if ($auditFeature->canAudit()) {
-            $auditFeature->audit(strval($device->intercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
-        }
+        $feature->updatePassword($device, $request->password);
 
         return self::success();
     }

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Feature\Streamer\Internal;
 
@@ -19,7 +21,9 @@ readonly class InternalStreamerFeature extends StreamerFeature
 
     public function stream(Stream $value): void
     {
-        $request = client_request('PUT', uri($value->getServer()->title)->withPath('/api/v1/source'))
+        file_logger('streamer')->debug('Publish stream ', [$value]);
+
+        $request = client_request('PUT', uri($value->getServer()->web)->withPath('/api/v1/source'))
             ->withBody(stream(['token' => $value->getToken(), 'source' => $value->getSource(), 'input' => $value->getInput()->value, 'output' => $value->getOutput()->value, 'option' => ['latency' => $value->getLatency(), 'transport' => $value->getTransport()]]));
 
         $response = container(Client::class)->send($request);

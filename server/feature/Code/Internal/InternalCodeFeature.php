@@ -18,7 +18,7 @@ readonly class InternalCodeFeature extends CodeFeature
         }
 
         /** @var array<Houseflat> $flats */
-        $flats = HouseFlat::fetchAll(criteria()->simple('open_code_enabled', '<=', time() - 7 * 86400), setting: setting()->columns(['house_flat_id', 'open_code', 'open_code_enabled']));
+        $flats = HouseFlat::fetchAll(criteria()->simple('open_code_enabled', 'IS NOT', 'NULL')->simple('open_code_enabled', '<=', time() - 7 * 86400), setting: setting()->columns(['house_flat_id', 'open_code', 'open_code_enabled']));
 
         foreach ($flats as $flat) {
             $flat->open_code = '';
