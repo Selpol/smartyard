@@ -1,6 +1,8 @@
-<?php declare(strict_types=1);
+<?php
 
-namespace Selpol\Controller\Admin;
+declare(strict_types=1);
+
+namespace Selpol\Controller\Admin\Dvr;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;

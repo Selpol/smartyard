@@ -18,6 +18,7 @@
 - [ConfigController](./ConfigController.md)
 - [ContractorController](./ContractorController.md)
 - [DashboardDeviceController](./DashboardDeviceController.md)
+- [DvrCameraController](./DvrCameraController.md)
 - [DvrController](./DvrController.md)
 - [EntranceCmsController](./EntranceCmsController.md)
 - [EntranceFlatController](./EntranceFlatController.md)

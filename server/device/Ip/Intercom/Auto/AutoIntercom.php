@@ -58,13 +58,13 @@ class AutoIntercom extends IntercomDevice
             ConfigKey::AutoHik->value => 'hikvision',
         ];
 
-        foreach ($models as $key => $model) {
-            if ($this->include($key, $deviceModel)) {
-                return $model;
-            }
-        }
-
         if ($deviceModel) {
+            foreach ($models as $key => $model) {
+                if ($this->include($key, $deviceModel)) {
+                    return $model;
+                }
+            }
+
             $model = $this->load($deviceModel);
 
             if ($model) {

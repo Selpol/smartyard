@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Dvr\Flussonic;
 
@@ -30,6 +32,31 @@ class FlussonicDvr extends DvrDevice
             return array_key_exists('streams', $response) ? array_map(static fn(array $stream): array => ['id' => $stream['name'], 'title' => $stream['title'] ?? $stream['name']], $response['streams']) : [];
         } catch (Throwable) {
             return [];
+        }
+    }
+
+    public function getCamera(string $id): ?array
+    {
+        try {
+            $response = $this->get('/streamer/api/v3/streams/' . $id);
+
+            if (!array_key_exists('inputs', $response)) {
+                return null;
+            }
+
+            $inputs = array_filter($response['inputs'], static fn(array $value) => $value['priority'] == 1);
+
+            if (count($inputs) == 0) {
+                return null;
+            }
+
+            return [
+                'title' => $response['title'],
+                'url' => $inputs[0]['url'],
+                'ip' => $inputs[0]['stats']['ip']
+            ];
+        } catch (Throwable) {
+            return null;
         }
     }
 

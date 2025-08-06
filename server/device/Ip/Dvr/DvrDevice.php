@@ -30,6 +30,11 @@ abstract class DvrDevice extends IpDevice
         return [];
     }
 
+    public function getCamera(string $id): ?array
+    {
+        return null;
+    }
+
     public function getCameraId(string $query): ?string
     {
         return null;

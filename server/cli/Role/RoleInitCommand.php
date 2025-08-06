@@ -54,6 +54,8 @@ class RoleInitCommand
             'dvr-index-get' => '[Dvr] Получить список камер на сервере',
             'dvr-show-get' => '[Dvr] Найти идентификатор камеры',
 
+            'dvr-camera-show-get' => '[Dvr-Камера] Найти камеру на DVR сервере',
+
             'geo-index-get' => '[Гео] Получить список адресов',
 
             'log-index-get' => '[Логи] Получить логи',
