@@ -396,6 +396,7 @@
 - `int` *id* - Идентификатор DVR сервера
 - `array` *cameras* - Идентификаторы камер на DVR сервере
 - `null|int` *frs_server_id* - Идентификатор FRS сервера
+- `string` *model* - Модель камеры
 
 ## EntranceCmsRequest
 

@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\DvrImportRequest;
 use Selpol\Controller\Request\Admin\DvrShowRequest;
+use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
@@ -60,6 +61,42 @@ readonly class DvrController extends AdminRbtController
         $ids = [];
 
         $dvr = dvr($request->id);
+
+        foreach ($request->cameras as $id) {
+            $dvrCamera = $dvr->getCamera($id);
+
+            if (!$dvrCamera) {
+                continue;
+            }
+
+            $camera = new DeviceCamera();
+
+            $camera->dvr_server_id = $request->id;
+            $camera->frs_server_id = $request->frs_server_id;
+
+            $camera->enabled = 1;
+
+            $camera->model = $request->model;
+
+            $camera->url = 'http://' . $dvrCamera->ip;
+            $camera->stream = $dvrCamera->url;
+            $camera->credentials = '';
+            $camera->name = $dvrCamera->title;
+            $camera->dvr_stream = $id;
+            $camera->timezone = 'Europe/Moscow';
+
+            $camera->common = 0;
+
+            $camera->ip = $dvrCamera->ip;
+
+            $camera->comment = $dvrCamera->title;
+
+            if (!$camera->safeInsert()) {
+                continue;
+            }
+
+            $ids[$id] = $camera->camera_id;
+        }
 
         return self::success($ids);
     }
