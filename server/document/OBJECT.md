@@ -359,6 +359,7 @@
 Поля: 
 
 - `int` *id* - Идентификатор подрядчика
+- `null|int` *address_house_id* - Идентификатор дома
 - `bool` *remove_subscriber* - Удалять ли абонентов
 - `bool` *remove_key* - Удалять ли ключи
 
@@ -387,6 +388,14 @@
 
 - `int` *id* - Идентификатор DVR сервера
 - `string` *camera* - Идентификатор камеры
+
+## DvrImportRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор DVR сервера
+- `array` *cameras* - Идентификаторы камер на DVR сервере
+- `null|int` *frs_server_id* - Идентификатор FRS сервера
 
 ## EntranceCmsRequest
 

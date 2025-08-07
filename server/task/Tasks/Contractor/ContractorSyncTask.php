@@ -1,8 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Task\Tasks\Contractor;
 
-use Selpol\Controller\Api\houses\flat;
 use Selpol\Device\Ip\Intercom\IntercomDevice;
 use Selpol\Device\Ip\Intercom\Setting\Key\Key;
 use Selpol\Device\Ip\Intercom\Setting\Key\KeyInterface;
@@ -26,7 +27,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
     public $taskUniqueTtl = 600;
 
 
-    public function __construct(int $id, public bool $removeSubscriber, public bool $removeKey)
+    public function __construct(int $id, public ?int $addressHouseId, public bool $removeSubscriber, public bool $removeKey)
     {
         parent::__construct('Сихронизация подрядчика (' . $id . ')', $id);
     }
@@ -70,6 +71,10 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
             $delta = (45 - $progress) / count($addresses);
 
             foreach ($addresses as $address) {
+                if ($address != $this->addressHouseId) {
+                    continue;
+                }
+
                 try {
                     $this->address($contractor, $address, $subscribers, $devices, $flats);
 
@@ -293,7 +298,6 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
                             }
                         }
                     } catch (Throwable) {
-
                     }
                 }
             } catch (Throwable $throwable) {

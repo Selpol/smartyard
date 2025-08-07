@@ -6,6 +6,7 @@ namespace Selpol\Controller\Admin\Dvr;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\DvrImportRequest;
 use Selpol\Controller\Request\Admin\DvrShowRequest;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -48,6 +49,19 @@ readonly class DvrController extends AdminRbtController
         }
 
         return self::error('Камера не найдена', 404);
+    }
+
+    /**
+     * Импортирование камер с сервера
+     */
+    #[Get('/import/{id}')]
+    public function import(DvrImportRequest $request): ResponseInterface
+    {
+        $ids = [];
+
+        $dvr = dvr($request->id);
+
+        return self::success($ids);
     }
 
     private static function sort(array $a, array $b): int

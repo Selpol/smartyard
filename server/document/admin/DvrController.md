@@ -15,3 +15,9 @@
 Параметры: 
 
 - [DvrShowRequest](../OBJECT.md#DvrShowRequest) 
+
+### [GET/import `dvr-import-get`] Импортирование камер с сервера `/admin/dvr/import/{id}`
+
+Параметры: 
+
+- [DvrImportRequest](../OBJECT.md#DvrImportRequest) 

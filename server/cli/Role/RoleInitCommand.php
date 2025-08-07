@@ -53,6 +53,7 @@ class RoleInitCommand
 
             'dvr-index-get' => '[Dvr] Получить список камер на сервере',
             'dvr-show-get' => '[Dvr] Получить камеру с сервера',
+            'dvr-import-get' => '[Dvr] Импортирование камер с сервера',
 
             'geo-index-get' => '[Гео] Получить список адресов',
 

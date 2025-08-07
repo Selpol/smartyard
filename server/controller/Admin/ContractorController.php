@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Controller\Admin;
 
@@ -60,7 +62,7 @@ readonly class ContractorController extends AdminRbtController
             return self::error('Не удалось найти подрядчика', 404);
         }
 
-        task(new ContractorSyncTask($contactor->id, $request->remove_subscriber, $request->remove_key))->high()->async();
+        task(new ContractorSyncTask($contactor->id, $request->address_house_id, $request->remove_subscriber, $request->remove_key))->high()->async();
 
         return self::success();
     }
