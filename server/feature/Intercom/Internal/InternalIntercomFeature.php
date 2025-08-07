@@ -11,6 +11,7 @@ use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Config\ConfigKey;
 use Selpol\Feature\Intercom\IntercomFeature;
 use Selpol\Feature\Sip\SipFeature;
 use Selpol\Framework\Http\Uri;
@@ -32,7 +33,15 @@ readonly class InternalIntercomFeature extends IntercomFeature
 
         $deviceCamera = DeviceCamera::fetch(criteria()->equal('url', $device->intercom->url));
 
-        $password = $password ? $password : $this->getPassword();
+        $password = $password ? $password : $device->resolver->string(ConfigKey::AuthPassword);
+
+        if ($password) {
+            if (str_starts_with($password, 'ENV_')) {
+                $password = env(substr($password, 4), generate_password());
+            }
+        } else {
+            $password = generate_password();
+        }
 
         file_logger('password')->debug('Обновление пароля устройства', ['id' => $device->intercom->house_domophone_id, 'oldPassword' => $device->intercom->credentials, 'password' => $password]);
 
@@ -88,10 +97,5 @@ readonly class InternalIntercomFeature extends IntercomFeature
         if (container(AuditFeature::class)->canAudit()) {
             container(AuditFeature::class)->audit(strval($device->intercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
         }
-    }
-
-    private function getPassword(): string
-    {
-        return config_get('feature.intercom.password', generate_password());
     }
 }

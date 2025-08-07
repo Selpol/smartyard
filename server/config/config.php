@@ -147,9 +147,7 @@ return [
         ],
 
         'intercom' => [
-            'debug' => array_map('intval', array_map('trim', explode(',', env('FEATURE_INTERCOM_DEBUG', '')))),
-
-            'password' => env('FEATURE_INTERCOM_PASSWORD', null)
+            'debug' => array_map('intval', array_map('trim', explode(',', env('FEATURE_INTERCOM_DEBUG', ''))))
         ],
     ]
 ];

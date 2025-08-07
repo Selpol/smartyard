@@ -13,6 +13,7 @@ enum ConfigKey: string
 
     case Auth = 'auth';
     case AuthLogin = 'auth.login';
+    case AuthPassword = 'auth.password';
 
     case Debug = 'debug';
     case Log = 'log';
