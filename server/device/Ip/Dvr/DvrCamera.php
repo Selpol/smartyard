@@ -28,12 +28,25 @@ readonly class DvrCamera implements JsonSerializable
      */
     public string $ip;
 
-    public function __construct(string $id, string $title, string $url, string $ip)
+    /**
+     * Пользователь от камеры
+     */
+    public string $user;
+
+    /**
+     * Пароль от камеры
+     */
+    public string $password;
+
+    public function __construct(string $id, string $title, string $url, string $ip, string $user, string $password)
     {
         $this->id = $id;
         $this->title = $title;
         $this->url = $url;
         $this->ip = $ip;
+
+        $this->user = $user;
+        $this->password = $password;
     }
 
     public function jsonSerialize(): mixed
@@ -41,7 +54,10 @@ readonly class DvrCamera implements JsonSerializable
         return [
             'title' => $this->title,
             'url' => $this->url,
-            'ip' => $this->ip
+            'ip' => $this->ip,
+
+            'user' => $this->user,
+            'password' => $this->password
         ];
     }
 }

@@ -80,7 +80,7 @@ readonly class DvrController extends AdminRbtController
 
             $camera->url = 'http://' . $dvrCamera->ip;
             $camera->stream = $dvrCamera->url;
-            $camera->credentials = '';
+            $camera->credentials = $dvrCamera->password;
             $camera->name = $dvrCamera->title;
             $camera->dvr_stream = $id;
             $camera->timezone = 'Europe/Moscow';

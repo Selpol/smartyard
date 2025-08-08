@@ -51,7 +51,14 @@ class FlussonicDvr extends DvrDevice
                 return null;
             }
 
-            return new DvrCamera($id, $response['title'], $inputs[0]['url'],  $inputs[0]['stats']['ip']);
+            $url = uri($inputs[0]['url']);
+
+            $auth = explode(':', $url->getUserInfo());
+
+            $user = array_key_exists(0, $auth) ? $auth[0] : '';
+            $password = array_key_exists(1, $auth) ? $auth[1] : '';
+
+            return new DvrCamera($id, $response['title'], $inputs[0]['url'],  $inputs[0]['stats']['ip'], $user, $password);
         } catch (Throwable) {
             return null;
         }
