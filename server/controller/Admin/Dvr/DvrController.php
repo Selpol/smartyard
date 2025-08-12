@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\DvrImportRequest;
 use Selpol\Controller\Request\Admin\DvrShowRequest;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
@@ -62,6 +63,8 @@ readonly class DvrController extends AdminRbtController
 
         $dvr = dvr($request->id);
 
+        $house = $request->address_house_id ? AddressHouse::findById($request->address_house_id) : null;
+
         foreach ($request->cameras as $id) {
             $dvrCamera = $dvr->getCamera($id);
 
@@ -96,6 +99,10 @@ readonly class DvrController extends AdminRbtController
             }
 
             $ids[$id] = $camera->camera_id;
+
+            if ($house) {
+                $house->cameras()->add($camera);
+            }
         }
 
         return self::success($ids);

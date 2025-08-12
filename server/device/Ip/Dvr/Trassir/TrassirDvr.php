@@ -13,6 +13,7 @@ use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Selpol\Device\Ip\Dvr\Common\DvrOutput;
 use Selpol\Device\Ip\Dvr\Common\DvrStreamer;
 use Selpol\Device\Ip\Dvr\Common\DvrStream;
+use Selpol\Device\Ip\Dvr\DvrCamera;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\DvrModel;
 use Selpol\Entity\Model\Device\DeviceCamera;
@@ -47,6 +48,11 @@ class TrassirDvr extends DvrDevice
         } catch (Throwable) {
             return [];
         }
+    }
+
+    public function getCamera(string $id): ?DvrCamera
+    {
+        return null;
     }
 
     public function getCameraId(string $query): ?string
@@ -198,7 +204,7 @@ class TrassirDvr extends DvrDevice
                     new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
                 );
             }
-        } elseif ($stream === DvrStream::ARCHIVE) {
+        } else if ($stream === DvrStream::ARCHIVE) {
             $depth = $this->get('/s/archive/timeline', ['channel' => $camera->dvr_stream, 'sid' => $this->getSid()]);
 
             if (!array_key_exists('success', $depth) || !$depth['success']) {

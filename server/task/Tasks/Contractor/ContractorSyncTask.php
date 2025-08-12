@@ -71,7 +71,7 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
             $delta = (45 - $progress) / count($addresses);
 
             foreach ($addresses as $address) {
-                if ($address != $this->addressHouseId) {
+                if ($this->addressHouseId && $address != $this->addressHouseId) {
                     continue;
                 }
 

@@ -13,6 +13,7 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read array $cameras Идентификаторы камер на DVR сервере
  * 
  * @property-read null|int $frs_server_id Идентификатор FRS сервера
+ * @property-read null|int $address_house_id Идентификатор дома
  * 
  * @property-read string $model Модель камеры
  */
@@ -27,6 +28,7 @@ readonly class DvrImportRequest extends RouteRequest
             'cameras.*' => rule()->string()->exist(),
 
             'frs_server_id' => rule()->int()->clamp(0),
+            'address_house_id' => rule()->int()->clamp(0),
 
             'model' => [filter()->default('fake'), rule()->string()->in(array_keys(CameraModel::models()))->exist()]
         ];
