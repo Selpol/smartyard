@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Dvr\Trassir;
 
@@ -52,23 +54,22 @@ class TrassirDvr extends DvrDevice
 
     public function getCamera(string $id): ?DvrCamera
     {
-        return null;
-    }
-
-    public function getCameraId(string $query): ?string
-    {
         try {
             $response = $this->get('/channels', ['sid' => $this->getSid()]);
 
-            if (array_key_exists('channels', $response)) {
-                $channels = array_values(array_filter($response['channels'], static fn(array $channel): bool => $channel['name'] === $query));
-
-                if ($channels !== []) {
-                    return $channels[0]['guid'];
-                }
+            if (!array_key_exists('channels', $response)) {
+                return null;
             }
 
-            return null;
+            $channels = array_filter($response['channels'], static fn(array $channel): bool => $channel['guid'] === $id);
+
+            if (count($channels) == 0) {
+                return null;
+            }
+
+            $channel = $channels[0];
+
+            return new DvrCamera($id, $channel['name'], '', '', '', '');
         } catch (Throwable) {
             return null;
         }

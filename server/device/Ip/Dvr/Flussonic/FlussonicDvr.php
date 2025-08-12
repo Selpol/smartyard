@@ -64,17 +64,6 @@ class FlussonicDvr extends DvrDevice
         }
     }
 
-    public function getCameraId(string $query): ?string
-    {
-        try {
-            $response = $this->get('/streamer/api/v3/streams', ['select' => 'name', 'limit' => 1, 'q' => $query]);
-
-            return array_key_exists('streams', $response) && count($response['streams']) > 0 ? $response['streams'][0]['name'] : null;
-        } catch (Throwable) {
-            return null;
-        }
-    }
-
     public function capabilities(): array
     {
         return [
