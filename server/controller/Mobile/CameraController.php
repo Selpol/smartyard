@@ -109,7 +109,7 @@ readonly class CameraController extends MobileRbtController
 
         $identifier = $dvr->identifier($camera, $time, $this->getUser()->getIdentifier());
 
-        $screenshot = $service->useCacheEx(1, 'camera:' . $id . ':screenshot', 7 * 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
+        $screenshot = $service->useCacheEx(RedisService::SCREENSHOT, 'camera:' . $id . ':screenshot', 7 * 86400, function () use ($camera, $identifier, $time, $dvr, $id) {
             try {
                 $value = $dvr->screenshot($identifier, $camera, $time);
 

@@ -13,6 +13,9 @@ class RedisService implements LoggerAwareInterface
 {
     use LoggerKernelTrait;
 
+    public const SCREENSHOT = 1;
+    public const MONITOR = 2;
+
     private ?Redis $redis = null;
 
     public function __construct()

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Selpol\Device\Ip\Dvr;
 
@@ -35,6 +37,18 @@ abstract class DvrDevice extends IpDevice
         return null;
     }
 
+    /**
+     * Получить состояние всех камер на сервере
+     * 
+     * @param string[]|null $ids
+     * 
+     * @return array<string, bool>
+     */
+    public function getStatuses(?array $ids): array
+    {
+        return [];
+    }
+
     public function capabilities(): array
     {
         return [
@@ -49,10 +63,7 @@ abstract class DvrDevice extends IpDevice
         ];
     }
 
-    public function updateCamera(DeviceCamera $camera): void
-    {
-
-    }
+    public function updateCamera(DeviceCamera $camera): void {}
 
     public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
     {

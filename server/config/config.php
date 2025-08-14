@@ -149,5 +149,9 @@ return [
         'intercom' => [
             'debug' => array_map('intval', array_map('trim', explode(',', env('FEATURE_INTERCOM_DEBUG', ''))))
         ],
+
+        'monitor' => [
+            'enable' => env('FEATURE_MONITOR_ENABLE', '0') == '1'
+        ]
     ]
 ];

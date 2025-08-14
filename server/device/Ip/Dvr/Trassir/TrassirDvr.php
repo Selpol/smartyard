@@ -75,6 +75,28 @@ class TrassirDvr extends DvrDevice
         }
     }
 
+    public function getStatuses(?array $ids): array
+    {
+        $result = [];
+
+        try {
+            $channels = $this->getCameras();
+
+            foreach ($channels as $channel) {
+                if ($ids && !in_array($channel['id'], $ids)) {
+                    continue;
+                }
+
+                $response = $this->get('/settings/channels/' . $channel['id'] . '/stats/fps_main', ['sid' => $this->getSid()]);
+
+                $result[$channel['id']] = $response['value'] > 0;
+            }
+        } catch (Throwable) {
+        }
+
+        return $result;
+    }
+
     private function getSid(): string
     {
         $cache = container(RedisCache::class);
