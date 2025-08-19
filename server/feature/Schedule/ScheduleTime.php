@@ -159,7 +159,7 @@ final readonly class ScheduleTime implements ScheduleTimeInterface
                     if (!filter_var(substr($part, $index + 2), FILTER_VALIDATE_INT)) {
                         throw new KernelException('Не верный формат числа в расписании времени');
                     }
-                } else if (!filter_var($part, FILTER_VALIDATE_INT)) {
+                } else if ($part != '0' && !filter_var($part, FILTER_VALIDATE_INT)) {
                     throw new KernelException('Не верный формат числа в расписании времени');
                 }
             }
