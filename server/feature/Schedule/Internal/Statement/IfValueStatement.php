@@ -37,11 +37,11 @@ class IfValueStatement extends Statement
         }
 
         if (!array_key_exists('children', $value)) {
-            throw new KernelException('Не передано дальнейшее действие');
+            throw new KernelException('Не переданы дочерние действия');
         }
 
         if (!is_array($value['children'])) {
-            throw new KernelException('Не верный тип действий');
+            throw new KernelException('Не верный тип дочерних действий');
         }
 
         foreach ($value['children'] as $child) {

@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\Schedule\Internal\Statement;
 
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Schedule\Internal\Context;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
@@ -23,6 +24,10 @@ class StoreIntercomStatement extends Statement
     {
         if (!array_key_exists('intercom', $value)) {
             throw new KernelException('Отсуствует идентификатор домофона');
+        }
+
+        if (!DeviceIntercom::findById($value['intercom'])) {
+            throw new KernelException('Домофон не найден');
         }
     }
 

@@ -3,6 +3,7 @@
 namespace Selpol\Feature\Schedule\Internal\Statement;
 
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
+use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Schedule\Internal\Context;
 use Selpol\Framework\Kernel\Exception\KernelException;
 
@@ -43,6 +44,10 @@ class IntercomRelayStatement extends Statement
     {
         if (!array_key_exists('intercom', $value)) {
             throw new KernelException('Отсуствует идентификатор домофона');
+        }
+
+        if (is_int($value['intercom']) && !DeviceIntercom::findById($value['intercom'])) {
+            throw new KernelException('Домофон не найден');
         }
 
         if (!array_key_exists('value', $value)) {
