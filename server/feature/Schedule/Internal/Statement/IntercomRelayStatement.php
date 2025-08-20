@@ -19,11 +19,21 @@ class IntercomRelayStatement extends Statement
 
     public function execute(Context $context): void
     {
+        /**
+         * @var \Selpol\Device\Ip\Intercom\IntercomDevice
+         */
         $intercom = is_string($this->intercom) ? $context->getOrThrow($this->intercom) : intercom($this->intercom);
+
+        $entrances = $intercom->intercom->entrances;
+
+        foreach ($entrances as $entrance) {
+            $entrance->locks_disabled = !((bool) $this->value);
+            $entrance->update();
+        }
 
         if ($intercom instanceof CommonInterface) {
             $relay = $intercom->getRelay(0);
-            $relay->lock = (bool)$this->value;
+            $relay->lock = (bool) $this->value;
 
             $intercom->setRelay($relay, 0);
         }
