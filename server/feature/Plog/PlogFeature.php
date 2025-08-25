@@ -98,6 +98,8 @@ readonly abstract class PlogFeature extends Feature implements CronInterface
 
     abstract public function getEventsByHouse(AddressHouse $house, ?int $type, ?int $opened, int $page, int $size): bool|array;
 
+    abstract public function getAllEventsForFlat(int $flatId, ?int $type, ?int $startDate, ?int $endDate): bool|array;
+
     /**
      * Get event's detail by UUID
      * @param string $uuid

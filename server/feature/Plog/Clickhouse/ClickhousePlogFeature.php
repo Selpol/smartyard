@@ -509,6 +509,15 @@ readonly class ClickhousePlogFeature extends PlogFeature
         return $this->clickhouse->select($query . " ORDER BY date DESC LIMIT $size OFFSET $offset");
     }
 
+    public function getAllEventsForFlat(int $flatId, int|null $type, int|null $startDate, int|null $endDate): array|bool
+    {
+        $database = $this->clickhouse->database;
+
+        $query = "select date, event, image_uuid from $database.plog where not hidden and date between $startDate and $endDate and flat_id = $flatId and hidden = 0 order by date desc";
+
+        return $this->clickhouse->select($query);
+    }
+
     /**
      * @inheritDoc
      */
