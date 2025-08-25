@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Selpol\Task\Tasks\Plog;
 
+use MongoDB\GridFS\Exception\FileNotFoundException;
 use PhpOffice\PhpWord\PhpWord;
 use Selpol\Feature\File\FileFeature;
 use Selpol\Feature\File\FileStorage;
@@ -97,13 +98,17 @@ class PlogExportTask extends Task
 
                 $section->addText(date('Y-m-d H:i:s', $date) . ' - ' . $this->translateEvent($event));
 
-                $image = $file->getFile($file->fromGUIDv4($image), FileStorage::Screenshot);
+                try {
+                    $image = $file->getFile($file->fromGUIDv4($image), FileStorage::Screenshot);
 
-                $tmps[] = $tmp;
+                    $tmps[] = $tmp;
 
-                fwrite(fopen($tmp, 'w+'), $image->stream->getContents());
+                    fwrite(fopen($tmp, 'w+'), $image->stream->getContents());
 
-                $section->addImage($tmp, ['width' => 384]);
+                    $section->addImage($tmp, ['width' => 384]);
+                } catch (FileNotFoundException) {
+                    continue;
+                }
 
                 $progress += $step;
 
