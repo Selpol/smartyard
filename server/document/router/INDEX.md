@@ -12,6 +12,7 @@
 - [FrsController](./FrsController.md)
 - [InboxController](./InboxController.md)
 - [IntercomController](./IntercomController.md)
+- [MonitorController](./MonitorController.md)
 - [PlogController](./PlogController.md)
 - [SubscriberController](./SubscriberController.md)
 - [UserController](./UserController.md)

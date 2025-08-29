@@ -23,7 +23,7 @@ class PlogExportCommand
         $start = $end - 86400 * 31;
 
         $task = new PlogExportTask($flatId, null, $start, $end);
-        $task->setProgressCallback(static fn(int|float $value) => $bar->set($value / 100.0));
+        $task->setProgressCallback(static fn(int|float $value) => $bar->set(floatval($value)));
 
         task($task)->sync();
 

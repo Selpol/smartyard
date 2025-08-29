@@ -90,6 +90,16 @@ readonly class DvrController extends AdminRbtController
 
             $camera->common = 0;
 
+            if (!is_null($request->lat) && !is_null($request->lon)) {
+                $camera->lat = $request->lat;
+                $camera->lon = $request->lon;
+            } else {
+                $position = config('position', [0, 0]);
+
+                $camera->lat = $position[0];
+                $camera->lon = $position[1];
+            }
+
             $camera->ip = $dvrCamera->ip;
 
             $camera->comment = $dvrCamera->title;

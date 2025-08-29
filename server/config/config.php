@@ -8,6 +8,7 @@ return [
     'debug' => boolval(env('DEBUG', '0')),
 
     'timezone' => 'Europe/Moscow',
+    'position' => explode(',', env('POSITION', '0,0')),
 
     'api' => [
         'frontend' => env('API_FRONTEND', 'http://127.0.0.1/frontend'),

@@ -16,6 +16,9 @@ use Selpol\Framework\Router\Route\RouteRequest;
  * @property-read null|int $address_house_id Идентификатор дома
  * 
  * @property-read string $model Модель камеры
+ * 
+ * @property-read double|null $lat Lat камеры
+ * @property-read double|null $lon Lon камеры
  */
 readonly class DvrImportRequest extends RouteRequest
 {
@@ -29,6 +32,9 @@ readonly class DvrImportRequest extends RouteRequest
 
             'frs_server_id' => rule()->int()->clamp(0),
             'address_house_id' => rule()->int()->clamp(0),
+
+            'lat' => rule()->float(),
+            'lon' => rule()->float(),
 
             'model' => [filter()->default('fake'), rule()->string()->in(array_keys(CameraModel::models()))->exist()]
         ];

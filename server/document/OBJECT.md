@@ -398,6 +398,8 @@
 - `null|int` *frs_server_id* - Идентификатор FRS сервера
 - `null|int` *address_house_id* - Идентификатор дома
 - `string` *model* - Модель камеры
+- `double|null` *lat* - Lat камеры
+- `double|null` *lon* - Lon камеры
 
 ## EntranceCmsRequest
 
@@ -1072,6 +1074,12 @@
 Поля: 
 
 - `int|null` *messageId*
+
+## MonitorIndexRequest
+
+Поля: 
+
+- `int[]` *ids*
 
 ## PlogIndexRequest
 
