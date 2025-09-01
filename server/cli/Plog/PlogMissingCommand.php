@@ -13,16 +13,19 @@ use Selpol\Service\ClickhouseService;
 use Selpol\Task\Tasks\Plog\PlogOpenTask;
 use Throwable;
 
-#[Executable('plog:missing', 'Импорт потеренных событий')]
+#[Executable('plog:missing', description: 'Восстановление потерянных событий')]
 class PlogMissingCommand
 {
     #[Execute]
     public function execute(CliIO $io, ClickhouseService $service): void
     {
+        $start = intval($io->readLine('Дату начала> '));
+        $end = intval($io->readLine('Дата окончания> '));
+
         $io->writeLine('Загрузка логов событий');
 
-        $is = $this->loadIsLogEvents($io, $service);
-        $beward = $this->loadBewardLogEvents($io, $service);
+        $is = $this->loadIsLogEvents($io, $service, $start, $end);
+        $beward = $this->loadBewardLogEvents($io, $service, $start, $end);
 
         $events = array_merge($is, $beward);
 
@@ -61,28 +64,28 @@ class PlogMissingCommand
         }
 
         $bar->hide();
-        $io->writeLine('Missing ' . $missing);
+        $io->writeLine('Потереных событий ' . $missing);
     }
 
-    private function loadIsLogEvents(CliIO $io, ClickhouseService $service): array
+    private function loadIsLogEvents(CliIO $io, ClickhouseService $service, int $start, int $end): array
     {
         $database = $service->database;
 
-        $statement = $service->statement("SELECT date, ip, msg FROM $database.syslog WHERE unit = 'is' AND msg LIKE 'Opening door by RFID%, apartment%' AND date >= 1756242000");
+        $statement = $service->statement("SELECT date, ip, msg FROM $database.syslog WHERE unit = 'is' AND msg LIKE 'Opening door by RFID%, apartment%' AND date BETWEEN $start AND $end");
 
-        return $this->loadLogEvents($io, $statement);
+        return $this->loadLogEvents($io, $statement, 21);
     }
 
-    private function loadBewardLogEvents(CliIO $io, ClickhouseService $service): array
+    private function loadBewardLogEvents(CliIO $io, ClickhouseService $service, int $start, int $end): array
     {
         $database = $service->database;
 
-        $statement = $service->statement("SELECT date, ip, msg FROM $database.syslog WHERE unit = 'beward' AND msg LIKE 'Opening door by RFID%, apartment%' AND date >= 1756242000");
+        $statement = $service->statement("SELECT date, ip, msg FROM $database.syslog WHERE unit = 'beward' AND msg LIKE 'Opening door by RFID%, apartment%' AND date BETWEEN $start AND $end");
 
-        return $this->loadLogEvents($io, $statement);
+        return $this->loadLogEvents($io, $statement, 21);
     }
 
-    private function loadLogEvents(CliIO $io, EntityStatementInterface $statement): array
+    private function loadLogEvents(CliIO $io, EntityStatementInterface $statement, int $startRfid): array
     {
         if (!$statement->execute()) {
             $errors = $statement->error();
@@ -106,7 +109,7 @@ class PlogMissingCommand
 
         $values = $statement->fetchAll();
 
-        return array_reduce($values, static function (array $previous, array $current) use (&$intercoms): array {
+        return array_reduce($values, static function (array $previous, array $current) use (&$intercoms, $startRfid): array {
             if (!array_key_exists($current['ip'], $intercoms)) {
                 $intercom = DeviceIntercom::fetch(criteria()->equal('ip', $current['ip']), setting()->columns(['house_domophone_id']));
 
@@ -117,18 +120,12 @@ class PlogMissingCommand
                 $intercoms[$current['ip']] = $intercom->house_domophone_id;
             }
 
-            $rfid = substr($current['msg'], 21, 14);
-            $apartment = substr($current['msg'], 47);
-
-            if ($apartment == '0') {
-                return $previous;
-            }
+            $rfid = substr($current['msg'], $startRfid, 14);
 
             $previous[] = [
                 'intercom' => $intercoms[$current['ip']],
                 'date' => $current['date'],
                 'rfid' => $rfid,
-                'apartment' => $apartment,
             ];
 
             return $previous;
