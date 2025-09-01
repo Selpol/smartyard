@@ -220,20 +220,45 @@ readonly class ClickhousePlogFeature extends PlogFeature
 
     private function getInsertStatement(array $data): EntityStatementInterface
     {
-        $query = 'INSERT INTO prod.plog(`date`, `event_uuid`, `hidden`, `image_uuid`, `flat_id`, `domophone`, `event`, `opened`, `face`, `rfid`, `code`, `phones`, `preview`) VALUES (';
+        $database = container(ClickhouseService::class)->database;
+
+        $query = 'INSERT INTO ' . $database . '.plog(`date`, `event_uuid`, `hidden`, `image_uuid`, `flat_id`, `domophone`, `event`, `opened`, `face`, `rfid`, `code`, `phones`, `preview`) VALUES (';
 
         $query .= $data['date'] . ', ';
         $query .= "'" . $data['event_uuid'] . "', ";
         $query .= $data['hidden'] . ', ';
         $query .= "'" . $data['image_uuid'] . "', ";
         $query .= $data['flat_id'] . ', ';
+
         $query .= "tuple('" . $data['domophone']['domophone_description'] . "', " . $data['domophone']['domophone_id'] . ', ' . $data['domophone']['domophone_output'] . '), ';
+
         $query .= $data['event'] . ', ';
         $query .= $data['opened'] . ', ';
-        $query .= "tuple('" . $data['face']['faceId'] . "', " . ($data['face']['height'] ?? 0) . ', ' . ($data['face']['left'] ?? 0) . ', ' . ($data['face']['top'] ?? 0) . ', ' . ($data['face']['width'] ?? 0) . '), ';
-        $query .= "'" . $data['rfid'] . "', ";
-        $query .= "'" . $data['code'] . "', ";
-        $query .= 'tuple(' . ($data['phones']['user_phone'] == '' ? 'NULL' : $data['phones']['user_phone']) . '), ';
+
+        if (array_key_exists('face', $data) && is_array($data['face'])) {
+            $query .= "tuple('" . $data['face']['faceId'] . "', " . ($data['face']['height'] ?? 0) . ', ' . ($data['face']['left'] ?? 0) . ', ' . ($data['face']['top'] ?? 0) . ', ' . ($data['face']['width'] ?? 0) . '), ';
+        } else {
+            $query .= 'tuple(\'\', 0, 0, 0, 0), ';
+        }
+
+        if (array_key_exists('rfid', $data)) {
+            $query .= "'" . $data['rfid'] . "', ";
+        } else {
+            $query .= "'', ";
+        }
+
+        if (array_key_exists('code', $data)) {
+            $query .= "'" . $data['code'] . "', ";
+        } else {
+            $query .= "'', ";
+        }
+
+        if (array_key_exists('phones', $data) && is_array($data['phones']) && array_key_exists('user_phone', $data['phones']) && $data['phones']['user_phone']) {
+            $query .= 'tuple(' . $data['phones']['user_phone'] . '), ';
+        } else {
+            $query .= 'tuple(NULL), ';
+        }
+
         $query .= "'" . $data['preview'] . "'";
 
         $query .= ')';

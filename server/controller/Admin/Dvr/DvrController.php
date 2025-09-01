@@ -10,6 +10,8 @@ use Selpol\Controller\Request\Admin\DvrImportRequest;
 use Selpol\Controller\Request\Admin\DvrShowRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Framework\Entity\Database\EntityConnectionInterface;
+use Selpol\Framework\Entity\Exception\EntityException;
 use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Get;
 
@@ -57,7 +59,7 @@ readonly class DvrController extends AdminRbtController
      * Импортирование камер с сервера
      */
     #[Get('/import/{id}')]
-    public function import(DvrImportRequest $request): ResponseInterface
+    public function import(DvrImportRequest $request, EntityConnectionInterface $connection): ResponseInterface
     {
         $ids = [];
 
@@ -65,11 +67,13 @@ readonly class DvrController extends AdminRbtController
 
         $house = $request->address_house_id ? AddressHouse::findById($request->address_house_id) : null;
 
+        $connection->beginTransaction();
+
         foreach ($request->cameras as $id) {
             $dvrCamera = $dvr->getCamera($id);
 
             if (!$dvrCamera) {
-                continue;
+                return self::error('Не удалось получить камеру на DVR сервере', 404);
             }
 
             $camera = new DeviceCamera();
@@ -104,7 +108,17 @@ readonly class DvrController extends AdminRbtController
 
             $camera->comment = $dvrCamera->title;
 
-            if (!$camera->safeInsert()) {
+            try {
+                $camera->insert();
+            } catch (EntityException $exception) {
+                foreach ($exception->getMessages() as $message) {
+                    if ($message->code != 23505) {
+                        $connection->rollBack();
+
+                        return self::error($message->message);
+                    }
+                }
+
                 continue;
             }
 
@@ -114,6 +128,8 @@ readonly class DvrController extends AdminRbtController
                 $house->cameras()->add($camera);
             }
         }
+
+        $connection->commit();
 
         return self::success($ids);
     }

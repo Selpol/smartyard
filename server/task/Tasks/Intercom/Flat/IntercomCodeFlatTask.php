@@ -26,9 +26,8 @@ class IntercomCodeFlatTask extends Task
     public function onTask(): bool
     {
         $flat = HouseFlat::findById($this->flatId, setting: setting()->columns(['flat', 'open_code'])->nonNullable());
-        $entrances = $flat->entrances()->fetchAll(setting: setting()->columns(['house_domophone_id']));
 
-        foreach ($entrances as $entrance) {
+        foreach ($flat->entrances as $entrance) {
             $intercom = intercom($entrance->house_domophone_id);
 
             if ($intercom instanceof CodeInterface) {

@@ -53,7 +53,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
 
             $flat_list = $this->getFlatIdByRfid($rfid_key);
 
-            $this->logger?->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail]);
+            $this->logger?->debug('Plog open task by key', ['id' => $this->id, 'detail' => $this->detail, 'flats' => count($flat_list)]);
 
             if (count($flat_list) == 0) {
                 return false;

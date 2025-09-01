@@ -45,7 +45,7 @@ class FlussonicDvr extends DvrDevice
                 return null;
             }
 
-            $inputs = array_filter($response['inputs'], static fn(array $value) => $value['priority'] == 1);
+            $inputs = array_filter($response['inputs'], static fn(array $value) => $value['stats']['active']);
 
             if (count($inputs) == 0) {
                 return null;
@@ -58,7 +58,7 @@ class FlussonicDvr extends DvrDevice
             $user = array_key_exists(0, $auth) ? $auth[0] : '';
             $password = array_key_exists(1, $auth) ? $auth[1] : '';
 
-            return new DvrCamera($id, $response['title'], $inputs[0]['url'],  $inputs[0]['stats']['ip'], $user, $password);
+            return new DvrCamera($id, $response['title'], $inputs[0]['url'], $inputs[0]['stats']['ip'], $user, $password);
         } catch (Throwable) {
             return null;
         }
@@ -98,7 +98,7 @@ class FlussonicDvr extends DvrDevice
             if ($password !== $camera->credentials) {
                 $uri->withUserInfo($user, $camera->credentials);
 
-                $inputs[$i]['url'] = (string)$uri;
+                $inputs[$i]['url'] = (string) $uri;
 
                 $update = true;
             }
@@ -187,7 +187,7 @@ class FlussonicDvr extends DvrDevice
                 $server = container(StreamerFeature::class)->random();
 
                 $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-                $stream->source((string)uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
+                $stream->source((string) uri($this->getUrl($camera))->withScheme('rtsp')->withQuery('token=' . $this->getToken($camera, $identifier->start, $identifier->end)))->input(StreamInput::RTSP)->output($container == DvrContainer::STREAMER_RTC ? StreamOutput::RTC : StreamOutput::RTSP);
 
                 container(StreamerFeature::class)->stream($stream);
 

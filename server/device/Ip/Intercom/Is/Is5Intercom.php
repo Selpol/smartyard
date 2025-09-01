@@ -25,7 +25,7 @@ class Is5Intercom extends IsIntercom
                     "Height" => intval($height),
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
+                    "RcMode" => "VBR",
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
@@ -39,7 +39,7 @@ class Is5Intercom extends IsIntercom
                     "Height" => 480,
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "AVBR",
+                    "RcMode" => "VBR",
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate

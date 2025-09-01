@@ -24,6 +24,8 @@ class ClickhouseEntityStatement implements EntityStatementInterface
 
     public function execute(?array $value = null): bool
     {
+        $this->data = [];
+
         $query = $this->value;
 
         $values = $value !== null && $value !== [] ? array_merge($this->values, $value) : $this->values;
