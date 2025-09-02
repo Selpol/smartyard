@@ -8,6 +8,8 @@ use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
 use Selpol\Controller\Request\Admin\DvrImportRequest;
 use Selpol\Controller\Request\Admin\DvrShowRequest;
+use Selpol\Device\Ip\Dvr\DvrCamera;
+use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Framework\Entity\Database\EntityConnectionInterface;
@@ -64,18 +66,13 @@ readonly class DvrController extends AdminRbtController
         $ids = [];
 
         $dvr = dvr($request->id);
+        $cameras = self::getCameras($dvr, $request->cameras);
 
         $house = $request->address_house_id ? AddressHouse::findById($request->address_house_id) : null;
 
         $connection->beginTransaction();
 
-        foreach ($request->cameras as $id) {
-            $dvrCamera = $dvr->getCamera($id);
-
-            if (!$dvrCamera) {
-                return self::error('Не удалось получить камеру на DVR сервере', 404);
-            }
-
+        foreach ($cameras as $dvrCamera) {
             $camera = new DeviceCamera();
 
             $camera->dvr_server_id = $request->id;
@@ -89,7 +86,7 @@ readonly class DvrController extends AdminRbtController
             $camera->stream = $dvrCamera->url;
             $camera->credentials = $dvrCamera->password;
             $camera->name = $dvrCamera->title;
-            $camera->dvr_stream = $id;
+            $camera->dvr_stream = $dvrCamera->id;
             $camera->timezone = 'Europe/Moscow';
 
             $camera->common = 0;
@@ -122,7 +119,7 @@ readonly class DvrController extends AdminRbtController
                 continue;
             }
 
-            $ids[$id] = $camera->camera_id;
+            $ids[$dvrCamera->id] = $camera->camera_id;
 
             if ($house) {
                 $house->cameras()->add($camera);
@@ -132,6 +129,31 @@ readonly class DvrController extends AdminRbtController
         $connection->commit();
 
         return self::success($ids);
+    }
+
+    /**
+     * Summary of getCameras
+     * @param \Selpol\Device\Ip\Dvr\DvrDevice $device
+     * @param string[] $names
+     * @return \Selpol\Device\Ip\Dvr\DvrCamera[]
+     */
+    private static function getCameras(DvrDevice $device, array $names): array
+    {
+        if ($device->model->isTrassir()) {
+            $ip = gethostbyname(parse_url($device->server->url, PHP_URL_HOST));
+
+            return array_reduce($device->getCameras(), static function (array $previous, array $current) use ($device, $ip): array {
+                $previous[] = new DvrCamera($current['id'], $current['title'], $device->server->url, $ip, '', '');
+
+                return $previous;
+            }, []);
+        } else {
+            return array_reduce($names, static function (array $previous, string $current) use ($device): array {
+                $previous[] = $device->getCamera($current);
+
+                return $previous;
+            }, []);
+        }
     }
 
     private static function sort(array $a, array $b): int

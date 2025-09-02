@@ -30,6 +30,8 @@ use Throwable;
 
 class TrassirDvr extends DvrDevice
 {
+    private ?string $ip;
+
     public function __construct(Uri $uri, string $login, #[SensitiveParameter] string $password, DvrModel $model, DvrServer $server)
     {
         parent::__construct($uri, $login, $password, $model, $server);
@@ -69,7 +71,11 @@ class TrassirDvr extends DvrDevice
 
             $channel = $channels[0];
 
-            return new DvrCamera($id, $channel['name'], '', '', '', '');
+            if (!$this->ip) {
+                $this->ip = gethostbyname(parse_url($this->server->url, PHP_URL_HOST));
+            }
+
+            return new DvrCamera($id, $channel['name'], $this->server->url, $this->ip ?? '', '', '');
         } catch (Throwable) {
             return null;
         }

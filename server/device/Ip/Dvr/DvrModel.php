@@ -11,10 +11,20 @@ class DvrModel
      * @var DvrModel[]
      */
     private static array $models;
-    
+
 
     public function __construct(public readonly string $title, public readonly string $vendor, public readonly string $class)
     {
+    }
+
+    public function isFlussonic(): bool
+    {
+        return $this->title == 'FLUSSONIC';
+    }
+
+    public function isTrassir(): bool
+    {
+        return $this->title == 'TRASSIR';
     }
 
     public function toArray(): array
