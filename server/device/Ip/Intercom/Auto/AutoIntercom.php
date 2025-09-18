@@ -13,40 +13,62 @@ use Throwable;
 
 class AutoIntercom extends IntercomDevice
 {
-    public string $login = 'admin';
-
     public function specification(): string
     {
         $deviceModel = null;
+        $errors = [];
 
         try {
+            $this->clientOption->basic('root', $this->password);
+
             $info = $this->getIsSysInfo();
 
             if ($info->deviceModel) {
                 $deviceModel = $info->deviceModel;
             }
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            $errors[] = 'Is ' . $throwable->getMessage();
         }
 
         if ($deviceModel == null) {
             try {
+                $this->clientOption->digest('admin', $this->password);
+
                 $info = $this->getBewardSysInfo();
 
                 if ($info->deviceModel) {
                     $deviceModel = $info->deviceModel;
                 }
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                $errors[] = 'Beward digest ' . $throwable->getMessage();
+            }
+
+            if ($deviceModel == null) {
+                try {
+                    $this->clientOption->basic('admin', $this->password);
+
+                    $info = $this->getBewardSysInfo();
+
+                    if ($info->deviceModel) {
+                        $deviceModel = $info->deviceModel;
+                    }
+                } catch (Throwable $throwable) {
+                    $errors[] = 'Beward basic ' . $throwable->getMessage();
+                }
             }
         }
 
         if ($deviceModel == null) {
             try {
+                $this->clientOption->anySafe('admin', $this->password);
+
                 $info = $this->getHikVisionSysInfo();
 
                 if ($info->deviceModel) {
                     $deviceModel = $info->deviceModel;
                 }
-            } catch (Throwable) {
+            } catch (Throwable $throwable) {
+                $errors[] = 'HikVision ' . $throwable->getMessage();
             }
         }
 
@@ -72,7 +94,7 @@ class AutoIntercom extends IntercomDevice
             }
         }
 
-        throw new DeviceException($this, 'Не удалось определить модель устройства ' . $deviceModel);
+        throw new DeviceException($this, 'Не удалось определить модель устройства ' . $deviceModel . PHP_EOL . implode(PHP_EOL, $errors), code: 400);
     }
 
     private function include(string $key, string $deviceModel): bool
