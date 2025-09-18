@@ -2,6 +2,7 @@
 
 namespace Selpol\Feature\House\Internal;
 
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Block\FlatBlock;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\House\HouseFlat;
@@ -13,12 +14,45 @@ use Throwable;
 
 readonly class InternalHouseFeature extends HouseFeature
 {
+    public function destroyHouse(int $houseId): bool
+    {
+        $house = AddressHouse::findById($houseId);
+
+        if (!$house) {
+            return false;
+        }
+
+        $house->entrances()->delete();
+        $house->cameras()->delete();
+
+        foreach ($house->flats as $flat) {
+            $flat->cameras()->delete();
+            $flat->entrances()->delete();
+            $flat->subscribers()->delete();
+
+            foreach ($flat->keys as $key) {
+                $key->delete();
+            }
+
+            foreach ($flat->blocks as $block) {
+                $block->delete();
+            }
+
+            $flat->delete();
+        }
+
+        $house->delete();
+
+        return true;
+    }
+
     public function getFlatPlog(int $flatId): ?int
     {
         $result = $this->getDatabase()->get("select plog from houses_flats where house_flat_id = :flat_id", ['flat_id' => $flatId]);
 
-        if ($result && count($result) > 0)
+        if ($result && count($result) > 0) {
             return $result[0]['plog'];
+        }
 
         return null;
     }
@@ -103,8 +137,9 @@ readonly class InternalHouseFeature extends HouseFeature
         if ($flats) {
             $_flats = [];
 
-            foreach ($flats as $flat)
+            foreach ($flats as $flat) {
                 $_flats[] = $this->getFlat($flat["house_flat_id"], $withBlock);
+            }
 
             return $_flats;
         } else {
@@ -151,7 +186,8 @@ readonly class InternalHouseFeature extends HouseFeature
                 "open_code_enabled" => "open_code_enabled",
                 "comment" => "comment"
             ],
-            options: ["singlify"]);
+            options: ["singlify"]
+        );
 
         if ($flat) {
             $entrances = $this->getDatabase()->get(
@@ -179,11 +215,13 @@ readonly class InternalHouseFeature extends HouseFeature
 
             $flat["entrances"] = [];
 
-            foreach ($entrances as $e)
+            foreach ($entrances as $e) {
                 $flat["entrances"][] = $e;
+            }
 
-            if ($withBlock)
+            if ($withBlock) {
                 $flat['blocks'] = FlatBlock::fetchAll(criteria()->equal('flat_id', $flat['flatId']), setting: setting()->columns(['id', 'service', 'status']));
+            }
 
             return $flat;
         }
@@ -248,27 +286,31 @@ readonly class InternalHouseFeature extends HouseFeature
 
     function modifyEntrance(int $entranceId, int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool
     {
-        if (!trim($entranceType) || !trim($entrance))
+        if (!trim($entranceType) || !trim($entrance)) {
             return false;
+        }
 
-        if ($shared && !$prefix)
+        if ($shared && !$prefix) {
             return false;
+        }
 
-        if (!check_string($callerId))
+        if (!check_string($callerId)) {
             return false;
+        }
 
         if (!$shared) {
             if ($this->getDatabase()->modify("delete from houses_houses_entrances where house_entrance_id = :entrance_id and address_house_id != :house_id", ['entrance_id' => $entranceId, 'house_id' => $houseId]) === false) {
                 return false;
             }
+
             $prefix = 0;
         }
 
         $r1 = !($cms == '0') || $this->getDatabase()->modify("delete from houses_entrances_cmses where house_entrance_id = $entranceId") !== false;
 
         $r2 = $this->getDatabase()->modify("update houses_houses_entrances set prefix = :prefix where house_entrance_id = $entranceId and address_house_id = $houseId", [
-                ":prefix" => $prefix,
-            ]) !== false;
+            ":prefix" => $prefix,
+        ]) !== false;
 
         return
             $r1
@@ -305,7 +347,7 @@ readonly class InternalHouseFeature extends HouseFeature
 
     function addFlat(int $houseId, int $floor, string $flat, string $code, array $entrances, array|bool|null $apartmentsAndLevels, string|null $openCode, int $plog, int $autoOpen, int $whiteRabbit, int $sipEnabled, ?string $sipPassword, ?string $comment): bool|int|string
     {
-        $autoOpen = (int)strtotime($autoOpen);
+        $autoOpen = (int) strtotime($autoOpen);
 
         if (trim($flat)) {
             if ($openCode == "!") {
@@ -333,19 +375,24 @@ readonly class InternalHouseFeature extends HouseFeature
                     } else {
                         $ap = $flat;
                         $lv = "";
+
                         if ($apartmentsAndLevels && @$apartmentsAndLevels[$entrances[$i]]) {
-                            $ap = (int)$apartmentsAndLevels[$entrances[$i]]["apartment"];
+                            $ap = (int) $apartmentsAndLevels[$entrances[$i]]["apartment"];
+
                             if (!$ap || $ap <= 0 || $ap > 9999) {
                                 $ap = $flat;
                             }
+
                             $lv = @$apartmentsAndLevels[$entrances[$i]]["apartmentLevels"];
                         }
-                        if ($this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
+                        if (
+                            $this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
                                 ":house_entrance_id" => $entrances[$i],
                                 ":house_flat_id" => $flatId,
                                 ":apartment" => $ap,
                                 ":cms_levels" => $lv,
-                            ]) === false) {
+                            ]) === false
+                        ) {
                             return false;
                         }
                     }
@@ -368,7 +415,7 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         if (array_key_exists("autoOpen", $params)) {
-            $params["autoOpen"] = (int)strtotime($params["autoOpen"]);
+            $params["autoOpen"] = (int) strtotime($params["autoOpen"]);
         }
 
         if (@$params["code"] == "!") {
@@ -422,7 +469,7 @@ readonly class InternalHouseFeature extends HouseFeature
                 $lv = "";
 
                 if ($apartmentsAndLevels && @$apartmentsAndLevels[$entrances[$i]]) {
-                    $ap = (int)$apartmentsAndLevels[$entrances[$i]]["apartment"];
+                    $ap = (int) $apartmentsAndLevels[$entrances[$i]]["apartment"];
 
                     if (!$ap || $ap <= 0 || $ap > 9999) {
                         $ap = $params["flat"];
@@ -431,12 +478,14 @@ readonly class InternalHouseFeature extends HouseFeature
                     $lv = @$apartmentsAndLevels[$entrances[$i]]["apartmentLevels"];
                 }
 
-                if ($this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
+                if (
+                    $this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
                         ":house_entrance_id" => $entrances[$i],
                         ":house_flat_id" => $flatId,
                         ":apartment" => $ap,
                         ":cms_levels" => $lv,
-                    ]) === false) {
+                    ]) === false
+                ) {
                     return false;
                 }
             }
@@ -449,11 +498,11 @@ readonly class InternalHouseFeature extends HouseFeature
     public function addEntranceToFlat(int $entranceId, int $flatId, int $apartment): bool
     {
         return $this->getDatabase()->modify("insert into houses_entrances_flats (house_entrance_id, house_flat_id, apartment, cms_levels) values (:house_entrance_id, :house_flat_id, :apartment, :cms_levels)", [
-                ":house_entrance_id" => $entranceId,
-                ":house_flat_id" => $flatId,
-                ":apartment" => $apartment,
-                ":cms_levels" => '',
-            ]) == true;
+            ":house_entrance_id" => $entranceId,
+            ":house_flat_id" => $flatId,
+            ":apartment" => $apartment,
+            ":cms_levels" => '',
+        ]) == true;
     }
 
     function deleteFlat(int $flatId): bool
@@ -497,7 +546,8 @@ readonly class InternalHouseFeature extends HouseFeature
 
     public function getCms(int $entranceId): bool|array
     {
-        return $this->getDatabase()->get("select * from houses_entrances_cmses where house_entrance_id = $entranceId",
+        return $this->getDatabase()->get(
+            "select * from houses_entrances_cmses where house_entrance_id = $entranceId",
             map: [
                 "cms" => "cms",
                 "dozen" => "dozen",
@@ -513,12 +563,12 @@ readonly class InternalHouseFeature extends HouseFeature
 
         foreach ($cms as $e) {
             $result = $result && $this->getDatabase()->modify("insert into houses_entrances_cmses (house_entrance_id, cms, dozen, unit, apartment) values (:house_entrance_id, :cms, :dozen, :unit, :apartment)", [
-                    "house_entrance_id" => $entranceId,
-                    "cms" => $e["cms"],
-                    "dozen" => $e["dozen"],
-                    "unit" => $e["unit"],
-                    "apartment" => $e["apartment"],
-                ]);
+                "house_entrance_id" => $entranceId,
+                "cms" => $e["cms"],
+                "dozen" => $e["dozen"],
+                "unit" => $e["unit"],
+                "apartment" => $e["apartment"],
+            ]);
         }
 
         return $result;
@@ -528,8 +578,9 @@ readonly class InternalHouseFeature extends HouseFeature
     {
         $entrance = $this->getDatabase()->get("select house_domophone_id from houses_entrances where camera_id = $camera_id limit 1");
 
-        if ($entrance && count($entrance) > 0)
+        if ($entrance && count($entrance) > 0) {
             return $entrance[0]['house_domophone_id'];
+        }
 
         return null;
     }
@@ -538,8 +589,9 @@ readonly class InternalHouseFeature extends HouseFeature
     {
         $entrance = $this->getDatabase()->get("select entrance_type, house_domophone_id, domophone_output from houses_entrances where camera_id = $camera_id limit 1");
 
-        if ($entrance && count($entrance) > 0)
+        if ($entrance && count($entrance) > 0) {
             return ['domophoneId' => $entrance[0]['house_domophone_id'], 'doorId' => $entrance[0]['domophone_output']];
+        }
 
         return null;
     }
@@ -552,7 +604,7 @@ readonly class InternalHouseFeature extends HouseFeature
         switch ($by) {
             case "flatId":
                 $q = "select * from houses_subscribers_mobile where house_subscriber_id in (select house_subscriber_id from houses_flats_subscribers where house_flat_id = :house_flat_id)";
-                $p = ["house_flat_id" => (int)$query,];
+                $p = ["house_flat_id" => (int) $query,];
                 break;
 
             case "mobile":
@@ -562,7 +614,7 @@ readonly class InternalHouseFeature extends HouseFeature
 
             case "id":
                 $q = "select * from houses_subscribers_mobile where house_subscriber_id = :house_subscriber_id";
-                $p = ["house_subscriber_id" => (int)$query,];
+                $p = ["house_subscriber_id" => (int) $query,];
                 break;
 
             case "authToken":
@@ -595,7 +647,8 @@ readonly class InternalHouseFeature extends HouseFeature
         $addresses = container(AddressFeature::class);
 
         foreach ($subscribers as &$subscriber) {
-            $flats = $this->getDatabase()->get("select house_flat_id, role, flat, call, address_house_id, cms_enabled from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
+            $flats = $this->getDatabase()->get(
+                "select house_flat_id, role, flat, call, address_house_id, cms_enabled from houses_flats_subscribers left join houses_flats using (house_flat_id) where house_subscriber_id = :house_subscriber_id",
                 ["house_subscriber_id" => $subscriber["subscriberId"]],
                 ["house_flat_id" => "flatId", "role" => "role", "flat" => "flat", 'call' => 'call', "address_house_id" => "addressHouseId", "cms_enabled" => "cmsEnabled"]
             );
@@ -618,6 +671,7 @@ readonly class InternalHouseFeature extends HouseFeature
             !check_string($patronymic, ["maxLength" => 32])
         ) {
             last_error("invalidParams");
+
             return false;
         }
 
@@ -645,13 +699,16 @@ readonly class InternalHouseFeature extends HouseFeature
         }
 
         if ($subscriberId && $flatId) {
-            if ($message)
+            if ($message) {
                 container(InboxFeature::class)->sendMessage($subscriberId, $message['title'], $message['msg'], action: "newAddress");
+            }
 
-            if (!$this->getDatabase()->insert("insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, 1)", [
-                "house_subscriber_id" => $subscriberId,
-                "house_flat_id" => $flatId,
-            ])) {
+            if (
+                !$this->getDatabase()->insert("insert into houses_flats_subscribers (house_subscriber_id, house_flat_id, role) values (:house_subscriber_id, :house_flat_id, 1)", [
+                    "house_subscriber_id" => $subscriberId,
+                    "house_flat_id" => $flatId,
+                ])
+            ) {
                 return false;
             }
         }
@@ -659,8 +716,9 @@ readonly class InternalHouseFeature extends HouseFeature
         try {
             $id = container(OauthFeature::class)->register($mobile);
 
-            if ($id)
+            if ($id) {
                 $this->modifySubscriber($subscriberId, ['audJti' => $id]);
+            }
         } catch (Throwable $throwable) {
             file_logger('subscriber')->error($throwable);
         }
@@ -673,9 +731,9 @@ readonly class InternalHouseFeature extends HouseFeature
         $db = $this->getDatabase();
 
         if (array_key_exists('mobile', $params)) {
-            if (str_contains($params['mobile'], '*'))
+            if (str_contains($params['mobile'], '*')) {
                 unset($params['mobile']);
-            else {
+            } else {
                 if (!check_string($params["mobile"], ["minLength" => 6, "maxLength" => 32, "validChars" => ['+', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9']])) {
                     last_error("invalidParams");
                     return false;
@@ -815,7 +873,8 @@ readonly class InternalHouseFeature extends HouseFeature
 
     function getEntrance(int $entranceId): array|bool
     {
-        return $this->getDatabase()->get("select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = :entrance_id order by entrance_type, entrance",
+        return $this->getDatabase()->get(
+            "select house_entrance_id, entrance_type, entrance, lat, lon, shared, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled, plog from houses_entrances where house_entrance_id = :entrance_id order by entrance_type, entrance",
             [
                 'entrance_id' => $entranceId
             ],
@@ -842,7 +901,8 @@ readonly class InternalHouseFeature extends HouseFeature
 
     public function getEntranceWithPrefix(int $entranceId, int $prefix): array|bool
     {
-        return $this->getDatabase()->get("select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, prefix, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_houses_entrances left join houses_entrances using (house_entrance_id) where house_entrance_id = :entrance_id and prefix = :prefix order by entrance_type, entrance",
+        return $this->getDatabase()->get(
+            "select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, prefix, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_houses_entrances left join houses_entrances using (house_entrance_id) where house_entrance_id = :entrance_id and prefix = :prefix order by entrance_type, entrance",
             [
                 'entrance_id' => $entranceId,
                 'prefix' => $prefix
@@ -899,7 +959,8 @@ readonly class InternalHouseFeature extends HouseFeature
             $q = "select address_house_id, prefix, house_entrance_id, entrance_type, entrance, lat, lon, shared, plog, caller_id, house_domophone_id, domophone_output, cms, cms_type, camera_id, coalesce(cms_levels, '') as cms_levels, locks_disabled from houses_entrances left join houses_houses_entrances using (house_entrance_id) where $where order by entrance_type, entrance";
         }
 
-        return $this->getDatabase()->get($q,
+        return $this->getDatabase()->get(
+            $q,
             $p,
             [
                 "address_house_id" => "houseId",
@@ -945,6 +1006,8 @@ readonly class InternalHouseFeature extends HouseFeature
             }
 
             return $list;
-        } else return [];
+        } else {
+            return [];
+        }
     }
 }

@@ -9,6 +9,11 @@ use Selpol\Framework\Container\Attribute\Singleton;
 #[Singleton(InternalHouseFeature::class)]
 readonly abstract class HouseFeature extends Feature
 {
+    /**
+     * @throws \Selpol\Framework\Entity\Exception\EntityException
+     */
+    abstract function destroyHouse(int $houseId): bool;
+
     abstract function createEntrance(int $houseId, string $entranceType, string $entrance, float $lat, float $lon, int $shared, int $plog, int $prefix, string $callerId, int $domophoneId, int $domophoneOutput, string $cms, int $cmsType, int $cameraId, int $locksDisabled, string $cmsLevels): bool|int;
 
     abstract function getEntrance(int $entranceId): array|bool;
