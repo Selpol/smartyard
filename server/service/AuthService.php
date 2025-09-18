@@ -2,15 +2,12 @@
 
 namespace Selpol\Service;
 
-use Selpol\Entity\Model\Permission;
-use Selpol\Entity\Repository\PermissionRepository;
-use Selpol\Feature\Audit\AuditFeature;
+use Selpol\Feature\Authentication\AuthenticationFeature;
 use Selpol\Feature\Role\RoleFeature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\Auth\AuthTokenInterface;
 use Selpol\Service\Auth\AuthUserInterface;
 use Selpol\Service\Exception\AuthException;
-use Throwable;
 
 #[Singleton]
 class AuthService
@@ -23,6 +20,19 @@ class AuthService
      * @var array<int, string[]>
      */
     private array $scopes = [];
+
+    public function checkPassword(string $password): bool
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return false;
+        }
+
+        $result = container(AuthenticationFeature::class)->checkAuth($user->getUsername(), $password);
+
+        return $user->getIdentifier() == $result;
+    }
 
     public function getToken(): ?AuthTokenInterface
     {

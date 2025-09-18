@@ -9,3 +9,9 @@
 Параметры: 
 
 - `int` *id* Идентификатор дома
+
+### [DELETE/delete `house-delete-delete`] Удалить дом `/admin/house/{id}`
+
+Параметры: 
+
+- [HouseDeleteRequest](../OBJECT.md#HouseDeleteRequest) 

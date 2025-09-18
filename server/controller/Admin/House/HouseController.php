@@ -4,10 +4,13 @@ namespace Selpol\Controller\Admin\House;
 
 use Psr\Http\Message\ResponseInterface;
 use Selpol\Controller\AdminRbtController;
+use Selpol\Controller\Request\Admin\HouseDeleteRequest;
 use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Feature\House\HouseFeature;
 use Selpol\Framework\Router\Attribute\Controller;
+use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
+use Selpol\Service\AuthService;
 
 /**
  * Дом
@@ -39,5 +42,22 @@ readonly class HouseController extends AdminRbtController
             'house' => $house,
             'flats' => $flats
         ]);
+    }
+
+    /**
+     * Удалить дом
+     */
+    #[Delete]
+    public function delete(HouseDeleteRequest $request, AuthService $service, HouseFeature $feature): ResponseInterface
+    {
+        if (!$service->checkPassword($request->password)) {
+            return self::error('Не верный пароль для пользователя', 403);
+        }
+
+        if ($feature->destroyHouse($request->id)) {
+            return self::success();
+        }
+
+        return self::error('Не удалось удалить дом', 404);
     }
 }

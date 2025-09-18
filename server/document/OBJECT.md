@@ -454,6 +454,13 @@
 - `int` *id* - Идентификатор сущности
 - `mixed` *value* - Значение
 
+## HouseDeleteRequest
+
+Поля: 
+
+- `int` *id* - Идентификатор дома
+- `string` *password* - Пароль пользователя
+
 ## HouseKeyRequest
 
 Поля: 

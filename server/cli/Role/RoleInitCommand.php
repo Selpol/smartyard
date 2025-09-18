@@ -129,6 +129,8 @@ class RoleInitCommand
             'contractor-update-put' => '[Подрядчик] Обновить подрядчика',
             'contractor-delete-delete' => '[Подрядчик] Удалить подрядчика',
 
+            'house-delete-delete' => '[Дом] Удалить дом',
+
             'house-camera-index-get' => '[Дом-Камера] Получить список камер',
             'house-camera-store-post' => '[Дом-Камера] Привязать камеру к дому',
             'house-camera-delete-delete' => '[Дом-Камера] Отвязать камеру от дома',
