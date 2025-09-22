@@ -8,7 +8,6 @@ use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Monitor\MonitorFeature;
 use Selpol\Feature\Schedule\ScheduleTimeInterface;
-use Selpol\Service\RedisService;
 use Throwable;
 
 readonly class InternalMonitorFeature extends MonitorFeature
@@ -19,48 +18,48 @@ readonly class InternalMonitorFeature extends MonitorFeature
             return true;
         }
 
-        return $this->getRedis()->use(RedisService::MONITOR, static function (RedisService $service): bool {
-            /** @var DeviceCamera[] $cameras */
-            $cameras = DeviceCamera::fetchAll();
+        $usable = $this->getRedis()->monitor();
 
-            /** @var array<int, array<string, bool>> $dvrs */
-            $dvrs = [];
+        /** @var DeviceCamera[] $cameras */
+        $cameras = DeviceCamera::fetchAll();
 
-            foreach ($cameras as $camera) {
-                if (!$camera->dvr_server_id || !$camera->dvr_stream) {
-                    $service->set('status:' . $camera->camera_id, false);
+        /** @var array<int, array<string, bool>> $dvrs */
+        $dvrs = [];
 
-                    continue;
-                }
+        foreach ($cameras as $camera) {
+            if (!$camera->dvr_server_id || !$camera->dvr_stream) {
+                $usable->set('status:' . $camera->camera_id, false);
 
-                if (!array_key_exists($camera->dvr_server_id, $dvrs)) {
-                    $dvr = dvr($camera->dvr_server_id);
-
-                    if (!$dvr) {
-                        $service->set('status:' . $camera->camera_id, false);
-
-                        continue;
-                    }
-
-                    $dvrs[$camera->dvr_server_id] = $dvr->getStatuses(null);
-                }
-
-                if (!array_key_exists($camera->dvr_stream, $dvrs[$camera->dvr_server_id])) {
-                    $service->set('status:' . $camera->camera_id, false);
-
-                    continue;
-                }
-
-                $service->set('status:' . $camera->camera_id, $dvrs[$camera->dvr_server_id][$camera->dvr_stream]);
+                continue;
             }
 
-            return true;
-        });
+            if (!array_key_exists($camera->dvr_server_id, $dvrs)) {
+                $dvr = dvr($camera->dvr_server_id);
+
+                if (!$dvr) {
+                    $usable->set('status:' . $camera->camera_id, false);
+
+                    continue;
+                }
+
+                $dvrs[$camera->dvr_server_id] = $dvr->getStatuses(null);
+            }
+
+            if (!array_key_exists($camera->dvr_stream, $dvrs[$camera->dvr_server_id])) {
+                $usable->set('status:' . $camera->camera_id, false);
+
+                continue;
+            }
+
+            $usable->set('status:' . $camera->camera_id, $dvrs[$camera->dvr_server_id][$camera->dvr_stream]);
+        }
+
+        return true;
     }
 
     public function status(int $id): bool
     {
-        return $this->getRedis()->use(RedisService::MONITOR, static fn(RedisService $service): bool => $service->get('status:' . $id) == true);
+        return $this->getRedis()->monitor()->get('status:' . $id) == true;
     }
 
     public function sip(int $id): bool

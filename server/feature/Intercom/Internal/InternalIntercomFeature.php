@@ -8,18 +8,24 @@ use RuntimeException;
 use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Sip\Sip;
 use Selpol\Device\Ip\Intercom\Setting\Sip\SipInterface;
+use Selpol\Entity\Model\Address\AddressHouse;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Entity\Model\Device\DeviceIntercom;
 use Selpol\Feature\Audit\AuditFeature;
 use Selpol\Feature\Config\ConfigKey;
+use Selpol\Feature\Intercom\IntercomApproved;
 use Selpol\Feature\Intercom\IntercomFeature;
 use Selpol\Feature\Sip\SipFeature;
+use Selpol\Framework\Entity\Database\EntityConnectionInterface;
 use Selpol\Framework\Http\Uri;
+use Selpol\Framework\Kernel\Exception\KernelException;
+use Selpol\Service\DeviceService;
+use SensitiveParameter;
 use Throwable;
 
 readonly class InternalIntercomFeature extends IntercomFeature
 {
-    public function updatePassword(DeviceIntercom $interom, ?string $password): void
+    public function updatePassword(DeviceIntercom $interom, #[SensitiveParameter] ?string $password): void
     {
         $device = intercom($interom->house_domophone_id);
 
@@ -74,7 +80,7 @@ readonly class InternalIntercomFeature extends IntercomFeature
             $oldCameraPassword = $device->intercom->credentials;
 
             if ($deviceCamera->stream && trim($deviceCamera->stream) !== '') {
-                $deviceCamera->stream = (string)(new Uri($deviceCamera->stream))->withUserInfo($device->login, $password);
+                $deviceCamera->stream = (string) (new Uri($deviceCamera->stream))->withUserInfo($device->login, $password);
             }
 
             $deviceCamera->credentials = $password;
@@ -97,5 +103,101 @@ readonly class InternalIntercomFeature extends IntercomFeature
         if (container(AuditFeature::class)->canAudit()) {
             container(AuditFeature::class)->audit(strval($device->intercom->house_domophone_id), DeviceIntercom::class, 'password', 'Обновление пароля');
         }
+    }
+
+    public function getApproveds(): array
+    {
+        $usable = $this->getRedis()->approved();
+
+        $result = [];
+
+        $keys = $usable->keys('*');
+
+        foreach ($keys as $key) {
+            $value = $usable->get($key);
+
+            if (!$value) {
+                $result[$key] = null;
+
+                continue;
+            }
+
+            $ttl = $usable->ttl($key);
+
+            if (!$ttl) {
+                $ttl = -1;
+            }
+
+            $approved = unserialize($value);
+
+            if ($approved instanceof IntercomApproved) {
+                $approved->ttl = $ttl;
+
+                $result[$key] = $approved;
+            }
+        }
+
+        return $result;
+    }
+
+    public function approved(string $id, string $title, string $name, ?string $model, #[SensitiveParameter] ?string $password, string $server, ?int $dvrServerId, ?int $frsServerId, ?int $addressHouseId, float $lat, float $lon): void
+    {
+        $value = $this->getRedis()->approved()->take($id);
+
+        if ($value == null) {
+            return;
+        }
+
+        $approved = unserialize($value);
+
+        if ($approved instanceof IntercomApproved) {
+            $database = container(EntityConnectionInterface::class);
+
+            try {
+                $database->beginTransaction();
+
+                $intercom = $approved->intercom($server, $title, $model, $password);
+
+                if ($dvrServerId) {
+                    $dvr = dvr($dvrServerId);
+
+                    if (!$dvr) {
+                        throw new KernelException('Не удалось найти Dvr сервер', code: 404);
+                    }
+
+                    $device = container(DeviceService::class)->intercomByEntity($intercom);
+
+                    $camera = $approved->camera($device, $dvr, $title, $name, $frsServerId, $lat, $lon);
+
+                    if ($addressHouseId) {
+                        $house = AddressHouse::findById($addressHouseId);
+
+                        if (!$house) {
+                            throw new KernelException('Не удалось найти дом', code: 404);
+                        }
+
+                        $entrance = $approved->entrance($intercom, $camera, $name, $lat, $lon);
+
+                        $house->entrances()->add($entrance);
+                    }
+                }
+
+                $database->commit();
+            } catch (Throwable $throwable) {
+                $database->rollBack();
+
+                throw $throwable;
+            }
+        }
+    }
+
+    public function addApproved(IntercomApproved $approved): void
+    {
+        $this->getRedis()->approved()->setEx($approved->ip, $approved->ttl, serialize($approved));
+    }
+
+    public function removeApproved(string $id): void
+    {
+        $this->getRedis()->approved()->del($id);
     }
 }

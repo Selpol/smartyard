@@ -18,8 +18,7 @@ class IntercomModel
         public readonly string $title,
         public readonly string $vendor,
         public readonly string $config
-    )
-    {
+    ) {
     }
 
     public function toArray(): array

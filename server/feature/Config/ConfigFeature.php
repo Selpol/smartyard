@@ -29,6 +29,21 @@ readonly abstract class ConfigFeature extends Feature
                     ['type' => 'value', 'value' => ConfigKey::AutoDks->key(), 'title' => 'Beward DKS', 'assign' => ['type' => 'array']],
                     ['type' => 'value', 'value' => ConfigKey::AutoDs->key(), 'title' => 'Beward DS', 'assign' => ['type' => 'array']],
                     ['type' => 'value', 'value' => ConfigKey::AutoHik->key(), 'title' => 'HikVision', 'assign' => ['type' => 'array']],
+
+                    ['type' => 'value', 'value' => ConfigKey::AutoCamera->key(), 'title' => 'Модель камеры', 'assign' => ['type' => 'array']],
+
+                    [
+                        'type' => 'namespace',
+                        'value' => ConfigKey::AutoTemplate->key(),
+                        'title' => 'Шаблоны',
+
+                        'suggestions' => [
+                            ['type' => 'value', 'value' => ConfigKey::AutoTemplateDvr->key(), 'title' => 'Шаблон для Dvr', 'assign' => ['type' => 'string']],
+                            ['type' => 'value', 'value' => ConfigKey::AutoTemplatePrimary->key(), 'title' => 'Шаблон для основного потока', 'assign' => ['type' => 'string']],
+                            ['type' => 'value', 'value' => ConfigKey::AutoTemplateSecondary->key(), 'title' => 'Шаблон для дополнительного потока', 'assign' => ['type' => 'string']],
+                        ]
+
+                    ],
                 ]
             ],
 

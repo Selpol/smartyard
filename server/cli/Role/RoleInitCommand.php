@@ -267,6 +267,10 @@ class RoleInitCommand
             'schedule-store-post' => '[Расписание] Создать новое расписание',
             'schedule-update-put' => '[Расписание] Обновить расписани',
             'schedule-delete-delete' => '[Расписание] Удалить расписание',
+
+            'intercom-approved-index-get' => '[Домофон-Проведение] Получить домофоны для проведения',
+            'intercom-approved-store-post' => '[Домофон-Проведение] Провести домофон',
+            'intercom-approved-delete-delete' => '[Домофон-Проведение] Удалить проведение домофона',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

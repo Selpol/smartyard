@@ -63,7 +63,13 @@ abstract class DvrDevice extends IpDevice
         ];
     }
 
-    public function updateCamera(DeviceCamera $camera): void {}
+    public function addCamera(DeviceCamera $camera, string $name, string $primary, string $secondary): void
+    {
+    }
+
+    public function updateCamera(DeviceCamera $camera): void
+    {
+    }
 
     public function identifier(DeviceCamera $camera, int $time, ?int $subscriberId): ?DvrIdentifier
     {

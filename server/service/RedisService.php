@@ -6,6 +6,7 @@ use Psr\Log\LoggerAwareInterface;
 use Redis;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Framework\Kernel\Trait\LoggerKernelTrait;
+use Selpol\Service\Redis\RedisUsable;
 use Throwable;
 
 #[Singleton]
@@ -15,6 +16,7 @@ class RedisService implements LoggerAwareInterface
 
     public const SCREENSHOT = 1;
     public const MONITOR = 2;
+    public const APPROVED = 3;
 
     private ?Redis $redis = null;
 
@@ -90,19 +92,24 @@ class RedisService implements LoggerAwareInterface
         return false;
     }
 
-    public function useCacheEx(int $index, string $key, int $time, callable $callback): mixed
+    public function usable(int $index): RedisUsable
     {
-        return $this->use($index, function (RedisService $service) use ($key, $time, $callback) {
-            $value = $service->get($key);
+        return new RedisUsable($this, $index);
+    }
 
-            if (!$value) {
-                $value = $callback();
+    public function screenshot(): RedisUsable
+    {
+        return $this->usable(self::SCREENSHOT);
+    }
 
-                $service->setEx($key, $time, $value);
-            }
+    public function monitor(): RedisUsable
+    {
+        return $this->usable(self::MONITOR);
+    }
 
-            return $value;
-        });
+    public function approved(): RedisUsable
+    {
+        return $this->usable(self::APPROVED);
     }
 
     public function keys(string $pattern): array
@@ -118,6 +125,11 @@ class RedisService implements LoggerAwareInterface
 
             return [];
         }
+    }
+
+    public function ttl(string $key): bool|int
+    {
+        return $this->redis->ttl($key);
     }
 
     /**
@@ -229,5 +241,30 @@ class RedisService implements LoggerAwareInterface
 
             return false;
         }
+    }
+
+    public function cacheEx(string $key, int $time, callable $callback): mixed
+    {
+        $value = $this->get($key);
+
+        if (!$value) {
+            $value = $callback();
+
+            $this->setEx($key, $time, $value);
+        }
+
+        return $value;
+    }
+
+    public function take(string $key, mixed $default = null): mixed
+    {
+        $value = $this->get($key);
+        $this->del($key);
+
+        if ($value !== false) {
+            return $value;
+        }
+
+        return $default;
     }
 }

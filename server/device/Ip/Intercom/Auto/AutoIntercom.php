@@ -19,12 +19,14 @@ class AutoIntercom extends IntercomDevice
         $errors = [];
 
         try {
-            $this->clientOption->basic('root', $this->password);
+            $password = $this->getPassword('123456');
+            $this->clientOption->basic('root', $password);
 
             $info = $this->getIsSysInfo();
 
             if ($info->deviceModel) {
                 $deviceModel = $info->deviceModel;
+                $this->password = $password;
             }
         } catch (Throwable $throwable) {
             $errors[] = 'Is ' . $throwable->getMessage();
@@ -32,12 +34,14 @@ class AutoIntercom extends IntercomDevice
 
         if ($deviceModel == null) {
             try {
-                $this->clientOption->digest('admin', $this->password);
+                $password = $this->getPassword('admin');
+                $this->clientOption->digest('admin', $password);
 
                 $info = $this->getBewardSysInfo();
 
                 if ($info->deviceModel) {
                     $deviceModel = $info->deviceModel;
+                    $this->password = $password;
                 }
             } catch (Throwable $throwable) {
                 $errors[] = 'Beward digest ' . $throwable->getMessage();
@@ -45,12 +49,14 @@ class AutoIntercom extends IntercomDevice
 
             if ($deviceModel == null) {
                 try {
-                    $this->clientOption->basic('admin', $this->password);
+                    $password = $this->getPassword('admin');
+                    $this->clientOption->basic('admin', $password);
 
                     $info = $this->getBewardSysInfo();
 
                     if ($info->deviceModel) {
                         $deviceModel = $info->deviceModel;
+                        $this->password = $password;
                     }
                 } catch (Throwable $throwable) {
                     $errors[] = 'Beward basic ' . $throwable->getMessage();
@@ -60,12 +66,14 @@ class AutoIntercom extends IntercomDevice
 
         if ($deviceModel == null) {
             try {
-                $this->clientOption->anySafe('admin', $this->password);
+                $password = $this->getPassword('1qaz!QAZ');
+                $this->clientOption->anySafe('admin', $password);
 
                 $info = $this->getHikVisionSysInfo();
 
                 if ($info->deviceModel) {
                     $deviceModel = $info->deviceModel;
+                    $this->password = $password;
                 }
             } catch (Throwable $throwable) {
                 $errors[] = 'HikVision ' . $throwable->getMessage();
@@ -181,5 +189,10 @@ class AutoIntercom extends IntercomDevice
 
             throw new DeviceException($this, 'Не удалось получить информацию об устройстве', $throwable->getMessage(), previous: $throwable);
         }
+    }
+
+    private function getPassword(string $defult = ''): string
+    {
+        return $this->password != '' ? $this->password : $defult;
     }
 }

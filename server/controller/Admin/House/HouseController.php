@@ -24,7 +24,7 @@ readonly class HouseController extends AdminRbtController
      * @param int $id Идентификатор дома
      */
     #[Get]
-    public function index(int $id, HouseFeature $feature): ResponseInterface
+    public function index(int $id): ResponseInterface
     {
         $house = AddressHouse::findById($id);
 
@@ -32,16 +32,7 @@ readonly class HouseController extends AdminRbtController
             return self::error('Не удалось найти дома', 404);
         }
 
-        $flats = $feature->getFlats("houseId", $id, true);
-
-        if ($flats) {
-            usort($flats, static fn(array $a, array $b): int => $a['flat'] > $b['flat'] ? 1 : -1);
-        }
-
-        return self::success([
-            'house' => $house,
-            'flats' => $flats
-        ]);
+        return self::success($house);
     }
 
     /**

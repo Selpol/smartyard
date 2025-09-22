@@ -132,7 +132,7 @@ class DeviceService implements CronInterface
     {
         $id = $intercom->house_domophone_id;
 
-        if ($this->cache && array_key_exists($id, $this->intercoms)) {
+        if ($id > 0 && $this->cache && array_key_exists($id, $this->intercoms)) {
             return $this->intercoms[$id];
         }
 
@@ -158,7 +158,7 @@ class DeviceService implements CronInterface
 
             $device = $model->instance($intercom, $resolver);
 
-            if ($this->cache) {
+            if ($id > 0 && $this->cache) {
                 $this->intercoms[$id] = $device;
             }
 

@@ -78,6 +78,33 @@ class FlussonicDvr extends DvrDevice
         ];
     }
 
+    public function addCamera(DeviceCamera $camera, string $name, string $primary, string $secondary): void
+    {
+        $request = [
+            'inputs' => [
+                ['url' => $primary, 'priority' => 1, 'source_timeout' => 10, 'output_audio' => 'add_aac'],
+                ['url' => $secondary, 'priority' => 2, 'source_timeout' => 10, 'output_audio' => 'add_aac']
+            ],
+
+            'dvr' => ['expiration' => 604800, 'reference' => 'Intercom'],
+
+            'on_play' => ['url' => 'auth://CLIENT'],
+
+            'name' => $name,
+            'title' => $camera->comment,
+        ];
+
+        try {
+            $response = $this->put('/streamer/api/v3/streams', $request);
+
+            if (array_key_exists('errors', $response)) {
+                throw new DeviceException($this, $response['errors'][0]['title'], code: 400);
+            }
+        } catch (Throwable $throwable) {
+            throw new DeviceException($this, 'Не удалось добавить камеру на Dvr сервер', code: 400);
+        }
+    }
+
     public function updateCamera(DeviceCamera $camera): void
     {
         $stream = $this->get('/streamer/api/v3/streams/' . $camera->dvr_stream);

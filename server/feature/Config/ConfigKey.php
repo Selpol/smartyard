@@ -11,6 +11,13 @@ enum ConfigKey: string
     case AutoDs = 'auto.ds';
     case AutoHik = 'auto.hik';
 
+    case AutoCamera = 'auto.camera';
+
+    case AutoTemplate = 'auto.template';
+    case AutoTemplateDvr = 'auto.template.dvr';
+    case AutoTemplatePrimary = 'auto.template.primary';
+    case AutoTemplateSecondary = 'auto.template.secondary';
+
     case Auth = 'auth';
     case AuthLogin = 'auth.login';
     case AuthPassword = 'auth.password';

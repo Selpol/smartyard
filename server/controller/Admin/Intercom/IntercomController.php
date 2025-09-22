@@ -88,6 +88,8 @@ readonly class IntercomController extends AdminRbtController
         }
 
         if ($intercom->model == 'auto') {
+            $intercom->house_domophone_id = 0;
+
             $device = $service->intercomByEntity($intercom);
 
             $intercom->model = $device->specification();

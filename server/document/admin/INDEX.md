@@ -31,6 +31,7 @@
 - [HouseEntranceController](./HouseEntranceController.md)
 - [HouseKeyController](./HouseKeyController.md)
 - [InboxController](./InboxController.md)
+- [IntercomApprovedController](./IntercomApprovedController.md)
 - [IntercomCodeController](./IntercomCodeController.md)
 - [IntercomConfigController](./IntercomConfigController.md)
 - [IntercomController](./IntercomController.md)

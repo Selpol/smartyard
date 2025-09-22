@@ -8,13 +8,14 @@ use Selpol\Feature\Authentication\Internal\InternalAuthenticationFeature;
 use Selpol\Feature\Feature;
 use Selpol\Framework\Container\Attribute\Singleton;
 use Selpol\Service\DatabaseService;
+use SensitiveParameter;
 
 #[Singleton(InternalAuthenticationFeature::class)]
 readonly abstract class AuthenticationFeature extends Feature
 {
-    public abstract function checkAuth(string $login, string $password): string|int|bool;
+    public abstract function checkAuth(string $login, #[SensitiveParameter] string $password): string|int|bool;
 
-    public function login(string $login, string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
+    public function login(string $login, #[SensitiveParameter] string $password, bool $rememberMe, string $ua = "", string $did = "", string $ip = ""): array
     {
         $uid = $this->checkAuth($login, $password);
 

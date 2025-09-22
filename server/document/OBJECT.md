@@ -486,6 +486,22 @@
 - `string` *body* - Описание
 - `string` *action* - Тип действия
 
+## IntercomApprovedStoreRequest
+
+Поля: 
+
+- `string` *ip* - Идентификатор проведения
+- `string` *title* - Заголовок
+- `string` *name* - Имя
+- `null|string` *model* - Модель домофона
+- `null|string` *password* - Пароль домофона
+- `string` *server* - Сервер
+- `null|int` *dvr_server_id* - Идентификатор DVR сервера
+- `null|int` *frs_server_id* - Идентификатор FRS сервера
+- `null|int` *address_house_id* - Идентификатор дома
+- `double|null` *lat* - Lat камеры
+- `double|null` *lon* - Lon камеры
+
 ## IntercomConfigShowRequest
 
 Поля: 
