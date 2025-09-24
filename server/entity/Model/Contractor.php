@@ -21,7 +21,15 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  */
 class Contractor extends Entity
 {
+    /**
+     * Автоматически блокировать квартиру
+     * @var int
+     */
     public const FLAG_INTERCOM_BLOCK = 1;
+    /**
+     * Автоматически добавлять все камеры в квартиру
+     * @var int
+     */
     public const FLAG_INTERCOM_CAMERA = 2;
 
     /**

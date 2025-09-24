@@ -89,20 +89,21 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             $this->setProgress(40);
 
             if ($device instanceof ApartmentInterface) {
-                /** @var HouseFlat[] $flats */
-                $flats = [];
+                $this->apartment($device, $entrance, $individualLevels);
 
-                $this->apartment($device, $entrance, $flats, $individualLevels);
+                foreach ($device->intercom->entrances as $tempEntrance) {
+                    $flats = $tempEntrance->flats;
 
-                if ($device instanceof KeyHandlerInterface) {
-                    $device->handleKey($flats, $entrance);
-                } elseif (count($flats) > 0) {
-                    if ($device instanceof KeyInterface) {
+                    if (count($flats) == 0) {
+                        continue;
+                    }
+
+                    if ($device instanceof KeyHandlerInterface) {
+                        $device->handleKey($tempEntrance);
+                    } else if ($device instanceof KeyInterface) {
                         $this->key($device, $flats);
                     }
-                }
 
-                if (count($flats) > 0) {
                     if ($device instanceof CodeInterface) {
                         $this->code($device, $flats);
                     }
@@ -148,7 +149,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $this->logger?->error($throwable);
     }
 
-    private function audio(IntercomDevice & AudioInterface $device): void
+    private function audio(IntercomDevice&AudioInterface $device): void
     {
         $defaultAudioLevels = $device->getDefaultAudioLevels();
 
@@ -161,7 +162,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function video(IntercomDevice & VideoInterface $device, HouseEntrance|null $entrance): void
+    private function video(IntercomDevice&VideoInterface $device, HouseEntrance|null $entrance): void
     {
         $videoEncoding = $device->getVideoEncoding();
 
@@ -196,7 +197,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    private function sip(IntercomDevice & SipInterface $device, DeviceIntercom $deviceIntercom): void
+    private function sip(IntercomDevice&SipInterface $device, DeviceIntercom $deviceIntercom): void
     {
         $server = container(SipFeature::class)->sip($deviceIntercom);
 
@@ -225,7 +226,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         }
     }
 
-    public function common(IntercomDevice & CommonInterface $device, HouseEntrance|null $entrance): void
+    public function common(IntercomDevice&CommonInterface $device, HouseEntrance|null $entrance): void
     {
         $ntpServer = $device->resolver->string(ConfigKey::CleanNtp);
 
@@ -286,11 +287,10 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
     /**
      * @param ApartmentInterface&IntercomDevice $device
      * @param HouseEntrance $entrance
-     * @param array<int, HouseFlat> $flats
      * @param bool &$individualLevels
      * @return void
      */
-    public function apartment(IntercomDevice & ApartmentInterface $device, HouseEntrance $entrance, array &$flats, bool &$individualLevels): void
+    public function apartment(IntercomDevice&ApartmentInterface $device, HouseEntrance $entrance, bool &$individualLevels): void
     {
         /** @var array<int, Apartment> $apartments */
         $apartments = array_reduce($device->getApartments(), static function (array $previous, Apartment $current) {
@@ -317,10 +317,6 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $delta = (80 - $progress) / $count;
 
         foreach ($houseFlats as $flat) {
-            if (!array_key_exists($flat->house_flat_id, $flats)) {
-                $flats[$flat->house_flat_id] = $flat;
-            }
-
             if ($device->model->isBeward() && $entrance->shared === 1) {
                 continue;
             }
@@ -389,7 +385,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      * @param HouseFlat[] $flats
      * @return void
      */
-    public function key(IntercomDevice & KeyInterface $device, array $flats): void
+    public function key(IntercomDevice&KeyInterface $device, array $flats): void
     {
         $progress = 80;
         $delta = (90 - $progress) / count($flats);
@@ -435,7 +431,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      * @param array<int, HouseFlat> $flats
      * @return void
      */
-    public function code(IntercomDevice & CodeInterface $device, array $flats): void
+    public function code(IntercomDevice&CodeInterface $device, array $flats): void
     {
         $progress = 90;
         $delta = (95 - $progress) / count($flats);
@@ -486,7 +482,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      * @param HouseEntrance $entrance
      * @return void
      */
-    public function cms(IntercomDevice & ApartmentInterface & CmsInterface $device, HouseEntrance $entrance): void
+    public function cms(IntercomDevice&ApartmentInterface&CmsInterface $device, HouseEntrance $entrance): void
     {
         $entranceLevels = array_map(static fn(string $value): int => intval($value), array_filter(explode(',', $entrance->cms_levels ?? ''), static fn(string $value): bool => $value !== ''));
 
@@ -522,7 +518,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
      * @param HouseEntrance $entrance
      * @return void
      */
-    public function commonGates(IntercomDevice & CommonInterface $device, HouseEntrance $entrance): void
+    public function commonGates(IntercomDevice&CommonInterface $device, HouseEntrance $entrance): void
     {
         /** @var Gate[] $gates */
         $gates = [];
@@ -566,7 +562,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
         $device->setGates($gates);
     }
 
-    public function commonOther(IntercomDevice & CommonInterface $device, bool $individualLevels): void
+    public function commonOther(IntercomDevice&CommonInterface $device, bool $individualLevels): void
     {
         $server = uri($device->resolver->string(ConfigKey::CleanSyslog, 'syslog://127.0.0.1:514'));
 
