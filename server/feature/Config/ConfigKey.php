@@ -28,6 +28,7 @@ enum ConfigKey: string
 
     case Timeout = 'timeout';
     case Prepare = 'prepare';
+    case Check = 'check';
 
     case Output = 'output';
     case OutputMap = 'output.map';

@@ -48,6 +48,11 @@ abstract class IntercomDevice extends IpDevice
         $this->timeout = $this->resolver->int(ConfigKey::Timeout, 0);
         $this->prepare = $this->resolver->int(ConfigKey::Prepare, 1);
 
+        if (!$this->resolver->bool(ConfigKey::Check, true)) {
+            $this->clientOption->raw(CURLOPT_SSL_VERIFYHOST, 0);
+            $this->clientOption->raw(CURLOPT_SSL_VERIFYPEER, 0);
+        }
+
         if ($this->resolver->bool(ConfigKey::Mifare, false) === true) {
             $key = $this->resolver->string(ConfigKey::MifareKey);
             $sector = $this->resolver->string(ConfigKey::MifareSector);
@@ -71,7 +76,7 @@ abstract class IntercomDevice extends IpDevice
             $this->mifareSector = null;
         }
 
-        $log = self::template($this->resolver->string(ConfigKey::Log, 'intercom'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string)$this->intercom->house_domophone_id]);
+        $log = self::template($this->resolver->string(ConfigKey::Log, 'intercom'), ['model' => strtolower($this->model->vendor), 'date' => date('Y-m-d'), 'id' => (string) $this->intercom->house_domophone_id]);
         $dir = dirname(path('var/log/' . $log));
 
         if (!is_dir($dir)) {
@@ -86,13 +91,23 @@ abstract class IntercomDevice extends IpDevice
         throw new DeviceException($this, 'Метод спецификации устройства не реализован');
     }
 
-    public function open(int $value): void {}
+    public function open(int $value): void
+    {
+    }
 
-    public function call(int $apartment): void {}
+    public function call(int $apartment): void
+    {
+    }
 
-    public function callStop(): void {}
+    public function callStop(): void
+    {
+    }
 
-    public function reboot(): void {}
+    public function reboot(): void
+    {
+    }
 
-    public function reset(): void {}
+    public function reset(): void
+    {
+    }
 }

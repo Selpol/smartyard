@@ -62,6 +62,7 @@ readonly abstract class ConfigFeature extends Feature
             ['type' => 'value', 'value' => ConfigKey::Debug->value, 'title' => 'Дебаг', 'assign' => ['default' => 'false', 'type' => 'bool']],
             ['type' => 'value', 'value' => ConfigKey::Prepare->value, 'title' => 'Подготовка запроса', 'assign' => ['default' => '1', 'in:0,1,2']],
             ['type' => 'value', 'value' => ConfigKey::Timeout->value, 'title' => 'Ожидание, перед выполнением запроса в 1/1000000 секунд', 'assign' => ['default' => '0', 'type' => 'int']],
+            ['type' => 'value', 'value' => ConfigKey::Check->value, 'title' => 'Проверка SSL', 'assign', 'assign' => ['default' => 'true', 'type' => 'bool']],
             ['type' => 'value', 'value' => ConfigKey::Log->value, 'title' => 'Файл логов', 'assign' => ['default' => 'intercom']],
 
             [
