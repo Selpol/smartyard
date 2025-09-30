@@ -48,9 +48,11 @@ trait CodeTrait
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'set', 'Number' => $code->apartment, 'DoorCodeActive' => 'on', 'DoorCode' => $code->code]);
     }
 
-    public function removeCode(Code $code): void
+    public function removeCode(Code $code): bool
     {
         $this->get('/cgi-bin/apartment_cgi', ['action' => 'set', 'Number' => $code->apartment, 'DoorCodeActive' => 'off', 'DoorCode' => '0']);
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     public function clearCode(): void

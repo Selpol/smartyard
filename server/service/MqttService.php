@@ -14,9 +14,11 @@ use Selpol\Runner\TaskRunner;
 use Throwable;
 
 #[Singleton]
-readonly class MqttService implements ContainerDisposeInterface
+class MqttService implements ContainerDisposeInterface
 {
     private MqttClient $client;
+
+    private bool $disabled;
 
     /**
      * @throws ProtocolNotSupportedException
@@ -26,16 +28,24 @@ readonly class MqttService implements ContainerDisposeInterface
         $config = config('mqtt');
 
         $this->client = new MqttClient($config['host'], intval($config['port']));
+
+        $this->disabled = false;
     }
 
     public function publish(string $topic, mixed $data): void
     {
+        if ($this->disabled) {
+            return;
+        }
+
         try {
             $this->connect();
 
             $this->client->publish($topic, json_encode($data));
         } catch (Throwable $throwable) {
             file_logger('mqtt')->error($throwable);
+
+            $this->disabled = true;
         }
     }
 
@@ -68,9 +78,7 @@ readonly class MqttService implements ContainerDisposeInterface
         if (!$this->client->isConnected()) {
             $config = config('mqtt');
 
-            $keepAliveInternal = kernel()->getRunner() instanceof TaskRunner ? 3600 : 10;
-
-            $this->client->connect((new ConnectionSettings())->setUsername($config['username'])->setPassword($config['password'])->setKeepAliveInterval($keepAliveInternal)->setReconnectAutomatically(true));
+            $this->client->connect((new ConnectionSettings())->setUsername($config['username'])->setPassword($config['password']));
         }
     }
 }

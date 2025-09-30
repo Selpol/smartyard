@@ -26,6 +26,8 @@ abstract class IpDevice extends Device
 
     protected ClientOption $clientOption;
 
+    protected ?ResponseInterface $lastResponse;
+
     public function __construct(Uri $uri, #[SensitiveParameter] string $password)
     {
         parent::__construct($uri);
@@ -313,6 +315,8 @@ abstract class IpDevice extends Device
 
     private function response(ResponseInterface $response, bool|array $parse): mixed
     {
+        $this->lastResponse = $response;
+
         if ($response->getStatusCode() === 401) {
             throw new DeviceException($this, 'Ошибка авторизации', 'Authorization error', 401);
         }

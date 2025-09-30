@@ -28,13 +28,15 @@ trait CodeTrait
         $this->post('/openCode', ['code' => $code->code, 'panelCode' => $code->apartment]);
     }
 
-    public function removeCode(Code $code): void
+    public function removeCode(Code $code): bool
     {
         if ($code->code) {
             $this->delete('/openCode/' . $code->apartment . '/' . $code->code);
         } else {
             $this->delete('/openCode/' . $code->apartment);
         }
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     public function clearCode(): void

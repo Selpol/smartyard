@@ -7,8 +7,8 @@ use JsonSerializable;
 use Selpol\Framework\Entity\Entity;
 
 /**
- * @template V of Entity
- * @template F of Entity
+ * @template V
+ * @template F
  * @template T
  *
  * @property string $name

@@ -12,7 +12,7 @@ interface CodeInterface
 
     public function addCode(Code $code): void;
 
-    public function removeCode(Code $code): void;
+    public function removeCode(Code $code): bool;
 
     public function clearCode(): void;
 }
