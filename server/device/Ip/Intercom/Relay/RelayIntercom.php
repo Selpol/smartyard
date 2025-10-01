@@ -30,7 +30,7 @@ class RelayIntercom extends IntercomDevice implements CommonInterface
 
         foreach ($map as $item) {
             if (str_starts_with($item, $value . ':')) {
-                $this->post('/api/v1/open/' . substr($item, strlen((string)$value) + 1), ['invert' => $this->resolver->bool(ConfigKey::OutputInvert, false)]);
+                $this->post('/api/v1/open/' . substr($item, strlen((string) $value) + 1), ['invert' => $this->resolver->bool(ConfigKey::OutputInvert, false)]);
 
                 return;
             }
@@ -181,9 +181,11 @@ class RelayIntercom extends IntercomDevice implements CommonInterface
     /**
      * @inheritDoc
      */
-    public function setRelay(Relay $relay, int $type): void
+    public function setRelay(Relay $relay, int $type): bool
     {
         $this->post('/api/v1/setting', ['open_duration' => $relay->openDuration]);
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     /**

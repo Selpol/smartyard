@@ -182,7 +182,7 @@ trait CommonTrait
         $this->put('/panelCode/settings', ['consiergeRoom' => $room->concierge, 'sosRoom' => $room->sos]);
     }
 
-    public function setRelay(Relay $relay, int $type): void
+    public function setRelay(Relay $relay, int $type): bool
     {
         $this->put('relay/settings', ['inverseDoor' => true, 'alwaysOpenNetMode' => false, 'alwaysOpen' => !$relay->lock]);
 
@@ -191,6 +191,8 @@ trait CommonTrait
         foreach ($relays as $value) {
             $this->put('/relay/' . $value . '/settings', ['switchTime' => $relay->openDuration]);
         }
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     public function setDDns(DDns $dDns): void

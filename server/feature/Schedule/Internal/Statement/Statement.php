@@ -25,7 +25,7 @@ abstract class Statement
         'intercom_reset' => IntercomResetStatement::class,
     ];
 
-    public abstract function execute(Context $context): bool;
+    public abstract function execute(Context $context): StatementResult;
 
     /**
      * @param array $value

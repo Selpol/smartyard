@@ -114,9 +114,11 @@ trait CommonTrait
 
     }
 
-    public function setRelay(Relay $relay, int $type): void
+    public function setRelay(Relay $relay, int $type): bool
     {
         $this->put('/ISAPI/AccessControl/Door/param/1', "<DoorParam><doorName>Door1</doorName><openDuration>" . $relay->openDuration . "</openDuration><magneticType>" . ($relay->lock ? 'alwaysClose' : 'alwaysOpen') . "</magneticType>></DoorParam>", ['Content-Type' => 'application/xml']);
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     public function setDDns(DDns $dDns): void

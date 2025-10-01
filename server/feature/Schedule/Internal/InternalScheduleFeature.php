@@ -3,6 +3,7 @@
 namespace Selpol\Feature\Schedule\Internal;
 
 use Selpol\Entity\Model\Schedule;
+use Selpol\Feature\Schedule\Internal\Statement\StatementResult;
 use Selpol\Feature\Schedule\Internal\Statement\TopStatement;
 use Selpol\Feature\Schedule\ScheduleFeature;
 use Selpol\Feature\Schedule\ScheduleTime;
@@ -29,7 +30,7 @@ readonly class InternalScheduleFeature extends ScheduleFeature
         TopStatement::check($script);
     }
 
-    public function execute(Schedule $schedule, ScheduleTimeInterface $time): bool
+    public function execute(Schedule $schedule, ScheduleTimeInterface $time): StatementResult
     {
         $context = new Context($time);
 

@@ -39,7 +39,7 @@ interface CommonInterface
 
     public function setRoom(Room $room): void;
 
-    public function setRelay(Relay $relay, int $type): void;
+    public function setRelay(Relay $relay, int $type): bool;
 
     public function setDDns(DDns $dDns): void;
 

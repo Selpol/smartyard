@@ -16,15 +16,17 @@ class TopStatement extends Statement
         $this->children = $children;
     }
 
-    public function execute(Context $context): bool
+    public function execute(Context $context): StatementResult
     {
         foreach ($this->children as $child) {
-            if (!$child->execute($context)) {
-                return false;
+            $result = $child->execute($context);
+
+            if ($result != StatementResult::Success) {
+                return $result;
             }
         }
 
-        return true;
+        return StatementResult::Success;
     }
 
     public static function check(array $value): void

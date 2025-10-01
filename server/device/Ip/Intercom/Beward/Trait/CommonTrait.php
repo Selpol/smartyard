@@ -156,17 +156,19 @@ trait CommonTrait
         $this->get('/cgi-bin/intercom_alarm_cgi', ['action' => 'set', 'SOSCallActive' => 'on', 'SOSCallNumber' => $room->sos]);
     }
 
-    public function setRelay(Relay $relay, int $type): void
+    public function setRelay(Relay $relay, int $type): bool
     {
         $value = $relay->lock ? 'off' : 'on';
 
         if ($type == 1) {
             $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'AltDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
 
-            return;
+            return $this->lastResponse?->getStatusCode() == 200;
         }
 
         $this->get('/cgi-bin/intercom_cgi', ['action' => 'set', 'DoorOpenMode' => $value, 'MainDoorOpenMode' => $value, 'DoorOpenTime' => $relay->openDuration]);
+
+        return $this->lastResponse?->getStatusCode() == 200;
     }
 
     public function setDDns(DDns $dDns): void

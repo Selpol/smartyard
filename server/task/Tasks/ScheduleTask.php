@@ -3,11 +3,13 @@
 namespace Selpol\Task\Tasks;
 
 use Selpol\Entity\Model\Schedule;
+use Selpol\Feature\Schedule\Internal\Statement\StatementResult;
 use Selpol\Feature\Schedule\ScheduleFeature;
 use Selpol\Feature\Schedule\ScheduleTime;
 use Selpol\Task\Task;
 use Selpol\Task\TaskRetryInterface;
 use Selpol\Task\Trait\TaskRetryTrait;
+use Throwable;
 
 class ScheduleTask extends Task implements TaskRetryInterface
 {
@@ -41,12 +43,26 @@ class ScheduleTask extends Task implements TaskRetryInterface
 
         $time = ScheduleTime::fromUnix($this->time);
 
-        if ($time->at($schedule->time) && !$feature->execute($schedule, $time)) {
-            $this->retry(15 * ($this->initialRetry - $this->retry));
-
+        if (!$time->at($schedule->time)) {
             return false;
         }
 
-        return true;
+        try {
+            $result = $feature->execute($schedule, $time);
+
+            if ($result == StatementResult::Success) {
+                return true;
+            }
+
+            if ($result == StatementResult::Error) {
+                $this->retry(15 * ($this->initialRetry - $this->retry));
+            }
+        } catch (Throwable $throwable) {
+            $this->logger?->error($throwable, ['id' => $schedule->id, 'time' => $time->getTime()]);
+
+            $this->retry(15 * ($this->initialRetry - $this->retry));
+        }
+
+        return false;
     }
 }

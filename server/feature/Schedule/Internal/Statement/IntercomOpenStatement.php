@@ -15,12 +15,12 @@ class IntercomOpenStatement extends Statement
         $this->intercom = $intercom;
     }
 
-    public function execute(Context $context): bool
+    public function execute(Context $context): StatementResult
     {
         $intercom = is_string($this->intercom) ? $context->getOrThrow($this->intercom) : intercom($this->intercom);
         $intercom->open(0);
 
-        return true;
+        return StatementResult::Success;
     }
 
     public static function check(array $value): void

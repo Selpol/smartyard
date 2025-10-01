@@ -18,12 +18,23 @@ class IntercomRelayStatement extends Statement
         $this->value = $value;
     }
 
-    public function execute(Context $context): bool
+    public function execute(Context $context): StatementResult
     {
         /**
          * @var \Selpol\Device\Ip\Intercom\IntercomDevice
          */
         $intercom = is_string($this->intercom) ? $context->getOrThrow($this->intercom) : intercom($this->intercom);
+
+        if ($intercom instanceof CommonInterface) {
+            $relay = $intercom->getRelay(0);
+            $relay->lock = (bool) $this->value;
+
+            if (!$intercom->setRelay($relay, 0)) {
+                return StatementResult::Error;
+            }
+        } else {
+            return StatementResult::Critical;
+        }
 
         $entrances = $intercom->intercom->entrances;
 
@@ -32,14 +43,7 @@ class IntercomRelayStatement extends Statement
             $entrance->update();
         }
 
-        if ($intercom instanceof CommonInterface) {
-            $relay = $intercom->getRelay(0);
-            $relay->lock = (bool) $this->value;
-
-            $intercom->setRelay($relay, 0);
-        }
-
-        return true;
+        return StatementResult::Success;
     }
 
     public static function check(array $value): void
