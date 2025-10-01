@@ -29,11 +29,12 @@ readonly class InternalScheduleFeature extends ScheduleFeature
         TopStatement::check($script);
     }
 
-    public function execute(Schedule $schedule, ScheduleTimeInterface $time): void
+    public function execute(Schedule $schedule, ScheduleTimeInterface $time): bool
     {
         $context = new Context($time);
 
         $statement = TopStatement::parse(json_decode($schedule->script, true));
-        $statement->execute($context);
+
+        return $statement->execute($context);
     }
 }

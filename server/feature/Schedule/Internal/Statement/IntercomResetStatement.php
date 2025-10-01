@@ -15,10 +15,12 @@ class IntercomResetStatement extends Statement
         $this->intercom = $intercom;
     }
 
-    public function execute(Context $context): void
+    public function execute(Context $context): bool
     {
         $intercom = is_string($this->intercom) ? $context->getOrThrow($this->intercom) : intercom($this->intercom);
         $intercom->reset();
+
+        return true;
     }
 
     public static function check(array $value): void

@@ -18,7 +18,7 @@ class IntercomRelayStatement extends Statement
         $this->value = $value;
     }
 
-    public function execute(Context $context): void
+    public function execute(Context $context): bool
     {
         /**
          * @var \Selpol\Device\Ip\Intercom\IntercomDevice
@@ -38,6 +38,8 @@ class IntercomRelayStatement extends Statement
 
             $intercom->setRelay($relay, 0);
         }
+
+        return true;
     }
 
     public static function check(array $value): void

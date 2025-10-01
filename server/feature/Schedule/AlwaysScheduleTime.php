@@ -4,6 +4,11 @@ namespace Selpol\Feature\Schedule;
 
 final readonly class AlwaysScheduleTime implements ScheduleTimeInterface
 {
+    public function getTime(): int
+    {
+        return time();
+    }
+
     public function at(string $value): bool
     {
         return true;

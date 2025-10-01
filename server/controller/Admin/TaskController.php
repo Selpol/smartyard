@@ -12,6 +12,7 @@ use Selpol\Framework\Router\Attribute\Controller;
 use Selpol\Framework\Router\Attribute\Method\Delete;
 use Selpol\Framework\Router\Attribute\Method\Get;
 use Selpol\Task\Tasks\Contractor\ContractorSyncTask;
+use Selpol\Task\Tasks\Flat\FlatCodeDeleteTask;
 use Selpol\Task\Tasks\Frs\FrsAddStreamTask;
 use Selpol\Task\Tasks\Frs\FrsRemoveStreamTask;
 use Selpol\Task\Tasks\Inbox\InboxFlatTask;
@@ -29,6 +30,7 @@ use Selpol\Task\Tasks\Intercom\IntercomLevelTask;
 use Selpol\Task\Tasks\Intercom\IntercomLockTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomAddKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomDeleteKeyTask;
+use Selpol\Task\Tasks\Intercom\Key\IntercomFlatKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomHouseKeyTask;
 use Selpol\Task\Tasks\Intercom\Key\IntercomKeysKeyTask;
 use Selpol\Task\Tasks\Migration\MigrationDownTask;
@@ -37,6 +39,7 @@ use Selpol\Task\Tasks\Plog\PlogCallTask;
 use Selpol\Task\Tasks\Plog\PlogOpenTask;
 use Selpol\Task\Tasks\QrTask;
 use Selpol\Task\Tasks\RecordTask;
+use Selpol\Task\Tasks\ScheduleTask;
 
 /**
  * Задачи
@@ -83,11 +86,17 @@ readonly class TaskController extends AdminRbtController
                 IntercomSyncFlatTask::class => '[Домофон] Синхронизация квартиры',
                 IntercomBlockTask::class => '[Домофон] Синхронизация блокировок КМС Трубок',
                 IntercomHealthTask::class => '[Домофон] Проверка состояния здоровья',
+                IntercomLockTask::class => '[Домофон] Синхронизация замка',
 
                 IntercomAddKeyTask::class => '[Домофон] Добавление ключ',
                 IntercomDeleteKeyTask::class => '[Домофон] Удаление ключ',
+                IntercomFlatKeyTask::class => '[Домофон] Обновить ключи на квартире',
                 IntercomHouseKeyTask::class => '[Домофон] Синхронизация ключей на дому',
                 IntercomKeysKeyTask::class => '[Домофон] Массовая синхронизация ключей на дому',
+
+                FlatCodeDeleteTask::class => '[Квартира] Удалить недельный код',
+
+                ScheduleTask::class => '[Расписание] Повторяющая задача расписания'
             ]
         ]);
     }

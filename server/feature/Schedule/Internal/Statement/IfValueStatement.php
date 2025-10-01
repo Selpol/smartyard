@@ -21,13 +21,17 @@ class IfValueStatement extends Statement
         $this->children = $children;
     }
 
-    public function execute(Context $context): void
+    public function execute(Context $context): bool
     {
         if ($context->time->at($this->value)) {
             foreach ($this->children as $child) {
-                $child->execute($context);
+                if (!$child->execute($context)) {
+                    return false;
+                }
             }
         }
+
+        return true;
     }
 
     public static function check(array $value): void

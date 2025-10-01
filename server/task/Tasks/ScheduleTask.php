@@ -1,0 +1,52 @@
+<?php declare(strict_types=1);
+
+namespace Selpol\Task\Tasks;
+
+use Selpol\Entity\Model\Schedule;
+use Selpol\Feature\Schedule\ScheduleFeature;
+use Selpol\Feature\Schedule\ScheduleTime;
+use Selpol\Task\Task;
+use Selpol\Task\TaskRetryInterface;
+use Selpol\Task\Trait\TaskRetryTrait;
+
+class ScheduleTask extends Task implements TaskRetryInterface
+{
+    use TaskRetryTrait;
+
+    public int $scheduleId;
+    public int $time;
+
+    public int $initialRetry = 12;
+
+    public function __construct(int $scheduleId, int $time)
+    {
+        parent::__construct('Загрузка архива (' . $scheduleId . ')');
+
+        $this->scheduleId = $scheduleId;
+        $this->time = $time;
+
+        $this->setLogger(file_logger('task-schedule'));
+    }
+
+    public function onTask(): bool
+    {
+        $schedule = Schedule::findById($this->scheduleId, criteria()->equal('status', 1));
+
+        if (!$schedule) {
+            return false;
+        }
+
+        $feature = container(ScheduleFeature::class);
+        $feature->check($schedule);
+
+        $time = ScheduleTime::fromUnix($this->time);
+
+        if ($time->at($schedule->time) && !$feature->execute($schedule, $time)) {
+            $this->retry(15 * ($this->initialRetry - $this->retry));
+
+            return false;
+        }
+
+        return true;
+    }
+}

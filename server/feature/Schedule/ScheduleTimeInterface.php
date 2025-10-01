@@ -4,6 +4,8 @@ namespace Selpol\Feature\Schedule;
 
 interface ScheduleTimeInterface
 {
+    public function getTime(): int;
+
     public function at(string $value): bool;
 
     public function minutely(): bool;

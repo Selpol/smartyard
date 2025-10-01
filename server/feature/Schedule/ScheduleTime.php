@@ -7,6 +7,12 @@ use Selpol\Framework\Kernel\Exception\KernelException;
 final readonly class ScheduleTime implements ScheduleTimeInterface
 {
     /**
+     * Время
+     * @var int
+     */
+    public int $time;
+
+    /**
      * Значение от 0 до 59
      * @var int
      */
@@ -36,14 +42,21 @@ final readonly class ScheduleTime implements ScheduleTimeInterface
      */
     public int $weekday;
 
-    public function __construct(int $minute, int $hour, int $day, int $month, int $weekday)
+    public function __construct(int $time, int $minute, int $hour, int $day, int $month, int $weekday)
     {
+        $this->time = $time;
+
         $this->minute = $minute;
         $this->hour = $hour;
         $this->day = $day;
         $this->month = $month;
 
         $this->weekday = $weekday;
+    }
+
+    public function getTime(): int
+    {
+        return $this->time;
     }
 
     public function at(string $value): bool
@@ -108,7 +121,7 @@ final readonly class ScheduleTime implements ScheduleTimeInterface
                 if (($source % $value) != 0) {
                     continue;
                 }
-            } else if (str_contains('-', $part)) {
+            } else if (str_contains($part, '-')) {
                 [$left, $right] = explode('-', $part);
 
                 if ($source < intval($left) || $source > intval($right)) {
@@ -147,20 +160,23 @@ final readonly class ScheduleTime implements ScheduleTimeInterface
             foreach ($parts as $part) {
                 if (str_starts_with($part, '*/')) {
                     if (!filter_var(substr($part, 2), FILTER_VALIDATE_INT)) {
-                        throw new KernelException('Не верный формат числа в расписании времени');
+                        throw new KernelException('Не верный формат дополнительного числа в расписании времени');
                     }
-                } else if (str_contains('-', $part)) {
+                } else if (str_contains($part, '-')) {
                     $index = strpos($part, '-');
 
-                    if (!filter_var(substr($part, 0, $index), FILTER_VALIDATE_INT)) {
-                        throw new KernelException('Не верный формат числа в расписании времени');
+                    $left = substr($part, 0, $index);
+                    $right = substr($part, $index + 1);
+
+                    if ($left != '0' && !filter_var($left, FILTER_VALIDATE_INT)) {
+                        throw new KernelException('Не верный формат первого числа в расписании времени');
                     }
 
-                    if (!filter_var(substr($part, $index + 2), FILTER_VALIDATE_INT)) {
-                        throw new KernelException('Не верный формат числа в расписании времени');
+                    if ($right != '0' && !filter_var($right, FILTER_VALIDATE_INT)) {
+                        throw new KernelException('Не верный формат второго числа в расписании времени');
                     }
                 } else if ($part != '0' && !filter_var($part, FILTER_VALIDATE_INT)) {
-                    throw new KernelException('Не верный формат числа в расписании времени');
+                    throw new KernelException('Не верный формат основного числа в расписании времени');
                 }
             }
         }
@@ -169,6 +185,7 @@ final readonly class ScheduleTime implements ScheduleTimeInterface
     public static function fromUnix(int $time): ScheduleTime
     {
         return new ScheduleTime(
+            $time,
             intval(date('i', $time)),
             intval(date('H', $time)),
             intval(date('d', $time)),

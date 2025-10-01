@@ -57,8 +57,10 @@ class IntercomBlockTask extends Task
                         continue;
                     }
 
-                    if ($intercoms[$intercomId] instanceof ApartmentInterface) {
-                        $intercoms[$intercomId]->setApartmentHandset(intval($flat), false);
+                    $intercom = $intercoms[$intercomId];
+
+                    if ($intercom instanceof ApartmentInterface) {
+                        $intercom->setApartmentHandset(intval($flat), false);
                     }
                 }
 

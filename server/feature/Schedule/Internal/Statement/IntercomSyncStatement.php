@@ -17,7 +17,7 @@ class IntercomSyncStatement extends Statement
         $this->intercom = $intercom;
     }
 
-    public function execute(Context $context): void
+    public function execute(Context $context): bool
     {
         if (is_string($this->intercom)) {
             /** @var IntercomDevice $intercom */
@@ -27,6 +27,8 @@ class IntercomSyncStatement extends Statement
         } else {
             task(new IntercomConfigureTask($this->intercom))->high()->async();
         }
+
+        return true;
     }
 
     public static function check(array $value): void

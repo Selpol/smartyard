@@ -13,6 +13,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string $time
  * @property string $script
+ * 
+ * @property ?string $task
  *
  * @property int<0, 1> $status
  *
@@ -38,6 +40,8 @@ class Schedule extends Entity
         'time' => true,
         'script' => true,
 
+        'task' => true,
+
         'status' => true,
     ];
 
@@ -50,6 +54,8 @@ class Schedule extends Entity
 
             'time' => rule()->string()->exist(),
             'script' => rule()->string()->exist(),
+
+            'task' => rule()->string(),
 
             'status' => rule()->int()->exist(),
 

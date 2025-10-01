@@ -9,6 +9,8 @@ use Selpol\Framework\Router\Route\RouteRequest;
  *
  * @property-read string $time Время
  * @property-read string $script Скрипт
+ * 
+ * @property-read ?string $task Класс задачи
  *
  * @property-read int $status Статус
  */
@@ -21,6 +23,8 @@ readonly class ScheduleStoreRequest extends RouteRequest
 
             'time' => rule()->string()->exist(),
             'script' => rule()->string()->exist(),
+
+            'task' => rule()->string(),
 
             'status' => rule()->int()->exist(),
         ];

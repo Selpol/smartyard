@@ -7,6 +7,7 @@ use Selpol\Device\Exception\DeviceException;
 use Selpol\Device\Ip\Intercom\Setting\Common\CommonInterface;
 use Selpol\Device\Ip\Intercom\Setting\Common\Relay;
 use Selpol\Feature\Config\ConfigKey;
+use Selpol\Framework\Kernel\Exception\KernelException;
 use Selpol\Task\TaskUniqueInterface;
 use Selpol\Task\Trait\TaskUniqueTrait;
 
@@ -31,7 +32,7 @@ class IntercomLockTask extends IntercomTask implements TaskUniqueInterface
         $device = intercom($this->id);
 
         if (!$device instanceof IntercomDevice) {
-            throw new DeviceException($device, 'Устройство не найдено');
+            throw new KernelException('Устройство не найдено');
         }
 
         $this->setProgress(25);

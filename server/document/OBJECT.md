@@ -693,6 +693,7 @@
 - `string` *title* - Заголовок
 - `string` *time* - Время
 - `string` *script* - Скрипт
+- `?string` *task* - Класс задачи
 - `int` *status* - Статус
 
 ## ScheduleUpdateRequest
@@ -703,6 +704,7 @@
 - `string` *title* - Заголовок
 - `string` *time* - Время
 - `string` *script* - Скрипт
+- `?string` *task* - Класс задачи
 - `int` *status* - Статус
 
 ## ServerDvrStoreRequest

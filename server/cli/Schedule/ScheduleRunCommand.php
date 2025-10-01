@@ -10,6 +10,8 @@ use Selpol\Framework\Cli\Attribute\Executable;
 use Selpol\Framework\Cli\Attribute\Execute;
 use Selpol\Framework\Cli\IO\CliIO;
 use Selpol\Framework\Runner\Trait\LoggerRunnerTrait;
+use Selpol\Task\Task;
+use Throwable;
 
 #[Executable('schedule:run', 'Запуск задачи расписания')]
 class ScheduleRunCommand implements LoggerAwareInterface
@@ -20,7 +22,7 @@ class ScheduleRunCommand implements LoggerAwareInterface
     public function execute(CliIO $io, ScheduleFeature $feature): void
     {
         $start = microtime(true) * 1000;
-        $io->writeLine('Processing schedule ');
+        $io->writeLine('Processing schedule');
 
         $time = ScheduleTime::fromGlobal();
 
@@ -28,7 +30,21 @@ class ScheduleRunCommand implements LoggerAwareInterface
 
         foreach ($schedules as $schedule) {
             if ($time->at($schedule->time)) {
-                $feature->execute($schedule, $time);
+                if ($schedule->task && class_exists($schedule->task)) {
+                    try {
+                        $class = $schedule->task;
+
+                        $task = new $class($schedule->id, $time->getTime());
+
+                        if ($task instanceof Task) {
+                            task($task)->high()->async();
+                        }
+                    } catch (Throwable $throwable) {
+                        $this->logger?->error($throwable, ['id' => $schedule->id, 'time' => $time->getTime()]);
+                    }
+                } else {
+                    $feature->execute($schedule, $time);
+                }
             }
         }
 
