@@ -14,12 +14,13 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
 
     public int $initialRetry = 3;
 
-    public function __construct(int           $id, /** @var string IP-адресс устройства */
-                                public string $ip, /** @var int Дата события */
-                                public int    $date, /** @var int|null Идентификатор звонка */
-                                public ?int   $call)
-    {
-        parent::__construct($id, 'Событие звонка');
+    public function __construct(
+        int $id, /** @var string IP-адресс устройства */
+        public string $ip, /** @var int Дата события */
+        public int $date, /** @var int|null Идентификатор звонка */
+        public ?int $call
+    ) {
+        parent::__construct($id, 'Событие звонка (' . $id . ')');
 
         $this->setLogger(file_logger('task-plog-call'));
     }
@@ -56,14 +57,19 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         foreach ($logs as $item) {
             $unit = $item['unit'];
 
-            if ($unit == 'beward') {
-                $this->beward($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            } elseif ($unit == 'is') {
-                $this->is($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            } elseif ($unit == 'qtech') {
-                $this->qtech($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
-            } elseif ($unit == 'akuvox') {
-                $this->akuvox($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+            switch ($unit) {
+                case 'beward':
+                    $this->beward($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+                    break;
+                case 'is':
+                    $this->is($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+                    break;
+                case 'qtech':
+                    $this->qtech($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+                    break;
+                case 'akuvox':
+                    $this->akuvox($event_data, $call_from_panel, $call_start_found, $call_id, $flat_id, $prefix, $flat_number, $item, $item['msg']);
+                    break;
             }
 
             if ($call_start_found || $call_from_panel < 0) {
@@ -72,6 +78,8 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
         }
 
         if ($call_from_panel < 0) {
+            $this->logger?->debug('Панель не определена', ['id' => $this->id]);
+
             return false;
         }
 
@@ -85,8 +93,14 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
             $event_data[PlogFeature::COLUMN_FLAT_ID] = $this->getFlatIdByDomophoneId();
         }
 
+        if ($event_data[PlogFeature::COLUMN_OPENED] == 1 && $event_data[PlogFeature::COLUMN_EVENT] != PlogFeature::EVENT_ANSWERED_CALL) {
+            $event_data[PlogFeature::COLUMN_EVENT] = PlogFeature::EVENT_ANSWERED_CALL;
+        }
+
         //не удалось получить flat_id - игнорируем звонок
         if (!isset($event_data[PlogFeature::COLUMN_FLAT_ID])) {
+            $this->logger?->debug('Не удалось определить квартиру', ['id' => $this->id]);
+
             return false;
         }
 
@@ -98,6 +112,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
             if ($entrance_count > 1) {
                 //в квартиру можно позвонить с нескольких домофонов,
                 //в данном случае считаем, что начальный звонок был с другого домофона - игнорируем звонок
+
+                $this->logger?->debug('Звонок проходил с другого домофона', ['id' => $this->id]);
+
                 return false;
             }
         }
@@ -110,16 +127,20 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
             }
 
             $event_data[PlogFeature::COLUMN_PREVIEW] = $image_data[PlogFeature::COLUMN_PREVIEW];
+        } else {
+            $this->logger?->debug('Отсуствует скриншот', ['id' => $this->id]);
         }
 
         $plog->writeEventData($event_data);
+
+        $this->logger?->debug('Событие успешно записано', ['id' => $this->id, 'flat_id' => $flat_id, 'prefix' => $prefix, 'flat_number' => $flat_number]);
 
         return true;
     }
 
     public function onError(Throwable $throwable): void
     {
-        $this->logger?->debug('PlogCallTask error' . PHP_EOL . $throwable);
+        $this->logger?->error($throwable, ['id' => $this->id]);
 
         $this->retry(300);
     }
@@ -137,7 +158,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
             ["SIP call | CONFIRMED", false, true, false, 0],
             ["Opening door by CMS handset for apartment ", false, false, true, 0],
             ["Opening door by DTMF command", false, false, true, 0],
-            ["All calls are done", false, false, false, 0],
+            ["All calls are done for apartment", false, false, false, 0],
             ["SIP call | DISCONNECTED", false, false, false, 0],
             ["SIP call | CALLING", false, false, false, 1],
             ["Incoming DTMF ", false, false, false, 1],
@@ -153,8 +174,9 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
             $parts = explode("|", $pattern);
             $matched = true;
 
-            foreach ($parts as $p)
+            foreach ($parts as $p) {
                 $matched = $matched && (str_contains($msg, $p));
+            }
 
             if ($matched) {
                 if ($now_call_from_panel > 0) {
@@ -176,6 +198,7 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     //парсим номер квартиры
                     $p1 = strpos($msg, $pattern);
                     $p2 = strpos($msg, ".", $p1 + strlen($pattern));
+
                     if ($p2 === 0 || $p2 === false) {
                         $p2 = strpos($msg, ",", $p1 + strlen($pattern));
                     }
@@ -187,20 +210,23 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
                     $now_flat_number = intval(substr($msg, $p1 + strlen($pattern), $p2 - $p1 - strlen($pattern)));
                 }
 
-                if (str_contains($pattern, "Calling sip:")) {
+                if ($pattern == "Calling sip:") {
                     $p1 = strpos($msg, $pattern);
                     $p2 = strpos($msg, "@", $p1 + strlen($pattern));
 
                     $sip = substr($msg, $p1 + strlen($pattern), $p2 - $p1 - strlen($pattern));
+
                     if ($sip[0] === "1") {
                         //звонок с панели, имеющей КМС, доп. панели или калитки без префикса
                         //парсим flat_id
                         $p1 = strpos($msg, $pattern);
                         $p2 = strpos($msg, "@", $p1 + strlen($pattern));
+
                         $now_flat_id = intval(substr($msg, $p1 + strlen($pattern) + 1, $p2 - $p1 - strlen($pattern) - 1));
                     } else {
                         //звонок с префиксом, первые четыре цифры - префикс с лидирующими нулями, остальные - номер квартиры (калитка)
                         $prefix = intval(substr($sip, 0, 4));
+
                         $now_flat_number = intval(substr($sip, 4));
                     }
                 }
@@ -260,22 +286,28 @@ class PlogCallTask extends PlogTask implements TaskRetryInterface
     {
         $patterns_call = [
             // pattern         start  talk  open   call_from_panel
-            ["/Calling sip:\d+@.* through account/", true, false, false, 1],
-            ["/CMS handset is not connected for apartment \d+, aborting CMS call/", true, false, false, 0],
-            ["/CMS handset call started for apartment \d+/", true, false, false, 0],
-            ["/CMS handset talk started for apartment \d+/", false, true, false, 0],
-            ["/Baresip event CALL_RINGING/", true, false, false, 1],
-            ["/Baresip event CALL_ESTABLISHED/", false, true, false, 0],
-            ["/Opening door by CMS handset for apartment \d+/", false, false, true, 0],
-            ["/Open from handset!/", false, false, true, 0],
-            ["/Open main door by DTMF/", false, false, true, 1],
-            ["/CMS handset call done for apartment \d+, handset is down/", false, false, false, 0],
-            ["/SIP call done for apartment \d+, handset is down/", false, false, false, 1],
-            ["/All calls are done for apartment \d+/", false, false, false, 1],
+            ["/Calling sip:\d+@.* through account/", true, false, false, true, 1],
+            ["/CMS handset is not connected for apartment \d+, aborting CMS call/", true, false, false, true, 0],
+            ["/CMS handset call started for apartment \d+/", true, false, false, true, 0],
+            ["/CMS handset talk started for apartment \d+/", false, true, false, true, 0],
+            ["/Baresip event CALL_RINGING/", true, false, false, false, 1],
+            ["/Baresip event CALL_ESTABLISHED/", false, true, false, false, 0],
+            ["/Accept connection/", false, true, false, false, 0],
+            ["/Authorization successful/", false, true, false, false, 0],
+            ["/Generate new session ID/", false, true, false, false, 0],
+            ["/SETUP finished/", false, true, false, false, 0],
+            ["/micGain level is higher than permissible/", false, true, false, false, 0],
+            ["/Opening door by CMS handset for apartment \d+/", false, true, true, true, 0],
+            ["/Open from handset!/", false, true, true, false, 0],
+            ["/DTMF event/", false, true, true, false, 1],
+            ["/Open main door by DTMF/", false, true, true, false, 1],
+            ["/CMS handset call done for apartment \d+, handset is down/", false, false, false, true, 0],
+            ["/SIP call done for apartment \d+, handset is down/", false, false, false, true, 1],
+            ["/All calls are done for apartment \d+/", false, false, false, true, 0],
 
             // Incoming call patterns
-            ["/Baresip event CALL_INCOMING/", false, false, false, -1],
-            ["/Incoming call to sip:\d+@.* \(\d+\)/", false, false, false, -1],
+            ["/Baresip event CALL_INCOMING/", false, false, false, false, -1],
+            ["/Incoming call to/", false, false, false, false, -1],
         ];
 
         foreach ($patterns_call as [$pattern, $flag_start, $flag_talk_started, $flag_door_opened, $now_call_from_panel]) {

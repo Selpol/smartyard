@@ -24,7 +24,7 @@ class PlogOpenTask extends PlogTask implements TaskRetryInterface
         public int $date, /** @var string Информация о событие */
         public string $detail
     ) {
-        parent::__construct($id, 'Событие открытие двери');
+        parent::__construct($id, 'Событие открытие двери (' . $id . ')');
 
         $this->setLogger(file_logger('task-plog-open'));
     }

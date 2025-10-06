@@ -108,7 +108,7 @@ return [
 
             'ttl_camshot_days' => 30,
 
-            'back_time_shift_video_shot' => 3
+            'back_time_shift_video_shot' => intval(env('FEATURE_PLOG_BACK_TIME', 3))
         ],
 
         'file' => [
