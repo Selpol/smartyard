@@ -21,6 +21,8 @@ class ScheduleRunCommand implements LoggerAwareInterface
     #[Execute]
     public function execute(CliIO $io, ScheduleFeature $feature): void
     {
+        $this->setLogger(file_logger('schedule'));
+
         $start = microtime(true) * 1000;
         $io->writeLine('Processing schedule');
 
@@ -31,6 +33,8 @@ class ScheduleRunCommand implements LoggerAwareInterface
         foreach ($schedules as $schedule) {
             if ($time->at($schedule->time)) {
                 if ($schedule->task && class_exists($schedule->task)) {
+                    $this->logger?->debug('Schedule run', ['id' => $schedule->id, 'schedule' => $schedule->title, 'task' => $schedule->task]);
+
                     try {
                         $class = $schedule->task;
 
@@ -43,6 +47,8 @@ class ScheduleRunCommand implements LoggerAwareInterface
                         $this->logger?->error($throwable, ['id' => $schedule->id, 'time' => $time->getTime()]);
                     }
                 } else {
+                    $this->logger?->debug('Schedule run', ['id' => $schedule->id, 'schedule' => $schedule->title]);
+
                     $feature->execute($schedule, $time);
                 }
             }

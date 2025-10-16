@@ -22,7 +22,7 @@ class ScheduleTask extends Task implements TaskRetryInterface
 
     public function __construct(int $scheduleId, int $time)
     {
-        parent::__construct('Загрузка архива (' . $scheduleId . ')');
+        parent::__construct('Расписание (' . $scheduleId . ')');
 
         $this->scheduleId = $scheduleId;
         $this->time = $time;

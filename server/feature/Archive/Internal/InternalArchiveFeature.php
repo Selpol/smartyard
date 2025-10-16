@@ -42,6 +42,19 @@ readonly class InternalArchiveFeature extends ArchiveFeature
         );
     }
 
+    public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|\Psr\Http\Message\StreamInterface
+    {
+        $cam = DeviceCamera::findById($cameraId, setting: setting()->nonNullable())->toOldArray();
+
+        $request_url = container(DvrFeature::class)->getUrlOfRecord($cam, $subscriberId, $start, $finish);
+
+        $arrContextOptions = ["ssl" => ["verify_peer" => false, "verify_peer_name" => false]];
+
+        $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
+
+        return stream($resource);
+    }
+
     public function runDownloadRecordTask(int $recordId): bool|string
     {
         try {
@@ -80,6 +93,8 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                 $arrContextOptions = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false));
 
+                $start = time();
+
                 $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
 
                 $fileId = container(FileFeature::class)->addFile(
@@ -95,6 +110,10 @@ readonly class InternalArchiveFeature extends ArchiveFeature
                         ),
                     FileStorage::Archive
                 );
+
+                $finish = time() - $start;
+
+                file_logger('record')->debug('Finish load file', ['finish' => $finish]);
 
                 $time = container(PrometheusService::class)->getCounter('record', 'time', 'Record download time', ['camera', 'subscriber', 'status']);
 

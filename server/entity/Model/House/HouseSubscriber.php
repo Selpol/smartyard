@@ -23,7 +23,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property int|null $platform
  *
  * @property string|null $push_token
- * @property int|null $push_token_type
+ * @property int|null $push_token_type GMS - 0, APSN - 1, APSN DEV - 2, HMS - 3, RSR - 4
  *
  * @property string|null $voip_token
  * @property int|null $voip_enabled
