@@ -42,17 +42,21 @@ readonly class InternalArchiveFeature extends ArchiveFeature
         );
     }
 
-    public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|\Psr\Http\Message\StreamInterface
+    public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): false|\Psr\Http\Message\StreamInterface
     {
-        $cam = DeviceCamera::findById($cameraId, setting: setting()->nonNullable())->toOldArray();
+        try {
+            $cam = DeviceCamera::findById($cameraId, setting: setting()->nonNullable())->toOldArray();
 
-        $request_url = container(DvrFeature::class)->getUrlOfRecord($cam, $subscriberId, $start, $finish);
+            $request_url = container(DvrFeature::class)->getUrlOfRecord($cam, $subscriberId, $start, $finish);
 
-        $arrContextOptions = ["ssl" => ["verify_peer" => false, "verify_peer_name" => false]];
+            $arrContextOptions = ["ssl" => ["verify_peer" => false, "verify_peer_name" => false]];
 
-        $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
+            $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
 
-        return stream($resource);
+            return stream($resource);
+        } catch (Throwable) {
+            return false;
+        }
     }
 
     public function runDownloadRecordTask(int $recordId): bool|string
