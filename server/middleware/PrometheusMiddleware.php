@@ -55,9 +55,11 @@ readonly class PrometheusMiddleware extends RouteMiddleware
 
         $requestBodySizeByte->incBy($size, [$class, $method, $code]);
 
-        if ($response->getStatusCode() !== 204) {
+        $responseSize = $response->getBody()->getSize();
+
+        if ($response->getStatusCode() !== 204 && $responseSize) {
             $responseBodySizeByte = $prometheus->getCounter('http', 'response_body_size_byte', 'Http response body size byte', ['class', 'method', 'code']);
-            $responseBodySizeByte->incBy($response->getBody()->getSize(), [$class, $method, $code]);
+            $responseBodySizeByte->incBy($responseSize, [$class, $method, $code]);
         }
 
         $responseElapsed = $prometheus->getHistogram('http', 'response_elapsed', 'Http response elapsed in milliseconds', ['class', 'method', 'code'], [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000]);

@@ -42,19 +42,22 @@ readonly class InternalArchiveFeature extends ArchiveFeature
         );
     }
 
-    public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): false|\Psr\Http\Message\StreamInterface
+    public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): string|false
     {
         try {
             $cam = DeviceCamera::findById($cameraId, setting: setting()->nonNullable())->toOldArray();
 
-            $request_url = container(DvrFeature::class)->getUrlOfRecord($cam, $subscriberId, $start, $finish);
+            $dvr = container(DvrFeature::class)->getDVRServerByCamera($cam);
+            $url = container(DvrFeature::class)->getUrlOfRecord($cam, $subscriberId, $start, $finish);
 
-            $arrContextOptions = ["ssl" => ["verify_peer" => false, "verify_peer_name" => false]];
+            if ($dvr && $dvr->type == 'flussonic') {
+                return $url;
+            }
 
-            $resource = fopen($request_url, "r", false, stream_context_create($arrContextOptions));
+            return false;
+        } catch (Throwable $throwable) {
+            file_logger('archive')->error($throwable);
 
-            return stream($resource);
-        } catch (Throwable) {
             return false;
         }
     }

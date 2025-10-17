@@ -20,6 +20,7 @@ RUN apk update && apk add --update --no-cache \
         supervisor \
         ffmpeg \
         tzdata \
+        nano \
 	;
 
 RUN set -eux; \

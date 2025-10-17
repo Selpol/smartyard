@@ -4,6 +4,7 @@ namespace Selpol\Controller\Mobile;
 
 use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
+use Selpol\Controller\Request\Mobile\ArchiveExportRequest;
 use Selpol\Controller\Request\Mobile\ArchivePrepareRequest;
 use Selpol\Entity\Model\Device\DeviceCamera;
 use Selpol\Feature\Archive\ArchiveFeature;
@@ -65,20 +66,17 @@ readonly class ArchiveController extends MobileRbtController
     }
 
     #[Post('/export')]
-    public function export(ArchivePrepareRequest $request, ArchiveFeature $feature): Response
+    public function export(ArchiveExportRequest $request, ArchiveFeature $feature): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
         date_default_timezone_set('Europe/Moscow');
 
-        $from = strtotime($request->from);
-        $to = strtotime($request->to);
-
-        if ($from === 0 || $from === false || ($to === 0 || $to === false)) {
+        if ($request->from === 0 || $request->from === false || ($request->to === 0 || $request->to === false)) {
             return user_response(400, message: 'Неверный формат данных');
         }
 
-        if ($to - $from > 1800) {
+        if ($request->to - $request->from > 1800) {
             return user_response(400, message: 'Нельзя выгрузить отрезок из архива длинее 30 минут');
         }
 
@@ -88,13 +86,10 @@ readonly class ArchiveController extends MobileRbtController
             return user_response(404, message: 'Камера не найдена');
         }
 
-        $stream = $feature->exportDownloadRecord($request->id, $userId, $from, $to);
+        $stream = $feature->exportDownloadRecord($request->id, $userId, $request->from, $request->to);
 
         if ($stream) {
-            return response()
-                ->withHeader('Content-Type', 'video/mp4')
-                ->withHeader('Content-Disposition', 'attachment; filename=archive.mp4')
-                ->withBody($stream);
+            return user_response(data: $stream);
         }
 
         return user_response(404, message: 'Не удалось получить доступ к отрезку архива');

@@ -10,8 +10,9 @@ readonly class InternalDvrFeature extends DvrFeature
 {
     public function getDVRServerByCamera(array $camera): ?DvrServer
     {
-        if (array_key_exists('dvrServerId', $camera) && $camera['dvrServerId'])
+        if (array_key_exists('dvrServerId', $camera) && $camera['dvrServerId']) {
             return DvrServer::findById($camera['dvrServerId']);
+        }
 
         return null;
     }
@@ -72,7 +73,8 @@ readonly class InternalDvrFeature extends DvrFeature
                 $sid_response = json_decode(file_get_contents($request_url, false, stream_context_create($arrContextOptions)), true);
 
                 $sid = @$sid_response["sid"] ?: false;
-                if (!$sid || !$guid) return false;
+                if (!$sid || !$guid)
+                    return false;
 
                 $url = "$scheme$user$pass$host$port/jit-export-create-task?sid=$sid";
 
@@ -100,7 +102,8 @@ readonly class InternalDvrFeature extends DvrFeature
                 $success = @$task_id_response["success"] ?: false;
                 $task_id = @$task_id_response["task_id"] ?: false;
 
-                if ($success != 1 || !$task_id) return false;
+                if ($success != 1 || !$task_id)
+                    return false;
 
                 $url = "$scheme$user$pass$host$port/jit-export-task-status?sid=$sid";
 
@@ -132,14 +135,16 @@ readonly class InternalDvrFeature extends DvrFeature
                     $success = @$task_id_response["success"] ?: false;
                     $active = @$task_id_response["active"] ?: false;
 
-                    if ($success == 1 || $active) break;
+                    if ($success == 1 || $active)
+                        break;
 
                     sleep(2);
 
                     $attempts_count = $attempts_count - 1;
                 }
 
-                if (!$active) return false;
+                if (!$active)
+                    return false;
 
                 return "$scheme$user$pass$host$port/jit-export-download?sid=$sid&task_id=$task_id";
             default:
@@ -183,7 +188,8 @@ readonly class InternalDvrFeature extends DvrFeature
                 $sid_response = json_decode(file_get_contents($request_url, false, stream_context_create($arrContextOptions)), true);
                 $sid = @$sid_response["sid"] ?: false;
 
-                if (!$sid || !$guid) break;
+                if (!$sid || !$guid)
+                    break;
 
                 $timestamp = urlencode(date("Y-m-d H:i:s", $time));
 
