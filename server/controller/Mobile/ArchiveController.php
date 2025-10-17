@@ -54,11 +54,11 @@ readonly class ArchiveController extends MobileRbtController
         // проверяем, не был ли уже запрошен данный кусок из архива.
         $check = $archiveFeature->checkDownloadRecord($request->id, $userId, $from, $to);
 
-        if (is_array($check) && array_key_exists('id', $check)) {
-            return user_response(200, $check['id']);
+        if ($check?->record_id) {
+            return user_response(data: $check->record_id);
         }
 
-        $result = (int) $archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
+        $result = $archiveFeature->addDownloadRecord($request->id, $userId, $from, $to);
 
         task(new RecordTask($userId, $result))->queue('record')->async();
 
@@ -89,6 +89,8 @@ readonly class ArchiveController extends MobileRbtController
         $stream = $feature->exportDownloadRecord($request->id, $userId, $request->from, $request->to);
 
         if ($stream) {
+            $feature->addDownloadRecord($request->id, $userId, $request->from, $request->to);
+
             return user_response(data: $stream);
         }
 

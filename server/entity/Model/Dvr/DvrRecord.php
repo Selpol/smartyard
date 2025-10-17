@@ -22,7 +22,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property int $expire
  *
- * @property int<0, 3> $state
+ * @property int<0, 3> $state 0 = created, 1 = in progress, 2 = completed, 3 = error
  * 
  * @property-read DeviceCamera $camera
  * @property-read HouseSubscriber $subscriber

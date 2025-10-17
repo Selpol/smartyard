@@ -3,11 +3,11 @@
 namespace Selpol\Feature\Archive\Internal;
 
 use Selpol\Entity\Model\Device\DeviceCamera;
+use Selpol\Entity\Model\Dvr\DvrRecord;
 use Selpol\Feature\Archive\ArchiveFeature;
 use Selpol\Feature\Dvr\DvrFeature;
 use Selpol\Feature\File\File;
 use Selpol\Feature\File\FileFeature;
-use Selpol\Feature\File\FileInfo;
 use Selpol\Feature\File\FileMetadata;
 use Selpol\Feature\File\FileStorage;
 use Selpol\Service\PrometheusService;
@@ -15,31 +15,30 @@ use Throwable;
 
 readonly class InternalArchiveFeature extends ArchiveFeature
 {
-    public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): bool|int|string
+    public function addDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish, int $state = 0): int
     {
         $dvr_files_ttl = config_get('feature.archive.dvr_files_ttl', 259200);
 
         $filename = guid_v4() . '.mp4';
 
-        return $this->getDatabase()->insert("insert into camera_records (camera_id, subscriber_id, start, finish, filename, expire, state) values (:camera_id, :subscriber_id, :start, :finish, :filename, :expire, :state)", [
-            "camera_id" => $cameraId,
-            "subscriber_id" => $subscriberId,
-            "start" => $start,
-            "finish" => $finish,
-            "filename" => $filename,
-            "expire" => time() + $dvr_files_ttl,
-            "state" => 0 //0 = created, 1 = in progress, 2 = completed, 3 = error
-        ]);
+        $record = new DvrRecord();
+
+        $record->camera_id = $cameraId;
+        $record->subscriber_id = $subscriberId;
+        $record->start = $start;
+        $record->finish = $finish;
+        $record->filename = $filename;
+        $record->expire = time() + $dvr_files_ttl;
+        $record->state = $state;
+
+        $record->insert();
+
+        return $record->record_id;
     }
 
-    public function checkDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): array|false
+    public function checkDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): ?DvrRecord
     {
-        return $this->getDatabase()->get(
-            "select record_id from camera_records where camera_id = :camera_id and subscriber_id = :subscriber_id AND start = :start AND finish = :finish",
-            [":camera_id" => $cameraId, ":subscriber_id" => $subscriberId, ":start" => $start, ":finish" => $finish],
-            ["record_id" => "id"],
-            ["singlify"]
-        );
+        return DvrRecord::fetch(criteria()->equal('camera_id', $cameraId)->equal('subscriber_id', $subscriberId)->equal('start', $start)->equal('finish', $finish));
     }
 
     public function exportDownloadRecord(int $cameraId, int $subscriberId, int $start, int $finish): string|false
@@ -65,38 +64,17 @@ readonly class InternalArchiveFeature extends ArchiveFeature
     public function runDownloadRecordTask(int $recordId): bool|string
     {
         try {
-            $task = $this->getDatabase()->get(
-                "select camera_id, subscriber_id, start, finish, filename, expire, state from camera_records where record_id = :record_id AND state = 0",
-                [
-                    ":record_id" => $recordId,
-                ],
-                [
-                    "camera_id" => "cameraId",
-                    "subscriber_id" => "subscriberId",
-                    "start" => "start",
-                    "finish" => "finish",
-                    "filename" => "filename",
-                    "expire" => "expire",
-                    "state" => "state" //0 = created, 1 = in progress, 2 = completed, 3 = error
-                ],
-                [
-                    "singlify"
-                ]
-            );
+            $record = DvrRecord::findById($recordId);
 
-            if ($task) {
-                $cam = DeviceCamera::findById($task['cameraId'], setting: setting()->nonNullable())->toOldArray();
+            if ($record) {
+                $camera = $record->camera->toOldArray();
 
-                if (!$cam) {
-                    echo "Camera with id = " . $task['cameraId'] . " was not found\n";
-                    return false;
-                }
-                $request_url = container(DvrFeature::class)->getUrlOfRecord($cam, $task['subscriberId'], $task['start'], $task['finish']);
+                $request_url = container(DvrFeature::class)->getUrlOfRecord($camera, $record->subscriber_id, $record->start, $record->finish);
 
                 $this->getDatabase()->modify("update camera_records set state = 1 where record_id = $recordId");
 
                 echo "Record download task with id = $recordId was started\n";
-                echo "Fetching record form $request_url to " . $task['filename'] . "\n";
+                echo "Fetching record form $request_url to " . $record->filename . "\n";
 
                 $arrContextOptions = array("ssl" => array("verify_peer" => false, "verify_peer_name" => false));
 
@@ -106,14 +84,14 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                 $fileId = container(FileFeature::class)->addFile(
                     File::stream(stream($resource))
-                        ->withFilename($task['filename'])
+                        ->withFilename($record->filename)
                         ->withMetadata(
                             FileMetadata::contentType(null)
-                                ->withCameraId($task['cameraId'])
-                                ->withSubscirberId($task['subscriberId'])
-                                ->withStart($task['start'])
-                                ->withEnd($task['finish'])
-                                ->withExpire($task['expire'])
+                                ->withCameraId($record->camera_id)
+                                ->withSubscirberId($record->subscriber_id)
+                                ->withStart($record->start)
+                                ->withEnd($record->finish)
+                                ->withExpire($record->expire)
                         ),
                     FileStorage::Archive
                 );
@@ -130,7 +108,7 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                     fclose($resource);
 
-                    $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 1]);
+                    $time->incBy($record->finish - $record->start, [$record->camera_id, $record->subscriber_id, 1]);
 
                     return $fileId;
                 } else {
@@ -138,7 +116,7 @@ readonly class InternalArchiveFeature extends ArchiveFeature
 
                     echo "Record download task with id = $recordId was finished with error!\n";
 
-                    $time->incBy($task['finish'] - $task['start'], [$task['cameraId'], $task['subscriberId'], 0]);
+                    $time->incBy($record->finish - $record->start, [$record->camera_id, $record->subscriber_id, 0]);
 
                     return false;
                 }
