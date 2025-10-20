@@ -8,6 +8,7 @@ use Selpol\Device\Ip\Intercom\Setting\Video\VideoDetection;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoDisplay;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoOverlay;
+use Selpol\Feature\Config\ConfigKey;
 use Throwable;
 
 trait VideoTrait
@@ -57,6 +58,8 @@ trait VideoTrait
     {
         list($width, $height) = explode('x', $videoEncoding->quality ?? '1280x720');
 
+        $rate = $this->resolver->string(ConfigKey::VideoRate, 'VBR');
+
         $this->put('/camera/codec', [
             'Channels' => [
                 [
@@ -68,7 +71,7 @@ trait VideoTrait
                     "Height" => intval($height),
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "VBR",
+                    "RcMode" => $rate,
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->primaryBitrate
@@ -82,7 +85,7 @@ trait VideoTrait
                     "Height" => 480,
                     "GopMode" => "NormalP",
                     "IPQpDelta" => 2,
-                    "RcMode" => "VBR",
+                    "RcMode" => $rate,
                     "IFrameInterval" => 30,
                     "Framerate" => 30,
                     "MaxBitrate" => $videoEncoding->secondaryBitrate
@@ -110,7 +113,9 @@ trait VideoTrait
         ]);
     }
 
-    public function setVideoDisplay(VideoDisplay $videoDisplay): void {}
+    public function setVideoDisplay(VideoDisplay $videoDisplay): void
+    {
+    }
 
     public function setVideoOverlay(VideoOverlay $videoOverlay): void
     {

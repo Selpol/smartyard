@@ -54,6 +54,8 @@ enum ConfigKey: string
     case VideoQuality = 'video.quality';
     case VideoPrimaryBitrate = 'video.primary_bitrate';
     case VideoSecondaryBitrate = 'video.secondary_bitrate';
+    case VideoRate = 'video.rate';
+    case VideoRateOffset = 'video.rate.offset';
 
     case Display = 'display';
     case DisplayTitle = 'display.title';

@@ -142,6 +142,13 @@ readonly abstract class ConfigFeature extends Feature
 
                     ['type' => 'value', 'value' => ConfigKey::VideoPrimaryBitrate->key(), 'title' => 'Основной битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
                     ['type' => 'value', 'value' => ConfigKey::VideoSecondaryBitrate->key(), 'title' => 'Дополнительный битрейт', 'assign' => ['example' => '512,1024,1536,2048']],
+
+                    [
+                        'type' => 'value',
+                        'value' => ConfigKey::VideoRate->key(),
+                        'title' => 'Поток',
+                        'suggestions' => [['type' => 'value', 'value' => ConfigKey::VideoRateOffset->key(), 'title' => 'Отклонение']]
+                    ],
                 ]
             ],
 

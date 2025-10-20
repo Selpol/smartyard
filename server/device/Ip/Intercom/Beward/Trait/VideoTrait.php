@@ -6,6 +6,7 @@ use Selpol\Device\Ip\Intercom\Setting\Video\VideoDetection;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoDisplay;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoEncoding;
 use Selpol\Device\Ip\Intercom\Setting\Video\VideoOverlay;
+use Selpol\Feature\Config\ConfigKey;
 
 trait VideoTrait
 {
@@ -35,15 +36,18 @@ trait VideoTrait
 
     public function setVideoEncoding(VideoEncoding $videoEncoding): void
     {
+        $rate = $this->resolver->string(ConfigKey::VideoRate, '0');
+        $offset = $this->resolver->string(ConfigKey::VideoRateOffset, '1');
+
         $this->get('/webs/videoEncodingCfgEx', [
             'vlevel' => '0',
             'encoder' => '0',
             'sys_cif' => '0',
             'advanced' => '1',
-            'ratectrl' => '0',
+            'ratectrl' => $rate,
             'quality' => $videoEncoding->quality ?? '1',
             'iq' => '1',
-            'rc' => '1',
+            'rc' => $offset,
             'bitrate' => $videoEncoding->primaryBitrate,
             'frmrate' => '25',
             'frmintr' => '25',
@@ -53,10 +57,10 @@ trait VideoTrait
             'encoder2' => '0',
             'sys_cif2' => '1',
             'advanced2' => '1',
-            'ratectrl2' => '0',
+            'ratectrl2' => $rate,
             'quality2' => '1',
             'iq2' => '1',
-            'rc2' => '1',
+            'rc2' => $offset,
             'bitrate2' => $videoEncoding->secondaryBitrate,
             'frmrate2' => '25',
             'frmintr2' => '25',
