@@ -14,11 +14,11 @@ readonly class InternalMonitorFeature extends MonitorFeature
 {
     public function cron(ScheduleTimeInterface $value): bool
     {
-        if (!config_get('feature.monitor.enable', false) || !$value->minutely()) {
+        if (!config_get('feature.monitor.enable', false) || !$value->at('*/5')) {
             return true;
         }
 
-        $usable = $this->getRedis()->monitor();
+        $monitoring = $this->getRedis()->monitor();
 
         /** @var DeviceCamera[] $cameras */
         $cameras = DeviceCamera::fetchAll();
@@ -28,7 +28,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
 
         foreach ($cameras as $camera) {
             if (!$camera->dvr_server_id || !$camera->dvr_stream) {
-                $usable->set('status:' . $camera->camera_id, false);
+                $monitoring->set('status:' . $camera->camera_id, false);
 
                 continue;
             }
@@ -37,7 +37,7 @@ readonly class InternalMonitorFeature extends MonitorFeature
                 $dvr = dvr($camera->dvr_server_id);
 
                 if (!$dvr) {
-                    $usable->set('status:' . $camera->camera_id, false);
+                    $monitoring->set('status:' . $camera->camera_id, false);
 
                     continue;
                 }
@@ -46,12 +46,12 @@ readonly class InternalMonitorFeature extends MonitorFeature
             }
 
             if (!array_key_exists($camera->dvr_stream, $dvrs[$camera->dvr_server_id])) {
-                $usable->set('status:' . $camera->camera_id, false);
+                $monitoring->set('status:' . $camera->camera_id, false);
 
                 continue;
             }
 
-            $usable->set('status:' . $camera->camera_id, $dvrs[$camera->dvr_server_id][$camera->dvr_stream]);
+            $monitoring->set('status:' . $camera->camera_id, $dvrs[$camera->dvr_server_id][$camera->dvr_stream]);
         }
 
         return true;

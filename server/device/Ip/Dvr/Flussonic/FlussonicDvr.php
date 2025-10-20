@@ -64,6 +64,26 @@ class FlussonicDvr extends DvrDevice
         }
     }
 
+    public function getStatuses(array|null $ids): array
+    {
+        $result = [];
+
+        try {
+            $response = $this->get('/streamer/api/v3/streams', ['select' => 'name,stats', 'limit' => 10000]);
+
+            foreach ($response['streams'] as $stream) {
+                if ($ids && !in_array($stream['name'], $ids)) {
+                    continue;
+                }
+
+                $result[$stream['name']] = $stream['stats']['alive'];
+            }
+        } catch (Throwable) {
+        }
+
+        return $result;
+    }
+
     public function capabilities(): array
     {
         return [
