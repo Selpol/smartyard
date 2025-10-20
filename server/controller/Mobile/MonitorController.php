@@ -17,6 +17,12 @@ readonly class MonitorController extends MobileRbtController
     #[Post]
     public function index(MonitorIndexRequest $request, MonitorFeature $feature): ResponseInterface
     {
+        $role = $this->getUser()->getOriginalValue()['role'];
+
+        if ($role == 0) {
+            return user_response(data: []);
+        }
+
         $result = [];
 
         foreach ($request->ids as $id) {
