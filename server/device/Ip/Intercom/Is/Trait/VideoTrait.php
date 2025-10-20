@@ -100,14 +100,14 @@ trait VideoTrait
     {
         $this->put('/camera/md', [
             'md_enable' => $videoDetection->enable,
-            'md_frame_shift' => 1,
-            'md_area_thr' => 100000,
-            'md_rect_color' => '0xFF0000',
-            'md_frame_int' => 30,
-            'md_rects_enable' => false,
-            'md_logs_enable' => true,
+            'md_area_thr' => 30000,
             'md_send_snapshot_enable' => false,
             'md_send_snapshot_interval' => 1,
+            'md_rects_enable' => false,
+            'md_logs_enable' => true,
+            'md_rect_color' => '0xFF0000',
+            'md_frame_int' => 30,
+            'md_frame_shift' => 1,
 
             'snap_send_url' => '',
         ]);
