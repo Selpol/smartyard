@@ -22,9 +22,9 @@ readonly class UserController extends MobileRbtController
     #[Post('/ping')]
     public function ping(): Response
     {
-        $this->getUser();
+        $user = $this->getUser();
 
-        return user_response();
+        return user_response(data: ['role' => $user->getOriginalValue()['role']]);
     }
 
     /**
