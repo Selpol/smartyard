@@ -58,7 +58,7 @@ trait VideoTrait
             'sys_cif2' => '1',
             'advanced2' => '1',
             'ratectrl2' => $rate,
-            'quality2' => '1',
+            'quality2' => $videoEncoding->quality ?? '1',
             'iq2' => '1',
             'rc2' => $offset,
             'bitrate2' => $videoEncoding->secondaryBitrate,

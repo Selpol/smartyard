@@ -165,48 +165,54 @@ readonly class DvrController extends MobileRbtController
     #[Get('/video/{id}', excludes: [AuthMiddleware::class, SubscriberMiddleware::class, RateLimitMiddleware::class])]
     public function video(DvrVideoRequest $request, StreamerFeature $feature): ResponseInterface
     {
-        /**
-         * @var DvrIdentifier $identifier
-         * @var DeviceCamera $camera
-         * @var DvrDevice $dvr
-         */
-        list($identifier, $camera, $dvr) = $this->process($request->id);
+        try {
+            /**
+             * @var DvrIdentifier $identifier
+             * @var DeviceCamera $camera
+             * @var DvrDevice $dvr
+             */
+            list($identifier, $camera, $dvr) = $this->process($request->id);
 
-        if (is_null($identifier->subscriber)) {
-            if ($request->stream == DvrStream::CAMERA->value) {
-                return user_response(403, message: 'Доступ к видео с камеры запрещен');
-            } else if ($request->stream == DvrStream::ARCHIVE->value) {
-                return user_response(403, message: 'Доступ к архиву запрещен');
+            if (is_null($identifier->subscriber)) {
+                if ($request->stream == DvrStream::CAMERA->value) {
+                    return user_response(403, message: 'Доступ к видео с камеры запрещен');
+                } else if ($request->stream == DvrStream::ARCHIVE->value) {
+                    return user_response(403, message: 'Доступ к архиву запрещен');
+                }
             }
+
+            if ($request->container == DvrContainer::STREAMER_RTC->value && $request->stream == DvrStream::CAMERA->value) {
+                $server = $feature->random();
+
+                $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
+                $stream->source($camera->stream)->input(StreamInput::RTSP)->output(StreamOutput::RTC)->latency(25)->transport(StreamTransport::UDP);
+
+                $feature->stream($stream);
+
+                return user_response(data: new DvrOutput(
+                    DvrContainer::STREAMER_RTC,
+                    new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
+                ));
+            }
+
+            $video = $dvr->video(
+                $identifier,
+                $camera,
+                DvrContainer::from($request->container),
+                DvrStream::from($request->stream),
+                ['time' => $request->time]
+            );
+
+            if (!$video) {
+                return user_response(404, message: 'Видео не доступно');
+            }
+
+            return user_response(data: $video);
+        } catch (Throwable $throwable) {
+            file_logger('dvr')->error($throwable);
+
+            return user_response(404, message: 'Не удалось получить видео');
         }
-
-        if ($request->container == DvrContainer::STREAMER_RTC->value && $request->stream == DvrStream::CAMERA->value) {
-            $server = $feature->random();
-
-            $stream = new Stream($server, $server->id . '-' . uniqid(more_entropy: true));
-            $stream->source($camera->stream)->input(StreamInput::RTSP)->output(StreamOutput::RTC)->latency(25)->transport(StreamTransport::UDP);
-
-            $feature->stream($stream);
-
-            return user_response(data: new DvrOutput(
-                DvrContainer::STREAMER_RTC,
-                new DvrStreamer($stream->getServer()->url, $stream->getToken(), $stream->getOutput())
-            ));
-        }
-
-        $video = $dvr->video(
-            $identifier,
-            $camera,
-            DvrContainer::from($request->container),
-            DvrStream::from($request->stream),
-            ['time' => $request->time]
-        );
-
-        if (!$video) {
-            return user_response(404, message: 'Видео не доступно');
-        }
-
-        return user_response(data: $video);
     }
 
     #[Get('/timeline/{id}')]
