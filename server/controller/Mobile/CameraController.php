@@ -40,7 +40,7 @@ readonly class CameraController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/all', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
-    public function index(CameraIndexRequest $request, HouseFeature $houseFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
+    public function all(CameraIndexRequest $request, HouseFeature $houseFeature, DvrFeature $dvrFeature, BlockFeature $blockFeature): ResponseInterface
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -363,12 +363,37 @@ readonly class CameraController extends MobileRbtController
     {
         $houses = [];
 
-        foreach ($user['flats'] as $flat) {
-            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId) {
-                continue;
-            }
+        $flats = $user['flats'];
 
-            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SERVICE_CCTV]) != null) {
+        $blocks = FlatBlock::fetchAll(
+            criteria()
+                ->in('flat_id', array_map(static fn(array $flat): int => $flat['flatId'], $flats))
+                ->in('service', [BlockFeature::SERVICE_CCTV, BlockFeature::SUB_SERVICE_INTERCOM]),
+            setting()->columns(['flat_id', 'service'])
+        );
+
+        if (count($blocks) > 0) {
+            $blocks = array_reduce($blocks, static function (array $previous, FlatBlock $block): array {
+                if (!array_key_exists($block->flat_id, $previous)) {
+                    $previous[$block->flat_id] = [false, false];
+                }
+
+                if ($block->service == BlockFeature::SERVICE_CCTV) {
+                    $previous[$block->flat_id][0] = true;
+                }
+
+                if ($block->service == BlockFeature::SUB_SERVICE_INTERCOM) {
+                    $previous[$block->flat_id][1] = true;
+                }
+
+                return $previous;
+            }, []);
+
+            $flats = array_filter($flats, static fn(array $flat): bool => !array_key_exists($flat['flatId'], $blocks) || !$blocks[$flat['flatId']][0]);
+        }
+
+        foreach ($flats as $flat) {
+            if ($filterHouseId != null && $flat['addressHouseId'] != $filterHouseId) {
                 continue;
             }
 
@@ -399,7 +424,7 @@ readonly class CameraController extends MobileRbtController
                 return $camera;
             }, $flatCameras));
 
-            if ($blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_INTERCOM]) != null) {
+            if (array_key_exists($flat['flatId'], $blocks) && $blocks[$flat['flatId']][1]) {
                 continue;
             }
 
