@@ -89,6 +89,12 @@ return [
         'password' => env('AMQP_PASSWORD', 'guest')
     ],
 
+    'zabbix' => [
+        'uri' => env('ZABBIX_URI'),
+
+        'auth' => env('ZABBIX_AUTH')
+    ],
+
     'feature' => [
         'role' => [
             'filter_permissions' => explode(',', env('FEATURE_ROLE_FILTER_PERMISSIONS', '*')),
