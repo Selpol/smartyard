@@ -420,6 +420,7 @@ readonly class CameraController extends MobileRbtController
 
             $house['cameras'] = array_merge($house['cameras'], array_map(static function (array $camera) use ($flat) {
                 $camera['flatId'] = $flat['flatId'];
+                $camera['houseId'] = $flat['addressHouseId'];
 
                 return $camera;
             }, $flatCameras));
