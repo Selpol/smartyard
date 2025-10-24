@@ -57,7 +57,7 @@ readonly class AddressController extends MobileRbtController
 
             $eventBlock = $subscriberEventBlock || $blockFeature->getFirstBlockForFlat($flat['flatId'], [BlockFeature::SUB_SERVICE_EVENT]) != null;
 
-            $is_owner = ((int)$flat['role'] == 0);
+            $is_owner = ((int) $flat['role'] == 0);
 
             if (array_key_exists($houseId, $houses)) {
                 $house = &$houses[$houseId];
@@ -95,6 +95,12 @@ readonly class AddressController extends MobileRbtController
 
             $house['cctv'] = count($house['cameras']);
 
+            $cameras = array_reduce($house['cameras'], static function (array $previous, array $current): array {
+                $previous[$current['cameraId']] = true;
+
+                return $previous;
+            }, []);
+
             if (!$intercomHide && !$intercomBlock) {
                 foreach ($flatDetail['entrances'] as $entrance) {
                     if (array_key_exists($entrance['entranceId'], $house['doors'])) {
@@ -112,7 +118,9 @@ readonly class AddressController extends MobileRbtController
                     $door['icon'] = $e['entranceType'];
                     $door['name'] = $e['entrance'];
 
-                    if ($e['cameraId']) {
+                    if ($e['cameraId'] && !array_key_exists($e['cameraId'], $cameras)) {
+                        $cameras[$e['cameraId']] = true;
+
                         $house['cameras'][] = DeviceCamera::findById($e['cameraId'], setting: setting()->nonNullable())->toOldArray();
 
                         ++$house['cctv'];
@@ -138,7 +146,7 @@ readonly class AddressController extends MobileRbtController
             for ($i = 0; $i < $counter; ++$i)
                 usort($result[$i]['doors'], static fn(array $a, array $b): int => strcmp($a['name'], $b['name']));
 
-            usort($result, static fn(array $a, array $b): int => strcmp((string)$a['address'], (string)$b['address']));
+            usort($result, static fn(array $a, array $b): int => strcmp((string) $a['address'], (string) $b['address']));
             return user_response(data: $result);
         }
 
@@ -209,7 +217,7 @@ readonly class AddressController extends MobileRbtController
             $subscriber = $subscribers[0];
 
             foreach ($subscriber['flats'] as $item)
-                if ((int)$item['flatId'] == $flat->house_flat_id) {
+                if ((int) $item['flatId'] == $flat->house_flat_id) {
                     return user_response(200, "У вас уже есть доступ к данной квартире");
                 }
 
@@ -222,7 +230,7 @@ readonly class AddressController extends MobileRbtController
                     $fio .= ' ' . $request->patronymic;
                 }
 
-                $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string)$request->mobile, 1), $fio, connection_ip($request->getRequest()));
+                $result = $externalFeature->qr($house->house_uuid, $flat->flat, substr((string) $request->mobile, 1), $fio, connection_ip($request->getRequest()));
 
                 if (is_string($result)) {
                     return user_response(400, message: $result);

@@ -35,7 +35,7 @@ readonly class ZabbixService
 
     public function trigger_get(array $ids): ?array
     {
-        return $this->request('trigger.get', ['output' => ['description', 'lastchange'], 'selectTags' => 'extend', 'hostids' => $ids, 'only_true' => true, 'active' => true, 'skipDependent' => true, 'monitored' => true]);
+        return $this->request('trigger.get', ['output' => ['description', 'lastchange'], 'hostids' => $ids, 'only_true' => true, 'active' => true, 'skipDependent' => true, 'monitored' => true]);
     }
 
     private function request(string $method, array $params, int $id = 1): ?array
