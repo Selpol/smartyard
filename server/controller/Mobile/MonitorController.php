@@ -62,8 +62,12 @@ readonly class MonitorController extends MobileRbtController
 
         $host = $host[0];
 
-        $trigger = $service->trigger_get($host['hosetid']);
+        $trigger = $service->trigger_get([$host['hostid']]);
 
-        return user_response(data: ['host' => $host, 'trigger' => $trigger]);
+        if (!$trigger || count($trigger) == 0) {
+            return user_response(data: ['host' => $host]);
+        }
+
+        return user_response(data: ['host' => $host, 'trigger' => $trigger[0]]);
     }
 }
