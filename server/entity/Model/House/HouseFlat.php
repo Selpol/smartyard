@@ -110,6 +110,22 @@ class HouseFlat extends Entity
         return $this->manyToMany(DeviceCamera::class, 'houses_cameras_flats', localRelation: 'house_flat_id', foreignRelation: 'camera_id');
     }
 
+    public function block(int $service, int $status, ?string $cause = null): FlatBlock
+    {
+        $block = new FlatBlock();
+
+        $block->flat_id = $this->house_flat_id;
+
+        $block->service = $service;
+        $block->status = $status;
+
+        $block->cause = $cause;
+
+        $block->insert();
+
+        return $block;
+    }
+
     public static function getColumns(): array
     {
         return [

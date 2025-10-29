@@ -116,17 +116,37 @@ class ContractorSyncTask extends ContractorTask implements TaskUniqueInterface
         $flat = $this->getOrCreateFlat($contractor, $address);
 
         if ($contractor->isFlatFlagIntercomBlock()) {
-            if ($flat->blocks()->hasMany(criteria()->equal('service', [BlockFeature::SERVICE_INTERCOM])) == 0) {
-                $block = new FlatBlock();
+            $blockSubServiceCall = false;
+            $blockSubServiceOpen = false;
+            $blockSubServiceFrs = false;
 
-                $block->flat_id = $flat->house_flat_id;
+            foreach ($flat->blocks as $block) {
+                switch ($block->service) {
+                    case BlockFeature::SUB_SERVICE_CALL:
+                        $blockSubServiceCall = true;
+                        break;
+                    case BlockFeature::SUB_SERVICE_OPEN:
+                        $blockSubServiceOpen = true;
+                        break;
+                    case BlockFeature::SUB_SERVICE_FRS:
+                        $blockSubServiceFrs = true;
+                        break;
+                    default:
+                        $block->delete();
+                        break;
+                }
+            }
 
-                $block->service = BlockFeature::SERVICE_INTERCOM;
-                $block->status = BlockFeature::STATUS_ADMIN;
+            if (!$blockSubServiceCall) {
+                $flat->block(BlockFeature::SUB_SERVICE_CALL, BlockFeature::STATUS_ADMIN, 'Заблокировано подрядчиком');
+            }
 
-                $block->cause = 'Заблокировано подрядчиком';
+            if (!$blockSubServiceOpen) {
+                $flat->block(BlockFeature::SUB_SERVICE_OPEN, BlockFeature::STATUS_ADMIN, 'Заблокировано подрядчиком');
+            }
 
-                $block->insert();
+            if (!$blockSubServiceFrs) {
+                $flat->block(BlockFeature::SUB_SERVICE_FRS, BlockFeature::STATUS_ADMIN, 'Заблокировано подрядчиком');
             }
         }
 
