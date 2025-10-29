@@ -2,6 +2,7 @@
 
 namespace Selpol\Controller\Mobile;
 
+use Selpol\Controller\Request\Mobile\Camera\CameraMoveRequest;
 use Selpol\Device\Ip\Dvr\DvrDevice;
 use Selpol\Device\Ip\Dvr\Common\DvrIdentifier;
 use Psr\Container\NotFoundExceptionInterface;
@@ -357,6 +358,28 @@ readonly class CameraController extends MobileRbtController
         }
 
         return user_response(404, message: 'Движения не найдены');
+    }
+
+    #[Post('/move/{id}', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_CCTV]])]
+    public function move(CameraMoveRequest $request): ResponseInterface
+    {
+        $role = $this->getUser()->getOriginalValue()['role'];
+
+        if ($role == 0) {
+            return user_response(403, message: 'Ошибка доступа');
+        }
+
+        $camera = DeviceCamera::findById($request->id);
+
+        if (!$camera) {
+            return user_response(404, message: 'Камера не найдена');
+        }
+
+        $camera->lat = $request->lat;
+        $camera->lon = $request->lon;
+        $camera->update();
+
+        return user_response();
     }
 
     private function getHousesWithCameras(array $user, ?int $filterHouseId, HouseFeature $houseFeature, BlockFeature $blockFeature): array
