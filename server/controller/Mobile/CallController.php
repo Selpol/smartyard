@@ -17,6 +17,28 @@ use Selpol\Service\RedisService;
 #[Controller('/mobile/call', includes: [BlockMiddleware::class => [BlockFeature::SERVICE_INTERCOM, BlockFeature::SUB_SERVICE_CALL]], excludes: [RateLimitMiddleware::class])]
 readonly class CallController extends MobileRbtController
 {
+    #[Get('/{hash}')]
+    public function index(string $hash, RedisService $service): Response
+    {
+        $id = $this->getUser()->getIdentifier();
+
+        $hash = validate('hash', $hash, rule()->string()->max(32));
+
+        $value = $service->get('call/data/' . $hash);
+
+        if (!$value) {
+            return user_response(400, message: 'Неизвестный звонок');
+        }
+
+        $call = json_decode($value, true);
+
+        $call['extension'] = $call['extensions'][strval($id)];
+
+        unset($call['extensions']);
+
+        return user_response(data: $call);
+    }
+
     /**
      * @throws NotFoundExceptionInterface
      */
@@ -24,6 +46,8 @@ readonly class CallController extends MobileRbtController
     public function camshot(string $hash, RedisService $redisService, DeviceService $deviceService): Response
     {
         $this->getUser();
+
+        $hash = validate('hash', $hash, rule()->string()->max(32));
 
         $call = json_decode($redisService->get('call/hash/' . $hash), true);
 
@@ -52,6 +76,8 @@ readonly class CallController extends MobileRbtController
     #[Get('/live/{hash}')]
     public function live(string $hash, RedisService $redisService, DeviceService $deviceService): Response
     {
+        $hash = validate('hash', $hash, rule()->string()->max(32));
+
         return $this->camshot($hash, $redisService, $deviceService);
     }
 }

@@ -17,6 +17,7 @@ class RedisService implements LoggerAwareInterface
     public const SCREENSHOT = 1;
     public const MONITOR = 2;
     public const APPROVED = 3;
+    public const CALL = 4;
 
     private ?Redis $redis = null;
 
@@ -110,6 +111,11 @@ class RedisService implements LoggerAwareInterface
     public function approved(): RedisUsable
     {
         return $this->usable(self::APPROVED);
+    }
+
+    public function call(): RedisUsable
+    {
+        return $this->usable(self::CALL);
     }
 
     public function keys(string $pattern): array

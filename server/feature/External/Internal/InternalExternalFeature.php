@@ -7,9 +7,14 @@ use Throwable;
 
 readonly class InternalExternalFeature extends ExternalFeature
 {
-    public function push(array $push): bool|string
+    public function notification(array $push): bool|string
     {
         return $this->request($push, '/api/v1/external/notification');
+    }
+
+    public function call(array $values, array $data, int|null $ttl): bool|string
+    {
+        return $this->request(['values' => $values, 'data' => $data, 'ttl' => $ttl], '/api/v1/external/call');
     }
 
     public function message(array $push): bool|string

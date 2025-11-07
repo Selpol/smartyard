@@ -7,7 +7,7 @@ use Psr\Container\NotFoundExceptionInterface;
 use Selpol\Controller\MobileRbtController;
 use Selpol\Controller\Request\Mobile\UserRegisterPushTokenRequest;
 use Selpol\Controller\Request\Mobile\UserSendNameRequest;
-use Selpol\Feature\House\HouseFeature;
+use Selpol\Entity\Model\House\HouseSubscriber;
 use Selpol\Feature\External\ExternalFeature;
 use Selpol\Framework\Http\Response;
 use Selpol\Framework\Router\Attribute\Controller;
@@ -31,7 +31,7 @@ readonly class UserController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/registerPushToken')]
-    public function registerPushToken(UserRegisterPushTokenRequest $request, HouseFeature $houseFeature, ExternalFeature $externalFeature): Response
+    public function registerPushToken(UserRegisterPushTokenRequest $request, ExternalFeature $externalFeature): Response
     {
         $user = $this->getUser()->getOriginalValue();
 
@@ -54,19 +54,33 @@ readonly class UserController extends MobileRbtController
             $type = 0; // fcm
         }
 
-        $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => $request->pushToken, "tokenType" => $type, "voipToken" => $request->voipToken, "voipEnabled" => $request->voipEnabled, "platform" => $platform]);
+        $subscriber = HouseSubscriber::findById($user['subscriberId'], setting: setting()->nonNullable());
+
+        $subscriber->push_token = $request->pushToken;
+        $subscriber->push_token_type = $type;
+        $subscriber->voip_token = $request->voipToken;
+        $subscriber->voip_enabled = $request->voipEnabled;
+        $subscriber->platform = $platform;
 
         if (!$request->pushToken) {
-            $houseFeature->modifySubscriber($user["subscriberId"], ["pushToken" => "off"]);
-        } elseif ($old_push && $old_push != $request->pushToken) {
-            $externalFeature->logout(["token" => $old_push, "msg" => "Произведена авторизация на другом устройстве", "pushAction" => "logout"]);
+            $subscriber->push_token = 'off';
+        } else if ($old_push && $old_push != $request->pushToken) {
+            $externalFeature->logout(['token' => $old_push, 'msg' => 'Произведена авторизация на другом устройстве', 'pushAction' => 'logout']);
         }
 
         if (!$request->voipToken) {
-            $houseFeature->modifySubscriber($user["subscriberId"], ["voipToken" => "off"]);
+            $subscriber->voip_token = 'off';
         }
 
-        return user_response();
+        if ($request->version) {
+            $subscriber->push_version = $request->version;
+        }
+
+        if ($subscriber->safeUpdate()) {
+            return user_response();
+        } else {
+            return user_response(400);
+        }
     }
 
     /**
@@ -74,16 +88,23 @@ readonly class UserController extends MobileRbtController
      * @throws NotFoundExceptionInterface
      */
     #[Post('/sendName')]
-    public function sendName(UserSendNameRequest $request, HouseFeature $houseFeature): Response
+    public function sendName(UserSendNameRequest $request): Response
     {
         $userId = $this->getUser()->getIdentifier();
 
+        $subscriber = HouseSubscriber::findById($userId, setting: setting()->nonNullable());
+
         if ($request->patronymic) {
-            $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name, "subscriberPatronymic" => $request->patronymic]);
+            $subscriber->subscriber_name = $request->name;
+            $subscriber->subscriber_patronymic = $request->patronymic;
         } else {
-            $houseFeature->modifySubscriber($userId, ["subscriberName" => $request->name]);
+            $subscriber->subscriber_name = $request->name;
         }
 
-        return user_response();
+        if ($subscriber->safeUpdate()) {
+            return user_response();
+        } else {
+            return user_response(400);
+        }
     }
 }

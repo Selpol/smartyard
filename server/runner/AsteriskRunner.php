@@ -217,43 +217,98 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                             $stun = container(SipFeature::class)->stun();
 
-                            $subscribers = HouseSubscriber::fetchAll(criteria()->in('house_subscriber_id', $params['subscribers']));
+                            /**
+                             * @var array<int, HouseSubscriber[]>
+                             */
+                            $versionSubscribers = array_reduce(
+                                HouseSubscriber::fetchAll(criteria()->in('house_subscriber_id', $params['subscribers'])),
+                                static function (array $previous, HouseSubscriber $current): array {
+                                    if (!array_key_exists($current->push_version, $previous)) {
+                                        $previous[$current->push_version] = [];
+                                    }
 
-                            foreach ($subscribers as $subscriber) {
-                                $token = $subscriber->push_token;
-                                $voip = false;
+                                    $previous[$current->push_version][] = $current;
 
-                                if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
-                                    $token = $subscriber->voip_token;
-                                    $voip = true;
+                                    return $previous;
+                                },
+                                []
+                            );
+
+                            foreach ($versionSubscribers as $version => $subscribers) {
+                                switch ($version) {
+                                    case 1:
+                                        foreach ($subscribers as $subscriber) {
+                                            $token = $subscriber->push_token;
+                                            $voip = false;
+
+                                            if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
+                                                $token = $subscriber->voip_token;
+                                                $voip = true;
+                                            }
+
+                                            $push = [
+                                                'token' => $token,
+                                                'type' => $subscriber->push_token_type,
+                                                'hash' => $params['hash'],
+                                                'extension' => $params['extensions'][strval($subscriber->house_subscriber_id)],
+                                                'server' => $server->external_ip,
+                                                'port' => $server->external_port,
+                                                'transport' => 'udp',
+                                                'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
+                                                'timestamp' => time(),
+                                                'ttl' => 30,
+                                                'platform' => $subscriber->platform !== 0 ? 'ios' : 'android',
+                                                'callerId' => $params['caller_id'] ?: 'WebRTC',
+                                                'domophoneId' => $params['domophone_id'],
+                                                'flatId' => $params['flat_id'],
+                                                'flatNumber' => intval($params['flat_number']),
+                                                'voipEnabled' => $voip ? 1 : 0,
+                                                'title' => $address,
+                                            ];
+
+                                            if ($stun) {
+                                                $push['stun'] = $stun;
+                                                $push['stunTransport'] = 'udp';
+                                            }
+
+                                            container(ExternalFeature::class)->notification($push);
+                                        }
+
+                                        break;
+                                    case 2:
+                                        container(RedisService::class)->setEx('call/data/' . $params['hash'], 35, json_encode([
+                                            'extensions' => $params['extensions'],
+                                            'server' => $server->external_ip,
+                                            'port' => $server->external_port,
+                                            'transport' => 'udp',
+                                            'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
+                                            'callerId' => $params['caller_id'] ?: 'WebRTC',
+                                            'domophoneId' => $params['domophone_id'],
+                                            'flatId' => $params['flat_id'],
+                                            'flatNumber' => intval($params['flat_number']),
+                                            'title' => $address
+                                        ]));
+
+                                        $values = array_map(static function (HouseSubscriber $subscriber): array {
+                                            $token = $subscriber->push_token;
+                                            $voip = false;
+
+                                            if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
+                                                $token = $subscriber->voip_token;
+                                                $voip = true;
+                                            }
+
+                                            return [
+                                                'type' => $subscriber->push_token_type,
+                                                'token' => $token,
+                                                'voip' => $voip
+                                            ];
+                                        }, $subscribers);
+
+                                        container(ExternalFeature::class)->call($values, ['hash' => $params['hash']], 30);
+
+                                        break;
                                 }
-
-                                $push = [
-                                    'token' => $token,
-                                    'type' => $subscriber->push_token_type,
-                                    'hash' => $params['hash'],
-                                    'extension' => $params['extensions'][strval($subscriber->house_subscriber_id)],
-                                    'server' => $server->external_ip,
-                                    'port' => $server->external_port,
-                                    'transport' => 'udp',
-                                    'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
-                                    'timestamp' => time(),
-                                    'ttl' => 30,
-                                    'platform' => $subscriber->platform !== 0 ? 'ios' : 'android',
-                                    'callerId' => $params['caller_id'] ?: 'WebRTC',
-                                    'domophoneId' => $params['domophone_id'],
-                                    'flatId' => $params['flat_id'],
-                                    'flatNumber' => intval($params['flat_number']),
-                                    'voipEnabled' => $voip ? 1 : 0,
-                                    'title' => $address,
-                                ];
-
-                                if ($stun) {
-                                    $push['stun'] = $stun;
-                                    $push['stunTransport'] = 'udp';
-                                }
-
-                                container(ExternalFeature::class)->push($push);
                             }
 
                             echo json_encode(['success' => true]);
@@ -326,23 +381,23 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
     {
         $path = $_SERVER['REQUEST_URI'];
 
-        $server = parse_url((string)config_get('api.asterisk'));
+        $server = parse_url((string) config_get('api.asterisk'));
 
         if ($server && $server['path']) {
-            $path = substr((string)$path, strlen($server['path']));
+            $path = substr((string) $path, strlen($server['path']));
         }
 
         if ($path && $path[0] == '/') {
-            $path = substr((string)$path, 1);
+            $path = substr((string) $path, 1);
         }
 
-        return explode('/', (string)$path);
+        return explode('/', (string) $path);
     }
 
     private function getExtension(string $extension, string $section): array
     {
         if ($extension[0] === '1' && strlen($extension) === 6) {
-            $intercom = DeviceIntercom::findById((int)substr($extension, 1), setting: setting()->columns(['credentials']));
+            $intercom = DeviceIntercom::findById((int) substr($extension, 1), setting: setting()->columns(['credentials']));
 
             if ($intercom instanceof DeviceIntercom && $intercom->credentials) {
                 return match ($section) {
@@ -404,7 +459,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         // sip extension
         if ($extension[0] === '4' && strlen($extension) === 10) {
-            $flat = HouseFlat::findById((int)substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
+            $flat = HouseFlat::findById((int) substr($extension, 1), setting: setting()->columns(['house_flat_id', 'sip_password']));
 
             if ($flat instanceof HouseFlat && $flat->sip_password) {
                 return match ($section) {
@@ -461,8 +516,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
         if (strlen($extension) >= 6 && strlen($extension) <= 10) {
             try {
-                $sipUserId = (int)substr($extension, 1);
-                $sipUser = SipUser::findById($sipUserId, criteria()->equal('type', (int)$extension[0]), setting()->columns(['title', 'password']));
+                $sipUserId = (int) substr($extension, 1);
+                $sipUser = SipUser::findById($sipUserId, criteria()->equal('type', (int) $extension[0]), setting()->columns(['title', 'password']));
 
                 if ($sipUser) {
                     return match ($section) {
@@ -500,7 +555,7 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
         $result = '';
 
         foreach ($params as $key => $value) {
-            $result .= urldecode($key) . '=' . urldecode((string)$value) . '&';
+            $result .= urldecode($key) . '=' . urldecode((string) $value) . '&';
         }
 
         return $result;

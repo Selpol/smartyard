@@ -24,6 +24,7 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  *
  * @property string|null $push_token
  * @property int|null $push_token_type GMS - 0, APSN - 1, APSN DEV - 2, HMS - 3, RSR - 4
+ * @property int $push_version 1 - Long version, 2 - Short version
  *
  * @property string|null $voip_token
  * @property int|null $voip_enabled
@@ -45,6 +46,9 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  */
 class HouseSubscriber extends Entity
 {
+    public const PUSH_LONG = 1;
+    public const PUSH_SHORT = 2;
+
     /**
      * @use RepositoryTrait<HouseSubscriberRepository>
      */
@@ -108,6 +112,7 @@ class HouseSubscriber extends Entity
 
             'push_token' => rule()->string()->min(16),
             'push_token_type' => rule()->int(),
+            'push_version' => rule()->int(),
 
             'voip_token' => rule()->string(),
             'voip_enabled' => rule()->int(),
