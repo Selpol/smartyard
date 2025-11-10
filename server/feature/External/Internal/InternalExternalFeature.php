@@ -39,23 +39,23 @@ readonly class InternalExternalFeature extends ExternalFeature
 
     private function request($data, $endpoint): bool|string
     {
-        $push = config_get('feature.push');
-
-        $request = curl_init($push['endpoint'] . $endpoint);
-
-        curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        curl_setopt($request, CURLOPT_USERPWD, $push['secret']);
-        curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
-        curl_setopt($request, CURLOPT_POST, 1);
-        curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
-
-        $response = curl_exec($request);
-
-        curl_close($request);
-
-        file_logger('external')->debug($response, ['endpoint' => $endpoint, 'data' => $data]);
+        file_logger('external')->debug('request', ['endpoint' => $endpoint, 'data' => $data]);
 
         try {
+            $push = config_get('feature.push');
+
+            $request = curl_init($push['endpoint'] . $endpoint);
+
+            curl_setopt($request, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+            curl_setopt($request, CURLOPT_USERPWD, $push['secret']);
+            curl_setopt($request, CURLOPT_POSTFIELDS, json_encode($data, JSON_UNESCAPED_UNICODE));
+            curl_setopt($request, CURLOPT_POST, 1);
+            curl_setopt($request, CURLOPT_RETURNTRANSFER, 1);
+
+            $response = curl_exec($request);
+
+            curl_close($request);
+
             $parse = json_decode($response, true);
 
             if (array_key_exists('success', $parse)) {
@@ -66,7 +66,9 @@ readonly class InternalExternalFeature extends ExternalFeature
             }
 
             return false;
-        } catch (Throwable) {
+        } catch (Throwable $throwable) {
+            file_logger('external')->debug($throwable);
+
             return false;
         }
     }

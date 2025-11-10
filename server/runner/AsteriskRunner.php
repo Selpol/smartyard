@@ -235,6 +235,8 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                             );
 
                             foreach ($versionSubscribers as $version => $subscribers) {
+                                file_logger('asterisk')->debug('Version ' . $version, ['count' => count($subscribers)]);
+
                                 switch ($version) {
                                     case 1:
                                         foreach ($subscribers as $subscriber) {
@@ -276,36 +278,53 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                                         break;
                                     case 2:
-                                        container(RedisService::class)->setEx('call/data/' . $params['hash'], 35, json_encode([
-                                            'extensions' => $params['extensions'],
-                                            'server' => $server->external_ip,
-                                            'port' => $server->external_port,
-                                            'transport' => 'udp',
-                                            'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
-                                            'callerId' => $params['caller_id'] ?: 'WebRTC',
-                                            'domophoneId' => $params['domophone_id'],
-                                            'flatId' => $params['flat_id'],
-                                            'flatNumber' => intval($params['flat_number']),
-                                            'title' => $address
-                                        ]));
+                                        file_logger('asterisk')->debug('Version 2 params', $params);
 
-                                        $values = array_map(static function (HouseSubscriber $subscriber): array {
-                                            $token = $subscriber->push_token;
-                                            $voip = false;
+                                        try {
+                                            $data = [
+                                                'extensions' => $params['extensions'],
+                                                'server' => $server->external_ip,
+                                                'port' => $server->external_port,
+                                                'transport' => 'udp',
+                                                'dtmf' => $device->resolver->string(ConfigKey::SipDtmf, '1'),
+                                                'timestamp' => time(),
+                                                'ttl' => 30,
+                                                'callerId' => $params['caller_id'] ?: 'WebRTC',
+                                                'domophoneId' => $params['domophone_id'],
+                                                'flatId' => $params['flat_id'],
+                                                'flatNumber' => intval($params['flat_number']),
+                                                'title' => $address
+                                            ];
 
-                                            if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
-                                                $token = $subscriber->voip_token;
-                                                $voip = true;
+                                            if ($stun) {
+                                                $data['stun'] = $stun;
+                                                $data['stunTransport'] = 'udp';
                                             }
 
-                                            return [
-                                                'type' => $subscriber->push_token_type,
-                                                'token' => $token,
-                                                'voip' => $voip
-                                            ];
-                                        }, $subscribers);
+                                            file_logger('asterisk')->debug('Data', $data);
 
-                                        container(ExternalFeature::class)->call($values, ['hash' => $params['hash']], 30);
+                                            container(RedisService::class)->setEx('call/data/' . $params['hash'], 35, json_encode($data));
+
+                                            $values = array_map(static function (HouseSubscriber $subscriber): array {
+                                                $token = $subscriber->push_token;
+                                                $voip = false;
+
+                                                if ($subscriber->voip_enabled && $subscriber->voip_token && $subscriber->voip_token != "off") {
+                                                    $token = $subscriber->voip_token;
+                                                    $voip = true;
+                                                }
+
+                                                return [
+                                                    'type' => $subscriber->push_token_type,
+                                                    'token' => $token,
+                                                    'voip' => $voip
+                                                ];
+                                            }, $subscribers);
+
+                                            file_logger('asterisk')->debug('Sends notifications', [container(ExternalFeature::class)->call($values, ['hash' => $params['hash']], 30)]);
+                                        } catch (Throwable $throwable) {
+                                            file_logger('asterisk')->error($throwable);
+                                        }
 
                                         break;
                                 }
