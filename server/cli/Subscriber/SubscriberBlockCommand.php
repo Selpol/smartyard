@@ -8,7 +8,7 @@ use Selpol\Framework\Cli\IO\CliIO;
 use Selpol\Service\RedisService;
 
 #[Executable('subscriber:block', 'Заблокировать сессии абонента')]
-class SubscriberAudCommand
+class SubscriberBlockCommand
 {
     #[Execute]
     public function execute(CliIO $io, RedisService $service): void
