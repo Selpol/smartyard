@@ -17,7 +17,7 @@ class RedisService implements LoggerAwareInterface
     public const SCREENSHOT = 1;
     public const MONITOR = 2;
     public const APPROVED = 3;
-    public const CALL = 4;
+    public const JTI = 4;
 
     private ?Redis $redis = null;
 
@@ -113,9 +113,9 @@ class RedisService implements LoggerAwareInterface
         return $this->usable(self::APPROVED);
     }
 
-    public function call(): RedisUsable
+    public function jti(): RedisUsable
     {
-        return $this->usable(self::CALL);
+        return $this->usable(self::JTI);
     }
 
     public function keys(string $pattern): array

@@ -12,6 +12,7 @@ use Selpol\Framework\Router\Route\RouteMiddleware;
 use Selpol\Service\Auth\Token\CoreAuthToken;
 use Selpol\Service\Auth\Token\JwtAuthToken;
 use Selpol\Service\AuthService;
+use Selpol\Service\RedisService;
 
 readonly class AuthMiddleware extends RouteMiddleware
 {
@@ -67,6 +68,10 @@ readonly class AuthMiddleware extends RouteMiddleware
 
         if ($jwt === null) {
             return 'Запрос не авторизирован';
+        }
+
+        if (container(RedisService::class)->jti()->exist($jwt['jti'])) {
+            return 'Запрос заблокирован';
         }
 
         container(AuthService::class)->setToken(new JwtAuthToken($jwt));
