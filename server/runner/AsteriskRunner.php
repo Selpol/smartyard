@@ -278,8 +278,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
 
                                         break;
                                     case 2:
-                                        file_logger('asterisk')->debug('Version 2 params', $params);
-
                                         try {
                                             $data = [
                                                 'extensions' => $params['extensions'],
@@ -301,8 +299,6 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                                 $data['stunTransport'] = 'udp';
                                             }
 
-                                            file_logger('asterisk')->debug('Data', $data);
-
                                             container(RedisService::class)->setEx('call/data/' . $params['hash'], 35, json_encode($data));
 
                                             $values = array_map(static function (HouseSubscriber $subscriber): array {
@@ -321,7 +317,12 @@ class AsteriskRunner implements RunnerInterface, RunnerExceptionHandlerInterface
                                                 ];
                                             }, $subscribers);
 
-                                            file_logger('asterisk')->debug('Sends notifications', [container(ExternalFeature::class)->call($values, ['hash' => $params['hash']], 30)]);
+                                            container(ExternalFeature::class)->send(
+                                                $values,
+                                                ['hash' => $params['hash']],
+                                                apsn: ['title' => $address],
+                                                ttl: 30
+                                            );
                                         } catch (Throwable $throwable) {
                                             file_logger('asterisk')->error($throwable);
                                         }

@@ -11,7 +11,7 @@ readonly abstract class ExternalFeature extends Feature
 {
     public abstract function notification(array $push): bool|string;
 
-    public abstract function call(array $values, array $data, ?int $ttl): bool|string;
+    public abstract function send(array $values, array $data, ?array $gms = null, ?array $hms = null, ?array $rsr = null, ?array $apsn = null, ?int $ttl = null): bool|string;
 
     public abstract function message(array $push): bool|string;
 
