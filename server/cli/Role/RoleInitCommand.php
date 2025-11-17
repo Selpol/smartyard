@@ -271,6 +271,10 @@ class RoleInitCommand
             'intercom-approved-index-get' => '[Домофон-Проведение] Получить домофоны для проведения',
             'intercom-approved-store-post' => '[Домофон-Проведение] Провести домофон',
             'intercom-approved-delete-delete' => '[Домофон-Проведение] Удалить проведение домофона',
+
+            'house-gsm-index-get' => '[Дом-GSM] Получить пользователей GSM',
+            'house-gsm-store-post' => '[Дом-GSM] Добавить абонента в GSM',
+            'house-gsm-delete-delete' => '[Дом-GSM] Удалить абонента с GSM',
         ];
 
         /** @var array<string, Permission> $titlePermissions */

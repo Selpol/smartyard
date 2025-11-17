@@ -2,7 +2,7 @@
 
 ## Методы
 
-### [POST/index]  `/mobile/cctv/all`
+### [POST/all]  `/mobile/cctv/all`
 
 Параметры: 
 
@@ -46,3 +46,9 @@
 Параметры: 
 
 - [CameraEventsRequest](../OBJECT.md#CameraEventsRequest) 
+
+### [POST/move]  `/mobile/cctv/move/{id}`
+
+Параметры: 
+
+- [CameraMoveRequest](../OBJECT.md#CameraMoveRequest) 

@@ -341,7 +341,7 @@ class IntercomConfigureTask extends IntercomTask implements TaskUniqueInterface
             } else {
                 $numbers = [sprintf('1%09d', $flat->house_flat_id)];
 
-                $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with($flat->flat), ''));
+                $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with_end($flat->flat), ''));
 
                 foreach ($additional as $number) {
                     $numbers[] = $number;

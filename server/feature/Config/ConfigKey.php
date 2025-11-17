@@ -78,16 +78,32 @@ enum ConfigKey: string
     case MifareSector = 'mifare.sector';
     case MifareCgi = 'mifare.cgi';
 
+    case Gsm = 'gsm';
+
+    case GsmAdd = 'gsm.{gms}.add';
+    case GsmRemove = 'gsm.{gms}.remove';
+
     case Screenshot = 'screenshot';
 
-    public function key(): string
+    public function last(): string
     {
         $segments = explode('.', $this->value);
 
         return $segments[array_key_last($segments)];
     }
 
-    public function with(mixed ...$variables): string
+    public function with(array $variables): string
+    {
+        $value = $this->value;
+
+        foreach ($variables as $key => $variable) {
+            $value = str_replace('{' . $key . '}', $variable, $value);
+        }
+
+        return $value;
+    }
+
+    public function with_end(mixed ...$variables): string
     {
         $value = $this->value;
 
@@ -97,4 +113,5 @@ enum ConfigKey: string
 
         return $value;
     }
+
 }

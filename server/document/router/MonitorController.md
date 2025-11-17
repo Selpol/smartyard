@@ -7,3 +7,9 @@
 Параметры: 
 
 - [MonitorIndexRequest](../OBJECT.md#MonitorIndexRequest) 
+
+### [GET/show]  `/mobile/monitor/{id}`
+
+Параметры: 
+
+- `int` *id*

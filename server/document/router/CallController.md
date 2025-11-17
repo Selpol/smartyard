@@ -2,6 +2,12 @@
 
 ## Методы
 
+### [GET/index]  `/mobile/call/{hash}`
+
+Параметры: 
+
+- `string` *hash*
+
 ### [GET/camshot]  `/mobile/call/camshot/{hash}`
 
 Параметры: 

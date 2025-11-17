@@ -20,7 +20,7 @@ class IntercomAudioFlatTask extends Task
         $intercom = intercom($this->id);
 
         if ($intercom instanceof ApartmentInterface) {
-            $levels = explode(',', $intercom->resolver->string(ConfigKey::AudioVolume->with($this->flat), ''));
+            $levels = explode(',', $intercom->resolver->string(ConfigKey::AudioVolume->with_end($this->flat), ''));
 
             if (count($levels) == 6) {
                 $intercom->setApartmentAudio($this->flat, $levels);

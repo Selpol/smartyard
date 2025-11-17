@@ -1,0 +1,1 @@
+DROP TABLE houses_gsm_subscribers;

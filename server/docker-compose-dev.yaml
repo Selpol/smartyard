@@ -31,8 +31,6 @@ services:
   redis:
     image: redis:7-alpine
     container_name: redis
-    ports:
-      - "6379:6379"
     environment:
       - ALLOW_EMPTY_PASSWORD=yes
       - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL
@@ -54,8 +52,6 @@ services:
       backend:
   clickhouse:
     image: bitnami/clickhouse:23.8.15
-    ports:
-      - "8123:8123"
     environment:
       - CLICKHOUSE_ADMIN_PASSWORD=${CLICKHOUSE_PASSWORD}
     networks:

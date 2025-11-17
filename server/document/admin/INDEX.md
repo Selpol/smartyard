@@ -29,6 +29,7 @@
 - [HouseCameraController](./HouseCameraController.md)
 - [HouseController](./HouseController.md)
 - [HouseEntranceController](./HouseEntranceController.md)
+- [HouseGsmController](./HouseGsmController.md)
 - [HouseKeyController](./HouseKeyController.md)
 - [InboxController](./InboxController.md)
 - [IntercomApprovedController](./IntercomApprovedController.md)

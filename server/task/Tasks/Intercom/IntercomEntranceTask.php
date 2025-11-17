@@ -74,7 +74,7 @@ class IntercomEntranceTask extends Task implements TaskUniqueInterface
                 } else {
                     $numbers = [sprintf('1%09d', $flat['flatId'])];
 
-                    $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with($apartment), ''));
+                    $additional = explode(',', $device->resolver->string(ConfigKey::SipNumber->with_end($apartment), ''));
 
                     foreach ($additional as $number) {
                         $numbers[] = $number;

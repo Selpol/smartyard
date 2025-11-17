@@ -78,7 +78,10 @@ class IntercomModel
                 'beward_ds' => new IntercomModel('BEWARD DS', 'BEWARD', 'class=Selpol\Device\Ip\Intercom\Beward\DsIntercom'),
                 'beward_dks' => new IntercomModel('BEWARD DKS', 'BEWARD', 'class=Selpol\Device\Ip\Intercom\Beward\DksIntercom'),
                 'hikvision' => new IntercomModel('HikVision', 'HIKVISION', 'class=Selpol\Device\Ip\Intercom\HikVision\HikVisionIntercom'),
-                'relay' => new IntercomModel('Relay', 'RX', 'class=Selpol\Device\Ip\Intercom\Relay\RelayIntercom')
+                'relay' => new IntercomModel('Relay', 'RX', 'class=Selpol\Device\Ip\Intercom\Relay\RelayIntercom'),
+
+                'gsm_navig' => new IntercomModel('GSM NaviG', 'GSM', "class=Selpol\Device\Ip\Intercom\Gsm\GsmIntercom\ngsm=1"),
+                'gsm_doorhan' => new IntercomModel('GSM Doorhan', 'GSM', "class=Selpol\Device\Ip\Intercom\Gsm\GsmIntercom\ngsm=2"),
             ];
         }
 

@@ -95,6 +95,10 @@ return [
         'auth' => env('ZABBIX_AUTH')
     ],
 
+    'sms' => [
+        'uri' => env('SMS_URI')
+    ],
+
     'feature' => [
         'role' => [
             'filter_permissions' => explode(',', env('FEATURE_ROLE_FILTER_PERMISSIONS', '*')),

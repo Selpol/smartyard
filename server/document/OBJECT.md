@@ -461,6 +461,20 @@
 - `int` *id* - Идентификатор дома
 - `string` *password* - Пароль пользователя
 
+## HouseGsmIndexRequest
+
+Поля: 
+
+- `int|null` *intercom_id* - Идентификатор GSM
+- `int|null` *subscriber_id* - Идентификатор Абонента
+
+## HouseGsmStoreRequest
+
+Поля: 
+
+- `int|null` *intercom_id* - Идентификатор GSM
+- `int|null` *subscriber_id* - Идентификатор Абонента
+
 ## HouseKeyRequest
 
 Поля: 
@@ -971,6 +985,14 @@
 - `string` *from*
 - `string` *to*
 
+## ArchiveExportRequest
+
+Поля: 
+
+- `int` *id*
+- `int` *from*
+- `int` *to*
+
 ## CameraIndexRequest
 
 Поля: 
@@ -990,6 +1012,7 @@
 Поля: 
 
 - `int` *id*
+- `int|null` *time*
 
 ## CameraShowRequest
 
@@ -1004,6 +1027,14 @@
 
 - `int` *cameraId*
 - `int` *date*
+
+## CameraMoveRequest
+
+Поля: 
+
+- `int` *id*
+- `double` *lat*
+- `double` *lon*
 
 ## DvrIdentifierRequest
 
@@ -1141,6 +1172,7 @@
 - `bool` *production*
 - `string` *platform*
 - `bool` *voipEnabled*
+- `int|null` *version*
 
 ## UserSendNameRequest
 

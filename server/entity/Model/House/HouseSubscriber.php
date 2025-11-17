@@ -42,6 +42,8 @@ use Selpol\Framework\Entity\Trait\RepositoryTrait;
  * @property-read HouseFlat[] $flats
  * @property-read DvrRecord[] $records
  * 
+ * @property-read HouseGsm[] $gsms
+ * 
  * @property-read SubscriberBlock[] $blocks
  */
 class HouseSubscriber extends Entity
@@ -89,6 +91,11 @@ class HouseSubscriber extends Entity
     public function records(): OneToManyRelationship
     {
         return $this->oneToMany(DvrRecord::class, 'subscriber_id', 'house_subscriber_id');
+    }
+
+    public function gsms(): OneToManyRelationship
+    {
+        return $this->oneToMany(HouseGsm::class, 'house_subscriber_id', 'house_subscriber_id');
     }
 
     /**

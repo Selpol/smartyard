@@ -1365,11 +1365,11 @@
         },
         {
             "name": "selpol/framework",
-            "version": "1.3.8",
+            "version": "1.3.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Selpol/framework.git",
-                "reference": "edacb4084f090588f87b535d563ba3352a86fde1"
+                "reference": "4eb56811917b825be085ca7637a86f379532af6b"
             },
             "require": {
                 "ext-curl": "*",
@@ -1402,7 +1402,7 @@
                     "email": "warfcevip@gmail.com"
                 }
             ],
-            "time": "2025-07-08T06:18:51+00:00"
+            "time": "2025-11-17T10:26:12+00:00"
         },
         {
             "name": "symfony/polyfill-php80",

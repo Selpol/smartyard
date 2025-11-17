@@ -77,7 +77,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with($apartment->apartment))) {
+        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with_end($apartment->apartment))) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
@@ -106,7 +106,7 @@ trait ApartmentTrait
             $body['resistances'] = ['answer' => $apartment->answer, 'quiescent' => $apartment->quiescent];
         }
 
-        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with($apartment->apartment))) {
+        if ($audio = $this->resolver->string(ConfigKey::AudioVolume->with_end($apartment->apartment))) {
             $audios = array_map('intval', explode(',', $audio));
 
             $body['volumes'] = [
